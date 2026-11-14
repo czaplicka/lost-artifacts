@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 
 import {
@@ -148,11 +149,11 @@ export async function useCloudKeyword(
     typeof scene.openPhone !== 'function'
   ) {
     if (ui.isOpen) {
-      ui.notice = 'The office phone is unavailable.';
+      ui.notice = __dialogueText("ui/PlayerCloudContacts.js", "t_3ea333989221dd184e10");
       ui.render();
     } else {
       scene.showFeedback?.(
-        'The office phone is unavailable.'
+        __dialogueText("ui/PlayerCloudContacts.js", "t_3ea333989221dd184e10")
       );
     }
 

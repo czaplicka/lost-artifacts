@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { FONT_PIXEL, PAL, FIELD_NOTE_QUIPS } from './config.js';
 
 export const helpersMethods = {
@@ -34,7 +35,7 @@ export const helpersMethods = {
       suspect?.name ||
       suspect?.fullName ||
       suspect?.title ||
-      `Suspect ${index + 1}`
+      `${__dialogueText("scenes/arrestSelection/helpers.js", "t_664f2782a797d0d6c481")}${index + 1}`
     );
   },
 
@@ -43,7 +44,7 @@ export const helpersMethods = {
       ? value.join(', ')
       : String(value ?? '').trim();
 
-    if (!text) return 'Unknown';
+    if (!text) return __dialogueText("scenes/arrestSelection/helpers.js", "t_b764cdc0eab713746721");
 
     return text.charAt(0).toUpperCase() + text.slice(1);
   },

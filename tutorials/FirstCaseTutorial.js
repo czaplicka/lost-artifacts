@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // tutorial-compact-objectives-v1
 import { EventBus } from '../EventBus.js';
 import { requestAutosave } from '../gameStatePersistence.js';
@@ -12,33 +13,33 @@ const STEP_ORDER = [
 
 const FALLBACK_STEP_CONTENT = {
   visit_storage: {
-    title: 'FIRST DAY, FIRST STOP',
-    objective: 'Visit the Storage Room.',
-    hint: 'Click STORAGE on the left. Alex Murphy handles equipment, manuals, and unreasonable requests.',
+    title: __dialogueText("tutorials/FirstCaseTutorial.js", "t_43085f8f408ea8c687cc"),
+    objective: __dialogueText("tutorials/FirstCaseTutorial.js", "t_7660d7a9d7a917f133c7"),
+    hint: __dialogueText("tutorials/FirstCaseTutorial.js", "t_58cc87232276fe1dba75"),
     targetHotspot: 'storage-room'
   },
   walk_to_case_file: {
-    title: 'FIRST DAY, FIRST DRAWER',
-    objective: 'Walk over to the case-file cabinet.',
-    hint: 'Use the movement controls and approach the cabinet marked by the glowing frame.',
+    title: __dialogueText("tutorials/FirstCaseTutorial.js", "t_67eaac2e2d334ef57bb9"),
+    objective: __dialogueText("tutorials/FirstCaseTutorial.js", "t_a741e176edb04fc4e53d"),
+    hint: __dialogueText("tutorials/FirstCaseTutorial.js", "t_c522b89272a16a0d3d2f"),
     targetHotspot: 'cabinet-casefile'
   },
   open_case_file: {
-    title: 'THE CASE FILE',
-    objective: 'Open the case file in the cabinet.',
-    hint: 'Click the cabinet when you are close enough. Bureaucracy has never been this dangerous.',
+    title: __dialogueText("tutorials/FirstCaseTutorial.js", "t_919fe68656c818e72b36"),
+    objective: __dialogueText("tutorials/FirstCaseTutorial.js", "t_c228ea482a9b3b96226b"),
+    hint: __dialogueText("tutorials/FirstCaseTutorial.js", "t_b92c43ef3c5596815322"),
     targetHotspot: 'cabinet-casefile'
   },
   find_route: {
-    title: 'FOLLOW THE GLOBE',
-    objective: 'Use the globe to choose your destination.',
-    hint: 'The globe is the agency travel desk, because apparently airports were too expensive.',
+    title: __dialogueText("tutorials/FirstCaseTutorial.js", "t_23dbb5d92bd63d333726"),
+    objective: __dialogueText("tutorials/FirstCaseTutorial.js", "t_d72464e53999b1d123a7"),
+    hint: __dialogueText("tutorials/FirstCaseTutorial.js", "t_51066ebb52a4d63d6ff7"),
     targetHotspot: 'globe'
   },
   travel_to_city: {
-    title: 'FIELD WORK',
-    objective: 'Travel to the crime city.',
-    hint: 'Choose the destination and begin the investigation before the trail gets cold.',
+    title: __dialogueText("tutorials/FirstCaseTutorial.js", "t_8e5d8704eac4c4dc2243"),
+    objective: __dialogueText("tutorials/FirstCaseTutorial.js", "t_6877393aa5bec95e989c"),
+    hint: __dialogueText("tutorials/FirstCaseTutorial.js", "t_e1500fb30b7f748fc53b"),
     targetHotspot: 'globe'
   }
 };
@@ -239,7 +240,7 @@ export class FirstCaseTutorial {
     if (this.currentStep === 'visit_storage') {
       if (id === 'cabinet-casefile' || id === 'globe') {
         this.showFeedback(
-          'Storage first, detective. Alex has your welcome package. It is mostly paperwork.'
+          __dialogueText("tutorials/FirstCaseTutorial.js", "t_1bc207dc3469bc702f81")
         );
 
         return false;
@@ -252,7 +253,7 @@ export class FirstCaseTutorial {
 
     if (id !== target) {
       this.showFeedback(
-        'Explore freely, detective. Your next objective is still waiting.'
+        __dialogueText("tutorials/FirstCaseTutorial.js", "t_34727d35407404146859")
       );
     }
 
@@ -293,7 +294,7 @@ export class FirstCaseTutorial {
     this.state.walkedToCaseFile = true;
 
     this.showFeedback(
-      'Excellent. You have located a cabinet. Promotion is surely inevitable.',
+      __dialogueText("tutorials/FirstCaseTutorial.js", "t_3527ede660ed8af1602d"),
       'success'
     );
 
@@ -316,7 +317,7 @@ export class FirstCaseTutorial {
     this.state.caseFileOpened = true;
 
     this.showFeedback(
-      'A stolen artefact, four days, and no mention of health insurance.',
+      __dialogueText("tutorials/FirstCaseTutorial.js", "t_f2ef23a76c4f1c999d87"),
       'success'
     );
 
@@ -342,7 +343,7 @@ export class FirstCaseTutorial {
     this.state.routeOpened = true;
 
     this.showFeedback(
-      'Good. Now let us inconvenience an international airport.',
+      __dialogueText("tutorials/FirstCaseTutorial.js", "t_56618ea3d9ff32c463b6"),
       'success'
     );
 
@@ -574,7 +575,7 @@ export class FirstCaseTutorial {
     const skip = createButton(
       left + w - 84,
       144,
-      'SKIP TUTORIAL >',
+      __dialogueText("tutorials/FirstCaseTutorial.js", "t_e8395936de2e1c809b3e"),
       () => {
         if (this.skipButtonEnabled) this.skip();
       }
@@ -634,7 +635,7 @@ export class FirstCaseTutorial {
     if (!this.overlay?.scene || !step) return;
 
     this.stepNumberText?.setText(
-      `OBJECTIVE ${step.number}/${STEP_ORDER.length}`
+      `${__dialogueText("tutorials/FirstCaseTutorial.js", "t_9d9346e68b28f8d4d3e9")}${step.number}${__dialogueText("tutorials/FirstCaseTutorial.js", "t_8a5edab282632443219e")}${STEP_ORDER.length}`
     );
 
     this.titleText?.setText(this.collapsed ? (step.objective || step.title) : step.title);

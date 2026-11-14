@@ -1,13 +1,14 @@
+import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 import { SCORE_CONFIG } from './config/ScoreConfig.js';
 
 export class HypothesisEvaluator {
   static SLOT_LABELS = ['ENTRY','ACCESS','ESCAPE'];
   static DEFAULT_FUNNY_LINES = [
-    "The thief used... {card}? Bold. Wrong, but bold.",
-    "A {card}. Really. Write that down — it's going in the report.",
-    "Sure. The {card}. And I suppose the getaway was a unicycle.",
-    "Detective, the {card} has an alibi. And a lawyer.",
-    "The {card}. That's not evidence, that's a cry for help."
+    __dialogueText("HypothesisEvaluator.js", "t_e6edbe65d488381fe212"),
+    __dialogueText("HypothesisEvaluator.js", "t_cadb35a1d55dd4c88430"),
+    __dialogueText("HypothesisEvaluator.js", "t_65ad1f4e7d70c689db2e"),
+    __dialogueText("HypothesisEvaluator.js", "t_8ad7547115e564581848"),
+    __dialogueText("HypothesisEvaluator.js", "t_3f4e4e93ec3dbd0fb8e9")
   ];
   static prepareCards(reconstruction,sceneId=null,cityId=null) {
     const allCards=Array.isArray(reconstruction?.allCards) ? reconstruction.allCards : [];
@@ -21,8 +22,8 @@ export class HypothesisEvaluator {
       seen.add(key);
       const reconstructionUses=Array.isArray(card.reconstructionUses) ? card.reconstructionUses
         .filter(use=>use && typeof use==='object').map(use=>({...use,skills:Array.isArray(use.skills) ? [...use.skills] : []})) : [];
-      uniqueCards.push({...card,id:card.id || `card_${index}`,item:card.item || `Clue ${index+1}`,
-        text:card.text || card.item || `Clue ${index+1}`,skills:Array.isArray(card.skills) ? [...card.skills] : [],
+      uniqueCards.push({...card,id:card.id || `card_${index}`,item:card.item || `${__dialogueText("HypothesisEvaluator.js", "t_d60af32fbb35a3ff5c2d")}${index+1}`,
+        text:card.text || card.item || `${__dialogueText("HypothesisEvaluator.js", "t_d60af32fbb35a3ff5c2d")}${index+1}`,skills:Array.isArray(card.skills) ? [...card.skills] : [],
         scene:card.scene || sceneId,cityId:card.cityId || cityId,
         correctOrder:Number.isInteger(card.correctOrder) ? card.correctOrder : -1,
         isCorrect:Boolean(card.isCorrect),clueType:card.clueType || 'soft_clue',
@@ -73,13 +74,13 @@ export class HypothesisEvaluator {
       const attempt=Math.max(1,4-Math.max(0,Number(attemptsLeft)||0));
       const score=attempt===1 ? SCORE_CONFIG.HYPOTHESIS_FIRST_TRY
         : attempt===2 ? SCORE_CONFIG.HYPOTHESIS_SECOND_TRY : SCORE_CONFIG.HYPOTHESIS_THIRD_TRY;
-      return {resultLabel:'exact',score,message:'Excellent reconstruction. You nailed the sequence.',color:'#7CFC00',isFinal:true};
+      return {resultLabel:'exact',score,message:__dialogueText("HypothesisEvaluator.js", "t_d36921d7d724bc13bce4"),color:'#7CFC00',isFinal:true};
     }
     if (attemptsLeft>0) return {resultLabel:'continue',score:0,
-      message:'Not quite. Adjust the timeline and try again.',color:'#ffd966',isFinal:false};
+      message:__dialogueText("HypothesisEvaluator.js", "t_2d5df3b7cb52844c9050"),color:'#ffd966',isFinal:false};
     const matches=feedback.filter(value=>value==='green' || value==='yellow').length;
     return {resultLabel:matches>=2 ? 'partial' : 'weak',score:SCORE_CONFIG.HYPOTHESIS_EXHAUSTED_PENALTY,
-      message:matches>=2 ? 'Promising lead. Part of the sequence fits.' : 'Theory recorded, but the sequence still needs work.',
+      message:matches>=2 ? __dialogueText("HypothesisEvaluator.js", "t_c00be6d15aeceb82cd4b") : __dialogueText("HypothesisEvaluator.js", "t_45d879e5862b6a0ca6af"),
       color:matches>=2 ? '#ffcf66' : '#ff9f80',isFinal:true};
   }
   static buildNarrative(orderedCards) {

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { audioManager } from '../../managers/AudioManager.js';
 
 export class CityLifecycle {
@@ -97,7 +98,7 @@ export class CityLifecycle {
         this.openInitialOverlayIfNeeded();
       } else if (this.canUseCity()) {
         this.showUiLoading(
-          `Interface unavailable: ${(this._uiFailures || []).join(', ') || 'HUD startup'}.\nClick here to retry.`, true
+          `${__dialogueText("scenes/city/CityLifecycle.js", "t_4b7c1e0997bb0adb9d8d")}${(this._uiFailures || []).join(', ') || __dialogueText("scenes/city/CityLifecycle.js", "t_7d3a8148e98e83ed25d4")}${__dialogueText("scenes/city/CityLifecycle.js", "t_33176504a7eae65e4526")}`, true
         );
       }
     });

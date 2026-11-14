@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
 import { discoverSearchKeywords, getSearchProgress } from './ComputerSearchCore.js';
@@ -7,10 +8,10 @@ import { bindKeywordStyle, keywordSurface, refreshKeywordStyles } from './Keywor
 
 const QUEST='pi_stolen_alibi';
 const KEYWORD='alibi_box17_email';
-const EMAIL='box17@classifieds.local';
+const EMAIL=__dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_f4d154b677024c7400e6");
 const DRAFT='alibi_box17_draft';
 const SENT='alibi_box17_sent';
-const INSTALLATION=Symbol.for('lostArtifacts.alibiAdvertEmailFlow');
+const INSTALLATION=Symbol.for(__dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_0f93ead1f44697c922af"));
 
 function ensureKeyword(definition) {
   if (!definition || definition.id!==ALIBI_SEARCH_ID) return;
@@ -62,17 +63,17 @@ export function installAlibiAdvertEmailFlow(ui,documents) {
   function openMessage() {
     if (!alive() || !known()) return false;
     if (!getPIQuest(QUEST)) {
-      ui.notice='Address saved. Accept this case before writing to Box 17.';refresh();return false;
+      ui.notice=__dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_bc9bfa56c76f0e3c6c2f");refresh();return false;
     }
     const sent=Boolean(gameState.piBorrowedAlibi?.sent);
     if (!sent && !active()) {
-      ui.notice='This enquiry is no longer active.';refresh();return false;
+      ui.notice=__dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_920aa756e97c3dc46d7b");refresh();return false;
     }
     selectAlibiCase();
     const generic=ui.photoQuest?.contactMail;
     if (generic) generic.composing=false;
     Object.assign(ui,{app:'mail',selectedId:sent ? SENT : DRAFT,listPage:0,bodyPage:0,
-      notice:sent ? 'Your Box 17 reply has already been sent.' : 'Draft opened. Choose a tone, then click SEND REPLY.'});
+      notice:sent ? __dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_1510931cd15be60e08f5") : __dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_98749c04581c9da7e265")});
     ui.viewToken=(Number(ui.viewToken)||0)+1;
     refresh();return true;
   }
@@ -84,11 +85,11 @@ export function installAlibiAdvertEmailFlow(ui,documents) {
   function finishAddressClick() {
     refreshKeywordStyles(ui.scene);
     if (!known()) {
-      ui.notice='The address could not be added yet. Reopen the advertisement after the case notes finish loading.';
+      ui.notice=__dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_ed4691bfb2b87af6c01b");
       refresh();return;
     }
     if (getPIQuest(QUEST)) {openMessage();return;}
-    ui.notice='Address saved. Accept this case first, then click the address again or open the draft in Mail.';
+    ui.notice=__dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_9afb6b5a35fcd1cb25c8");
     revealSavedAddress();
   }
   function collectAddress() {
@@ -97,7 +98,7 @@ export function installAlibiAdvertEmailFlow(ui,documents) {
     if (typeof ui.search?.load!=='function') {finishAddressClick();return;}
     loadingAddress=true;
     const context={app:ui.app,id:ui.selectedId,token:ui.viewToken};
-    ui.notice='Loading the Box 17 contact…';refresh();
+    ui.notice=__dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_a627d78db648a0662772");refresh();
     Promise.resolve().then(()=>alive() ? ui.search.load() : null).then(()=>{
       if (!alive()) return;
       ensureDefinitions();rememberAddress();
@@ -107,13 +108,13 @@ export function installAlibiAdvertEmailFlow(ui,documents) {
     }).catch(error=>{
       console.error('[AlibiAdvertEmailFlow] Contact load failed:',error);
       if (alive() && ui.app===context.app && ui.selectedId===context.id && ui.viewToken===context.token) {
-        ui.notice='Box 17 could not be opened. Reopen the advertisement and try again.';refresh();
+        ui.notice=__dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_5a4575c4714282572aca");refresh();
       }
     }).finally(()=>{loadingAddress=false;});
   }
   function bindNotebookAddress() {
     if (!alive() || !known() || ui.caseCloudNotebook?.collapsed) return;
-    const paper=ui.root?.list?.find(container=>Array.isArray(container.list) && container.list.some(child=>child.text==='PRIVATE INVESTIGATIONS'));
+    const paper=ui.root?.list?.find(container=>Array.isArray(container.list) && container.list.some(child=>child.text===__dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_bbc638660cdde9fbfde6")));
     if (!paper?.visible) return;
     for (const label of paper.list || []) {
       if (label.text!==EMAIL || typeof label.setInteractive!=='function') continue;
@@ -139,9 +140,9 @@ export function installAlibiAdvertEmailFlow(ui,documents) {
     wrap(documents,'getMail',original=>(...args)=>original(...args)
       // Keep the unsent reply discoverable in Mail/Drafts, not only after a note click.
       .filter(message=>message.id!==DRAFT || known())
-      .map(message=>message.id===DRAFT ? {...message,from:`You → ${EMAIL}`,
-        subject:'Draft: Someone has been using my alibi',
-        body:String(message.body || '').replace('TO: Box 17 — Classifieds forwarding service',`TO: ${EMAIL}`)} : message));
+      .map(message=>message.id===DRAFT ? {...message,from:`${__dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_a6cd4a7f9ea8eb99f4a2")}${EMAIL}`,
+        subject:__dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_dd43633ae5a8ee5b2eb7"),
+        body:String(message.body || '').replace(__dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_c0058d0eacc5a1981b04"),`${__dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_013494bb6bb97590ddac")}${EMAIL}`)} : message));
     wrap(documents,'renderPagedText',original=>(content,x,y,width,height)=>{
       if (!alive() || !isAdvert()) return original(content,x,y,width,height);
       const reserved=70;
@@ -149,18 +150,18 @@ export function installAlibiAdvertEmailFlow(ui,documents) {
       const d=ui.drawing,labelY=y+Math.max(35,height-reserved)+7;
       const label=d.text(x,labelY,EMAIL,16,'#000000',width);
       bindKeywordStyle(ui.scene,label,{isKnown:known,surface:()=>keywordSurface(ui,label)});
-      label.setName('Write to Box 17').setInteractive({useHandCursor:true});
+      label.setName(__dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_c0c0802accc2cc8e7196")).setInteractive({useHandCursor:true});
       label.on('pointerdown',(pointer,lx,ly,event)=>{
         event?.stopPropagation();ui.options.onSfx?.('click');collectAddress();
       });
       const caption=getPIQuest(QUEST)
-        ? gameState.piBorrowedAlibi?.sent ? 'Click to open your sent reply.' : 'Click to write a reply. Nothing is sent automatically.'
-        : 'Save the address, then accept this case to write a reply.';
+        ? gameState.piBorrowedAlibi?.sent ? __dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_4d3c1e4110572ac90455") : __dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_b7ade6e8202e2fad85ca")
+        : __dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_4176ad5ce0a5f5327b31");
       d.text(x,labelY+label.height+5,caption,12,'#5b6558',width);
     });
     wrap(ui.drawing,'button',original=>(x,y,label,...args)=>{
-      if (alive() && label==='REPLY TO AD' && isAdvert()) {
-        return original(x,y,'WRITE TO BOX 17',collectAddress,active() || Boolean(gameState.piBorrowedAlibi?.sent));
+      if (alive() && label===__dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_3759b2884c0dcf2e68c3") && isAdvert()) {
+        return original(x,y,__dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_759a747a4b432b6d18e6"),collectAddress,active() || Boolean(gameState.piBorrowedAlibi?.sent));
       }
       return original(x,y,label,...args);
     });

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 const LEFT = [329, 497, 414, 509, 415, 642, 329, 656];
 const CENTER = [478, 478, 687, 479, 687, 626, 478, 638];
 const MAP = [820, 435, 986, 435, 986, 475, 820, 475];
@@ -7,13 +8,13 @@ const WINDOW_PANES = [
   [1607, 113, 1874, 92, 1874, 237, 1740, 237, 1740, 211, 1607, 211]
 ];
 const MESSAGES = [
-  'CONNECTING TO MARKNET...',
-  'CHECKING CASE FILES...',
-  'EVIDENCE: INCONCLUSIVE.',
-  'COFFEE: CRITICAL.',
-  'RECONSTRUCTING CRIME...',
-  'BLAMING PRINTER...',
-  'PRINTER DENIES EVERYTHING.'
+  __dialogueText("scenes/office/OfficeScreenAnimations.js", "t_05b68fec1b59a43cdec5"),
+  __dialogueText("scenes/office/OfficeScreenAnimations.js", "t_83e3627f82774c96e117"),
+  __dialogueText("scenes/office/OfficeScreenAnimations.js", "t_25f07db4bb95a90fcc9e"),
+  __dialogueText("scenes/office/OfficeScreenAnimations.js", "t_52562b9a56813239eca9"),
+  __dialogueText("scenes/office/OfficeScreenAnimations.js", "t_d08fd1436781c79fb77b"),
+  __dialogueText("scenes/office/OfficeScreenAnimations.js", "t_902f240769a406eb5950"),
+  __dialogueText("scenes/office/OfficeScreenAnimations.js", "t_4c644db023cc8238d856")
 ];
 const SETTINGS = {
   map: { x: 932, y: 457, period: 2600 },
@@ -171,7 +172,7 @@ export class OfficeScreenAnimations {
       if (this.typed === message.length) this.holdUntil = this.elapsed + 2200;
     }
     const current = '> ' + MESSAGES[this.messageIndex].slice(0, this.typed);
-    this.text.setText([...this.lines, current].join('\n'));
+    this.text.setText([...this.lines, current].join(__dialogueText("scenes/office/OfficeScreenAnimations.js", "t_01ba4719c80b6fe911b0")));
     this.cursor.setPosition(489 + current.length * 6.02, 489 + this.lines.length * 18);
     this.cursor.setVisible(Math.floor(this.elapsed / 550) % 2 === 0);
   }

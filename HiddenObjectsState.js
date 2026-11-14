@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 import {
   gameState,
   createDefaultReconstructedHeist
@@ -173,7 +174,7 @@ export class HiddenObjectsState {
         source: 'hidden_object',
         itemId: itemData.id,
         cityId: this.scene.cityId,
-        text: `Skill: ${normalizedSkill}`
+        text: `${__dialogueText("HiddenObjectsState.js", "t_951f93164ad0f63643af")}${normalizedSkill}`
       });
     });
 

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import {
   NEWSSTAND_CONFIG,
   NEWSSTAND_HOTSPOTS,
@@ -94,14 +95,14 @@ export class NewsstandHotspots {
       .text(
         0,
         0,
-        `${config.label} — $${config.price}`,
+        `${config.label}${__dialogueText("systems/newsstand/NewsstandHotspots.js", "t_72fb6b575698bc470b35")}${config.price}`,
         {
           fontFamily: 'PressStart2P',
           fontSize: '12px',
           color: '#f6dc8c',
           backgroundColor: '#1a1111',
           padding: { x: 8, y: 6 },
-          stroke: '#000000',
+          stroke: __dialogueText("systems/newsstand/NewsstandHotspots.js", "t_7b2817bf9b80e66d07f2"),
           strokeThickness: 3
         }
       )
@@ -318,14 +319,14 @@ export class NewsstandHotspots {
       .setText(
         this.debugMode
           ? [
-              `LOCAL DEBUG: ${config?.id || 'no hotspots'}`,
-              `city:${this.scene.getActiveCityId()} | background:${this.background.visible ? 'VIDEO' : 'IMAGE'}`,
-              `x:${config?.x} y:${config?.y} width:${config?.width} height:${config?.height}`,
-              'Drag / Arrows: move | Shift+Arrows: resize | Alt: 1px',
-              'Tab / Shift+Tab: select | C: export | D: close',
-              'Coordinates: 1920x1080, TOP-LEFT. Purchases disabled.',
-              'Export to config/newsstandConfig.js. Changes are temporary.'
-            ].join('\n')
+              `${__dialogueText("systems/newsstand/NewsstandHotspots.js", "t_cb40a67f6cdee4b5ad52")}${config?.id || __dialogueText("systems/newsstand/NewsstandHotspots.js", "t_7754a43ab84c63bd005f")}`,
+              `${__dialogueText("systems/newsstand/NewsstandHotspots.js", "t_c8aefa6c96fc3b0ba3be")}${this.scene.getActiveCityId()}${__dialogueText("systems/newsstand/NewsstandHotspots.js", "t_c8e5a46810c2c6f7df3a")}${this.background.visible ? __dialogueText("systems/newsstand/NewsstandHotspots.js", "t_65b2f9ec331fc7267fd3") : __dialogueText("systems/newsstand/NewsstandHotspots.js", "t_6b3cf57c7b136ef3ebfa")}`,
+              `${__dialogueText("systems/newsstand/NewsstandHotspots.js", "t_51e33c7c7efbc350d26f")}${config?.x}${__dialogueText("systems/newsstand/NewsstandHotspots.js", "t_8278a5c11d3d9380f821")}${config?.y}${__dialogueText("systems/newsstand/NewsstandHotspots.js", "t_b87f46679673f5dfd46e")}${config?.width}${__dialogueText("systems/newsstand/NewsstandHotspots.js", "t_4a74ac2931f76f596e2c")}${config?.height}`,
+              __dialogueText("systems/newsstand/NewsstandHotspots.js", "t_ab723c339f7fee296c8c"),
+              __dialogueText("systems/newsstand/NewsstandHotspots.js", "t_8a8e5fa4a5df6de70337"),
+              __dialogueText("systems/newsstand/NewsstandHotspots.js", "t_54fdf34a0f3733fdbd59"),
+              __dialogueText("systems/newsstand/NewsstandHotspots.js", "t_1cecfb0550c14b0e2360")
+            ].join(__dialogueText("systems/newsstand/NewsstandHotspots.js", "t_01ba4719c80b6fe911b0"))
           : ''
       );
   }
@@ -361,7 +362,7 @@ export class NewsstandHotspots {
 
     if (!this.entries.length) return;
 
-    if (event.code === 'Tab') {
+    if (event.code === __dialogueText("systems/newsstand/NewsstandHotspots.js", "t_90ddf1963abb36c9921c")) {
       event.preventDefault();
 
       const delta = event.shiftKey ? -1 : 1;

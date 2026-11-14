@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 
 import {
@@ -144,7 +145,7 @@ function grantAlibiCompletionXP(caseKey) {
     return progressionManager.grantReward(
       'alibi_completed',
       scopeId,
-      'Alibi investigation completed'
+      __dialogueText("alibi/AlibiConclusion.js", "t_8020ed3cbb6c6084f493")
     );
   } catch (error) {
     console.error(
@@ -236,7 +237,7 @@ export function fileAlibiConclusion(
   ) {
     return {
       accepted: false,
-      message: 'Complete all three interviews first.'
+      message: __dialogueText("alibi/AlibiConclusion.js", "t_e7af74f607a9e2ff0fc1")
     };
   }
 
@@ -255,7 +256,7 @@ export function fileAlibiConclusion(
   ) {
     return {
       accepted: false,
-      message: 'Place all three witness cards first.'
+      message: __dialogueText("alibi/AlibiConclusion.js", "t_1bbee57186391f2cdb1f")
     };
   }
 
@@ -267,7 +268,7 @@ export function fileAlibiConclusion(
   ) {
     return {
       accepted: false,
-      message: 'Choose a conclusion first.'
+      message: __dialogueText("alibi/AlibiConclusion.js", "t_30e262c11b8715b55091")
     };
   }
 

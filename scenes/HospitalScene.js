@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { getReputation } from '../managers/ReputationManager.js';
@@ -34,13 +35,13 @@ export class HospitalScene extends BaseScene{
       this.createNurseHotspot();
     }else{
       this.errorText=this.add.text(24,90,[
-        'Hospital background could not be loaded.','','Expected file:',BACKGROUND_URL,'','Use Back to town to return.'
-      ].join('\n'),{
+        __dialogueText("scenes/HospitalScene.js", "t_940405beb6a225060ce1"),'',__dialogueText("scenes/HospitalScene.js", "t_a59531ee131478a79104"),BACKGROUND_URL,'',__dialogueText("scenes/HospitalScene.js", "t_e78e6cb773453ed2df43")
+      ].join(__dialogueText("scenes/HospitalScene.js", "t_01ba4719c80b6fe911b0")),{
         fontFamily:'SpecialElite, monospace',fontSize:22,color:'#ffe4c0',
         wordWrap:{width:Math.max(100,this.scale.width-48)}
       }).setDepth(20);
     }
-    this.exitButton=this.add.text(18,16,'< Back to town',{
+    this.exitButton=this.add.text(18,16,__dialogueText("scenes/HospitalScene.js", "t_05a9505481b14d636cc5"),{
       fontFamily:'SpecialElite, monospace',fontSize:20,color:'#ffe0a0',backgroundColor:'#24352e',padding:{x:12,y:10}
     }).setDepth(100).setInteractive({useHandCursor:true});
     this.exitButton.on('pointerdown',()=>{void this.leave();});
@@ -58,7 +59,7 @@ export class HospitalScene extends BaseScene{
   }
   createNurseHotspot(){
     this.nurseHotspot=this.add.rectangle(0,0,1,1,0xffffff,0).setDepth(10).setInteractive({useHandCursor:true});
-    this.nurseLabel=this.add.text(0,0,'Nurse',{
+    this.nurseLabel=this.add.text(0,0,__dialogueText("scenes/HospitalScene.js", "t_41e96c33cee3543fb051"),{
       fontFamily:'SpecialElite, monospace',fontSize:20,color:'#ffe3a4',backgroundColor:'#18201c',padding:{x:10,y:6}
     }).setOrigin(0.5,1).setDepth(30).setVisible(false);
     this.nurseHotspot.on('pointerover',()=>{if(this.canInteract())this.nurseLabel.setVisible(true);});
@@ -94,29 +95,29 @@ export class HospitalScene extends BaseScene{
   showDialogue(text,choices=[]){
     if(this.disposed||this.navigating)return;
     this.dialogueOpen=true;this.refreshHotspot();
-    this.dialogue.show({title:'Nurse',text,choices});
+    this.dialogue.show({title:__dialogueText("scenes/HospitalScene.js", "t_41e96c33cee3543fb051"),text,choices});
   }
   talk(){
     if(this.disposed||this.navigating)return;
     const fame=getReputation().fame;
     if(!canEnterHospital()){
       this.showDialogue([
-        'Patient information is confidential.',
-        'Your coat is not a medical qualification. Out.','',
-        `Fame required: ${HOSPITAL_MIN_FAME}. Your fame: ${fame}.`
-      ].join('\n'),[['I know where the exit is.',()=>void this.leave()]]);
+        __dialogueText("scenes/HospitalScene.js", "t_049c7edbefc5856ee465"),
+        __dialogueText("scenes/HospitalScene.js", "t_cfab992a935e61a71f96"),'',
+        `${__dialogueText("scenes/HospitalScene.js", "t_50db7e2c64f442a59192")}${HOSPITAL_MIN_FAME}${__dialogueText("scenes/HospitalScene.js", "t_92f33d623e93610818f9")}${fame}${__dialogueText("scenes/HospitalScene.js", "t_cdb4ee2aea69cc6a8333")}`
+      ].join('\n'),[[__dialogueText("scenes/HospitalScene.js", "t_dc9fe32279628cfe7fe1"),()=>void this.leave()]]);
       return;
     }
-    this.showDialogue("Oh. You're that detective. Fine, you can stay. "+'Touch nothing. Especially the patients.',[
-      ['Any advice?',()=>this.showAdvice()],
-      ["I'll stay out of your way.",()=>this.closeDialogue()]
+    this.showDialogue(__dialogueText("scenes/HospitalScene.js", "t_0fa341d5ef1f46aa9ad9")+__dialogueText("scenes/HospitalScene.js", "t_810ffb221674a798d24e"),[
+      [__dialogueText("scenes/HospitalScene.js", "t_7c35228e8fbd83330da4"),()=>this.showAdvice()],
+      [__dialogueText("scenes/HospitalScene.js", "t_4e318cef134c9b7e5815"),()=>this.closeDialogue()]
     ]);
   }
   showAdvice(){
     if(!canEnterHospital()){this.talk();return;}
-    this.showDialogue('Yes. Stop calling every bruise a clue. '+'And wash your hands.',[
-      ['Something else.',()=>this.talk()],
-      ["I'll stay out of your way.",()=>this.closeDialogue()]
+    this.showDialogue(__dialogueText("scenes/HospitalScene.js", "t_68b129c1a4eed3db8cea")+__dialogueText("scenes/HospitalScene.js", "t_d10249d5e821e4f43084"),[
+      [__dialogueText("scenes/HospitalScene.js", "t_240f1c9f302be82fb90a"),()=>this.talk()],
+      [__dialogueText("scenes/HospitalScene.js", "t_4e318cef134c9b7e5815"),()=>this.closeDialogue()]
     ]);
   }
   closeDialogue(){
@@ -143,7 +144,7 @@ export class HospitalScene extends BaseScene{
   }
   showNavigationError(){
     this.navigating=false;
-    this.showDialogue('The town could not be opened. Please try again.',[['Try again.',()=>void this.leave()]]);
+    this.showDialogue(__dialogueText("scenes/HospitalScene.js", "t_842cf46b73dce3f1f443"),[[__dialogueText("scenes/HospitalScene.js", "t_a0c2cc1374d949943e01"),()=>void this.leave()]]);
   }
   disposeHospital(){
     if(this.disposed)return;

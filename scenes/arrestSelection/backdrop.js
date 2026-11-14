@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { DESK_TEXTURE_KEY, VIGNETTE_TEXTURE_KEY } from './config.js';
 
 export const backdropMethods = {
@@ -29,9 +30,9 @@ export const backdropMethods = {
             const gy = y + 6 + Math.random() * (plankH - 12);
             const len = 140 + Math.random() * 520;
 
-            ctx.strokeStyle = `rgba(0, 0, 0, ${
+            ctx.strokeStyle = `${__dialogueText("scenes/arrestSelection/backdrop.js", "t_3d226347d5910e71e587")}${
               0.05 + Math.random() * 0.09
-            })`;
+            }${__dialogueText("scenes/arrestSelection/backdrop.js", "t_ba5ec51d07a4ac0e9516")}`;
             ctx.lineWidth = 1 + Math.random() * 1.6;
 
             ctx.beginPath();
@@ -47,14 +48,14 @@ export const backdropMethods = {
             ctx.stroke();
           }
 
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+          ctx.fillStyle = __dialogueText("scenes/arrestSelection/backdrop.js", "t_8691ae8f8efbf1337bde");
           ctx.fillRect(0, y, width, 3);
 
-          ctx.fillStyle = 'rgba(255, 220, 160, 0.06)';
+          ctx.fillStyle = __dialogueText("scenes/arrestSelection/backdrop.js", "t_45548d9057cc39a4f0a5");
           ctx.fillRect(0, y + 3, width, 2);
 
           const jointX = Math.random() * width;
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.42)';
+          ctx.fillStyle = __dialogueText("scenes/arrestSelection/backdrop.js", "t_8a63497d1b1195f9c9f7");
           ctx.fillRect(jointX, y, 3, plankH);
         }
 
@@ -81,8 +82,8 @@ export const backdropMethods = {
           height * 0.9
         );
 
-        warm.addColorStop(0, 'rgba(255, 205, 120, 0.16)');
-        warm.addColorStop(1, 'rgba(255, 205, 120, 0)');
+        warm.addColorStop(0, __dialogueText("scenes/arrestSelection/backdrop.js", "t_faf081c5d0d254bfc9c7"));
+        warm.addColorStop(1, __dialogueText("scenes/arrestSelection/backdrop.js", "t_785173883c498bc4a174"));
 
         ctx.fillStyle = warm;
         ctx.fillRect(0, 0, width, height);
@@ -96,8 +97,8 @@ export const backdropMethods = {
           height * 1.0
         );
 
-        dark.addColorStop(0, 'rgba(0, 0, 0, 0)');
-        dark.addColorStop(1, 'rgba(0, 0, 0, 0.8)');
+        dark.addColorStop(0, __dialogueText("scenes/arrestSelection/backdrop.js", "t_ec68b6486edac3f7ac96"));
+        dark.addColorStop(1, __dialogueText("scenes/arrestSelection/backdrop.js", "t_7cfc0c09f2a7da287db0"));
 
         ctx.fillStyle = dark;
         ctx.fillRect(0, 0, width, height);

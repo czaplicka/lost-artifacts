@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { SLIDE_DISTANCE, SLIDE_DURATION, PAL, DEFAULT_DIALOGUE, DEFAULT_NOTE } from './config.js';
 
 export const navigationMethods = {
@@ -85,7 +86,7 @@ export const navigationMethods = {
 
   updatePagination() {
     this.counterText?.setText(
-      `FILE ${this.currentSuspectIndex + 1} / ${this.displaySuspects.length}`
+      `${__dialogueText("scenes/arrestSelection/navigation.js", "t_3e25b41de17bf0813725")}${this.currentSuspectIndex + 1}${__dialogueText("scenes/arrestSelection/navigation.js", "t_005e1574a2b5c8163046")}${this.displaySuspects.length}`
     );
 
     this.refreshThumbs();

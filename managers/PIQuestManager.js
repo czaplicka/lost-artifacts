@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // managers/PIQuestManager.js
 
 import { gameState } from '../GameData.js';
@@ -70,7 +71,7 @@ export function acceptPIQuestFromAdvert(scene, advertId) {
   if (!validId(advertId)) {
     return {
       ok: false,
-      message: 'This advertisement is invalid.'
+      message: __dialogueText("managers/PIQuestManager.js", "t_d7e324a026fe2825ab05")
     };
   }
 
@@ -94,7 +95,7 @@ export function acceptPIQuestFromAdvert(scene, advertId) {
   ) {
     return {
       ok: false,
-      message: 'This advertisement does not offer a PI job.'
+      message: __dialogueText("managers/PIQuestManager.js", "t_7a8523cc3f3c54dd0934")
     };
   }
 
@@ -113,9 +114,9 @@ export function acceptPIQuestFromAdvert(scene, advertId) {
     return {
       ok: false,
       message:
-        existing.status === 'completed'
-          ? 'You have already completed this job.'
-          : 'This job has already been accepted.'
+        existing.status === __dialogueText("managers/PIQuestManager.js", "t_4ddb3e96801a1ee2b77d")
+          ? __dialogueText("managers/PIQuestManager.js", "t_4a207eadb4718fe05908")
+          : __dialogueText("managers/PIQuestManager.js", "t_e81a898dcba96dbe2fc2")
     };
   }
 
@@ -137,7 +138,7 @@ export function acceptPIQuestFromAdvert(scene, advertId) {
 
     return {
       ok: false,
-      message: 'This job is not available yet.'
+      message: __dialogueText("managers/PIQuestManager.js", "t_26ad42978c3c816c1461")
     };
   }
 
@@ -153,7 +154,7 @@ export function acceptPIQuestFromAdvert(scene, advertId) {
 
     return {
       ok: false,
-      message: 'This job has incomplete case data.'
+      message: __dialogueText("managers/PIQuestManager.js", "t_cb39bd071b843735ac9d")
     };
   }
 
@@ -166,7 +167,7 @@ export function acceptPIQuestFromAdvert(scene, advertId) {
     ) {
       return {
         ok: false,
-        message: 'This job has invalid objectives.'
+        message: __dialogueText("managers/PIQuestManager.js", "t_659af58d1929107dab6e")
       };
     }
 
@@ -182,7 +183,7 @@ export function acceptPIQuestFromAdvert(scene, advertId) {
   if (!Number.isInteger(reward) || reward < 0) {
     return {
       ok: false,
-      message: 'This job has an invalid reward.'
+      message: __dialogueText("managers/PIQuestManager.js", "t_cb02c997c1c19a54af2f")
     };
   }
 
@@ -204,7 +205,7 @@ export function acceptPIQuestFromAdvert(scene, advertId) {
 
     objectives: definition.objectives.map(objective => ({
       id: objective.id,
-      text: objective.text || 'Investigate this lead.',
+      text: objective.text || __dialogueText("managers/PIQuestManager.js", "t_1e18b18091fd76d30bc5"),
       completed: false
     })),
 
@@ -217,7 +218,7 @@ export function acceptPIQuestFromAdvert(scene, advertId) {
     if (!investigation) {
       return {
         ok: false,
-        message: 'The investigation board could not be created.'
+        message: __dialogueText("managers/PIQuestManager.js", "t_7c210e174f682e3f434b")
       };
     }
   }
@@ -238,7 +239,7 @@ export function acceptPIQuestFromAdvert(scene, advertId) {
     ok: true,
     questId: quest.id,
     message: quest.requiresBoard
-      ? 'Job accepted. Added to Investigations > Side Cases.'
-      : 'Job accepted.'
+      ? __dialogueText("managers/PIQuestManager.js", "t_17ffe08dc2566e0f45c1")
+      : __dialogueText("managers/PIQuestManager.js", "t_9007c074a4b90d41a266")
   };
 }

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { registerPICase, addPIEvidence } from './PIInvestigationManager.js';
@@ -24,12 +25,12 @@ export function getDeadMailProgress(){
     staffTopics:unique(s.staffTopics),deductions:unique(s.deductions).filter(x=>DEDUCTIONS.some(d=>d.id===x))};
 }
 function commit(s){gameState.deadMailPreview=s;requestAutosave();return s;}
-function note(id,label,text,metaText='Dead Mail',color='blue'){
+function note(id,label,text,metaText=__dialogueText("managers/DeadMailManager.js", "t_16abdc3e0b396e03e229"),color='blue'){
   return addPIEvidence(DEAD_MAIL_PREVIEW_CASE,{id:`dead-mail-${id}`,label,text,metaText,color,pinned:true});
 }
 export function beginDeadMailPreview(){
   if(!isDeadMailPreviewEnabled())throw new Error('Accept Dead Mail in the office Classifieds first.');
-  registerPICase({id:DEAD_MAIL_PREVIEW_CASE,kind:'side',requiresBoard:true,title:'Dead Mail',initialItems:[],initialLinks:[]});
+  registerPICase({id:DEAD_MAIL_PREVIEW_CASE,kind:'side',requiresBoard:true,title:__dialogueText("managers/DeadMailManager.js", "t_16abdc3e0b396e03e229"),initialItems:[],initialLinks:[]});
   return commit(getDeadMailProgress());
 }
 export function canUseDeadMailStage(stage,s=getDeadMailProgress()){
@@ -47,12 +48,12 @@ export function setDeadMailStage(stage){
   commit({...getDeadMailProgress(),stage});return true;
 }
 const chapterOne={
-  plot:['Plot 114','The photograph shows a temporary marker labelled PLOT 114.'],
-  angel:['An angel with one wing','A damaged angel monument stands behind the delivery location.'],
-  label:['Service Gate B','The parcel label instructs the driver: SERVICE GATE B.'],
-  pulse:['Florence is alive','Florence attended the office interview in person. The delivery record is not evidence of her death.'],
-  order:['No order placed','Florence denies ordering the parcel or signing for it. Her account needs verification.'],
-  work:['A retired postal worker','Florence noticed repeated deliveries through the cemetery service gate before receiving the photograph.']
+  plot:[__dialogueText("managers/DeadMailManager.js", "t_66fb0fd16270835b6426"),__dialogueText("managers/DeadMailManager.js", "t_37f24b67326583b1c9f5")],
+  angel:[__dialogueText("managers/DeadMailManager.js", "t_99b148b9e3178d793e94"),__dialogueText("managers/DeadMailManager.js", "t_48d77377be7144f9828f")],
+  label:[__dialogueText("managers/DeadMailManager.js", "t_6d140c2d564f9d1ffc76"),__dialogueText("managers/DeadMailManager.js", "t_eeed95ab59559660ac90")],
+  pulse:[__dialogueText("managers/DeadMailManager.js", "t_1de5da00a9bf59a3d3b8"),__dialogueText("managers/DeadMailManager.js", "t_878dffb9f968e163560d")],
+  order:[__dialogueText("managers/DeadMailManager.js", "t_de77f0edf74d83adb1f0"),__dialogueText("managers/DeadMailManager.js", "t_63c4c1301fe78697cf0e")],
+  work:[__dialogueText("managers/DeadMailManager.js", "t_17300a19505644254b4c"),__dialogueText("managers/DeadMailManager.js", "t_8d726d2ab6f44d526358")]
 };
 export function recordDeadMailFact(id){
   if(!isDeadMailPreviewEnabled()||!Object.hasOwn(chapterOne,id))return false;
@@ -67,9 +68,9 @@ export function chooseDeadMailSector(sector){
   const s=getDeadMailProgress();
   if(sector!=='west'){
     commit({...s,attempts:s.attempts+1});
-    return {ok:false,message:'That sector does not match all three details. Compare the monument, plot number and service gate.'};
+    return {ok:false,message:__dialogueText("managers/DeadMailManager.js", "t_a9756c194b8b5b54e7a4")};
   }
-  note('location','West Garden / Plot 114','The photograph matches plot 114, the damaged angel and service gate B.');
+  note('location',__dialogueText("managers/DeadMailManager.js", "t_bb8005b00e0c17256221"),__dialogueText("managers/DeadMailManager.js", "t_ea564e9d70e812ebcef2"));
   commit({...s,stage:'arrival',chapterComplete:true});return {ok:true};
 }
 function addCemeteryFact(id){
@@ -97,12 +98,12 @@ export function inspectDeadMailDocument(id){
 export function compareDeadMailRecipients(answer){
   if(!isDeadMailPreviewEnabled()||!canUseDeadMailStage('records'))return {ok:false};
   const s=getDeadMailProgress();
-  if(!['register','gateLog','manifest'].every(id=>s.cemeteryFacts.includes(id)))return {ok:false,message:'Read all three documents before comparing them.'};
+  if(!['register','gateLog','manifest'].every(id=>s.cemeteryFacts.includes(id)))return {ok:false,message:__dialogueText("managers/DeadMailManager.js", "t_eb7fda386555a3db2a4b")};
   if(answer!=='three'){
     commit({...s,attempts:s.attempts+1});
-    return {ok:false,message:'Florence has no burial entry. Compare each recipient with the register, not with the temporary marker.'};
+    return {ok:false,message:__dialogueText("managers/DeadMailManager.js", "t_62227e3d19a3769d02f0")};
   }
-  addCemeteryFact('recipients');return {ok:true,message:'Ada Bell, Victor Moss and Elsie Pike appear in both records. Florence does not. Cross-reference added to your case.'};
+  addCemeteryFact('recipients');return {ok:true,message:__dialogueText("managers/DeadMailManager.js", "t_50d9a39a2195111c33f1")};
 }
 export function solveDeadMailDeduction(id,answer){
   if(!isDeadMailPreviewEnabled()||!canUseDeadMailStage('deduction'))return {ok:false};
@@ -110,7 +111,7 @@ export function solveDeadMailDeduction(id,answer){
   const s=getDeadMailProgress();
   if(answer!==d.answer){commit({...s,attempts:s.attempts+1});return {ok:false,message:d.explanation};}
   if(!s.deductions.includes(id)){
-    note(`deduction-${id}`,d.question,d.options[d.answer],'Evidence-based deduction','yellow');
+    note(`deduction-${id}`,d.question,d.options[d.answer],__dialogueText("managers/DeadMailManager.js", "t_ed83ff68be977a7d4631"),'yellow');
     commit({...s,deductions:[...s.deductions,id]});
   }
   return {ok:true,message:d.explanation};
@@ -118,6 +119,6 @@ export function solveDeadMailDeduction(id,answer){
 export function finishDeadMailDay(){
   if(!isDeadMailPreviewEnabled()||!canUseDeadMailStage('deduction'))return false;
   const s=getDeadMailProgress();if(!DEDUCTIONS.every(d=>s.deductions.includes(d.id)))return false;
-  note('night-plan','Observe gate B at 21:10','The next delivery is due during the Last Walk. Observe the collector without treating access or costume as proof of identity.','Investigation plan','yellow');
+  note('night-plan',__dialogueText("managers/DeadMailManager.js", "t_701054472d2796e14c9c"),__dialogueText("managers/DeadMailManager.js", "t_0bae0901080b6eb00fc0"),__dialogueText("managers/DeadMailManager.js", "t_897850e6d57e93fdee40"),'yellow');
   commit({...s,stage:'nightLead',dayComplete:true});return true;
 }

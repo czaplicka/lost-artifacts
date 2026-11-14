@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 
 import {
@@ -145,7 +146,7 @@ function note(
   id,
   label,
   text,
-  source = 'Dead Mail / finale'
+  source = __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_36d1feb331990036aad9")
 ) {
   return addPIEvidence(DEAD_MAIL_PREVIEW_CASE, {
     id: `dead-mail-finale-${id}`,
@@ -190,7 +191,7 @@ export function beginDeadMailFinale() {
     id: DEAD_MAIL_PREVIEW_CASE,
     kind: 'side',
     requiresBoard: true,
-    title: 'Dead Mail [DEVELOPMENT PREVIEW]',
+    title: __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_5ee92a6a27737a6acdc5"),
     initialItems: [],
     initialLinks: []
   });
@@ -260,7 +261,7 @@ export function checkDeadMailPlan() {
     return {
       ok: false,
       message:
-        'Record DM-114, its seal and its contents with the courier team before delivery. An ordinary unrecorded box cannot be reliably tracked through the operation.'
+        __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_4b5baad31169eb33eaaa")
     };
   }
 
@@ -268,7 +269,7 @@ export function checkDeadMailPlan() {
     return {
       ok: false,
       message:
-        'Keep a continuous view of the handover and shed approach. A costume-contest photograph will not connect a face to the parcel.'
+        __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_72e675369e20c042f2c0")
     };
   }
 
@@ -276,14 +277,14 @@ export function checkDeadMailPlan() {
     return {
       ok: false,
       message:
-        'In this scripted operation, the officers need the collector’s identity and parcel handling documented. A cloak or handover alone does not establish the entire earlier scheme.'
+        __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_ac405858ca162bb32ac2")
     };
   }
 
   return {
     ok: true,
     message:
-      'Plan approved in the story by the courier and police team. Record preparation, maintain continuity, document identity and handling. This is a fictional operation, not a real service call.'
+      __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_158849fab2d718ba5d73")
   };
 }
 
@@ -297,7 +298,7 @@ export function startDeadMailOperation() {
   if (state.started) {
     return {
       ok: false,
-      message: 'The operation has already begun.'
+      message: __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_ad1df22da58e5623b379")
     };
   }
 
@@ -427,7 +428,7 @@ function settleDeadMailXP() {
     result = progressionManager.grantReward(
       XP_REWARD_ID,
       DEAD_MAIL_PREVIEW_CASE,
-      'PI case completed: Dead Mail'
+      __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_fef3808f7b24ea3a200b")
     );
   } catch (error) {
     if (!progressionManager.hasReward(eventId)) {
@@ -478,7 +479,7 @@ export function submitDeadMailReport() {
   if (reportBusy) {
     return {
       ok: false,
-      message: 'The report is being processed.'
+      message: __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_121c46bd29ff094cffa5")
     };
   }
 
@@ -493,7 +494,7 @@ export function submitDeadMailReport() {
       ok: true,
       alreadyCompleted: true,
       message:
-        'This case is already closed. Rewards will not duplicate.'
+        __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_163213367b889a09f818")
     };
   }
 
@@ -505,7 +506,7 @@ export function submitDeadMailReport() {
     return {
       ok: false,
       message:
-        'Collect the operation and disclosure records first.'
+        __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_45712a42d95bc1e8e84f")
     };
   }
 
@@ -523,7 +524,7 @@ export function submitDeadMailReport() {
     return {
       ok: false,
       message:
-        'The report is not fully supported. Check identity, method, financial motive and the link to earlier orders. No reward has been granted.'
+        __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_4783f1e07e7adad49d97")
     };
   }
 
@@ -539,9 +540,9 @@ export function submitDeadMailReport() {
 
     note(
       'report',
-      'Final report / Return to Sender',
+      __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_6ca4fd7a4c5104f51d2f"),
       report,
-      'Case completed / development preview'
+      __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_8cbfcd477049d8e4b356")
     );
 
     let xpSettlement;
@@ -557,7 +558,7 @@ export function submitDeadMailReport() {
       return {
         ok: false,
         message:
-          'The report is supported, but XP settlement failed. Submit the same report again; recorded XP will not repeat.'
+          __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_badabb3235bb16f7179d")
       };
     }
 
@@ -600,25 +601,25 @@ export function submitDeadMailReport() {
       : 0;
 
     const xpText =
-      xpGranted > 0 ? ` +${xpGranted} XP.` : '';
+      xpGranted > 0 ? `${__dialogueText("managers/DeadMailFinaleManagerCore.js", "t_c13f23cc27f966a4eadf")}${xpGranted}${__dialogueText("managers/DeadMailFinaleManagerCore.js", "t_a73feda6e2f76a6b740b")}` : '';
 
     let message;
 
     if (achievementError) {
       message =
-        'Case closed.' +
+        __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_e474c5de64f5d8c8cbac") +
         xpText +
-        ' Use SAVE AGAIN to retry achievement notifications and saving.';
+        __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_1c08cbe019b147420177");
     } else if (saved) {
       message =
-        'Case closed.' +
+        __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_e474c5de64f5d8c8cbac") +
         xpText +
-        ' Return to Sender unlocked; your souvenir phone is ready to claim.';
+        __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_4c8abc5b5f22a2926153");
     } else {
       message =
-        'Case closed.' +
+        __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_e474c5de64f5d8c8cbac") +
         xpText +
-        ' Saving failed. Use SAVE AGAIN before leaving.';
+        __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_5c80c63d0e6ba171a8b3");
     }
 
     return {
@@ -639,7 +640,7 @@ export function submitDeadMailReport() {
     return {
       ok: false,
       message:
-        'Report settlement interrupted. Retry the report; recorded XP will not repeat.'
+        __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_477704924e3186ec95fb")
     };
   } finally {
     reportBusy = false;
@@ -653,7 +654,7 @@ export function claimDeadMailReward() {
   ) {
     return {
       ok: false,
-      message: 'Finish the report first.'
+      message: __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_5ce8746779abf9a02adc")
     };
   }
 
@@ -664,7 +665,7 @@ export function claimDeadMailReward() {
       ok: true,
       alreadyClaimed: true,
       message:
-        'The Last Ringtone has already been claimed. No duplicate item was added.'
+        __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_a582c2e6fe48077beba0")
     };
   }
 
@@ -694,7 +695,7 @@ export function claimDeadMailReward() {
       ok: false,
       pending: true,
       message:
-        'Inventory full or unavailable. The phone remains waiting here. Make room and claim it later.'
+        __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_a9a795edf38b2373a2c3")
     };
   }
 
@@ -719,8 +720,8 @@ export function claimDeadMailReward() {
     saved,
 
     message: saved
-      ? 'The Last Ringtone added to inventory. Its messages remain replayable here.'
-      : 'Phone added, but saving failed. Use SAVE AGAIN before leaving.'
+      ? __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_2960d597e20361200727")
+      : __dialogueText("managers/DeadMailFinaleManagerCore.js", "t_c9dddc06a1ed1a0b4965")
   };
 }
 

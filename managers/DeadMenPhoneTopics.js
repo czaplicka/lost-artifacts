@@ -1,10 +1,11 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { getSearchProgress } from '../ui/pi-computer/ComputerSearchCore.js';
 import { fragmentDeadMenText, isDeadMenWebContactVisible, ensureDeadMenNotebook } from './DeadMenWebIntegration.js';
 
 const CASE='dead_men_calling',QUEST='pi_dead_men_calling',KEY='piDeadMenTopics';
-const INSTALLED=Symbol.for('lostArtifacts.deadMenTopicPhone');
+const INSTALLED=Symbol.for(__dialogueText("managers/DeadMenPhoneTopics.js", "t_89d78f8e307c30574e67"));
 const URL='assets/data/web/missions/dead-men-calling/phone.json';
 const GUIDANCE='piDeadMenDialogueGuidance';
 const WISH='dead_men_client_wishes',PRIVATE='dead_men_private_continuation';
@@ -89,15 +90,15 @@ export function deadMenBlockedReply(number,terms,data,flags=deadMenTopicFlags())
  const candidate=[...candidates].sort((a,b)=>
   (a.requires?.all||[]).filter(f=>!flags[f]).length-(b.requires?.all||[]).filter(f=>!flags[f]).length)[0];
  const missing=(candidate.requires?.all||[]).filter(f=>!flags[f]);
- const name=data.contacts.find(c=>c.number===number)?.name||'Contact';
+ const name=data.contacts.find(c=>c.number===number)?.name||__dialogueText("managers/DeadMenPhoneTopics.js", "t_2b5c3d26721ae9c350cf");
  let text=null;
- if(missing.includes('accessInterviewCompleted'))text='Ask Margaret for permission to release the archive-transfer records. That is separate from permission for an original-audio comparison.';
- else if(missing.includes('consent'))text='For an original-file comparison I need Margaret’s written permission and her preserved recent voicemail files. Ask her about comparing the voicemail with the recording archive.';
- else if(missing.includes('folderInterview'))text='Ask Margaret to check the blue folder and supply copies of what she finds. We should not invent its contents.';
- else if(missing.includes('folderReviewed'))text='Compare the exact recorded denial with the delivery acknowledgement and the folder documents in CASE REVIEW before putting the contradiction to Colin.';
- else if(missing.includes('archiveCompared'))text='First compare the recent transcript sentences and background descriptions with the older sources. Ask Leo about the comparison method if you are unsure where to start.';
- else if(missing.includes('verified'))text='The original-file comparison is not complete. Finish the permission enquiry and ask Leo about the voicemail and recording archive.';
- else if(missing.includes('confronted'))text='Access alone is not an identified caller. Check the statement against the delivery record and ask the person to explain any supported discrepancy.';
+ if(missing.includes('accessInterviewCompleted'))text=__dialogueText("managers/DeadMenPhoneTopics.js", "t_d573fe4fe2c74e45287b");
+ else if(missing.includes('consent'))text=__dialogueText("managers/DeadMenPhoneTopics.js", "t_e062f46580e5b03cc6b3");
+ else if(missing.includes('folderInterview'))text=__dialogueText("managers/DeadMenPhoneTopics.js", "t_8f87ddbce20a146906ac");
+ else if(missing.includes('folderReviewed'))text=__dialogueText("managers/DeadMenPhoneTopics.js", "t_db46093f64d84f06f69f");
+ else if(missing.includes('archiveCompared'))text=__dialogueText("managers/DeadMenPhoneTopics.js", "t_91483f1b02e2a149b653");
+ else if(missing.includes('verified'))text=__dialogueText("managers/DeadMenPhoneTopics.js", "t_bcad77560bf046560fbe");
+ else if(missing.includes('confronted'))text=__dialogueText("managers/DeadMenPhoneTopics.js", "t_26a6597be07dd5f76f35");
  if(!text)return null;
  return [{speaker:name,text}];
 }
@@ -121,7 +122,7 @@ export function installDeadMenTopicPhone(phone){
    const result=validateDeadMenTopics(await response.json(),definition());if(!dead)data=result;return data;
   })().finally(()=>{loading=null;});return loading;
  }
- function prepare(c){return {...c,caseId:CASE,choicePrompt:'Choose one or two collected clues. Ask for a method or a missing document; click highlighted leads in the reply.',
+ function prepare(c){return {...c,caseId:CASE,choicePrompt:__dialogueText("managers/DeadMenPhoneTopics.js", "t_0aded9024557431eef1c"),
   greeting:decorate(c.greeting),fallback:decorate(c.fallback),topics:selectDeadMenTopics(data,c.number).map(t=>({
    id:t.id,terms:t.terms,group:t.group,effect:t.effect,requiresFlags:[],grantFlags:[],grantKeywords:[],lines:decorate(t.lines)}))};}
  function commitResponse(){
@@ -136,19 +137,19 @@ export function installDeadMenTopicPhone(phone){
  }
  wrap(phone,'startCall',original=>()=>{
   if(!['619','620','621'].includes(phone.number)||!active())return original();
-  if(!isDeadMenWebContactVisible({number:phone.number})){phone.finishCall('The number cannot be connected.');return;}
+  if(!isDeadMenWebContactVisible({number:phone.number})){phone.finishCall(__dialogueText("managers/DeadMenPhoneTopics.js", "t_14cfdf7e2dbfa3bd5adb"));return;}
   const number=phone.number;inv.resetCall();phone.cancelActivity();const token=phone.run;
-  phone.state='ringing';phone.status='Connecting...';phone.render();
+  phone.state='ringing';phone.status=__dialogueText("managers/DeadMenPhoneTopics.js", "t_5f04ae9ed6a865bb382c");phone.render();
   void load().then(()=>{
    if(dead||phone.destroyed||!phone.isOpen||phone.run!==token||phone.number!==number||phone.state!=='ringing')return;
-   if(!active()||!isDeadMenWebContactVisible({number})){phone.finishCall('The call is no longer available.');return;}
-   phone.status='Ringing...';phone.startRing();phone.render();
+   if(!active()||!isDeadMenWebContactVisible({number})){phone.finishCall(__dialogueText("managers/DeadMenPhoneTopics.js", "t_d522ca397bcb18c64c69"));return;}
+   phone.status=__dialogueText("managers/DeadMenPhoneTopics.js", "t_f402468f7b8874bf7b48");phone.startRing();phone.render();
    phone.later(3000,()=>{if(!dead&&active()&&isDeadMenWebContactVisible({number})&&phone.number===number&&phone.state==='ringing')phone.connect(contact(number));});
-  }).catch(error=>{if(!dead&&!phone.destroyed&&phone.isOpen&&phone.run===token){console.error('[Dead Men topics]',error);phone.finishCall('The conversation could not be loaded. Hang up and try again.');}});
+  }).catch(error=>{if(!dead&&!phone.destroyed&&phone.isOpen&&phone.run===token){console.error('[Dead Men topics]',error);phone.finishCall(__dialogueText("managers/DeadMenPhoneTopics.js", "t_3100ae59b65c424f875d"));}});
  });
  wrap(phone,'connect',original=>c=>{
   if(!contact(c?.number)||!active())return original(c);
-  if(!isDeadMenWebContactVisible(c)){phone.finishCall('The number cannot be connected.');return;}
+  if(!isDeadMenWebContactVisible(c)){phone.finishCall(__dialogueText("managers/DeadMenPhoneTopics.js", "t_14cfdf7e2dbfa3bd5adb"));return;}
   inv.resetCall();inv.active=prepare(contact(c.number));inv.selected=[];inv.notePage=0;inv.pending=null;
   phone.contactName=c.name;inv.play(inv.active.greeting,'greeting');
  });
@@ -163,7 +164,7 @@ export function installDeadMenTopicPhone(phone){
   const blocked=deadMenBlockedReply(inv.active.number,inv.selected,data);
   const words=inv.selected.map(id=>definition().keywords.find(k=>k.id===id)?.label||id).join(' + ');
   inv.pending=null;
-  inv.play(decorate([{speaker:'You',text:`I wanted to ask about ${words}.`},...(blocked||contact(inv.active.number).fallback)]),'response');return true;
+  inv.play(decorate([{speaker:__dialogueText("managers/DeadMenPhoneTopics.js", "t_08b041935798fbf6fd6f"),text:`${__dialogueText("managers/DeadMenPhoneTopics.js", "t_1287962b7f5c25b7feb2")}${words}${__dialogueText("managers/DeadMenPhoneTopics.js", "t_cdb4ee2aea69cc6a8333")}`},...(blocked||contact(inv.active.number).fallback)]),'response');return true;
  });
  wrap(inv,'replay',original=>()=>{
   if(!ours())return original();if(inv.phase!=='choose'||phone.directoryOpen)return;

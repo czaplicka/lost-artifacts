@@ -1,9 +1,10 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
 import { commitPhoneRule } from '../pi-phone/PhoneInvestigation.js';
 import { resolveAlibiGuidance } from './AlibiGuidanceRules.js';
 
-const MARKER=Symbol.for('lostArtifacts.alibiGuidanceV3');
+const MARKER=Symbol.for(__dialogueText("ui/pi-computer/AlibiGuidanceUI.js", "t_b5dc7193047d416dbb7f"));
 const QUEST='pi_stolen_alibi',CASE='borrowed_alibi',STATE='piAlibiGuidanceV3';
 const QUESTION_ID='alibi_arthur_wording_request',REPLY_ID='alibi_arthur_wording_reply';
 const DELAY=12000;
@@ -19,11 +20,11 @@ export function deliverArthurWording(state=gameState,now=Date.now(),save=request
 }
 export function arthurWordingMessages(state=gameState){
  const f=state[STATE]?.arthurFollowup;if(!f||!state.piQuests?.quests?.[QUEST])return [];
- const sent={id:QUESTION_ID,from:'You → Arthur Finch via Box 17',subject:'Sent: Did you supply the dinner details?',date:'Sent',inReplyTo:'alibi_arthur_reply',
-  body:'Arthur,\n\nDid you give any of these three people the table, meal or incident details in their requests? Please distinguish anything you supplied from what they sent you.\n\nPrivate Investigator'};
+ const sent={id:QUESTION_ID,from:__dialogueText("ui/pi-computer/AlibiGuidanceUI.js", "t_6b0552f04b458ea87f8c"),subject:__dialogueText("ui/pi-computer/AlibiGuidanceUI.js", "t_32d68ba92483d21ef7e7"),date:__dialogueText("ui/pi-computer/AlibiGuidanceUI.js", "t_c16bc82bf1f04ede04d1"),inReplyTo:'alibi_arthur_reply',
+  body:__dialogueText("ui/pi-computer/AlibiGuidanceUI.js", "t_f1660ff29960094964c5")};
  if(!f.received)return [sent];
- return [{id:REPLY_ID,from:'Arthur Finch via Box 17',subject:'Re: Did you supply the dinner details?',date:'Reply to your question',inReplyTo:QUESTION_ID,
-  body:'Detective,\n\nNo. I did not tell them about a table, soup, wine or a waiter. Those details were already in the messages they sent me. I forwarded the originals without rewriting them.\n\nI do not know where they obtained those details. None of them asked me before sending a request.\n\nMy contribution to the evening was a sandwich.\n\nArthur Finch'},sent];
+ return [{id:REPLY_ID,from:__dialogueText("ui/pi-computer/AlibiGuidanceUI.js", "t_178bf8d7d14682ceb2df"),subject:__dialogueText("ui/pi-computer/AlibiGuidanceUI.js", "t_dd17473feeb52fafabf7"),date:__dialogueText("ui/pi-computer/AlibiGuidanceUI.js", "t_a432104d52c22ac419c6"),inReplyTo:QUESTION_ID,
+  body:__dialogueText("ui/pi-computer/AlibiGuidanceUI.js", "t_b40c0608756904eeaf4b")},sent];
 }
 export function installAlibiGuidance(ui,documents){
  if(ui[MARKER])return ui[MARKER];
@@ -79,9 +80,9 @@ export function installAlibiGuidance(ui,documents){
   ensurePhone();schedule();const result=original(...args);
   if(alive()&&active()&&ui.app==='mail'&&ui.selectedId==='alibi_arthur_reply'&&ui.window){
    const b=ui.window,f=gameState[STATE]?.arthurFollowup;
-   ui.drawing.button(b.x+b.w-240,b.y+b.h-120,f?(f.received?'QUESTION SENT':'WAITING FOR REPLY'):'ASK ABOUT WORDING',()=>{
+   ui.drawing.button(b.x+b.w-240,b.y+b.h-120,f?(f.received?__dialogueText("ui/pi-computer/AlibiGuidanceUI.js", "t_85cc425225e956a18d68"):__dialogueText("ui/pi-computer/AlibiGuidanceUI.js", "t_d15dd527f81133b04357")):__dialogueText("ui/pi-computer/AlibiGuidanceUI.js", "t_84fc5304ffed883f954f"),()=>{
     if(!alive()||ui.app!=='mail'||ui.selectedId!=='alibi_arthur_reply')return;
-    if(requestArthurWording()){ui.notice='Question sent through Box 17. Arthur will reply.';schedule();refresh();}
+    if(requestArthurWording()){ui.notice=__dialogueText("ui/pi-computer/AlibiGuidanceUI.js", "t_a10bca624104c77b4759");schedule();refresh();}
    },!f);
   }
   return result;

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { saveGameState } from '../gameStatePersistence.js';
 import { gameState as globalGameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
@@ -25,7 +26,7 @@ export class WarrantUI {
   async _prepareFont() {
     if(typeof document==='undefined' || !document.fonts){this._fontReady=true;return;}
     try {
-      const faces=await document.fonts.load(`26px "${FONT}"`);if(this._destroyed)return;
+      const faces=await document.fonts.load(`${__dialogueText("ui/WarrantUI.js", "t_25e71d5f0fca2bdca6ff")}${FONT}${__dialogueText("ui/WarrantUI.js", "t_8a331fdde7032f33a71e")}`);if(this._destroyed)return;
       if(!faces.length){console.warn(`[WarrantUI] No registered font face found for ${FONT}.`);return;}
       this._fontReady=true;this._refreshFontTextures();
     }catch(error){console.warn(`[WarrantUI] Could not load ${FONT}:`,error);}
@@ -33,7 +34,7 @@ export class WarrantUI {
   _refreshFontTextures() {
     if(this._destroyed || !this.container)return;
     const refresh=object=>{
-      if(!object)return;if(object.type==='Text' && typeof object.updateText==='function')object.updateText();
+      if(!object)return;if(object.type===__dialogueText("ui/WarrantUI.js", "t_71988c4d8e0803ba4519") && typeof object.updateText==='function')object.updateText();
       if(Array.isArray(object.list))object.list.forEach(refresh);
     };refresh(this.container);
   }
@@ -49,10 +50,10 @@ export class WarrantUI {
     const bg=s.textures.exists(NOTEBOOK_CONFIG.BACKGROUND_FRAME)
       ?s.add.image(SCREEN_W/2,SCREEN_H/2,NOTEBOOK_CONFIG.BACKGROUND_FRAME).setInteractive()
       :s.add.rectangle(SCREEN_W/2,SCREEN_H/2,1800,1000,0xf4ebd9).setInteractive();
-    const title=s.add.text(SCREEN_W*0.28,90,'— SUSPECT SKETCH —',{
+    const title=s.add.text(SCREEN_W*0.28,90,__dialogueText("ui/WarrantUI.js", "t_bba0472f1f9db608d20b"),{
       fontFamily:FONT,fontSize:'38px',color:NOTEBOOK_CONFIG.PENCIL_DARK
     }).setOrigin(0.5);
-    const close=this._makeButton(SCREEN_W*0.85,55,'[ X ]',NOTEBOOK_CONFIG.INK_RED,()=>this.close());
+    const close=this._makeButton(SCREEN_W*0.85,55,__dialogueText("ui/WarrantUI.js", "t_8e2c8e52dc76bf5ed51a"),NOTEBOOK_CONFIG.INK_RED,()=>this.close());
     this.bookGroup.add([bg,title,close]);this.container.add([this.overlay,this.bookGroup]);
     this.sketch=new WarrantSketch(s,this.bookGroup,this.fx);
     this.results=new WarrantResults({scene:s,bookGroup:this.bookGroup,fx:this.fx,
@@ -70,20 +71,20 @@ export class WarrantUI {
   initSearchControls() {
     this.statusText=this.scene.add.text(RESULT_X,135,'',{fontFamily:FONT,fontSize:'23px',
       color:NOTEBOOK_CONFIG.PENCIL_DARK,wordWrap:{width:650}});
-    this.searchBtn=this._makeButton(RESULT_X,210,'SEARCH RECORDS',NOTEBOOK_CONFIG.INK_BLUE,()=>this._runSearch());
+    this.searchBtn=this._makeButton(RESULT_X,210,__dialogueText("ui/WarrantUI.js", "t_12cdba210037132068ef"),NOTEBOOK_CONFIG.INK_BLUE,()=>this._runSearch());
     this.resetBtn=this._makeButton(RESULT_X+280,210,'RESET',NOTEBOOK_CONFIG.INK_RED,()=>this.resetFilters());
-    this.identityBtn=this._makeButton(RESULT_X+440,210,'USE CLUE',NOTEBOOK_CONFIG.INK_BLUE,()=>this.useApartmentClue());
+    this.identityBtn=this._makeButton(RESULT_X+440,210,__dialogueText("ui/WarrantUI.js", "t_9414edac64e417e34e8d"),NOTEBOOK_CONFIG.INK_BLUE,()=>this.useApartmentClue());
     this.progressGfx=this.scene.add.graphics();
     this.bookGroup.add([this.statusText,this.progressGfx,this.searchBtn,this.resetBtn,this.identityBtn]);
   }
   _setStatus(text,color=NOTEBOOK_CONFIG.PENCIL_DARK){this.statusText.setText(text).setColor(color);}
   _traitLabel(key) {
-    const value=this.traitsData[key]?.[this.currentFilters[key]] ?? 'NONE';return value==='NONE'?'— any —':String(value);
+    const value=this.traitsData[key]?.[this.currentFilters[key]] ?? 'NONE';return value==='NONE'?__dialogueText("ui/WarrantUI.js", "t_1c87f89c07cb63a4e812"):String(value);
   }
   buildTraitSelectors() {
     TRAIT_FIELDS.forEach(([key,label],index)=>{
       const y=300+index*55;
-      const heading=this.scene.add.text(RESULT_X,y,`${label}:`,{
+      const heading=this.scene.add.text(RESULT_X,y,`${label}${__dialogueText("ui/WarrantUI.js", "t_e7ac0786668e0ff0f02b")}`,{
         fontFamily:FONT,fontSize:'26px',color:NOTEBOOK_CONFIG.PENCIL_DARK}).setOrigin(0,0.5);
       const value=this.scene.add.text(RESULT_X+220,y,this._traitLabel(key),{fontFamily:FONT,fontSize:'24px',
         color:NOTEBOOK_CONFIG.INK_BLUE,fixedWidth:260,align:'center',padding:{x:4,y:2}})
@@ -109,8 +110,8 @@ export class WarrantUI {
   updateStatusText() {
     const count=Object.values(this.currentFilters).filter(value=>value>0).length;
     const remaining=Math.max(0,MIN_TRAITS-count);
-    this._setStatus(remaining?`Select ${remaining} more trait${remaining===1?'':'s'} to search.\nThen click ISSUE beside a matching suspect.`:
-      'Ready. Search records, then click ISSUE beside a suspect.');
+    this._setStatus(remaining?`${__dialogueText("ui/WarrantUI.js", "t_1f7133c21072a138cf98")}${remaining}${__dialogueText("ui/WarrantUI.js", "t_0b854fcf5013d08705af")}${remaining===1?'':'s'}${__dialogueText("ui/WarrantUI.js", "t_65385cd24afde815e3ec")}`:
+      __dialogueText("ui/WarrantUI.js", "t_0e4ed79f68949c732b19"));
     this.searchBtn.setVisible(!this._issued).setAlpha(remaining?0.55:1);
     this.resetBtn.setVisible(!this._issued);
     this.identityBtn.setVisible(!this._issued).setAlpha(getKnownApartmentIdentityClues().length?1:0.45);
@@ -118,12 +119,12 @@ export class WarrantUI {
   useApartmentClue() {
     if(!this.isOpen || this._issued)return;this._cancelSearchTimers();
     const applied=applyApartmentIdentityClues(this);
-    if(!applied){this._setStatus('No collected apartment identification clue is available for this case.');return;}
+    if(!applied){this._setStatus(__dialogueText("ui/WarrantUI.js", "t_01e014c557c65d8eda74"));return;}
     this.traitValueTexts.forEach(({key,textObj})=>textObj.setText(this._traitLabel(key)));
     this.results.clear();this.updateStatusText();this.sketch.update(this.traitsData,this.currentFilters);
     const remaining=Math.max(0,MIN_TRAITS-Object.values(this.currentFilters).filter(v=>v>0).length);
-    this._setStatus(`Applied: ${apartmentIdentitySummary()}.\n`+
-      (remaining?`Select ${remaining} more trait${remaining===1?'':'s'} to search.`:'Ready to search records.'));
+    this._setStatus(`${__dialogueText("ui/WarrantUI.js", "t_e16ffff3b578f026513e")}${apartmentIdentitySummary()}${__dialogueText("ui/WarrantUI.js", "t_eb4bd64f7014f7d42e9d")}`+
+      (remaining?`${__dialogueText("ui/WarrantUI.js", "t_1f7133c21072a138cf98")}${remaining}${__dialogueText("ui/WarrantUI.js", "t_0b854fcf5013d08705af")}${remaining===1?'':'s'}${__dialogueText("ui/WarrantUI.js", "t_debd89d3761d211fc6f4")}`:__dialogueText("ui/WarrantUI.js", "t_92cb4116f67ddded5d52")));
     this._sfx('paper_rustle',0.3);
   }
   resetFilters() {
@@ -181,12 +182,12 @@ export class WarrantUI {
     this.executeSearch(this.scene.cache.json.get('suspects') || []);
   }
   executeSearch(suspects) {
-    this._cancelSearchTimers();this.results.clear();this._searching=true;this._setStatus('Searching criminal records...');
+    this._cancelSearchTimers();this.results.clear();this._searching=true;this._setStatus(__dialogueText("ui/WarrantUI.js", "t_15d1a307c79e21ea642b"));
     const timer=this.scene.time.delayedCall(500,()=>{
       this._searching=false;if(!this.isOpen)return;
       const matches=suspects.filter(suspect=>this._matchesFilters(suspect));this.results.show(matches);
-      this._setStatus(matches.length?`${matches.length} matching suspect${matches.length===1?'':'s'}.\nClick [ ISSUE ] beside your chosen suspect.`:
-        'No matches. Check your selected traits.',matches.length?NOTEBOOK_CONFIG.PENCIL_DARK:NOTEBOOK_CONFIG.INK_RED);
+      this._setStatus(matches.length?`${matches.length}${__dialogueText("ui/WarrantUI.js", "t_268d3dd24116e76e7de1")}${matches.length===1?'':'s'}${__dialogueText("ui/WarrantUI.js", "t_146f4c7d89b5b82a6212")}`:
+        __dialogueText("ui/WarrantUI.js", "t_503635c44ac67fde941a"),matches.length?NOTEBOOK_CONFIG.PENCIL_DARK:NOTEBOOK_CONFIG.INK_RED);
     });this._searchTimers.push(timer);
   }
   issueWarrant(suspect) {

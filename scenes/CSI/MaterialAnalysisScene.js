@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import {FiberAnalysisScene} from './FiberAnalysisScene.js';
 import {TERM} from './LabTerminal.js';
 import {getMaterialProfiles} from '../../suspects/MaterialEvidence.js';
@@ -14,7 +15,7 @@ export class MaterialAnalysisScene extends FiberAnalysisScene {
     this.correctValue=value;this.evidenceType='material_profile';this.stationId=data.stationId||config.stationId||'trace_1';
     this.caseKey=data.caseKey??null;this.cityId=data.cityId??null;this.materialReport=profile;
     this.materialConfig={...config,attribute:'material_profile',evidenceType:'material_profile',correctValue:value,thief_value:value,
-      minigame:'MaterialAnalysisScene',label:'Material Analysis',clueType:'trace',clueText:config.clueText||profile.labText,isRedHerring:false};
+      minigame:'MaterialAnalysisScene',label:__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_c7514017c0fce9a099d3"),clueType:'trace',clueText:config.clueText||profile.labText,isRedHerring:false};
     this.clue={id:config.id||`trace_${value}`,type:'trace',text:this.materialConfig.clueText,
       facts:{material:profile.material,...(value==='wool_lanolin'?{lanolinDetected:true}:{})}};
   }
@@ -22,9 +23,9 @@ export class MaterialAnalysisScene extends FiberAnalysisScene {
   async showIntro(){
     const terminal=this.term,session=this._fiberSession;
     const printed=await this.printLines(session,terminal,[
-      ['> MATERIAL SAMPLE LOADED. DO NOT SNEEZE.'],
-      ['> REPEAT THE REAGENT SEQUENCE EXACTLY.'],
-      ['> THE MACHINE HAS A MEMORY. IT EXPECTS YOU TO HAVE ONE TOO.',{color:TERM.amber}]
+      [__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_9721bf120ce49c48f34f")],
+      [__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_ec4078a6852ae378ee8b")],
+      [__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_4639ca02b5f8eebf17e2"),{color:TERM.amber}]
     ]);
     if(printed&&!this.finished)this.showReadyScreen();
   }
@@ -36,14 +37,14 @@ export class MaterialAnalysisScene extends FiberAnalysisScene {
     this.readyOverlay=this.add.rectangle(0,0,width,height,0x000000,.9).setOrigin(0,0).setDepth(5000).setInteractive();
     this.readyOverlay.on('pointerdown',(p,x,y,event)=>event?.stopPropagation());
     const panel=this.add.rectangle(cx,cy,w,h,0x111827,1).setStrokeStyle(3,0x7df9ff).setDepth(5001);
-    const title=this.add.text(cx,cy-h/2+34,'MATERIAL IDENTIFICATION PROTOCOL',{
+    const title=this.add.text(cx,cy-h/2+34,__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_381b44efa7860b46700a"),{
       fontFamily:'PressStart2P',fontSize:width<=700?'11px':'15px',color:'#7df9ff',align:'center',wordWrap:{width:w-32,useAdvancedWrap:true}
     }).setOrigin(.5).setDepth(5002);
-    const briefing=this.add.text(cx,cy-10,'Watch the scanner.\nRepeat the colour sequence.\n\nIdentify the material.\nLeave the accusations to the detective.',{
+    const briefing=this.add.text(cx,cy-10,__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_b14b5f77c1520513d5ba"),{
       fontFamily:'SpecialElite',fontSize:width<=700?'20px':'24px',color:'#fff4c7',align:'center',wordWrap:{width:w-40,useAdvancedWrap:true}
     }).setOrigin(.5).setDepth(5002);
     const scale=Math.min(1,(h-150)/Math.max(1,briefing.height));briefing.setScale(scale);
-    const start=this.add.text(cx,cy+h/2-40,'[ I AM FOCUSED ]',{
+    const start=this.add.text(cx,cy+h/2-40,__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_50285600a6b1bb268eb8"),{
       fontFamily:'PressStart2P',fontSize:'11px',color:'#39ff14',backgroundColor:'#000000',padding:{left:12,right:12,top:12,bottom:12}
     }).setOrigin(.5).setDepth(5002).setInteractive({useHandCursor:true});
     this.readyObjects=[this.readyOverlay,panel,title,briefing,start];
@@ -58,19 +59,19 @@ export class MaterialAnalysisScene extends FiberAnalysisScene {
     this.materialSeconds=super.getSecondsElapsed();this.finished=true;this.accepting=false;
     this.settlePlayback(false);this.cancelCall(this.nextRoundEvent);this.nextRoundEvent=null;
     const bonus=this.getTimeBonus();this.score=Math.min(120,this.score+bonus);this.disablePads();
-    if(!await this.terminalAction(session,terminal,()=>terminal.progress('MATERIAL ANALYSIS',1800)))return;
-    const lines=[[`> RESULT: ${this.materialReport.label.toUpperCase()}.`],[`> ${this.materialReport.labText}`],
+    if(!await this.terminalAction(session,terminal,()=>terminal.progress(__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_417cac3597812e93560c"),1800)))return;
+    const lines=[[`${__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_aeef2e02de04a3930138")}${this.materialReport.label.toUpperCase()}${__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_cdb4ee2aea69cc6a8333")}`],[`> ${this.materialReport.labText}`],
       ...(this.materialConfig.sourceText?[[`> ${this.materialConfig.sourceText}`]]:[]),
-      ['> THE MACHINE HAS IDENTIFIED THE MATERIAL. DETECTIVE WORK SOLD SEPARATELY.',{color:TERM.amber}]];
-    if(bonus>0)lines.push([`> SPEED BONUS: +${bonus} PTS.`,{color:TERM.amber}]);lines.push(['> CLUE READY FOR CASE FILE.',{color:TERM.amber}]);
+      [__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_7ca650f3db6f6866995a"),{color:TERM.amber}]];
+    if(bonus>0)lines.push([`${__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_12af905b2e0dd06cb1dd")}${bonus}${__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_eeb98a5625408b801794")}`,{color:TERM.amber}]);lines.push([__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_5fe75d0a88dfe79b974d"),{color:TERM.amber}]);
     if(!await this.printLines(session,terminal,lines))return;
-    terminal.button('ADD TO CASE FILE',TERM.green,()=>{if(this.isCurrentSession(session,terminal))this.returnResultToCrimeLab();});
+    terminal.button(__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_d8c6f6bc46d3b7948ad7"),TERM.green,()=>{if(this.isCurrentSession(session,terminal))this.returnResultToCrimeLab();});
   }
   returnResultToCrimeLab(){
     if(this.returningToLab||this._fiberDisposed||!this.finished)return;this.returningToLab=true;
     const payload={aborted:false,completed:true,stationId:this.stationId,caseKey:this.caseKey,cityId:this.cityId,
       evidenceType:'material_profile',evidenceConfig:this.materialConfig,correctValue:this.correctValue,value:this.correctValue,
-      result:this.correctValue,selectedValue:this.correctValue,clueType:'trace',clueText:this.clue.text,label:'Material Analysis',
+      result:this.correctValue,selectedValue:this.correctValue,clueType:'trace',clueText:this.clue.text,label:__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_c7514017c0fce9a099d3"),
       isValuable:false,score:this.score,mistakes:this.mistakes,secondsElapsed:this.getSecondsElapsed(),clue:this.clue,
       sourceConfirmed:this.materialConfig.sourceConfirmed===true,sourceText:this.materialConfig.sourceText||''};
     this.events.emit('minigame-complete',payload);this.events.emit('minigame-closed',{aborted:false,payload});this.scene.stop();

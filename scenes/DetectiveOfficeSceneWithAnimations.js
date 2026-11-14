@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import {
   DetectiveOfficeScene as OriginalOfficeScene
 } from './DetectiveOfficeScene.js';
@@ -61,11 +62,11 @@ export class DetectiveOfficeScene extends OriginalOfficeScene {
       return button;
     };
 
-    this.financeEntry = entry('FINANCIAL TRAIL', () => {
+    this.financeEntry = entry(__dialogueText("scenes/DetectiveOfficeSceneWithAnimations.js", "t_110f113fb7306dba4268"), () => {
       void this.openFinancialTrace();
     });
 
-    this.hollyEntry = entry('HOLLY / CASE FILE', () => {
+    this.hollyEntry = entry(__dialogueText("scenes/DetectiveOfficeSceneWithAnimations.js", "t_d692303f7dc1c84a57c3"), () => {
       void this.openHollyCase();
     });
 
@@ -144,8 +145,8 @@ export class DetectiveOfficeScene extends OriginalOfficeScene {
       this.financeEntry
         .setText(
           story.companyCompleted && this.scale.width >= 600
-            ? 'REVIEW FINANCIAL TRAIL'
-            : 'FINANCIAL TRAIL'
+            ? __dialogueText("scenes/DetectiveOfficeSceneWithAnimations.js", "t_8138ab9e3c3f5d5b4820")
+            : __dialogueText("scenes/DetectiveOfficeSceneWithAnimations.js", "t_110f113fb7306dba4268")
         )
         .setVisible(visible);
 
@@ -159,7 +160,7 @@ export class DetectiveOfficeScene extends OriginalOfficeScene {
       const visible = Boolean(entry && usable);
 
       this.hollyEntry
-        .setText(entry?.label || 'HOLLY / CASE FILE')
+        .setText(entry?.label || __dialogueText("scenes/DetectiveOfficeSceneWithAnimations.js", "t_d692303f7dc1c84a57c3"))
         .setVisible(visible);
 
       if (this.hollyEntry.input) {
@@ -272,7 +273,7 @@ export class DetectiveOfficeScene extends OriginalOfficeScene {
             this.showFeedback(
               result.completed
                 ? DATA.messages.complete
-                : 'Call paused. Use the telephone to resume.'
+                : __dialogueText("scenes/DetectiveOfficeSceneWithAnimations.js", "t_0ffca9f0d2ec18a1f5ec")
             );
           }
         }
@@ -282,7 +283,7 @@ export class DetectiveOfficeScene extends OriginalOfficeScene {
         release();
 
         this.showFeedback(
-          'The call is already open or no longer available.'
+          __dialogueText("scenes/DetectiveOfficeSceneWithAnimations.js", "t_65d72ef43e3cbd207f22")
         );
 
         return false;
@@ -355,7 +356,7 @@ export class DetectiveOfficeScene extends OriginalOfficeScene {
             !result.completed
           ) {
             this.showFeedback(
-              'Use your telephone directory to contact Second Opinion Tracing.'
+              __dialogueText("scenes/DetectiveOfficeSceneWithAnimations.js", "t_92a8a88615ca8a8e82c5")
             );
           }
         }
@@ -365,7 +366,7 @@ export class DetectiveOfficeScene extends OriginalOfficeScene {
         release();
 
         this.showFeedback(
-          'The financial trail is already open or unavailable.'
+          __dialogueText("scenes/DetectiveOfficeSceneWithAnimations.js", "t_70ef91e530ca4b2a65a9")
         );
       }
     } catch (error) {
@@ -373,7 +374,7 @@ export class DetectiveOfficeScene extends OriginalOfficeScene {
 
       if (this.isCurrent(token)) {
         this.showFeedback(
-          'The financial trail could not be opened.'
+          __dialogueText("scenes/DetectiveOfficeSceneWithAnimations.js", "t_022a14b4e9ee515c41f8")
         );
       }
 
@@ -444,7 +445,7 @@ export class DetectiveOfficeScene extends OriginalOfficeScene {
 
       if (this.isCurrent(token)) {
         this.showFeedback(
-          'The case file could not be opened.'
+          __dialogueText("scenes/DetectiveOfficeSceneWithAnimations.js", "t_9b9a33255337ca124bcb")
         );
       }
 

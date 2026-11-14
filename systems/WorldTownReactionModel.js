@@ -1,27 +1,28 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { latestWorldNewspaperEvent, readWorldReactions } from './WorldReactionModel.js';
 
 const NPCS=new Set(['bartender','regular','guest']);
 const RESPONSES={
   bartender:{
-    agency_convicted:'The court returned a conviction. That’s a result, then. I’ll still need you to settle your own bill separately.',
-    agency_released:'The defendant was released. That’s what the bulletin says. I’m not letting anyone hold a second trial at the bar.',
-    agency_suspect_arrested:'Someone’s been detained. The court hasn’t decided the case yet. People tend to stop listening halfway through that sentence.',
-    agency_pursuit_escape:'The pursuit ended without an arrest. The bulletin doesn’t give a next destination. I’ve got opinions, not directions.',
-    agency_time_expired:'The inquiry ended without a resolution. Not every story gets a neat ending. Most evenings here don’t even get a neat table.'
+    agency_convicted:__dialogueText("systems/WorldTownReactionModel.js", "t_eb340435bc70c5ffafc3"),
+    agency_released:__dialogueText("systems/WorldTownReactionModel.js", "t_77ebb71a4236f9bdbaec"),
+    agency_suspect_arrested:__dialogueText("systems/WorldTownReactionModel.js", "t_9e82212bf2a618d35c0e"),
+    agency_pursuit_escape:__dialogueText("systems/WorldTownReactionModel.js", "t_4ee5183c109af5912231"),
+    agency_time_expired:__dialogueText("systems/WorldTownReactionModel.js", "t_bab986dfc9f60362482c")
   },
   regular:{
-    agency_convicted:'A conviction. I’ll have to retire at least three theories. A difficult evening for independent research.',
-    agency_released:'Released, according to the bulletin. No, I don’t have inside information. I have a newspaper and a carrying voice.',
-    agency_suspect_arrested:'An arrest! I was about to announce that I’d solved it. Apparently they’re still insisting on a hearing.',
-    agency_pursuit_escape:'They lost the suspect in the chase. I have a theory, naturally. It contains no information you could responsibly use.',
-    agency_time_expired:'Still unresolved. I’ve left room in my notebook. Mostly by removing the facts I was never particularly attached to.'
+    agency_convicted:__dialogueText("systems/WorldTownReactionModel.js", "t_8e333442a86913898352"),
+    agency_released:__dialogueText("systems/WorldTownReactionModel.js", "t_9da76ca9735c51f3d9b5"),
+    agency_suspect_arrested:__dialogueText("systems/WorldTownReactionModel.js", "t_570a7ff2910de745a127"),
+    agency_pursuit_escape:__dialogueText("systems/WorldTownReactionModel.js", "t_4c6bc7069064cccf5fef"),
+    agency_time_expired:__dialogueText("systems/WorldTownReactionModel.js", "t_6e6f6152f9328fa131dd")
   },
   guest:{
-    agency_convicted:'I read the verdict. I’m glad there’s an outcome. I’m less glad about everyone becoming a legal expert before breakfast.',
-    agency_released:'They released the defendant. That’s the outcome in the bulletin. I’m not improving it for the sake of the conversation.',
-    agency_suspect_arrested:'The report says someone was detained, not convicted. I’d prefer to keep the distinction. It takes very little effort.',
-    agency_pursuit_escape:'The chase ended without an arrest. Don’t ask me which way they went. I only know what was in the bulletin.',
-    agency_time_expired:'The investigation ended without a resolution. That’s all I know. I’m comfortable leaving a conversation without inventing the missing part.'
+    agency_convicted:__dialogueText("systems/WorldTownReactionModel.js", "t_9bdb09cd09cd455b988d"),
+    agency_released:__dialogueText("systems/WorldTownReactionModel.js", "t_fbd0a330ef47126a4176"),
+    agency_suspect_arrested:__dialogueText("systems/WorldTownReactionModel.js", "t_12c52729012a8e9a30a5"),
+    agency_pursuit_escape:__dialogueText("systems/WorldTownReactionModel.js", "t_03b9d18a83345595e07e"),
+    agency_time_expired:__dialogueText("systems/WorldTownReactionModel.js", "t_579e7d1be4910db03bf3")
   }
 };
 const same=(a,b)=>a!=null&&b!=null&&String(a)===String(b);
@@ -40,7 +41,7 @@ export function getTownNpcReaction(state,npcId){
   if(!response||seenEntries(state).includes(seenKey(npcId,event.id)))return null;
   return{
     npcId,eventId:event.id,
-    text:`The bulletin mentioned the ${event.artifact||'artefact'} case in ${event.cityName||'the city'}.\n\n${response}`
+    text:`${__dialogueText("systems/WorldTownReactionModel.js", "t_8eaad1d5679904cf64c8")}${event.artifact||__dialogueText("systems/WorldTownReactionModel.js", "t_4edfbd28d0483e702f24")}${__dialogueText("systems/WorldTownReactionModel.js", "t_f42b9f039db44f945dae")}${event.cityName||__dialogueText("systems/WorldTownReactionModel.js", "t_0f53fb3533eb343bc155")}${__dialogueText("systems/WorldTownReactionModel.js", "t_0673d69ff78439adfb40")}${response}`
   };
 }
 export function markTownNpcReaction(state,npcId,eventId){

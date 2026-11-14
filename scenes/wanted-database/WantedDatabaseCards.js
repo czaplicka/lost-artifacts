@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 
 
 export const WantedDatabaseCards = {
@@ -35,7 +36,7 @@ export const WantedDatabaseCards = {
         const color = flagged ? th.alert : th.mid;
 
         stamp.text
-            .setText(flagged ? 'FLAGGED' : 'CLEARED')
+            .setText(flagged ? __dialogueText("scenes/wanted-database/WantedDatabaseCards.js", "t_4560e24b53b5d24ff6fd") : __dialogueText("scenes/wanted-database/WantedDatabaseCards.js", "t_2026e813d70cc656862b"))
             .setColor(flagged ? th.sAlert : th.sMid);
 
         stamp.box
@@ -81,7 +82,7 @@ export const WantedDatabaseCards = {
             const loading = this.makeText(
                 this.scale.width / 2,
                 this.scale.height / 2,
-                'LOADING RECORDS...',
+                __dialogueText("scenes/wanted-database/WantedDatabaseCards.js", "t_031d52f1c2bcd34560e6"),
                 16
             ).setOrigin(0.5);
 
@@ -145,8 +146,8 @@ export const WantedDatabaseCards = {
                 W / 2,
                 (startY + endY) / 2,
                 this.suspects.length === 0
-                    ? 'LOADING FELON FILES...\n\nPLEASE WAIT.'
-                    : 'NO MATCHING RECORDS.\n\nTRY A DIFFERENT QUERY...\nOR CONFESS.',
+                    ? __dialogueText("scenes/wanted-database/WantedDatabaseCards.js", "t_acf51f0371bfe45a5752")
+                    : __dialogueText("scenes/wanted-database/WantedDatabaseCards.js", "t_d7f0cc79a407ae74981d"),
                 18,
                 { align: 'center', lineSpacing: 6 }
             ).setOrigin(0.5);
@@ -278,7 +279,7 @@ export const WantedDatabaseCards = {
                 this.makeText(
                     box.x + box.width / 2,
                     box.y + box.height / 2,
-                    'NO PHOTO',
+                    __dialogueText("scenes/wanted-database/WantedDatabaseCards.js", "t_d075af86be969a027175"),
                     11,
                     { color: th.sDim }
                 ).setOrigin(0.5)
@@ -438,7 +439,7 @@ export const WantedDatabaseCards = {
         container.add([
             this.makeRect(0, 0, width, height, 0x000000, 0, 0.2),
 
-            this.makeText(width / 2, height / 2, 'NO RECORD', 12, {
+            this.makeText(width / 2, height / 2, __dialogueText("scenes/wanted-database/WantedDatabaseCards.js", "t_133c3e79d37423ab22e7"), 12, {
                 color: th.sDim
             })
                 .setOrigin(0.5)

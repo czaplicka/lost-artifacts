@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../gameStatePersistence.js';
@@ -264,7 +265,7 @@ export class CharacterCreationScene extends BaseScene {
     this._cancelRefreshFrame();
 
     const content = this.getRoot()?.querySelector(
-      '.character-creation-content'
+      __dialogueText("scenes/CharacterCreationScene.js", "t_6297b30c7ffa248d9e81")
     );
 
     const scrollTop = content?.scrollTop ?? 0;
@@ -293,7 +294,7 @@ export class CharacterCreationScene extends BaseScene {
 
       const refreshedContent =
         this.getRoot()?.querySelector(
-          '.character-creation-content'
+          __dialogueText("scenes/CharacterCreationScene.js", "t_6297b30c7ffa248d9e81")
         );
 
       if (refreshedContent) {
@@ -558,7 +559,7 @@ export class CharacterCreationScene extends BaseScene {
       this.isLeavingScene = false;
 
       this.showError(
-        'The agency door is stuck. Please try again.'
+        __dialogueText("scenes/CharacterCreationScene.js", "t_b7e7b438aeb5cf7c01d4")
       );
     }
   }
@@ -608,7 +609,7 @@ export class CharacterCreationScene extends BaseScene {
       !this.playerData.name.trim()
     ) {
       this.showError(
-        'Mark Agency needs a name for the paperwork. Even a suspicious one.'
+        __dialogueText("scenes/CharacterCreationScene.js", "t_09c9832f9f5be7fc8088")
       );
 
       return false;
@@ -619,7 +620,7 @@ export class CharacterCreationScene extends BaseScene {
       this.getRemainingPoints() !== 0
     ) {
       this.showError(
-        `Assign all ${INITIAL_STAT_POINTS} instinct points before HR loses the form.`
+        `${__dialogueText("scenes/CharacterCreationScene.js", "t_4b96d0183cb9876c2d83")}${INITIAL_STAT_POINTS}${__dialogueText("scenes/CharacterCreationScene.js", "t_02a94b6d88bdca6df903")}`
       );
 
       return false;
@@ -730,7 +731,7 @@ export class CharacterCreationScene extends BaseScene {
 
     const name =
       this.playerData.name.trim() ||
-      'UNNAMED APPLICANT';
+      __dialogueText("scenes/CharacterCreationScene.js", "t_803b7246d0b19ce1283c");
 
     const alias =
       this.playerData.alias.trim() ||
@@ -750,7 +751,7 @@ export class CharacterCreationScene extends BaseScene {
 
     if (avatarAlias) {
       avatarAlias.textContent =
-        `ALIAS: ${alias.toUpperCase()}`;
+        `${__dialogueText("scenes/CharacterCreationScene.js", "t_5c8f69d797c417f6b56b")}${alias.toUpperCase()}`;
     }
   }
 
@@ -906,7 +907,7 @@ export class CharacterCreationScene extends BaseScene {
         this.isStartingGame = false;
 
         this.showError(
-          'The agency elevator stalled. Please try again.'
+          __dialogueText("scenes/CharacterCreationScene.js", "t_f905bfaf51328a4c6a1f")
         );
       }
     } catch (error) {
@@ -922,7 +923,7 @@ export class CharacterCreationScene extends BaseScene {
         this.isStartingGame = false;
 
         this.showError(
-          'The agency filing cabinet jammed. Please try again.'
+          __dialogueText("scenes/CharacterCreationScene.js", "t_cc5126fafc64833a1941")
         );
       }
     }

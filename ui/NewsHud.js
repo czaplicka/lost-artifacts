@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 
 const DEBUG_NEWS_HUD = false;
@@ -65,6 +66,9 @@ export class NewsHud extends Phaser.Scene {
   }
 
   isLocationOpen() {
+    if ([...(this.destinationMapLocks ?? [])].some(
+      map => map?.isOpen && !map.isDestroyed
+    )) return true;
     const location=this.scene.manager.keys.LocationScene;
     return Boolean(location?.sys?.settings?.visible &&
       (location.sys.isActive() || location.sys.isPaused() || location.sys.isTransitioning?.()));
@@ -145,25 +149,25 @@ export class NewsHud extends Phaser.Scene {
     this.menuPanel=this.add.container(hiddenX,this.panelY).setDepth(9995);
     const panelBackground=this.add.rectangle(this.panelWidth/2,panelHeight/2,this.panelWidth,panelHeight,0x17120f,0.95)
       .setStrokeStyle(3,0xd4af37,0.9);
-    const title=this.add.text(this.panelWidth/2,17,'LOCAL NEWS',{
+    const title=this.add.text(this.panelWidth/2,17,__dialogueText("ui/NewsHud.js", "t_f8f0541e225c4388616c"),{
       fontFamily:'PressStart2P',fontSize:'10px',color:'#f6dc8c'
     }).setOrigin(0.5,0);
     const divider=this.add.rectangle(this.panelWidth/2,42,this.panelWidth-20,2,0xd4af37,0.6).setOrigin(0.5);
     const iconSize=Math.round(this.panelWidth*0.35);
     this.newspaperButton=this.add.image(this.panelWidth*0.28,panelHeight*0.61,'news')
       .setOrigin(0.5).setDisplaySize(iconSize,iconSize).setInteractive({useHandCursor:true});
-    this.newspaperLabel=this.add.text(this.panelWidth*0.28,panelHeight*0.84,'PAPER',{
+    this.newspaperLabel=this.add.text(this.panelWidth*0.28,panelHeight*0.84,__dialogueText("ui/NewsHud.js", "t_c87f290656e4b4d73c43"),{
       fontFamily:'PressStart2P',fontSize:'8px',color:'#ffffff'
     }).setOrigin(0.5);
     this.tvButton=this.add.image(this.panelWidth*0.72,panelHeight*0.61,'tv')
       .setOrigin(0.5).setDisplaySize(iconSize,iconSize).setInteractive({useHandCursor:true});
-    this.tvLabel=this.add.text(this.panelWidth*0.72,panelHeight*0.84,'TV',{
+    this.tvLabel=this.add.text(this.panelWidth*0.72,panelHeight*0.84,__dialogueText("ui/NewsHud.js", "t_ca62d5e073f52f3ceb83"),{
       fontFamily:'PressStart2P',fontSize:'8px',color:'#ffffff'
     }).setOrigin(0.5);
     this.menuPanel.add([panelBackground,title,divider,this.newspaperButton,this.newspaperLabel,this.tvButton,this.tvLabel]);
-    this.menuTab=this.add.text(0,this.panelY+24,'NEWS\n▶',{
+    this.menuTab=this.add.text(0,this.panelY+24,__dialogueText("ui/NewsHud.js", "t_e582aa5d5e578d02d100"),{
       fontFamily:'PressStart2P',fontSize:'10px',color:'#f6dc8c',backgroundColor:'#17120f',
-      padding:{left:10,right:9,top:11,bottom:11},align:'center',stroke:'#000000',strokeThickness:3
+      padding:{left:10,right:9,top:11,bottom:11},align:'center',stroke:__dialogueText("ui/NewsHud.js", "t_7b2817bf9b80e66d07f2"),strokeThickness:3
     }).setOrigin(0,0).setDepth(10000).setInteractive({useHandCursor:true});
     this.menuTab.on('pointerup',()=>this.toggleMenu());
     this.newspaperButton.on('pointerover',()=>this.newspaperLabel?.setColor('#ffe066'));
@@ -230,7 +234,7 @@ export class NewsHud extends Phaser.Scene {
     this.isAnimating=true;
     this.menuOpen=true;
     this.menuBlocker.setVisible(true).setInteractive();
-    this.menuTab.setText('NEWS\n◀');
+    this.menuTab.setText(__dialogueText("ui/NewsHud.js", "t_cd89eb92f36aac3dfe48"));
     const token=this.runToken;
     this.tweens.add({targets:this.menuPanel,x:this.menuPanel.getData('visibleX'),duration:220,ease:'Cubic.Out',
       onComplete:()=>{if(this.isCurrent(token)) this.isAnimating=false;}});
@@ -241,7 +245,7 @@ export class NewsHud extends Phaser.Scene {
     if(this.isAnimating && !force) return;
     const hiddenX=this.menuPanel.getData('hiddenX');
     this.menuOpen=false;
-    this.menuTab.setText('NEWS\n▶');
+    this.menuTab.setText(__dialogueText("ui/NewsHud.js", "t_e582aa5d5e578d02d100"));
     if(force) {
       this.tweens.killTweensOf(this.menuPanel);
       this.menuPanel.x=hiddenX;
@@ -313,10 +317,10 @@ export class NewsHud extends Phaser.Scene {
     const token=this.runToken;
     const returnSceneKey=this.registry.get('currentSceneKey') || 'CityScene';
     const mission=gameState.currentMission || this.registry.get('activeMission') || {};
-    const stationCity=mission.city || gameState.currentCity || 'Global';
+    const stationCity=mission.city || gameState.currentCity || __dialogueText("ui/NewsHud.js", "t_a258b30f88c30650e730");
     this.closeMenu(true);
     const status=await this.toggleLazyOverlay(TV_KEY,{
-      returnSceneKey,mission,gameState,reporterName:'Colette Duvall',stationName:`${stationCity} Night Report`
+      returnSceneKey,mission,gameState,reporterName:__dialogueText("ui/NewsHud.js", "t_a29624fe378fdc63fb64"),stationName:`${stationCity}${__dialogueText("ui/NewsHud.js", "t_4363031583f205672bb0")}`
     });
     if(!this.isCurrent(token)) return;
     if(status==='opened') {

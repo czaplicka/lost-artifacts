@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 
 import {
@@ -178,7 +179,7 @@ export class SuspectsScene extends BaseScene {
       this.gameState.currentMission?.city ||
       this.gameState.currentCityId ||
       this.gameState.crimeCityId ||
-      'Unknown City';
+      __dialogueText("scenes/SuspectsScene.js", "t_d17ede01fdcbb432de5d");
 
     this.returnScene =
       typeof data.returnScene === 'string' &&
@@ -280,14 +281,14 @@ export class SuspectsScene extends BaseScene {
         // Do not reveal the canonical ten before grid review.
         this.personnelNotice =
           new PersonnelNoticeView(this, {
-            title: 'SHORTLIST FILED',
+            title: __dialogueText("scenes/SuspectsScene.js", "t_fba0657376f0572c3c93"),
 
             paragraphs: [
-              'Your shortlist has been filed with the case.',
-              'Continue the investigation. Your evidence grid will be available through the usual case controls.'
+              __dialogueText("scenes/SuspectsScene.js", "t_38a0d5b99417594dd9da"),
+              __dialogueText("scenes/SuspectsScene.js", "t_d414439de3f0dc66ce63")
             ],
 
-            buttonLabel: 'Back to investigation',
+            buttonLabel: __dialogueText("scenes/SuspectsScene.js", "t_355ed6ca1f915cf03230"),
 
             onContinue: () => {
               this.personnelNotice = null;
@@ -305,14 +306,14 @@ export class SuspectsScene extends BaseScene {
 
       this.personnelNotice =
         new PersonnelNoticeView(this, {
-          title: 'PERSONNEL FILE ERROR',
+          title: __dialogueText("scenes/SuspectsScene.js", "t_aa8376d74c8b45c2ade4"),
 
           paragraphs: [
-            'Personnel files could not be prepared.',
+            __dialogueText("scenes/SuspectsScene.js", "t_242c62ebdeaa41b649b3"),
             error.message
           ],
 
-          buttonLabel: 'Back',
+          buttonLabel: __dialogueText("scenes/SuspectsScene.js", "t_76900f1bfd16c8d4dd3d"),
 
           onContinue: () => {
             this.personnelNotice = null;

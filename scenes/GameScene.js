@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { getGameTimeManager, resetGameTimeManager } from '../managers/GameTimeManager.js';
 import { EventBus } from '../EventBus.js';
@@ -90,7 +91,7 @@ export class GameScene extends BaseScene {
     const dialogue = this.cache.json.get('dialogue');
     this.fullIntroText = Array.isArray(dialogue?.gameIntro)
       ? dialogue.gameIntro.filter(line => typeof line === 'string').join('\n')
-      : 'The case file is missing its introduction.\nEven the paperwork has gone rogue.';
+      : __dialogueText("scenes/GameScene.js", "t_e1614c35220d5d100f71");
 
     this.onIntroPointerDown = () => this.finishSequence({ skip: true });
     this.onIntroSpaceDown = event => {
@@ -353,7 +354,7 @@ export class GameScene extends BaseScene {
       this.isTransitioning = false;
       this.sequenceFinished = false;
       this.cameras.main.fadeIn(200, 0, 0, 0);
-      this.dialogueText?.setText('Could not open the office. Click or press Space to retry.');
+      this.dialogueText?.setText(__dialogueText("scenes/GameScene.js", "t_43de3c134df63bd18a14"));
       this.bindIntroInputListeners();
     };
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, this._officeFadeHandler);

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 
@@ -33,379 +34,30 @@ import {
 //  - click anywhere on a cloud to select it
 // Logic, state shape and public API are unchanged (pcn-* class names kept).
 
-const PIXEL = "PressStart2P,'Press Start 2P',monospace";
+const PIXEL = __dialogueText("ui/PlayerCloudNotebook.js", "t_b43bab73cd75dc851f3e");
 
 const NOISE =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' " +
-  "width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence " +
-  "type='fractalNoise' baseFrequency='.8' numOctaves='2' " +
-  "stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 " +
-  ".33 0 0 0 0 .12 0 0 0 .10 0'/%3E%3C/filter%3E%3Crect width='160' " +
-  "height='160' filter='url(%23n)'/%3E%3C/svg%3E\")";
+  __dialogueText("ui/PlayerCloudNotebook.js", "t_cab3df32cb9908a19ecc") +
+  __dialogueText("ui/PlayerCloudNotebook.js", "t_20e4a2705db55a4dd89d") +
+  __dialogueText("ui/PlayerCloudNotebook.js", "t_9493e0b57ab8e4f61845") +
+  __dialogueText("ui/PlayerCloudNotebook.js", "t_9371925b89ea749d94dc") +
+  __dialogueText("ui/PlayerCloudNotebook.js", "t_c83cd446536c92145b65") +
+  __dialogueText("ui/PlayerCloudNotebook.js", "t_204ae710abc17196c1ff");
 
 const CHECK =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' " +
-  "viewBox='0 0 12 12'%3E%3Cpath d='M1.5 6.5 4.8 10 10.8 1.8' fill='none' " +
-  "stroke='%239b2f22' stroke-width='2.4' stroke-linecap='round' " +
+  __dialogueText("ui/PlayerCloudNotebook.js", "t_cab3df32cb9908a19ecc") +
+  __dialogueText("ui/PlayerCloudNotebook.js", "t_4ae54bdac5971a52ef08") +
+  __dialogueText("ui/PlayerCloudNotebook.js", "t_4d2c9f87a7fb5f4f36ac") +
   "stroke-linejoin='round'/%3E%3C/svg%3E\")";
 
 const ARROW =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' " +
-  "viewBox='0 0 10 6'%3E%3Cpath d='M0 0h10L5 6z' fill='%231d3a4a'/%3E" +
+  __dialogueText("ui/PlayerCloudNotebook.js", "t_cab3df32cb9908a19ecc") +
+  __dialogueText("ui/PlayerCloudNotebook.js", "t_80dcd0d9044d1c5fd983") +
   "%3C/svg%3E\")";
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
-const CSS = `
-.pcn{
-  /* fluid type scale: 15px on phones -> 19px on big screens */
-  --fs:clamp(15px,.75vw + 8.5px,19px);
-  --lh:calc(var(--fs)*2);
-  --paper:#efe5bd;--paper-hi:#f8f0d0;--paper-lo:#d8c995;
-  --ink:#1d3a4a;--ink-soft:#4a6673;--red:#9b2f22;
-  --gold:#d4af37;--gold-dk:#8a6a16;--brass:#a89560;
-  --leather:#2b1a0e;--leather-hi:#4a2f1b;--rule:rgba(60,100,120,.28);
-  position:fixed;z-index:11000;left:8px;right:8px;bottom:0;
-  font-family:SpecialElite,'Special Elite',monospace;color:var(--ink);
-  font-size:var(--fs);line-height:1.3;
-  pointer-events:none
-}
-.pcn *{box-sizing:border-box}
-.pcn [hidden]{display:none!important}
-.pcn button,.pcn select,.pcn input{font:inherit;touch-action:manipulation}
-
-/* ---------- base button (low specificity so every variant can override) */
-:where(.pcn) button{
-  border:1px solid #8f8050;border-bottom-width:3px;border-radius:3px;
-  background:linear-gradient(#f9f0cf,#e5d8a2);color:var(--ink);
-  padding:.35em .8em .3em;min-height:2.3em;cursor:pointer;font-size:.78em;
-  letter-spacing:.05em;text-transform:uppercase;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.65);
-  transition:transform .08s,background .12s
-}
-:where(.pcn) button:hover:not(:disabled){
-  background:linear-gradient(#fffbe4,#efe3b0);transform:translateY(-1px)
-}
-:where(.pcn) button:active:not(:disabled){
-  transform:translateY(1px);border-bottom-width:1px
-}
-.pcn button:focus-visible{outline:2px solid var(--red);outline-offset:1px}
-.pcn button:disabled{opacity:.4;cursor:default}
-
-/* ---------- handle: leather tab sticking out of the notebook */
-.pcn .pcn-handle{
-  display:block;position:relative;margin:auto;pointer-events:auto;
-  min-width:15em;min-height:2.6em;padding:.8em 1.6em .7em;
-  border:2px solid var(--gold-dk);border-bottom:0;
-  border-radius:9px 9px 0 0;
-  background:linear-gradient(#5a3a22,var(--leather));
-  color:var(--gold);font-family:${PIXEL};font-size:calc(var(--fs)*.6);
-  line-height:1.4;letter-spacing:.06em;text-shadow:0 1px 0 #000;
-  box-shadow:inset 0 1px 0 rgba(255,220,140,.25),0 -3px 10px rgba(0,0,0,.35)
-}
-.pcn .pcn-handle:hover,.pcn .pcn-handle:focus-visible{
-  background:linear-gradient(#6b4529,#34200f);color:#ffe08a;transform:none;
-  outline:2px solid var(--gold);outline-offset:-4px
-}
-.pcn .pcn-handle:active{transform:none;border-bottom:0}
-
-/* ---------- paper */
-.pcn .pcn-paper{
-  position:relative;pointer-events:auto;display:flex;flex-direction:column;
-  height:min(62vh,660px);min-height:290px;padding:.8em 1em .6em 46px;
-  border:2px solid #9c8a57;border-bottom:0;border-radius:3px 6px 0 0;
-  background-color:var(--paper);
-  background-image:
-    radial-gradient(circle at 97% 92%,transparent 0 20px,
-      rgba(120,80,30,.10) 21px 24px,transparent 25px),
-    ${NOISE},
-    radial-gradient(ellipse at 100% 0,rgba(150,105,40,.16),transparent 55%),
-    radial-gradient(ellipse at 0 100%,rgba(150,105,40,.14),transparent 50%);
-  box-shadow:0 -6px 22px rgba(0,0,0,.45),inset 0 0 40px rgba(120,85,30,.16);
-  animation:pcn-rise .22s ease-out
-}
-.pcn.pcn-big .pcn-paper{height:min(90vh,1000px)}
-@keyframes pcn-rise{
-  from{transform:translateY(14px);opacity:0}
-  to{transform:none;opacity:1}
-}
-/* leather spine with brass-ringed holes */
-.pcn .pcn-paper::before{
-  content:'';position:absolute;left:0;top:0;bottom:0;width:32px;
-  pointer-events:none;border-right:1px solid #1d1209;
-  background:
-    radial-gradient(circle at 50% 50%,#0d0804 0 4px,#c9a44a 4.5px 6px,
-      transparent 6.5px) 0 0/32px 40px repeat-y,
-    linear-gradient(90deg,var(--leather),var(--leather-hi) 70%,#33200f)
-}
-
-/* ---------- header */
-.pcn .pcn-top{
-  display:flex;align-items:center;flex-wrap:wrap;gap:.6em;margin-bottom:.6em
-}
-.pcn .pcn-title{
-  font-family:${PIXEL};font-size:calc(var(--fs)*.62);letter-spacing:.05em;
-  color:#6b4f12;text-shadow:0 1px 0 rgba(255,248,215,.8);white-space:nowrap
-}
-.pcn .pcn-title::before{content:'\\25C6  ';color:var(--gold-dk)}
-.pcn .pcn-grow{flex:1 1 0;min-width:0}
-.pcn .pcn-stamp{
-  font-size:.72em;letter-spacing:.08em;color:var(--red);white-space:nowrap;
-  border:2px solid var(--red);border-radius:3px;padding:.2em .6em .1em;
-  transform:rotate(-2.5deg);opacity:.9;
-  box-shadow:inset 0 0 0 1px rgba(155,47,34,.35)
-}
-.pcn select{
-  appearance:none;-webkit-appearance:none;max-width:16em;min-height:2.3em;
-  padding:.4em 2em .35em .7em;font-size:.88em;cursor:pointer;color:var(--ink);
-  background:#f9f0cc ${ARROW} right .7em center/.7em no-repeat;
-  border:1px solid #8f8050;border-bottom-width:3px;border-radius:3px
-}
-.pcn select:focus-visible{outline:2px solid var(--red);outline-offset:1px}
-.pcn .pcn-tabs{display:inline-flex}
-.pcn .pcn-tabs button{border-radius:0;font-size:.78em}
-.pcn .pcn-tabs button:first-child{border-radius:3px 0 0 3px}
-.pcn .pcn-tabs button:last-child{border-radius:0 3px 3px 0;border-left-width:0}
-.pcn button.pcn-selected,
-.pcn button.pcn-selected:hover:not(:disabled){
-  background:linear-gradient(#35566a,#25414f);color:var(--gold);
-  border-color:#162a34;box-shadow:inset 0 2px 4px rgba(0,0,0,.35);transform:none
-}
-.pcn .pcn-size{font-size:.7em}
-
-/* ---------- working area */
-.pcn .pcn-work{
-  display:grid;grid-template-columns:minmax(210px,27%) 1fr;gap:1em;
-  min-height:0;flex:1
-}
-.pcn .pcn-bank,.pcn .pcn-board,.pcn .pcn-names{
-  scrollbar-width:thin;scrollbar-color:#8f8050 transparent
-}
-.pcn ::-webkit-scrollbar{width:10px;height:10px}
-.pcn ::-webkit-scrollbar-track{background:transparent}
-.pcn ::-webkit-scrollbar-thumb{
-  background:#8f8050;border-radius:5px;border:2px solid var(--paper)
-}
-
-/* bank = ruled page, every word sits exactly on a line */
-.pcn .pcn-bank{
-  min-height:0;overflow:auto;padding:0 .7em 0 .1em;
-  border-right:3px double var(--brass);
-  background-image:repeating-linear-gradient(to bottom,transparent 0
-    calc(var(--lh) - 1px),var(--rule) calc(var(--lh) - 1px) var(--lh));
-  background-attachment:local
-}
-.pcn .pcn-bank-head{
-  display:flex;align-items:center;gap:.6em;height:var(--lh)
-}
-.pcn .pcn-bank h3{
-  display:flex;align-items:center;gap:.6em;margin:0;
-  font-family:${PIXEL};font-size:calc(var(--fs)*.58);font-weight:normal;
-  color:#6b4f12;line-height:var(--lh)
-}
-.pcn .pcn-count{
-  font-family:SpecialElite,'Special Elite',monospace;font-size:var(--fs);
-  line-height:1.3;padding:0 .5em;border-radius:1em;
-  background:var(--ink);color:var(--gold)
-}
-.pcn .pcn-bank-head button{
-  margin-left:auto;min-height:0;height:calc(var(--lh) - 6px);
-  padding:0 .6em;font-size:.68em
-}
-.pcn .pcn-words{display:flex;flex-direction:column;gap:0}
-
-.pcn .pcn-word{
-  display:flex;align-items:flex-start;gap:.5em;min-height:var(--lh);
-  padding:0 .3em;font-size:1em;line-height:var(--lh);border-radius:2px
-}
-.pcn .pcn-word > span{flex:1;min-width:0;overflow-wrap:anywhere}
-.pcn label.pcn-word{cursor:pointer}
-.pcn label.pcn-word:hover{background:rgba(212,175,55,.2)}
-.pcn .pcn-word:has(input:checked){background:rgba(212,175,55,.34)}
-
-/* custom checkbox: tick it with red pencil */
-.pcn .pcn-word input{
-  appearance:none;-webkit-appearance:none;width:1.05em;height:1.05em;
-  margin:calc((var(--lh) - 1.05em)/2) 0 0;flex-shrink:0;cursor:pointer;
-  border:2px solid var(--ink);border-radius:2px;
-  background:#fdf7dc center/80% no-repeat
-}
-.pcn .pcn-word input:checked{background-image:${CHECK}}
-.pcn .pcn-word input:focus-visible{outline:2px solid var(--red);outline-offset:2px}
-
-/* buttons inside word rows (use-words mode, e-mails) */
-.pcn .pcn-word button{
-  display:inline-flex;align-items:baseline;gap:.4em;flex:1;min-width:0;
-  min-height:0;padding:0 .25em;border:0;border-radius:2px;
-  background:transparent;box-shadow:none;transform:none;text-align:left;
-  text-transform:none;letter-spacing:0;font-size:1em;line-height:inherit;
-  overflow-wrap:anywhere
-}
-.pcn .pcn-word button:hover:not(:disabled){
-  background:rgba(212,175,55,.26);transform:none
-}
-.pcn .pcn-word button:active:not(:disabled){transform:none}
-/* "use words" mode: marker-pen highlighted leads */
-.pcn .pcn-lead button{
-  background:linear-gradient(transparent 55%,rgba(212,175,55,.5) 55%)
-}
-.pcn .pcn-lead button:hover:not(:disabled){background:rgba(212,175,55,.65)}
-.pcn .pcn-word .pcn-email{
-  color:#12406e;text-decoration:underline;text-underline-offset:3px
-}
-.pcn .pcn-word .pcn-email::before{
-  content:'\\2709';flex:none;text-decoration:none
-}
-.pcn .pcn-word .pcn-email:hover,.pcn .pcn-word .pcn-email:focus-visible{
-  color:#8a3d26
-}
-
-.pcn .pcn-empty{
-  margin:.4em .3em;font-size:.9em;line-height:1.4;font-style:italic;
-  color:var(--ink-soft)
-}
-
-/* ---------- clouds */
-.pcn .pcn-board{min-height:0;min-width:0;overflow:auto}
-.pcn .pcn-clouds{
-  position:relative;display:grid;align-items:start;
-  grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));
-  gap:2.6em 2.4em;padding:1.4em .9em 2.6em
-}
-.pcn .pcn-clouds > .pcn-empty{grid-column:1/-1}
-
-/* red-pencil arrows between linked clouds (drawn behind the cards) */
-.pcn .pcn-strings{
-  position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;
-  pointer-events:none;overflow:visible
-}
-
-.pcn .pcn-cloud{
-  --lh:calc(var(--fs)*1.8);
-  position:relative;z-index:1;display:flex;flex-direction:column;
-  justify-content:center;min-height:9em;padding:1.3em 14% 1.8em;
-  border:2.5px solid var(--ink);
-  border-radius:50% 47% 52% 50% / 46% 52% 50% 54%;
-  background:radial-gradient(ellipse at 35% 25%,
-    rgba(255,252,234,.97),rgba(248,238,202,.95) 78%);
-  box-shadow:0 3px 0 rgba(70,55,20,.18),0 10px 16px rgba(60,40,10,.14);
-  transition:transform .15s,box-shadow .15s
-}
-.pcn .pcn-cloud:nth-child(odd){transform:rotate(-.5deg)}
-.pcn .pcn-cloud:nth-child(even){transform:rotate(.4deg)}
-.pcn .pcn-cloud:hover{transform:rotate(0) translateY(-2px)}
-.pcn .pcn-cloud.pcn-pick{cursor:pointer}
-.pcn .pcn-cloud.pcn-active{
-  border-color:var(--red);
-  background:radial-gradient(ellipse at 35% 25%,#fffdea,#faf0c4 78%);
-  box-shadow:0 0 0 4px rgba(212,175,55,.6),0 12px 20px rgba(60,40,10,.25)
-}
-.pcn .pcn-cloud.pcn-active::before{
-  content:'SELECTED';position:absolute;top:-.9em;left:50%;
-  transform:translateX(-50%) rotate(-2deg);padding:.15em .7em .05em;
-  font-size:.6em;letter-spacing:.14em;white-space:nowrap;
-  background:var(--red);color:#fff4d0;border-radius:2px;
-  box-shadow:0 1px 2px rgba(0,0,0,.3)
-}
-.pcn .pcn-cloud-title{
-  display:block;width:100%;min-height:0;padding:.1em .3em .3em;
-  border:0;border-bottom:1.5px dotted var(--ink-soft);border-radius:0;
-  background:transparent;box-shadow:none;transform:none;color:var(--ink);
-  font-size:1.15em;line-height:1.25;text-align:center;
-  text-transform:none;letter-spacing:0;text-shadow:.4px 0 0 currentColor;
-  overflow-wrap:anywhere
-}
-.pcn .pcn-cloud-title:hover:not(:disabled){
-  background:rgba(212,175,55,.22);transform:none
-}
-.pcn .pcn-cloud.pcn-active .pcn-cloud-title{color:var(--red)}
-.pcn .pcn-cloud-words{
-  display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;
-  gap:0 1.1em;margin-top:.4em
-}
-.pcn .pcn-cloud .pcn-word{
-  flex:0 1 auto;display:inline-flex;max-width:100%;font-size:1em
-}
-.pcn .pcn-cloud .pcn-word > span{flex:0 1 auto}
-.pcn .pcn-cloud .pcn-word button{flex:0 1 auto}
-.pcn .pcn-cloud .pcn-empty{margin:.5em 0 0;text-align:center;font-size:.85em}
-/* linked-cloud caption */
-.pcn .pcn-cloud small{
-  display:block;margin-top:.5em;padding-top:.3em;font-size:.78em;
-  line-height:1.3;text-align:center;color:var(--red);
-  border-top:1px dashed rgba(155,47,34,.5)
-}
-
-/* ---------- tools strip */
-.pcn .pcn-tools{
-  display:flex;flex-wrap:wrap;align-items:center;gap:.45em;margin-top:.5em;
-  padding:.6em 0 0;border-top:3px double var(--brass);font-size:.9em
-}
-.pcn .pcn-tools button{min-height:2.3em;padding:.3em .7em .25em;font-size:.76em}
-.pcn .pcn-tools select{min-height:2.3em;max-width:11em;font-size:.82em}
-.pcn .pcn-tools .pcn-label{
-  font-size:.78em;letter-spacing:.08em;color:var(--ink-soft);margin-left:.6em
-}
-.pcn .pcn-tools button.pcn-primary{
-  background:linear-gradient(#ecce63,#c9a02c);border-color:#7a5d12;
-  color:var(--leather)
-}
-.pcn .pcn-tools button.pcn-primary:hover:not(:disabled){
-  background:linear-gradient(#f5da7c,#d6ac36)
-}
-.pcn .pcn-tools button.pcn-danger{color:var(--red);border-color:#8a3a2c}
-.pcn .pcn-tools .pcn-sel{
-  margin-left:auto;font-size:.82em;opacity:.85;white-space:nowrap
-}
-
-.pcn .pcn-status{
-  min-height:1.4em;margin-top:.4em;font-size:.82em;line-height:1.35;
-  font-style:italic;color:var(--ink-soft)
-}
-.pcn .pcn-status::before{content:'\\25B8  ';color:var(--red);font-style:normal}
-
-/* ---------- name-cloud dialog: a taped slip of paper */
-.pcn .pcn-dialog{
-  position:absolute;left:50%;top:50%;z-index:3;
-  width:min(560px,calc(100% - 40px));padding:1.6em 1.4em 1.2em;
-  transform:translate(-50%,-50%) rotate(-.4deg);
-  background:var(--paper-hi);border:2px solid var(--ink-soft);
-  box-shadow:0 14px 30px rgba(0,0,0,.45)
-}
-.pcn .pcn-dialog::before{
-  content:'';position:absolute;top:-11px;left:50%;width:96px;height:22px;
-  margin-left:-48px;transform:rotate(-2deg);background:rgba(222,196,120,.78);
-  box-shadow:0 1px 2px rgba(0,0,0,.2)
-}
-.pcn .pcn-dialog h3{
-  margin:0 0 .7em;font-family:${PIXEL};font-size:calc(var(--fs)*.62);
-  line-height:1.5;font-weight:normal;color:#6b4f12
-}
-.pcn .pcn-dialog p{margin:0;font-size:.9em}
-.pcn .pcn-names{
-  display:flex;flex-wrap:wrap;gap:.5em;margin:1em 0;max-height:10em;overflow:auto
-}
-.pcn .pcn-dialog > button{margin-right:.4em}
-
-@media(max-width:650px){
-  .pcn .pcn-paper{height:66vh;min-height:300px;padding:.5em .5em .4em 34px}
-  .pcn.pcn-big .pcn-paper{height:92vh}
-  .pcn .pcn-paper::before{width:22px;background-size:22px 40px,auto}
-  .pcn .pcn-work{
-    grid-template-columns:1fr;grid-template-rows:minmax(80px,34%) 1fr;gap:.4em
-  }
-  .pcn .pcn-bank{border-right:0;border-bottom:3px double var(--brass)}
-  .pcn .pcn-clouds{grid-template-columns:1fr;gap:2.2em 1em}
-  .pcn .pcn-top select{max-width:11em}
-  .pcn .pcn-title,.pcn .pcn-stamp{display:none}
-  .pcn .pcn-tools .pcn-sel{margin-left:0;white-space:normal}
-}
-@media(prefers-reduced-motion:reduce){
-  .pcn,.pcn *{animation:none!important;transition:none!important}
-  .pcn .pcn-cloud:nth-child(odd),.pcn .pcn-cloud:nth-child(even),
-  .pcn .pcn-cloud:hover{transform:none}
-}
-`;
+const CSS = `${__dialogueText("ui/PlayerCloudNotebook.js", "t_f2ef25f01965faeefc46")}${PIXEL}${__dialogueText("ui/PlayerCloudNotebook.js", "t_a5ff6b7b87656a624534")}${NOISE}${__dialogueText("ui/PlayerCloudNotebook.js", "t_3387cfad93a7adda95b9")}${PIXEL}${__dialogueText("ui/PlayerCloudNotebook.js", "t_634cc66c086b37877235")}${ARROW}${__dialogueText("ui/PlayerCloudNotebook.js", "t_d5faea46fd7954af6fe6")}${PIXEL}${__dialogueText("ui/PlayerCloudNotebook.js", "t_03f9f435c23740c2c2d6")}${CHECK}${__dialogueText("ui/PlayerCloudNotebook.js", "t_04228e6ac3dba6d5b6b3")}${PIXEL}${__dialogueText("ui/PlayerCloudNotebook.js", "t_f3b5310cfc53102b0cce")}`;
 
 function el(tag, text, cls) {
   const node = document.createElement(tag);
@@ -482,7 +134,7 @@ export function installPlayerCloudNotebook(ui) {
   document.head.append(style);
   document.body.append(root);
 
-  const handle = el('button', 'CASE NOTES', 'pcn-handle');
+  const handle = el('button', __dialogueText("ui/PlayerCloudNotebook.js", "t_025d3934970dd3975eb7"), 'pcn-handle');
   handle.type = 'button';
 
   const paper = el('section', undefined, 'pcn-paper');
@@ -656,7 +308,7 @@ export function installPlayerCloudNotebook(ui) {
   root.addEventListener('keydown', event => {
     event.stopPropagation();
 
-    if (event.key === 'Escape') {
+    if (event.key === __dialogueText("ui/PlayerCloudNotebook.js", "t_037c968467aa3fd7c059")) {
       event.preventDefault();
 
       if (dialogId) {
@@ -682,17 +334,17 @@ export function installPlayerCloudNotebook(ui) {
     const contact = getEmailContact(word);
 
     const node = button(
-      word.label || contact?.value || 'Email',
+      word.label || contact?.value || __dialogueText("ui/PlayerCloudNotebook.js", "t_969ccbd3cf6300ecd5c8"),
       () => use(word, definition)
     );
 
     node.classList.add('pcn-email');
 
     if (contact) {
-      node.title = `Write to ${contact.value}`;
+      node.title = `${__dialogueText("ui/PlayerCloudNotebook.js", "t_7b2dea14b4d040ccebb6")}${contact.value}`;
       node.setAttribute(
         'aria-label',
-        `Write an email to ${contact.value}`
+        `${__dialogueText("ui/PlayerCloudNotebook.js", "t_cf78be8f5f67d2612336")}${contact.value}`
       );
     }
 
@@ -711,7 +363,7 @@ export function installPlayerCloudNotebook(ui) {
     const input = document.createElement('input');
     input.type = 'checkbox';
     input.checked = selection.has(word.id);
-    input.setAttribute('aria-label', `Select note: ${word.label}`);
+    input.setAttribute('aria-label', `${__dialogueText("ui/PlayerCloudNotebook.js", "t_e79fd9446c45e47e61cb")}${word.label}`);
 
     input.onchange = () => {
       if (input.checked) selection.add(word.id);
@@ -740,7 +392,7 @@ export function installPlayerCloudNotebook(ui) {
       typeof ui.photoQuest?.contactMail?.openComposer !== 'function'
     ) {
       message =
-        '“I have the address. Now I just need a working mailbox.”';
+        __dialogueText("ui/PlayerCloudNotebook.js", "t_bb26ccecc60c7340c6f1");
       draw();
       return;
     }
@@ -754,8 +406,8 @@ export function installPlayerCloudNotebook(ui) {
         console.error('[PlayerCloudNotebook]', error);
 
         message = email
-          ? '“The message will have to wait. The mailbox is not cooperating.”'
-          : 'This action could not be opened.';
+          ? __dialogueText("ui/PlayerCloudNotebook.js", "t_3a3545d799d74ec5646d")
+          : __dialogueText("ui/PlayerCloudNotebook.js", "t_c182b81d25787a7cb405");
       })
       .finally(() => {
         busy = false;
@@ -768,7 +420,7 @@ export function installPlayerCloudNotebook(ui) {
       return checkbox(word, selection, definition);
     }
 
-    const row = el('div', undefined, 'pcn-word pcn-lead');
+    const row = el('div', undefined, __dialogueText("ui/PlayerCloudNotebook.js", "t_de23e3abf44cac31cc5c"));
 
     row.append(
       getEmailContact(word)
@@ -794,12 +446,12 @@ export function installPlayerCloudNotebook(ui) {
 
   // Red-pencil arrows between linked clouds, drawn behind the cards.
   function drawStrings(grid, progress) {
-    grid.querySelector('.pcn-strings')?.remove();
+    grid.querySelector(__dialogueText("ui/PlayerCloudNotebook.js", "t_2196dde62ab4ec738ba4"))?.remove();
 
     if (!progress.links.length) return;
 
     const cards = new Map(
-      [...grid.querySelectorAll('.pcn-cloud')].map(
+      [...grid.querySelectorAll(__dialogueText("ui/PlayerCloudNotebook.js", "t_d36b902f13663c3bf353"))].map(
         node => [node.dataset.cloud, node]
       )
     );
@@ -820,7 +472,7 @@ export function installPlayerCloudNotebook(ui) {
     marker.setAttribute('orient', 'auto-start-reverse');
 
     const tip = document.createElementNS(SVG_NS, 'path');
-    tip.setAttribute('d', 'M0 0L10 5L0 10z');
+    tip.setAttribute('d', __dialogueText("ui/PlayerCloudNotebook.js", "t_b3beac49fec379ebe7c2"));
     tip.setAttribute('fill', '#9b2f22');
 
     marker.append(tip);
@@ -873,7 +525,7 @@ export function installPlayerCloudNotebook(ui) {
       const cy = (y1 + y2) / 2 + ux * bend;
 
       const path = document.createElementNS(SVG_NS, 'path');
-      path.setAttribute('d', `M${x1} ${y1} Q${cx} ${cy} ${x2} ${y2}`);
+      path.setAttribute('d', `${__dialogueText("ui/PlayerCloudNotebook.js", "t_08f271887ce94707da82")}${x1}${__dialogueText("ui/PlayerCloudNotebook.js", "t_36a9e7f1c95b82ffb997")}${y1}${__dialogueText("ui/PlayerCloudNotebook.js", "t_102338cae9e82092bb21")}${cx}${__dialogueText("ui/PlayerCloudNotebook.js", "t_36a9e7f1c95b82ffb997")}${cy}${__dialogueText("ui/PlayerCloudNotebook.js", "t_36a9e7f1c95b82ffb997")}${x2}${__dialogueText("ui/PlayerCloudNotebook.js", "t_36a9e7f1c95b82ffb997")}${y2}`);
       path.setAttribute('fill', 'none');
       path.setAttribute('stroke', '#9b2f22');
       path.setAttribute('stroke-width', '2.6');
@@ -927,8 +579,8 @@ export function installPlayerCloudNotebook(ui) {
     root.classList.toggle('pcn-big', big);
 
     handle.textContent = collapsed
-      ? '▲ CASE NOTES'
-      : '▼ HIDE NOTES';
+      ? __dialogueText("ui/PlayerCloudNotebook.js", "t_ee6734122e8af46e93a9")
+      : __dialogueText("ui/PlayerCloudNotebook.js", "t_9f177f47759d74463dc0");
 
     handle.setAttribute('aria-expanded', String(!collapsed));
     paper.hidden = collapsed;
@@ -944,11 +596,11 @@ export function installPlayerCloudNotebook(ui) {
     const keepScroll = scrollCaseId === caseId;
 
     const bankTop = keepScroll
-      ? paper.querySelector('.pcn-bank')?.scrollTop || 0
+      ? paper.querySelector(__dialogueText("ui/PlayerCloudNotebook.js", "t_49bd80dd3ae04b3cf345"))?.scrollTop || 0
       : 0;
 
     const boardTop = keepScroll
-      ? paper.querySelector('.pcn-board')?.scrollTop || 0
+      ? paper.querySelector(__dialogueText("ui/PlayerCloudNotebook.js", "t_503238a31e25c8ab2691"))?.scrollTop || 0
       : 0;
 
     scrollCaseId = caseId;
@@ -959,14 +611,14 @@ export function installPlayerCloudNotebook(ui) {
 
     const heading = el(
       'span',
-      'PRIVATE INVESTIGATIONS',
+      __dialogueText("ui/PlayerCloudNotebook.js", "t_bbc638660cdde9fbfde6"),
       'pcn-title'
     );
 
     top.append(heading, el('span', undefined, 'pcn-grow'));
 
     const select = document.createElement('select');
-    select.setAttribute('aria-label', 'Case');
+    select.setAttribute('aria-label', __dialogueText("ui/PlayerCloudNotebook.js", "t_15f86e24ed25aed15493"));
 
     for (const entry of available) {
       const option = el('option', entry.title);
@@ -983,15 +635,15 @@ export function installPlayerCloudNotebook(ui) {
       draw();
     });
 
-    organise.title = 'Group your clues into clouds';
+    organise.title = __dialogueText("ui/PlayerCloudNotebook.js", "t_c3ea91acdc26ac1b6f2a");
 
-    const useButton = button('USE WORDS', () => {
+    const useButton = button(__dialogueText("ui/PlayerCloudNotebook.js", "t_e90ed39aaa61e336402a"), () => {
       mode = 'use';
       dialogId = null;
       draw();
     });
 
-    useButton.title = 'Click a clue to search, call or write';
+    useButton.title = __dialogueText("ui/PlayerCloudNotebook.js", "t_75d586327bd1a4b1d88c");
 
     (mode === 'organise' ? organise : useButton)
       .classList.add('pcn-selected');
@@ -1007,8 +659,8 @@ export function installPlayerCloudNotebook(ui) {
 
     sizeButton.classList.add('pcn-size');
     sizeButton.title = big
-      ? 'Make the notebook smaller'
-      : 'Make the notebook bigger';
+      ? __dialogueText("ui/PlayerCloudNotebook.js", "t_1e82f6eda81ae048a85c")
+      : __dialogueText("ui/PlayerCloudNotebook.js", "t_7ba4caf9096690691f50");
 
     top.append(sizeButton);
     paper.append(top);
@@ -1017,7 +669,7 @@ export function installPlayerCloudNotebook(ui) {
       paper.append(
         el(
           'p',
-          'Collect a clue to start your notes. The paper is very patient.',
+          __dialogueText("ui/PlayerCloudNotebook.js", "t_9cb26e7032b1dbbd3dbe"),
           'pcn-empty'
         )
       );
@@ -1049,7 +701,7 @@ export function installPlayerCloudNotebook(ui) {
       ? words
       : unsortedWords(state, definition);
 
-    const bankHeading = el('h3', all ? 'ALL WORDS' : 'UNSORTED');
+    const bankHeading = el('h3', all ? __dialogueText("ui/PlayerCloudNotebook.js", "t_b4005ec2ef1c2670fc8d") : 'UNSORTED');
     bankHeading.append(
       el('span', String(bankWords.length), 'pcn-count')
     );
@@ -1058,7 +710,7 @@ export function installPlayerCloudNotebook(ui) {
 
     bankHead.append(
       bankHeading,
-      button(all ? 'SHOW UNSORTED' : 'SHOW ALL', () => {
+      button(all ? __dialogueText("ui/PlayerCloudNotebook.js", "t_445ff0c7fc70036b375b") : __dialogueText("ui/PlayerCloudNotebook.js", "t_044acdca1c06eb0c67ff"), () => {
         all = !all;
         bankSelection.clear();
         draw();
@@ -1078,8 +730,8 @@ export function installPlayerCloudNotebook(ui) {
         el(
           'p',
           all
-            ? 'No words yet. Go interrogate somebody.'
-            : 'Nothing unsorted. Suspiciously tidy.',
+            ? __dialogueText("ui/PlayerCloudNotebook.js", "t_b1960e4d08f1e7269ace")
+            : __dialogueText("ui/PlayerCloudNotebook.js", "t_c4e177aa7db918f26c8e"),
           'pcn-empty'
         )
       );
@@ -1094,8 +746,8 @@ export function installPlayerCloudNotebook(ui) {
         'article',
         undefined,
         'pcn-cloud' +
-        (cloud.id === activeId ? ' pcn-active' : '') +
-        (mode === 'organise' && cloud.id !== activeId ? ' pcn-pick' : '')
+        (cloud.id === activeId ? __dialogueText("ui/PlayerCloudNotebook.js", "t_87f4984260a795e24ba3") : '') +
+        (mode === 'organise' && cloud.id !== activeId ? __dialogueText("ui/PlayerCloudNotebook.js", "t_3569b6925096da1d2410") : '')
       );
 
       card.dataset.cloud = cloud.id;
@@ -1139,7 +791,7 @@ export function installPlayerCloudNotebook(ui) {
 
       if (!members.length) {
         card.append(
-          el('p', 'Empty cloud. Forecast: no leads.', 'pcn-empty')
+          el('p', __dialogueText("ui/PlayerCloudNotebook.js", "t_e874a332b1ad19bc0eeb"), 'pcn-empty')
         );
       }
 
@@ -1170,8 +822,8 @@ export function installPlayerCloudNotebook(ui) {
       grid.append(
         el(
           'p',
-          'Tick some words on the left and press CREATE CLOUD. ' +
-          'Nothing is grouped automatically.',
+          __dialogueText("ui/PlayerCloudNotebook.js", "t_3a2b1959dfa39df6f639") +
+          __dialogueText("ui/PlayerCloudNotebook.js", "t_2e8ba76c9a2da5edec25"),
           'pcn-empty'
         )
       );
@@ -1187,14 +839,14 @@ export function installPlayerCloudNotebook(ui) {
     if (mode === 'organise') {
       tools.append(
         mark(
-          button('CREATE CLOUD', () => {
+          button(__dialogueText("ui/PlayerCloudNotebook.js", "t_611e3fd3b105a1b4c181"), () => {
             activeId = createCloud(state, definition, [...bankSelection]);
             changed();
           }),
           'pcn-primary'
         ),
         button(
-          'ADD SELECTED',
+          __dialogueText("ui/PlayerCloudNotebook.js", "t_84f6d0390008bb6e4d53"),
           () => {
             addCloudWords(state, definition, activeId, [...bankSelection]);
             changed();
@@ -1202,7 +854,7 @@ export function installPlayerCloudNotebook(ui) {
           !active || !bankSelection.size
         ),
         button(
-          'REMOVE FROM CLOUD',
+          __dialogueText("ui/PlayerCloudNotebook.js", "t_3f0b2f76d4b41a1ce51f"),
           () => {
             removeCloudWords(state, caseId, activeId, [...memberSelection]);
             changed();
@@ -1210,7 +862,7 @@ export function installPlayerCloudNotebook(ui) {
           !active || !memberSelection.size
         ),
         button(
-          'NAME CLOUD',
+          __dialogueText("ui/PlayerCloudNotebook.js", "t_fd5eb817d682970121fb"),
           () => {
             dialogId = activeId;
             draw();
@@ -1219,7 +871,7 @@ export function installPlayerCloudNotebook(ui) {
         ),
         mark(
           button(
-            'DELETE CLOUD',
+            __dialogueText("ui/PlayerCloudNotebook.js", "t_450b5c1733ba44440df4"),
             () => {
               deleteCloud(state, caseId, activeId);
               activeId = null;
@@ -1234,7 +886,7 @@ export function installPlayerCloudNotebook(ui) {
 
       if (active && progress.clouds.length > 1) {
         const targets = document.createElement('select');
-        targets.setAttribute('aria-label', 'Link another cloud');
+        targets.setAttribute('aria-label', __dialogueText("ui/PlayerCloudNotebook.js", "t_ad09ed0e1e0f372573ce"));
 
         for (const cloud of progress.clouds.filter(
           entry => entry.id !== activeId
@@ -1249,7 +901,7 @@ export function installPlayerCloudNotebook(ui) {
         }
 
         tools.append(
-          el('span', 'LINK WITH:', 'pcn-label'),
+          el('span', __dialogueText("ui/PlayerCloudNotebook.js", "t_9f794b2adfa739ec7e3f"), 'pcn-label'),
           targets,
           button('LINK', () => {
             linkClouds(state, caseId, activeId, targets.value);
@@ -1265,8 +917,8 @@ export function installPlayerCloudNotebook(ui) {
       tools.append(
         el(
           'span',
-          `${bankSelection.size} selected in bank · ` +
-          `${memberSelection.size} in cloud`,
+          `${bankSelection.size}${__dialogueText("ui/PlayerCloudNotebook.js", "t_7140fda694a26c17a80f")}` +
+          `${memberSelection.size}${__dialogueText("ui/PlayerCloudNotebook.js", "t_83438b64422fd99f36f8")}`,
           'pcn-sel'
         )
       );
@@ -1274,8 +926,8 @@ export function installPlayerCloudNotebook(ui) {
       tools.append(
         el(
           'span',
-          'Click a highlighted word to search, dial a discovered ' +
-          'number or use an email address.'
+          __dialogueText("ui/PlayerCloudNotebook.js", "t_4e45aa27232969cdc827") +
+          __dialogueText("ui/PlayerCloudNotebook.js", "t_6fc3a514af3190d34e61")
         )
       );
     }
@@ -1284,10 +936,10 @@ export function installPlayerCloudNotebook(ui) {
       'div',
       message || (
         mode === 'organise'
-          ? 'Click a cloud to work on it. Names are hypotheses — ' +
-            'the notebook never says who is right.'
-          : 'Names are hypotheses. The notebook does not mark them ' +
-            'right or wrong.'
+          ? __dialogueText("ui/PlayerCloudNotebook.js", "t_327384ecc8f3b514a182") +
+            __dialogueText("ui/PlayerCloudNotebook.js", "t_a742911e4f7aacfa1a22")
+          : __dialogueText("ui/PlayerCloudNotebook.js", "t_18d0d7127f90b9c7ea84") +
+            __dialogueText("ui/PlayerCloudNotebook.js", "t_c1103c64c8e4863aa367")
       ),
       'pcn-status'
     );
@@ -1314,14 +966,14 @@ export function installPlayerCloudNotebook(ui) {
 
       const dialog = el('section', undefined, 'pcn-dialog');
       dialog.setAttribute('role', 'dialog');
-      dialog.setAttribute('aria-label', 'Name cloud');
+      dialog.setAttribute('aria-label', __dialogueText("ui/PlayerCloudNotebook.js", "t_5d47c2f8ee6d615e052a"));
 
       dialog.append(
-        el('h3', 'Choose a hypothesis'),
+        el('h3', __dialogueText("ui/PlayerCloudNotebook.js", "t_c62cf0275f5632e126b0")),
         el(
           'p',
-          'Only names you have encountered are offered. ' +
-          'You can change your mind.'
+          __dialogueText("ui/PlayerCloudNotebook.js", "t_65f1a999f1846b60d2e1") +
+          __dialogueText("ui/PlayerCloudNotebook.js", "t_d8d485be9bdae08e033d")
         )
       );
 
@@ -1339,7 +991,7 @@ export function installPlayerCloudNotebook(ui) {
 
       dialog.append(
         names,
-        button('CLEAR NAME', () => {
+        button(__dialogueText("ui/PlayerCloudNotebook.js", "t_ac7134a8cf14da2d2707"), () => {
           nameCloud(state, definition, dialogId, null);
           dialogId = null;
           changed();

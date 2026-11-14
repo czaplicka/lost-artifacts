@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { DETAIL_FIELDS } from './WantedDatabaseConfig.js';
 
 export const WantedDatabaseDetailsView = {
@@ -53,7 +54,7 @@ export const WantedDatabaseDetailsView = {
             this.makeText(
                 25,
                 35,
-                'CLASSIFIED DOSSIER // INDIVIDUAL PROFILE',
+                __dialogueText("scenes/wanted-database/WantedDatabaseDetailsView.js", "t_a93a7e824bea8aa6a418"),
                 16,
                 { shadow: this.glow(th.sMain, 8) }
             ).setOrigin(0, 0.5)
@@ -238,7 +239,7 @@ export const WantedDatabaseDetailsView = {
             this.makeText(
                 boxX + 14,
                 397,
-                'KNOWN SKILLS:  (CLICK TO SEARCH)',
+                __dialogueText("scenes/wanted-database/WantedDatabaseDetailsView.js", "t_16366706d9fe6838e524"),
                 12,
                 { color: th.sMid }
             )
@@ -250,7 +251,7 @@ export const WantedDatabaseDetailsView = {
         );
 
         content.add(
-            this.makeText(boxX + 14, 509, 'KNOWN HABITS:', 12, {
+            this.makeText(boxX + 14, 509, __dialogueText("scenes/wanted-database/WantedDatabaseDetailsView.js", "t_a8cd9dfb7ab8ab35ed51"), 12, {
                 color: th.sMid
             })
         );
@@ -265,7 +266,7 @@ export const WantedDatabaseDetailsView = {
         content.add(this.makeRect(boxX, 611, boxW, 78, 0x000000, 0.5, 0.35));
 
         content.add(
-            this.makeText(boxX + 14, 619, "AGENT'S MARGIN NOTE:", 10, {
+            this.makeText(boxX + 14, 619, __dialogueText("scenes/wanted-database/WantedDatabaseDetailsView.js", "t_f30a8bbff5d1205f0e89"), 10, {
                 color: th.sDim
             })
         );
@@ -284,7 +285,7 @@ export const WantedDatabaseDetailsView = {
             704,
             235,
             36,
-            '[F] FLAG SUSPECT',
+            __dialogueText("scenes/wanted-database/WantedDatabaseDetailsView.js", "t_08974557c5b9962a0deb"),
             () => {
                 if (this.selectedCard) this.setStatus(this.selectedCard, 'flag');
             },
@@ -296,7 +297,7 @@ export const WantedDatabaseDetailsView = {
             704,
             235,
             36,
-            '[C] CLEAR SUSPECT',
+            __dialogueText("scenes/wanted-database/WantedDatabaseDetailsView.js", "t_a042dd802d857cf493ec"),
             () => {
                 if (this.selectedCard) this.setStatus(this.selectedCard, 'clear');
             },
@@ -308,7 +309,7 @@ export const WantedDatabaseDetailsView = {
             704,
             160,
             36,
-            '< PREV',
+            __dialogueText("scenes/wanted-database/WantedDatabaseDetailsView.js", "t_86af811671fe29fad1d2"),
             () => this.stepDetail(-1),
             12
         );
@@ -318,7 +319,7 @@ export const WantedDatabaseDetailsView = {
             704,
             160,
             36,
-            'NEXT >',
+            __dialogueText("scenes/wanted-database/WantedDatabaseDetailsView.js", "t_58b85f2ea88bf1a9ba16"),
             () => this.stepDetail(1),
             12
         );

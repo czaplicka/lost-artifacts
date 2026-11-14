@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 import { saveGameState } from '../../gameStatePersistence.js';
 import { audioManager } from '../../managers/AudioManager.js';
@@ -21,8 +22,8 @@ export function playTransportSfx(transport) {
 export function getCostAndEnergyText(moneySpent, energyChange) {
   const safeMoneySpent = Number(moneySpent) || 0;
   const safeEnergyChange = Number(energyChange) || 0;
-  const costText = safeMoneySpent > 0 ? `Cost: $${safeMoneySpent}` : 'Cost: $0';
-  const energyText = safeEnergyChange > 0 ? `Energy: +${safeEnergyChange}` : `Energy: ${safeEnergyChange}`;
+  const costText = safeMoneySpent > 0 ? `${__dialogueText("scenes/travel/TravelTransitionHelpers.js", "t_564970ae3734b7c11b48")}${safeMoneySpent}` : __dialogueText("scenes/travel/TravelTransitionHelpers.js", "t_aa7e63f672a41563c1df");
+  const energyText = safeEnergyChange > 0 ? `${__dialogueText("scenes/travel/TravelTransitionHelpers.js", "t_dfd30c9f31cd139b39c5")}${safeEnergyChange}` : `${__dialogueText("scenes/travel/TravelTransitionHelpers.js", "t_9b9ab12dc1fbf453b5dc")}${safeEnergyChange}`;
   return `${costText}     ${energyText}`;
 }
 
@@ -30,8 +31,8 @@ export function getDetailText({ transport, baseTravelHours = 0, travelHours = 0,
   if (!travelEncounter) return transport?.clearRouteText ?? '';
   const penalty = Math.max(0, travelHours - baseTravelHours);
   const penaltyText = penalty > 0 ? ` (+${penalty}h)` : '';
-  const label = travelEncounter.label || 'Unexpected delay';
-  const message = travelEncounter.message || 'Something slowed the trip, but the trail is still warm.';
+  const label = travelEncounter.label || __dialogueText("scenes/travel/TravelTransitionHelpers.js", "t_bb58d651ddbe6c832e78");
+  const message = travelEncounter.message || __dialogueText("scenes/travel/TravelTransitionHelpers.js", "t_1753589b00198d014421");
   return `${label}${penaltyText}. ${message}`;
 }
 

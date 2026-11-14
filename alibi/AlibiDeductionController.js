@@ -1,8 +1,9 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { deductionManager } from '../managers/DeductionManager.js';
 import { NO_ALIBI_LIAR } from './AlibiEncounterSetup.js';
 
-const LOW_STAT = 'Your theory currently qualifies as a feeling. Requires Deduction 3.';
+const LOW_STAT = __dialogueText("alibi/AlibiDeductionController.js", "t_2a7d63eeffd0fbefccd7");
 
 export function evaluateTimelineSlot(cards, slots, index) {
   if (!Array.isArray(cards) || cards.length !== 3 ||
@@ -20,8 +21,8 @@ export function evaluateTimelineSlot(cards, slots, index) {
   return {
     status: supported ? 'supported' : 'contradicted',
     message: supported
-      ? `Position ${index + 1}: this account fits the chronology. That checks the order, not whether the witness is telling the truth.`
-      : `Position ${index + 1}: this account does not fit here. Compare the times in the statements again.`
+      ? `${__dialogueText("alibi/AlibiDeductionController.js", "t_66cbfad8efbf9c7a675d")}${index + 1}${__dialogueText("alibi/AlibiDeductionController.js", "t_6a4c0494147c342ffb69")}`
+      : `${__dialogueText("alibi/AlibiDeductionController.js", "t_66cbfad8efbf9c7a675d")}${index + 1}${__dialogueText("alibi/AlibiDeductionController.js", "t_08825f5bdf7e6f59f2eb")}`
   };
 }
 
@@ -44,8 +45,8 @@ export function evaluateAlibiChoice(data, choice, interviewedIds) {
   return {
     status: supported ? 'supported' : 'contradicted',
     message: supported
-      ? 'The collected statements support your selected alibi conclusion. This is not a verdict on guilt.'
-      : 'The collected statements do not support your selected alibi conclusion. Re-read the accounts before filing.'
+      ? __dialogueText("alibi/AlibiDeductionController.js", "t_a492f0eda3a289dfa255")
+      : __dialogueText("alibi/AlibiDeductionController.js", "t_81741e43aca2bc97bd92")
   };
 }
 
@@ -81,18 +82,18 @@ export class AlibiDeductionController {
 
   label(kind, index = null) {
     const summary = deductionManager.getSummary();
-    const base = kind === 'timeline' ? 'CHECK ORDER' : 'CHECK REASONING';
-    if (!summary.unlocked) return `${base}: REQUIRES 3`;
+    const base = kind === 'timeline' ? __dialogueText("alibi/AlibiDeductionController.js", "t_8058938d884449168396") : __dialogueText("alibi/AlibiDeductionController.js", "t_7b8d3e34296479165a3d");
+    if (!summary.unlocked) return `${base}${__dialogueText("alibi/AlibiDeductionController.js", "t_b1663c09f5a39171a2de")}`;
     const request = this.request(kind, index);
-    if (request && deductionManager.getPreviousCheck(request)) return 'REVIEW CHECK: FREE';
-    return `${base}: ${summary.available} LEFT`;
+    if (request && deductionManager.getPreviousCheck(request)) return __dialogueText("alibi/AlibiDeductionController.js", "t_daca22952c958a29b9fb");
+    return `${base}${__dialogueText("alibi/AlibiDeductionController.js", "t_45822f54a0d0e030f756")}${summary.available}${__dialogueText("alibi/AlibiDeductionController.js", "t_35629583fbf8b569d02c")}`;
   }
 
   summaryText() {
     const summary = deductionManager.getSummary();
     return summary.unlocked
-      ? `Deduction: ${summary.available}/${summary.allowance} checks left for this case (shared across all boards).`
-      : `Deduction ${summary.deduction}/3: checks unavailable. Clicking is still emotionally valid.`;
+      ? `${__dialogueText("alibi/AlibiDeductionController.js", "t_7e74d0cda0fc4ef52f34")}${summary.available}${__dialogueText("alibi/AlibiDeductionController.js", "t_8a5edab282632443219e")}${summary.allowance}${__dialogueText("alibi/AlibiDeductionController.js", "t_ed35de8f7c29a7d2143c")}`
+      : `${__dialogueText("alibi/AlibiDeductionController.js", "t_43cea09a1d1ac3f2f398")}${summary.deduction}${__dialogueText("alibi/AlibiDeductionController.js", "t_a963de9cba1f0702b14b")}`;
   }
 
   run(kind, index = null) {
@@ -105,8 +106,8 @@ export class AlibiDeductionController {
     const request = this.request(kind, index);
     if (!request) {
       s.setFeedback(kind === 'timeline'
-        ? 'Place a witness account in this position first.'
-        : 'Select an alibi conclusion first. Nothing will be filed by this check.');
+        ? __dialogueText("alibi/AlibiDeductionController.js", "t_ee2e021cb6c40ad11486")
+        : __dialogueText("alibi/AlibiDeductionController.js", "t_d18c644b0e3793ad2583"));
       return;
     }
     s.busy = true;
@@ -123,19 +124,19 @@ export class AlibiDeductionController {
       if (!result.success) {
         const messages = {
           deduction_too_low: LOW_STAT,
-          no_checks_left: 'No deduction checks left for this case. Time to think without the safety net.',
-          no_active_case: 'No active case was found. No check was used.'
+          no_checks_left: __dialogueText("alibi/AlibiDeductionController.js", "t_d63e256361ab6d53f4cd"),
+          no_active_case: __dialogueText("alibi/AlibiDeductionController.js", "t_ef26b967f23d7bf2b755")
         };
-        s.setFeedback(messages[result.reason] || 'Could not check this draft. No deduction check was used.');
+        s.setFeedback(messages[result.reason] || __dialogueText("alibi/AlibiDeductionController.js", "t_fce2bccf3dcea9f56567"));
         return;
       }
       s.feedbackColor = result.entry.result.status === 'supported' ? '#28562c' : '#8a3426';
-      s.feedback = result.entry.result.message + (result.cached ? ' (Previously checked — free.)' : '');
-      if (result.saved === false) s.feedback += ' Warning: progress could not be saved.';
+      s.feedback = result.entry.result.message + (result.cached ? __dialogueText("alibi/AlibiDeductionController.js", "t_dd5178a9f0866bdc0940") : '');
+      if (result.saved === false) s.feedback += __dialogueText("alibi/AlibiDeductionController.js", "t_adb68a663cd0c56f0ceb");
       s.render();
     } catch (error) {
       console.error('[AlibiDeduction] Check failed:', error);
-      s.setFeedback('The check could not be completed. Check the console before trying again.');
+      s.setFeedback(__dialogueText("alibi/AlibiDeductionController.js", "t_f1f6c42ce6342305751b"));
     } finally { s.busy = false; }
   }
 }

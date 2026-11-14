@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import {BaseScene} from '../BaseScene.js';
 import {gameState} from '../../GameData.js';
 import {CrimeLabManager} from './CrimeLabManager.js';
@@ -22,11 +23,11 @@ const IDLE_QUIP_RANGE_MS=[24000,42000];
 const ASSISTANT_QUIP_KINDS=new Set(['idle','delegated_done','delegated_pending']);
 // Used only when quips are missing from crimeLabAssistantDialogues.json.
 const FALLBACK_QUIPS={
-  idle:['The centrifuge just made a noise. I am choosing to find it reassuring.','Please do not lean on the evidence table.'],
-  already_done:['That sample is already analysed.','Done and dusted. Mostly dusted.'],
-  delegated_done:['That one is already on file. I did it earlier.'],
-  delegated_pending:['That report is still brewing. Do not touch it.'],
-  lab_complete:['All analyses on record. Check your crime board.']
+  idle:[__dialogueText("scenes/CSI/CrimeLabScene.js", "t_d90f7536d6822abf143d"),__dialogueText("scenes/CSI/CrimeLabScene.js", "t_79fd14b5b01d325c7f70")],
+  already_done:[__dialogueText("scenes/CSI/CrimeLabScene.js", "t_a6825f31ccbd3f8b9032"),__dialogueText("scenes/CSI/CrimeLabScene.js", "t_9d965b58876a13d3db55")],
+  delegated_done:[__dialogueText("scenes/CSI/CrimeLabScene.js", "t_9cb4cbad5508cc29bb5b")],
+  delegated_pending:[__dialogueText("scenes/CSI/CrimeLabScene.js", "t_fe51d6b16989ca4b71a9")],
+  lab_complete:[__dialogueText("scenes/CSI/CrimeLabScene.js", "t_b7bfdc68c6ae60e710ce")]
 };
 
 // Coordinates are the TOP-LEFT corner, not the centre.
@@ -145,8 +146,8 @@ export class CrimeLabScene extends BaseScene {
   // Values the dialogue UI can use for {tokens} and dynamic lines.
   getAssistantDialogueContext(){
     const m=this.gameState?.currentMission||{};
-    const artifact=[m.artifact,m.artifactName].find(v=>typeof v==='string'&&v.trim())||'the artifact';
-    const city=String(this.cityId||'').replace(/[_-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase())||'the city';
+    const artifact=[m.artifact,m.artifactName].find(v=>typeof v==='string'&&v.trim())||__dialogueText("scenes/CSI/CrimeLabScene.js", "t_03473f89a784c1470730");
+    const city=String(this.cityId||'').replace(/[_-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase())||__dialogueText("scenes/CSI/CrimeLabScene.js", "t_0f53fb3533eb343bc155");
     return{artifact,city,remaining:this.getRemainingAnalysisCount(),pending:this.getPendingAssistantCount(),
       hours:this.getRemainingAnalysisHours(),completed:this.getCompletedStationCount(),total:this.totalStations,
       onboarding:this.labOnboarding?.assistantLine||''};
@@ -155,16 +156,16 @@ export class CrimeLabScene extends BaseScene {
     return this.getAssistantStationIds().map(stationId=>{
       const result=this.getSavedStationResult(stationId);if(!result)return null;
       const value=result.displayValue??result.value??result.result??result.correctValue??result.selectedValue;
-      let text=result.clueText||result.description||result.clue?.text||'Report recorded.';
+      let text=result.clueText||result.description||result.clue?.text||__dialogueText("scenes/CSI/CrimeLabScene.js", "t_39d1ea750b8b1839f254");
       const origin=result.sourceText||result.evidenceConfig?.sourceText||'';
-      if(origin&&!text.includes(origin))text+=`\nSample origin: ${origin}`;
-      return{stationId,label:result.label||result.evidenceConfig?.label||'Forensic Analysis',value,
-        text:`Result: ${String(value).replace(/_/g,' ')}\n${text}`};
+      if(origin&&!text.includes(origin))text+=`${__dialogueText("scenes/CSI/CrimeLabScene.js", "t_2a873d0077b20a1039b2")}${origin}`;
+      return{stationId,label:result.label||result.evidenceConfig?.label||__dialogueText("scenes/CSI/CrimeLabScene.js", "t_d2f42de4fcfd1fbdaa64"),value,
+        text:`${__dialogueText("scenes/CSI/CrimeLabScene.js", "t_0650c019e87c68c4d074")}${String(value).replace(/_/g,__dialogueText("scenes/CSI/CrimeLabScene.js", "t_36a9e7f1c95b82ffb997"))}${__dialogueText("scenes/CSI/CrimeLabScene.js", "t_01ba4719c80b6fe911b0")}${text}`};
     }).filter(Boolean);
   }
   stationStatus(id){
     const complete=Boolean(this.getSavedStationResult(id)),required=this.isStationRequired(id);
-    return{text:required?(complete?'[ COMPLETE ]':'[ ANALYZE ]'):(complete?'[ ASSISTANT RESULT ]':'[ REPORT PENDING ]'),
+    return{text:required?(complete?__dialogueText("scenes/CSI/CrimeLabScene.js", "t_899231697a699544d607"):__dialogueText("scenes/CSI/CrimeLabScene.js", "t_9293d4a5f7dd82905a7d")):(complete?__dialogueText("scenes/CSI/CrimeLabScene.js", "t_59e1c963fb86e5bcfbcc"):__dialogueText("scenes/CSI/CrimeLabScene.js", "t_44eb7b62406ae0f3e277")),
       color:complete?'#39ff14':'#ffcc00',complete};
   }
   // ----------------------------------------------------------- toasts & quips
@@ -180,7 +181,7 @@ export class CrimeLabScene extends BaseScene {
   }
   showAssistantQuip(kind,ms=4200){
     const line=this.pickQuip(kind);if(!line)return;
-    this.showToast(ASSISTANT_QUIP_KINDS.has(kind)?`LAB ASSISTANT: ${line}`:line,ms);
+    this.showToast(ASSISTANT_QUIP_KINDS.has(kind)?`${__dialogueText("scenes/CSI/CrimeLabScene.js", "t_06b5758bc74b6fbb1cd6")}${line}`:line,ms);
   }
   showToast(text,ms=3400){
     if(!text||!this.toastText?.scene)return;
@@ -212,9 +213,9 @@ export class CrimeLabScene extends BaseScene {
   openAssistantDialogue(startNodeId='greeting',afterClose=null){
     if(this.debugMode||this.uiLocked||this.isExitingLab||!this.labOnboarding?.assistantPresent||this.assistantDialog?.isOpen())return;
     const dialogue=this.cache.json.get('crime_lab_assistant_dialogues');
-    if(!dialogue?.nodes){this.showNavHint('LAB ASSISTANT DIALOGUE UNAVAILABLE');return;}
+    if(!dialogue?.nodes){this.showNavHint(__dialogueText("scenes/CSI/CrimeLabScene.js", "t_46ccd38a4f63f24ed5f0"));return;}
     const resolved=dialogue.nodes[startNodeId]?startNodeId:dialogue.defaultNodeId;
-    if(!resolved||!dialogue.nodes[resolved]){this.showNavHint('DIALOGUE NODE MISSING');return;}
+    if(!resolved||!dialogue.nodes[resolved]){this.showNavHint(__dialogueText("scenes/CSI/CrimeLabScene.js", "t_5d05f547c56fd8e862f5"));return;}
     const opened=this.assistantDialog.open({dialogue,startNodeId:resolved,onClose:()=>{
       if(this.isExitingLab||this.labCleanupDone)return;this.applyLock(false);afterClose?.();this.scheduleIdleQuip();
     }});
@@ -224,8 +225,8 @@ export class CrimeLabScene extends BaseScene {
     if(!this.labOnboarding?.assistantPresent||this.assistantHotspot?.scene)return;
     const cfg=this.layout.assistant_hotspot;
     this.assistantHotspot=this.add.zone(cfg.x,cfg.y,cfg.width,cfg.height).setOrigin(0,0).setScrollFactor(0).setDepth(50).setInteractive({useHandCursor:true});
-    this.assistantHotspot.hotspotData={id:'assistant_hotspot',room:'lab_intro',label:'Talk to Lab Assistant',...cfg};
-    this.assistantHotspot.on('pointerover',()=>{if(!this.debugMode&&!this.uiLocked)this.showNavHint('Talk to Lab Assistant');});
+    this.assistantHotspot.hotspotData={id:'assistant_hotspot',room:'lab_intro',label:__dialogueText("scenes/CSI/CrimeLabScene.js", "t_a66825a993b51335ae29"),...cfg};
+    this.assistantHotspot.on('pointerover',()=>{if(!this.debugMode&&!this.uiLocked)this.showNavHint(__dialogueText("scenes/CSI/CrimeLabScene.js", "t_a66825a993b51335ae29"));});
     this.assistantHotspot.on('pointerout',()=>this.hideNavHint());
     this.assistantHotspot.on('pointerdown',()=>{if(!this.debugMode)this.openAssistantDialogue('greeting');});
     this.prepareDebugZone(this.assistantHotspot);
@@ -237,7 +238,7 @@ export class CrimeLabScene extends BaseScene {
       {id:'identity_station',stationId:'identity',room:'lab_a',...this.layout.identity_station,label:identity.label,action:action(identity,null,'identity')},
       {id:'trace_a_station',stationId:'trace_0',room:'lab_b',...this.layout.trace_a_station,label:trace0.label,action:action(trace0,0,'trace_0')},
       {id:'trace_b_station',stationId:'trace_1',room:'lab_c',...this.layout.trace_b_station,label:trace1.label,action:action(trace1,1,'trace_1')},
-      {id:'exit_lab',room:'lab_intro',...this.layout.exit_lab,label:'Exit Lab',alwaysVisible:true,action:()=>this.exitLab()}
+      {id:'exit_lab',room:'lab_intro',...this.layout.exit_lab,label:__dialogueText("scenes/CSI/CrimeLabScene.js", "t_8290d16955ed5f54d9c9"),alwaysVisible:true,action:()=>this.exitLab()}
     ];
     this.completedCount=this.getCompletedStationCount();
     list.forEach(data=>{
@@ -288,11 +289,11 @@ export class CrimeLabScene extends BaseScene {
   }
   createNavigationUI(){
     const{width,height}=this.scale,style={fontFamily:'SpecialElite',fontSize:'54px',color:'#39ff14',backgroundColor:'rgba(0,0,0,0.15)',padding:{left:8,right:8,top:8,bottom:8}};
-    this.leftArrow=this.add.text(46,height/2,'◀',style).setOrigin(.5).setScrollFactor(0).setDepth(200).setAlpha(.75).setInteractive({useHandCursor:true});
-    this.rightArrow=this.add.text(width-46,height/2,'▶',style).setOrigin(.5).setScrollFactor(0).setDepth(200).setAlpha(.75).setInteractive({useHandCursor:true});
+    this.leftArrow=this.add.text(46,height/2,__dialogueText("scenes/CSI/CrimeLabScene.js", "t_0b8da1e098dcfd8d49da"),style).setOrigin(.5).setScrollFactor(0).setDepth(200).setAlpha(.75).setInteractive({useHandCursor:true});
+    this.rightArrow=this.add.text(width-46,height/2,__dialogueText("scenes/CSI/CrimeLabScene.js", "t_f36bd7b77a9be1427e05"),style).setOrigin(.5).setScrollFactor(0).setDepth(200).setAlpha(.75).setInteractive({useHandCursor:true});
     this.navHint=this.add.text(width/2,92,'',{fontFamily:'SpecialElite',fontSize:'20px',color:'#39ff14',backgroundColor:'#000000',padding:{left:10,right:10,top:8,bottom:8},wordWrap:{width:width-140,useAdvancedWrap:true},align:'center'}).setOrigin(.5).setScrollFactor(0).setDepth(220).setVisible(false);
     this.toastText=this.add.text(width/2,138,'',{fontFamily:'SpecialElite',fontSize:'18px',color:'#fff4c7',backgroundColor:'#07111b',padding:{left:12,right:12,top:8,bottom:8},wordWrap:{width:width-160,useAdvancedWrap:true},align:'center'}).setOrigin(.5,0).setScrollFactor(0).setDepth(230).setVisible(false);
-    this.introHint=this.add.text(width/2,78,'Crime Lab — move right to inspect the analysis stations',{fontFamily:'SpecialElite',fontSize:'18px',color:'#fff4c7',backgroundColor:'#000000',padding:{left:12,right:12,top:8,bottom:8},wordWrap:{width:width-120,useAdvancedWrap:true},align:'center'}).setOrigin(.5,0).setScrollFactor(0).setDepth(220).setAlpha(0);
+    this.introHint=this.add.text(width/2,78,__dialogueText("scenes/CSI/CrimeLabScene.js", "t_d7a87f86ce42a11317c2"),{fontFamily:'SpecialElite',fontSize:'18px',color:'#fff4c7',backgroundColor:'#000000',padding:{left:12,right:12,top:8,bottom:8},wordWrap:{width:width-120,useAdvancedWrap:true},align:'center'}).setOrigin(.5,0).setScrollFactor(0).setDepth(220).setAlpha(0);
     this.setupNavigationArrow(this.leftArrow,()=>this.moveLeft(true),()=>this.getLeftRoomLabel());
     this.setupNavigationArrow(this.rightArrow,()=>this.moveRight(true),()=>this.getRightRoomLabel());this.updateNavVisibility();
   }
@@ -318,20 +319,20 @@ export class CrimeLabScene extends BaseScene {
   updateNavVisibility(){this.updateNavigationArrow(this.leftArrow,this.currentView!=='lab_intro');this.updateNavigationArrow(this.rightArrow,this.currentView!=='lab_c');}
   updateNavigationArrow(arrow,hasDestination){const state=this.navigationArrowStates.get(arrow);if(!state||!arrow?.scene)return;state.hasDestination=hasDestination;arrow.setVisible(hasDestination);}
   updateProceedVisibility(){this.updateRoomHotspots();}
-  getLeftRoomLabel(){return{lab_a:'Lab Entrance',lab_b:'Identity Lab',lab_c:'Trace Analysis'}[this.currentView]||'';}
-  getRightRoomLabel(){return{lab_intro:'Identity Lab',lab_a:'Trace Analysis',lab_b:'Evidence Analysis'}[this.currentView]||'';}
+  getLeftRoomLabel(){return{lab_a:__dialogueText("scenes/CSI/CrimeLabScene.js", "t_1c00cda9f845442d6e7f"),lab_b:__dialogueText("scenes/CSI/CrimeLabScene.js", "t_8924210456c13f622abe"),lab_c:__dialogueText("scenes/CSI/CrimeLabScene.js", "t_a29a2610ddf2ca3d0055")}[this.currentView]||'';}
+  getRightRoomLabel(){return{lab_intro:__dialogueText("scenes/CSI/CrimeLabScene.js", "t_8924210456c13f622abe"),lab_a:__dialogueText("scenes/CSI/CrimeLabScene.js", "t_a29a2610ddf2ca3d0055"),lab_b:__dialogueText("scenes/CSI/CrimeLabScene.js", "t_e349c339faad014cb48f")}[this.currentView]||'';}
   showNavHint(text){if(text&&this.navHint)this.navHint.setText(text).setVisible(true);}
   hideNavHint(){this.navHint?.setVisible(false);}
   onHotspotOver(data){
     if(this.debugMode||!data?.label||this.uiLocked)return;
     if(data.stationId&&!this.isStationRequired(data.stationId)){
-      this.showNavHint(this.getSavedStationResult(data.stationId)?'RESULT COMPLETED BY LAB ASSISTANT':'DELEGATED REPORT PENDING');return;
+      this.showNavHint(this.getSavedStationResult(data.stationId)?__dialogueText("scenes/CSI/CrimeLabScene.js", "t_03fa779b65c029fbb832"):__dialogueText("scenes/CSI/CrimeLabScene.js", "t_7cbebdff9aa9d38239ec"));return;
     }
     if(data.id==='exit_lab'){
       const left=this.getRemainingAnalysisCount();
-      this.showNavHint(left>0?`Exit Lab — ${left} ${left===1?'analysis':'analyses'} still pending`:'Exit Lab');return;
+      this.showNavHint(left>0?`${__dialogueText("scenes/CSI/CrimeLabScene.js", "t_491e9712701a60a2ffc1")}${left}${__dialogueText("scenes/CSI/CrimeLabScene.js", "t_36a9e7f1c95b82ffb997")}${left===1?'analysis':'analyses'}${__dialogueText("scenes/CSI/CrimeLabScene.js", "t_5efb5f1c29ea8120a4dc")}`:__dialogueText("scenes/CSI/CrimeLabScene.js", "t_8290d16955ed5f54d9c9"));return;
     }
-    if(data.completed&&!data.alwaysVisible){this.showNavHint(`${data.label} — DONE`);return;}
+    if(data.completed&&!data.alwaysVisible){this.showNavHint(`${data.label}${__dialogueText("scenes/CSI/CrimeLabScene.js", "t_8fad419b2d308ae798e6")}`);return;}
     this.showNavHint(data.label);
   }
   onHotspotOut(){this.hideNavHint();}
@@ -343,7 +344,7 @@ export class CrimeLabScene extends BaseScene {
       if(!c.assistantPresent&&c.assistantLine)lines.push(c.assistantLine);
       return lines.join('\n');
     }
-    return'Crime Lab — move right to inspect the analysis stations';
+    return__dialogueText("scenes/CSI/CrimeLabScene.js", "t_d7a87f86ce42a11317c2");
   }
   showIntroHint(){
     if(!this.introHint?.scene||this.debugMode)return;this.clearIntroHintAnimation();const token=this.labRunToken;
@@ -370,7 +371,7 @@ export class CrimeLabScene extends BaseScene {
   }
   async enterMiniGame(sceneKey,sceneData={},stationId=''){
     if(this.debugMode||this.uiLocked||this.isExitingLab||this.activeMiniGameSession||!this.isStationRequired(stationId))return;
-    if(!sceneKey){this.showNavHint('ANALYSIS STATION UNAVAILABLE');return;}
+    if(!sceneKey){this.showNavHint(__dialogueText("scenes/CSI/CrimeLabScene.js", "t_f524e8f67cd9dabb9494"));return;}
     const loadToken={},runToken=this.labRunToken;this.miniGameLoadToken=loadToken;this.clearIdleQuip();this.applyLock(true);
     try{
       await this.game.sceneLoader.ensure(sceneKey);
@@ -382,7 +383,7 @@ export class CrimeLabScene extends BaseScene {
       if(this.labRunToken!==runToken||!this.labRunToken)return;
       console.error(`[CrimeLabScene] Minigame "${sceneKey}" failed to start.`,error);this.miniGameLoadToken=null;this.detachMiniGameListeners();
       if(this.scene.isPaused(this.scene.key))this.scene.resume(this.scene.key);
-      if(!this.isExitingLab){this.applyLock(false);this.showNavHint('ANALYSIS STATION UNAVAILABLE');this.scheduleIdleQuip();}
+      if(!this.isExitingLab){this.applyLock(false);this.showNavHint(__dialogueText("scenes/CSI/CrimeLabScene.js", "t_f524e8f67cd9dabb9494"));this.scheduleIdleQuip();}
     }
   }
   handleMiniGameComplete(payload={}){
@@ -422,7 +423,7 @@ export class CrimeLabScene extends BaseScene {
         console.error('[CrimeLabScene] Failed to return to CrimeCityScene:',error);
         if(this.labRunToken!==token||!this.sys.isActive())return;
         this.isExitingLab=false;this.applyLock(false);this.game.events.emit('setHudVisible',false);EventBus.emit('hideHUD');
-        this.cameras.main.fadeIn(350,0,0,0);this.showNavHint('CRIME CITY UNAVAILABLE');this.scheduleIdleQuip();
+        this.cameras.main.fadeIn(350,0,0,0);this.showNavHint(__dialogueText("scenes/CSI/CrimeLabScene.js", "t_3d637ce1839649c1e59a"));this.scheduleIdleQuip();
       }
     });this.cameras.main.fadeOut(350,0,0,0);
   }
@@ -482,12 +483,12 @@ export class CrimeLabScene extends BaseScene {
     });
     const d=zones[this.selectedIndex]?.hotspotData;
     this.debugText?.setPosition(16,Math.max(16,this.scale.height-170)).setText([
-      `LOCAL DEBUG: ${d?.id||'no hotspots'} | room: ${this.currentView}`,
-      `TOP-LEFT x:${d?.x??'-'} y:${d?.y??'-'} w:${d?.width??'-'} h:${d?.height??'-'}`,
-      'Drag / Arrows: move | Shift+Arrows: resize | Alt: 1px',
-      'Tab / Shift+Tab: select | C: export | D: close',
-      'Click green navigation arrows to change room. Gameplay clicks disabled.'
-    ].join('\n'));
+      `${__dialogueText("scenes/CSI/CrimeLabScene.js", "t_cb40a67f6cdee4b5ad52")}${d?.id||__dialogueText("scenes/CSI/CrimeLabScene.js", "t_7754a43ab84c63bd005f")}${__dialogueText("scenes/CSI/CrimeLabScene.js", "t_d001691ace8ef1e4238e")}${this.currentView}`,
+      `${__dialogueText("scenes/CSI/CrimeLabScene.js", "t_ce6c3672972a008f6bab")}${d?.x??__dialogueText("scenes/CSI/CrimeLabScene.js", "t_3973e022e93220f9212c")}${__dialogueText("scenes/CSI/CrimeLabScene.js", "t_8278a5c11d3d9380f821")}${d?.y??__dialogueText("scenes/CSI/CrimeLabScene.js", "t_3973e022e93220f9212c")}${__dialogueText("scenes/CSI/CrimeLabScene.js", "t_1b89a9604b178452218e")}${d?.width??__dialogueText("scenes/CSI/CrimeLabScene.js", "t_3973e022e93220f9212c")}${__dialogueText("scenes/CSI/CrimeLabScene.js", "t_3f4674b8e35cc249a199")}${d?.height??__dialogueText("scenes/CSI/CrimeLabScene.js", "t_3973e022e93220f9212c")}`,
+      __dialogueText("scenes/CSI/CrimeLabScene.js", "t_ab723c339f7fee296c8c"),
+      __dialogueText("scenes/CSI/CrimeLabScene.js", "t_8a8e5fa4a5df6de70337"),
+      __dialogueText("scenes/CSI/CrimeLabScene.js", "t_0cb2849c2c5df83dc983")
+    ].join(__dialogueText("scenes/CSI/CrimeLabScene.js", "t_01ba4719c80b6fe911b0")));
   }
   isEditableTarget(event){const t=event.target;return Boolean(t?.isContentEditable||['INPUT','TEXTAREA','SELECT'].includes(t?.tagName));}
   onDebugKey(event){
@@ -496,7 +497,7 @@ export class CrimeLabScene extends BaseScene {
     if(!this.debugMode)return;
     if(event.code==='KeyC'){if(!event.repeat)this.printConfig();return;}
     const zones=this.getVisibleDebugZones();if(!zones.length)return;
-    if(event.code==='Tab'){
+    if(event.code===__dialogueText("scenes/CSI/CrimeLabScene.js", "t_90ddf1963abb36c9921c")){
       event.preventDefault();this.selectedIndex=(this.selectedIndex+(event.shiftKey?-1:1)+zones.length)%zones.length;this.updateDebug();return;
     }
     if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.code))return;
@@ -510,7 +511,7 @@ export class CrimeLabScene extends BaseScene {
   printConfig(){
     if(!LOCAL_DEBUG_ALLOWED||!this.debugMode)return;
     console.log('COPY INTO CrimeLabScene.js -> const LAB_LAYOUT =');console.log(JSON.stringify(this.layout,null,2));
-    this.showNavHint('LAYOUT EXPORTED TO CONSOLE — COPY LAB_LAYOUT TO KEEP CHANGES');
+    this.showNavHint(__dialogueText("scenes/CSI/CrimeLabScene.js", "t_28aa053ee336afd60dc6"));
   }
   cleanupScene(){
     if(this.labCleanupDone)return;this.labCleanupDone=true;this.labRunToken=null;this.miniGameLoadToken=null;this.isExitingLab=true;

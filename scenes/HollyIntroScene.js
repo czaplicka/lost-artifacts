@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
 import { gameState } from '../GameData.js';
@@ -7,53 +8,53 @@ import { requestAutosave, flushAutosave } from '../gameStatePersistence.js';
 
 const TYPE_DELAY_MS = 22;
 const OPENING_SCRIPT = [
-  { speaker: 'HOLLY', text: 'Mark Agency says my husband is gone.' },
+  { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_58de530cfa35752b7230"), text: __dialogueText("scenes/HollyIntroScene.js", "t_3cfc53f7bfc5b8f7ae88") },
   { choice: true, options: [
     { tone: 'sarcastic', lines: [
-      { speaker: 'DETECTIVE', text: 'Gone as in missing, or gone as in paperwork already gave up?' },
-      { speaker: 'HOLLY', text: 'They used careful words. That is how institutions lie politely.' }
+      { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_1e954e77ee4e5253c6c5"), text: __dialogueText("scenes/HollyIntroScene.js", "t_74c233625f6b492e13c7") },
+      { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_58de530cfa35752b7230"), text: __dialogueText("scenes/HollyIntroScene.js", "t_50e757c57fabc06607f1") }
     ] },
     { tone: 'serious', lines: [
-      { speaker: 'DETECTIVE', text: 'What exactly did they tell you?' },
-      { speaker: 'HOLLY', text: 'Careful words. That is how institutions lie politely.' }
+      { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_1e954e77ee4e5253c6c5"), text: __dialogueText("scenes/HollyIntroScene.js", "t_f4f93a89db6836d93750") },
+      { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_58de530cfa35752b7230"), text: __dialogueText("scenes/HollyIntroScene.js", "t_240d4587c662a3616fac") }
     ] },
     { tone: 'greedy', lines: [
-      { speaker: 'DETECTIVE', text: 'Is there a retainer attached to this tragedy?' },
-      { speaker: 'HOLLY', text: 'Let me finish the tragedy first. Then we will discuss the retainer.' },
-      { speaker: 'HOLLY', text: 'They used careful words. That is how institutions lie politely.' }
+      { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_1e954e77ee4e5253c6c5"), text: __dialogueText("scenes/HollyIntroScene.js", "t_bb744364ded3e1c4e5b2") },
+      { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_58de530cfa35752b7230"), text: __dialogueText("scenes/HollyIntroScene.js", "t_ebbdaa241cb92cf1064a") },
+      { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_58de530cfa35752b7230"), text: __dialogueText("scenes/HollyIntroScene.js", "t_50e757c57fabc06607f1") }
     ] }
   ] },
-  { speaker: 'HOLLY', text: 'John worked recovery. Stolen artefacts, private contracts, bad coffee, worse secrets.' },
-  { speaker: 'DETECTIVE', text: 'Mark Agency.' },
-  { speaker: 'HOLLY', text: 'Yes. He vanished during a job tied to the Black Lady.', stamp: 'CLASSIFIED' },
+  { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_58de530cfa35752b7230"), text: __dialogueText("scenes/HollyIntroScene.js", "t_62c37e29d04f7e79b74c") },
+  { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_1e954e77ee4e5253c6c5"), text: __dialogueText("scenes/HollyIntroScene.js", "t_dd7c20fddbdfc0013122") },
+  { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_58de530cfa35752b7230"), text: __dialogueText("scenes/HollyIntroScene.js", "t_e9fbee6a8263393ebd98"), stamp: 'CLASSIFIED' },
   { choice: true, options: [
     { tone: 'sarcastic', lines: [
-      { speaker: 'DETECTIVE', text: 'Let me guess: the file got lost between a shredder and a coffee machine.' },
-      { speaker: 'HOLLY', text: 'Closer than you think.' }
+      { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_1e954e77ee4e5253c6c5"), text: __dialogueText("scenes/HollyIntroScene.js", "t_5ad00f98d7e55e4f19be") },
+      { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_58de530cfa35752b7230"), text: __dialogueText("scenes/HollyIntroScene.js", "t_27cd71ceb568b2a867e3") }
     ] },
-    { tone: 'serious', lines: [ { speaker: 'DETECTIVE', text: 'And the Agency buried it?' } ] },
+    { tone: 'serious', lines: [ { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_1e954e77ee4e5253c6c5"), text: __dialogueText("scenes/HollyIntroScene.js", "t_034bc3a16d07673de51a") } ] },
     { tone: 'greedy', lines: [
-      { speaker: 'DETECTIVE', text: 'Is danger pay part of the deal?' },
-      { speaker: 'HOLLY', text: 'Everything is part of the deal. Eventually.' }
+      { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_1e954e77ee4e5253c6c5"), text: __dialogueText("scenes/HollyIntroScene.js", "t_1da4c748f4fb0244aa69") },
+      { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_58de530cfa35752b7230"), text: __dialogueText("scenes/HollyIntroScene.js", "t_6030b237e93b17d23fff") }
     ] }
   ] },
-  { speaker: 'HOLLY', text: 'They buried the questions. The man came after.' },
-  { speaker: 'DETECTIVE', text: 'That line almost makes me want to charge extra.' },
-  { speaker: 'HOLLY', text: 'I can help with that.' },
-  { speaker: 'DETECTIVE', text: 'Now you are speaking my language.' },
-  { speaker: 'HOLLY', text: 'Take the case. Find John. Find out what Mark Agency is hiding.', stamp: 'CASE OPEN' }
+  { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_58de530cfa35752b7230"), text: __dialogueText("scenes/HollyIntroScene.js", "t_9e5655f42cefea5b5d71") },
+  { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_1e954e77ee4e5253c6c5"), text: __dialogueText("scenes/HollyIntroScene.js", "t_f65d02ecbea38aac4be3") },
+  { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_58de530cfa35752b7230"), text: __dialogueText("scenes/HollyIntroScene.js", "t_54ca21d98060df467a90") },
+  { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_1e954e77ee4e5253c6c5"), text: __dialogueText("scenes/HollyIntroScene.js", "t_51863d7a15d8a13e3401") },
+  { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_58de530cfa35752b7230"), text: __dialogueText("scenes/HollyIntroScene.js", "t_0048782429e52a93ccdf"), stamp: __dialogueText("scenes/HollyIntroScene.js", "t_26ce46b10bbdbeeccac6") }
 ];
 const CLOSING_SCRIPT = [
-  { speaker: 'HOLLY', text: 'There is one more thing. Someone in Mark Agency still expects updates.' },
-  { speaker: 'DETECTIVE', text: 'That sounds less like a lead and more like a trap with office furniture.' },
-  { speaker: 'HOLLY', text: 'I never said it was a safe case.' },
-  { speaker: 'DETECTIVE', text: 'Good. Safe cases are usually boring.' }
+  { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_58de530cfa35752b7230"), text: __dialogueText("scenes/HollyIntroScene.js", "t_446661c97578f44ff416") },
+  { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_1e954e77ee4e5253c6c5"), text: __dialogueText("scenes/HollyIntroScene.js", "t_d97965f43c564e3eeb15") },
+  { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_58de530cfa35752b7230"), text: __dialogueText("scenes/HollyIntroScene.js", "t_d51576c7ff76180b8316") },
+  { speaker: __dialogueText("scenes/HollyIntroScene.js", "t_1e954e77ee4e5253c6c5"), text: __dialogueText("scenes/HollyIntroScene.js", "t_6509a5b517eb995a2b4c") }
 ];
 const REWARD_CHOICES = [
-  { id: 'cash', label: 'Cash advance', desc: '+250 cash' },
-  { id: 'rest', label: 'Rest voucher', desc: '+2 rest vouchers' },
-  { id: 'kit', label: 'Field support', desc: '+2 free hints' },
-  { id: 'travel', label: 'Travel fund', desc: '+2 free transfers' }
+  { id: 'cash', label: __dialogueText("scenes/HollyIntroScene.js", "t_fb5b1b0623205ba2c12c"), desc: __dialogueText("scenes/HollyIntroScene.js", "t_e21e026308b1dd9fce2a") },
+  { id: 'rest', label: __dialogueText("scenes/HollyIntroScene.js", "t_878cef89d2a9686096fb"), desc: __dialogueText("scenes/HollyIntroScene.js", "t_21b6487c0f96a50b7a2e") },
+  { id: 'kit', label: __dialogueText("scenes/HollyIntroScene.js", "t_2fb1d1b9ec31b925e61f"), desc: __dialogueText("scenes/HollyIntroScene.js", "t_cb1031afb8c84378546b") },
+  { id: 'travel', label: __dialogueText("scenes/HollyIntroScene.js", "t_434a8d75fb758289413a"), desc: __dialogueText("scenes/HollyIntroScene.js", "t_47b1dcd8b1cdd60d9be7") }
 ];
 const SPEAKER_COLORS = { HOLLY: '#e6c27a', DETECTIVE: '#8fc7e8' };
 
@@ -77,13 +78,7 @@ class HollyHudGuard {
     if (typeof document !== 'undefined' && document.head) {
       this.style = document.createElement('style');
       this.style.setAttribute('data-holly-hud-lock', 'true');
-      this.style.textContent = `
-        #hud-container, #hud-tooltip, #hud-energy-log {
-          display: none !important;
-          visibility: hidden !important;
-          pointer-events: none !important;
-        }
-      `;
+      this.style.textContent = `${__dialogueText("scenes/HollyIntroScene.js", "t_3f18ff5f78084f067ac4")}`;
       document.head.appendChild(this.style);
     }
     this.owner.events.on('preupdate', this.enforce);
@@ -246,14 +241,14 @@ export class HollyIntroScene extends BaseScene {
     this.dialogText = this.add.text(42, height - 190, '', {
       fontFamily: 'SpecialElite', fontSize: '28px', color: '#f4ead7', wordWrap: { width: width - 320 }
     }).setDepth(11).setVisible(false);
-    this.continueText = this.add.text(width - 40, height - 30, 'CLICK TO CONTINUE', {
+    this.continueText = this.add.text(width - 40, height - 30, __dialogueText("scenes/HollyIntroScene.js", "t_77a852cfc873edb0457c"), {
       fontFamily: 'PressStart2P', fontSize: '10px', color: '#c9b78c'
     }).setOrigin(1, 1).setDepth(11).setVisible(false);
     this.createTrackedTween({ targets: this.continueText, alpha: 0.3,
       duration: 650, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     this.stampText = this.add.text(width * 0.42, height * 0.3, '', {
       fontFamily: 'PressStart2P', fontSize: '44px', color: '#c0392b',
-      stroke: '#c0392b', strokeThickness: 2, padding: { x: 18, y: 12 }
+      stroke: __dialogueText("scenes/HollyIntroScene.js", "t_3eac5ba92e880ae7ba06"), strokeThickness: 2, padding: { x: 18, y: 12 }
     }).setOrigin(0.5).setAngle(-14).setDepth(14).setVisible(false);
     this.trackInputEvent(this.input, 'pointerdown', this.boundAdvance);
     if (this.input.keyboard) this.trackInputEvent(this.input.keyboard, 'keydown-SPACE', this.boundAdvance);
@@ -482,7 +477,7 @@ export class HollyIntroScene extends BaseScene {
   showDialogueChoice(item) {
     this.phase = 'dialogue-choice';
     this.setSpeaker('DETECTIVE');
-    this.showOptions({ speaker: 'DETECTIVE', prompt: 'What do you say?', spacing: 62, fontSize: 21,
+    this.showOptions({ speaker: __dialogueText("scenes/HollyIntroScene.js", "t_1e954e77ee4e5253c6c5"), prompt: __dialogueText("scenes/HollyIntroScene.js", "t_9276ea83937dc25660ee"), spacing: 62, fontSize: 21,
       entries: item.options.map(option => ({ label: option.lines[0].text })),
       onPick: index => this.pickDialogueOption(item, index) });
   }
@@ -511,10 +506,10 @@ export class HollyIntroScene extends BaseScene {
     }
     this.phase = 'choices';
     this.setSpeaker('HOLLY');
-    this.showOptions({ speaker: 'HOLLY',
-      prompt: 'Pick one favor. I can help with money, travel, rest, or field support.',
+    this.showOptions({ speaker: __dialogueText("scenes/HollyIntroScene.js", "t_58de530cfa35752b7230"),
+      prompt: __dialogueText("scenes/HollyIntroScene.js", "t_c5f780118a1f30f19ce3"),
       spacing: 48, fontSize: 22,
-      entries: REWARD_CHOICES.map(choice => ({ label: `${choice.label} — ${choice.desc}` })),
+      entries: REWARD_CHOICES.map(choice => ({ label: `${choice.label}${__dialogueText("scenes/HollyIntroScene.js", "t_3b2e8119b6fcc97df985")}${choice.desc}` })),
       onPick: index => this.selectChoice(REWARD_CHOICES[index]) });
   }
 
@@ -567,7 +562,7 @@ export class HollyIntroScene extends BaseScene {
     switch (choiceId) {
       case 'cash':
         moneyManager.addCash(250, {
-          category: ECONOMY_CATEGORY.AGENCY_ADVANCE, description: 'Holly case advance',
+          category: ECONOMY_CATEGORY.AGENCY_ADVANCE, description: __dialogueText("scenes/HollyIntroScene.js", "t_a7ef26be8904c900b45f"),
           missionId: 'black-lady-main-case', metadata: { source: 'holly_intro_choice', choiceId }
         });
         break;
@@ -575,7 +570,7 @@ export class HollyIntroScene extends BaseScene {
         gameState.updateState({ restVouchers: Number(fullState.restVouchers || 0) + 2 });
         break;
       case 'kit':
-        hintManager.grantOnce('holly_intro_field_support', 2, 'Holly field support');
+        hintManager.grantOnce('holly_intro_field_support', 2, __dialogueText("scenes/HollyIntroScene.js", "t_0da52c91c65a43f635d8"));
         break;
       case 'travel':
         gameState.updateState({ freeTransfers: Number(fullState.freeTransfers || 0) + 2 });

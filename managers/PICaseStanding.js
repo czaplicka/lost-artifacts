@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import {
   requestAutosave
 } from '../gameStatePersistence.js';
@@ -74,7 +75,7 @@ export function awardPICaseReputation({
       eventId: `pi:${caseId}:case-solved`,
 
       headline:
-        `Private investigator closes "${title.trim()}".`,
+        `${__dialogueText("managers/PICaseStanding.js", "t_7acc3b6f9c0c1fd35b0b")}${title.trim()}${__dialogueText("managers/PICaseStanding.js", "t_1e4a1452ad4db45827a1")}`,
 
       context: {
         caseId,

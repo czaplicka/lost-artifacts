@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { deadMenWebContacts, isDeadMenWebContactVisible } from '../../managers/DeadMenWebIntegration.js';
 import { DW, DH, FONT_TEXT, FONT_PIXEL, SFX } from './PhoneConfig.js';
 import { savedPhoneContacts } from '../pi-computer/AlibiContactBook.js';
@@ -33,8 +34,8 @@ export const PhoneDirectory={
   if(directorySelection&&(!this.directoryOpen||options.directoryToken!==this._phoneDirectoryRenderToken))return;
   const wasDirectoryOpen=this.directoryOpen;
   this.sticky={number:contact.number,name:contact.name};this.updateSticky(true);
-  if(this.state==='on_hook')this.status=`Noted: ${contact.number} - ${contact.name}.\n\nPick up the receiver and dial.`;
-  else if(this.state==='ready')this.status=`Noted: ${contact.number} - ${contact.name}.\n\nDial it.`;
+  if(this.state==='on_hook')this.status=`${__dialogueText("ui/pi-phone/PhoneDirectory.js", "t_591299ea45acd8f69fa9")}${contact.number}${__dialogueText("ui/pi-phone/PhoneDirectory.js", "t_d3150495ce4f5d1a27bf")}${contact.name}${__dialogueText("ui/pi-phone/PhoneDirectory.js", "t_a388f19b4766138212f8")}`;
+  else if(this.state==='ready')this.status=`${__dialogueText("ui/pi-phone/PhoneDirectory.js", "t_591299ea45acd8f69fa9")}${contact.number}${__dialogueText("ui/pi-phone/PhoneDirectory.js", "t_d3150495ce4f5d1a27bf")}${contact.name}${__dialogueText("ui/pi-phone/PhoneDirectory.js", "t_3aea1f4b0e35f960741a")}`;
   this.closeDirectory(false);this.render();
   if(wasDirectoryOpen)this.sfxClick();
  },
@@ -44,9 +45,9 @@ export const PhoneDirectory={
   const blocker=s.add.rectangle(0,0,DW,DH,0,.8).setOrigin(0).setInteractive();blocker.on('pointerdown',()=>this.closeDirectory());
   const book=s.add.graphics();book.fillStyle(0,.45);book.fillRoundedRect(258,58,780,620,18);book.fillStyle(0x2a1a10,1);book.fillRoundedRect(250,50,780,620,18);book.lineStyle(3,0x8b6914,1);book.strokeRoundedRect(250,50,780,620,18);book.fillStyle(0xe9dfc2,1);book.fillRoundedRect(274,74,732,572,8);book.lineStyle(1,0xb8a678,.6);for(let y=214;y<620;y+=58)book.lineBetween(290,y,990,y);book.lineStyle(1,0xb04040,.55);book.lineBetween(296,74,296,646);
   const hit=s.add.rectangle(250,50,780,620,0xffffff,0).setOrigin(0).setInteractive();this.dir.add([blocker,book,hit]);
-  this.t(this.dir,318,92,'LOCAL DIRECTORY',34,'#2a2118',FONT_TEXT);
-  this.t(this.dir,320,138,'Public listings and your saved contacts.',15,'#6b5a3a',FONT_TEXT);
-  this.t(this.dir,884,88,'[ CLOSE ]',14,'#7a1f1f',FONT_PIXEL).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.closeDirectory());
+  this.t(this.dir,318,92,__dialogueText("ui/pi-phone/PhoneDirectory.js", "t_07a52e214ab235c90b14"),34,'#2a2118',FONT_TEXT);
+  this.t(this.dir,320,138,__dialogueText("ui/pi-phone/PhoneDirectory.js", "t_2187720a4f4703e7ec3d"),15,'#6b5a3a',FONT_TEXT);
+  this.t(this.dir,884,88,__dialogueText("ui/pi-phone/PhoneDirectory.js", "t_368d075bc49762386ec9"),14,'#7a1f1f',FONT_PIXEL).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.closeDirectory());
   const contacts=directoryContacts(this),pages=Math.max(1,Math.ceil(contacts.length/7));this.directoryPage=Math.max(0,Math.min(this.directoryPage||0,pages-1));
   contacts.slice(this.directoryPage*7,(this.directoryPage+1)*7).forEach((contact,index)=>{
    const y=160+index*58;
@@ -57,10 +58,10 @@ export const PhoneDirectory={
    if(name.width>540)name.setScale(540/name.width);
    const g=s.add.graphics();g.fillStyle(0x6b5a3a,.7);for(let x=number.x+number.width+14;x<name.x-name.displayWidth-14;x+=9)g.fillCircle(x,y+34,1.4);this.dir.add(g);
   });
-  if(!contacts.length)this.t(this.dir,318,190,'No listed contacts.',22,'#2a2118',FONT_TEXT);
+  if(!contacts.length)this.t(this.dir,318,190,__dialogueText("ui/pi-phone/PhoneDirectory.js", "t_844c36c98067b1ab262a"),22,'#2a2118',FONT_TEXT);
   this.t(this.dir,318,600,'<',24,'#2a2118',FONT_PIXEL).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.turnDirectory(-1));
   this.t(this.dir,380,604,`${this.directoryPage+1} / ${pages}`,18,'#2a2118',FONT_TEXT);
   this.t(this.dir,470,600,'>',24,'#2a2118',FONT_PIXEL).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.turnDirectory(1));
-  this.t(this.dir,980,606,'Click a name to note its number.\nUnlisted numbers can be dialled manually.',14,'#5a4a30',FONT_TEXT).setOrigin(1,0).setAlign('right');
+  this.t(this.dir,980,606,__dialogueText("ui/pi-phone/PhoneDirectory.js", "t_3411b766f8f5614adc29"),14,'#5a4a30',FONT_TEXT).setOrigin(1,0).setAlign('right');
  }
 };

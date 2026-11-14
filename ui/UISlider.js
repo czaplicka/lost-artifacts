@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 export class UISlider {
     constructor(scene, x, y, width, label, initialValue, onChange) {
         this.scene = scene;
@@ -95,7 +96,7 @@ export class UISlider {
     }
 
     updateValueText() {
-        this.valueText.setText(Math.round(this.value * 100) + '%');
+        this.valueText.setText(Math.round(this.value * 100) + __dialogueText("ui/UISlider.js", "t_bbf3f11cb5b43e700273"));
     }
 
     draw() {

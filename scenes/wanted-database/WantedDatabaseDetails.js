@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { strHash, DETAIL_FIELDS, MARGIN_NOTES } from './WantedDatabaseConfig.js';
 
 export const WantedDatabaseDetails = {
@@ -182,23 +183,23 @@ export const WantedDatabaseDetails = {
 
         if (status === 'flag') {
             this.detailStatusText
-                .setText('STATUS: FLAGGED AS SUSPECT')
+                .setText(__dialogueText("scenes/wanted-database/WantedDatabaseDetails.js", "t_234d78bc26f96045ea04"))
                 .setColor(th.sAlert);
         } else if (status === 'clear') {
             this.detailStatusText
-                .setText('STATUS: CLEARED (ALIBI OK)')
+                .setText(__dialogueText("scenes/wanted-database/WantedDatabaseDetails.js", "t_e80ab7640d97123cb860"))
                 .setColor(th.sMid);
         } else {
-            this.detailStatusText.setText('STATUS: UNSORTED').setColor(th.sDim);
+            this.detailStatusText.setText(__dialogueText("scenes/wanted-database/WantedDatabaseDetails.js", "t_7640d5c1e7dcffcb1840")).setColor(th.sDim);
         }
 
         this.flagButton.setLabel(
-            status === 'flag' ? '[F] UNFLAG' : '[F] FLAG SUSPECT'
+            status === 'flag' ? __dialogueText("scenes/wanted-database/WantedDatabaseDetails.js", "t_ea59ca18a28d250b8ca5") : __dialogueText("scenes/wanted-database/WantedDatabaseDetails.js", "t_08974557c5b9962a0deb")
         );
         this.flagButton.setActive(status === 'flag');
 
         this.clearButton.setLabel(
-            status === 'clear' ? '[C] REINSTATE' : '[C] CLEAR SUSPECT'
+            status === 'clear' ? __dialogueText("scenes/wanted-database/WantedDatabaseDetails.js", "t_2fe489e01af5748b3766") : __dialogueText("scenes/wanted-database/WantedDatabaseDetails.js", "t_a042dd802d857cf493ec")
         );
         this.clearButton.setActive(status === 'clear');
     },
@@ -217,13 +218,13 @@ export const WantedDatabaseDetails = {
             this.stopTypeTweens();
 
             this.detailRecText.setText(
-                `REC ${String(this.detailIndex + 1).padStart(2, '0')}/${String(
+                `${__dialogueText("scenes/wanted-database/WantedDatabaseDetails.js", "t_93c6bf47126b4bd144c7")}${String(this.detailIndex + 1).padStart(2, __dialogueText("scenes/wanted-database/WantedDatabaseDetails.js", "t_5feceb66ffc86f38d952"))}${__dialogueText("scenes/wanted-database/WantedDatabaseDetails.js", "t_8a5edab282632443219e")}${String(
                     this.filteredSuspects.length
-                ).padStart(2, '0')}`
+                ).padStart(2, __dialogueText("scenes/wanted-database/WantedDatabaseDetails.js", "t_5feceb66ffc86f38d952"))}`
             );
 
             this.detailCaseNum.setText(
-                `FILE ID: #${this.fileNumber(suspect)} // REF: ${String(
+                `${__dialogueText("scenes/wanted-database/WantedDatabaseDetails.js", "t_7e9aee7d8c728ed3ed9b")}${this.fileNumber(suspect)}${__dialogueText("scenes/wanted-database/WantedDatabaseDetails.js", "t_4c708b1a94f9a2655f80")}${String(
                     suspect.id || ''
                 ).toUpperCase()}`
             );
@@ -263,7 +264,7 @@ export const WantedDatabaseDetails = {
             this.setDetailPhotoState(false);
 
             this.detailPhotoStatus
-                .setText('LOADING PORTRAIT...')
+                .setText(__dialogueText("scenes/wanted-database/WantedDatabaseDetails.js", "t_0b3d2c0d56a59aaff632"))
                 .setVisible(true);
 
             this.tweens.killTweensOf(this.detailPanel);
@@ -308,7 +309,7 @@ export const WantedDatabaseDetails = {
                     ease: 'Quad.easeOut'
                 });
             } else {
-                this.detailPhotoStatus.setText('PORTRAIT\nUNAVAILABLE');
+                this.detailPhotoStatus.setText(__dialogueText("scenes/wanted-database/WantedDatabaseDetails.js", "t_c7302f9918102965e896"));
             }
     
         } catch (error) {

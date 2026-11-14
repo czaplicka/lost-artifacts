@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import '../pi-computer/AlibiSearchExpansion.js';
 import { gameState } from '../../GameData.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
@@ -282,7 +283,7 @@ export class PhoneInvestigation {
       const number = p.number;
 
       p.state = 'ringing';
-      p.status = 'Connecting...';
+      p.status = __dialogueText("ui/pi-phone/PhoneInvestigationBase.js", "t_5f04ae9ed6a865bb382c");
       p.render();
 
       void this.load().then(() => {
@@ -402,8 +403,8 @@ export class PhoneInvestigation {
         } else {
           p.prompt.setText(
             p.lineIndex >= p.lines.length - 1
-              ? 'RETURN TO NOTES >'
-              : 'CONTINUE >'
+              ? __dialogueText("ui/pi-phone/PhoneInvestigationBase.js", "t_0197d787ba2a3371adb0")
+              : __dialogueText("ui/pi-phone/PhoneInvestigationBase.js", "t_ccb844f373a3b29ad190")
           );
         }
 
@@ -482,7 +483,7 @@ export class PhoneInvestigation {
         }
       } catch (error) {
         if (!this.dead && error.name !== 'AbortError') {
-          this.error = 'Investigation contacts unavailable.';
+          this.error = __dialogueText("ui/pi-phone/PhoneInvestigationBase.js", "t_90d8a2016d7e764da84e");
           console.error('[PhoneInvestigation]', error);
         }
       } finally {
@@ -579,9 +580,9 @@ export class PhoneInvestigation {
     if (missing.includes('receipt_received')) {
       return [
         {
-          speaker: 'You',
+          speaker: __dialogueText("ui/pi-phone/PhoneInvestigationBase.js", "t_08b041935798fbf6fd6f"),
           text:
-            'I have a matching account, but I still need Arthur’s authorised restaurant record before I can support this challenge.'
+            __dialogueText("ui/pi-phone/PhoneInvestigationBase.js", "t_2f3b0aa934f00628874c")
         }
       ];
     }
@@ -589,9 +590,9 @@ export class PhoneInvestigation {
     if (missing.includes('no_hot_food')) {
       return [
         {
-          speaker: 'You',
+          speaker: __dialogueText("ui/pi-phone/PhoneInvestigationBase.js", "t_08b041935798fbf6fd6f"),
           text:
-            'I should confirm Tuesday service with the restaurant before claiming that this meal could not have happened.'
+            __dialogueText("ui/pi-phone/PhoneInvestigationBase.js", "t_4619d69a6cd46192afdf")
         }
       ];
     }
@@ -599,9 +600,9 @@ export class PhoneInvestigation {
     if (missing.includes('club_sample_received')) {
       return [
         {
-          speaker: 'You',
+          speaker: __dialogueText("ui/pi-phone/PhoneInvestigationBase.js", "t_08b041935798fbf6fd6f"),
           text:
-            'I should obtain the original demonstration rather than rely on a reference alone.'
+            __dialogueText("ui/pi-phone/PhoneInvestigationBase.js", "t_5ec69f648ed5380b85f0")
         }
       ];
     }
@@ -609,18 +610,18 @@ export class PhoneInvestigation {
     if (missing.includes('evelyn_confronted')) {
       return [
         {
-          speaker: 'You',
+          speaker: __dialogueText("ui/pi-phone/PhoneInvestigationBase.js", "t_08b041935798fbf6fd6f"),
           text:
-            'First I need to put the evidence about the dinner account to Evelyn. Then I can follow up on the incident.'
+            __dialogueText("ui/pi-phone/PhoneInvestigationBase.js", "t_7c4320180f609d1a67ed")
         }
       ];
     }
 
     return [
       {
-        speaker: 'You',
+        speaker: __dialogueText("ui/pi-phone/PhoneInvestigationBase.js", "t_08b041935798fbf6fd6f"),
         text:
-          'I have not established the earlier part of this question yet. I should check my documents and start with the dinner account.'
+          __dialogueText("ui/pi-phone/PhoneInvestigationBase.js", "t_6f8ed04c743c6c2f9290")
       }
     ];
   }
@@ -675,8 +676,8 @@ export class PhoneInvestigation {
       ? topic.lines
       : blocked || [
           {
-            speaker: 'You',
-            text: `I wanted to ask about ${question}.`
+            speaker: __dialogueText("ui/pi-phone/PhoneInvestigationBase.js", "t_08b041935798fbf6fd6f"),
+            text: `${__dialogueText("ui/pi-phone/PhoneInvestigationBase.js", "t_1287962b7f5c25b7feb2")}${question}${__dialogueText("ui/pi-phone/PhoneInvestigationBase.js", "t_cdb4ee2aea69cc6a8333")}`
           },
           ...reply
         ];

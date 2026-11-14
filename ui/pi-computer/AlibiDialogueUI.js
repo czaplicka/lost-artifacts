@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 import { getSearchProgress } from './ComputerSearchCore.js';
 import { ALIBI_SEARCH_CASE } from './AlibiCaseData.js';
@@ -6,7 +7,7 @@ import { sendReceiptRequest, deliverReceiptReply, receiptRequestState, restauran
   hasArthurAuthorisation, forwardedArthurMessage, forwardArthurAuthorisation, removeArthurForward,
   COPPER_DRAFT, COPPER_SENT, COPPER_REPLY } from './AlibiReceiptService.js';
 
-const KEY=Symbol.for('lostArtifacts.alibiDialogueUIV2');
+const KEY=Symbol.for(__dialogueText("ui/pi-computer/AlibiDialogueUI.js", "t_56dd81d3a5ec0a99278e"));
 const REVIEW='alibi_final_report_draft';
 
 export function ensureRestaurantWebsiteEmail(definition=ALIBI_SEARCH_CASE) {
@@ -16,8 +17,8 @@ export function ensureRestaurantWebsiteEmail(definition=ALIBI_SEARCH_CASE) {
   if(!page)return;
   page.blocks ??= [];
   if(!page.blocks.some(block=>Array.isArray(block)&&block.some(part=>part?.keywordId==='copper_email'))){
-    page.blocks.push(['Receipt enquiries: ',{keywordId:'copper_email',text:COPPER_EMAIL}]);
-    page.blocks.push(['For a copy of a customer’s receipt, email us their name, the date of the visit and their written permission.']);
+    page.blocks.push([__dialogueText("ui/pi-computer/AlibiDialogueUI.js", "t_5e1a4f8528db1a3f1f89"),{keywordId:'copper_email',text:COPPER_EMAIL}]);
+    page.blocks.push([__dialogueText("ui/pi-computer/AlibiDialogueUI.js", "t_1a0230604fa8c3488123")]);
   }
 }
 ensureRestaurantWebsiteEmail();
@@ -52,12 +53,12 @@ export function installAlibiDialogueUI(ui,docs) {
   }
   function openDraft(){
     if(!live()||!known())return false;
-    if(!active()){ui.notice='This case is not active.';refresh();return false;}
+    if(!active()){ui.notice=__dialogueText("ui/pi-computer/AlibiDialogueUI.js", "t_f8f967eb8946af9baad4");refresh();return false;}
     if(ui.photoQuest?.contactMail)ui.photoQuest.contactMail.composing=false;
     const received=(gameState.piPhoneInvestigations?.cases?.borrowed_alibi?.flags||[]).includes('receipt_received');
     const pending=receiptRequestState()?.status==='pending';
     Object.assign(ui,{app:'mail',selectedId:received?COPPER_REPLY:pending?COPPER_SENT:COPPER_DRAFT,
-      listPage:0,bodyPage:0,notice:received?'The receipt is already in your case correspondence.':''});
+      listPage:0,bodyPage:0,notice:received?__dialogueText("ui/pi-computer/AlibiDialogueUI.js", "t_67ab780bff596cb545f1"):''});
     ui.viewToken=(Number(ui.viewToken)||0)+1;refresh();return true;
   }
   function ensureHooks(){
@@ -90,18 +91,18 @@ export function installAlibiDialogueUI(ui,docs) {
     const d=ui.drawing,b=ui.window;
     const x=b.x+24,y=b.y+56,w=b.w-48,bottom=b.y+b.h-48;
     d.rectangle(b.x+9,b.y+48,b.w-18,b.h-95,0xf2ecd6).setInteractive();
-    const title=d.text(x,y,'REQUEST A RECEIPT',21,'#303d35',w);
+    const title=d.text(x,y,__dialogueText("ui/pi-computer/AlibiDialogueUI.js", "t_5f062d695bf491858113"),21,'#303d35',w);
     const address=d.text(x,title.y+title.height+10,COPPER_EMAIL,17,'#183b63',w);
     const forwarded=forwardedArthurMessage();
-    const note=forwarded?'Included: Arthur Finch’s original permission email.':
-      hasArthurAuthorisation()?'Add Arthur’s original email before sending.':'Read Arthur’s reply and collect his written permission first.';
+    const note=forwarded?__dialogueText("ui/pi-computer/AlibiDialogueUI.js", "t_d626bc3a32bf41969e72"):
+      hasArthurAuthorisation()?__dialogueText("ui/pi-computer/AlibiDialogueUI.js", "t_a0073c5f4895bdc83d42"):__dialogueText("ui/pi-computer/AlibiDialogueUI.js", "t_fbfa0fa487154cf45c03");
     const caption=d.text(x,address.y+address.height+10,note,14,'#705a35',w);
     const draft=restaurantMessages().find(item=>item.id===COPPER_DRAFT);
     const bodyY=caption.y+caption.height+12;
-    docs.renderPagedText(draft?.body||'This request is no longer available.',x,bodyY,w,Math.max(50,bottom-bodyY-106));
-    d.button(x,bottom-76,forwarded?'REMOVE FORWARDED EMAIL':'FORWARD ARTHUR EMAIL',()=>{
+    docs.renderPagedText(draft?.body||__dialogueText("ui/pi-computer/AlibiDialogueUI.js", "t_5d115973d87588cb07d6"),x,bodyY,w,Math.max(50,bottom-bodyY-106));
+    d.button(x,bottom-76,forwarded?__dialogueText("ui/pi-computer/AlibiDialogueUI.js", "t_8be645bcb8a43d447d76"):__dialogueText("ui/pi-computer/AlibiDialogueUI.js", "t_274726e175aa6d4dc8de"),()=>{
       if(!live()||ui.app!=='mail'||ui.selectedId!==COPPER_DRAFT)return;
-      if(forwarded){removeArthurForward();ui.notice='Forwarded email removed.';}
+      if(forwarded){removeArthurForward();ui.notice=__dialogueText("ui/pi-computer/AlibiDialogueUI.js", "t_63844c515ad5d430ec47");}
       else{
         const message=docs.getMail().find(item=>item.id==='alibi_arthur_reply');
         ui.notice=forwardArthurAuthorisation(message).message;
@@ -109,7 +110,7 @@ export function installAlibiDialogueUI(ui,docs) {
       ui.bodyPage=0;refresh();
     },Boolean(draft)&&(Boolean(forwarded)||hasArthurAuthorisation()));
     d.button(x,bottom-30,'BACK',()=>{ui.selectedId=null;ui.bodyPage=0;refresh();});
-    d.button(x+w-190,bottom-30,'SEND REQUEST',()=>{
+    d.button(x+w-190,bottom-30,__dialogueText("ui/pi-computer/AlibiDialogueUI.js", "t_107735911597e96e0964"),()=>{
       if(!live()||ui.app!=='mail'||ui.selectedId!==COPPER_DRAFT)return;
       const result=sendReceiptRequest();ui.notice=result.message;
       if(result.ok){ui.selectedId=COPPER_SENT;ui.bodyPage=0;scheduleReply();}

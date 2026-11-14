@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../gameStatePersistence.js';
 import { BaseScene } from './BaseScene.js';
@@ -96,7 +97,7 @@ export class TheoryResultCallScene extends BaseScene {
       .text(
         0,
         0,
-        this.mode === 'phone' ? 'Encrypted call' : 'HQ assessment',
+        this.mode === __dialogueText("scenes/TheoryResultCallScene.js", "t_45569da57f4b7bf472d7") ? __dialogueText("scenes/TheoryResultCallScene.js", "t_0ce130cd8a988f5c7e19") : __dialogueText("scenes/TheoryResultCallScene.js", "t_5b79ac69ac12b539191d"),
         {
           fontFamily: 'SpecialElite',
           fontSize: '38px',
@@ -118,7 +119,7 @@ export class TheoryResultCallScene extends BaseScene {
       .setDepth(4002);
 
     this.bodyText = this.add
-      .text(0, 0, lines.join('\n\n'), {
+      .text(0, 0, lines.join(__dialogueText("scenes/TheoryResultCallScene.js", "t_75a11da44c802486bc6f")), {
         fontFamily: 'SpecialElite',
         fontSize: '28px',
         color: '#f4ead7',
@@ -133,7 +134,7 @@ export class TheoryResultCallScene extends BaseScene {
       .setDepth(4002);
 
     this.continueBtn = this.add
-      .text(0, 0, '[ CONTINUE ]', {
+      .text(0, 0, __dialogueText("scenes/TheoryResultCallScene.js", "t_50f34a845279312ca4b6"), {
         fontFamily: 'SpecialElite',
         fontSize: '30px',
         color: palette.buttonText,
@@ -150,7 +151,7 @@ export class TheoryResultCallScene extends BaseScene {
       .setInteractive({ useHandCursor: true });
 
     this.hintText = this.add
-      .text(0, 0, 'Tap anywhere or press Enter / Space', {
+      .text(0, 0, __dialogueText("scenes/TheoryResultCallScene.js", "t_e769998298e9e8e749f9"), {
         fontFamily: 'SpecialElite',
         fontSize: '16px',
         color: '#ccb98c',
@@ -307,33 +308,33 @@ export class TheoryResultCallScene extends BaseScene {
 
   getSpeakerName(mode) {
     return mode === 'phone'
-      ? 'Filtered Voice'
-      : 'HQ Assessment';
+      ? __dialogueText("scenes/TheoryResultCallScene.js", "t_ec8e9ce1548e37725803")
+      : __dialogueText("scenes/TheoryResultCallScene.js", "t_4da03755c614084cbee4");
   }
 
   getPalette(result) {
     const map = {
       exact: {
         border: 0x7cfc00,
-        title: '#d8ffb8',
+        title: __dialogueText("scenes/TheoryResultCallScene.js", "t_07e2eb9fd5735102902e"),
         accent: '#7CFC00',
         buttonText: '#d8ffb8'
       },
       close: {
         border: 0xd4af37,
-        title: '#ffe6a3',
+        title: __dialogueText("scenes/TheoryResultCallScene.js", "t_be0f3b849156ddc4795b"),
         accent: '#ffd966',
         buttonText: '#ffe6a3'
       },
       partial: {
         border: 0xc98732,
-        title: '#ffd4a3',
+        title: __dialogueText("scenes/TheoryResultCallScene.js", "t_b18167e3f3f116ecc71b"),
         accent: '#ffb347',
         buttonText: '#ffd4a3'
       },
       weak: {
         border: 0xb85c5c,
-        title: '#ffb3b3',
+        title: __dialogueText("scenes/TheoryResultCallScene.js", "t_67f0c667a89e3ff3f3e3"),
         accent: '#ff8f8f',
         buttonText: '#ffcccc'
       }
@@ -346,38 +347,38 @@ export class TheoryResultCallScene extends BaseScene {
     const linesByMode = {
       hq: {
         exact: [
-          'Excellent work, detective.',
-          'Your reconstruction matches our best read of the theft. Follow the suspect profile in your notes.'
+          __dialogueText("scenes/TheoryResultCallScene.js", "t_dfda1c7c435b429f8d67"),
+          __dialogueText("scenes/TheoryResultCallScene.js", "t_db7bc64955c1cf9de807")
         ],
         close: [
-          'Good work. You are close.',
-          'The pattern is there, but some part of the sequence still needs tightening.'
+          __dialogueText("scenes/TheoryResultCallScene.js", "t_6cd90eeee53c54a32671"),
+          __dialogueText("scenes/TheoryResultCallScene.js", "t_a1a016e36f5f752531f9")
         ],
         partial: [
-          'You found something useful.',
-          'Part of your theory holds up, but HQ still sees gaps in the heist timeline.'
+          __dialogueText("scenes/TheoryResultCallScene.js", "t_c1923ce679a2643ee8e2"),
+          __dialogueText("scenes/TheoryResultCallScene.js", "t_2f15bf559a1307b6c28b")
         ],
         weak: [
-          'We logged your theory.',
-          'Right now it sounds more like a hunch than a reconstruction. Keep digging.'
+          __dialogueText("scenes/TheoryResultCallScene.js", "t_3844e63e0672c20b5cfc"),
+          __dialogueText("scenes/TheoryResultCallScene.js", "t_84a1d1c2035afb2618a5")
         ]
       },
       phone: {
         exact: [
-          'Impressive. You understood exactly how the thief operated.',
-          'If you keep this up, you will corner them soon.'
+          __dialogueText("scenes/TheoryResultCallScene.js", "t_dfb796d7867074c9a0e6"),
+          __dialogueText("scenes/TheoryResultCallScene.js", "t_79cdeb4c029e52e9b6ce")
         ],
         close: [
-          'Not bad. You are reading the thief well.',
-          'But you are still one step behind the full picture.'
+          __dialogueText("scenes/TheoryResultCallScene.js", "t_436b03754f2e0e037b92"),
+          __dialogueText("scenes/TheoryResultCallScene.js", "t_ea9df2c41fef51f2ed4d")
         ],
         partial: [
-          'You noticed part of the trick.',
-          'The rest is still hidden from you.'
+          __dialogueText("scenes/TheoryResultCallScene.js", "t_03d1d231368251ed520f"),
+          __dialogueText("scenes/TheoryResultCallScene.js", "t_22b4afc350300e4a098c")
         ],
         weak: [
-          'Interesting theory, detective.',
-          'But that version of events will not scare the thief yet.'
+          __dialogueText("scenes/TheoryResultCallScene.js", "t_eb204828f8ccf3f831ff"),
+          __dialogueText("scenes/TheoryResultCallScene.js", "t_8c5b113d70ceac8f1c97")
         ]
       }
     };

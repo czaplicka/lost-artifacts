@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { MainStoryManager } from '../managers/MainStoryManager.js';
@@ -67,12 +68,12 @@ export class MediumOfficeScene extends BaseScene {
     this.cameras.main.setBackgroundColor('#080b08');
     this.root=this.add.container(0,0);
     if(this.textures.exists(CONFIG.backgroundKey))this.root.add(this.add.image(CONFIG.width/2,CONFIG.height/2,CONFIG.backgroundKey).setDisplaySize(CONFIG.width,CONFIG.height));
-    else this.showOfficeStatusMessage(`Background failed to load: ${CONFIG.backgroundUrl}`);
+    else this.showOfficeStatusMessage(`${__dialogueText("scenes/MediumOfficeScene.js", "t_f895ad1e350f3f056ab7")}${CONFIG.backgroundUrl}`);
     this.allowed=this.allowLockedForTesting||Number(this.gameState.casesSolved||0)>=CONFIG.minimumCases;
     this.highlight=this.add.graphics();this.root.add(this.highlight);
     this.tooltip=this.add.text(0,0,'',this.style(20)).setOrigin(0.5,1).setVisible(false);this.root.add(this.tooltip);
     this.debugText=this.add.text(22,CONFIG.height-220,'',this.style(17)).setVisible(false);this.root.add(this.debugText);
-    this.back=this.add.text(20,CONFIG.height-25,'< DOWNSTAIRS',this.style(22)).setOrigin(0,1).setInteractive({useHandCursor:true});
+    this.back=this.add.text(20,CONFIG.height-25,__dialogueText("scenes/MediumOfficeScene.js", "t_cd46626128fc8436fdce"),this.style(22)).setOrigin(0,1).setInteractive({useHandCursor:true});
     this.root.add(this.back);this.back.on('pointerdown',()=>{void this.returnDownstairs();});
     this.navigation={hideHint:()=>this.tooltip?.setVisible(false)};
     this.computerController=installMarkAgencyComputer(this);
@@ -83,7 +84,7 @@ export class MediumOfficeScene extends BaseScene {
     this.trackInputEvent(this.scale,'resize',this.layoutOffice);
     if(this.input.keyboard)this.trackInputEvent(this.input.keyboard,'keydown',this.onKey);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN,this.cleanupMedium,this);
-    if(!this.allowed)this.showOfficeStatusMessage('This office is available after four successfully solved cases.');
+    if(!this.allowed)this.showOfficeStatusMessage(__dialogueText("scenes/MediumOfficeScene.js", "t_28eb275d05e17269cfc8"));
   }
   style(size=20){return{fontFamily:'SpecialElite, monospace',fontSize:`${size}px`,color:'#ffe5ae',backgroundColor:'#17251c',padding:{x:10,y:7}};}
   isCurrentOfficeRun(token=this._runToken){return Boolean(!this.disposed&&!this._cleanupDone&&token&&token===this._runToken);}
@@ -170,7 +171,7 @@ export class MediumOfficeScene extends BaseScene {
       const opened=await this.launchOverlay('TvBroadcastScene',{
         returnSceneKey:KEY,pauseBelowScene:true,onClose:()=>{this._tvOpen=false;this.refreshPanelLock();}
       });
-      if(!opened){this._tvOpen=false;this.showOfficeStatusMessage('The television could not be opened.');this.refreshPanelLock();}return;
+      if(!opened){this._tvOpen=false;this.showOfficeStatusMessage(__dialogueText("scenes/MediumOfficeScene.js", "t_37996ae75dbc062121fb"));this.refreshPanelLock();}return;
     }
     const loader=PANEL_LOADERS[action];if(!loader)return;
     const token=this._runToken;this.busy=true;this.refreshPanelLock();
@@ -185,14 +186,14 @@ export class MediumOfficeScene extends BaseScene {
         panel.setOnCall((key,contact)=>this.phoneDialogManager?.startDialog(key,contact));
       }
       const mission=this.gameState.currentMission||{};
-      const data=action==='casefile'?{artifact:mission.artifact||'UNKNOWN ARTIFACT',city:mission.city||'UNKNOWN CITY',country:mission.country||'UNKNOWN COUNTRY',description:mission.description||'',significance:mission.significance||'',clue:mission.clue||'',artifactKey:mission.artifactKey||''}:this.gameState;
+      const data=action==='casefile'?{artifact:mission.artifact||__dialogueText("scenes/MediumOfficeScene.js", "t_51b01e8422efd81865f3"),city:mission.city||__dialogueText("scenes/MediumOfficeScene.js", "t_031708f5a6c18e0a6279"),country:mission.country||__dialogueText("scenes/MediumOfficeScene.js", "t_e282dbbdd7a0fe3f46f5"),description:mission.description||'',significance:mission.significance||'',clue:mission.clue||'',artifactKey:mission.artifactKey||''}:this.gameState;
       const opened=await panel.open(data);
       if(this.isCurrentOfficeRun(token)&&opened===false&&!this.panelIsOpen(panel)){
-        this.disposeLocalPanels();this.showOfficeStatusMessage('This panel could not be opened.');
+        this.disposeLocalPanels();this.showOfficeStatusMessage(__dialogueText("scenes/MediumOfficeScene.js", "t_80bf0d30bfb458927d8e"));
       }
     }catch(error){
       console.error('[MediumOfficeScene] Panel opening failed:',action,error);
-      if(this.isCurrentOfficeRun(token)){this.disposeLocalPanels();this.showOfficeStatusMessage('The panel could not be opened. Check the console.');}
+      if(this.isCurrentOfficeRun(token)){this.disposeLocalPanels();this.showOfficeStatusMessage(__dialogueText("scenes/MediumOfficeScene.js", "t_094dc77c200f940d3cf1"));}
     }finally{if(this.isCurrentOfficeRun(token)){this.busy=false;this.refreshPanelLock();}}
   }
   disposeLocalPanels(){
@@ -211,12 +212,12 @@ export class MediumOfficeScene extends BaseScene {
   updateDebug(){
     const def=this.definitions[this.selectedIndex];this.drawHotspots();
     this.debugText.setVisible(this.debugMode).setText(this.debugMode?[
-      `LOCAL DEBUG: ${def.id} / ${def.label}`,
-      `x:${def.x} y:${def.y} w:${def.w} h:${def.h} / 1920 x 1080 design space`,
-      'Drag / arrows: move | Shift+arrows: resize | Alt: 1px',
-      'Tab / Shift+Tab: select | C: export | S: save layout | D: close',
-      'Hotspot actions are disabled while debugging.'
-    ].join('\n'):'');
+      `${__dialogueText("scenes/MediumOfficeScene.js", "t_cb40a67f6cdee4b5ad52")}${def.id}${__dialogueText("scenes/MediumOfficeScene.js", "t_005e1574a2b5c8163046")}${def.label}`,
+      `${__dialogueText("scenes/MediumOfficeScene.js", "t_51e33c7c7efbc350d26f")}${def.x}${__dialogueText("scenes/MediumOfficeScene.js", "t_8278a5c11d3d9380f821")}${def.y}${__dialogueText("scenes/MediumOfficeScene.js", "t_1b89a9604b178452218e")}${def.w}${__dialogueText("scenes/MediumOfficeScene.js", "t_3f4674b8e35cc249a199")}${def.h}${__dialogueText("scenes/MediumOfficeScene.js", "t_64488f47a88552abcd3b")}`,
+      __dialogueText("scenes/MediumOfficeScene.js", "t_aef33d0f414bc9e9fda5"),
+      __dialogueText("scenes/MediumOfficeScene.js", "t_ac9d2554a903fdc8993d"),
+      __dialogueText("scenes/MediumOfficeScene.js", "t_cdcee01d4aa0d097da44")
+    ].join(__dialogueText("scenes/MediumOfficeScene.js", "t_01ba4719c80b6fe911b0")):'');
   }
   onKey(event){
     const target=event.target;
@@ -224,14 +225,14 @@ export class MediumOfficeScene extends BaseScene {
     if(target?.isContentEditable||['INPUT','TEXTAREA','SELECT'].includes(target?.tagName)||event.ctrlKey||event.metaKey||this.uiLocked||!this.allowed)return;
     if(event.code==='KeyD'){event.preventDefault();this.setDebugMode(!this.debugMode);return;}
     if(!this.debugMode)return;
-    if(event.code==='Escape'){event.preventDefault();this.setDebugMode(false);return;}
-    if(event.code==='Tab'){event.preventDefault();this.selectedIndex=(this.selectedIndex+(event.shiftKey?-1:1)+this.definitions.length)%this.definitions.length;this.updateDebug();return;}
+    if(event.code===__dialogueText("scenes/MediumOfficeScene.js", "t_037c968467aa3fd7c059")){event.preventDefault();this.setDebugMode(false);return;}
+    if(event.code===__dialogueText("scenes/MediumOfficeScene.js", "t_90ddf1963abb36c9921c")){event.preventDefault();this.selectedIndex=(this.selectedIndex+(event.shiftKey?-1:1)+this.definitions.length)%this.definitions.length;this.updateDebug();return;}
     if(event.code==='KeyC'){
-      console.log('COPY INTO config/mediumOfficeConfig.js -> hotspots:',JSON.stringify(this.definitions,null,2));this.showOfficeStatusMessage('Hotspot configuration exported to the console.');return;
+      console.log('COPY INTO config/mediumOfficeConfig.js -> hotspots:',JSON.stringify(this.definitions,null,2));this.showOfficeStatusMessage(__dialogueText("scenes/MediumOfficeScene.js", "t_aa538dbe205dd1955c2a"));return;
     }
     if(event.code==='KeyS'){
       MainStoryManager.setSideClue(LAYOUT_KEY,{version:1,hotspots:this.definitions.map(item=>({...item}))});
-      const saved=saveGameState();this.showOfficeStatusMessage(saved?'Layout saved for this game. C exports permanent config.':'Layout changed in memory; saving failed.');return;
+      const saved=saveGameState();this.showOfficeStatusMessage(saved?__dialogueText("scenes/MediumOfficeScene.js", "t_6daeebe02d8e52f61f19"):__dialogueText("scenes/MediumOfficeScene.js", "t_82fc62efa4b5b71a72e6"));return;
     }
     if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.code))return;
     event.preventDefault();const def=this.definitions[this.selectedIndex],horizontal=['ArrowLeft','ArrowRight'].includes(event.code);
@@ -246,7 +247,7 @@ export class MediumOfficeScene extends BaseScene {
   }
   async returnDownstairs(){
     if(!this.isOfficeActive()||this.uiLocked)return;this.leaving=true;this.refreshPanelLock();saveGameState();
-    try{const opened=await this.goto(this.returnSceneKey,{gameState:this.gameState});if(opened===false&&!this.disposed){this.leaving=false;this.refreshPanelLock();this.showOfficeStatusMessage('The lower floor could not be opened.');}}
+    try{const opened=await this.goto(this.returnSceneKey,{gameState:this.gameState});if(opened===false&&!this.disposed){this.leaving=false;this.refreshPanelLock();this.showOfficeStatusMessage(__dialogueText("scenes/MediumOfficeScene.js", "t_288e37be0f0f2573f5eb"));}}
     catch(error){if(!this.disposed){this.leaving=false;this.refreshPanelLock();this.showOfficeStatusMessage(error.message);}}
   }
   cleanupMedium(){

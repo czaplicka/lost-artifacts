@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { saveManager } from '../saveGameService.js';
 
 export const SAVE_LOCATION_TYPES = Object.freeze([
@@ -133,7 +134,7 @@ export class OfficeSaveUI {
       this.button = this.scene.add.text(
         0,
         0,
-        'SAVE',
+        __dialogueText("ui/OfficeSaveUI.js", "t_c210bfdf28cec3d9edb6"),
         {
           fontFamily: 'SpecialElite',
           fontSize: '18px',
@@ -295,7 +296,7 @@ export class OfficeSaveUI {
       this.createSlotButtons(this._slots);
 
       this.setStatus(
-        'Choose a file. Local saving is ready.'
+        __dialogueText("ui/OfficeSaveUI.js", "t_ed7d34157456be9caadb")
       );
 
       this._notifyPanelState();
@@ -330,7 +331,7 @@ export class OfficeSaveUI {
       this.createSlotButtons(slots);
 
       this.setStatus(
-        'Select a file to save your investigation.'
+        __dialogueText("ui/OfficeSaveUI.js", "t_c8e40296efda87144027")
       );
     } catch (error) {
       console.warn(
@@ -344,7 +345,7 @@ export class OfficeSaveUI {
         revision === this._saveRevision
       ) {
         this.setStatus(
-          'Cloud unavailable. Local saving is ready.',
+          __dialogueText("ui/OfficeSaveUI.js", "t_9719306b5e0a75f6f627"),
           '#843b32'
         );
       }
@@ -452,7 +453,7 @@ export class OfficeSaveUI {
       this.panel,
       36,
       31,
-      'MARK AGENCY / ARCHIVE',
+      __dialogueText("ui/OfficeSaveUI.js", "t_f50fb63cedd84f2ff058"),
       10,
       '#38291d',
       'PressStart2P'
@@ -462,7 +463,7 @@ export class OfficeSaveUI {
       this.panel,
       42,
       74,
-      'SAVE YOUR CASE FILE',
+      __dialogueText("ui/OfficeSaveUI.js", "t_5886af6b1e25b6296797"),
       26,
       '#30271f'
     );
@@ -472,8 +473,8 @@ export class OfficeSaveUI {
       43,
       111,
       this.locationType === 'hotel'
-        ? 'Room service for unfinished business.'
-        : 'Unfinished business. Carefully filed.',
+        ? __dialogueText("ui/OfficeSaveUI.js", "t_81e6297b639a7c7e146d")
+        : __dialogueText("ui/OfficeSaveUI.js", "t_365d9843a5b2e7b69a37"),
       17,
       '#79654c'
     );
@@ -482,7 +483,7 @@ export class OfficeSaveUI {
       this.panel,
       43,
       154,
-      'INVESTIGATION RECORDS',
+      __dialogueText("ui/OfficeSaveUI.js", "t_eb0cb23e2a53fa2429aa"),
       10,
       '#71604b',
       'PressStart2P'
@@ -492,7 +493,7 @@ export class OfficeSaveUI {
       this.panel,
       W - 76,
       77,
-      '[ X ]',
+      __dialogueText("ui/OfficeSaveUI.js", "t_8e2c8e52dc76bf5ed51a"),
       15,
       '#843b32'
     ).setInteractive({
@@ -565,20 +566,20 @@ export class OfficeSaveUI {
       ? meta.agentName.trim()
       : '';
 
-    return name || 'Unknown detective';
+    return name || __dialogueText("ui/OfficeSaveUI.js", "t_1c3c21b36dbfc0c36c90");
   }
 
   getDescription(meta) {
     if (!meta) {
-      return 'No investigation on record.';
+      return __dialogueText("ui/OfficeSaveUI.js", "t_f72b1d879f0c11b4c9c7");
     }
 
     const location = String(
-      meta.locationCode || 'Unknown location'
+      meta.locationCode || __dialogueText("ui/OfficeSaveUI.js", "t_2fad2d87e767ac042191")
     ).replace(/_/g, ' ');
 
     const city = String(
-      meta.cityCode || 'Unknown city'
+      meta.cityCode || __dialogueText("ui/OfficeSaveUI.js", "t_2491fe94a7ba027ffff4")
     ).replace(/_/g, ' ');
 
     const day = meta.dayNumber ?? 1;
@@ -598,11 +599,11 @@ export class OfficeSaveUI {
     const savedAt =
       date && Number.isFinite(date.getTime())
         ? date.toLocaleString()
-        : 'Unknown time';
+        : __dialogueText("ui/OfficeSaveUI.js", "t_bdda387b434325c2d39b");
 
     return (
-      `${location} / ${city}  |  Day ${day}, ${hour}:00\n` +
-      `Saved: ${savedAt}`
+      `${location}${__dialogueText("ui/OfficeSaveUI.js", "t_005e1574a2b5c8163046")}${city}${__dialogueText("ui/OfficeSaveUI.js", "t_309e4b952d6e7edd3d80")}${day}${__dialogueText("ui/OfficeSaveUI.js", "t_0a07f659461970d8d8dc")}${hour}${__dialogueText("ui/OfficeSaveUI.js", "t_9c428458a2971552e401")}` +
+      `${__dialogueText("ui/OfficeSaveUI.js", "t_4d9f3906b5b271ef9de9")}${savedAt}`
     );
   }
 
@@ -708,7 +709,7 @@ export class OfficeSaveUI {
         card,
         18,
         12,
-        `FILE 0${index + 1}`,
+        `${__dialogueText("ui/OfficeSaveUI.js", "t_211a0a700409e2ce5044")}${index + 1}`,
         9,
         '#806c50',
         'PressStart2P'
@@ -720,7 +721,7 @@ export class OfficeSaveUI {
         33,
         hasSave
           ? this.getDetectiveName(meta)
-          : 'Unassigned file',
+          : __dialogueText("ui/OfficeSaveUI.js", "t_6b4cf9ab2c7423af4006"),
         24,
         hasSave ? '#30281f' : '#8f816c'
       );
@@ -760,7 +761,7 @@ export class OfficeSaveUI {
         card,
         width - 18,
         13,
-        hasSave ? 'REPLACE >' : 'SAVE >',
+        hasSave ? __dialogueText("ui/OfficeSaveUI.js", "t_598e084b35a3ec31d986") : __dialogueText("ui/OfficeSaveUI.js", "t_3e2f47c34db1af7b79c7"),
         10,
         '#8e4d37'
       ).setOrigin(1, 0);
@@ -849,7 +850,7 @@ export class OfficeSaveUI {
     this.closeButton?.setAlpha(0.45);
 
     this.setStatus(
-      'Filing your investigation locally...',
+      __dialogueText("ui/OfficeSaveUI.js", "t_15f1fd91ab06b7a358c0"),
       '#79654c'
     );
 
@@ -874,7 +875,7 @@ export class OfficeSaveUI {
             );
 
             this.setStatus(
-              'Browser copy filed. Checking account archive...',
+              __dialogueText("ui/OfficeSaveUI.js", "t_86aeed54317f2a603014"),
               '#42613c'
             );
           }
@@ -902,17 +903,17 @@ export class OfficeSaveUI {
 
       if (result.mode === 'cloud+local') {
         this.setStatus(
-          'Filed safely: THIS BROWSER + ACCOUNT ARCHIVE.',
+          __dialogueText("ui/OfficeSaveUI.js", "t_445e164617389cfcde0a"),
           '#42613c'
         );
       } else if (result.mode === 'local-fallback') {
         this.setStatus(
-          'Browser copy saved. Account archive not confirmed.',
+          __dialogueText("ui/OfficeSaveUI.js", "t_6ecf79a611f3e13ec028"),
           '#843b32'
         );
       } else {
         this.setStatus(
-          'Filed in THIS BROWSER. No active cloud session.',
+          __dialogueText("ui/OfficeSaveUI.js", "t_6ff47e2bc192030d1f06"),
           '#42613c'
         );
       }
@@ -924,7 +925,7 @@ export class OfficeSaveUI {
 
       if (this._isCurrentOpening(token)) {
         this.setStatus(
-          'Save failed: ' +
+          __dialogueText("ui/OfficeSaveUI.js", "t_8e3a4b4cd0b68f85a78f") +
             (
               error?.message ||
               String(error)

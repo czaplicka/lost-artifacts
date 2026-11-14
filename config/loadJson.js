@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // config/loadJson.js
 
 const requests = new Map();
@@ -50,7 +51,7 @@ async function fetchJson(url) {
   } catch (error) {
     const reason =
       error?.name === 'AbortError'
-        ? `Loading exceeded ${JSON_LOAD_TIMEOUT_MS} ms.`
+        ? `${__dialogueText("config/loadJson.js", "t_617622a6bfa427b9b050")}${JSON_LOAD_TIMEOUT_MS}${__dialogueText("config/loadJson.js", "t_23b697f458be6e50ed7d")}`
         : error?.message || String(error);
 
     throw new Error(

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { TICKER_ITEMS } from './WantedDatabaseConfig.js';
 
 export const WantedDatabaseChrome = {
@@ -165,7 +166,7 @@ export const WantedDatabaseChrome = {
 
             if (art && city) {
                 items.unshift(
-                    `ACTIVE CASE: ${art} // ${city}. SUSPECTS: ALL OF YOU`.toUpperCase()
+                    `${__dialogueText("scenes/wanted-database/WantedDatabaseChrome.js", "t_2a50493f97d489488c0d")}${art}${__dialogueText("scenes/wanted-database/WantedDatabaseChrome.js", "t_996038fc1133df5e8239")}${city}${__dialogueText("scenes/wanted-database/WantedDatabaseChrome.js", "t_c1f0d5fab04dfbdc8f7c")}`.toUpperCase()
                 );
             }
         }
@@ -235,14 +236,14 @@ export const WantedDatabaseChrome = {
         this.bootLayer = layer;
 
         const lines = [
-            'MARK-OS v2.04  (C) 1993 MARK AGENCY',
-            'MEMORY CHECK......... 640K OK (NOBODY NEEDS MORE)',
-            'DIALING INTERPOL-NET. CONNECTED @ 2400 BAUD',
-            'VERIFYING BADGE...... DETECTIVE (PROBABLY)',
-            `LOADING FELON FILES.. ${this.suspects.length} RECORDS`,
-            'COFFEE LEVEL......... CRITICAL',
+            __dialogueText("scenes/wanted-database/WantedDatabaseChrome.js", "t_5a8ed04df6bfed9885c9"),
+            __dialogueText("scenes/wanted-database/WantedDatabaseChrome.js", "t_7ba48361c616c962941c"),
+            __dialogueText("scenes/wanted-database/WantedDatabaseChrome.js", "t_0668f0029a636c79911f"),
+            __dialogueText("scenes/wanted-database/WantedDatabaseChrome.js", "t_e79ac0e4251012207ca8"),
+            `${__dialogueText("scenes/wanted-database/WantedDatabaseChrome.js", "t_14c335da95c0ace32c07")}${this.suspects.length}${__dialogueText("scenes/wanted-database/WantedDatabaseChrome.js", "t_680474a5a518fafcd161")}`,
+            __dialogueText("scenes/wanted-database/WantedDatabaseChrome.js", "t_c2ac47fd436bf1d83922"),
             '',
-            'READY. PRESS ANY KEY_'
+            __dialogueText("scenes/wanted-database/WantedDatabaseChrome.js", "t_0a983f7b5ad14c9e0224")
         ];
 
         const shown = [];
@@ -253,7 +254,7 @@ export const WantedDatabaseChrome = {
             repeat: lines.length - 1,
             callback: () => {
                 shown.push(lines[i++]);
-                text.setText(shown.join('\n'));
+                text.setText(shown.join(__dialogueText("scenes/wanted-database/WantedDatabaseChrome.js", "t_01ba4719c80b6fe911b0")));
             }
         });
 

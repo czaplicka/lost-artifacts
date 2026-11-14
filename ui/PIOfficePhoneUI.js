@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { VU_BARS } from './pi-phone/PhoneConfig.js';
 import { PhoneAudio } from './pi-phone/PhoneAudio.js';
 import { PhoneCalls } from './pi-phone/PhoneCalls.js';
@@ -12,10 +13,10 @@ export class PIOfficePhoneUI{
   this.scene=scene;this.options=options;Object.assign(this,{isOpen:false,destroyed:false,state:'on_hook',number:'',status:'',directoryOpen:false,directoryPage:0,lines:[],lineIndex:0,contactName:'',dialTween:null,run:0,built:false,ui:null,logItems:[],typingItem:null,sticky:null,keys:[],uprights:[],holes:[],digitBoxes:[],ledViews:[],vuLevels:new Array(VU_BARS).fill(.05),tickCount:0,tickEvent:null,callStart:0,_handsetUp:false,_closing:false});
   this.timers=new Set();this.tones=new Set();this.loops=new Set();this.phoneOneShots=new Set();this.preparePhoneAudio();this.root=scene.add.container(0,0).setDepth(1600).setVisible(false);
   this.onKey=event=>{if(!this.isOpen)return;const t=event.target;if(t?.isContentEditable||['INPUT','TEXTAREA','SELECT'].includes(t?.tagName))return;
-   if(event.code==='Escape'){event.preventDefault();if(this.directoryOpen)this.closeDirectory();else this.close();return;}
+   if(event.code===__dialogueText("ui/PIOfficePhoneUI.js", "t_037c968467aa3fd7c059")){event.preventDefault();if(this.directoryOpen)this.closeDirectory();else this.close();return;}
    if(this.directoryOpen){if(event.code==='ArrowLeft')this.turnDirectory(-1);if(event.code==='ArrowRight')this.turnDirectory(1);return;}
    if(this.state==='ready'&&/^[0-9]$/.test(event.key)){event.preventDefault();this.dialDigit(event.key);return;}
-   if(event.code==='Space'||event.code==='Enter'){event.preventDefault();if(this.state==='connected')this.nextLine();else if(this.state==='on_hook')this.pickUp();return;}
+   if(event.code===__dialogueText("ui/PIOfficePhoneUI.js", "t_20eac5aae274985fd886")||event.code===__dialogueText("ui/PIOfficePhoneUI.js", "t_dc8659db6d416dc32fca")){event.preventDefault();if(this.state==='connected')this.nextLine();else if(this.state==='on_hook')this.pickUp();return;}
    if(event.code==='KeyD'&&this.state!=='dialling'){event.preventDefault();this.openDirectory();}
   };
   this.onResize=()=>{if(!this.destroyed)this.layout();};scene.input.keyboard?.on('keydown',this.onKey);scene.scale.on('resize',this.onResize);scene.events.once('shutdown',this.destroy,this);this.investigation=new PhoneInvestigation(this);this.investigation.renderPaper=renderPhoneFieldNotes.bind(this.investigation);

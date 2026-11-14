@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // ---------------------------------------------------------------------------
 // ui/NewspaperPaper.js
 //
@@ -46,7 +47,7 @@ export function ensureHalftoneTexture(scene, key = HALFTONE_KEY) {
   if (!texture) return null;
 
   const ctx = texture.getContext();
-  ctx.fillStyle = 'rgba(30, 20, 10, 1)';
+  ctx.fillStyle = __dialogueText("ui/NewspaperPaper.js", "t_f13cbdf79a7f6546791b");
   ctx.beginPath();
   ctx.arc(3, 3, 1.5, 0, Math.PI * 2);
   ctx.fill();
@@ -129,8 +130,8 @@ function paintFibers(ctx, W, H, rand) {
     const dark = rand() < 0.7;
 
     ctx.strokeStyle = dark
-      ? `rgba(110, 80, 40, ${0.04 + rand() * 0.08})`
-      : `rgba(255, 250, 236, ${0.06 + rand() * 0.10})`;
+      ? `${__dialogueText("ui/NewspaperPaper.js", "t_454d89fc4af6c838c9cb")}${0.04 + rand() * 0.08}${__dialogueText("ui/NewspaperPaper.js", "t_ba5ec51d07a4ac0e9516")}`
+      : `${__dialogueText("ui/NewspaperPaper.js", "t_e3776a502c892f6ca9d7")}${0.06 + rand() * 0.10}${__dialogueText("ui/NewspaperPaper.js", "t_ba5ec51d07a4ac0e9516")}`;
     ctx.lineWidth = 0.6 + rand() * 0.8;
 
     ctx.beginPath();
@@ -152,10 +153,10 @@ function coffeeRing(ctx, x, y, r, alpha) {
   ctx.scale(1, 0.9);
 
   const g = ctx.createRadialGradient(0, 0, r * 0.2, 0, 0, r);
-  g.addColorStop(0, `rgba(120, 72, 24, ${alpha * 0.18})`);
-  g.addColorStop(0.84, `rgba(120, 72, 24, ${alpha * 0.28})`);
-  g.addColorStop(0.95, `rgba(92, 52, 16, ${alpha})`);
-  g.addColorStop(1, 'rgba(92, 52, 16, 0)');
+  g.addColorStop(0, `${__dialogueText("ui/NewspaperPaper.js", "t_7aa13d8ce1a40b733f6e")}${alpha * 0.18}${__dialogueText("ui/NewspaperPaper.js", "t_ba5ec51d07a4ac0e9516")}`);
+  g.addColorStop(0.84, `${__dialogueText("ui/NewspaperPaper.js", "t_7aa13d8ce1a40b733f6e")}${alpha * 0.28}${__dialogueText("ui/NewspaperPaper.js", "t_ba5ec51d07a4ac0e9516")}`);
+  g.addColorStop(0.95, `${__dialogueText("ui/NewspaperPaper.js", "t_ae6032f0ce5427b01659")}${alpha}${__dialogueText("ui/NewspaperPaper.js", "t_ba5ec51d07a4ac0e9516")}`);
+  g.addColorStop(1, __dialogueText("ui/NewspaperPaper.js", "t_74548834764eff68a98a"));
 
   ctx.fillStyle = g;
   ctx.beginPath();
@@ -174,7 +175,7 @@ function paintStains(ctx, W, H, rand) {
     const y = rand() * H;
     const r = 0.8 + rand() * 2.4;
 
-    ctx.fillStyle = `rgba(120, 78, 34, ${0.06 + rand() * 0.12})`;
+    ctx.fillStyle = `${__dialogueText("ui/NewspaperPaper.js", "t_c88b8b8b0c40a5f22ba0")}${0.06 + rand() * 0.12}${__dialogueText("ui/NewspaperPaper.js", "t_ba5ec51d07a4ac0e9516")}`;
     ctx.beginPath();
     ctx.arc(x, y, r, 0, Math.PI * 2);
     ctx.fill();
@@ -187,7 +188,7 @@ function paintStructure(ctx, structure) {
   ctx.save();
   ctx.globalCompositeOperation = 'multiply';
 
-  const ink = 'rgba(38, 28, 20, 0.86)';
+  const ink = __dialogueText("ui/NewspaperPaper.js", "t_caf793a8673d19a24ef9");
   ctx.strokeStyle = ink;
   ctx.fillStyle = ink;
   ctx.lineCap = 'butt';
@@ -238,7 +239,7 @@ function drawRule(ctx, rule) {
 
 // Ink never prints perfectly: scatter tiny paper-coloured dropouts.
 function paintInkWear(ctx, W, H, rand) {
-  ctx.fillStyle = 'rgba(236, 222, 186, 0.55)';
+  ctx.fillStyle = __dialogueText("ui/NewspaperPaper.js", "t_3787d120a698ff9490ef");
 
   for (let n = 0; n < 2600; n++) {
     ctx.fillRect(rand() * W, rand() * H, 1 + rand() * 1.6, 1 + rand() * 1.6);
@@ -249,20 +250,20 @@ function paintFolds(ctx, W, H) {
   // centre gutter between the two pages
   const gx = W / 2;
   let g = ctx.createLinearGradient(gx - 60, 0, gx + 60, 0);
-  g.addColorStop(0, 'rgba(70, 42, 14, 0)');
-  g.addColorStop(0.46, 'rgba(70, 42, 14, 0.16)');
-  g.addColorStop(0.5, 'rgba(40, 22, 6, 0.42)');
-  g.addColorStop(0.54, 'rgba(255, 248, 230, 0.10)');
-  g.addColorStop(0.62, 'rgba(70, 42, 14, 0.10)');
-  g.addColorStop(1, 'rgba(70, 42, 14, 0)');
+  g.addColorStop(0, __dialogueText("ui/NewspaperPaper.js", "t_f6085a66c394e05f2db5"));
+  g.addColorStop(0.46, __dialogueText("ui/NewspaperPaper.js", "t_145a5a4275b644c91308"));
+  g.addColorStop(0.5, __dialogueText("ui/NewspaperPaper.js", "t_be19b57c23f11f0458b4"));
+  g.addColorStop(0.54, __dialogueText("ui/NewspaperPaper.js", "t_1a2bf36a880b047fc2d8"));
+  g.addColorStop(0.62, __dialogueText("ui/NewspaperPaper.js", "t_6fc49790091f4cb840de"));
+  g.addColorStop(1, __dialogueText("ui/NewspaperPaper.js", "t_f6085a66c394e05f2db5"));
   ctx.fillStyle = g;
   ctx.fillRect(gx - 60, 0, 120, H);
 
   // faint horizontal crease (paper was folded in four)
   g = ctx.createLinearGradient(0, H / 2 - 10, 0, H / 2 + 10);
-  g.addColorStop(0, 'rgba(70, 42, 14, 0)');
-  g.addColorStop(0.5, 'rgba(70, 42, 14, 0.09)');
-  g.addColorStop(1, 'rgba(70, 42, 14, 0)');
+  g.addColorStop(0, __dialogueText("ui/NewspaperPaper.js", "t_f6085a66c394e05f2db5"));
+  g.addColorStop(0.5, __dialogueText("ui/NewspaperPaper.js", "t_4264a96da9c8183594ac"));
+  g.addColorStop(1, __dialogueText("ui/NewspaperPaper.js", "t_f6085a66c394e05f2db5"));
   ctx.fillStyle = g;
   ctx.fillRect(0, H / 2 - 10, W, 20);
 }
@@ -270,8 +271,8 @@ function paintFolds(ctx, W, H) {
 function paintAging(ctx, W, H) {
   const edge = (x0, y0, x1, y1, rx, ry, rw, rh) => {
     const g = ctx.createLinearGradient(x0, y0, x1, y1);
-    g.addColorStop(0, 'rgba(96, 58, 20, 0.45)');
-    g.addColorStop(1, 'rgba(96, 58, 20, 0)');
+    g.addColorStop(0, __dialogueText("ui/NewspaperPaper.js", "t_b14aba483cebe3f26c82"));
+    g.addColorStop(1, __dialogueText("ui/NewspaperPaper.js", "t_147f476ddab836895ef2"));
     ctx.fillStyle = g;
     ctx.fillRect(rx, ry, rw, rh);
   };
@@ -282,8 +283,8 @@ function paintAging(ctx, W, H) {
   edge(0, H, 0, H - 70, 0, H - 70, W, 70);
 
   const v = ctx.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, W * 0.62);
-  v.addColorStop(0, 'rgba(80, 50, 20, 0)');
-  v.addColorStop(1, 'rgba(80, 50, 20, 0.22)');
+  v.addColorStop(0, __dialogueText("ui/NewspaperPaper.js", "t_1cded8efd77feee88cb7"));
+  v.addColorStop(1, __dialogueText("ui/NewspaperPaper.js", "t_a057ec1d3e6e9c96e64d"));
   ctx.fillStyle = v;
   ctx.fillRect(0, 0, W, H);
 }

@@ -1,8 +1,9 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import {gameState} from '../GameData.js';
 import {installPlayerCloudNotebook} from './PlayerCloudNotebook.js';
 import {getQuestHintOffer,purchaseQuestHint} from './pi-computer/QuestHintPurchase.js';
 
-const INSTALL=Symbol.for('lostArtifacts.piOfficeNotebookIntegration.v1');
+const INSTALL=Symbol.for(__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_b834118c6720c73f857b"));
 const OFFICE='DetectiveOfficeScene';
 const ALLOWED_DEVICES=new Set([null,undefined,'phone','computer']);
 
@@ -90,40 +91,24 @@ function element(tag,text,cls){
   if(cls)node.className=cls;
   return node;
 }
-const CSS=`
-.pio-tools{position:fixed;right:16px;top:16px;z-index:10500;display:flex;gap:10px;align-items:center}
-.pio-tools[hidden],.pio-assist[hidden]{display:none!important}
-.pio-tools button,.pio-assist button,.pio-assist select{font-family:SpecialElite,'Special Elite',monospace;font-size:18px;color:#fff1ce;background:#28231c;border:2px solid #bd9e4c;padding:10px 14px;cursor:pointer;min-height:44px}
-.pio-tools button:hover,.pio-assist button:hover{background:#493b25}
-.pio-tools button:focus-visible,.pio-assist button:focus-visible,.pio-assist select:focus-visible{outline:3px solid #ffe28a;outline-offset:3px}
-.pio-tools .pio-settings{width:48px;padding:8px;display:flex;align-items:center;justify-content:center}
-.pio-settings svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2}
-.pio-assist{position:fixed;inset:0;z-index:13000;background:#000b;display:flex;justify-content:center;align-items:center;padding:16px;box-sizing:border-box}
-.pio-assist *{box-sizing:border-box}
-.pio-assist article{background:#eee1b7;color:#344b3a;border:3px solid #b18c37;box-shadow:0 12px 50px #0009;padding:24px;width:min(720px,100%);max-height:calc(100vh - 32px);overflow:auto;font-family:SpecialElite,'Special Elite',monospace;font-size:19px;line-height:1.5}
-.pio-assist h2{margin:0 0 16px;font-size:25px}.pio-assist p{white-space:pre-wrap}
-.pio-assist select{width:100%;margin:0 0 16px}.pio-assist button{margin:6px 8px 6px 0;font-size:17px}
-.pio-assist button:disabled{opacity:.45;cursor:default}.pio-assist .pio-options{display:grid;gap:10px}
-.pio-assist .pio-options button{width:100%;text-align:left;margin:0}.pio-assist .pio-error{color:#8a362a}
-@media(max-width:600px){.pio-tools{top:8px;right:8px;gap:6px}.pio-tools button{font-size:14px;padding:8px}.pio-assist article{padding:16px;font-size:17px}}
-`;
+const CSS=`${__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_1db4d49fbe79e7ecbc1a")}`;
 export function installPIOfficeNotebook(ui){
   const scene=ui.scene;
   ensureOfficeRefresh(scene);
   if(ui[INSTALL])return ui[INSTALL].notebook;
-  const before=new Set(document.querySelectorAll('.pcn'));
+  const before=new Set(document.querySelectorAll(__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_ac41b924aa2755fb032c")));
   const notebook=installPlayerCloudNotebook(createOfficeNotebookFacade(ui));
-  const notesRoot=[...document.querySelectorAll('.pcn')].find(node=>!before.has(node))||null;
+  const notesRoot=[...document.querySelectorAll(__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_ac41b924aa2755fb032c"))].find(node=>!before.has(node))||null;
   const phoneSync=bindPhoneNotebookUpdates(ui,notebook);
   let dead=false,lastStep=-Infinity,modal=null,settingsBinding=null,settingsOpening=false;
   let offer=null,questId=null,message='',receipt=null,buying=false;
   const restorers=[];
   const style=element('style',CSS);document.head.append(style);
-  const tools=element('nav',undefined,'pio-tools');tools.setAttribute('aria-label','PI office controls');
+  const tools=element('nav',undefined,'pio-tools');tools.setAttribute('aria-label',__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_61376a26de56a35af936"));
   const hint=element('button','HINT');hint.type='button';tools.append(hint);
   const settings=element('button',undefined,'pio-settings');settings.type='button';
-  settings.title='Settings';settings.setAttribute('aria-label','Settings');
-  settings.innerHTML='<svg viewBox="0 0 32 32" aria-hidden="true"><path d="m13 3 6 0 1 4 3 2 4-1 3 5-3 3v3l3 3-3 5-4-1-3 2-1 4h-6l-1-4-3-2-4 1-3-5 3-3v-3l-3-3 3-5 4 1 3-2z" transform="translate(1 -1) scale(.94)"/><circle cx="16" cy="16" r="5"/></svg>';
+  settings.title=__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_74a883a037bc227f9189");settings.setAttribute('aria-label',__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_74a883a037bc227f9189"));
+  settings.innerHTML=__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_925c2bdf9ef514f414ed");
   tools.append(settings);document.body.append(tools);
   scene.officeTitle?.destroy();scene.officeTitle=null;
   function wrap(target,key,factory){
@@ -158,10 +143,10 @@ export function installPIOfficeNotebook(ui){
     if(!modal||!alive())return;
     const oldFocus=document.activeElement?.dataset?.action;
     modal.replaceChildren();
-    const article=element('article');article.setAttribute('role','dialog');article.setAttribute('aria-modal','true');article.setAttribute('aria-label','Case assistance');article.tabIndex=-1;
-    modal.append(article);article.append(element('h2','CASE ASSISTANCE'));
+    const article=element('article');article.setAttribute('role','dialog');article.setAttribute('aria-modal','true');article.setAttribute('aria-label',__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_94d155e57600e9847461"));article.tabIndex=-1;
+    modal.append(article);article.append(element('h2',__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_dfbbedeca8c56f461882")));
     const quests=availableQuests();
-    const select=element('select');select.setAttribute('aria-label','Active case');
+    const select=element('select');select.setAttribute('aria-label',__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_006165a612ceec8ab236"));
     for(const q of quests){const option=element('option',q.title);option.value=q.id;select.append(option);}
     if(!quests.some(q=>q.id===questId))questId=quests.find(q=>q.offer)?.id||quests[0]?.id||null;
     if(questId)select.value=questId;
@@ -173,19 +158,19 @@ export function installPIOfficeNotebook(ui){
       node.addEventListener('click',()=>{if(alive()&&!node.disabled)action();});article.append(node);return node;
     }
     if(receipt){
-      article.append(element('p',`Hint ${receipt.level+1}/3\n\n${receipt.text}`));
+      article.append(element('p',`${__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_2e45f90106c67c1a90d1")}${receipt.level+1}${__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_718ee80768851ce8bb89")}${receipt.text}`));
       button('BACK',()=>{receipt=null;offer=getQuestHintOffer(questId);message='';drawHints();},true,'back');
     }else{
       offer=getQuestHintOffer(questId);
-      if(!offer)article.append(element('p',quests.length?'No assistance is available for this case at this stage.':'There are no active cases.'));
+      if(!offer)article.append(element('p',quests.length?__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_a544f11378aed9d0cd27"):__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_0aaa4110dea61890a376")));
       else if(offer.next){
-        article.append(element('p',`Next hint: ${offer.level+1}/3.\nFree hints use your shared supply. No money, energy or time cost in Home Town.`));
-        const free=button(`USE FREE HINT (${offer.freeCount}) — integrity unchanged`,()=>buy('free_hint'),offer.freeCount>0,'free');
+        article.append(element('p',`${__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_8f19bfc8a6eefa3f5daa")}${offer.level+1}${__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_47e59b4d315635bfd321")}`));
+        const free=button(`${__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_9aa56441d1dbebae2beb")}${offer.freeCount}${__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_a1ebeeac4735943419f9")}`,()=>buy('free_hint'),offer.freeCount>0,'free');
         const options=element('div',undefined,'pio-options');article.append(options);options.append(free);
-        options.append(button('CUT CORNERS — integrity -1',()=>buy('cut_corners'),true,'bad'));
-        options.append(button('DOCUMENTED HELP — integrity +1',()=>buy('squad_help'),true,'good'));
-      }else article.append(element('p','All hints for this step have been obtained. You can review the latest hint for free.'));
-      if(offer?.latest)button('REVIEW LATEST — FREE',()=>{receipt=offer.latest;message='';drawHints();},true,'review');
+        options.append(button(__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_5e957cc5f8d8df14b12b"),()=>buy('cut_corners'),true,'bad'));
+        options.append(button(__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_0095a272f9fc381dab77"),()=>buy('squad_help'),true,'good'));
+      }else article.append(element('p',__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_1835ba6bab3d6f9e63fd")));
+      if(offer?.latest)button(__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_f1236cdfcdb05096096f"),()=>{receipt=offer.latest;message='';drawHints();},true,'review');
     }
     if(message)article.append(element('p',message,'pio-error'));
     button('CLOSE',closeHints,true,'close');
@@ -195,16 +180,16 @@ export function installPIOfficeNotebook(ui){
     if(buying||!modal||!offer)return;buying=true;
     try{
       const result=purchaseQuestHint(questId,method,offer,OFFICE);
-      if(result.success){receipt=result.receipt;message=result.saved===false?'Autosave failed. Your progress may not survive a reload.':'';}
+      if(result.success){receipt=result.receipt;message=result.saved===false?__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_eaae88b433b75840d81b"):'';}
       else{message=result.message;offer=getQuestHintOffer(questId);}
-    }catch(error){console.error('[PI office assistance]',error);message='Could not obtain assistance. Reopen hints to check your latest receipt.';}
+    }catch(error){console.error('[PI office assistance]',error);message=__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_6a8f043127d7137baf3b");}
     finally{buying=false;drawHints();}
   }
   function openHints(){
     if(!alive()||!scene.canUseOffice()||modal)return;
     scene.activeDevice='office-hint';scene.refreshInteractions();
     modal=element('div',undefined,'pio-assist');
-    modal.addEventListener('keydown',event=>{event.stopPropagation();if(event.key==='Escape'){event.preventDefault();closeHints();}});
+    modal.addEventListener('keydown',event=>{event.stopPropagation();if(event.key===__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_037c968467aa3fd7c059")){event.preventDefault();closeHints();}});
     for(const type of ['pointerdown','pointerup','click','wheel'])modal.addEventListener(type,event=>event.stopPropagation());
     document.body.append(modal);receipt=null;message='';drawHints();updateVisibility();
   }
@@ -224,7 +209,7 @@ export function installPIOfficeNotebook(ui){
     }catch(error){
       if(child&&onClose)child.events.off('shutdown',onClose);
       settingsBinding=null;
-      if(alive()){scene.showFeedback('Settings could not be opened.');console.error('[PI office settings]',error);}
+      if(alive()){scene.showFeedback(__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_7be3fb5016c1c9153535"));console.error('[PI office settings]',error);}
     }finally{
       if(!settingsBinding){settingsOpening=false;releaseDevice('office-settings');}
     }
@@ -237,12 +222,12 @@ export function installPIOfficeNotebook(ui){
     const now=scene.time?.now??Date.now();if(now-lastStep<120)return;lastStep=now;
     phoneSync.step();
   }
-  const handle=notesRoot?.querySelector('.pcn-handle');
+  const handle=notesRoot?.querySelector(__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_19380311105cba9f2828"));
   function onNotesClick(){
     if(!scene.phoneUI?.isOpen)return;
     queueMicrotask(()=>{
       if(!alive())return;
-      const paper=notesRoot?.querySelector('.pcn-paper');
+      const paper=notesRoot?.querySelector(__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_7161f0f9dc27778223ff"));
       if(paper&&!paper.hidden)phoneSync.reveal();
     });
   }

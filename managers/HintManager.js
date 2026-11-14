@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../gameStatePersistence.js';
 import { EventBus } from '../EventBus.js';
@@ -16,7 +17,7 @@ const STATE_VERSION = 1;
 const EASY_HINT_GRANT = {
   id: 'difficulty_rookie_starting_hints',
   amount: 2,
-  label: 'Routine Case starting hints'
+  label: __dialogueText("managers/HintManager.js", "t_2f281fc086ebcaee15cd")
 };
 
 const HINT_MORAL_DELTAS = Object.freeze({

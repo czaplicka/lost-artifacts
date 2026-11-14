@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
 import { audioManager } from '../managers/AudioManager.js';
@@ -21,9 +22,9 @@ const BEATS = [
 ];
 
 const CASE_CARDS = [
-  { label: 'CASE #101: Golden Idol', stamp: 'STOLEN' },
-  { label: 'CASE #102: Jade Mask', stamp: 'STOLEN' },
-  { label: 'CASE #103: Husband Disappeared', stamp: 'MISSING' }
+  { label: __dialogueText("scenes/IntroScene.js", "t_5ddf9a7db6320dd15acb"), stamp: 'STOLEN' },
+  { label: __dialogueText("scenes/IntroScene.js", "t_b7c2f3ce3574b2023945"), stamp: 'STOLEN' },
+  { label: __dialogueText("scenes/IntroScene.js", "t_5f2332fcd99cba7152d1"), stamp: 'MISSING' }
 ];
 
 
@@ -47,7 +48,7 @@ export class IntroScene extends BaseScene {
     this.authMode = 'guest';
     this.playerId = null;
     this.playerEmail = null;
-    this.displayName = 'Guest';
+    this.displayName = __dialogueText("scenes/IntroScene.js", "t_5ed8944a85a9763fd315");
     this.isNewGame = true;
 
 
@@ -62,7 +63,7 @@ export class IntroScene extends BaseScene {
     this.authMode = data.authMode ?? 'guest';
     this.playerId = data.playerId ?? null;
     this.playerEmail = data.playerEmail ?? null;
-    this.displayName = data.displayName ?? 'Guest';
+    this.displayName = data.displayName ?? __dialogueText("scenes/IntroScene.js", "t_5ed8944a85a9763fd315");
     this.isNewGame = data.isNewGame ?? true;
 
 
@@ -176,7 +177,7 @@ export class IntroScene extends BaseScene {
     this.skipHint = this.add.text(
       width - 20,
       height - this.layout.barH / 2,
-      'CLICK OR PRESS ANY KEY TO SKIP ►',
+      __dialogueText("scenes/IntroScene.js", "t_b06e6ec1e5423436da0e"),
       {
         fontFamily: FONT_PIXEL,
         fontSize: '9px',
@@ -226,9 +227,9 @@ export class IntroScene extends BaseScene {
       const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
 
 
-      g.addColorStop(0, 'rgba(255, 214, 120, 0.9)');
-      g.addColorStop(0.35, 'rgba(212, 175, 55, 0.35)');
-      g.addColorStop(1, 'rgba(212, 175, 55, 0)');
+      g.addColorStop(0, __dialogueText("scenes/IntroScene.js", "t_b097240d4f916bde6763"));
+      g.addColorStop(0.35, __dialogueText("scenes/IntroScene.js", "t_87ced990439a5bda151e"));
+      g.addColorStop(1, __dialogueText("scenes/IntroScene.js", "t_d8bf155698e18c5c5eed"));
 
 
       ctx.fillStyle = g;
@@ -243,9 +244,9 @@ export class IntroScene extends BaseScene {
       const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
 
 
-      g.addColorStop(0, 'rgba(0, 0, 0, 0)');
-      g.addColorStop(0.6, 'rgba(0, 0, 0, 0)');
-      g.addColorStop(1, 'rgba(0, 0, 0, 0.85)');
+      g.addColorStop(0, __dialogueText("scenes/IntroScene.js", "t_ec68b6486edac3f7ac96"));
+      g.addColorStop(0.6, __dialogueText("scenes/IntroScene.js", "t_ec68b6486edac3f7ac96"));
+      g.addColorStop(1, __dialogueText("scenes/IntroScene.js", "t_4c3e818dfb2a7f7820bd"));
 
 
       ctx.fillStyle = g;
@@ -408,14 +409,14 @@ export class IntroScene extends BaseScene {
       .setAlpha(0);
 
 
-    const titleShadow = this.add.text(3, 3, 'MARK AGENCY', {
+    const titleShadow = this.add.text(3, 3, __dialogueText("scenes/IntroScene.js", "t_9246fca97ffafae56410"), {
       fontFamily: FONT_PIXEL,
       fontSize: `${fontSize}px`,
       color: '#1a0d00'
     }).setOrigin(0.5);
 
 
-    const titleText = this.add.text(0, 0, 'MARK AGENCY', {
+    const titleText = this.add.text(0, 0, __dialogueText("scenes/IntroScene.js", "t_9246fca97ffafae56410"), {
       fontFamily: FONT_PIXEL,
       fontSize: `${fontSize}px`,
       color: '#e6c687'
@@ -447,14 +448,14 @@ export class IntroScene extends BaseScene {
     ], true);
 
 
-    const subTitle = this.add.text(0, fontSize * 1.2, '- THE LOST ARTIFACT -', {
+    const subTitle = this.add.text(0, fontSize * 1.2, __dialogueText("scenes/IntroScene.js", "t_a7c9184f69bd6b7bd34c"), {
       fontFamily: FONT_TYPE,
       fontSize: `${Math.floor(fontSize * 0.45)}px`,
       color: '#d4af37'
     }).setOrigin(0.5);
 
 
-    const licensed = this.add.text(0, fontSize * 1.72, 'Licensed. Mostly.', {
+    const licensed = this.add.text(0, fontSize * 1.72, __dialogueText("scenes/IntroScene.js", "t_b77f4c689bd6ae2f63d1"), {
       fontFamily: FONT_TYPE,
       fontSize: `${Math.max(11, Math.floor(fontSize * 0.28))}px`,
       color: '#8c7a55'
@@ -742,7 +743,7 @@ export class IntroScene extends BaseScene {
 
 
       const done = index >= text.length;
-      textObject.setText(text.slice(0, index) + (done ? '' : '_'));
+      textObject.setText(text.slice(0, index) + (done ? '' : __dialogueText("scenes/IntroScene.js", "t_d2e2adf7177b7a8afddb")));
 
 
       if (!done) {
@@ -758,7 +759,7 @@ export class IntroScene extends BaseScene {
   showTagline1() {
     this.createTaglineFrame();
     this.typewrite(
-      '"We find what others lose."',
+      __dialogueText("scenes/IntroScene.js", "t_1a3087e5c55e5b6b7f53"),
       this.layout.frameY - 20
     );
   }
@@ -766,7 +767,7 @@ export class IntroScene extends BaseScene {
 
   showTagline2() {
     this.typewrite(
-      'Sometimes... before they even lose it.',
+      __dialogueText("scenes/IntroScene.js", "t_25fc5155db82e5d53fd0"),
       this.layout.frameY + 20
     );
   }
@@ -778,14 +779,14 @@ export class IntroScene extends BaseScene {
     const fontSize = Math.min(36, Math.floor(width * 0.075));
 
 
-    const text = this.add.text(0, -8, 'NOW HIRING!', {
+    const text = this.add.text(0, -8, __dialogueText("scenes/IntroScene.js", "t_ab040306c78a1998ae0d"), {
       fontFamily: FONT_PIXEL,
       fontSize: `${fontSize}px`,
       color: '#c8281e'
     }).setOrigin(0.5);
 
 
-    const sub = this.add.text(0, fontSize * 0.95, 'Apply within. Bring your own magnifying glass.', {
+    const sub = this.add.text(0, fontSize * 0.95, __dialogueText("scenes/IntroScene.js", "t_d410ea895bac2e5844e5"), {
       fontFamily: FONT_TYPE,
       fontSize: `${Math.max(13, Math.floor(fontSize * 0.45))}px`,
       color: '#e6c687'
@@ -914,7 +915,7 @@ export class IntroScene extends BaseScene {
     if (!started) {
       this.cameras.main.resetFX();
       this.skipHint
-        ?.setText('UNABLE TO CONTINUE. CLICK OR PRESS A KEY TO RETRY.')
+        ?.setText(__dialogueText("scenes/IntroScene.js", "t_302790c95667877e8964"))
         .setAlpha(1);
 
 

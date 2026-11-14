@@ -1,213 +1,214 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 export const APPEARANCE_OPTIONS = {
   "skinTone": {
-    "label": "Skin Tone",
+    "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_54d975a5391daaf26c58"),
     "options": [
       {
         "id": "light",
-        "label": "Light"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_dbcd5e7bb7a0f538810d")
       },
       {
         "id": "warm",
-        "label": "Warm"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_316f24288be59c8327d0")
       },
       {
         "id": "golden",
-        "label": "Golden"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_30152252234e6da483c8")
       },
       {
         "id": "deep",
-        "label": "Deep"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_c54e3625467b4fdecbd7")
       },
       {
         "id": "rich",
-        "label": "Rich"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_dca900394dddb28e9369")
       }
     ]
   },
   "hairStyle": {
-    "label": "Hair Style",
+    "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_72995a619735750cf9e3"),
     "options": [
       {
         "id": "neat",
-        "label": "Neat"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_4fdc1c84d9761eb1713d")
       },
       {
         "id": "messy",
-        "label": "Messy"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_5f501b6712777e15bbef")
       },
       {
         "id": "bob",
-        "label": "Bob"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_cd9fb1e148ccd8442e5a")
       },
       {
         "id": "long",
-        "label": "Long"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_d1d87c4717d527df5912")
       },
       {
         "id": "curly",
-        "label": "Curly"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_71142c83f11418fec058")
       },
       {
         "id": "braids",
-        "label": "Braids"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_4777050dfb7dcae1a27e")
       },
       {
         "id": "pixie",
-        "label": "Pixie"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_e8b883b1eadaa5344683")
       },
       {
         "id": "shaved",
-        "label": "Shaved"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_988e8d7826699e62e061")
       },
       {
         "id": "hat",
-        "label": "Hat"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_dc34efd49ed738bf4500")
       }
     ]
   },
   "hairColor": {
-    "label": "Hair Colour",
+    "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_8b42c9f862e90cffa479"),
     "options": [
       {
         "id": "black",
-        "label": "Black"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_c6cfe6e4f129a34671d1")
       },
       {
         "id": "brown",
-        "label": "Brown"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_18f285592896ec8ead1b")
       },
       {
         "id": "blonde",
-        "label": "Blonde"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_4495c74f098e4160a11a")
       },
       {
         "id": "red",
-        "label": "Red"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_ba19e9c3d5f49882ddaa")
       },
       {
         "id": "grey",
-        "label": "Grey"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_d4ac58091b024645805d")
       }
     ]
   },
   "coat": {
-    "label": "Coat",
+    "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_1e025c02a1e557ed0b97"),
     "options": [
       {
         "id": "trench",
-        "label": "Trench"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_e1d2439aa6241a93abfe")
       },
       {
         "id": "leather",
-        "label": "Leather"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_e8e775159a57aaaf0f55")
       },
       {
         "id": "blazer",
-        "label": "Blazer"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_766e11b9770ba38ea5dc")
       },
       {
         "id": "sweater",
-        "label": "Sweater"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_89e32192c4b2e707574a")
       }
     ]
   },
   "facialHair": {
-    "label": "Facial Hair",
+    "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_2cf1d88320c0365cb7ea"),
     "options": [
       {
         "id": "none",
-        "label": "None"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_dc937b59892604f5a86a")
       },
       {
         "id": "moustache",
-        "label": "Moustache"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_138fa83d28e7fe1f2dec")
       },
       {
         "id": "shortBeard",
-        "label": "Short Beard"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_5699bc03af1d4f859b6f")
       },
       {
         "id": "fullBeard",
-        "label": "Full Beard"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_199b6188b54e0e67692c")
       }
     ]
   },
   "makeup": {
-    "label": "Makeup",
+    "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_69689d91e1e99a29da26"),
     "options": [
       {
         "id": "none",
-        "label": "None"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_dc937b59892604f5a86a")
       },
       {
         "id": "natural",
-        "label": "Natural"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_d6acb6d51cfc574936fc")
       },
       {
         "id": "red",
-        "label": "Red Lip"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_1f8203a7ee09c02dcf89")
       },
       {
         "id": "dark",
-        "label": "Dark Lip"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_5190f1e8814ce878bad0")
       },
       {
         "id": "glitter",
-        "label": "Glitter"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_3a9bd0161d828548fe7d")
       }
     ]
   },
   "accessory": {
-    "label": "Accessory",
+    "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_adf7651801aea4615532"),
     "options": [
       {
         "id": "none",
-        "label": "None"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_dc937b59892604f5a86a")
       },
       {
         "id": "glasses",
-        "label": "Glasses"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_eb25ede23e75985188ce")
       },
       {
         "id": "scarf",
-        "label": "Scarf"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_5c22a749ac7d738d70cd")
       },
       {
         "id": "notebook",
-        "label": "Notebook"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_0dec07abf92dbe7289d6")
       },
       {
         "id": "studs",
-        "label": "Studs"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_ba39f905e42025f15790")
       },
       {
         "id": "hoops",
-        "label": "Hoops"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_88844c4a9225c3682473")
       },
       {
         "id": "earring",
-        "label": "Earring"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_7f86981a572461d80534")
       }
     ]
   },
   "tattoos": {
-    "label": "Tattoos",
+    "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_104975033d074c49d179"),
     "options": [
       {
         "id": "none",
-        "label": "None"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_dc937b59892604f5a86a")
       },
       {
         "id": "dragon",
-        "label": "Dragon"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_bbe963c645f060d61857")
       },
       {
         "id": "skull",
-        "label": "Skull"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_2fb09efc5c442995a3eb")
       },
       {
         "id": "rose",
-        "label": "Rose"
+        "label": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_e10d850954a8e6113899")
       }
     ]
   }
@@ -226,107 +227,67 @@ export const DEFAULT_APPEARANCE = {
 
 const SUMMARY_LABELS = {
   "skinTone": {
-    "light": "Light skin",
-    "warm": "Warm skin",
-    "golden": "Golden skin",
-    "deep": "Deep skin",
-    "rich": "Rich skin"
+    "light": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_31b496fbd052454229cf"),
+    "warm": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_d70c68c1f41d177028a5"),
+    "golden": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_baa317cb679fe72a136a"),
+    "deep": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_842ab90289720d07e02d"),
+    "rich": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_cf143aaff2331d5722df")
   },
   "hairStyle": {
-    "neat": "Neat",
-    "messy": "Messy",
-    "bob": "Bob",
-    "long": "Long",
-    "curly": "Curly",
-    "braids": "Braided",
-    "pixie": "Pixie",
-    "shaved": "Shaved",
-    "hat": "Hat"
+    "neat": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_4fdc1c84d9761eb1713d"),
+    "messy": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_5f501b6712777e15bbef"),
+    "bob": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_cd9fb1e148ccd8442e5a"),
+    "long": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_d1d87c4717d527df5912"),
+    "curly": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_71142c83f11418fec058"),
+    "braids": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_afa47803fc09ed6b0b58"),
+    "pixie": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_e8b883b1eadaa5344683"),
+    "shaved": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_988e8d7826699e62e061"),
+    "hat": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_dc34efd49ed738bf4500")
   },
   "hairColor": {
-    "black": "black hair",
-    "brown": "brown hair",
-    "blonde": "blonde hair",
-    "red": "red hair",
-    "grey": "grey hair"
+    "black": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_78dabe4e580cd8a82234"),
+    "brown": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_e4d19a9ffc9163b5b604"),
+    "blonde": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_fcbe59ba218af790c791"),
+    "red": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_6359320b0024a00aed4b"),
+    "grey": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_6bee9dbda49c7c0b8e02")
   },
   "coat": {
-    "trench": "Trench coat",
-    "leather": "Leather jacket",
-    "blazer": "Blazer",
-    "sweater": "Sweater"
+    "trench": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_d83d39a249742b7df980"),
+    "leather": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_fa183538bef33094373f"),
+    "blazer": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_766e11b9770ba38ea5dc"),
+    "sweater": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_89e32192c4b2e707574a")
   },
   "facialHair": {
     "none": "No facial hair",
-    "moustache": "Moustache",
-    "shortBeard": "Short beard",
-    "fullBeard": "Full beard"
+    "moustache": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_138fa83d28e7fe1f2dec"),
+    "shortBeard": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_5e40b799daced9dca470"),
+    "fullBeard": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_c0e83dcdf007717bba38")
   },
   "makeup": {
     "none": "No makeup",
-    "natural": "Natural makeup",
-    "red": "Red lip",
-    "dark": "Dark lip",
-    "glitter": "Glitter"
+    "natural": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_72fdbe2b656a52ccdf9a"),
+    "red": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_5171f19a317e5546c6fe"),
+    "dark": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_eef9762589da8066898e"),
+    "glitter": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_3a9bd0161d828548fe7d")
   },
   "accessory": {
     "none": "No accessory",
-    "glasses": "Glasses",
-    "scarf": "Scarf",
-    "notebook": "Notebook",
-    "studs": "Stud earrings",
-    "hoops": "Hoop earrings",
-    "earring": "Earring"
+    "glasses": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_eb25ede23e75985188ce"),
+    "scarf": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_5c22a749ac7d738d70cd"),
+    "notebook": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_0dec07abf92dbe7289d6"),
+    "studs": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_cb9100659ea2c48acc17"),
+    "hoops": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_8d4a51d06039b1a3422d"),
+    "earring": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_7f86981a572461d80534")
   },
   "tattoos": {
     "none": "No tattoos",
-    "dragon": "Dragon tattoo",
-    "skull": "Skull tattoo",
-    "rose": "Rose tattoo"
+    "dragon": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_af09133a550d9cac9f63"),
+    "skull": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_4c9692675a4fd5910c70"),
+    "rose": __dialogueText("ui/characterCreation/AppearanceControls.js", "t_50e2cd7abd7279e5efdf")
   }
 };
 
-const PREVIEW_DETAIL_STYLES = `
-.agency-id-avatar .avatar-makeup,
-.agency-id-avatar .avatar-tattoos {
-  position:absolute; inset:0; pointer-events:none;
-}
-.agency-id-avatar .avatar-makeup {z-index:7}
-.agency-id-avatar .avatar-tattoos {z-index:7}
-.agency-id-avatar[data-makeup="glitter"] .avatar-makeup::before,
-.agency-id-avatar[data-makeup="glitter"] .avatar-makeup::after {
-  content:""; position:absolute; top:143px; width:30px; height:24px;
-  background:
-    radial-gradient(circle at 15% 28%,#fff6be 0 1.7px,transparent 2px),
-    radial-gradient(circle at 43% 12%,#f6a4e7 0 1.6px,transparent 2px),
-    radial-gradient(circle at 72% 26%,#c6b5ff 0 1.8px,transparent 2.2px),
-    radial-gradient(circle at 28% 62%,#cceaff 0 1.5px,transparent 2px),
-    radial-gradient(circle at 60% 78%,#fff2a9 0 1.7px,transparent 2px),
-    radial-gradient(circle at 88% 55%,#fba7dc 0 1.6px,transparent 2px);
-  filter:drop-shadow(0 0 1px #e8c7ff);
-}
-.agency-id-avatar[data-makeup="glitter"] .avatar-makeup::before {left:calc(50% - 50px)}
-.agency-id-avatar[data-makeup="glitter"] .avatar-makeup::after {left:calc(50% + 20px);transform:scaleX(-1)}
-.agency-id-avatar[data-makeup="glitter"] .avatar-mouth {border-top-color:#b55d83}
-.agency-id-avatar[data-accessory="studs"] .avatar-accessory,
-.agency-id-avatar[data-accessory="hoops"] .avatar-accessory,
-.agency-id-avatar[data-accessory="earring"] .avatar-accessory,
-.agency-id-avatar[data-accessory="notebook"] .avatar-accessory {z-index:8}
-.agency-id-avatar[data-accessory="earring"] .avatar-accessory::before {
-  content:"";position:absolute;top:177px;left:calc(50% - 83px);
-  width:14px;height:24px;border:3px solid #f2c46b;border-radius:50%;
-  box-shadow:0 1px 0 #513828;
-}
-.agency-id-avatar[data-accessory="earring"] .avatar-accessory::after {content:none}
-.agency-id-avatar .avatar-tattoos::before {
-  position:absolute;top:174px;left:calc(50% + 23px);
-  width:29px;height:34px;background-repeat:no-repeat;
-  background-position:center;background-size:contain;opacity:.9;
-}
-.agency-id-avatar[data-tattoos="dragon"] .avatar-tattoos::before {content:"";background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2034%2036%22%3E%3Cg%20fill%3D%22%23263b3b%22%20stroke%3D%22%23263b3b%22%20stroke-width%3D%221%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M22%205%2015%208l3%204-7%203%204%204-7%206%203%206%208-2%204-6-7-3%205-5-2-4%206-2z%22%2F%3E%3Cpath%20d%3D%22m15%208-5-3%201%207M8%2025l-4%202%204%206M19%2029l6%204%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E")}
-.agency-id-avatar[data-tattoos="skull"] .avatar-tattoos::before {content:"";background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2034%2036%22%3E%3Cg%20fill%3D%22%23263b3b%22%20stroke%3D%22%23263b3b%22%20stroke-width%3D%221%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M8%2018C2%206%2010%202%2017%203c11%201%2012%2012%206%2016l-1%209H10l-1-9z%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2214%22%20r%3D%223%22%20fill%3D%22%23e5b68d%22%2F%3E%3Ccircle%20cx%3D%2221%22%20cy%3D%2214%22%20r%3D%223%22%20fill%3D%22%23e5b68d%22%2F%3E%3Cpath%20d%3D%22m16%2018-2%204h4z%22%20fill%3D%22%23e5b68d%22%2F%3E%3Cpath%20d%3D%22M12%2025v4m5-4v4m4-4v4%22%20stroke%3D%22%23e5b68d%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E")}
-.agency-id-avatar[data-tattoos="rose"] .avatar-tattoos::before {content:"";background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2034%2036%22%3E%3Cg%20fill%3D%22%23263b3b%22%20stroke%3D%22%23263b3b%22%20stroke-width%3D%221%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M17%2020v12m0-6-8-5m8%209%209-6%22%20fill%3D%22none%22%20stroke%3D%22%2329433b%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22m16%2021-8-2%202-8%207-6%209%205%201%209-7%205z%22%20fill%3D%22%23793443%22%2F%3E%3Cpath%20d%3D%22m17%208-5%206%206%205%206-6-7-2-2%205%22%20fill%3D%22none%22%20stroke%3D%22%23d18a83%22%20stroke-width%3D%221.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E")}
-`;
+const PREVIEW_DETAIL_STYLES = `${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_e066a49962df4c782c79")}`;
 
 function escapeHtml(value = '') {
   return String(value).replaceAll('&','&amp;').replaceAll('<','&lt;')
@@ -359,91 +320,22 @@ export function getAppearanceSummary(appearance = {}) {
 
 export function renderAppearanceOption(category,option,selectedValue) {
   const selected = option.id === selectedValue;
-  return `<button class="appearance-option${selected ? ' is-selected' : ''}"
-    type="button" role="radio" aria-checked="${selected}"
-    data-appearance-category="${escapeHtml(category)}"
-    data-appearance-value="${escapeHtml(option.id)}">${escapeHtml(option.label)}</button>`;
+  return `${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_240690a370d1245e61d6")}${selected ? __dialogueText("ui/characterCreation/AppearanceControls.js", "t_dad1545efbcffe484e06") : ''}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_562375a04662590aef62")}${selected}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_6a9e68bc782be3fbbe28")}${escapeHtml(category)}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_5cfa57562b5863c008dc")}${escapeHtml(option.id)}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_ab2cd774889293a06156")}${escapeHtml(option.label)}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_d8de48c79715e8f2762e")}`;
 }
 
 export function renderAppearanceGroup(category,group,appearance) {
-  return `<fieldset class="appearance-option-group" role="radiogroup"
-    aria-label="${escapeHtml(group.label)}">
-    <legend>${escapeHtml(group.label)}</legend>
-    <div class="appearance-option-list">${group.options.map(option =>
-      renderAppearanceOption(category,option,appearance[category])).join('')}</div>
-  </fieldset>`;
+  return `${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_e0cd9558b74a36c0e24a")}${escapeHtml(group.label)}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_8c998aeda729488fe7e9")}${escapeHtml(group.label)}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_65580357d1a3d08d936d")}${group.options.map(option =>
+      renderAppearanceOption(category,option,appearance[category])).join('')}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_0294d5119d34a3a3b160")}`;
 }
 
 export function renderAvatarPreview({appearance,name,alias} = {}) {
   const value = normalizeAppearance(appearance);
-  return `
-    <style data-avatar-detail-styles>${PREVIEW_DETAIL_STYLES}</style>
-    <aside class="agency-id-card">
-      <div class="agency-id-card-header"><span>Mark Agency</span><span>Field Operative</span></div>
-      <div class="agency-id-avatar" data-avatar-preview
-        data-skin-tone="${value.skinTone}" data-hair-style="${value.hairStyle}"
-        data-hair-color="${value.hairColor}" data-coat="${value.coat}"
-        data-facial-hair="${value.facialHair}" data-makeup="${value.makeup}"
-        data-accessory="${value.accessory}" data-tattoos="${value.tattoos}"
-        role="img" aria-label="Detective portrait preview">
-        <div class="avatar-coat"></div>
-        <div class="avatar-neck"></div>
-        <div class="avatar-face"></div>
-        <div class="avatar-ear avatar-ear--left"></div>
-        <div class="avatar-ear avatar-ear--right"></div>
-        <div class="avatar-hair"></div>
-        <div class="avatar-eyes"></div>
-        <div class="avatar-nose"></div>
-        <div class="avatar-mouth"></div>
-        <div class="avatar-facial-hair"></div>
-        <div class="avatar-makeup"></div>
-        <div class="avatar-tattoos"></div>
-        <div class="avatar-accessory"></div>
-      </div>
-      <div class="agency-id-name" data-avatar-name>${escapeHtml(name || 'UNNAMED APPLICANT')}</div>
-      <div class="agency-id-alias" data-avatar-alias>ALIAS: ${escapeHtml(alias || 'UNLISTED')}</div>
-      <div class="agency-id-status">STATUS: QUESTIONABLE</div>
-    </aside>`;
+  return `${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_8795647af0f7644f21f2")}${PREVIEW_DETAIL_STYLES}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_5cb4d47ab987d1d8611a")}${value.skinTone}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_1c6982a114fbfe64dd69")}${value.hairStyle}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_9ab6d5036fb309f32917")}${value.hairColor}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_65d9400395a7320d077c")}${value.coat}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_b5a56d7e67f2e395fa15")}${value.facialHair}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_77589c056af9e5dd17eb")}${value.makeup}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_988d1bc283d58315960f")}${value.accessory}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_c5b6bb7ee549e8defeef")}${value.tattoos}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_dc26122131f0b419700e")}${escapeHtml(name || __dialogueText("ui/characterCreation/AppearanceControls.js", "t_803b7246d0b19ce1283c"))}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_5405535349d1c308cd9d")}${escapeHtml(alias || 'UNLISTED')}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_6499957dbbab7ecb17cf")}`;
 }
 
 export function renderIdentityStep(playerData = {}) {
   const data = playerData || {};
   const appearance = normalizeAppearance(data.appearance);
-  return `
-    <section class="character-step-panel is-active" data-step-panel="0">
-      <h2 class="character-section-title">IDENTIFY YOURSELF</h2>
-      <p class="character-section-intro">
-        For administrative purposes, legal ambiguity, and an ID badge nobody will respect.
-      </p>
-      <div class="character-identity-layout">
-        <div class="character-identity-fields">
-          <div class="character-field">
-            <label for="character-name">Name</label>
-            <input id="character-name" name="name" type="text" maxlength="28"
-              autocomplete="nickname" placeholder="e.g. Alex Mercer"
-              value="${escapeHtml(data.name || '')}" data-character-name>
-          </div>
-          <div class="character-field">
-            <label for="character-alias">Alias</label>
-            <input id="character-alias" name="alias" type="text" maxlength="28"
-              autocomplete="off" placeholder="e.g. The Last Honest Invoice"
-              value="${escapeHtml(data.alias || '')}" data-character-alias>
-          </div>
-          <button class="character-button character-button--randomize" type="button" data-action="randomize">
-            Randomize My Poor Life Choices
-          </button>
-          <section class="character-appearance-section">
-            <h3 class="character-appearance-title">APPEAR PROFESSIONALLY SUSPICIOUS</h3>
-            <p class="character-appearance-intro">
-              Management requires a recognisable face. Management has not explained why.
-            </p>
-            <div class="character-appearance-controls">
-              ${Object.entries(APPEARANCE_OPTIONS).map(([category,group]) =>
-                renderAppearanceGroup(category,group,appearance)).join('')}
-            </div>
-          </section>
-        </div>
-        ${renderAvatarPreview({appearance,name:data.name,alias:data.alias})}
-      </div>
-    </section>`;
+  return `${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_ba38744009a35e7a1533")}${escapeHtml(data.name || '')}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_b8bd8230f00d07c9ce08")}${escapeHtml(data.alias || '')}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_720f7855f99a3f2056e4")}${Object.entries(APPEARANCE_OPTIONS).map(([category,group]) =>
+                renderAppearanceGroup(category,group,appearance)).join('')}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_ad5b829e9f213c43ead5")}${renderAvatarPreview({appearance,name:data.name,alias:data.alias})}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_879327a0fe30559f153e")}`;
 }

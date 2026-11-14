@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import './AlibiSearchExpansion.js';
 import { gameState } from '../../GameData.js';
 import { discoverSearchKeywords } from './ComputerSearchCore.js';
@@ -8,7 +9,7 @@ import { bindKeywordStyle, keywordSurface, refreshKeywordStyles } from './Keywor
 
 const QUEST='pi_stolen_alibi';
 const SEARCH='borrowed_alibi';
-const INSTALLATION=Symbol.for('lostArtifacts.alibiImprovements');
+const INSTALLATION=Symbol.for(__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_1a8455ae476cba22cbbb"));
 const emailKeyword=keyword=>/[^\s@]+@[^\s@]+\.[^\s@]+/.test(String(keyword?.email||keyword?.label||''));
 
 export function installAlibiImprovements(ui,documents){
@@ -34,10 +35,10 @@ export function installAlibiImprovements(ui,documents){
   const revealEmail=(caseId,keywordId)=>{pendingReveal={caseId,keywordId};refresh();};
   const addContact=(contact,kind)=>{
     if(!alive())return false;
-    if(!saveAlibiContact(contact,kind)){ui.notice='This contact could not be saved.';refresh();return false;}
+    if(!saveAlibiContact(contact,kind)){ui.notice=__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_83b9af966e742ab07c7f");refresh();return false;}
     const keywordId=kind==='email'?contact.keyword.replace('_phone','_email'):contact.keyword;
     if(!discoverSearchKeywords(SEARCH,[keywordId])){
-      ui.notice='The contact was saved, but its case note could not be added.';refresh();return false;
+      ui.notice=__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_56a259b17bf23a981cb5");refresh();return false;
     }
     hint=null;ui.notice='';refreshKeywordStyles(ui.scene);
     if(kind==='email')revealEmail(SEARCH,keywordId);else refresh();
@@ -62,7 +63,7 @@ export function installAlibiImprovements(ui,documents){
   const openHints=()=>{
     if(!alive()||buyingHint)return;
     const offer=getQuestHintOffer(QUEST);
-    if(!offer){ui.notice='No assistance is available for this case.';hint=null;refresh();return;}
+    if(!offer){ui.notice=__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_b637d98500350321a6cf");hint=null;refresh();return;}
     hint={app:ui.app,mode:'choose',offer,message:''};refresh();
   };
   const buyHint=method=>{
@@ -70,10 +71,10 @@ export function installAlibiImprovements(ui,documents){
     try{
       const result=purchaseQuestHint(QUEST,method,hint.offer,ui.scene.sys.settings.key);
       if(!result.success){hint.message=result.message;if(result.stale)hint.offer=getQuestHintOffer(QUEST);refresh();return;}
-      hint={app:ui.app,mode:'read',receipt:result.receipt,message:result.saved?'':'Autosave failed. Progress may be lost on reload.'};refresh();
+      hint={app:ui.app,mode:'read',receipt:result.receipt,message:result.saved?'':__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_a98fb6b0cc3aad6dbc17")};refresh();
     }catch(error){
       console.error('[AlibiImprovements] Hint purchase failed:',error);
-      if(hint)hint.message='Assistance could not be displayed. Close and reopen hints to check your purchase.';
+      if(hint)hint.message=__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_5d2ae154dda34b5dc8c8");
       refresh();
     }finally{buyingHint=false;}
   };
@@ -89,7 +90,7 @@ export function installAlibiImprovements(ui,documents){
       isKnown:()=>Boolean(gameState.piKeywordSearch?.cases?.[SEARCH]?.known?.includes(keywordId)),
       surface:()=>keywordSurface(ui,object)
     });
-    object.setName(`Add ${contact.name}’s ${kind==='email'?'email':'number'}`);
+    object.setName(`${__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_8d89e4a829ae847dcda9")}${contact.name}${__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_ff7948b7392a6878d4f7")}${kind==='email'?'email':'number'}`);
     object.setInteractive({useHandCursor:true}).on('pointerdown',()=>addContact(contact,kind));
     return object;
   });
@@ -97,9 +98,9 @@ export function installAlibiImprovements(ui,documents){
     if(dead||!message.id?.startsWith('alibi_'))return message;
     const state=gameState.piBorrowedAlibi||{};
     const advert=documents.getClassifieds().find(item=>item.missionId===QUEST);
-    const originalAdvert=advert?.description||'Someone has been using my alibi. Please reply through Box 17.';
-    if(message.id==='alibi_box17_sent')return{...message,threadId:QUEST,body:message.body+'\n\n----- ORIGINAL ADVERTISEMENT / BOX 17 -----\n'+originalAdvert};
-    if(message.id==='alibi_arthur_reply')return{...message,threadId:QUEST,inReplyTo:'alibi_box17_sent',body:message.body+'\n\n----- YOUR PREVIOUS REPLY -----\n'+(state.sentBody||'Reply sent through Box 17.')+'\n\n----- ORIGINAL ADVERTISEMENT / BOX 17 -----\n'+originalAdvert};
+    const originalAdvert=advert?.description||__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_1d38316fafd6d0151603");
+    if(message.id==='alibi_box17_sent')return{...message,threadId:QUEST,body:message.body+__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_2367b2b3f56da7aca1a9")+originalAdvert};
+    if(message.id==='alibi_arthur_reply')return{...message,threadId:QUEST,inReplyTo:'alibi_box17_sent',body:message.body+__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_855e857f109747ebe31e")+(state.sentBody||__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_7a9261978ca6c5260811"))+__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_2367b2b3f56da7aca1a9")+originalAdvert};
     return message;
   }));
   function installSearch(){
@@ -137,29 +138,29 @@ export function installAlibiImprovements(ui,documents){
     if(!alive()||!ui.isOpen||ui.suspended||ui.booting||!ui.window)return;
     if(hint&&hint.app!==ui.app)hint=null;if(!hint)return;
     const box=panel();if(!box)return;const{d,x,y,width,height}=box;
-    d.text(x+22,y+18,'CASE ASSISTANCE',21,'#344b3a',width-44);
+    d.text(x+22,y+18,__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_dfbbedeca8c56f461882"),21,'#344b3a',width-44);
     if(hint.mode==='read'){
       const receipt=hint.receipt;
-      fitBody(d,x+22,y+65,[`Hint ${receipt.level+1}/3`,'',receipt.text,'',hint.message||''].join('\n'),width-44,height-140);
+      fitBody(d,x+22,y+65,[`${__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_2e45f90106c67c1a90d1")}${receipt.level+1}${__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_8d2cedfe81c77aaa05d9")}`,'',receipt.text,'',hint.message||''].join('\n'),width-44,height-140);
       d.button(x+22,y+height-53,'BACK',()=>{hint=null;refresh();});
       const offer=getQuestHintOffer(QUEST);
-      d.button(x+width-180,y+height-53,'MORE HELP',openHints,Boolean(offer?.next));return;
+      d.button(x+width-180,y+height-53,__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_2e8a70d3d55717fa6b7a"),openHints,Boolean(offer?.next));return;
     }
     const offer=hint.offer;
-    if(!offer)fitBody(d,x+22,y+65,hint.message||'No assistance is available.',width-44,height-140);
-    else if(offer.complete)fitBody(d,x+22,y+65,'All hints for this step have been obtained.\n\nYou can review your latest hint for free.',width-44,height-150);
+    if(!offer)fitBody(d,x+22,y+65,hint.message||__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_cfbb2963406212edd445"),width-44,height-140);
+    else if(offer.complete)fitBody(d,x+22,y+65,__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_5b72339195634f3a77fb"),width-44,height-150);
     else{
-      d.text(x+22,y+61,`Next hint: ${offer.level+1}/3`,17,'#344b3a',width-44);
-      d.button(x+22,y+101,`FREE HINT (${offer.freeCount})`,()=>buyHint('free_hint'),offer.freeCount>0&&!buyingHint);
-      d.text(x+22,y+135,'Uses one free hint. Integrity: no change.',14,'#5a604d',width-44);
-      d.button(x+22,y+177,'CUT CORNERS',()=>buyHint('cut_corners'),!buyingHint);
-      d.text(x+22,y+211,'5 energy + 10 min. Integrity: -1.',14,'#8c493a',width-44);
-      d.button(x+22,y+253,'DOCUMENTED HELP',()=>buyHint('squad_help'),!buyingHint);
-      d.text(x+22,y+287,'10 energy + 30 min. Integrity: +1.',14,'#355c43',width-44);
+      d.text(x+22,y+61,`${__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_8f19bfc8a6eefa3f5daa")}${offer.level+1}${__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_8d2cedfe81c77aaa05d9")}`,17,'#344b3a',width-44);
+      d.button(x+22,y+101,`${__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_286281680359f4274f89")}${offer.freeCount}${__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_ba5ec51d07a4ac0e9516")}`,()=>buyHint('free_hint'),offer.freeCount>0&&!buyingHint);
+      d.text(x+22,y+135,__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_e841b34a01be41e3e428"),14,'#5a604d',width-44);
+      d.button(x+22,y+177,__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_d1cbbf44341666456748"),()=>buyHint('cut_corners'),!buyingHint);
+      d.text(x+22,y+211,__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_0519764c0d52ab4fbd61"),14,'#8c493a',width-44);
+      d.button(x+22,y+253,__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_c8942777d1d2733fbd2c"),()=>buyHint('squad_help'),!buyingHint);
+      d.text(x+22,y+287,__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_9fa2041bfe120c38f0e8"),14,'#355c43',width-44);
     }
     if(hint.message&&offer)fitBody(d,x+22,y+height-112,hint.message,width-44,48,14);
     d.button(x+22,y+height-53,'CANCEL',()=>{hint=null;refresh();});
-    if(offer?.latest)d.button(x+width-215,y+height-53,'REVIEW — FREE',()=>{hint={app:ui.app,mode:'read',receipt:offer.latest,message:''};refresh();});
+    if(offer?.latest)d.button(x+width-215,y+height-53,__dialogueText("ui/pi-computer/AlibiImprovementsBase.js", "t_7e195cb9f1f02521dde8"),()=>{hint={app:ui.app,mode:'read',receipt:offer.latest,message:''};refresh();});
   }
   wrap(documents,'render',original=>(...args)=>{
     installSearch();const result=original(...args),quest=gameState.piQuests?.quests?.[QUEST];

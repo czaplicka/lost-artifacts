@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { CrimeBoardUI } from './CrimeBoardUI.js';
 import { CrimeBoard } from '../CrimeBoard.js';
 import { EventBus } from '../EventBus.js';
@@ -15,24 +16,7 @@ const EDITOR_IDS={
   addPhotoBtnId:'add-photo-btn',addNoteBtnId:'add-note-btn',addEvidenceBtnId:'add-evidence-btn',
   linksListId:'crime-board-links-list',linksEmptyId:'crime-board-links-empty',verifyMotiveBtnId:'crime-board-verify-motive-btn'
 };
-const PI_STYLE=`
-.pi-crime-board-ui .pi-board-header{display:flex;flex-wrap:wrap;align-items:center;gap:8px;}
-.pi-crime-board-ui .pi-board-header button[aria-pressed="true"]{background:#7b2529;color:#fff4d4;}
-.pi-crime-board-ui .crime-board__anchor{opacity:.85!important;pointer-events:auto!important;width:14px;height:14px;background:#b3131b;border:2px solid #ffe3b0;border-radius:50%;z-index:30;}
-.pi-crime-board-ui .crime-board__item.is-hidden .crime-board__anchor{pointer-events:none!important;}
-.pi-crime-board-ui .crime-board__photo-frame{position:relative;}
-.pi-crime-board-ui .pi-board-photo-zoom{position:absolute;right:6px;bottom:6px;z-index:20;padding:5px 8px;border:1px solid #d6b375;background:#18231eea;color:#fff0cf;font:14px SpecialElite,monospace;cursor:zoom-in;}
-.pi-crime-board-ui .pi-board-link-mode .crime-board__item{cursor:crosshair;}
-.pi-board-photo-dialog{box-sizing:border-box;width:min(96vw,1400px);max-width:96vw;max-height:94vh;padding:14px;border:2px solid #b9975b;background:#19221e;color:#fff0cf;font-family:SpecialElite,monospace;}
-.pi-board-photo-dialog::backdrop{background:#000c;}
-.pi-board-photo-dialog[open]{display:flex;flex-direction:column;gap:10px;}
-.pi-board-photo-dialog .pi-photo-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
-.pi-board-photo-dialog .pi-photo-title{flex:1;min-width:140px;margin:0;font-size:20px;}
-.pi-board-photo-dialog button{font:16px SpecialElite,monospace;padding:7px 12px;cursor:pointer;background:#eee2c0;color:#18231e;border:1px solid #b9975b;}
-.pi-board-photo-dialog .pi-photo-stage{overflow:auto;max-height:70vh;min-height:120px;background:#0b100e;padding:8px;}
-.pi-board-photo-dialog img{display:block;max-width:none;max-height:none;height:auto;margin:0 auto;}
-.pi-board-photo-dialog .pi-photo-caption{margin:0;white-space:pre-wrap;}
-`;
+const PI_STYLE=`${__dialogueText("ui/PICrimeBoardUI.js", "t_7f7d3fa397e62372e97a")}`;
 
 class PrivateInvestigationBoard extends CrimeBoard{
   constructor(root,options={}){
@@ -74,10 +58,10 @@ class PrivateInvestigationBoard extends CrimeBoard{
       this.handleAnchorClick(item.id,this.connectionMode.active?'left':'right');
     },true);
     if(item.type==='photo'){
-      const frame=element.querySelector('.crime-board__photo-frame');
+      const frame=element.querySelector(__dialogueText("ui/PICrimeBoardUI.js", "t_ad0888c1e327214ffa6d"));
       if(frame){
         const zoom=document.createElement('button');zoom.type='button';zoom.className='pi-board-photo-zoom';zoom.textContent='ZOOM';
-        zoom.setAttribute('aria-label',`Enlarge photograph: ${item.label||'Photo'}`);
+        zoom.setAttribute('aria-label',`${__dialogueText("ui/PICrimeBoardUI.js", "t_65e1d6dfbffbcc98b5b2")}${item.label||__dialogueText("ui/PICrimeBoardUI.js", "t_d84eebada93efee12b02")}`);
         zoom.addEventListener('pointerdown',event=>event.stopPropagation());
         zoom.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();this.piOnPhoto?.(item);});frame.appendChild(zoom);
         frame.querySelector('img')?.addEventListener('dblclick',event=>{event.preventDefault();event.stopPropagation();this.piOnPhoto?.(item);});
@@ -110,8 +94,8 @@ export class PICrimeBoardUI extends CrimeBoardUI{
   getAvailableCases(mode=null){return getPICases().filter(investigation=>this.isCaseAvailable(investigation)&&(mode===null||investigation.kind===mode));}
   async open(){
     if(!this.canOpen())return false;if(this.isOpen)return true;
-    const otherBoard=document.querySelector('.crime-board-ui-overlay.is-open');if(otherBoard&&otherBoard!==this.overlay)return false;
-    const token=++this._openToken;this.isOpen=true;this.overlay.classList.add('is-open');this.root.textContent='Loading private investigations...';
+    const otherBoard=document.querySelector(__dialogueText("ui/PICrimeBoardUI.js", "t_9ca898e851a2e447d500"));if(otherBoard&&otherBoard!==this.overlay)return false;
+    const token=++this._openToken;this.isOpen=true;this.overlay.classList.add('is-open');this.root.textContent=__dialogueText("ui/PICrimeBoardUI.js", "t_636fa41950d3b8f2731e");
     this.disableUnderlyingScenesInput();document.addEventListener('keydown',this.boundEscHandler);
     this._hudHidden=true;EventBus.emit('hideHUD');this.piOptions.onOpen?.();
     try{
@@ -132,10 +116,10 @@ export class PICrimeBoardUI extends CrimeBoardUI{
     this.root.replaceChildren();
     const style=document.createElement('style');style.textContent=PI_STYLE;
     const header=document.createElement('div');header.className='pi-board-header';
-    const title=document.createElement('h2');title.textContent='PRIVATE INVESTIGATIONS';
-    this.mainButton=document.createElement('button');this.mainButton.type='button';this.mainButton.textContent='Main Case';this.mainButton.onclick=()=>this.switchMode('main');
-    this.sideButton=document.createElement('button');this.sideButton.type='button';this.sideButton.textContent='Side Cases';this.sideButton.onclick=()=>this.switchMode('side');
-    this.caseSelect=document.createElement('select');this.caseSelect.setAttribute('aria-label','Select private investigation');this.caseSelect.onchange=()=>this.switchCase(this.caseSelect.value);
+    const title=document.createElement('h2');title.textContent=__dialogueText("ui/PICrimeBoardUI.js", "t_bbc638660cdde9fbfde6");
+    this.mainButton=document.createElement('button');this.mainButton.type='button';this.mainButton.textContent=__dialogueText("ui/PICrimeBoardUI.js", "t_53ce1163b8db3ef2f662");this.mainButton.onclick=()=>this.switchMode('main');
+    this.sideButton=document.createElement('button');this.sideButton.type='button';this.sideButton.textContent=__dialogueText("ui/PICrimeBoardUI.js", "t_7ce72987a1d1ea3f72b9");this.sideButton.onclick=()=>this.switchMode('side');
+    this.caseSelect=document.createElement('select');this.caseSelect.setAttribute('aria-label',__dialogueText("ui/PICrimeBoardUI.js", "t_9603b9bfc657440b0f57"));this.caseSelect.onchange=()=>this.switchCase(this.caseSelect.value);
     this.linkButton=document.createElement('button');this.linkButton.type='button';this.linkButton.textContent='CONNECT';this.linkButton.setAttribute('aria-pressed','false');
     this.linkButton.onclick=()=>this.renderer?.setLinkMode(!this.renderer.piLinkMode);
     this.message=document.createElement('p');this.message.className='pi-board-message';
@@ -149,25 +133,25 @@ export class PICrimeBoardUI extends CrimeBoardUI{
   showEmptyMode(mode){
     this.saveToGameState();this.disposeBoard();this.mode=mode;this.caseId=null;this.mount?.replaceChildren();this.refreshSelector();
     if(this.linkButton){this.linkButton.disabled=true;this.linkButton.setAttribute('aria-pressed','false');}
-    if(this.message)this.message.textContent=mode==='main'?'No main investigation is available yet.':'No side investigations require a crime board yet.';
+    if(this.message)this.message.textContent=mode==='main'?__dialogueText("ui/PICrimeBoardUI.js", "t_5d7c1b6c5cdc556e0cca"):__dialogueText("ui/PICrimeBoardUI.js", "t_535656a3101be1670aec");
   }
   refreshSelector(){
     if(!this.caseSelect||!this.mainButton||!this.sideButton)return;
     const cases=this.getAvailableCases(this.mode),mainCases=this.getAvailableCases('main');this.caseSelect.replaceChildren();
     for(const investigation of cases){
-      const option=document.createElement('option');option.value=investigation.id;option.textContent=investigation.title+(investigation.status==='completed'?' — Completed':'');this.caseSelect.appendChild(option);
+      const option=document.createElement('option');option.value=investigation.id;option.textContent=investigation.title+(investigation.status==='completed'?__dialogueText("ui/PICrimeBoardUI.js", "t_43a2324f71a3a2f3308d"):'');this.caseSelect.appendChild(option);
     }
     this.caseSelect.disabled=cases.length===0;
     if(this.caseId&&cases.some(investigation=>investigation.id===this.caseId))this.caseSelect.value=this.caseId;
     this.mainButton.hidden=mainCases.length===0;this.mainButton.setAttribute('aria-pressed',String(this.mode==='main'));this.sideButton.setAttribute('aria-pressed',String(this.mode==='side'));
   }
   updateLinkStatus(status={}){
-    if(this.linkButton){this.linkButton.disabled=!this.renderer;this.linkButton.setAttribute('aria-pressed',String(Boolean(status.active)));this.linkButton.textContent=status.active?'CONNECT: ON':'CONNECT';}
+    if(this.linkButton){this.linkButton.disabled=!this.renderer;this.linkButton.setAttribute('aria-pressed',String(Boolean(status.active)));this.linkButton.textContent=status.active?__dialogueText("ui/PICrimeBoardUI.js", "t_28d9f010c669e7f8b067"):'CONNECT';}
     if(!this.message)return;
-    const title=getPICase(this.caseId)?.title||'PI investigation';
-    this.message.textContent=status.from?`${title} — choose the second card. Click the same card or press Escape to cancel.`:
-      status.active?`${title} — click two cards to connect them. Press Escape to leave CONNECT mode.`:
-      `${title} — CONNECT joins two cards; ZOOM enlarges a photograph. Connections are working theories, not confirmed facts.`;
+    const title=getPICase(this.caseId)?.title||__dialogueText("ui/PICrimeBoardUI.js", "t_59c3b2f62d408f1fef1e");
+    this.message.textContent=status.from?`${title}${__dialogueText("ui/PICrimeBoardUI.js", "t_a1396135290e3a5ef24b")}`:
+      status.active?`${title}${__dialogueText("ui/PICrimeBoardUI.js", "t_9175c649e5d844cc13a3")}`:
+      `${title}${__dialogueText("ui/PICrimeBoardUI.js", "t_bfcc40f8c2a5bbaf5748")}`;
   }
   switchCase(caseId){
     if(!this.mount||!this.template)return;
@@ -178,8 +162,8 @@ export class PICrimeBoardUI extends CrimeBoardUI{
       const element=this.mount.querySelector(`#${originalId}`),nextId=`pi-${originalId}`;if(element)element.id=nextId;rendererOptions[optionName]=nextId;
     }
     const boardRoot=this.mount.querySelector('#crime-board');if(!boardRoot)throw new Error('PI board template is missing its board root.');boardRoot.id='pi-crime-board';
-    this.mount.querySelector('#pi-crime-board-verify-motive-btn')?.remove();this.mount.querySelectorAll('.crime-board-deduction').forEach(element=>element.remove());
-    const heading=this.mount.querySelector('.crime-board-sidebar__title');if(heading)heading.textContent='PI Crime Board';
+    this.mount.querySelector('#pi-crime-board-verify-motive-btn')?.remove();this.mount.querySelectorAll(__dialogueText("ui/PICrimeBoardUI.js", "t_03922db657aa2168dbef")).forEach(element=>element.remove());
+    const heading=this.mount.querySelector(__dialogueText("ui/PICrimeBoardUI.js", "t_30dafb2f1ae40627ab67"));if(heading)heading.textContent=__dialogueText("ui/PICrimeBoardUI.js", "t_49304763a6b3c2159e7c");
     const activeCaseId=investigation.id;
     Object.assign(rendererOptions,{
       onChange:data=>{if(!this.isDestroyed&&this.isOpen&&this.caseId===activeCaseId)savePIBoard(activeCaseId,data);},
@@ -192,11 +176,11 @@ export class PICrimeBoardUI extends CrimeBoardUI{
   openPhoto(item){
     if(!this.isOpen||this.isDestroyed||!item?.image||item.type!=='photo')return;
     this.closePhoto();
-    const previousFocus=document.activeElement,dialog=document.createElement('dialog');dialog.className='pi-board-photo-dialog';dialog.setAttribute('aria-label',item.label||'Photograph');
+    const previousFocus=document.activeElement,dialog=document.createElement('dialog');dialog.className='pi-board-photo-dialog';dialog.setAttribute('aria-label',item.label||__dialogueText("ui/PICrimeBoardUI.js", "t_bb1de97207977776fc64"));
     const toolbar=document.createElement('div');toolbar.className='pi-photo-toolbar';
-    const title=document.createElement('h3');title.className='pi-photo-title';title.textContent=item.label||'Photograph';toolbar.appendChild(title);
+    const title=document.createElement('h3');title.className='pi-photo-title';title.textContent=item.label||__dialogueText("ui/PICrimeBoardUI.js", "t_bb1de97207977776fc64");toolbar.appendChild(title);
     const stage=document.createElement('div');stage.className='pi-photo-stage';
-    const image=document.createElement('img');image.alt=item.label||'Photograph';image.draggable=false;
+    const image=document.createElement('img');image.alt=item.label||__dialogueText("ui/PICrimeBoardUI.js", "t_bb1de97207977776fc64");image.draggable=false;
     const caption=document.createElement('p');caption.className='pi-photo-caption';caption.textContent=item.caption||'';
     let zoom=1,baseWidth=0;
     const apply=()=>{
@@ -212,7 +196,7 @@ export class PICrimeBoardUI extends CrimeBoardUI{
     addButton('FIT',()=>{baseWidth=0;zoom=1;apply();stage.scrollTop=0;stage.scrollLeft=0;});
     const close=addButton('CLOSE',()=>this.closePhoto());
     image.addEventListener('load',()=>{baseWidth=0;apply();});
-    image.addEventListener('error',()=>{if(this.photoDialog===dialog)caption.textContent='The photograph could not be loaded.';});
+    image.addEventListener('error',()=>{if(this.photoDialog===dialog)caption.textContent=__dialogueText("ui/PICrimeBoardUI.js", "t_4d9c22e5dab6e48fe09d");});
     stage.appendChild(image);dialog.append(toolbar,stage,caption);document.body.appendChild(dialog);this.photoDialog=dialog;this.photoPreviousFocus=previousFocus;
     dialog.addEventListener('cancel',event=>{event.preventDefault();this.closePhoto();});
     dialog.addEventListener('click',event=>{if(event.target===dialog)this.closePhoto();});
@@ -228,7 +212,7 @@ export class PICrimeBoardUI extends CrimeBoardUI{
     const previous=this.photoPreviousFocus;this.photoPreviousFocus=null;if(previous?.isConnected)previous.focus?.({preventScroll:true});
   }
   onKeyDown(event){
-    if(event.key==='Escape'&&this.isOpen&&!this.isDestroyed){
+    if(event.key===__dialogueText("ui/PICrimeBoardUI.js", "t_037c968467aa3fd7c059")&&this.isOpen&&!this.isDestroyed){
       if(this.photoDialog){event.preventDefault();event.stopPropagation();this.closePhoto();return;}
       if(this.renderer?.connectionMode.active||this.renderer?.piLinkMode){
         event.preventDefault();event.stopPropagation();this.renderer.setLinkMode(false);return;

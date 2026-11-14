@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import {
   gameState
 } from '../GameData.js';
@@ -39,14 +40,14 @@ export function getPigeonFeedAvailability(item) {
   if (busy) {
     return {
       enabled: false,
-      reason: 'Another transaction is in progress.'
+      reason: __dialogueText("managers/PigeonFeedShopManager.js", "t_882d4fae9788ba4165d5")
     };
   }
 
   if (!validFeed(item)) {
     return {
       enabled: false,
-      reason: 'Pigeon feed catalog data is unavailable.'
+      reason: __dialogueText("managers/PigeonFeedShopManager.js", "t_2de4b214d72cd1f12fa8")
     };
   }
 
@@ -62,7 +63,7 @@ export function getPigeonFeedAvailability(item) {
   ) {
     return {
       enabled: false,
-      reason: 'Pigeon feed stack is full.'
+      reason: __dialogueText("managers/PigeonFeedShopManager.js", "t_f85a06638dea77da0c56")
     };
   }
 
@@ -74,7 +75,7 @@ export function getPigeonFeedAvailability(item) {
   ) {
     return {
       enabled: false,
-      reason: 'Inventory full. Make room for pigeon feed.'
+      reason: __dialogueText("managers/PigeonFeedShopManager.js", "t_9234fa1b396b72d1e2f3")
     };
   }
 
@@ -86,7 +87,7 @@ export function getPigeonFeedAvailability(item) {
   ) {
     return {
       enabled: false,
-      reason: 'Not enough personal cash.'
+      reason: __dialogueText("managers/PigeonFeedShopManager.js", "t_6150b8bb4551d17850e2")
     };
   }
 
@@ -125,7 +126,7 @@ export function buyPigeonFeed(item) {
       {
         source: MONEY_SOURCE.CASH,
         category: ECONOMY_CATEGORY.OFFICE_UPGRADE,
-        description: 'Internet shop: Pigeon Feed (1 portion)',
+        description: __dialogueText("managers/PigeonFeedShopManager.js", "t_410185c36331bbebd21a"),
         missionId: null,
         metadata: {
           itemId: PIGEON_FEED_ID,
@@ -138,7 +139,7 @@ export function buyPigeonFeed(item) {
     if (!result.ok) {
       return {
         ok: false,
-        message: 'Not enough personal cash.'
+        message: __dialogueText("managers/PigeonFeedShopManager.js", "t_6150b8bb4551d17850e2")
       };
     }
 
@@ -161,8 +162,8 @@ export function buyPigeonFeed(item) {
     return {
       ok: true,
       message:
-        'One portion of pigeon feed added to your PI inventory. ' +
-        'The pigeons approve this expense.'
+        __dialogueText("managers/PigeonFeedShopManager.js", "t_6ae79f92ad3068e6ed91") +
+        __dialogueText("managers/PigeonFeedShopManager.js", "t_748768d3490c50d723da")
     };
   } catch (error) {
     gameState.cash = balances.cash;
@@ -183,7 +184,7 @@ export function buyPigeonFeed(item) {
 
     return {
       ok: false,
-      message: 'Purchase failed. Your cash and inventory were restored.'
+      message: __dialogueText("managers/PigeonFeedShopManager.js", "t_79d9f866638dffd6775c")
     };
   } finally {
     busy = false;

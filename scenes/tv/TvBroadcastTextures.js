@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 const PREFIX = '__tv_';
 
 export function parseColor(value, fallback) {
@@ -270,8 +271,8 @@ export function ensureVignetteTexture(scene, width, height) {
   );
 
   grad.addColorStop(0, 'rgba(0,0,0,0)');
-  grad.addColorStop(0.6, 'rgba(0,0,0,0.18)');
-  grad.addColorStop(1, 'rgba(0,0,0,0.8)');
+  grad.addColorStop(0.6, __dialogueText("scenes/tv/TvBroadcastTextures.js", "t_1c46f3b2b2aa341cf84f"));
+  grad.addColorStop(1, __dialogueText("scenes/tv/TvBroadcastTextures.js", "t_2101efd095aa6e27b1c9"));
 
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, w, h);
@@ -289,7 +290,7 @@ export function ensureScanlineTexture(scene) {
   const tex = scene.textures.createCanvas(key, 4, 4);
   const ctx = tex.getContext();
 
-  ctx.fillStyle = 'rgba(0,0,0,0.26)';
+  ctx.fillStyle = __dialogueText("scenes/tv/TvBroadcastTextures.js", "t_87dd41b18c87db3695a5");
   ctx.fillRect(0, 2, 4, 2);
 
   tex.refresh();

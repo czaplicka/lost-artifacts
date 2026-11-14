@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { EventBus } from '../../EventBus.js';
 import { gameState } from '../../GameData.js';
 
@@ -110,7 +111,7 @@ export class HotelHud {
 
         reject(
           new Error(
-            `[HotelScene] "${sceneKey}" was not ready within ${timeoutMs} ms.`
+            `${__dialogueText("scenes/hotel/HotelHud.js", "t_ebe62eef0806e3522ed4")}${sceneKey}${__dialogueText("scenes/hotel/HotelHud.js", "t_aac6abd84c1e7ece94dc")}${timeoutMs}${__dialogueText("scenes/hotel/HotelHud.js", "t_23b697f458be6e50ed7d")}`
           )
         );
       }, timeoutMs);
@@ -199,7 +200,7 @@ export class HotelHud {
           partOfDay:
             gameState.currentPartOfDay ||
             gameState.partOfDay ||
-            'Morning'
+            __dialogueText("scenes/hotel/HotelHud.js", "t_e9376a281aac57bb78e2")
         });
       }
 

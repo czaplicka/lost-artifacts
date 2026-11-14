@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { COLORS, FONTS } from './ComputerTheme.js';
 import {
   installComputerKeywordStyle, styleComputerText,
@@ -95,7 +96,7 @@ export class ComputerDrawing {
     let s = String(value ?? ''); object.setText(s);
     if (object.width <= maxWidth) return object;
     while (s.length > 0) {
-      s = s.slice(0, -1); object.setText(`${s.trimEnd()}…`);
+      s = s.slice(0, -1); object.setText(`${s.trimEnd()}${__dialogueText("ui/pi-computer/ComputerDrawing.js", "t_b4935894c8ce16bde67b")}`);
       if (object.width <= maxWidth) break;
     }
     return object;

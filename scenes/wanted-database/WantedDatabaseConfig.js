@@ -1,5 +1,6 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 const FONT_PIXEL = 'PressStart2P';
-const FONT_TYPE = 'SpecialElite, "Courier New", monospace';
+const FONT_TYPE = __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_749639cb7eb80c7ff9a7");
 
 const LS_THEME = 'la_wantedDbTheme';
 const LS_PHOTO = 'la_wantedDbPhoto';
@@ -8,7 +9,7 @@ const toCss = (n) => `#${n.toString(16).padStart(6, '0')}`;
 
 const THEME_DEFS = {
     green: {
-        label: 'GREEN',
+        label: __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_cd9fcbf0c0b40bf7cdb3"),
         main: 0x00ff66,
         hi: 0xb8ffd2,
         mid: 0x00cc55,
@@ -20,7 +21,7 @@ const THEME_DEFS = {
         shadow: 0x003311
     },
     amber: {
-        label: 'AMBER',
+        label: __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_cb4bbac4effc3d074c82"),
         main: 0xffb000,
         hi: 0xffe39a,
         mid: 0xd98f00,
@@ -84,23 +85,23 @@ const BAYER_4 = [
 ];
 
 const GENDER_FILTERS = [
-    { label: 'ALL', value: 'all' },
-    { label: 'MALE', value: 'm' },
-    { label: 'FEMALE', value: 'f' },
-    { label: 'NON-BINARY', value: 'nb' }
+    { label: __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_b5c7aed7cd2a308523e7"), value: 'all' },
+    { label: __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_9050711d71acc01823c9"), value: 'm' },
+    { label: __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_cf112cb65cc0fbbbd85e"), value: 'f' },
+    { label: __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_7515c4d03686e13e7397"), value: 'nb' }
 ];
 
 const STATUS_FILTERS = [
-    { label: 'ALL', value: 'all' },
-    { label: 'FLAGGED', value: 'flag' },
-    { label: 'CLEARED', value: 'clear' },
-    { label: 'UNSORTED', value: 'none' }
+    { label: __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_b5c7aed7cd2a308523e7"), value: 'all' },
+    { label: __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_4560e24b53b5d24ff6fd"), value: 'flag' },
+    { label: __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_2026e813d70cc656862b"), value: 'clear' },
+    { label: __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_b0145ff922bc5035a1b0"), value: 'none' }
 ];
 
 const SORT_MODES = [
-    { label: 'FILE #', key: 'file' },
-    { label: 'NAME A-Z', key: 'az' },
-    { label: 'NAME Z-A', key: 'za' }
+    { label: __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_01d6e89f1c38fdd2ebc0"), key: 'file' },
+    { label: __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_e2d6bda843a7817392d3"), key: 'az' },
+    { label: __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_a1da86260090abf8c493"), key: 'za' }
 ];
 
 const DETAIL_FIELDS = [
@@ -113,30 +114,30 @@ const DETAIL_FIELDS = [
 ];
 
 const MARGIN_NOTES = [
-    'Suspect denies everything. Suspiciously well-rehearsed.',
-    'Do NOT make eye contact. Or do. Reports conflict.',
-    'Last seen near a getaway vehicle. Or a bus. Hard to say.',
-    'Known to carry a very large bag. Bags are large.',
-    'Claims to be "just a collector". Of other people\'s things.',
-    'Wears a disguise. The disguise is a fake mustache. It is excellent.',
-    'Approach with caution. And snacks.',
-    'Alibi: "I was at my aunt\'s." Aunt has not been located.',
-    'Probably guilty. Statistically, somebody is.',
-    'If found, do not mention the mustache.',
-    'Once escaped through a revolving door. Twice. Same door.',
-    'Has a suspiciously clean criminal record. Too clean. Who cleans it?'
+    __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_769e5e2a9a68add41495"),
+    __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_f4031c3601e7a6a75f17"),
+    __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_8fb1ef6cb5de8de1b8c1"),
+    __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_dfdca790a398136d5d31"),
+    __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_4a2074df728eebd2a540"),
+    __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_075ff892b84b77fb6f22"),
+    __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_de9d6b383f123d158225"),
+    __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_2171b259c4a85a565335"),
+    __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_4bae2cfa9473d7cbbf6f"),
+    __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_824702b05c35724f08fd"),
+    __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_604420d1e35e9dbb5e3b"),
+    __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_dc04309e41901113fabc")
 ];
 
 const TICKER_ITEMS = [
-    'BREAKING: CURATOR INSISTS THE MUSEUM WAS "ALREADY LIKE THAT"',
-    'REMINDER: A FAKE MUSTACHE IS NOT AN ALIBI',
-    'WARNING: SUSPECTS MAY BE ARMED, DANGEROUS, OR JUST RUDE',
-    'TIP LINE OPEN: 1-800-NOT-ME-OFFICER',
-    'INTERPOL REMINDS YOU THAT PIGEONS ARE NOT RELIABLE WITNESSES',
-    'DO NOT SPILL COFFEE ON THE MAINFRAME (AGAIN)',
-    'STOLEN: ONE (1) PRICELESS ARTIFACT. SUSPECTED: EVERYBODY',
-    'LOCAL PAWN SHOP DENIES EVER HAVING SEEN ANYTHING SHINY',
-    'CLEARANCE LEVEL "DETECTIVE" NOW INCLUDES FREE PENCIL'
+    __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_3ce18acdeda3d1622bc4"),
+    __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_b90b78712f0d921e8ebb"),
+    __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_908db396d133ec693cb1"),
+    __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_0adec9d01ead33f066fe"),
+    __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_b7f3642cea78eea996d8"),
+    __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_d32a6f74c81165a9983a"),
+    __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_9375f5255616528ca6b6"),
+    __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_93dad8329fe16462616b"),
+    __dialogueText("scenes/wanted-database/WantedDatabaseConfig.js", "t_7e024188eb35ae5abc6e")
 ];
 
 export { FONT_PIXEL, FONT_TYPE, LS_THEME, LS_PHOTO, toCss, THEME_DEFS, buildTheme, strHash, lsGet, lsSet, BAYER_4, GENDER_FILTERS, STATUS_FILTERS, SORT_MODES, DETAIL_FIELDS, MARGIN_NOTES, TICKER_ITEMS };

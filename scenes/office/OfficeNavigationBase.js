@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 const ARROW_TEXTURE_KEY = 'office-navigation-arrow-v2';
 
 const FONT_TITLE = 'PressStart2P';
@@ -28,10 +29,10 @@ const HOTKEY_NAMES = ['ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX'];
 
 // Domyślne nazwy pokoi. Scena może je nadpisać przez options.getRoomMeta(key).
 const DEFAULT_ROOM_META = {
-  elevator: { label: 'ELEVATOR', subtitle: 'Out of order' },
-  storage: { label: 'CASE ROOM', subtitle: 'Globe & cabinet' },
-  office: { label: 'OFFICE', subtitle: 'Desk & denial' },
-  cabinet: { label: 'RECORDS', subtitle: 'Ledger & atlas' }
+  elevator: { label: __dialogueText("scenes/office/OfficeNavigationBase.js", "t_8ec78fd4e0c76ee47e25"), subtitle: __dialogueText("scenes/office/OfficeNavigationBase.js", "t_24d8f84a780c7168cc3f") },
+  storage: { label: __dialogueText("scenes/office/OfficeNavigationBase.js", "t_5b24b840a76014023657"), subtitle: __dialogueText("scenes/office/OfficeNavigationBase.js", "t_6ac6b00357d9081fdc38") },
+  office: { label: __dialogueText("scenes/office/OfficeNavigationBase.js", "t_9af0ff0f58a463fe73ff"), subtitle: __dialogueText("scenes/office/OfficeNavigationBase.js", "t_55483976a9e1caae2b56") },
+  cabinet: { label: __dialogueText("scenes/office/OfficeNavigationBase.js", "t_408d2e9270273051bb20"), subtitle: __dialogueText("scenes/office/OfficeNavigationBase.js", "t_163bcef7b4a7b5a834c6") }
 };
 
 const NODE_STYLE = {
@@ -40,7 +41,7 @@ const NODE_STYLE = {
     stroke: 0x6d5a3a,
     strokeAlpha: 0.9,
     width: 2,
-    label: '#b9a877',
+    label: __dialogueText("scenes/office/OfficeNavigationBase.js", "t_8f591c0c61b3a3b955da"),
     sub: '#8a7c5c',
     icon: 0xb9a877
   },
@@ -49,7 +50,7 @@ const NODE_STYLE = {
     stroke: 0xf0e6b8,
     strokeAlpha: 1,
     width: 2,
-    label: '#fff4c7',
+    label: __dialogueText("scenes/office/OfficeNavigationBase.js", "t_02f546fa4a359199bfb9"),
     sub: '#d7c58f',
     icon: 0xfff4c7
   },
@@ -58,7 +59,7 @@ const NODE_STYLE = {
     stroke: 0xf2d477,
     strokeAlpha: 1,
     width: 3,
-    label: '#fff4c7',
+    label: __dialogueText("scenes/office/OfficeNavigationBase.js", "t_02f546fa4a359199bfb9"),
     sub: '#f2d477',
     icon: 0xf2d477
   }
@@ -199,7 +200,7 @@ export class OfficeNavigation {
         fontFamily: FONT_TITLE,
         fontSize: '9px',
         color: '#f0e6b8',
-        stroke: '#000000',
+        stroke: __dialogueText("scenes/office/OfficeNavigationBase.js", "t_7b2817bf9b80e66d07f2"),
         strokeThickness: 4,
         align: 'center'
       })
@@ -311,14 +312,14 @@ export class OfficeNavigation {
     );
 
     const keysText = hotkeyCount > 1
-      ? `, or press 1-${hotkeyCount}`
+      ? `${__dialogueText("scenes/office/OfficeNavigationBase.js", "t_eeaa9f06e26c7fee312e")}${hotkeyCount}`
       : '';
 
     this.introHint = this.scene.add
       .text(
         0,
         0,
-        `Explore the office. Click a room below${keysText}.`,
+        `${__dialogueText("scenes/office/OfficeNavigationBase.js", "t_6a92c78056aa5ae92ec3")}${keysText}${__dialogueText("scenes/office/OfficeNavigationBase.js", "t_cdb4ee2aea69cc6a8333")}`,
         {
           fontFamily: FONT_BODY,
           fontSize: '18px',
@@ -1199,7 +1200,7 @@ export class OfficeNavigation {
       return '';
     }
 
-    return `Go to ${this.getRoomLabel(
+    return `${__dialogueText("scenes/office/OfficeNavigationBase.js", "t_631ca27fe21439d3a857")}${this.getRoomLabel(
       this.roomOrder[currentIndex - 1]
     )}`;
   }
@@ -1214,7 +1215,7 @@ export class OfficeNavigation {
       return '';
     }
 
-    return `Go to ${this.getRoomLabel(
+    return `${__dialogueText("scenes/office/OfficeNavigationBase.js", "t_631ca27fe21439d3a857")}${this.getRoomLabel(
       this.roomOrder[currentIndex + 1]
     )}`;
   }

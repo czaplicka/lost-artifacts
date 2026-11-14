@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { MarkAgencyComputerUI } from './MarkAgencyComputerUI.js';
 import { audioManager } from '../managers/AudioManager.js';
 import { installCaseNotebook } from './CaseCloudNotebook.js';
@@ -17,13 +18,7 @@ function installHudStyle() {
   const style = document.createElement('style');
 
   style.id = HUD_STYLE_ID;
-  style.textContent = `
-    html.${HUD_CLASS} #hud-container {
-      display: none !important;
-      visibility: hidden !important;
-      pointer-events: none !important;
-    }
-  `;
+  style.textContent = `${__dialogueText("ui/markAgencyComputerInstaller.js", "t_729a7184fab9b25f46f8")}${HUD_CLASS}${__dialogueText("ui/markAgencyComputerInstaller.js", "t_e9241f6d72492dd9b598")}`;
 
   document.head.appendChild(style);
 }
@@ -281,7 +276,7 @@ export function installMarkAgencyComputer(scene) {
         restorePresentation();
 
         scene.showOfficeStatusMessage(
-          'The computer could not be opened. Please try again.'
+          __dialogueText("ui/markAgencyComputerInstaller.js", "t_6ad453d4bc85e7ed736d")
         );
       }
 
@@ -298,7 +293,7 @@ export function installMarkAgencyComputer(scene) {
         );
 
         scene.showOfficeStatusMessage(
-          'The computer could not be opened. Please try again.'
+          __dialogueText("ui/markAgencyComputerInstaller.js", "t_6ad453d4bc85e7ed736d")
         );
       }
 
@@ -323,7 +318,7 @@ export function installMarkAgencyComputer(scene) {
       y: 480,
       width: 190,
       height: 160,
-      label: 'Mark Agency Computer',
+      label: __dialogueText("ui/markAgencyComputerInstaller.js", "t_1bddadc34f8d28871c52"),
       action: open
     }
   };

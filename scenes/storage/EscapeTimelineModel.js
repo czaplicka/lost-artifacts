@@ -1,12 +1,13 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 export function evaluateEscape(data,state){
-  if(!state.clarificationHeard)return{ok:false,reason:'clarification',message:'Hear Alex\'s clarification first. Missing equipment alone does not establish a jump.'};
-  if(!Array.isArray(state.slots)||state.slots.length!==data.slotCount||state.slots.some(id=>!id))return{ok:false,reason:'incomplete',message:'Fill all five positions first.'};
-  if(new Set(state.slots).size!==state.slots.length)return{ok:false,reason:'duplicate',message:'Each event can appear only once.'};
+  if(!state.clarificationHeard)return{ok:false,reason:'clarification',message:__dialogueText("scenes/storage/EscapeTimelineModel.js", "t_74f20821530f91697a2f")};
+  if(!Array.isArray(state.slots)||state.slots.length!==data.slotCount||state.slots.some(id=>!id))return{ok:false,reason:'incomplete',message:__dialogueText("scenes/storage/EscapeTimelineModel.js", "t_c4597199bc749a80e513")};
+  if(new Set(state.slots).size!==state.slots.length)return{ok:false,reason:'duplicate',message:__dialogueText("scenes/storage/EscapeTimelineModel.js", "t_0f3726634466ccd3b246")};
   const unsupported=state.slots.find(id=>!data.correctOrder.includes(id));
-  if(unsupported)return{ok:false,reason:'unsupported',cardId:unsupported,message:'One interpretation is not supported. Select that card and read its source.'};
+  if(unsupported)return{ok:false,reason:'unsupported',cardId:unsupported,message:__dialogueText("scenes/storage/EscapeTimelineModel.js", "t_8ad1ecb3c7a0c16ec10a")};
   const index=state.slots.findIndex((id,i)=>id!==data.correctOrder[i]);
-  if(index!==-1)return{ok:false,reason:'order',slotIndex:index,message:`Position ${index+1} conflicts with the sequence. Separate preparation, departure, exit, impact and later recovery.`};
-  if(state.conclusion!==data.correctConclusion)return{ok:false,reason:'conclusion',message:data.conclusions.find(item=>item.id===state.conclusion)?.explanation||'Choose a supported conclusion.'};
+  if(index!==-1)return{ok:false,reason:'order',slotIndex:index,message:`${__dialogueText("scenes/storage/EscapeTimelineModel.js", "t_66cbfad8efbf9c7a675d")}${index+1}${__dialogueText("scenes/storage/EscapeTimelineModel.js", "t_e06070faad9aa250614c")}`};
+  if(state.conclusion!==data.correctConclusion)return{ok:false,reason:'conclusion',message:data.conclusions.find(item=>item.id===state.conclusion)?.explanation||__dialogueText("scenes/storage/EscapeTimelineModel.js", "t_a7c44f630ed40b504ae1")};
   return{ok:true,message:data.success};
 }
 export function normalizeEscape(data,raw){
@@ -36,10 +37,10 @@ export function escapeStagePlan(currentId){
 }
 export function escapeEligible(data,count,hasFlag,reportedDead){return reportedDead&&Number.isInteger(count)&&count>=data.minimumCompletedMissions&&data.requiredFlags.every(hasFlag);}
 export function escapeHint(data,state){
-  const instructions='Select a card to read its source. Place five supported events in order; three cards do not belong. Choose a conclusion, then CHECK TIMELINE.';
+  const instructions=__dialogueText("scenes/storage/EscapeTimelineModel.js", "t_25bc1a849dd62512c1c4");
   const unsupported=state.slots.find(id=>id&&!data.correctOrder.includes(id));
-  if(unsupported){const card=data.cards.find(item=>item.id===unsupported),source=data.evidence.find(item=>item.id===card.evidence);return{id:`unsupported_${unsupported}`,instructions,cardId:unsupported,slotIndex:state.slots.indexOf(unsupported),text:`Remove ${card.title}. ${source.text}`};}
+  if(unsupported){const card=data.cards.find(item=>item.id===unsupported),source=data.evidence.find(item=>item.id===card.evidence);return{id:`unsupported_${unsupported}`,instructions,cardId:unsupported,slotIndex:state.slots.indexOf(unsupported),text:`${__dialogueText("scenes/storage/EscapeTimelineModel.js", "t_5948954e3b49be94f964")}${card.title}${__dialogueText("scenes/storage/EscapeTimelineModel.js", "t_8dccf256f6d5783e62bb")}${source.text}`};}
   const index=data.correctOrder.findIndex((id,i)=>state.slots[i]!==id);
-  if(index!==-1){const card=data.cards.find(item=>item.id===data.correctOrder[index]),source=data.evidence.find(item=>item.id===card.evidence);return{id:`escape_position_${index}`,instructions,cardId:card.id,slotIndex:index,text:`Position ${index+1}: ${card.title}. ${source.text}`};}
-  return{id:'escape_conclusion',instructions,conclusionId:data.correctConclusion,text:'Choose STAGED ESCAPE. Alex places John outside the aircraft before impact. No current location is established.'};
+  if(index!==-1){const card=data.cards.find(item=>item.id===data.correctOrder[index]),source=data.evidence.find(item=>item.id===card.evidence);return{id:`escape_position_${index}`,instructions,cardId:card.id,slotIndex:index,text:`${__dialogueText("scenes/storage/EscapeTimelineModel.js", "t_66cbfad8efbf9c7a675d")}${index+1}${__dialogueText("scenes/storage/EscapeTimelineModel.js", "t_45822f54a0d0e030f756")}${card.title}${__dialogueText("scenes/storage/EscapeTimelineModel.js", "t_8dccf256f6d5783e62bb")}${source.text}`};}
+  return{id:'escape_conclusion',instructions,conclusionId:data.correctConclusion,text:__dialogueText("scenes/storage/EscapeTimelineModel.js", "t_1895bdef3eb6906aaa31")};
 }

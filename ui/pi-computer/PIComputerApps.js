@@ -1,10 +1,11 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
 import { getDeadMenMail } from '../../managers/DeadMenCallingService.js';
 import { thiefdokuService } from '../../systems/thiefdoku/ThiefdokuService.js';
 import { ComputerAudio } from './ComputerAudio.js';
 
-const INSTALL = Symbol.for('lostArtifacts.piComputerApps.v1');
+const INSTALL = Symbol.for(__dialogueText("ui/pi-computer/PIComputerApps.js", "t_080e4508c59155384a34"));
 const BASE = ['mail','ledger','classifieds','chat','office-shop','travel'];
 const MANAGED = new Set([...BASE,'search','investigations','audio','photo','thiefdoku']);
 const RECORDINGS = new Set(['dead_men_recording_1','dead_men_recording_2','dead_men_recording_3']);
@@ -14,7 +15,7 @@ const ICON_APPS = {
   'WebSearch':'search','OwlSearch':'search','OwlAudio':'audio',
   'Thiefdoku':'thiefdoku','OfficeShop':'office-shop'
 };
-const TITLES = {search:'Owl Search',investigations:'Investigations',audio:'Owl Audio',travel:'World Travel',photo:'Photo Viewer',thiefdoku:'Thiefdoku'};
+const TITLES = {search:__dialogueText("ui/pi-computer/PIComputerApps.js", "t_6f6ca128fbbdf22488f9"),investigations:__dialogueText("ui/pi-computer/PIComputerApps.js", "t_21476f00fdcfab750c7e"),audio:__dialogueText("ui/pi-computer/PIComputerApps.js", "t_5ddde5a18bc919b6ce35"),travel:__dialogueText("ui/pi-computer/PIComputerApps.js", "t_53fb6f891d4e250ec47e"),photo:__dialogueText("ui/pi-computer/PIComputerApps.js", "t_c17959fcc266deba71d6"),thiefdoku:__dialogueText("ui/pi-computer/PIComputerApps.js", "t_5cf46358ab38145b427c")};
 
 function installed() {
   const value = gameState.piQuests?.installedComputerApps;
@@ -78,7 +79,7 @@ export function installPIComputerApps(ui) {
   }
   function blocked(app) {
     ui.menuOpen=false;
-    ui.notice=`${TITLES[app] || 'This application'} is not installed yet. It will be installed when your investigation needs it.`;
+    ui.notice=`${TITLES[app] || __dialogueText("ui/pi-computer/PIComputerApps.js", "t_eb034a81e15da7e43f80")}${__dialogueText("ui/pi-computer/PIComputerApps.js", "t_a5f83d5d2e8d15ec47f9")}`;
     if(ui.isOpen&&!ui.suspended&&!ui.booting&&!ui.destroyed)ui.render();
   }
   wrap(ui.desktop,'createIcon',original=>function(...args){
@@ -104,7 +105,7 @@ export function installPIComputerApps(ui) {
   wrap(ui.monitor,'renderApplication',original=>function(...args){
     if(!available(ui.app)){
       const box=ui.window||ui.layout;
-      if(box)ui.drawing.text(box.x+20,box.y+54,'Application not installed.',16,'#e4dfc2',Math.max(100,box.w-40));
+      if(box)ui.drawing.text(box.x+20,box.y+54,__dialogueText("ui/pi-computer/PIComputerApps.js", "t_8c513ddbbef05929c07a"),16,'#e4dfc2',Math.max(100,box.w-40));
       return;
     }
     return original.apply(this,args);

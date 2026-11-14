@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 import { gameState } from './GameData.js';
 
 export function debugCaseRoute(locationsData, template) {
@@ -10,7 +11,7 @@ export function debugCaseRoute(locationsData, template) {
   const expected = typeof manager?.getNextExpectedCity === 'function' ? manager.getNextExpectedCity()
     : phase === 'CRIME_CITY' ? manager?.crimeCityId || gameState.crimeCityId
     : phase === 'DONE' ? null : route[progress] || gameState.nextTargetCityId || null;
-  const name = id => locations.find(entry => entry.id === id || entry.city === id)?.city || id || 'None';
+  const name = id => locations.find(entry => entry.id === id || entry.city === id)?.city || id || __dialogueText("debugCaseRoute.js", "t_dc937b59892604f5a86a");
   console.groupCollapsed(`[CASE DEBUG] Escape route — ${route.length} cities`);
   console.log('[CASE DEBUG] Crime city:', name(gameState.crimeCityId), gameState.crimeCityId);
   console.log('[CASE DEBUG] Current city:', name(gameState.currentCityId), gameState.currentCityId);

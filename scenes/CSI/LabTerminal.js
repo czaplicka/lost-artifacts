@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 export const TERM = {
   green: '#46ff7a',
   dim: '#2c8a4b',
@@ -52,7 +53,7 @@ export class LabTerminal {
     );
 
     this._buildChrome(
-      opts.title ?? 'MARK AGENCY // FORENSICS TERMINAL'
+      opts.title ?? __dialogueText("scenes/CSI/LabTerminal.js", "t_f353d0b236dd6abb9525")
     );
 
     this._buildScanlines();
@@ -113,7 +114,7 @@ export class LabTerminal {
 
       const context = texture.getContext();
 
-      context.fillStyle = 'rgba(0,0,0,0.25)';
+      context.fillStyle = __dialogueText("scenes/CSI/LabTerminal.js", "t_5338a3860b7822bab511");
       context.fillRect(0, 3, 2, 1);
       texture.refresh();
     }
@@ -400,7 +401,7 @@ export class LabTerminal {
           const percent = Math.round((step / total) * 100);
 
           line.setText(
-            `${content} [${filled}${empty}] ${percent}%`
+            `${content}${__dialogueText("scenes/CSI/LabTerminal.js", "t_c4ebc7684be8c9fd10cb")}${filled}${empty}${__dialogueText("scenes/CSI/LabTerminal.js", "t_1ae2bcbc6c0f178c5b74")}${percent}${__dialogueText("scenes/CSI/LabTerminal.js", "t_bbf3f11cb5b43e700273")}`
           );
 
           this._layout();
@@ -447,7 +448,7 @@ export class LabTerminal {
     const button = this.scene.add.text(
       this._btnX,
       0,
-      ` ${label} `,
+      `${__dialogueText("scenes/CSI/LabTerminal.js", "t_36a9e7f1c95b82ffb997")}${label}${__dialogueText("scenes/CSI/LabTerminal.js", "t_36a9e7f1c95b82ffb997")}`,
       {
         fontFamily: '"PressStart2P"',
         fontSize: '12px',

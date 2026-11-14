@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 
 import { gameState } from '../GameData.js';
@@ -80,7 +81,7 @@ export class ChaseScene extends BaseScene {
       this.add.text(
         100,
         100,
-        'No active pursuit. Return to the saved case.',
+        __dialogueText("scenes/ChaseScene.js", "t_4cebb73e2537546d9f44"),
         this.style(30)
       );
 
@@ -226,7 +227,7 @@ export class ChaseScene extends BaseScene {
     const title = this.add.text(
       90,
       40,
-      'HOT PURSUIT',
+      __dialogueText("scenes/ChaseScene.js", "t_fb7a3ed06946f007f897"),
       this.style(24, true)
     );
 
@@ -292,7 +293,7 @@ export class ChaseScene extends BaseScene {
       1000,
       300,
       80,
-      '< LEFT',
+      __dialogueText("scenes/ChaseScene.js", "t_708c87f199105e972653"),
       () => this.move(-1)
     );
 
@@ -310,7 +311,7 @@ export class ChaseScene extends BaseScene {
       1000,
       300,
       80,
-      'RIGHT >',
+      __dialogueText("scenes/ChaseScene.js", "t_49671894c23d097921f9"),
       () => this.move(1)
     );
 
@@ -430,7 +431,7 @@ export class ChaseScene extends BaseScene {
       700,
       950,
       90,
-      'START PURSUIT',
+      __dialogueText("scenes/ChaseScene.js", "t_06f8ac726bb92e4eb9f0"),
       () => this.primary(),
       20
     );
@@ -600,7 +601,7 @@ export class ChaseScene extends BaseScene {
       this.accumulator = 0;
 
       this.setMessage(
-        'LEFT / RIGHT to move. SPACE or UP to jump.',
+        __dialogueText("scenes/ChaseScene.js", "t_9a9efe7295b16c299f79"),
         6000
       );
 
@@ -634,7 +635,7 @@ export class ChaseScene extends BaseScene {
     this.saveNotice?.setText(
       saved
         ? ''
-        : 'Checkpoint unavailable. Please keep this tab open.'
+        : __dialogueText("scenes/ChaseScene.js", "t_b5ceb88d896f23e64966")
     );
 
     return saved;
@@ -651,43 +652,43 @@ export class ChaseScene extends BaseScene {
     let button = '';
 
     if (chaseFailureCode(r)) {
-      title = 'SUSPECT ESCAPED';
+      title = __dialogueText("scenes/ChaseScene.js", "t_2de8c6bcc823fd89a58b");
 
       text = terminalData(r).message;
 
-      button = 'GAME OVER';
+      button = __dialogueText("scenes/ChaseScene.js", "t_6f391555cf2297ac2470");
     } else if (this.manualPause) {
-      title = 'PURSUIT PAUSED';
+      title = __dialogueText("scenes/ChaseScene.js", "t_689c13541199ad24ba4b");
 
       text =
-        'The suspect has politely agreed to pause reality.';
+        __dialogueText("scenes/ChaseScene.js", "t_051b4a7d7333671b005d");
 
       button = 'RESUME';
     } else if (r.phase === 'intro') {
-      title = 'HOT PURSUIT';
+      title = __dialogueText("scenes/ChaseScene.js", "t_fb7a3ed06946f007f897");
 
       text =
-        'Catch the suspect.\n\n' +
-        'Move left or right to avoid people and strollers.\n' +
-        'Jump over puddles.\n\n' +
-        'Arrow keys / Space, swipe, or use the buttons.';
+        __dialogueText("scenes/ChaseScene.js", "t_20c1b7bb14041a140676") +
+        __dialogueText("scenes/ChaseScene.js", "t_44a1406ac4855fde143a") +
+        __dialogueText("scenes/ChaseScene.js", "t_603532b81c996fa176d7") +
+        __dialogueText("scenes/ChaseScene.js", "t_c137fed96a820fe5462c");
 
-      button = 'START PURSUIT';
+      button = __dialogueText("scenes/ChaseScene.js", "t_06f8ac726bb92e4eb9f0");
     } else if (['caught', 'review'].includes(r.phase)) {
-      title = 'SUSPECT CAUGHT';
+      title = __dialogueText("scenes/ChaseScene.js", "t_ab380169a9a0e4c55cb7");
 
       text =
-        'The running is over.\n' +
-        'The paperwork is just getting started.';
+        __dialogueText("scenes/ChaseScene.js", "t_fc95f519e3b8f8b8da9b") +
+        __dialogueText("scenes/ChaseScene.js", "t_7104b4fa95d3df3ca3e6");
 
-      button = 'CHECK ARREST FILE';
+      button = __dialogueText("scenes/ChaseScene.js", "t_54a17e5dcbd8fea9326c");
     } else if (r.phase === 'settled') {
-      title = 'PURSUIT COMPLETE';
+      title = __dialogueText("scenes/ChaseScene.js", "t_fde70d675fec6d56d422");
 
       text = r.arrestOutcome?.message ||
-        'The pursuit has already ended.';
+        __dialogueText("scenes/ChaseScene.js", "t_6587bef778e5c2a66c5d");
 
-      button = 'VIEW RESULT';
+      button = __dialogueText("scenes/ChaseScene.js", "t_b9261106e7e7a611ab7e");
     }
 
     this.overlay.setVisible(Boolean(title));
@@ -706,11 +707,11 @@ export class ChaseScene extends BaseScene {
     if (!this.distanceText) return;
 
     this.distanceText.setText(
-      `SUSPECT: ${Math.ceil(this.record.distance)} m`
+      `${__dialogueText("scenes/ChaseScene.js", "t_8cffb1d98328da2c5c8f")}${Math.ceil(this.record.distance)}${__dialogueText("scenes/ChaseScene.js", "t_506df2a2a61a4f61c529")}`
     );
 
     this.hitsText.setText(
-      `COLLISIONS: ${this.record.runner?.hits ?? 0}`
+      `${__dialogueText("scenes/ChaseScene.js", "t_5c43e51f59e46cda7125")}${this.record.runner?.hits ?? 0}`
     );
 
     if (this.time.now > this.messageUntil) {
@@ -1274,16 +1275,16 @@ export class ChaseScene extends BaseScene {
 
         const messages = {
           crowd:
-            '"Excuse me!" is not a collision avoidance system.',
+            __dialogueText("scenes/ChaseScene.js", "t_cc1e4b8716dbc2216071"),
 
           stroller:
-            'You stop short. The stroller has right of way.',
+            __dialogueText("scenes/ChaseScene.js", "t_8e50c3f997ba455f64b1"),
 
           puddle:
-            'Your shoes are now carrying additional evidence.'
+            __dialogueText("scenes/ChaseScene.js", "t_222cda1aba373e8ed566")
         };
 
-        this.setMessage(messages[hit] || 'Watch your step!');
+        this.setMessage(messages[hit] || __dialogueText("scenes/ChaseScene.js", "t_1c4a24d4e0300609e662"));
 
         this.save();
       }
@@ -1327,9 +1328,9 @@ export class ChaseScene extends BaseScene {
       height / 2 - 100,
       (
         error?.message ||
-        'The submitted theory is missing.'
+        __dialogueText("scenes/ChaseScene.js", "t_2b3807db39d1e5acecca")
       ) +
-      '\n\nNo arrest has been recorded.',
+      __dialogueText("scenes/ChaseScene.js", "t_792c56caa0a7c9ff3ee2"),
       {
         ...this.style(26),
         align: 'center',
@@ -1342,7 +1343,7 @@ export class ChaseScene extends BaseScene {
     const back = this.add.text(
       width / 2,
       height / 2 + 130,
-      'RETURN TO CITY',
+      __dialogueText("scenes/ChaseScene.js", "t_a85865723550b5ee5f98"),
       {
         ...this.style(22, true),
         backgroundColor: '#503722',
@@ -1420,7 +1421,7 @@ export class ChaseScene extends BaseScene {
       return {
         code: 'not_caught',
         arrested: false,
-        message: 'The suspect was not caught.'
+        message: __dialogueText("scenes/ChaseScene.js", "t_24e443a97bf039c501e1")
       };
     }
 
@@ -1432,7 +1433,7 @@ export class ChaseScene extends BaseScene {
         code: 'missing_warrant',
         arrested: false,
         message:
-          'Suspect caught, but no arrest warrant is available.'
+          __dialogueText("scenes/ChaseScene.js", "t_4e25e513665583a5ab4b")
       };
     }
 
@@ -1444,7 +1445,7 @@ export class ChaseScene extends BaseScene {
         code: 'warrant_mismatch',
         arrested: false,
         message:
-          'Suspect caught, but the warrant names another person.'
+          __dialogueText("scenes/ChaseScene.js", "t_688ea878866184bb08c7")
       };
     }
 
@@ -1453,7 +1454,7 @@ export class ChaseScene extends BaseScene {
         code: 'theory_missing',
         arrested: false,
         message:
-          'The matching submitted Case Theory is missing or inconsistent.'
+          __dialogueText("scenes/ChaseScene.js", "t_8ae4caa2004834e27f65")
       };
     }
 
@@ -1461,7 +1462,7 @@ export class ChaseScene extends BaseScene {
       code: 'arrested',
       arrested: true,
       message:
-        'Suspect caught. The warrant matches and a complete theory has been filed. Arrest completed.'
+        __dialogueText("scenes/ChaseScene.js", "t_22d1be1625a423fb5eab")
     };
   }
 
@@ -1525,7 +1526,7 @@ export class ChaseScene extends BaseScene {
             this.leaving = false;
 
             this.saveNotice?.setText(
-              'Could not save the arrest file. Press Enter to retry.'
+              __dialogueText("scenes/ChaseScene.js", "t_38ee665160eec26ea76b")
             );
 
             return;
@@ -1545,7 +1546,7 @@ export class ChaseScene extends BaseScene {
             this.leaving = false;
 
             this.saveNotice?.setText(
-              'Could not open the court. Press Enter to retry.'
+              __dialogueText("scenes/ChaseScene.js", "t_7e251d07943af2f8a418")
             );
           }
 
@@ -1575,7 +1576,7 @@ export class ChaseScene extends BaseScene {
           this.leaving = false;
 
           this.saveNotice?.setText(
-            'Could not open Game Over. Press Enter to retry.'
+            __dialogueText("scenes/ChaseScene.js", "t_88d908325e9a83c80acf")
           );
 
           return;
@@ -1605,7 +1606,7 @@ export class ChaseScene extends BaseScene {
           this.leaving = false;
 
           this.saveNotice?.setText(
-            'Could not open the result. Press Enter to retry.'
+            __dialogueText("scenes/ChaseScene.js", "t_a1d256fd73f639edac1d")
           );
         }
 
@@ -1624,7 +1625,7 @@ export class ChaseScene extends BaseScene {
         this.leaving = false;
 
         this.saveNotice?.setText(
-          'Could not finish the pursuit. Press Enter to retry.'
+          __dialogueText("scenes/ChaseScene.js", "t_c3220326f9aceb5a771f")
         );
       }
     }

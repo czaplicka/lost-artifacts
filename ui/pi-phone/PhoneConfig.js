@@ -1,9 +1,10 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 // Przestrzeń projektowa; całość skaluje się do aktualnego canvasu.
 export const DW = 1280;
 export const DH = 720;
 
-export const FONT_TEXT = 'SpecialElite, monospace';
-export const FONT_PIXEL = 'PressStart2P, monospace';
+export const FONT_TEXT = __dialogueText("ui/pi-phone/PhoneConfig.js", "t_799655b6fecfd76b85db");
+export const FONT_PIXEL = __dialogueText("ui/pi-phone/PhoneConfig.js", "t_6fbf2e36fd327aff69ef");
 
 // Klucze dźwięków z assetManifest. Zmień tutaj, jeśli plik ma inną rolę.
 // UWAGA: nie wiem, co jest w phone-dial.mp3 (sygnał wolny czy tykanie tarczy),

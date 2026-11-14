@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 
@@ -45,15 +46,15 @@ export function syncDeadMenArtwork(scene=null){
  if(!investigation?.board)return false;
  const assets=getDeadMenArtwork(scene),roles=getDeadMenArtVisibility();
  const specs={
- couplePhoto:{label:'Margaret and Edward',caption:'Photograph supplied by Margaret',text:'A photograph of Margaret and Edward Vale. A personal keepsake, not proof of the identity of a caller.'},
- recorder:{label:'Edward’s recorder',caption:'Archive illustration',text:'Illustration of the recorder associated with Edward’s archive. This illustration is not a new forensic finding.'},
- colin:{label:'Colin Ward',caption:'Case-file portrait',text:'Portrait of Colin Ward. Appearance is not evidence of involvement.'},
- blueFolder:{label:'The blue folder',caption:'Illustration accompanying the folder documents',text:'The folder associated with the documents supplied by Margaret. Consult the individual records for their evidential contents.'}
+ couplePhoto:{label:__dialogueText("managers/DeadMenArtwork.js", "t_da93720b22e177da1120"),caption:__dialogueText("managers/DeadMenArtwork.js", "t_5dbb114112d7d809b914"),text:__dialogueText("managers/DeadMenArtwork.js", "t_2c02df0cc04fefdff9cf")},
+ recorder:{label:__dialogueText("managers/DeadMenArtwork.js", "t_0adbb47b7c6c967e444b"),caption:__dialogueText("managers/DeadMenArtwork.js", "t_57ab6d6c9fcbcf1523f7"),text:__dialogueText("managers/DeadMenArtwork.js", "t_7fa7857465284567a279")},
+ colin:{label:__dialogueText("managers/DeadMenArtwork.js", "t_b7e5ae2ffc6f69bea5b4"),caption:__dialogueText("managers/DeadMenArtwork.js", "t_6c0833de946d98c589fb"),text:__dialogueText("managers/DeadMenArtwork.js", "t_b94c2d0c3034fab5943e")},
+ blueFolder:{label:__dialogueText("managers/DeadMenArtwork.js", "t_400b60153e1809fa50a3"),caption:__dialogueText("managers/DeadMenArtwork.js", "t_4a623c10763e1101b4d6"),text:__dialogueText("managers/DeadMenArtwork.js", "t_69feb0ad8afd8ec2091b")}
  };
  const oldItems=Array.isArray(investigation.board.items)?investigation.board.items:[],items=oldItems.slice();let changed=false;
  for(const role of roles){
   const spec=specs[role],asset=assets[role],id='dead_men_art_'+role;
-  const generated={id,type:'photo',label:spec.label,image:asset.url,caption:spec.caption,text:spec.text,metaText:'Source: case illustration',discovered:true,createdByPlayer:false,editableByPlayer:false};
+  const generated={id,type:'photo',label:spec.label,image:asset.url,caption:spec.caption,text:spec.text,metaText:__dialogueText("managers/DeadMenArtwork.js", "t_71f2bceb431db9fbc6f8"),discovered:true,createdByPlayer:false,editableByPlayer:false};
   const index=items.findIndex(i=>i.id===id);
   if(index<0){const n=items.length;items.push({x:100+(n%4)*270,y:100+Math.floor(n/4)*230,...generated});changed=true;}
   else if(items[index].createdByPlayer===false&&items[index].editableByPlayer===false){

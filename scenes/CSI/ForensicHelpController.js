@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 import { hintManager } from '../../managers/HintManager.js';
 import { getEnergyManager } from '../../managers/EnergyManager.js';
@@ -36,7 +37,7 @@ export class ForensicHelpController {
     const s = this.scene;
     const y = s.scale.height - 36;
     this.howButton = this.makeButton(s.scale.width / 2 - 120, y,
-      'HOW TO PLAY', () => this.open(true));
+      __dialogueText("scenes/CSI/ForensicHelpController.js", "t_9733b1fc5f971da80383"), () => this.open(true));
     this.hintButton = this.makeButton(s.scale.width / 2 + 120, y,
       'HINT', () => this.open(false));
     this.buttons.push(this.howButton, this.hintButton);
@@ -85,7 +86,7 @@ export class ForensicHelpController {
     if (this.destroyed || !this.hintButton?.active) return;
     const definition = this.definition();
     this.hintButton.setText(definition && this.receipt(definition)
-      ? 'REVIEW HINT' : `HINT (${hintManager.getAvailableCount()})`);
+      ? __dialogueText("scenes/CSI/ForensicHelpController.js", "t_5061900dcbbec341d6ac") : `${__dialogueText("scenes/CSI/ForensicHelpController.js", "t_3ae7f543a38da68eeaeb")}${hintManager.getAvailableCount()}${__dialogueText("scenes/CSI/ForensicHelpController.js", "t_ba5ec51d07a4ac0e9516")}`);
   }
 
   update() {
@@ -185,7 +186,7 @@ export class ForensicHelpController {
     if (this.modal || this.busy || this.destroyed || s.resolved || s.finished) return;
     const energy = getEnergyManager();
     if (energy.isForcedSleepActive() || energy.isManualSleepActive()) {
-      s.setDialogue('Please finish sleeping before consulting the equipment.');
+      s.setDialogue(__dialogueText("scenes/CSI/ForensicHelpController.js", "t_b564188fd38fc62807f1"));
       return;
     }
     const definition = this.definition();
@@ -193,31 +194,31 @@ export class ForensicHelpController {
     this.pause();
     const receipt = this.receipt(definition);
     if (instructions || receipt) {
-      this.panel(instructions ? 'HOW TO PLAY — FREE' : 'PREVIOUSLY PURCHASED HINT',
+      this.panel(instructions ? __dialogueText("scenes/CSI/ForensicHelpController.js", "t_d74692dd467eb958de22") : __dialogueText("scenes/CSI/ForensicHelpController.js", "t_cf833aaebc2a3d499c5c"),
         instructions ? definition.instructions : receipt.text);
-      this.makeButton(0, 215, instructions ? 'BACK TO ANALYSIS' : 'SHOW AGAIN — FREE', () => {
+      this.makeButton(0, 215, instructions ? __dialogueText("scenes/CSI/ForensicHelpController.js", "t_e59dd6a4c606d360d6a5") : __dialogueText("scenes/CSI/ForensicHelpController.js", "t_8f0f50dff51a6c07738b"), () => {
         this.close();
         if (!instructions) this.showEffect(definition, receipt);
       }, this.modal);
       return;
     }
-    this.panel('LAB ASSISTANCE',
-      'One hint helps with this step only.\nIt does not finish the analysis.');
+    this.panel(__dialogueText("scenes/CSI/ForensicHelpController.js", "t_aa4c08975bb761f44d5f"),
+      __dialogueText("scenes/CSI/ForensicHelpController.js", "t_447ac6e1047babeb7b60"));
     this.makeButton(0, -10,
-      `USE FREE HINT (${hintManager.getAvailableCount()})`,
+      `${__dialogueText("scenes/CSI/ForensicHelpController.js", "t_9aa56441d1dbebae2beb")}${hintManager.getAvailableCount()}${__dialogueText("scenes/CSI/ForensicHelpController.js", "t_ba5ec51d07a4ac0e9516")}`,
       () => this.purchase('free_hint', definition), this.modal,
       hintManager.getAvailableCount() > 0);
     for (const [index, method] of ['cut_corners', 'squad_help'].entries()) {
       const cost = COSTS[method];
       const title = method === 'cut_corners'
-        ? 'CUT CORNERS — skip the assistance checklist'
-        : 'ASK LAB TECHNICIAN — documented consultation';
+        ? __dialogueText("scenes/CSI/ForensicHelpController.js", "t_560d7c29c30fcca1cd70")
+        : __dialogueText("scenes/CSI/ForensicHelpController.js", "t_6d5ac6cf2d96b09281b2");
       this.makeButton(0, 75 + index * 85,
-        `${title}\n${cost.energy} energy + ${cost.minutes} min`,
+        `${title}${__dialogueText("scenes/CSI/ForensicHelpController.js", "t_01ba4719c80b6fe911b0")}${cost.energy}${__dialogueText("scenes/CSI/ForensicHelpController.js", "t_dd18ee2be24748bdd857")}${cost.minutes}${__dialogueText("scenes/CSI/ForensicHelpController.js", "t_2e75737a6b5829744a80")}`,
         () => this.purchase(method, definition), this.modal,
         energy.canAfford(cost.energy).ok);
     }
-    this.makeButton(0, 250, 'KEEP WORKING', () => this.close(), this.modal);
+    this.makeButton(0, 250, __dialogueText("scenes/CSI/ForensicHelpController.js", "t_4d064f559d783283542c"), () => this.close(), this.modal);
   }
 
   purchase(method, definition) {
@@ -237,22 +238,22 @@ export class ForensicHelpController {
     } else {
       if (!cost || !energy.canAfford(cost.energy).ok) {
         this.busy = false;
-        this.body?.setText('Not enough energy. Close this window and rest first.');
+        this.body?.setText(__dialogueText("scenes/CSI/ForensicHelpController.js", "t_4bb6a0c19f8c8f710aa7"));
         return;
       }
-      const payment = energy.consumeCustom(cost.energy, `Lab assistance (${method})`, {
+      const payment = energy.consumeCustom(cost.energy, `${__dialogueText("scenes/CSI/ForensicHelpController.js", "t_0591a57c6258b79f92be")}${method}${__dialogueText("scenes/CSI/ForensicHelpController.js", "t_ba5ec51d07a4ac0e9516")}`, {
         requireFullAmount: true, activityType: 'forensic_hint'
       });
       if (!payment.success) {
         this.busy = false;
-        this.body?.setText(payment.message || 'Unable to pay for assistance.');
+        this.body?.setText(payment.message || __dialogueText("scenes/CSI/ForensicHelpController.js", "t_9abc2c28bbb87607bbd6"));
         return;
       }
       result = hintManager.recordPaidHint(method, context, { ...cost, cash: 0 });
     }
     if (!result?.success) {
       this.busy = false;
-      this.body?.setText('No free hints remain. Choose another option.');
+      this.body?.setText(__dialogueText("scenes/CSI/ForensicHelpController.js", "t_a5b20eee48dfffe68f88"));
       return;
     }
     const receipt = {
@@ -276,16 +277,16 @@ export class ForensicHelpController {
       if (this.destroyed || !s.sys.isActive()) return;
       this.disposeModal();
       this.busy = false;
-      this.panel('LAB HINT', receipt.text + (saved ? '' :
-        '\n\nAutosave failed. Reloading may lose this purchase.'));
-      this.makeButton(0, 215, 'BACK TO ANALYSIS', () => {
+      this.panel(__dialogueText("scenes/CSI/ForensicHelpController.js", "t_cf340b2b1c0c6eabde3b"), receipt.text + (saved ? '' :
+        __dialogueText("scenes/CSI/ForensicHelpController.js", "t_f0c06fe921cdbe41a234")));
+      this.makeButton(0, 215, __dialogueText("scenes/CSI/ForensicHelpController.js", "t_e59dd6a4c606d360d6a5"), () => {
         this.close();
         this.showEffect(definition, receipt);
       }, this.modal);
       this.refresh();
     };
     if (energy.isForcedSleepActive()) {
-      this.body?.setText('You fell asleep.\nAssistance will be ready when you wake up.');
+      this.body?.setText(__dialogueText("scenes/CSI/ForensicHelpController.js", "t_5baeb9166a23de29e842"));
       this.cancelRecovery();
       this.boundRecovery = () => {
         this.cancelRecovery();

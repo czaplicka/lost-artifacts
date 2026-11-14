@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { HiddenObjectsUI } from '../../ui/HiddenObjectsUI.js';
 import { hintManager } from '../../managers/HintManager.js';
 import { EventBus } from '../../EventBus.js';
@@ -77,7 +78,7 @@ export class ApartmentHintUI extends HiddenObjectsUI {
     this.destroyed = false;
 
     this.hintBtn = this.own(
-      this.scene.add.text(20, 0, 'HINT', {
+      this.scene.add.text(20, 0, __dialogueText("scenes/apartament/ApartmentHintUI.js", "t_fc1b8229a4cd735b71b2"), {
         fontFamily: 'PressStart2P, Arial',
         fontSize: '12px',
         color: '#fff2c4',
@@ -243,9 +244,9 @@ export class ApartmentHintUI extends HiddenObjectsUI {
     this.scene.showMessage(
       text,
       3200,
-      color === '#ffb3b3'
-        ? '#8b3030'
-        : '#493d30'
+      color === __dialogueText("scenes/apartament/ApartmentHintUI.js", "t_67f0c667a89e3ff3f3e3")
+        ? __dialogueText("scenes/apartament/ApartmentHintUI.js", "t_c27978fb247345a3da90")
+        : __dialogueText("scenes/apartament/ApartmentHintUI.js", "t_2857dc4b870ec1edce62")
     );
   }
 
@@ -269,7 +270,7 @@ export class ApartmentHintUI extends HiddenObjectsUI {
       !this.scene.roomSystem.showRoom(room)
     ) {
       this.showMessage(
-        'The next place to investigate is in another room.'
+        __dialogueText("scenes/apartament/ApartmentHintUI.js", "t_7ead6c59906a367b73af")
       );
       return;
     }

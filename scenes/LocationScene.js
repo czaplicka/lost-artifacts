@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../gameStatePersistence.js';
 import { NPCController } from '../dialogues/NPCController.js';
@@ -24,10 +25,10 @@ const LOCATION_SOUND_MAP = {
   parking: 'parkingsound', policehq: 'policesound', restaurant: 'restaurantsound'
 };
 const TOPIC_LABELS = {
-  features: 'Features', accent: 'Accent', hair: 'Hair', eyes: 'Eyes',
-  skills: 'Skills', habitus: 'Habits', currency: 'Money', travel: 'Where next?',
-  motive: 'Anything unusual?', flight: 'Flight plans', dish: 'Food plans',
-  cars: 'Driving plans', findings: 'Findings', banter: 'Small talk'
+  features: __dialogueText("scenes/LocationScene.js", "t_5697d03daef4de9cf8db"), accent: __dialogueText("scenes/LocationScene.js", "t_a5c6fb18c9af89b22a79"), hair: __dialogueText("scenes/LocationScene.js", "t_ababed4823ab79d226ba"), eyes: __dialogueText("scenes/LocationScene.js", "t_a39e9d9816a99fc02aa4"),
+  skills: __dialogueText("scenes/LocationScene.js", "t_66d0f523a379b2de6f8d"), habitus: __dialogueText("scenes/LocationScene.js", "t_41243237651096193ccc"), currency: __dialogueText("scenes/LocationScene.js", "t_5ccc2e8715d7a17c3110"), travel: __dialogueText("scenes/LocationScene.js", "t_3e11abc63158d2afedac"),
+  motive: __dialogueText("scenes/LocationScene.js", "t_59b1224dd97e71c0f8d8"), flight: __dialogueText("scenes/LocationScene.js", "t_26b4c6679365904b7971"), dish: __dialogueText("scenes/LocationScene.js", "t_4c53a089c88344b172cb"),
+  cars: __dialogueText("scenes/LocationScene.js", "t_e287548a9db2e48f049f"), findings: __dialogueText("scenes/LocationScene.js", "t_e171c2ff25b55e5a2d63"), banter: __dialogueText("scenes/LocationScene.js", "t_124478a6674d3cb814fc")
 };
 const PANEL_GOLD = 0xd4af37;
 const PANEL_GOLD_DIM = 0x8a6d1f;
@@ -109,19 +110,19 @@ export class LocationScene extends BaseScene {
     const cost = this.getEncounterEnergyCost();
     if (!energy.canAfford(cost.total).ok) {
       this.entryBlocked = true;
-      this.fullDialogueString = 'You need some rest before this visit. Return to the city first.';
+      this.fullDialogueString = __dialogueText("scenes/LocationScene.js", "t_297469b36384f3455d3f");
       return false;
     }
     const label = cost.bonusActive
-      ? `NPC visit with known alias: taxi -${cost.taxi}, conversation -${cost.interview}`
-      : `NPC visit: taxi -${cost.taxi}, conversation -${cost.interview}`;
+      ? `${__dialogueText("scenes/LocationScene.js", "t_405dd93a8d505faace91")}${cost.taxi}${__dialogueText("scenes/LocationScene.js", "t_2e8d1caea3b6a2510409")}${cost.interview}`
+      : `${__dialogueText("scenes/LocationScene.js", "t_b02b87d8d2a21b84b934")}${cost.taxi}${__dialogueText("scenes/LocationScene.js", "t_2e8d1caea3b6a2510409")}${cost.interview}`;
     const result = energy.consumeCustom(cost.total, label, {
       requireFullAmount: true, activityType: 'escape_city_npc_visit'
     });
     if (!result.success) {
       this.entryBlocked = true;
-      this.fullDialogueString = 'This visit cannot begin yet. Return to the city ' +
-        'and try again after resting.';
+      this.fullDialogueString = __dialogueText("scenes/LocationScene.js", "t_abdd20cf525d719a080d") +
+        __dialogueText("scenes/LocationScene.js", "t_d637f9a61370908fe327");
       return false;
     }
     this.entryEnergyPaid = true;
@@ -180,7 +181,7 @@ export class LocationScene extends BaseScene {
         this.npcController = null;
       }
       if (!this.npcController) {
-        this.fullDialogueString = 'There is nobody here who remembers anything useful.';
+        this.fullDialogueString = __dialogueText("scenes/LocationScene.js", "t_cd5890b2d9d25776c798");
       } else if (this.payEncounterEnergy()) {
         this.availableTopics = this.npcController.getAvailableTopics();
         this.fullDialogueString = this.isFalseLead
@@ -212,8 +213,8 @@ export class LocationScene extends BaseScene {
     if (!this.entryEnergyPaid || !cost?.bonusActive || this.isCrimeCity) return;
     const savedEnergy = cost.normalInterview - cost.interview;
     this.forgerBonusText = this.add.text(18, height - 278,
-      `Known alias: ${cost.alias} | Visit: ${cost.minutes} min | ` +
-      `Conversation energy saved: ${savedEnergy}`, {
+      `${__dialogueText("scenes/LocationScene.js", "t_da5d97c92b3a241792b4")}${cost.alias}${__dialogueText("scenes/LocationScene.js", "t_d9127a1f6676ea02f7fb")}${cost.minutes}${__dialogueText("scenes/LocationScene.js", "t_fb006fa9c3d865b97fcf")}` +
+      `${__dialogueText("scenes/LocationScene.js", "t_6396c97ea812968be3e3")}${savedEnergy}`, {
         fontFamily: 'SpecialElite', fontSize: '20px', color: '#ffe0a3',
         backgroundColor: '#201409ee', padding: { left: 10, right: 10, top: 6, bottom: 6 },
         wordWrap: { width: Math.max(100, width - 56) }
@@ -242,7 +243,7 @@ export class LocationScene extends BaseScene {
   nextBanterLine() {
     const pool = (this.npcController?.cityData?.banter || []).filter(line =>
       typeof line === 'string' && line.trim());
-    if (!pool.length) return this.npcController?.getBanterLine() || 'What would you like to know?';
+    if (!pool.length) return this.npcController?.getBanterLine() || __dialogueText("scenes/LocationScene.js", "t_7b3091d59ac78a86348c");
     let unseen = pool.filter(line => !this.banterSeen.has(line));
     if (!unseen.length) { this.banterSeen.clear(); unseen = pool; }
     const line = unseen[Math.floor(Math.random() * unseen.length)];
@@ -284,7 +285,7 @@ export class LocationScene extends BaseScene {
         this.portraitImage.setScale(Math.min(portraitSize / frameWidth, portraitSize / frameHeight));
       } else this.portraitImage.setDisplaySize(portraitSize, portraitSize);
     } else {
-      this.portraitImage = this.add.text(centerX, centerY, '?', {
+      this.portraitImage = this.add.text(centerX, centerY, __dialogueText("scenes/LocationScene.js", "t_8a8de823d5ed3e12746a"), {
         fontFamily: 'PressStart2P', fontSize: '48px', color: '#d4af37'
       }).setOrigin(0.5).setDepth(12);
     }
@@ -338,7 +339,7 @@ export class LocationScene extends BaseScene {
         this.topicButtons.push({ topicId, text: button });
       }
     }
-    this.leaveButton = this.add.text(menuX, panelY + panelHeight - 34, 'Leave', {
+    this.leaveButton = this.add.text(menuX, panelY + panelHeight - 34, __dialogueText("scenes/LocationScene.js", "t_fc6e4a408d56be9670c1"), {
       fontFamily: 'SpecialElite', fontSize: '18px', color: '#d4af37'
     }).setDepth(13).setInteractive({ useHandCursor: true });
     this.leaveButton.on('pointerover', () => this.leaveButton?.setColor('#ffffff'));
@@ -365,7 +366,7 @@ export class LocationScene extends BaseScene {
     }
     this.askedTopics.add(topicId);
     this.fullDialogueString = topicId === 'motive' && meta?.question
-      ? `You: ${meta.question}\n\n${result.text}` : result.text;
+      ? `${__dialogueText("scenes/LocationScene.js", "t_7b1aab937ca83cd9c085")}${meta.question}${__dialogueText("scenes/LocationScene.js", "t_75a11da44c802486bc6f")}${result.text}` : result.text;
     this.startTypewriter();
     this.refreshNotebook();
     this.availableTopics = this.npcController.getAvailableTopics();

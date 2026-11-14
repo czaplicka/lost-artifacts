@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { poly } from './HomeCityDrawing.js';
 
 let instances = 0;
@@ -32,7 +33,7 @@ export class HomeCityRendererCore {
     const run = () => { if (!this.destroyed && this.scene) fn(); };
     const fonts = typeof document !== 'undefined' ? document.fonts : null;
     if (!fonts?.load) return run();
-    Promise.all([fonts.load('16px SpecialElite'), fonts.load('16px PressStart2P')]).then(run, run);
+    Promise.all([fonts.load(__dialogueText("scenes/homeCity/HomeCityRendererCore.js", "t_d7ecb035e53e3b167e6b")), fonts.load(__dialogueText("scenes/homeCity/HomeCityRendererCore.js", "t_e44af1cb7a3385642f4a"))]).then(run, run);
   }
   isRoad(x, y) { return (x >= 9 && x <= 11) || (y >= 8 && y <= 11) || (y >= 18 && y <= 19) || (x >= 1 && x <= 2); }
   isSidewalk(x, y) { return [0, 3, 8, 12].includes(x) || [7, 12, 17, 20].includes(y); }

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 export const ALIBI_SILENCE_FLAG='alibi_silence_offer_requested';
 export function alibiSilenceOfferKnown(state){
  const flags=state.piPhoneInvestigations?.cases?.borrowed_alibi?.flags||[];
@@ -18,20 +19,20 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "I have a sample account describing dinner at your restaurant. Does that establish a booking?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_b42cd6d2ebc2ca80bd1d")
       },
       {
-        "speaker": "Manager",
-        "text": "No. Anyone can write our name above an imaginary soup."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_61b5bf1189494a01aa08")
       },
       {
-        "speaker": "You",
-        "text": "Then I need to check whether the meal could be served, and what Arthur actually ordered."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_815075ab5859274fd7c2")
       },
       {
-        "speaker": "Manager",
-        "text": "Two separate enquiries. Ask me about Tuesday’s service. Use the authorised receipt procedure for Arthur’s individual record."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_d434632e61d49c94328d")
       }
     ]
   },
@@ -48,20 +49,20 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Does TUE-DC-02 identify a reservation or receipt here?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_cf1345980c4f34e7719d")
       },
       {
-        "speaker": "Manager",
-        "text": "Not in our records. That reference belongs to whoever supplied your sample."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_9dc3de13b55bd83c5ad4")
       },
       {
-        "speaker": "You",
-        "text": "So I need your actual service confirmation and the customer’s authorised record."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_6c3113f5826e40ccc28b")
       },
       {
-        "speaker": "Manager",
-        "text": "Exactly. A template can supply words. It cannot make our cooker work retrospectively."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_90c9a543120a19a7c391")
       }
     ]
   },
@@ -81,20 +82,20 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "The normal menu includes tomato soup. Is that enough to check a Tuesday account?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_4072aa27afa579ff1cbc")
       },
       {
-        "speaker": "Manager",
-        "text": "No. The menu says what we usually offer. Ask about service on the particular evening."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_91e2b0031be81021d78f")
       },
       {
-        "speaker": "You",
-        "text": "Tuesday, then."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_76690637376664703188")
       },
       {
-        "speaker": "Manager",
-        "text": "The hot kitchen was closed all Tuesday evening. Cold sandwiches and drinks only."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_5eb0adf1c95b8a2ec9d2")
       }
     ]
   },
@@ -114,20 +115,20 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "What should I compare in Arthur’s receipt?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_597086a24e31681f4123")
       },
       {
-        "speaker": "Manager",
-        "text": "The customer, date, transaction times, recorded covers and actual order."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_62ac2c258947c02e76df")
       },
       {
-        "speaker": "You",
-        "text": "Not merely whether his name appears on paper."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_696bfdb658279bbaf724")
       },
       {
-        "speaker": "Manager",
-        "text": "Correct. Compare that visit with the three claimed dinners. The total is not a personality test."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_9e1fa00251a80409a2b8")
       }
     ]
   },
@@ -147,20 +148,20 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 30,
     "lines": [
       {
-        "speaker": "You",
-        "text": "The receipt has arrived. Can you explain the finding?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_4881bc1563d9386b7182")
       },
       {
-        "speaker": "Manager",
-        "text": "Open the copy first. Check its date, guest count, times and order, then ask about anything unclear."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_9638b6a2e600c4a8bfdb")
       },
       {
-        "speaker": "You",
-        "text": "Receiving the message is not the same as reading the evidence."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_40f6de3310e9f4b00d46")
       },
       {
-        "speaker": "Manager",
-        "text": "An excellent principle. Our accountant has been campaigning for it for years."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_310b0af19b3e5ad67993")
       }
     ]
   },
@@ -178,20 +179,20 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "This label appears at the bottom of a dinner account. Is it one of your versions?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_51d2dde90fde5066eb3b")
       },
       {
-        "speaker": "Membership secretary",
-        "text": "It is the version label used on our Dinner Companion material."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_a03a465214aba97f9cc6"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_60b7426fe2aad6ddb838")
       },
       {
-        "speaker": "You",
-        "text": "Can I inspect the actual wording?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_93288e2ef3627fd253f1")
       },
       {
-        "speaker": "Membership secretary",
-        "text": "Ask about the package and request the free sample. A version label is not a customer list. Several people have discovered the number two independently."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_a03a465214aba97f9cc6"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_eb0b4e059a5539be63c3")
       }
     ]
   },
@@ -208,20 +209,20 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Can you confirm that the meal described in your material was served?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_a42dd718cbb98e16aa7e")
       },
       {
-        "speaker": "Membership secretary",
-        "text": "We sell an account. We do not operate the restaurant."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_a03a465214aba97f9cc6"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_db71b412f956f9549269")
       },
       {
-        "speaker": "You",
-        "text": "Then I need their own records."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_ae7800b374346f645471")
       },
       {
-        "speaker": "Membership secretary",
-        "text": "Quite. Ask us for our source material. Ask the restaurant about the actual evening."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_a03a465214aba97f9cc6"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_cb7a2a5338229cb6473b")
       }
     ]
   },
@@ -243,28 +244,28 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "I intend to quote the TUE-DC-02 demonstration when reporting the dinner requests."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_7de995dfad59841efcc6")
       },
       {
-        "speaker": "Membership secretary",
-        "text": "Perhaps you would prefer a private customer-feedback arrangement."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_a03a465214aba97f9cc6"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_c7124ca0fcc26bbf621f")
       },
       {
-        "speaker": "You",
-        "text": "What sort of arrangement?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_5f7417dad838d514783d")
       },
       {
-        "speaker": "Membership secretary",
-        "text": "We can offer $120 for keeping the package and your findings out of further reports. I will send the terms in writing."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_a03a465214aba97f9cc6"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_968b6249f81ac8b43504")
       },
       {
-        "speaker": "You",
-        "text": "That is an offer of payment for silence, not a refund."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_3ea752ecada9db80f100")
       },
       {
-        "speaker": "Membership secretary",
-        "text": "Correct. Nothing is paid unless you explicitly accept. We prefer our questionable arrangements to be administratively clear."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_a03a465214aba97f9cc6"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_8d9ca7188c40fa8563f7")
       }
     ]
   },
@@ -284,12 +285,12 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 100,
     "lines": [
       {
-        "speaker": "You",
-        "text": "I have the sample and a reply from the restaurant."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_a4dc6186162d7e79c9d1")
       },
       {
-        "speaker": "Nora Bell",
-        "text": "Then open the actual receipt before saying what it establishes. Check the recorded visit, not just the fact that somebody sent you a message."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_c03a0aee594c9325210b")
       }
     ]
   },
@@ -309,12 +310,12 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 90,
     "lines": [
       {
-        "speaker": "You",
-        "text": "I have the reference from the demonstration."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_a3cdbfd52fef6e604413")
       },
       {
-        "speaker": "Nora Bell",
-        "text": "Read the original example before comparing it with my wording. A reference identifies a document; it does not replace its contents."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_771c86b7a447a503bac1")
       }
     ]
   },
@@ -334,20 +335,20 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "You won the competition. Does that prove you stayed there?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_60df64c780d48be9ff90")
       },
       {
-        "speaker": "Nora Bell",
-        "text": "Winning proves I ate an inadvisable amount of pie. The judge’s stage record says whether I left."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_a9d9bda7172e6c99939a")
       },
       {
-        "speaker": "You",
-        "text": "So I need the attendance record, not merely the results."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_5847a8bbd169886c04c0")
       },
       {
-        "speaker": "Nora Bell",
-        "text": "Yes. Please use the judge’s paperwork rather than my description of my own heroism."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_b82592318fa649182a20")
       }
     ]
   },
@@ -367,28 +368,28 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Can your account alone exclude you from the incident?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_36e2c9242221a46ddb16")
       },
       {
-        "speaker": "Nora Bell",
-        "text": "No. Check the independent record from Civic Pie Challenge.",
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_09f226261a06b8511bdb"),
         "fragments": [
-          "No. Check the independent record from ",
+          __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_63d9a1e76e0ad09de9c6"),
           {
             "keywordId": "pie_contest",
-            "text": "Civic Pie Challenge"
+            "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_5b3d2434d90ebb6f24e3")
           },
-          "."
+          __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_cdb4ee2aea69cc6a8333")
         ]
       },
       {
-        "speaker": "You",
-        "text": "Against the whole incident interval."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_47aa0b65ab9241e94746")
       },
       {
-        "speaker": "Nora Bell",
-        "text": "Yes. Read the record’s times, not just the headline. I cannot independently confirm myself."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_7855a6528779f2e53e66")
       }
     ]
   },
@@ -408,12 +409,12 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "I have the independent attendance record."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_7cc5683146b3d1fd6ec4")
       },
       {
-        "speaker": "Nora Bell",
-        "text": "Then compare its times with the company’s verified incident interval. Keep what the record establishes separate from why I originally lied about dinner."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_14db5cab17b645e62191")
       }
     ]
   },
@@ -433,12 +434,12 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 100,
     "lines": [
       {
-        "speaker": "You",
-        "text": "I have the sample and a reply from the restaurant."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_a4dc6186162d7e79c9d1")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "Then open the actual receipt before saying what it establishes. Check the recorded visit, not just the fact that somebody sent you a message."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_c03a0aee594c9325210b")
       }
     ]
   },
@@ -458,12 +459,12 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 90,
     "lines": [
       {
-        "speaker": "You",
-        "text": "I have the reference from the demonstration."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_a3cdbfd52fef6e604413")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "Read the original example before comparing it with my wording. A reference identifies a document; it does not replace its contents."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_771c86b7a447a503bac1")
       }
     ]
   },
@@ -483,20 +484,20 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Your name appears in the tournament results. Could you have left?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_3b9d78726544c7f22aef")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "Read the referee’s signed, timed match sheet. It records the supervised final, including breaks and substitutions."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_f07efb7cfd181e539438")
       },
       {
-        "speaker": "You",
-        "text": "I need to compare that interval with the incident, not merely find your name."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_c95d6ec513ac0463e561")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "Precisely. A tournament result is not a tracking collar. The referee was considering those, though."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_3aa1638d7d6de7deb3b6")
       }
     ]
   },
@@ -516,28 +517,28 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Can your account alone exclude you from the incident?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_36e2c9242221a46ddb16")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "No. Check the independent record from Rook & Ruin Open.",
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_e0a5d6b10f79ab70f851"),
         "fragments": [
-          "No. Check the independent record from ",
+          __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_63d9a1e76e0ad09de9c6"),
           {
             "keywordId": "board_tournament",
-            "text": "Rook & Ruin Open"
+            "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_a05e96774c14aa4f0766")
           },
-          "."
+          __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_cdb4ee2aea69cc6a8333")
         ]
       },
       {
-        "speaker": "You",
-        "text": "Against the whole incident interval."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_47aa0b65ab9241e94746")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "Yes. Read the record’s times, not just the headline. I cannot independently confirm myself."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_7855a6528779f2e53e66")
       }
     ]
   },
@@ -557,12 +558,12 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "I have the independent attendance record."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_7cc5683146b3d1fd6ec4")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "Then compare its times with the company’s verified incident interval. Keep what the record establishes separate from why I originally lied about dinner."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_14db5cab17b645e62191")
       }
     ]
   },
@@ -583,28 +584,28 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "The public statement says an item was taken during the Tuesday break-in. What do you know about it?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_9324261bd4ca5ec3fd7c")
       },
       {
-        "speaker": "Evelyn Shaw",
-        "text": "That blue folder was empty anyway. You are making a great deal out of nothing.",
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_f693eba06ad2594e170c"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_2ca5a4eb462301f30d20"),
         "fragments": [
-          "That ",
+          __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_00b2138021018046386b"),
           {
             "keywordId": "blue_folder",
-            "text": "blue folder"
+            "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_5e4ba369aac7ad63f846")
           },
-          " was empty anyway. You are making a great deal out of nothing."
+          __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_e51f0b5a107d59b1066f")
         ]
       },
       {
-        "speaker": "You",
-        "text": "Where did that description come from?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_b7cc9096be22ce1a163b")
       },
       {
-        "speaker": "Evelyn Shaw",
-        "text": "Ask the company. I am not adding to my statement."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_f693eba06ad2594e170c"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_b712bc5623dedd2d83cf")
       }
     ]
   },
@@ -626,28 +627,28 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "What do you know about the Tuesday break-in and the missing item?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_c51dc086c47465dda665")
       },
       {
-        "speaker": "Evelyn Shaw",
-        "text": "That blue folder was empty anyway. You are making a great deal out of nothing.",
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_f693eba06ad2594e170c"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_2ca5a4eb462301f30d20"),
         "fragments": [
-          "That ",
+          __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_00b2138021018046386b"),
           {
             "keywordId": "blue_folder",
-            "text": "blue folder"
+            "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_5e4ba369aac7ad63f846")
           },
-          " was empty anyway. You are making a great deal out of nothing."
+          __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_e51f0b5a107d59b1066f")
         ]
       },
       {
-        "speaker": "You",
-        "text": "Where did that description come from?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_b7cc9096be22ce1a163b")
       },
       {
-        "speaker": "Evelyn Shaw",
-        "text": "Ask the company. I am not adding to my statement."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_f693eba06ad2594e170c"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_b712bc5623dedd2d83cf")
       }
     ]
   },
@@ -667,12 +668,12 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 100,
     "lines": [
       {
-        "speaker": "You",
-        "text": "The restaurant has replied about Arthur’s visit."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_4b04cff5f8186dccd8fb")
       },
       {
-        "speaker": "Evelyn Shaw",
-        "text": "Then read the receipt before claiming it contradicts me. You have announced the arrival of a document, not its contents."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_f693eba06ad2594e170c"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_922b6b25a33bf5360df1")
       }
     ]
   },
@@ -692,12 +693,12 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 90,
     "lines": [
       {
-        "speaker": "You",
-        "text": "I have the sample reference."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_5eef43b49d36349187ee")
       },
       {
-        "speaker": "Evelyn Shaw",
-        "text": "A reference is not a comparison. Read the actual demonstration before putting its wording to me."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_f693eba06ad2594e170c"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_fdce6f205c839c00f310")
       }
     ]
   },
@@ -717,16 +718,16 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Will you explain where you heard that description?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_f51463bb37cae6540851")
       },
       {
-        "speaker": "Evelyn Shaw",
-        "text": "I have nothing to add."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_f693eba06ad2594e170c"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_d6d210262819b449847b")
       },
       {
-        "speaker": "You",
-        "text": "Then I will preserve your exact words and check what information the company actually published."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_74ecac0d09bedfb94915")
       }
     ]
   },
@@ -745,28 +746,28 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "What interval must an independent attendance record actually cover?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_529c8a46a5673301d504")
       },
       {
-        "speaker": "Records liaison",
-        "text": "The secure-office intrusion was between 20:10 and 20:25 on Tuesday."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_3f7991714910557e69d8"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_17616315452c8ea28bab")
       },
       {
-        "speaker": "You",
-        "text": "Being somewhere at seven would not establish being there at twenty past eight."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_a4ed34f69f4e8589112f")
       },
       {
-        "speaker": "Records liaison",
-        "text": "Correct. Check the whole interval, the same Tuesday and the same person. A matching surname is not a teleportation certificate."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_3f7991714910557e69d8"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_e9d11cc796ee7c9b8033")
       },
       {
-        "speaker": "You",
-        "text": "What did the public statement disclose?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_47ca43c0a7efebb62e9e")
       },
       {
-        "speaker": "Records liaison",
-        "text": "The interval and that an item was taken. Not its physical description or contents."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_3f7991714910557e69d8"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_303690a239eafdffc4c4")
       }
     ]
   },
@@ -783,28 +784,28 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "What information can I compare with a witness’s statement?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_85f210d2d38bcefdccc3")
       },
       {
-        "speaker": "Records liaison",
-        "text": "Our public Tuesday break-in statement gives the interval and says an item was taken. It does not describe the object.",
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_3f7991714910557e69d8"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_97895523a10258f413e4"),
         "fragments": [
-          "Our public ",
+          __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_b2e7791ccc2321b3eb0d"),
           {
             "keywordId": "records_breakin",
-            "text": "Tuesday break-in"
+            "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_e49ba0c10e6e41898c4c")
           },
-          " statement gives the interval and says an item was taken. It does not describe the object."
+          __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_8d8ccefb10dd8a310566")
         ]
       },
       {
-        "speaker": "You",
-        "text": "Then I should distinguish a witness’s own detail from information I supplied in my question."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_bde751995969bca2afc2")
       },
       {
-        "speaker": "Records liaison",
-        "text": "Exactly. Preserve both the question and the answer. Paperwork is dramatic enough without invented dialogue."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_3f7991714910557e69d8"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_13f08f844b75f0c10ec2")
       }
     ]
   },
@@ -822,20 +823,20 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "I have an independent attendance record. How should I compare it with your incident?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_a02b8f7e8b3dbd0c8be4")
       },
       {
-        "speaker": "Records liaison",
-        "text": "Does its recorded presence cover all of 20:10–20:25 on the same Tuesday?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_3f7991714910557e69d8"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_7f75d69d359f93d89722")
       },
       {
-        "speaker": "You",
-        "text": "A result or a booking alone does not establish continuous presence."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_37d5530d6f4825bb2434")
       },
       {
-        "speaker": "Records liaison",
-        "text": "Correct. Check breaks, departures and substitutions. Make the comparison yourself; do not ask a document to establish more than it records."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_3f7991714910557e69d8"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_d6fb8bcd9d26fc129ff1")
       }
     ]
   },
@@ -853,20 +854,20 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "I have an independent attendance record. How should I compare it with your incident?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_a02b8f7e8b3dbd0c8be4")
       },
       {
-        "speaker": "Records liaison",
-        "text": "Does its recorded presence cover all of 20:10–20:25 on the same Tuesday?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_3f7991714910557e69d8"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_7f75d69d359f93d89722")
       },
       {
-        "speaker": "You",
-        "text": "A result or a booking alone does not establish continuous presence."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_37d5530d6f4825bb2434")
       },
       {
-        "speaker": "Records liaison",
-        "text": "Correct. Check breaks, departures and substitutions. Make the comparison yourself; do not ask a document to establish more than it records."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_3f7991714910557e69d8"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_d6fb8bcd9d26fc129ff1")
       }
     ]
   },
@@ -887,20 +888,20 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Evelyn volunteered “blue folder” when I asked about a missing item. Was that description public?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_f1501db709372e80133f")
       },
       {
-        "speaker": "Records liaison",
-        "text": "I checked with the records manager. It matches the missing item’s physical description. It was not public, and Evelyn was not on the internal notification list."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_3f7991714910557e69d8"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_f764e86f552c7894a2fa")
       },
       {
-        "speaker": "You",
-        "text": "So the source of her knowledge remains unexplained."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_b54e168ef84f9caf8e28")
       },
       {
-        "speaker": "Records liaison",
-        "text": "Yes. Preserve the exact exchange. It warrants investigation, not a finding of guilt. An undisclosed source is still possible."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_3f7991714910557e69d8"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_90ea7e5a058d1f9770a8")
       }
     ]
   },
@@ -922,20 +923,20 @@ export const ALIBI_GUIDANCE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Please check Evelyn’s volunteered description against the Tuesday incident record."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_af04d2547da6ed6c8db7")
       },
       {
-        "speaker": "Records liaison",
-        "text": "It matches the missing item’s physical description. The detail was withheld publicly, and she was not on the internal notification list."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_3f7991714910557e69d8"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_7fcb8c18b11f3d3377a8")
       },
       {
-        "speaker": "You",
-        "text": "I will report the discrepancy without calling it proof of theft."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_1126f8b7cf25dad49395")
       },
       {
-        "speaker": "Records liaison",
-        "text": "That is the distinction. A factual referral is useful; a telephone conviction is not."
+        "speaker": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_3f7991714910557e69d8"),
+        "text": __dialogueText("ui/pi-computer/AlibiGuidanceRules.js", "t_47ad9c2818c582ffafc7")
       }
     ]
   }

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { COLORS, seeded, lerpColor } from './ComputerTheme.js';
 import { ComputerShell } from './ComputerShell.js';
 
@@ -5,57 +6,57 @@ const MONITOR_WIDTH=1120,MONITOR_HEIGHT=800,NOTEBOOK_WIDTH=300,WORKSPACE_GAP=20;
 const SCREEN={x:48,y:36,w:1024,h:700};
 const TEX_SCAN='pi_crt_scanlines',TEX_FRAME='pi_crt_frame_large_v2';
 const BOOT_FULL=[
-  'NIGHT OWL BIOS vx.12345  (C) 1989 SKYNET',
-  'CPU: 486DX2 @ 66MHz ........ OK',
-  'Memory test: 4096K ........ OK (nobody needs more)',
-  'Detecting coffee ........ off-screen, finally',
-  'Checking conscience ........ NOT FOUND, continuing',
-  'Mounting C:\\CASEFILES ........ OK',
-  'Mounting D:\\EXWIFE ........ ACCESS DENIED',
-  'Loading NIGHT OWL OS ........',
-  'Welcome back, detective.'
+  __dialogueText("ui/pi-computer/ComputerMonitor.js", "t_a2f191088a61372b32b6"),
+  __dialogueText("ui/pi-computer/ComputerMonitor.js", "t_7f584c81b0be40fc415a"),
+  __dialogueText("ui/pi-computer/ComputerMonitor.js", "t_939126be3cba40c8e59e"),
+  __dialogueText("ui/pi-computer/ComputerMonitor.js", "t_e667591523e1e61a549f"),
+  __dialogueText("ui/pi-computer/ComputerMonitor.js", "t_990eb7d327f9dc347875"),
+  __dialogueText("ui/pi-computer/ComputerMonitor.js", "t_92a351d49abaee557fb6"),
+  __dialogueText("ui/pi-computer/ComputerMonitor.js", "t_7f0f257c63ded9fad866"),
+  __dialogueText("ui/pi-computer/ComputerMonitor.js", "t_6dd7ffa1f9b8e6861d65"),
+  __dialogueText("ui/pi-computer/ComputerMonitor.js", "t_c9b829061a0315e4de0b")
 ];
 const BOOT_QUICK=[
-  'Resuming from hibernation ........ OK',
-  'Re-checking conscience ........ still missing',
-  'Welcome back, detective.'
+  __dialogueText("ui/pi-computer/ComputerMonitor.js", "t_9727131c8758932c394b"),
+  __dialogueText("ui/pi-computer/ComputerMonitor.js", "t_033cc3813428cd9108d4"),
+  __dialogueText("ui/pi-computer/ComputerMonitor.js", "t_c9b829061a0315e4de0b")
 ];
 // kind = assets/ui/computer/icons/<kind>.webp
 const APP_INFO={
-  audio: {title:'Owl Audio',color:0x93ba99,kind:'audio'},
-  mail:{title:'Mail',color:0xe6d9ab,kind:'envelope'},
-  ledger:{title:'Personal Ledger',color:0xa5c397,kind:'ledger'},
-  classifieds:{title:'Classifieds',color:0xd1d6d8,kind:'paper'},
-  search:{title:'Owl Search',color:0x9fc9a9,kind:'owl_search'},
-  photo:{title:'Photo Viewer',color:0xc69d7d,kind:'board'},
-  'office-shop':{title:'Office Shop',color:0xd4af37,kind:'ledger'},
-  'office-archive':{title:'Case Filing',color:0xd4af37,kind:'ledger'},
-  'office-documents':{title:'Documents',color:0xd4af37,kind:'paper'},
-  chat: { title: 'IMEGO — Instant Messenger', color: 0x8db7a6,  kind: 'chat'},
-  thiefdoku: { title: 'Thiefdoku',  color: 0xc69d7d,  kind: 'board'},
+  audio: {title:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_5ddde5a18bc919b6ce35"),color:0x93ba99,kind:'audio'},
+  mail:{title:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_07ed6ccf6bf6393d1868"),color:0xe6d9ab,kind:'envelope'},
+  ledger:{title:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_7401c872d2cd61eeb936"),color:0xa5c397,kind:'ledger'},
+  classifieds:{title:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_c2a15c2c550a91eda017"),color:0xd1d6d8,kind:'paper'},
+  search:{title:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_6f6ca128fbbdf22488f9"),color:0x9fc9a9,kind:'owl_search'},
+  photo:{title:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_c17959fcc266deba71d6"),color:0xc69d7d,kind:'board'},
+  'office-shop':{title:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_a0bf07cb320d609e5d18"),color:0xd4af37,kind:'ledger'},
+  'office-archive':{title:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_57d85826cd5027dbef9c"),color:0xd4af37,kind:'ledger'},
+  'office-documents':{title:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_b4e929d8bcfe04189801"),color:0xd4af37,kind:'paper'},
+  chat: { title: __dialogueText("ui/pi-computer/ComputerMonitor.js", "t_e59416b5d53bff12f651"), color: 0x8db7a6,  kind: 'chat'},
+  thiefdoku: { title: __dialogueText("ui/pi-computer/ComputerMonitor.js", "t_5cf46358ab38145b427c"),  color: 0xc69d7d,  kind: 'board'},
 };
 const APP_TITLES={
-  audio:'Owl Audio — Recording comparison',chat: 'IMEGO — Instant Messenger Error Guide Online',mail:'Mail — Private correspondence',ledger:'Personal Ledger — Private funds',classifieds:'Classifieds — City notices'};
+  audio:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_a91dc0af41c020f9031a"),chat: __dialogueText("ui/pi-computer/ComputerMonitor.js", "t_82b3592674286f95bc4e"),mail:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_34844c19e4003f75991a"),ledger:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_f24e48dd99341885fe80"),classifieds:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_8d076ff2a8cfa45bab92")};
 const APP_STATUS={
-  audio:'Source transcripts. Comparisons are saved to the case notes.',
-  mail:'Private correspondence. Spam folder: 14,212 items.',
-  ledger:'Personal funds — separate from agency finances (the agency has none).',
-  classifieds:'Local notices and private enquiries. Please do not call about the llama.',
-  chat: 'Private messages. The walls have ears. The inbox has worse.'
+  audio:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_11b8b36a8745ddaaeec0"),
+  mail:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_8a729d441d861a78165d"),
+  ledger:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_b2bc3cf0d66bc332e666"),
+  classifieds:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_44491562bd39e5a236d8"),
+  chat: __dialogueText("ui/pi-computer/ComputerMonitor.js", "t_23f9ad59af1dfc586646")
 };
 const APP_ACCENT={
   audio:0x93ba99,desktop:0x98b9ce,mail:0xe6d9ab,ledger:0xa5c397,classifieds:0xd1d6d8,search:0x9fc9a9,chat: 0x8db7a6,photo:0xc69d7d};
 const MENU_ITEMS=[
-  {app:'audio',label:'Owl Audio',color:0x93ba99,kind:'audio'},
-  {app:'mail',label:'Mail',color:0xe6d9ab,kind:'envelope'},
-  {app:'ledger',label:'Personal Ledger',color:0xa5c397,kind:'ledger'},
-  {app:'classifieds',label:'Classifieds',color:0xd1d6d8,kind:'paper'},
-  {app:'search',label:'Web Search',color:0x9fc9a9,kind:'owl_search'},
-  {app:'office-shop',label:'Office Shop',color:0xd4af37,kind:'ledger'},
-  {app:'investigations',label:'Investigations',color:0xc69d7d,kind:'board'},
-  {app:'travel',label:'World Travel',color:0x98b9ce,kind:'globe'},
+  {app:'audio',label:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_5ddde5a18bc919b6ce35"),color:0x93ba99,kind:'audio'},
+  {app:'mail',label:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_07ed6ccf6bf6393d1868"),color:0xe6d9ab,kind:'envelope'},
+  {app:'ledger',label:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_7401c872d2cd61eeb936"),color:0xa5c397,kind:'ledger'},
+  {app:'classifieds',label:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_c2a15c2c550a91eda017"),color:0xd1d6d8,kind:'paper'},
+  {app:'search',label:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_d04fc7d7e19702f8b611"),color:0x9fc9a9,kind:'owl_search'},
+  {app:'office-shop',label:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_a0bf07cb320d609e5d18"),color:0xd4af37,kind:'ledger'},
+  {app:'investigations',label:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_21476f00fdcfab750c7e"),color:0xc69d7d,kind:'board'},
+  {app:'travel',label:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_53fb6f891d4e250ec47e"),color:0x98b9ce,kind:'globe'},
   {sep:true},
-  {app:'off',label:'Shut Down...',color:0xb04a3a,kind:'power'}
+  {app:'off',label:__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_5858fcc46968f80e0432"),color:0xb04a3a,kind:'power'}
 ];
 const COMPACT_WINDOWS={ledger:{w:800,h:560}};
 export function createPiShellConfig(ui){
@@ -84,9 +85,9 @@ export class ComputerMonitor{
     if(!textures.exists(TEX_FRAME)){
       const{w,h}=SCREEN,canvas=textures.createCanvas(TEX_FRAME,w,h),context=canvas.getContext();
       const gradient=context.createRadialGradient(w/2,h/2,Math.min(w,h)*0.35,w/2,h/2,Math.hypot(w,h)/2);
-      gradient.addColorStop(0,'rgba(0,0,0,0)');gradient.addColorStop(1,'rgba(0,0,0,0.35)');
+      gradient.addColorStop(0,'rgba(0,0,0,0)');gradient.addColorStop(1,__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_7be18e16198b94e74581"));
       context.fillStyle=gradient;context.fillRect(0,0,w,h);
-      context.fillStyle='rgba(120,255,160,0.018)';context.fillRect(0,0,w,h);
+      context.fillStyle=__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_7ff899da8cf9ca9549eb");context.fillRect(0,0,w,h);
       const radius=20;context.fillStyle='#07090c';context.beginPath();context.rect(0,0,w,h);
       context.moveTo(radius,0);context.lineTo(w-radius,0);context.quadraticCurveTo(w,0,w,radius);
       context.lineTo(w,h-radius);context.quadraticCurveTo(w,h,w-radius,h);
@@ -137,8 +138,8 @@ export class ComputerMonitor{
   }
   drawMonitorDetails(){
     const ui=this.ui,drawing=ui.drawing;
-    drawing.bevel(56,750,170,28,0x24262a,true);drawing.pixel(69,758,'NIGHT OWL',11,COLORS.gold);
-    drawing.pixel(248,760,'PERSONAL COMPUTER',8,'#5d604f');drawing.pixel(416,760,'PI-486',8,'#5d604f');
+    drawing.bevel(56,750,170,28,0x24262a,true);drawing.pixel(69,758,__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_3b673ac52b2bff7326ed"),11,COLORS.gold);
+    drawing.pixel(248,760,__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_524ae3a2f4f6f8207127"),8,'#5d604f');drawing.pixel(416,760,'PI-486',8,'#5d604f');
     drawing.bevel(506,750,84,28,0x0f130f,true);drawing.pixel(518,758,'66',12,'#6dff8a');drawing.text(548,758,'MHz',12,'#3d8a58');
     for(let index=0;index<9;index++){drawing.rectangle(726+index*14,756,7,17,0x64665b);drawing.rectangle(726+index*14,756,7,2,0x3b3d35);}
     drawing.text(878,758,'PWR',12,'#5d604f');const led=drawing.rectangle(916,758,10,10,0x6dff8a);
@@ -160,10 +161,10 @@ export class ComputerMonitor{
     }
     if(shown<lines.length){const cursor=drawing.rectangle(x+28,y+32+shown*28,11,13,0x7dff9b);this.tween({targets:cursor,alpha:0,duration:260,yoyo:true,repeat:-1});}
     const barWidth=420,barX=x+28,barY=y+h-70;
-    drawing.pixel(barX,barY-24,'LOADING NIGHT OWL OS',9,'#3d8a58');drawing.frame(barX,barY,barWidth,22,0x7dff9b,0.8,2);
+    drawing.pixel(barX,barY-24,__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_6ef2f20ffec0bf12b3a7"),9,'#3d8a58');drawing.frame(barX,barY,barWidth,22,0x7dff9b,0.8,2);
     const ratio=Math.min(1,ui.bootStep/Math.max(1,lines.length));
     drawing.rectangle(barX+4,barY+4,Math.round((barWidth-8)*ratio),14,0x7dff9b,0.85);
-    drawing.text(x+w-24,y+h-34,'click to skip',14,'#3d5a45').setOrigin(1,0);
+    drawing.text(x+w-24,y+h-34,__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_4d7f5cbc50d2370746b3"),14,'#3d5a45').setOrigin(1,0);
     drawing.rectangle(x,y,w,h,0x000000,0).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.finishBoot());
   }
   drawWallpaper(){
@@ -242,7 +243,7 @@ export class ComputerMonitor{
     ui.shell.drawStartMenu(ui.layout,MENU_ITEMS,item=>{
       if(item.app==='off'){ui.close();return;}
       ui.openApp(item.app);if(ui.isOpen&&!ui.suspended&&ui.menuOpen===false)ui.render();
-    },'NIGHT OWL OS');
+    },__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_d5bd2ff79b6dd03772bc"));
   }
   renderApplication(){
     const ui=this.ui,drawing=ui.drawing,{x,y,w,h}=ui.layout;
@@ -252,7 +253,7 @@ export class ComputerMonitor{
     drawing.rectangle(box.x+4,box.y+4,box.w-8,34,COLORS.titlebar);
     drawing.rectangle(box.x+4,box.y+4,box.w-8,14,COLORS.titlebarLight,0.55);drawing.rectangle(box.x+4,box.y+36,box.w-8,2,0x16304d);
     drawing.rectangle(box.x+12,box.y+13,14,14,accent);drawing.frame(box.x+12,box.y+13,14,14,0x0e1822,1,2);
-    const title=drawing.pixel(box.x+34,box.y+15,APP_TITLES[ui.app]||'Application',11,COLORS.titleText);
+    const title=drawing.pixel(box.x+34,box.y+15,APP_TITLES[ui.app]||__dialogueText("ui/pi-computer/ComputerMonitor.js", "t_e7ad522ea327e5ba9553"),11,COLORS.titleText);
     const stripeX=box.x+34+title.width+14,stripeEnd=box.x+box.w-120;
     if(stripeEnd>stripeX)for(let index=0;index<5;index++)drawing.rectangle(stripeX,box.y+9+index*5,stripeEnd-stripeX,2,COLORS.titlebarLight,0.7);
     drawing.button(box.x+box.w-48,box.y+6,'X',()=>ui.openApp('desktop'));

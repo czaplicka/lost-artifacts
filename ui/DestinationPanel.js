@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { getCityId, getDestinationTheme } from './DestinationMeta.js';
 import { getAvailableAgencyBudget, wouldCreateDebt, formatMoney } from './DestinationCalculator.js';
@@ -66,7 +67,7 @@ export class DestinationPanel {
     );
 
     this.panelTag = isAgency
-      ? this.scene.add.text(360, 26, 'ENCRYPTED', {
+      ? this.scene.add.text(360, 26, __dialogueText("ui/DestinationPanel.js", "t_394115ac4eb09aa49429"), {
         fontFamily: 'PressStart2P',
         fontSize: '8px',
         color: t.accentCss
@@ -103,7 +104,7 @@ export class DestinationPanel {
       .setInteractive({ useHandCursor: true });
 
     this.confirmLabel = text(
-      190, 350, 'Choose a city', 17, t.confirmText
+      190, 350, __dialogueText("ui/DestinationPanel.js", "t_70db5eaaecce103e33d3"), 17, t.confirmText
     ).setOrigin(0.5);
 
     this.confirmButton.on('pointerdown', () => {
@@ -158,7 +159,7 @@ export class DestinationPanel {
       .setInteractive({ useHandCursor: true });
 
     this.hqButtonLabel = this.scene.add
-      .text(0, 0, 'RETURN TO HQ', {
+      .text(0, 0, __dialogueText("ui/DestinationPanel.js", "t_522e8a33e721296e0f4f"), {
         fontFamily: 'SpecialElite',
         fontSize: '18px',
         color: t.hq.text
@@ -233,7 +234,7 @@ export class DestinationPanel {
 
     this.hqButtonLabel
       .setText(
-        this.isAtHQ() ? 'MARK AGENCY HQ' : 'RETURN TO HQ'
+        this.isAtHQ() ? __dialogueText("ui/DestinationPanel.js", "t_47dd394e38f0f5b5f970") : __dialogueText("ui/DestinationPanel.js", "t_522e8a33e721296e0f4f")
       )
       .setColor(blocked ? t.hq.blockedText : t.hq.text);
 
@@ -261,7 +262,7 @@ export class DestinationPanel {
 
     if (!headquarters) {
       this.showTravelError(
-        'Headquarters is missing from the location data.'
+        __dialogueText("ui/DestinationPanel.js", "t_60c2c242eaa4396d0476")
       );
       return;
     }
@@ -280,7 +281,7 @@ export class DestinationPanel {
       .setInteractive({ useHandCursor: true });
 
     this.officeButtonLabel = this.scene.add
-      .text(0, 0, 'PI OFFICE', {
+      .text(0, 0, __dialogueText("ui/DestinationPanel.js", "t_f99419d296900dce0711"), {
         fontFamily: 'SpecialElite',
         fontSize: '18px',
         color: t.office.text
@@ -311,11 +312,6 @@ export class DestinationPanel {
       'pointerdown',
       (_pointer, _x, _y, event) => {
         event?.stopPropagation();
-
-        console.log('[DestinationsUI] PI OFFICE clicked', {
-          ownerScene: this.scene.sys.settings.key,
-          currentCityId: gameState.currentCityId
-        });
 
         void this.enterOffice();
       }
@@ -460,7 +456,7 @@ export class DestinationPanel {
     const t = this.getPanelTheme();
 
     if (!city) {
-      this.infoCity.setText('Choose a city');
+      this.infoCity.setText(__dialogueText("ui/DestinationPanel.js", "t_70db5eaaecce103e33d3"));
       this.infoCountry.setText('');
       this.transportPrompt
         .setColor(t.promptColor)
@@ -469,22 +465,22 @@ export class DestinationPanel {
       this.infoTravel.setText('');
       this.infoHours.setText('');
       this.debtWarning.setText('');
-      this.confirmLabel.setText('Choose a city');
+      this.confirmLabel.setText(__dialogueText("ui/DestinationPanel.js", "t_70db5eaaecce103e33d3"));
       return;
     }
 
-    this.infoCity.setText(city.city || 'Unknown city');
+    this.infoCity.setText(city.city || __dialogueText("ui/DestinationPanel.js", "t_2491fe94a7ba027ffff4"));
     this.infoCountry.setText(city.country || '');
 
     if (!this.selectedTransport) {
       this.transportPrompt
         .setColor(t.errorColor)
-        .setText('No sensible route is available.');
+        .setText(__dialogueText("ui/DestinationPanel.js", "t_ba6ce2725eb225a3324a"));
 
       this.infoTravel.setText('');
       this.infoHours.setText('');
       this.debtWarning.setText('');
-      this.confirmLabel.setText('No route available');
+      this.confirmLabel.setText(__dialogueText("ui/DestinationPanel.js", "t_5f0fbd36417d7f3d9f74"));
 
       this.setConfirmEnabled(false);
       return;
@@ -508,29 +504,29 @@ export class DestinationPanel {
     this.transportPrompt
       .setColor(t.promptColor)
       .setText(
-        `Selected: ${this.selectedTransport.icon || ''} ` +
+        `${__dialogueText("ui/DestinationPanel.js", "t_1f153fd1824c1367e373")}${this.selectedTransport.icon || ''}${__dialogueText("ui/DestinationPanel.js", "t_36a9e7f1c95b82ffb997")}` +
         this.selectedTransport.label
       );
 
     this.infoTravel.setText(
-      `Ticket: ${cost === 0 ? 'FREE' : formatMoney(cost)}\n` +
-      `Agency: ${formatMoney(budget)} | Energy: ${preview.energyChange}`
+      `${__dialogueText("ui/DestinationPanel.js", "t_bb4d5fd69512fbaae282")}${cost === 0 ? __dialogueText("ui/DestinationPanel.js", "t_19f1fa5ec989d121d8d2") : formatMoney(cost)}${__dialogueText("ui/DestinationPanel.js", "t_01ba4719c80b6fe911b0")}` +
+      `${__dialogueText("ui/DestinationPanel.js", "t_3b83bd97552e7b897191")}${formatMoney(budget)}${__dialogueText("ui/DestinationPanel.js", "t_5ca26b1a55f0a6113de2")}${preview.energyChange}`
     );
 
     this.infoHours.setText(
-      `Travel time: +${preview.travelHours}h`
+      `${__dialogueText("ui/DestinationPanel.js", "t_c711c9607a1cab511905")}${preview.travelHours}${__dialogueText("ui/DestinationPanel.js", "t_aaa9402664f1a41f40eb")}`
     );
 
     this.debtWarning.setText(
       freeTransfers > 0
-        ? `Free transfers: ${freeTransfers}. This trip will use one.`
+        ? `${__dialogueText("ui/DestinationPanel.js", "t_8ed7dd6b245229364ec6")}${freeTransfers}${__dialogueText("ui/DestinationPanel.js", "t_30c0002790ef3b44e964")}`
         : createsDebt
-          ? 'Insufficient agency budget. The balance will become agency debt.'
+          ? __dialogueText("ui/DestinationPanel.js", "t_211e1635bcd2c9bf6019")
           : ''
     );
 
     this.confirmLabel.setText(
-      `Go by ${this.selectedTransport.label}`
+      `${__dialogueText("ui/DestinationPanel.js", "t_b264db19b73fe8425fbf")}${this.selectedTransport.label}`
     );
 
     this.setConfirmEnabled(true);

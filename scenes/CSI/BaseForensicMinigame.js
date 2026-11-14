@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { BaseScene } from '../BaseScene.js';
 
 export class BaseForensicMinigame extends BaseScene {
@@ -124,7 +125,7 @@ export class BaseForensicMinigame extends BaseScene {
     const { width } = this.scale;
 
     this.exitButton = this.add
-      .text(width - 24, 18, 'X', {
+      .text(width - 24, 18, __dialogueText("scenes/CSI/BaseForensicMinigame.js", "t_4b68ab3847feda7d6c62"), {
         fontFamily: 'PressStart2P',
         fontSize: '12px',
         color: '#ff6666',
@@ -371,11 +372,11 @@ export class BaseForensicMinigame extends BaseScene {
     };
 
     this.scoreText = this.add
-      .text(40, height - 36, 'Score: 100', style)
+      .text(40, height - 36, __dialogueText("scenes/CSI/BaseForensicMinigame.js", "t_e50a13857c6ce3f1da58"), style)
       .setDepth(130);
 
     this.timerText = this.add
-      .text(width - 40, height - 36, 'Time: 00', style)
+      .text(width - 40, height - 36, __dialogueText("scenes/CSI/BaseForensicMinigame.js", "t_ad41fb28140561ca1d65"), style)
       .setOrigin(1, 0)
       .setDepth(130);
 
@@ -390,7 +391,7 @@ export class BaseForensicMinigame extends BaseScene {
         this.secondsElapsed += 1;
 
         this.timerText?.setText(
-          `Time: ${String(this.secondsElapsed).padStart(2, '0')}`
+          `${__dialogueText("scenes/CSI/BaseForensicMinigame.js", "t_ae366f54a2519da16b6f")}${String(this.secondsElapsed).padStart(2, __dialogueText("scenes/CSI/BaseForensicMinigame.js", "t_5feceb66ffc86f38d952"))}`
         );
       }
     });
@@ -402,8 +403,8 @@ export class BaseForensicMinigame extends BaseScene {
       return;
     }
 
-    this.setInstructions('Evidence flow not implemented.');
-    this.setDialogue('Missing minigame implementation.');
+    this.setInstructions(__dialogueText("scenes/CSI/BaseForensicMinigame.js", "t_1f90654651ab4953d1c2"));
+    this.setDialogue(__dialogueText("scenes/CSI/BaseForensicMinigame.js", "t_37767c0a0e3402ffbdc5"));
   }
 
   clearStage() {
@@ -494,7 +495,7 @@ export class BaseForensicMinigame extends BaseScene {
       this.maxScore
     );
 
-    this.scoreText?.setText(`Score: ${this.score}`);
+    this.scoreText?.setText(`${__dialogueText("scenes/CSI/BaseForensicMinigame.js", "t_c758dd2ae5d2cfa7b0aa")}${this.score}`);
   }
 
   penalize(amount = 10) {
@@ -638,7 +639,7 @@ export class BaseForensicMinigame extends BaseScene {
       height - 148,
       310,
       52,
-      'ADD TO CASE FILE',
+      __dialogueText("scenes/CSI/BaseForensicMinigame.js", "t_d8c6f6bc46d3b7948ad7"),
       () => this.finishMinigame(),
       {
         fontFamily: 'PressStart2P',
@@ -653,7 +654,7 @@ export class BaseForensicMinigame extends BaseScene {
 
   onWrongChoice() {
     this.setDialogue(
-      `RESULT REJECTED. ${this.getRetryHint()}`
+      `${__dialogueText("scenes/CSI/BaseForensicMinigame.js", "t_9c3db31b7b9b0c337ece")}${this.getRetryHint()}`
     );
   }
 
@@ -807,31 +808,31 @@ export class BaseForensicMinigame extends BaseScene {
   }
 
   getTitle() {
-    return 'FORENSIC ANALYSIS';
+    return __dialogueText("scenes/CSI/BaseForensicMinigame.js", "t_963463549c0c4ab6c8b2");
   }
 
   getSubtitle() {
-    return 'Evidence Analysis';
+    return __dialogueText("scenes/CSI/BaseForensicMinigame.js", "t_e349c339faad014cb48f");
   }
 
   getRetryHint() {
-    return 'Review the evidence and try again.';
+    return __dialogueText("scenes/CSI/BaseForensicMinigame.js", "t_c6a85b8433df4749c7fa");
   }
 
   getSuccessMessage(value, timeBonus = 0) {
     const bonusText = timeBonus > 0
-      ? ` Speed bonus: +${timeBonus} points.`
+      ? `${__dialogueText("scenes/CSI/BaseForensicMinigame.js", "t_28832618483a10e804ba")}${timeBonus}${__dialogueText("scenes/CSI/BaseForensicMinigame.js", "t_d317b64a5b36e260196b")}`
       : '';
 
     return (
-      `MATCH CONFIRMED: ${this.toDisplayText(value).toUpperCase()}. ` +
-      `CSI has added the result to the case file.${bonusText}`
+      `${__dialogueText("scenes/CSI/BaseForensicMinigame.js", "t_e813f248c62c5e3c3bcb")}${this.toDisplayText(value).toUpperCase()}${__dialogueText("scenes/CSI/BaseForensicMinigame.js", "t_8dccf256f6d5783e62bb")}` +
+      `${__dialogueText("scenes/CSI/BaseForensicMinigame.js", "t_58cc04138f9dca8276ce")}${bonusText}`
     );
   }
 
   toDisplayText(value) {
     if (value === null || value === undefined) {
-      return 'Unknown';
+      return __dialogueText("scenes/CSI/BaseForensicMinigame.js", "t_b764cdc0eab713746721");
     }
 
     if (typeof value !== 'string') {
@@ -848,8 +849,8 @@ export class BaseForensicMinigame extends BaseScene {
 
   getSexDisplay(value) {
     return {
-      M: 'Male',
-      F: 'Female',
+      M: __dialogueText("scenes/CSI/BaseForensicMinigame.js", "t_03f8c1273e3da99bb315"),
+      F: __dialogueText("scenes/CSI/BaseForensicMinigame.js", "t_e8cca808ae5aaa03a7fc"),
       NB: 'Non-binary'
     }[value] || value;
   }

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // ui/DestinationWorldMap.js
 // Painted, animated world map used by DestinationsUI.
 // Theme "agency": modern spy grid (Mark Agency travel desk).
@@ -247,7 +248,7 @@ class MapPin {
     buildLabel(nameOverride, subOverride) {
         const s = this.scene;
         const t = this.theme;
-        const rawName = nameOverride || this.city?.city || 'Unknown city';
+        const rawName = nameOverride || this.city?.city || __dialogueText("ui/DestinationWorldMap.js", "t_2491fe94a7ba027ffff4");
         const name = this.themeId === 'agency' ? String(rawName).toUpperCase() : rawName;
         const sub = subOverride || this.city?.country || '';
         this.nameText = makeText(s, 11, 5, name, {
@@ -461,17 +462,17 @@ export class DestinationWorldMap {
     buildTitle() {
         const s = this.scene;
         if (this.themeId === 'agency') {
-            this.title = makeText(s, MAP_W / 2, 50, 'GLOBAL OPS GRID', {
+            this.title = makeText(s, MAP_W / 2, 50, __dialogueText("ui/DestinationWorldMap.js", "t_5db93c74ce2001268ca9"), {
                 fontFamily: 'PressStart2P', fontSize: '24px', color: '#9ffcff'
             }).setOrigin(0.5);
-            this.subtitle = makeText(s, MAP_W / 2, 90, 'MARK AGENCY // TRAVEL DESK // CLEARANCE: YES(ISH)', {
+            this.subtitle = makeText(s, MAP_W / 2, 90, __dialogueText("ui/DestinationWorldMap.js", "t_11e8624b8b7b35d7243e"), {
                 fontFamily: 'PressStart2P', fontSize: '10px', color: '#4fb4c4'
             }).setOrigin(0.5);
         } else {
-            this.title = makeText(s, MAP_W / 2, 66, 'Routes of the Intrepid', {
+            this.title = makeText(s, MAP_W / 2, 66, __dialogueText("ui/DestinationWorldMap.js", "t_c010d0780e8bf116b09a"), {
                 fontFamily: 'SpecialElite', fontSize: '40px', color: '#3b2a18'
             }).setOrigin(0.5);
-            this.subtitle = makeText(s, MAP_W / 2, 102, '(and slightly underfunded)', {
+            this.subtitle = makeText(s, MAP_W / 2, 102, __dialogueText("ui/DestinationWorldMap.js", "t_2fd76f25db553658027e"), {
                 fontFamily: 'SpecialElite', fontSize: '18px', color: '#7a5c35'
             }).setOrigin(0.5);
         }
@@ -537,7 +538,7 @@ export class DestinationWorldMap {
         this.recDot = makeText(s, 1560, 62, '\u25CF', {
             fontFamily: 'PressStart2P', fontSize: '14px', color: '#ff3b5c'
         }).setOrigin(0.5);
-        this.clockText = makeText(s, 1584, 62, 'REC 00:00:00 UTC', {
+        this.clockText = makeText(s, 1584, 62, __dialogueText("ui/DestinationWorldMap.js", "t_f4198afdcbe2c22f9c1f"), {
             fontFamily: 'PressStart2P', fontSize: '11px', color: '#9ffcff'
         }).setOrigin(0, 0.5);
         this.hudLayer.add([this.crossGfx, this.coordsText, this.recDot, this.clockText]);
@@ -627,8 +628,8 @@ export class DestinationWorldMap {
         const agency = this.themeId === 'agency';
         const pin = new MapPin(this, hqCity, pos.x, pos.y, {
             isHq: true,
-            labelName: agency ? 'MARK AGENCY HQ' : 'Agency HQ',
-            labelSub: agency ? 'LOCATION: CLASSIFIED' : 'location: undisclosed'
+            labelName: agency ? __dialogueText("ui/DestinationWorldMap.js", "t_47dd394e38f0f5b5f970") : __dialogueText("ui/DestinationWorldMap.js", "t_aa059077fd28e2a81431"),
+            labelSub: agency ? __dialogueText("ui/DestinationWorldMap.js", "t_1fab6f70eea9e4f1b1fb") : __dialogueText("ui/DestinationWorldMap.js", "t_4ed3bbf4b997d3f4e7bf")
         });
         pin.bind(handlers);
         this.pinLayer.add(pin.container);
@@ -682,7 +683,7 @@ export class DestinationWorldMap {
                 marker.add(ring);
                 this.herePulses.push(ring);
             }
-            const tag = makeText(s, 0, -48, 'YOU ARE HERE', {
+            const tag = makeText(s, 0, -48, __dialogueText("ui/DestinationWorldMap.js", "t_f93e69e3f57ae519aa48"), {
                 fontFamily: 'PressStart2P', fontSize: '9px', color: '#03121b',
                 backgroundColor: '#00e5ff', padding: { x: 6, y: 4 }
             }).setOrigin(0.5);
@@ -719,7 +720,7 @@ export class DestinationWorldMap {
             ring.beginPath();
             ring.arc(0, 0, 28, 0.5, Math.PI * 2 - 0.2, false);
             ring.strokePath();
-            const note = makeText(s, 0, -58, 'You are here!', {
+            const note = makeText(s, 0, -58, __dialogueText("ui/DestinationWorldMap.js", "t_04639f28c26c4cbcc23a"), {
                 fontFamily: 'SpecialElite', fontSize: '22px', color: '#8b2a1d'
             }).setOrigin(0.5).setAngle(-6);
             const arrow = s.add.graphics();
@@ -889,7 +890,7 @@ export class DestinationWorldMap {
         const typing = s.typed < s.target.length;
         const prefix = agency ? '> ' : '\u270E ';
         this.noteText.setText(prefix + s.target.slice(0, s.typed) +
-            (agency && (typing || blink) ? '_' : ''));
+            (agency && (typing || blink) ? __dialogueText("ui/DestinationWorldMap.js", "t_d2e2adf7177b7a8afddb") : ''));
     }
 
     // ------------------------------------------------------------ pointer (agency crosshair)
@@ -911,8 +912,8 @@ export class DestinationWorldMap {
         if (lon > 180) lon -= 360;
         if (lon < -180) lon += 360;
         this.coordsText.setText(
-            `CURSOR ${Math.abs(geo.lat).toFixed(2)}${geo.lat >= 0 ? 'N' : 'S'} ` +
-            `${Math.abs(lon).toFixed(2)}${lon >= 0 ? 'E' : 'W'}`).setVisible(true);
+            `${__dialogueText("ui/DestinationWorldMap.js", "t_95be437d46e5a3e4dd7c")}${Math.abs(geo.lat).toFixed(2)}${geo.lat >= 0 ? __dialogueText("ui/DestinationWorldMap.js", "t_8ce86a6ae65d3692e730") : __dialogueText("ui/DestinationWorldMap.js", "t_8de0b3c47f112c59745f")}${__dialogueText("ui/DestinationWorldMap.js", "t_36a9e7f1c95b82ffb997")}` +
+            `${Math.abs(lon).toFixed(2)}${lon >= 0 ? __dialogueText("ui/DestinationWorldMap.js", "t_a9f51566bd6705f7ea6a") : __dialogueText("ui/DestinationWorldMap.js", "t_fcb5f40df9be6bae66c1")}`).setVisible(true);
     }
 
     onPointerOut() {
@@ -1031,7 +1032,7 @@ export class DestinationWorldMap {
         if (!this.clockText?.active) return;
         const d = new Date();
         const p = n => String(n).padStart(2, '0');
-        this.clockText.setText(`REC ${p(d.getUTCHours())}:${p(d.getUTCMinutes())}:${p(d.getUTCSeconds())} UTC`);
+        this.clockText.setText(`${__dialogueText("ui/DestinationWorldMap.js", "t_93c6bf47126b4bd144c7")}${p(d.getUTCHours())}${__dialogueText("ui/DestinationWorldMap.js", "t_e7ac0786668e0ff0f02b")}${p(d.getUTCMinutes())}${__dialogueText("ui/DestinationWorldMap.js", "t_e7ac0786668e0ff0f02b")}${p(d.getUTCSeconds())}${__dialogueText("ui/DestinationWorldMap.js", "t_de92d152d78269b791f8")}`);
     }
 
     updateSatellites(v) {

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { getSuspectImageKey } from '../../suspects/suspectHelpers.js';
 import { FONT_PIXEL, FONT_TYPE, PAL, DOSSIER_FIELDS } from './config.js';
 
@@ -58,7 +59,7 @@ export const dossierMethods = {
       polaroid.add([photo, hoverFrame]);
     } else {
       const missing = this.add
-        .text(0, -50, 'PHOTO MISSING', {
+        .text(0, -50, __dialogueText("scenes/arrestSelection/dossier.js", "t_2e0828e3b426a51ac1c6"), {
           fontFamily: FONT_PIXEL,
           fontSize: '18px',
           color: '#f7ebc6'
@@ -71,7 +72,7 @@ export const dossierMethods = {
     const tagBg = this.add.rectangle(-160, -197, 260, 28, 0x000000, 0.65);
 
     const tagText = this.add
-      .text(-160, -197, 'SURVEILLANCE PHOTO', {
+      .text(-160, -197, __dialogueText("scenes/arrestSelection/dossier.js", "t_ada295b42fe5736c587e"), {
         fontFamily: FONT_PIXEL,
         fontSize: '10px',
         color: PAL.goldCss
@@ -92,7 +93,7 @@ export const dossierMethods = {
 
     if (hasPhoto) {
       const hint = this.add
-        .text(0, 198, 'click photo to enlarge', {
+        .text(0, 198, __dialogueText("scenes/arrestSelection/dossier.js", "t_0a47d1ab0df201b6e2ba"), {
           fontFamily: FONT_TYPE,
           fontSize: '18px',
           color: '#8a6a44'
@@ -126,7 +127,7 @@ export const dossierMethods = {
 
     const stickyTape = this.add.rectangle(0, -70, 120, 22, 0xe8d9a0, 0.7);
 
-    const stickyHeader = this.add.text(-258, -54, 'NOTE TO SELF', {
+    const stickyHeader = this.add.text(-258, -54, __dialogueText("scenes/arrestSelection/dossier.js", "t_2ec8f924479ab55d87f5"), {
       fontFamily: FONT_PIXEL,
       fontSize: '10px',
       color: '#8a6a14'
@@ -162,7 +163,7 @@ export const dossierMethods = {
         this.textures.exists(mugKey)
     );
 
-    const nameLabel = this.add.text(975, 246, 'NAME', {
+    const nameLabel = this.add.text(975, 246, __dialogueText("scenes/arrestSelection/dossier.js", "t_eaa589322731009980d9"), {
       fontFamily: FONT_PIXEL,
       fontSize: '10px',
       color: PAL.inkSoft

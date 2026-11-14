@@ -1,15 +1,16 @@
+import { dialogueText as __dialogueText } from "./DialogueText.js";
 import { getMotiveById,getWitnessClue,getClueText } from '../motiveService.js';
 import { getPursuitCityContext,normalizePursuitCityId } from '../managers/PursuitCityContext.js';
 const SAME=(a,b)=>a!=null&&b!=null&&String(a)===String(b);
 const QUESTIONS={
- maid:{label:'Anything unusual?',question:'Did you notice anything unusual while servicing their room?'},
- bankier:{label:'The transaction?',question:'Was there anything unusual about their transaction or requests?'},
- knajpa:{label:'Any trouble?',question:'Did you hear anything unusual while they were here?'},
- parkingowy:{label:'At the car park?',question:'Did you notice anything unusual while they were at the car park?'},
- police:{label:'Any local reports?',question:'Did this visitor make a report or come to your attention here?'},
- bum:{label:'What did you see?',question:'Did you see or hear anything unusual when they passed through?'},
- fence:{label:'What was the deal?',question:'What exactly did they ask you to arrange?'},
- stewardessa:{label:'During the flight?',question:'Did they say or do anything unusual during your contact with them?'}
+ maid:{label:__dialogueText("dialogues/MotiveWitnessPolicy.js", "t_59b1224dd97e71c0f8d8"),question:__dialogueText("dialogues/MotiveWitnessPolicy.js", "t_a92b46c966ab55f8a848")},
+ bankier:{label:__dialogueText("dialogues/MotiveWitnessPolicy.js", "t_39087f105a99b87cff56"),question:__dialogueText("dialogues/MotiveWitnessPolicy.js", "t_08b0aebb0b0d43ce735f")},
+ knajpa:{label:__dialogueText("dialogues/MotiveWitnessPolicy.js", "t_6dcba45cd0fb00b6b945"),question:__dialogueText("dialogues/MotiveWitnessPolicy.js", "t_2bc6cb1d88c25f57b721")},
+ parkingowy:{label:__dialogueText("dialogues/MotiveWitnessPolicy.js", "t_95d37edcef56cf3c6b28"),question:__dialogueText("dialogues/MotiveWitnessPolicy.js", "t_f4987c966a8059500e87")},
+ police:{label:__dialogueText("dialogues/MotiveWitnessPolicy.js", "t_5365c10d8866abbd928f"),question:__dialogueText("dialogues/MotiveWitnessPolicy.js", "t_b33b603df97a77eeae2b")},
+ bum:{label:__dialogueText("dialogues/MotiveWitnessPolicy.js", "t_b97be282329aa07159fc"),question:__dialogueText("dialogues/MotiveWitnessPolicy.js", "t_5d257c77bf0b93185694")},
+ fence:{label:__dialogueText("dialogues/MotiveWitnessPolicy.js", "t_3d37b5180263ec4e47e7"),question:__dialogueText("dialogues/MotiveWitnessPolicy.js", "t_dc8bee64beb3d8b9566e")},
+ stewardessa:{label:__dialogueText("dialogues/MotiveWitnessPolicy.js", "t_b1d1ef133563099e554d"),question:__dialogueText("dialogues/MotiveWitnessPolicy.js", "t_26801b3e4649a2f61e4d")}
 };
 export function motiveTopicMeta(npcId){return QUESTIONS[npcId]?{...QUESTIONS[npcId]}:null;}
 const keyOf=(cityId,npcId)=>`${encodeURIComponent(cityId)}:${encodeURIComponent(npcId)}`;

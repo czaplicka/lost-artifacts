@@ -1,10 +1,11 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { extendNotebookKeywords, getNotebookDeductions, chooseNotebookHypothesis } from './NotebookDeductionRules.js';
 
 const STORE = 'caseCloudNotebookV1';
 const VIEW_STORE = 'caseCloudNotebookViewV1';
-const FONT = '"SpecialElite", "Special Elite", monospace';
+const FONT = __dialogueText("ui/LegacyCaseCloudNotebook.js", "t_47443320d60fbd8e2d32");
 const INK = 0x345b68;
 const list = value => Array.isArray(value) ? value : [];
 const hash = value => [...String(value)].reduce((n,c)=>((n*31+c.charCodeAt(0))>>>0),7);
@@ -42,16 +43,16 @@ export function installCaseNotebook(ui,scope) {
     const aliases=new Set([id,mission.id,mission.missionId].filter(Boolean).map(String));
     const clues=list(state.cluesCollected).filter(clue=>clue&&(typeof clue==='string'||
       (clue.scope!=='pi'&&clue.source!=='pi'&&clue.type!=='pi'&&[clue.caseId,clue.missionId].filter(Boolean).every(value=>aliases.has(String(value))))));
-    const title=mission.title||mission.name||state.currentArtifact?.name||(typeof mission.artifact==='string'?mission.artifact:mission.artifact?.name)||`Agency case ${id}`;
+    const title=mission.title||mission.name||state.currentArtifact?.name||(typeof mission.artifact==='string'?mission.artifact:mission.artifact?.name)||`${__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_5a935f299c34a5ec6742")}${id}`;
     const next=JSON.stringify([id,title,clues]),cases=store();
     if(next===snapshotCache&&cases[id])return;snapshotCache=next;
     const old=cases[id]||{},words=new Map(list(old.keywords).map(item=>[item.id,item])),groups=new Map(list(old.clouds).map(item=>[item.id,item]));
-    const names={suspect:'SUSPECT DESCRIPTION',travel:'TRAVEL',reconstruction:'CRIME RECONSTRUCTION',hair:'HAIR',eyes:'EYES',features:'DISTINCTIVE FEATURES',skills:'SKILLS',evidence:'EVIDENCE',identity:'IDENTITY',alibi:'ALIBIS'};
+    const names={suspect:__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_6a61d57eefd74aeb2cd1"),travel:'TRAVEL',reconstruction:__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_911cb8381db33be29afa"),hair:'HAIR',eyes:'EYES',features:__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_d9a8d14a56cdc4a556a4"),skills:'SKILLS',evidence:'EVIDENCE',identity:'IDENTITY',alibi:'ALIBIS'};
     clues.forEach((clue,i)=>{
       const group=String(clue.notebookGroup||clue.category||clue.type||'evidence');
       const id=String(clue.id||clue.key||`entry_${i}_${hash(JSON.stringify(clue))}`);
-      groups.set(group,{id:group,title:clue.notebookGroupTitle||names[group]||group.replace(/_/g,' ').toUpperCase()});
-      words.set(id,{id,label:typeof clue==='string'?clue:String(clue.text||clue.tag||clue.value||clue.key||'Recorded evidence'),cloudId:group,relatedIds:list(clue.relatedClueIds||clue.relatedIds)});
+      groups.set(group,{id:group,title:clue.notebookGroupTitle||names[group]||group.replace(/_/g,__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_36a9e7f1c95b82ffb997")).toUpperCase()});
+      words.set(id,{id,label:typeof clue===__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_473287f8298dba7163a8")?clue:String(clue.text||clue.tag||clue.value||clue.key||__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_d3e49c95e6a8ce22e6c8")),cloudId:group,relatedIds:list(clue.relatedClueIds||clue.relatedIds)});
     });
     const keywords=[...words.values()],ids=new Map(keywords.map(item=>[item.id,item.cloudId])),links=[];
     keywords.forEach(item=>list(item.relatedIds).forEach(id=>{const to=ids.get(String(id));if(to&&to!==item.cloudId)links.push({from:item.cloudId,to});}));
@@ -125,8 +126,8 @@ export function installCaseNotebook(ui,scope) {
     ui.search.load=async()=>{};
     ui.search.render=()=>{
       const d=ui.drawing,b=ui.layout;d.bevel(b.x+12,b.y+12,b.w-24,b.h-60,0xe5dfc8);
-      d.text(b.x+34,b.y+40,'OWL SEARCH / MARK AGENCY',24,'#284e5c');
-      d.text(b.x+34,b.y+98,'Agency search is not configured yet.\n\nPrivate investigation files are not available on this terminal.\nYour agency evidence is recorded in the notebook below.',21,'#284e5c',b.w-80);
+      d.text(b.x+34,b.y+40,__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_2014b069cb4fe63d1bec"),24,'#284e5c');
+      d.text(b.x+34,b.y+98,__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_db7f4058242c42c638f6"),21,'#284e5c',b.w-80);
       d.button(b.x+34,b.y+270,'BACK',()=>ui.openApp('desktop'));
     };
   }
@@ -136,7 +137,7 @@ export function installCaseNotebook(ui,scope) {
     return {scale,left:(width-1120*scale)/2,top:(height-800*scale)/2};
   };
   const paperHeight=()=>Math.min(420,Math.max(240,ui.scene.scale.height*0.43));
-  const handleText=()=>collapsed?'\u25B2 CASE NOTES':'\u25BC HIDE NOTES';
+  const handleText=()=>collapsed?__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_ee6734122e8af46e93a9"):__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_9f177f47759d74463dc0");
   function updateInput(){
     if(!paper?.scene)return;
     const visit=object=>{
@@ -182,13 +183,13 @@ export function installCaseNotebook(ui,scope) {
     rect(33,38,2,312,0xb87969,0.5);
     const g=add(ui.scene.add.graphics());g.lineStyle(2,0x48463b,0.85);
     for(let y=44;y<355;y+=21)g.strokeEllipse(10,y,24,10);
-    text(48,40,scope==='pi'?'PRIVATE INVESTIGATIONS':'MARK AGENCY / CASE NOTES',15);
-    fit(text(370,39,definition?.title||'NO ACTIVE CASE',20),350);
-    button(1095,40,'[ HIDE NOTES ]',()=>setCollapsed(true));
+    text(48,40,scope==='pi'?__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_bbc638660cdde9fbfde6"):__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_353bec642f43d29aca77"),15);
+    fit(text(370,39,definition?.title||__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_5c037e8ac9d2050dd900"),20),350);
+    button(1095,40,__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_568635daf243879be931"),()=>setCollapsed(true));
     if(scope==='pi'){
-      button(755,40,mode==='clues'?'[ CLUES ]':'CLUES',()=>{mode='clues';ui.render();});
+      button(755,40,mode==='clues'?__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_2373498249e01b9a56f2"):'CLUES',()=>{mode='clues';ui.render();});
       const count=list(definition?.deductions).length;
-      button(870,40,mode==='deductions'?`[ DEDUCTIONS ${count} ]`:`DEDUCTIONS ${count}`,()=>{mode='deductions';ui.render();},true,16);
+      button(870,40,mode==='deductions'?`${__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_e0cb72995cab2f9370bf")}${count}${__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_fe13f4313ea0880d091d")}`:`${__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_e948a3b6722b6449bfa6")}${count}`,()=>{mode='deductions';ui.render();},true,16);
     }
     tabStart=clamp(tabStart,0,Math.max(0,cases.length-9));
     button(43,5,'<',()=>{tabStart--;ui.render();},tabStart>0);
@@ -208,14 +209,14 @@ export function installCaseNotebook(ui,scope) {
       }g.strokePath();
     };
     const pager=(index,count,callback)=>{
-      button(50,337,'< PAGE',()=>callback(index-1),index>0);text(595,337,`${index+1} / ${count}`,16);
-      button(1155,337,'PAGE >',()=>callback(index+1),index+1<count);
+      button(50,337,__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_d463afc6ea8f75cc6b55"),()=>callback(index-1),index>0);text(595,337,`${index+1} / ${count}`,16);
+      button(1155,337,__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_8188caf087609e305acc"),()=>callback(index+1),index+1<count);
     };
     if(!definition){
-      fit(text(90,145,ui.search.error&&scope==='pi'?'Notebook unavailable. Open Web Search and retry.':'No clues recorded yet. Even the paper has an alibi.',22),1100);
+      fit(text(90,145,ui.search.error&&scope==='pi'?__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_fdbfbc29c0f45aeacbb4"):__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_d803d1b86ff050d2bad2"),22),1100);
     }else if(scope==='pi'&&mode==='deductions'){
       const rules=definition.deductions;
-      if(!rules.length)fit(text(90,155,'Collect more clues. The notebook refuses to guess for you.',22),1100);
+      if(!rules.length)fit(text(90,155,__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_60b77363a13e3bf911d0"),22),1100);
       else{
         const index=clamp(deductionPages.get(definition.id),0,rules.length-1),rule=rules[index];
         oval(278,190,208,101,rule.id);text(125,90,rule.title,20);
@@ -223,12 +224,12 @@ export function installCaseNotebook(ui,scope) {
         rule.requires.forEach((id,i)=>fit(text(115,137+i*29,labels.get(id)||id,19),315));
         g.lineStyle(1.8,INK,0.85);g.lineBetween(495,190,575,190);g.lineBetween(575,190,564,184);g.lineBetween(575,190,564,196);
         fit(text(610,91,rule.question,23),600);
-        if(!rule.selectable)fit(text(610,145,'Find more names or alternatives before choosing.',17),600);
+        if(!rule.selectable)fit(text(610,145,__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_688f2f5780e55360af49"),17),600);
         else rule.options.forEach((option,i)=>fit(button(615,140+i*33,`${rule.selected===option.id?'(o)':'( )'} ${option.label}`,()=>choose(definition.id,rule.id,option.id),true,21),600));
         const chosen=rule.options.find(option=>option.id===rule.selected);
-        fit(text(610,254,chosen?`Hypothesis: ${chosen.label}?`:'No hypothesis selected.',18,'#9b533a'),610);
-        button(615,285,'[ CLEAR ]',()=>choose(definition.id,rule.id,null),Boolean(chosen),16);
-        fit(text(760,285,'A theory is not a witness statement.',15),450);
+        fit(text(610,254,chosen?`${__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_011886d05bb7600fcb35")}${chosen.label}${__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_8a8de823d5ed3e12746a")}`:__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_a93c5364f209506ffea3"),18,'#9b533a'),610);
+        button(615,285,__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_1e51673f9aebb4da3a4e"),()=>choose(definition.id,rule.id,null),Boolean(chosen),16);
+        fit(text(760,285,__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_9f522c38b9e7a37d2212"),15),450);
         pager(index,rules.length,value=>{deductionPages.set(definition.id,value);ui.render();});
       }
     }else{

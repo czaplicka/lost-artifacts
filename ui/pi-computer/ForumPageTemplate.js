@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 export function isForumPage(page) {
   if (!page || page.layout === 'default') {
     return false;
@@ -14,8 +15,8 @@ export function isForumPage(page) {
 function forumPosts(page) {
   if (Array.isArray(page.posts) && page.posts.length) {
     return page.posts.map((post, index) => ({
-      author: post.author || 'Archived member',
-      role: post.role || 'Member',
+      author: post.author || __dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_8624923f14eb957a56a9"),
+      role: post.role || __dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_7c968fb71f50e335442b"),
       date: post.date || '',
       number: index + 1,
       blocks: Array.isArray(post.blocks)
@@ -31,8 +32,8 @@ function forumPosts(page) {
         : { ...part }
     );
 
-    let author = 'Archived post';
-    let role = 'Archive';
+    let author = __dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_95e70cf269753b6eee5d");
+    let role = __dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_66f4804ee23ddc092d1b");
 
     if (typeof parts[0] === 'string') {
       const match = parts[0].match(
@@ -43,8 +44,8 @@ function forumPosts(page) {
         author = match[1];
 
         role = /MODERATOR/i.test(author)
-          ? 'Moderator'
-          : 'Member';
+          ? __dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_6748ec8b76683b738871")
+          : __dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_7c968fb71f50e335442b");
 
         parts[0] = parts[0].slice(
           match[0].length
@@ -78,7 +79,7 @@ export function renderForum(search, page) {
 
   const ink = '#263747';
   const muted = '#637581';
-  const brand = page.brand || 'COMMUNITY FORUM';
+  const brand = page.brand || __dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_a13f08a441d31280d9cf");
 
   const text = (
     x,
@@ -183,7 +184,7 @@ export function renderForum(search, page) {
   fit(
     b.x + 12,
     b.y + 13,
-    `OWL NAVIGATOR / ${brand}`,
+    `${__dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_6a5469aa820b1a95a6fd")}${brand}`,
     b.w - 148,
     8,
     '#f1e5bd',
@@ -261,7 +262,7 @@ export function renderForum(search, page) {
     left + 14,
     b.y + 114,
     page.tagline ||
-      'Discussion archive / Read-only access',
+      __dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_9de5f14c669d14fd0335"),
     width - 28,
     11,
     '#c3d9e1'
@@ -286,7 +287,7 @@ export function renderForum(search, page) {
     left + 10,
     b.y + 147,
     page.sectionLabel ||
-      'FORUM INDEX > ARCHIVED DISCUSSIONS',
+      __dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_437e310db610fef36fd5"),
     width - (hasImage ? 126 : 20),
     9,
     muted,
@@ -312,7 +313,7 @@ export function renderForum(search, page) {
   fit(
     left + 10,
     b.y + 180,
-    page.heading || page.title || 'Discussion',
+    page.heading || page.title || __dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_5eb6cf647d2c5d14a044"),
     width - 20,
     13,
     ink,
@@ -327,7 +328,7 @@ export function renderForum(search, page) {
     fit(
       left + 10,
       top,
-      'Enlarge the window to read this thread.',
+      __dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_a684256cf4697d926c6d"),
       width - 20,
       12
     );
@@ -341,7 +342,7 @@ export function renderForum(search, page) {
     fit(
       x + 10,
       y + 12,
-      'ATTACHED IMAGE',
+      __dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_f961df6db502132f434e"),
       w - 20,
       8,
       muted,
@@ -360,7 +361,7 @@ export function renderForum(search, page) {
       fit(
         x + 12,
         y + 48,
-        'IMAGE LOADING / UNAVAILABLE',
+        __dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_77cd3d2c465f7237ee63"),
         w - 24,
         8,
         muted,
@@ -373,7 +374,7 @@ export function renderForum(search, page) {
       y + h - 24,
       page.imageCaption ||
         page.caption ||
-        'Archived thread attachment',
+        __dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_baaff0e48832b5caa96b"),
       w - 20,
       10,
       muted
@@ -429,8 +430,8 @@ export function renderForum(search, page) {
 
     if (page.links?.length) {
       posts.push({
-        author: 'Related threads',
-        role: 'Navigation',
+        author: __dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_bb89693ed1e82e427aff"),
+        role: __dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_3db65f8c2a7d1861b4bc"),
         number: null,
         date: '',
         blocks: [],
@@ -440,11 +441,11 @@ export function renderForum(search, page) {
 
     if (!posts.length) {
       posts.push({
-        author: 'Archive',
-        role: 'Read only',
+        author: __dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_66f4804ee23ddc092d1b"),
+        role: __dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_8ac767353080eae75227"),
         number: null,
         date: '',
-        blocks: [['No archived posts available.']]
+        blocks: [[__dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_b68d75c1c29293497f4b")]]
       });
     }
 
@@ -559,7 +560,7 @@ export function renderForum(search, page) {
         fit(
           left + 9,
           cursorY + 54,
-          '[ archived ]',
+          __dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_de67b803e03a7965fbd4"),
           authorWidth - 18,
           9,
           muted
@@ -579,7 +580,7 @@ export function renderForum(search, page) {
       fit(
         bodyX,
         cursorY + 7,
-        metadata || 'Archived content',
+        metadata || __dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_6fa433f76da4719cd8f3"),
         bodyWidth,
         10,
         muted
@@ -690,7 +691,7 @@ export function renderForum(search, page) {
   fit(
     left + 200,
     footer + 9,
-    'ARCHIVED THREAD / REPLIES DISABLED',
+    __dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_2c707fa3540cd1572876"),
     Math.max(1, width - 300),
     9,
     muted,

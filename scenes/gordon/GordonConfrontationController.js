@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { loadJson } from '../../config/loadJson.js';
 import { MainStoryManager } from '../../managers/MainStoryManager.js';
 import { saveGameState } from '../../gameStatePersistence.js';
@@ -261,7 +262,7 @@ export class GordonConfrontationController {
 
     this.button(
       1610, 100,
-      'PAUSE / RETURN TO FLOOR',
+      __dialogueText("scenes/gordon/GordonConfrontationController.js", "t_cf2835c84477bd6eed9c"),
       () => this.pause()
     );
 
@@ -285,7 +286,7 @@ export class GordonConfrontationController {
 
       this.text(
         515, 245,
-        'CONFRONT GORDON',
+        __dialogueText("scenes/gordon/GordonConfrontationController.js", "t_9d652444430613fbd000"),
         31, 800, '#ffcf84'
       );
 
@@ -305,7 +306,7 @@ export class GordonConfrontationController {
 
       this.text(
         515, 735,
-        'Ask about the facts. Do not jump to a verdict.',
+        __dialogueText("scenes/gordon/GordonConfrontationController.js", "t_7eb738c7cf5c18c1394c"),
         23, 780
       );
 
@@ -348,10 +349,10 @@ export class GordonConfrontationController {
     const label = !last
       ? 'CONTINUE'
       : this.state.phase === 'opening'
-        ? 'ASK A QUESTION'
+        ? __dialogueText("scenes/gordon/GordonConfrontationController.js", "t_a70cc5302c043cd93e8b")
         : this.state.phase === 'reply'
-          ? 'END RESPONSE'
-          : 'RETURN TO UPPER FLOOR';
+          ? __dialogueText("scenes/gordon/GordonConfrontationController.js", "t_cb96474abe56715a0ada")
+          : __dialogueText("scenes/gordon/GordonConfrontationController.js", "t_9a4d05fafdc2a8fd5ba2");
 
     this.button(
       960, 997,
@@ -397,7 +398,7 @@ export class GordonConfrontationController {
       result = progressionManager.grantReward(
         XP_REWARD_ID,
         XP_SCOPE_ID,
-        "Story stage completed: Gordon's office"
+        __dialogueText("scenes/gordon/GordonConfrontationController.js", "t_bfea72ae6a996019ee8e")
       );
     } catch (error) {
       if (!progressionManager.hasReward(XP_EVENT_ID)) {
@@ -468,7 +469,7 @@ export class GordonConfrontationController {
           );
 
           this.rewardError =
-            'XP could not be recorded. Press RETURN TO UPPER FLOOR again to retry.';
+            __dialogueText("scenes/gordon/GordonConfrontationController.js", "t_385594f6730cfaa28a40");
 
           this.render();
           return;
@@ -504,8 +505,8 @@ export class GordonConfrontationController {
     }
 
     const advanceKey = [
-      'Space',
-      'Enter',
+      __dialogueText("scenes/gordon/GordonConfrontationController.js", "t_20eac5aae274985fd886"),
+      __dialogueText("scenes/gordon/GordonConfrontationController.js", "t_dc8659db6d416dc32fca"),
       'NumpadEnter'
     ].includes(event.code);
 

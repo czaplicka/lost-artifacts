@@ -1,10 +1,11 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { drawWebsiteNavigation } from './WebsiteNavigation.js';
 import { REED_GALLERY_PHOTOS } from './ReedGalleryViewer.js';
 
 const THEMES = {
-    foundation: { dark: 0x294d68, light: 0xe1edf0, accent: 0xc7a762, label: 'FOUNDATION / COMMUNITY' },
-    association: { dark: 0x395743, light: 0xe7ecdb, accent: 0xb8a66c, label: 'CLUB / ASSOCIATION' },
-    organisation: { dark: 0x435773, light: 0xe4e8ed, accent: 0xbfa973, label: 'ORGANISATION' }
+    foundation: { dark: 0x294d68, light: 0xe1edf0, accent: 0xc7a762, label: __dialogueText("ui/pi-computer/OrganisationPageTemplate.js", "t_78dc192b23205fa1c0cf") },
+    association: { dark: 0x395743, light: 0xe7ecdb, accent: 0xb8a66c, label: __dialogueText("ui/pi-computer/OrganisationPageTemplate.js", "t_663d22b9118ad728d4d8") },
+    organisation: { dark: 0x435773, light: 0xe4e8ed, accent: 0xbfa973, label: __dialogueText("ui/pi-computer/OrganisationPageTemplate.js", "t_f505ce81b83b7f3bb73c") }
 };
 
 export function organisationKind(page) {
@@ -15,8 +16,8 @@ export function organisationKind(page) {
     if (explicit === 'foundation') return 'foundation';
     if (['association', 'club'].includes(explicit)) return 'association';
     if (['organisation', 'organization'].includes(explicit) || ['organisation', 'organization'].includes(page.theme)) {
-        if (page.brand === 'OPEN SKIES') return 'foundation';
-        if (page.brand === 'SWALLOW WATCH') return 'association';
+        if (page.brand === __dialogueText("ui/pi-computer/OrganisationPageTemplate.js", "t_a96d0800845ac9ad94a2")) return 'foundation';
+        if (page.brand === __dialogueText("ui/pi-computer/OrganisationPageTemplate.js", "t_5647d4df07a02e15301f")) return 'association';
         return 'organisation';
     }
     return null;
@@ -56,7 +57,7 @@ export function renderOrganisation(search, page, kind) {
     d.rectangle(b.x+5,b.y+5,b.w,b.h,0x000000,0.3);
     d.bevel(b.x,b.y,b.w,b.h,0xc9c5b8);
     d.rectangle(b.x+4,b.y+4,b.w-8,28,0x493e50);
-    fit(b.x+13,b.y+13,`OWL NAVIGATOR / ${brand}`,b.w-65,8,'#f9e8bb',true);
+    fit(b.x+13,b.y+13,`${__dialogueText("ui/pi-computer/OrganisationPageTemplate.js", "t_6a5469aa820b1a95a6fd")}${brand}`,b.w-65,8,'#f9e8bb',true);
     button(b.x+b.w-32,b.y+7,23,21,'X',()=>search.back());
     const ay=b.y+38;
     button(b.x+10,ay,45,27,'<',()=>search.back());
@@ -102,7 +103,7 @@ export function renderOrganisation(search, page, kind) {
         fit(
             sx + 8,
             cy,
-            'Enlarge the game window to read this page.',
+            __dialogueText("ui/pi-computer/OrganisationPageTemplate.js", "t_aa234bc57eb8e25b0c9c"),
             sw - 16,
             12
         );
@@ -127,7 +128,7 @@ export function renderOrganisation(search, page, kind) {
         const area = { x:mainX+6, y:cy+6, w:mainW-12, h:ch-12 };
         if (viewer.active) viewer.render(area);
         else {
-            fit(area.x+10,area.y+12,'RECEPTION PHOTOGRAPHS',area.w-20,10,css(p.dark),true);
+            fit(area.x+10,area.y+12,__dialogueText("ui/pi-computer/OrganisationPageTemplate.js", "t_a02e536720c732cd4d13"),area.w-20,10,css(p.dark),true);
             const g=10, cw=(area.w-20-g*2)/3;
             const ih=Math.max(25,Math.min(125,ch-105));
             REED_GALLERY_PHOTOS.forEach((photo,i)=>{
@@ -136,15 +137,15 @@ export function renderOrganisation(search, page, kind) {
                 const image=search.art(photo.key,px+3,py+3,cw-6,ih-6);
                 if(image) image.setInteractive({useHandCursor:true})
                     .on('pointerdown',()=>viewer.open(page,photo.id));
-                else fit(px+6,py+9,'PHOTO UNAVAILABLE',cw-12,7,css(p.dark),true);
+                else fit(px+6,py+9,__dialogueText("ui/pi-computer/OrganisationPageTemplate.js", "t_81e8132432559fda2441"),cw-12,7,css(p.dark),true);
                 button(px,py+ih+7,cw,25,photo.label,()=>viewer.open(page,photo.id),Boolean(image));
             });
-            fit(area.x+10,cy+ch-19,'Photography: Martin Cole.',area.w-20,10,'#718084');
+            fit(area.x+10,cy+ch-19,__dialogueText("ui/pi-computer/OrganisationPageTemplate.js", "t_beb5659f93d2120bb12f"),area.w-20,10,'#718084');
         }
         fit(sx+8,footerY+8,brand,sw-16,10,css(p.dark));
         return;
     }
-    const section=page.sectionLabel || (page.imageKey?'PHOTO GALLERY':'PUBLIC INFORMATION');
+    const section=page.sectionLabel || (page.imageKey?__dialogueText("ui/pi-computer/OrganisationPageTemplate.js", "t_4f3b627e9fcbf0fed7a7"):__dialogueText("ui/pi-computer/OrganisationPageTemplate.js", "t_6976538c7eca068be16f"));
     d.rectangle(mainX+12,cy+12,4,18,p.accent);
     fit(mainX+24,cy+17,section,mainW-40,8,css(p.dark),true);
     d.rectangle(mainX+12,cy+38,mainW-24,1,0xc7d1ce);
@@ -161,7 +162,7 @@ export function renderOrganisation(search, page, kind) {
         d.rectangle(px,py,pw,ph,p.light);
         d.frame(px,py,pw,ph,0xb1bdb8,1,2);
         const image=search.art(page.imageKey,px+5,py+5,pw-10,ph-10);
-        if(!image)fit(px+8,py+12,'PHOTOGRAPH UNAVAILABLE',pw-16,8,css(p.dark),true);
+        if(!image)fit(px+8,py+12,__dialogueText("ui/pi-computer/OrganisationPageTemplate.js", "t_8b7d716c7840da9bcc37"),pw-16,8,css(p.dark),true);
         if(photoSide){tx=px+pw+14;tw=mainX+mainW-15-tx;}
         else{ty=py+ph+12;th=cy+ch-10-ty;}
     }

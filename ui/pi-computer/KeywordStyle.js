@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 
 const SCENES = new WeakMap();
@@ -6,7 +7,7 @@ const STYLED = Symbol('keywordStyle');
 const INSTALLED = Symbol('keywordLayoutAdapter');
 
 export const KEYWORD_STYLE = Object.freeze({
-  text: '#000000', yellow: '#ffe600', white: '#ffffff',
+  text: __dialogueText("ui/pi-computer/KeywordStyle.js", "t_7b2817bf9b80e66d07f2"), yellow: '#ffe600', white: '#ffffff',
   darkText: '#ffffff'
 });
 
@@ -136,7 +137,7 @@ function tagLayout(ui, value, caseId) {
 
 function normalizeNotebook(ui) {
   const paper = ui.root?.list?.find(item => Array.isArray(item.list) &&
-    item.list.some(child => child.text === 'PRIVATE INVESTIGATIONS'));
+    item.list.some(child => child.text === __dialogueText("ui/pi-computer/KeywordStyle.js", "t_bbc638660cdde9fbfde6")));
   if (!paper?.visible) return;
   const definitions = ui.search?.data?.cases || [];
   const titles = new Set(paper.list.map(item => item.text));

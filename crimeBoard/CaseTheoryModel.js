@@ -1,19 +1,20 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { getOpportunityFacts, evaluateOpportunity } from '../systems/OpportunityRules.js';
 export const THEORY_FIELDS=[
- ['identity','Identity','Who committed the theft?'],['motive','Motive','Why was the artifact stolen?'],
- ['means','Means','Which skills were used in this theft?'],['opportunity','Opportunity','What made the theft possible?']
+ ['identity',__dialogueText("crimeBoard/CaseTheoryModel.js", "t_999f23fcd7bec7075e54"),__dialogueText("crimeBoard/CaseTheoryModel.js", "t_8271ae31a8e1a8fcdaea")],['motive',__dialogueText("crimeBoard/CaseTheoryModel.js", "t_3c304325a9d42f41663b"),__dialogueText("crimeBoard/CaseTheoryModel.js", "t_a50a3df2af2b7df540a1")],
+ ['means',__dialogueText("crimeBoard/CaseTheoryModel.js", "t_f40aa59edb5c4a6061ff"),__dialogueText("crimeBoard/CaseTheoryModel.js", "t_4900623ddf3ecd6ef538")],['opportunity',__dialogueText("crimeBoard/CaseTheoryModel.js", "t_e969f85c47caa12786cb"),__dialogueText("crimeBoard/CaseTheoryModel.js", "t_86131d43ba4710c7bcf4")]
 ];
 export const THEORY_OPTIONS={opportunity:[
- ['work_access','Work duties provided access during the crime window'],
- ['unobserved_interval','An unobserved interval during the crime window'],
- ['false_alibi','A false alibi concealed presence at the scene'],
- ['borrowed_access','Borrowed or stolen credentials provided access'],
- ['security_gap','A gap in security created an opening'],
- ['public_access','Public opening hours provided an opportunity']
+ ['work_access',__dialogueText("crimeBoard/CaseTheoryModel.js", "t_62b4781e97a956ec7756")],
+ ['unobserved_interval',__dialogueText("crimeBoard/CaseTheoryModel.js", "t_811ecf7c46df32149dbb")],
+ ['false_alibi',__dialogueText("crimeBoard/CaseTheoryModel.js", "t_433a30e034f77933d59d")],
+ ['borrowed_access',__dialogueText("crimeBoard/CaseTheoryModel.js", "t_caed54151d13150c1a4a")],
+ ['security_gap',__dialogueText("crimeBoard/CaseTheoryModel.js", "t_14d0d83e7f52e74fdeca")],
+ ['public_access',__dialogueText("crimeBoard/CaseTheoryModel.js", "t_87416750a6e8cf8a60ae")]
 ]};
 export function normalizeSkillId(value){
  const id=String(value??'').trim().toLowerCase().replace(/[_-]+/g,' ').replace(/\s+/g,' ');
- return ['pickpocket','pickpocketing','pick pocketing'].includes(id)?'pickpocket':id;
+ return ['pickpocket','pickpocketing',__dialogueText("crimeBoard/CaseTheoryModel.js", "t_fdb3d1ed938473e1e4ae")].includes(id)?'pickpocket':id;
 }
 const strings=values=>[...new Set((Array.isArray(values)?values:[])
  .filter(value=>typeof value==='string'&&value.trim()).map(value=>value.trim()))];
@@ -48,7 +49,7 @@ export function buildSkillOptions(database){
   const raw=person?.skills,list=Array.isArray(raw)?raw:typeof raw==='string'?raw.split(','):[];
   for(const value of list){
    if(typeof value!=='string'||!value.trim())continue;
-   const id=normalizeSkillId(value),label=id==='pickpocket'?'Pickpocket':value.trim().charAt(0).toUpperCase()+value.trim().slice(1);
+   const id=normalizeSkillId(value),label=id==='pickpocket'?__dialogueText("crimeBoard/CaseTheoryModel.js", "t_f3ac5fe953d58a49296d"):value.trim().charAt(0).toUpperCase()+value.trim().slice(1);
    if(id&&!skills.has(id))skills.set(id,label);
   }
  }
@@ -65,11 +66,11 @@ export function getTheoryReadiness(state,raw=readTheory(state),cards=getTheoryCa
  const theory=normalizeTheory(raw),available=new Set((Array.isArray(cards)?cards:[])
   .filter(card=>card?.discovered!==false&&typeof card?.id==='string').map(card=>card.id));
  const missing=[];
- if(!state.currentMission||state.currentCaseId==null)missing.push('No active case.');
+ if(!state.currentMission||state.currentCaseId==null)missing.push(__dialogueText("crimeBoard/CaseTheoryModel.js", "t_179d34b15d3d6eead19a"));
  for(const [field,label]of THEORY_FIELDS){
   const section=theory.sections[field],answered=field==='means'?section.skillIds.length>0:Boolean(section.answerId);
-  if(!answered)missing.push(`${label}: choose a conclusion.`);
-  if(!section.evidenceIds.some(id=>available.has(id)))missing.push(`${label}: attach discovered evidence.`);
+  if(!answered)missing.push(`${label}${__dialogueText("crimeBoard/CaseTheoryModel.js", "t_bde2ccce12e2c5d60baa")}`);
+  if(!section.evidenceIds.some(id=>available.has(id)))missing.push(`${label}${__dialogueText("crimeBoard/CaseTheoryModel.js", "t_d1116ed4b7d8949dde08")}`);
  }
  return {complete:missing.length===0,missing,theory};
 }
@@ -100,7 +101,7 @@ export function evaluateTheorySelection(state,field,selection,motiveEvaluator){
   const verdict=evaluateOpportunity(getOpportunityFacts(state),selection.answerId);
   if(verdict!=='inconclusive')supported=verdict==='supported';
  }
- const label=THEORY_FIELDS.find(([id])=>id===field)?.[1]||'Selection';
- return supported===null?{status:'inconclusive',message:'The case has no authoritative answer for this check. No deduction check was used.'}:
-  {status:supported?'supported':'contradicted',message:`${label}: this conclusion is ${supported?'supported':'contradicted'} by the case solution. Attached evidence has not been certified by this check.`};
+ const label=THEORY_FIELDS.find(([id])=>id===field)?.[1]||__dialogueText("crimeBoard/CaseTheoryModel.js", "t_ca4067071fcf61854380");
+ return supported===null?{status:'inconclusive',message:__dialogueText("crimeBoard/CaseTheoryModel.js", "t_3e28a6f16705bce51e39")}:
+  {status:supported?'supported':'contradicted',message:`${label}${__dialogueText("crimeBoard/CaseTheoryModel.js", "t_30924bd667503aca0121")}${supported?__dialogueText("crimeBoard/CaseTheoryModel.js", "t_37b322c559d476e555e4"):__dialogueText("crimeBoard/CaseTheoryModel.js", "t_1af293e87a0170d4ff1c")}${__dialogueText("crimeBoard/CaseTheoryModel.js", "t_3a73c5bd38a9879993e0")}`};
 }

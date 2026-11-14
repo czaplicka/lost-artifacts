@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "./DialogueText.js";
 import { DialogUI } from '../ui/DialogUI.js';
 import {
   moneyManager,
@@ -159,11 +160,11 @@ export class DialogManager {
     this.dialogUI.open(entry, {
       choices: [
         {
-          text: `TAKE $${ACCOUNTING_LOAN_AMOUNT} LOAN`,
+          text: `${__dialogueText("dialogues/DialogManagerBase.js", "t_c0d2e7676f9d08d67dc1")}${ACCOUNTING_LOAN_AMOUNT}${__dialogueText("dialogues/DialogManagerBase.js", "t_cbcf43f0f2f7d92c85ea")}`,
           callback: () => this.grantAccountingLoan(contact)
         },
         {
-          text: 'NEVER MIND',
+          text: __dialogueText("dialogues/DialogManagerBase.js", "t_1130a33138f2abe353c4"),
           callback: () => this.showAccountingExit(contact)
         }
       ]
@@ -189,7 +190,7 @@ export class DialogManager {
       ACCOUNTING_LOAN_AMOUNT,
       {
         category: ECONOMY_CATEGORY.AGENCY_ADVANCE,
-        description: 'Emergency budget increase from Accounting',
+        description: __dialogueText("dialogues/DialogManagerBase.js", "t_b9aff43c92123a7a5031"),
         missionId: this.gameState.currentMission?.id ?? null,
         metadata: {
           contact: 'accounting',
@@ -210,7 +211,7 @@ export class DialogManager {
           ...approvedEntry,
           lines: [
             ...approvedEntry.lines,
-            `Agency budget available: $${state.agencyBudget}.`
+            `${__dialogueText("dialogues/DialogManagerBase.js", "t_3c050cd4ef047d6505ba")}${state.agencyBudget}${__dialogueText("dialogues/DialogManagerBase.js", "t_cdb4ee2aea69cc6a8333")}`
           ]
         }
       : null;
@@ -230,11 +231,11 @@ export class DialogManager {
     }
 
     this.dialogUI.open({
-      speaker: 'Ms. Ledger',
+      speaker: __dialogueText("dialogues/DialogManagerBase.js", "t_60d379a9c72f99001bab"),
       portraitKey: 'portrait_accounting',
       lines: [
-        'A wise decision.',
-        'Try not to expense anything that explodes.'
+        __dialogueText("dialogues/DialogManagerBase.js", "t_5b89bd883afb541b880e"),
+        __dialogueText("dialogues/DialogManagerBase.js", "t_7bace9888392451d056a")
       ]
     });
   }
@@ -242,9 +243,9 @@ export class DialogManager {
   openDialogOrFallback(entry, contact) {
     this.dialogUI.open(
       entry || {
-        speaker: contact?.name || 'Accounting',
+        speaker: contact?.name || __dialogueText("dialogues/DialogManagerBase.js", "t_ab48fcf706cb01d334ef"),
         portraitKey: 'portrait_fallback',
-        lines: ['...', 'No response.']
+        lines: [__dialogueText("dialogues/DialogManagerBase.js", "t_ab5df625bc76dbd4e163"), __dialogueText("dialogues/DialogManagerBase.js", "t_87aa5d9526324ec74aa1")]
       }
     );
   }

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { EventBus } from '../EventBus.js';
@@ -47,7 +48,7 @@ function prepareAgencyPayment(amount, description, metadata = {}) {
   let debtTransaction = null;
   if (debtAdded > 0) debtTransaction = moneyManager.addLogEntry({ type: 'debt', source: MONEY_SOURCE.AGENCY,
     amount: debtAdded, category: ECONOMY_CATEGORY.AGENCY_ADVANCE,
-    description: `Emergency advance for ${description}`, metadata: { ...metadata } });
+    description: `${__dialogueText("managers/TravelManager.js", "t_ea49233c7e44aafbb63a")}${description}`, metadata: { ...metadata } });
   return { ok: true, usedFreeTransfer: false, amount: safeAmount, coveredByBudget, costFromCash: 0,
     costFromBudget: coveredByBudget, debtAdded, agencyBudget: gameState.agencyBudget,
     agencyDebt: gameState.agencyDebt, transaction, debtTransaction };
@@ -118,7 +119,7 @@ export function getTravelData(fromCityName, toCityName, locations, options = {})
     effectiveMoneySpent: freeTransferAvailable ? 0 : itinerary.moneySpent,
     estimatedEnergyChange: -getEnergyManager().getTravelCost(transportType),
     travelEncounter: encounter, freeTransferAvailable,
-    travelLabel: encounter ? `${baseTravelHours}h + ${encounter.timePenalty}h` : `${baseTravelHours}h`
+    travelLabel: encounter ? `${baseTravelHours}${__dialogueText("managers/TravelManager.js", "t_ce7ba1f46d2e23e2d94c")}${encounter.timePenalty}${__dialogueText("managers/TravelManager.js", "t_aaa9402664f1a41f40eb")}` : `${baseTravelHours}h`
   };
 }
 export function getTravelHours(fromCityName, toCityName, locations, transportType = 'plane') {
@@ -127,7 +128,7 @@ export function getTravelHours(fromCityName, toCityName, locations, transportTyp
 export function getDestinationPreviewData(locations) {
   getRouteManager();
   return (gameState.currentDestinations || []).map(location => {
-    const arrivalKind = classifyPursuitArrival(gameState, resolveLocationId(location, 'destination preview'));
+    const arrivalKind = classifyPursuitArrival(gameState, resolveLocationId(location, __dialogueText("managers/TravelManager.js", "t_cf01efa0eed8dbb35f9f")));
     return { ...location,
       ...getTravelData(gameState.currentCity, location.city, locations, { transportType: 'plane' }),
       arrivalKind, isCorrect: ['NEXT_ROUTE_CITY', 'CRIME_CITY', 'RETURN_VISIT'].includes(arrivalKind)
@@ -140,11 +141,11 @@ export function executeTravel({ fromCityName, toCityName, locations, transportTy
   try {
     const fromLocation = getLocationByCity(fromCityName, locations), toLocation = getLocationByCity(toCityName, locations);
     if (!fromLocation || !toLocation) return { ok: false, success: false, reason: 'invalid_location', fromCityName, toCityName };
-    const destinationId = resolveLocationId(toLocation, 'travel destination');
+    const destinationId = resolveLocationId(toLocation, __dialogueText("managers/TravelManager.js", "t_ac9b702e0da1f8adc1f5"));
     const ticketBlock = getTicketTravelBlock(destinationId);
     if (ticketBlock) {
       if (ticketBlock === 'ticket_analysis_required') EventBus.emit('showDialogue', {
-        speaker: 'Detective', text: 'The damaged ticket needs a lab analysis before I can follow the thief.'
+        speaker: __dialogueText("managers/TravelManager.js", "t_2653ceeec1fd951707a3"), text: __dialogueText("managers/TravelManager.js", "t_5f1b486230e750718fd4")
       });
       return { ok: false, success: false, reason: ticketBlock, payment: null, energy: null };
     }
@@ -168,7 +169,7 @@ export function executeTravel({ fromCityName, toCityName, locations, transportTy
       restorePaymentState(snapshot); console.error('[TravelManager] Payment preparation failed:', error);
       return { success: false, reason: 'payment_failed', payment: null };
     }
-    const energy = energyManager.consumeCustom(energyCost, `Travel (${transportType}): -${energyCost}`, {
+    const energy = energyManager.consumeCustom(energyCost, `${__dialogueText("managers/TravelManager.js", "t_592efc34d9485f9ae821")}${transportType}${__dialogueText("managers/TravelManager.js", "t_24e778466d407e0a9e47")}${energyCost}`, {
       requireFullAmount: true, activityType: `travel_${transportType}`
     });
     if (!energy?.success) { restorePaymentState(snapshot); return { success: false, reason: energy?.reason || 'insufficient_energy', payment: null, energy }; }
@@ -240,8 +241,8 @@ export function travelToCity(cityName, locations, transportType = 'plane') {
     wasCorrect, arrivalKind, advancedRoute, encounter: travel.travelEncounter, travelLabel: travel.travelLabel
   };
   gameState.lastTravel = record; gameState.lastTravelEncounter = travel.travelEncounter; gameState.addTravel(record);
-  if (advancedRoute) addSessionScore(100, `Correct city: ${cityName}`);
-  else if (arrivalKind === 'FALSE_LEAD') addSessionScore(-25, `False city: ${cityName}`);
+  if (advancedRoute) addSessionScore(100, `${__dialogueText("managers/TravelManager.js", "t_74f3c4c05eea9bff1f61")}${cityName}`);
+  else if (arrivalKind === 'FALSE_LEAD') addSessionScore(-25, `${__dialogueText("managers/TravelManager.js", "t_02f17792cf652c43c883")}${cityName}`);
   gameState.justReachedCorrectCityId = advancedRoute ? destinationId : null;
   syncInvestigationState(locations);
   if (isFinal) {

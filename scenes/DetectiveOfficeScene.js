@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 
@@ -173,7 +174,7 @@ export class DetectiveOfficeScene extends BaseScene {
     this.registry.set('currentSceneKey', SCENE_KEY);
 
     this.officeTitle = this.add
-      .text(16, 16, 'PI OFFICE', this.style(14))
+      .text(16, 16, __dialogueText("scenes/DetectiveOfficeScene.js", "t_f99419d296900dce0711"), this.style(14))
       .setDepth(100);
 
     this.debugText = this.add
@@ -244,14 +245,14 @@ export class DetectiveOfficeScene extends BaseScene {
     const x = touch?.clientX ?? event?.clientX;
     const y = touch?.clientY ?? event?.clientY;
 
-    if (event?.target?.closest?.('.pcn')) {
+    if (event?.target?.closest?.(__dialogueText("scenes/DetectiveOfficeScene.js", "t_ac41b924aa2755fb032c"))) {
       return true;
     }
 
     return Boolean(
       Number.isFinite(x) &&
       Number.isFinite(y) &&
-      document.elementFromPoint(x, y)?.closest?.('.pcn')
+      document.elementFromPoint(x, y)?.closest?.(__dialogueText("scenes/DetectiveOfficeScene.js", "t_ac41b924aa2755fb032c"))
     );
   }
 
@@ -262,10 +263,10 @@ export class DetectiveOfficeScene extends BaseScene {
       style.id = HUD_LOCK_STYLE;
 
       style.textContent =
-        `html.${HUD_LOCK_CLASS} #hud-container {` +
-        'display:none!important;' +
-        'visibility:hidden!important;' +
-        'pointer-events:none!important;' +
+        `${__dialogueText("scenes/DetectiveOfficeScene.js", "t_c3a80412da16a675dc16")}${HUD_LOCK_CLASS}${__dialogueText("scenes/DetectiveOfficeScene.js", "t_d613f9ec6abd46f9876f")}` +
+        __dialogueText("scenes/DetectiveOfficeScene.js", "t_ff1953cb056875ea13bd") +
+        __dialogueText("scenes/DetectiveOfficeScene.js", "t_1f6318dda2d74a2b2642") +
+        __dialogueText("scenes/DetectiveOfficeScene.js", "t_3cd4f16d9f07d0c37451") +
         '}';
 
       document.head.appendChild(style);
@@ -525,8 +526,8 @@ export class DetectiveOfficeScene extends BaseScene {
 
     this.officeTitle.setText(
       this.bigOffice
-        ? 'PI OFFICE — PERSONAL OFFICE'
-        : 'PI OFFICE'
+        ? __dialogueText("scenes/DetectiveOfficeScene.js", "t_6cd4221303b5fe07f38b")
+        : __dialogueText("scenes/DetectiveOfficeScene.js", "t_f99419d296900dce0711")
     );
   }
 
@@ -729,7 +730,7 @@ export class DetectiveOfficeScene extends BaseScene {
 
         default:
           this.showFeedback(
-            config.message || 'Installed. Suspiciously tidy.'
+            config.message || __dialogueText("scenes/DetectiveOfficeScene.js", "t_6cbc302f22aa1b8ee0af")
           );
       }
     } catch (error) {
@@ -740,7 +741,7 @@ export class DetectiveOfficeScene extends BaseScene {
       );
 
       this.showFeedback(
-        'That could not be opened. Please try again.'
+        __dialogueText("scenes/DetectiveOfficeScene.js", "t_809fc8591742d9821fbd")
       );
     }
   }
@@ -761,14 +762,14 @@ export class DetectiveOfficeScene extends BaseScene {
     if (!this.canUseOffice()) return;
 
     const handle =
-      document.querySelector('.pcn .pcn-handle');
+      document.querySelector(__dialogueText("scenes/DetectiveOfficeScene.js", "t_986f4ab9a5ec85d629ec"));
 
     const paper =
-      document.querySelector('.pcn .pcn-paper');
+      document.querySelector(__dialogueText("scenes/DetectiveOfficeScene.js", "t_2e02c20641dc0d86904f"));
 
     if (!handle || !paper) {
       this.showFeedback(
-        'Case Notes are currently unavailable.'
+        __dialogueText("scenes/DetectiveOfficeScene.js", "t_59973fc0ab24c18bfb33")
       );
 
       return;
@@ -884,7 +885,7 @@ export class DetectiveOfficeScene extends BaseScene {
         this.returnToComputer();
 
         this.showFeedback(
-          'The investigation board could not be opened.'
+          __dialogueText("scenes/DetectiveOfficeScene.js", "t_cea8b43cceb044ca159c")
         );
       }
     } catch (error) {
@@ -897,7 +898,7 @@ export class DetectiveOfficeScene extends BaseScene {
         this.returnToComputer();
 
         this.showFeedback(
-          'The investigation board could not be opened.'
+          __dialogueText("scenes/DetectiveOfficeScene.js", "t_cea8b43cceb044ca159c")
         );
       }
     } finally {
@@ -930,7 +931,7 @@ export class DetectiveOfficeScene extends BaseScene {
         this.returnToComputer();
 
         this.showFeedback(
-          'The travel map is currently unavailable.'
+          __dialogueText("scenes/DetectiveOfficeScene.js", "t_0756c0ff30466f0a2e23")
         );
       }
     } catch (error) {
@@ -943,7 +944,7 @@ export class DetectiveOfficeScene extends BaseScene {
         this.returnToComputer();
 
         this.showFeedback(
-          'The travel map could not be opened.'
+          __dialogueText("scenes/DetectiveOfficeScene.js", "t_fd3e891598e803cb3add")
         );
       }
     } finally {
@@ -1015,8 +1016,8 @@ export class DetectiveOfficeScene extends BaseScene {
       );
 
       this.showFeedback(
-        'Office images could not be loaded. ' +
-        'Your purchase is saved. Retry when the files are available.'
+        __dialogueText("scenes/DetectiveOfficeScene.js", "t_ce46e1ea5584e29734bc") +
+        __dialogueText("scenes/DetectiveOfficeScene.js", "t_49987a1c5f839e0c09bf")
       );
 
       this.showMoveInRetry();
@@ -1041,7 +1042,7 @@ export class DetectiveOfficeScene extends BaseScene {
         this.rebuildOffice();
 
         this.showFeedback(
-          'A proper office. Now buy the things that make it useful.'
+          __dialogueText("scenes/DetectiveOfficeScene.js", "t_444b818bfd8c9cce6e08")
         );
       }
     );
@@ -1055,7 +1056,7 @@ export class DetectiveOfficeScene extends BaseScene {
     this.retryButton = this.add.text(
       width / 2,
       height / 2,
-      'RETRY MOVE-IN',
+      __dialogueText("scenes/DetectiveOfficeScene.js", "t_7456d88f80aaeb4025e7"),
       this.style(22)
     )
       .setOrigin(0.5)
@@ -1121,7 +1122,7 @@ export class DetectiveOfficeScene extends BaseScene {
 
       if (moved === false) {
         this.showFeedback(
-          'The city could not be opened.'
+          __dialogueText("scenes/DetectiveOfficeScene.js", "t_5319d91d50bf1f202593")
         );
       }
 
@@ -1134,7 +1135,7 @@ export class DetectiveOfficeScene extends BaseScene {
 
       if (this.isCurrent(token)) {
         this.showFeedback(
-          'The city could not be opened.'
+          __dialogueText("scenes/DetectiveOfficeScene.js", "t_5319d91d50bf1f202593")
         );
       }
 
@@ -1161,7 +1162,7 @@ export class DetectiveOfficeScene extends BaseScene {
       ['INPUT', 'TEXTAREA', 'SELECT'].includes(
         target?.tagName
       ) ||
-      target?.closest?.('.pcn') ||
+      target?.closest?.(__dialogueText("scenes/DetectiveOfficeScene.js", "t_ac41b924aa2755fb032c")) ||
       event.ctrlKey ||
       event.metaKey
     ) {
@@ -1169,7 +1170,7 @@ export class DetectiveOfficeScene extends BaseScene {
     }
 
     if (
-      event.code === 'Escape' &&
+      event.code === __dialogueText("scenes/DetectiveOfficeScene.js", "t_037c968467aa3fd7c059") &&
       this.canUseOffice()
     ) {
       event.preventDefault();
@@ -1225,8 +1226,8 @@ export class DetectiveOfficeScene extends BaseScene {
 
     this.debugText.setText(
       this.debugMode
-        ? 'HOTSPOT PREVIEW — D / Escape: close\n' +
-          'Equipment layers keep their original full-screen alignment.'
+        ? __dialogueText("scenes/DetectiveOfficeScene.js", "t_ebabfa4190bb6ebe044e") +
+          __dialogueText("scenes/DetectiveOfficeScene.js", "t_7d5cbce44b356c19e921")
         : ''
     );
   }

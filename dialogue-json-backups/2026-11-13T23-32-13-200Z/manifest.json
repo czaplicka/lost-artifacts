@@ -1,0 +1,2446 @@
+{
+  "version": 1,
+  "createdAt": "2026-11-13T23:32:13.204Z",
+  "files": [
+    {
+      "path": "CaseTimeHelper.js",
+      "existed": true
+    },
+    {
+      "path": "CrimeBoard.js",
+      "existed": true
+    },
+    {
+      "path": "CrimeBoardInit.js",
+      "existed": true
+    },
+    {
+      "path": "CrimeBoardInitCore.js",
+      "existed": true
+    },
+    {
+      "path": "DifficultySettings.js",
+      "existed": true
+    },
+    {
+      "path": "HiddenObjectsResolver.js",
+      "existed": true
+    },
+    {
+      "path": "HiddenObjectsState.js",
+      "existed": true
+    },
+    {
+      "path": "HypothesisEvaluator.js",
+      "existed": true
+    },
+    {
+      "path": "HypothesisResultService.js",
+      "existed": true
+    },
+    {
+      "path": "MainStoryData.js",
+      "existed": true
+    },
+    {
+      "path": "NewspaperLayoutConfig.js",
+      "existed": true
+    },
+    {
+      "path": "ReconstructionGenerator.js",
+      "existed": true
+    },
+    {
+      "path": "SceneLoader.js",
+      "existed": true
+    },
+    {
+      "path": "TransportConfig.js",
+      "existed": true
+    },
+    {
+      "path": "alibi/AlibiConclusion.js",
+      "existed": true
+    },
+    {
+      "path": "alibi/AlibiCooperation.js",
+      "existed": true
+    },
+    {
+      "path": "alibi/AlibiDeductionController.js",
+      "existed": true
+    },
+    {
+      "path": "alibi/AlibiEncounterSetup.js",
+      "existed": true
+    },
+    {
+      "path": "alibi/AlibiTimeNotes.js",
+      "existed": true
+    },
+    {
+      "path": "alibi/AlibiWitnessData.js",
+      "existed": true
+    },
+    {
+      "path": "archiveReportService.js",
+      "existed": true
+    },
+    {
+      "path": "assets/data/deadMailChapterTwo.js",
+      "existed": true
+    },
+    {
+      "path": "assets/data/deadMailFinaleData.js",
+      "existed": true
+    },
+    {
+      "path": "assets/data/deadMailNightData.js",
+      "existed": true
+    },
+    {
+      "path": "assets/data/momsNotProudData.js",
+      "existed": true
+    },
+    {
+      "path": "config/ApartmentEscapeLeads.js",
+      "existed": true
+    },
+    {
+      "path": "config/InventoryShopModel.js",
+      "existed": true
+    },
+    {
+      "path": "config/TravelNetwork.js",
+      "existed": true
+    },
+    {
+      "path": "config/businessCenterConfig.js",
+      "existed": true
+    },
+    {
+      "path": "config/chaseConfig.js",
+      "existed": true
+    },
+    {
+      "path": "config/chaseEvents.js",
+      "existed": true
+    },
+    {
+      "path": "config/deadMailArtConfig.js",
+      "existed": true
+    },
+    {
+      "path": "config/detectiveOfficeConfig.js",
+      "existed": true
+    },
+    {
+      "path": "config/hotelConfig.js",
+      "existed": true
+    },
+    {
+      "path": "config/loadJson.js",
+      "existed": true
+    },
+    {
+      "path": "config/markAgencyComputerConfig.js",
+      "existed": true
+    },
+    {
+      "path": "config/mediumOfficeConfig.js",
+      "existed": true
+    },
+    {
+      "path": "config/newsstandConfig.js",
+      "existed": true
+    },
+    {
+      "path": "config/piComputerConfig.js",
+      "existed": true
+    },
+    {
+      "path": "config/piOfficeUpgradeConfig.js",
+      "existed": true
+    },
+    {
+      "path": "config/pigeonConfig.js",
+      "existed": true
+    },
+    {
+      "path": "config/pigeonHotspots.js",
+      "existed": true
+    },
+    {
+      "path": "config/postOfficeConfig.js",
+      "existed": true
+    },
+    {
+      "path": "config/postOfficeEvidenceConfig.js",
+      "existed": true
+    },
+    {
+      "path": "config/spyShopConfig.js",
+      "existed": true
+    },
+    {
+      "path": "config/tavernConfig.js",
+      "existed": true
+    },
+    {
+      "path": "crimeBoard/BoardData.js",
+      "existed": true
+    },
+    {
+      "path": "crimeBoard/BoardDeduction.js",
+      "existed": true
+    },
+    {
+      "path": "crimeBoard/BoardEditor.js",
+      "existed": true
+    },
+    {
+      "path": "crimeBoard/BoardEvidenceModel.js",
+      "existed": true
+    },
+    {
+      "path": "crimeBoard/BoardEvidenceRuntime.js",
+      "existed": true
+    },
+    {
+      "path": "crimeBoard/BoardInteraction.js",
+      "existed": true
+    },
+    {
+      "path": "crimeBoard/BoardLinks.js",
+      "existed": true
+    },
+    {
+      "path": "crimeBoard/BoardRendering.js",
+      "existed": true
+    },
+    {
+      "path": "crimeBoard/BoardSuspects.js",
+      "existed": true
+    },
+    {
+      "path": "crimeBoard/BoardWorkspace.js",
+      "existed": true
+    },
+    {
+      "path": "crimeBoard/CaseTheory.js",
+      "existed": true
+    },
+    {
+      "path": "crimeBoard/CaseTheoryModel.js",
+      "existed": true
+    },
+    {
+      "path": "debugCaseRoute.js",
+      "existed": true
+    },
+    {
+      "path": "dialogues/DestinationClueText.js",
+      "existed": true
+    },
+    {
+      "path": "dialogues/DialogManager.js",
+      "existed": true
+    },
+    {
+      "path": "dialogues/DialogManagerBase.js",
+      "existed": true
+    },
+    {
+      "path": "dialogues/EditableTravelTemplates.js",
+      "existed": true
+    },
+    {
+      "path": "dialogues/HQAdvisor.js",
+      "existed": true
+    },
+    {
+      "path": "dialogues/MotiveWitnessPolicy.js",
+      "existed": true
+    },
+    {
+      "path": "dialogues/NPCController.js",
+      "existed": true
+    },
+    {
+      "path": "escapeTimelineLauncher.js",
+      "existed": true
+    },
+    {
+      "path": "gameSetup.js",
+      "existed": true
+    },
+    {
+      "path": "gameState/GameStateManager.js",
+      "existed": true
+    },
+    {
+      "path": "gameState/defaultState.js",
+      "existed": true
+    },
+    {
+      "path": "gameState/gameStateProxy.js",
+      "existed": true
+    },
+    {
+      "path": "gameState/indexedCollections.js",
+      "existed": true
+    },
+    {
+      "path": "gordonAccessPanelLauncher.js",
+      "existed": true
+    },
+    {
+      "path": "hollyCaseHubService.js",
+      "existed": true
+    },
+    {
+      "path": "hollyFinaleService.js",
+      "existed": true
+    },
+    {
+      "path": "hollySurvivalUpdateService.js",
+      "existed": true
+    },
+    {
+      "path": "hudHelpers.js",
+      "existed": true
+    },
+    {
+      "path": "johnAccountReviewService.js",
+      "existed": true
+    },
+    {
+      "path": "johnConfrontationService.js",
+      "existed": true
+    },
+    {
+      "path": "johnIncidentFilesService.js",
+      "existed": true
+    },
+    {
+      "path": "johnMicrofilmService.js",
+      "existed": true
+    },
+    {
+      "path": "johnPrimaryRecordsService.js",
+      "existed": true
+    },
+    {
+      "path": "johnWarsawMeetingService.js",
+      "existed": true
+    },
+    {
+      "path": "managers/AchievementManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/AgencyManualService.js",
+      "existed": true
+    },
+    {
+      "path": "managers/AlibiBoardEvidence.js",
+      "existed": true
+    },
+    {
+      "path": "managers/AlibiResolutionService.js",
+      "existed": true
+    },
+    {
+      "path": "managers/AssetManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/AudioManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/DeadMailCorrespondence.js",
+      "existed": true
+    },
+    {
+      "path": "managers/DeadMailFinaleManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/DeadMailFinaleManagerCore.js",
+      "existed": true
+    },
+    {
+      "path": "managers/DeadMailManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/DeadMailNightManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/DeadMailOfficeIntegration.js",
+      "existed": true
+    },
+    {
+      "path": "managers/DeadMenArtwork.js",
+      "existed": true
+    },
+    {
+      "path": "managers/DeadMenCallingFinale.js",
+      "existed": true
+    },
+    {
+      "path": "managers/DeadMenCallingFollowup.js",
+      "existed": true
+    },
+    {
+      "path": "managers/DeadMenCallingService.js",
+      "existed": true
+    },
+    {
+      "path": "managers/DeadMenPhoneTopics.js",
+      "existed": true
+    },
+    {
+      "path": "managers/DeadMenWebIntegration.js",
+      "existed": true
+    },
+    {
+      "path": "managers/EnergyManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/FinancialTracePhone.js",
+      "existed": true
+    },
+    {
+      "path": "managers/GameTimeManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/HintManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/HolmesDailyHintService.js",
+      "existed": true
+    },
+    {
+      "path": "managers/InventoryDiscardService.js",
+      "existed": true
+    },
+    {
+      "path": "managers/InvestigationManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/ItemUseService.js",
+      "existed": true
+    },
+    {
+      "path": "managers/ManifestLoader.js",
+      "existed": true
+    },
+    {
+      "path": "managers/MoneyManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/PIAdvertRequirements.js",
+      "existed": true
+    },
+    {
+      "path": "managers/PICaseRewards.js",
+      "existed": true
+    },
+    {
+      "path": "managers/PICaseStanding.js",
+      "existed": true
+    },
+    {
+      "path": "managers/PIDocumentJobsManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/PIInvestigationManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/PIOfficeShopManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/PIQuestManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/PassportManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/PigeonCatalog.js",
+      "existed": true
+    },
+    {
+      "path": "managers/PigeonFeedShopManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/PigeonManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/PostOfficeEvidence.js",
+      "existed": true
+    },
+    {
+      "path": "managers/PostOfficeManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/PostOfficeNotebook.js",
+      "existed": true
+    },
+    {
+      "path": "managers/PostalCaseSupport.js",
+      "existed": true
+    },
+    {
+      "path": "managers/ProgressionManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/ReedBoardEvidence.js",
+      "existed": true
+    },
+    {
+      "path": "managers/ReedContactService.js",
+      "existed": true
+    },
+    {
+      "path": "managers/ReedMailContent.js",
+      "existed": true
+    },
+    {
+      "path": "managers/ReedResolutionService.js",
+      "existed": true
+    },
+    {
+      "path": "managers/ReputationManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/ResourcefulnessManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/SaveManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/ScoreManager.js",
+      "existed": true
+    },
+    {
+      "path": "managers/SideQuestAssetScope.js",
+      "existed": true
+    },
+    {
+      "path": "managers/SpyShopPurchaseService.js",
+      "existed": true
+    },
+    {
+      "path": "managers/TicketAnalysisService.js",
+      "existed": true
+    },
+    {
+      "path": "managers/TravelManager.js",
+      "existed": true
+    },
+    {
+      "path": "margeBirthdayModel.js",
+      "existed": true
+    },
+    {
+      "path": "margeBirthdayService.js",
+      "existed": true
+    },
+    {
+      "path": "margeDisclosureModel.js",
+      "existed": true
+    },
+    {
+      "path": "markAgencyComputerModel.js",
+      "existed": true
+    },
+    {
+      "path": "mobileFullscreen.js",
+      "existed": true
+    },
+    {
+      "path": "npcCatalogData.js",
+      "existed": true
+    },
+    {
+      "path": "npcThemeHelper.js",
+      "existed": true
+    },
+    {
+      "path": "reportDraftModel.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/AgainScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/AgencyStorageScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/AgencyStorageSceneWithAnimations.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/AlarmPanelScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/AlexRecoveryInquiryScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/AlibiScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/AlibiTimelineScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/ApartmentScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/ArchiveCrashFollowupScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/ArchiveIndexPuzzleScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/ArchiveScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/ArchiveSceneWithAnimations.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/ArrestChaseSelectionScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/ArrestSelectionScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/BootScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/BusinessCenterScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/BaseForensicMinigame.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/BloodAnalysisScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/ChemicalResidueScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/CrimeLabAssistantDialog.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/CrimeLabConfig.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/CrimeLabEvidenceService.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/CrimeLabHUD.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/CrimeLabManager.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/CrimeLabScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/CrimeLabTimeController.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/DeductionEvidenceRegistry.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/DnaGenderScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/FiberAnalysisScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/FingerprintPatternScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/FingerprintScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/ForensicHelpController.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/HairAnalysisScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/LabTerminal.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/MaterialAnalysisScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/ShoeprintScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/TicketAnalysisPanel.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/TicketAnalysisPanelBase.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/ToolmarkAnalysisScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CSI/labOnboardingConfig.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CharacterCreationScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/ChaseScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CityPlaceScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CityScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CitySceneWithAnimations.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CourtRecoveryScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CourtScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/CrashTimelineScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/DeadMailFinaleScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/DeadMailNightScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/DeadMailScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/DetectiveOfficeScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/DetectiveOfficeSceneWithAnimations.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/DifficultyScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/EmptyApartmentArrestOverlayScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/EnterScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/EscapeTimelineScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/ExpansionStoreScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/FailedAlibiArrestOverlayScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/FinancialTraceScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/GameOverScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/GameScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/GordonInterviewScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/GordonSearchScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/GrandConspiracyScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/HiddenObjectsScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/HighscoreScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/HollyCaseCallScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/HollyChapterOneFinaleScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/HollyFinaleScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/HollyIntroScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/HomeCityPostOfficeScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/HomeCityScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/HospitalScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/HotelScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/HypothesisScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/IntroScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/JohnAccountReviewScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/JohnConfrontationScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/JohnIncidentFilesScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/JohnPrimaryRecordsScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/JukeboxScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/LoadingOverlayScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/LocationScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/MargeHRFloorScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/MargeHRScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/MedicalReviewScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/MediumOfficeFloorScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/MediumOfficeScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/MicrofilmScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/NewspaperOverlayScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/NewsstandScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/OfficeDeductionScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/OfficeDustScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/OfficeScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/PhoneCallScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/PigeonLoftScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/PlayerHudScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/PoliceStationBaseScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/PoliceStationScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/PostOfficeScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/PreloaderScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/PreloaderSceneWithKitchenAnimations.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/RadioSpliceScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/RandomEventScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/RecoveredArtifactsScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/RedactedReportScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/SettingsScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/ShopScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/ShopSceneWithAnimations.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/ShreddedReportScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/SpyShopScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/SpyShopSceneWithAnimations.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/SuccessScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/SuspectGridScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/SuspectsScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/TavernScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/TheoryResultCallScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/TravelTransitionScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/TvBroadcastScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/TypewriterComparisonScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/WarsawMeetingScene.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/alarm/AlarmPanelHelpController.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/alarm/AlarmPanelModel.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/apartament/ApartmentGenerator.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/apartament/ApartmentHintUI.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/apartament/ApartmentHotspotDebug.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/apartament/ApartmentIdentityEvidence.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/apartament/ApartmentInventoryUI.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/apartament/ApartmentObject.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/apartament/ApartmentObjectsPool.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/apartament/ApartmentOccupantController.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/apartament/ApartmentOccupantData.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/apartament/ApartmentResearchLayout.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/apartament/ApartmentRoomLayouts.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/apartament/ApartmentRoomPacks.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/apartament/ApartmentRoomSystem.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/archive/CrashTimelineHelp.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/archive/CrashTimelineModel.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/archive/MicrofilmModel.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/archive/OfficeDustHelpController.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/archive/OfficeDustModel.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/archive/RadioSpliceModel.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/archive/TimelineHelpController.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/archive/TypewriterComparisonModel.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/archive/TypewriterHelpController.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/arrestSelection/arrestFlow.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/arrestSelection/backdrop.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/arrestSelection/config.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/arrestSelection/confirmation.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/arrestSelection/controls.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/arrestSelection/dossier.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/arrestSelection/folder.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/arrestSelection/helpers.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/arrestSelection/navigation.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/arrestSelection/results.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/arrestSelection/zoom.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/city/CityClock.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/city/CityConfig.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/city/CityEncounters.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/city/CityLifecycle.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/city/CityMapDebug.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/city/CityPlaces.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/city/CityPresentation.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/city/CityUi.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/crimeCity/CrimeCityApartmentMethods.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/crimeCity/CrimeCityContentMethods.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/crimeCity/CrimeCityHudMethods.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/crimeCity/CrimeCityMapUI.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/crimeCity/CrimeCityNpcManager.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/crimeCity/CrimeCityProgressService.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/crimeCity/CrimeCityTravelMethods.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/crimeCity/CrimeCityTutorialController.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/evidenceAnalysis/ExaminationProfiles.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/gordon/GordonConfrontationController.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/gordon/GordonEthicsUI.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/gordon/GordonHotspotDebug.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/gordon/GordonSafeController.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/hiddenObjects/HiddenObjectsDataLoader.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/hiddenObjects/HiddenObjectsInteractionController.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/hiddenObjects/HiddenObjectsPresentation.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/hiddenObjects/HiddenObjectsSceneFlow.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/hiddenObjects/HiddenObjectsTimer.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/homeCity/CemeteryMapAccess.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/homeCity/HomeCityAmbient.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/homeCity/HomeCityBuildings.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/homeCity/HomeCityCemetery.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/homeCity/HomeCityConfig.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/homeCity/HomeCityExtras.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/homeCity/HomeCityGround.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/homeCity/HomeCityRendererCore.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/hotel/HotelHotspots.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/hotel/HotelHud.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/hotel/HotelSleep.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/hr/MargeHRHelpController.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/hr/MargeTrustController.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/medical/JohnPrimaryRecordsModel.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/medical/MedicalTestsController.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/office/ChapterTwoDeskEntry.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/office/OfficeDoorsigns.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/office/OfficeElevatorAccess.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/office/OfficeElevatorAnimations.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/office/OfficeElevatorRide.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/office/OfficeHotspotManager.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/office/OfficeNavigation.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/office/OfficeNavigationBase.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/office/OfficePanelActions.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/office/OfficeScreenAnimations.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/office/officeHotspots.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/pi-office/HollyCaseResumeModel.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/pi-office/HollyFinaleModel.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/pi-office/JohnAccountReviewModel.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/pi-office/JohnConfrontationModel.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/pi-office/JohnIncidentFilesModel.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/pi-office/OfficeMoveIn.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/pi-office/WarsawMeetingModel.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/storage/AlexMouthAnimation.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/storage/EscapeTimelineModel.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/storage/StorageManagerAnimations.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/travel/TransportVisuals.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/travel/TravelSeaLife.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/travel/TravelTextures.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/travel/TravelTicketUI.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/travel/TravelTransitionEffects.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/travel/TravelTransitionHelpers.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/tv/TvBroadcastControls.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/tv/TvBroadcastTextures.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/tv/TvBroadcastView.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/wanted-database/WantedDatabaseCards.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/wanted-database/WantedDatabaseChrome.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/wanted-database/WantedDatabaseConfig.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/wanted-database/WantedDatabaseDetails.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/wanted-database/WantedDatabaseDetailsView.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/wanted-database/WantedDatabaseFilters.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/wanted-database/WantedDatabaseLifecycle.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/wanted-database/WantedDatabaseNavigation.js",
+      "existed": true
+    },
+    {
+      "path": "scenes/wanted-database/WantedDatabaseUi.js",
+      "existed": true
+    },
+    {
+      "path": "storageRoomDialogueService.js",
+      "existed": true
+    },
+    {
+      "path": "supabase-client.js",
+      "existed": true
+    },
+    {
+      "path": "suspects/DustEvidence.js",
+      "existed": true
+    },
+    {
+      "path": "suspects/MaterialEvidence.js",
+      "existed": true
+    },
+    {
+      "path": "suspects/PersonnelCollections.js",
+      "existed": true
+    },
+    {
+      "path": "suspects/PersonnelRoster.js",
+      "existed": true
+    },
+    {
+      "path": "suspects/PersonnelRosterFlow.js",
+      "existed": true
+    },
+    {
+      "path": "suspects/suspectFactory.js",
+      "existed": true
+    },
+    {
+      "path": "suspects/suspectHelpers.js",
+      "existed": true
+    },
+    {
+      "path": "suspectsBoard/GridCells.mixin.js",
+      "existed": true
+    },
+    {
+      "path": "suspectsBoard/GridData.mixin.js",
+      "existed": true
+    },
+    {
+      "path": "suspectsBoard/GridDraw.mixin.js",
+      "existed": true
+    },
+    {
+      "path": "suspectsBoard/GridLogic.mixin.js",
+      "existed": true
+    },
+    {
+      "path": "suspectsBoard/SuspectBoardData.mixin.js",
+      "existed": true
+    },
+    {
+      "path": "suspectsBoard/SuspectBoardUI.mixin.js",
+      "existed": true
+    },
+    {
+      "path": "suspectsBoard/SuspectCards.mixin.js",
+      "existed": true
+    },
+    {
+      "path": "suspectsBoard/SuspectDetails.mixin.js",
+      "existed": true
+    },
+    {
+      "path": "suspectsBoard/SuspectExclusion.mixin.js",
+      "existed": true
+    },
+    {
+      "path": "suspectsBoard/applyGridExclusions.js",
+      "existed": true
+    },
+    {
+      "path": "suspectsBoard/gridConstants.js",
+      "existed": true
+    },
+    {
+      "path": "systems/AgencyOperationReactions.js",
+      "existed": true
+    },
+    {
+      "path": "systems/ArtifactTrailPanel.js",
+      "existed": true
+    },
+    {
+      "path": "systems/ArtifactTrailService.js",
+      "existed": true
+    },
+    {
+      "path": "systems/CaseTheorySubmission.js",
+      "existed": true
+    },
+    {
+      "path": "systems/CityWeatherManager.js",
+      "existed": true
+    },
+    {
+      "path": "systems/DeadCasesWorldOutcomes.js",
+      "existed": true
+    },
+    {
+      "path": "systems/FinalCaseCourt.js",
+      "existed": true
+    },
+    {
+      "path": "systems/ForgerObservation.js",
+      "existed": true
+    },
+    {
+      "path": "systems/InvestigationAudit.js",
+      "existed": true
+    },
+    {
+      "path": "systems/PostalWorldOutcome.js",
+      "existed": true
+    },
+    {
+      "path": "systems/RandomEventSystem.js",
+      "existed": true
+    },
+    {
+      "path": "systems/TVEditorialModel.js",
+      "existed": true
+    },
+    {
+      "path": "systems/WorldNpcReactionModel.js",
+      "existed": true
+    },
+    {
+      "path": "systems/WorldReactionInspectorModel.js",
+      "existed": true
+    },
+    {
+      "path": "systems/WorldReactionModel.js",
+      "existed": true
+    },
+    {
+      "path": "systems/WorldReactionSystem.js",
+      "existed": true
+    },
+    {
+      "path": "systems/WorldTVReactions.js",
+      "existed": true
+    },
+    {
+      "path": "systems/WorldTownReactionModel.js",
+      "existed": true
+    },
+    {
+      "path": "systems/artifactFinaleLogic.js",
+      "existed": true
+    },
+    {
+      "path": "systems/artifactTrailModel.js",
+      "existed": true
+    },
+    {
+      "path": "systems/chaseLogic.js",
+      "existed": true
+    },
+    {
+      "path": "systems/chasePersistence.js",
+      "existed": true
+    },
+    {
+      "path": "systems/courtLogic.js",
+      "existed": true
+    },
+    {
+      "path": "systems/newsstand/NewspaperEditionManager.js",
+      "existed": true
+    },
+    {
+      "path": "systems/newsstand/NewsstandBackground.js",
+      "existed": true
+    },
+    {
+      "path": "systems/newsstand/NewsstandComix.js",
+      "existed": true
+    },
+    {
+      "path": "systems/newsstand/NewsstandHotspots.js",
+      "existed": true
+    },
+    {
+      "path": "systems/newsstand/SharedNewspaperArticles.js",
+      "existed": true
+    },
+    {
+      "path": "systems/thiefdoku/ThiefdokuPuzzle.js",
+      "existed": true
+    },
+    {
+      "path": "systems/thiefdoku/ThiefdokuService.js",
+      "existed": true
+    },
+    {
+      "path": "tutorials/CrimeCityTutorial.js",
+      "existed": true
+    },
+    {
+      "path": "tutorials/FirstCaseTutorial.js",
+      "existed": true
+    },
+    {
+      "path": "tutorials/chase/ChaseTutorial.js",
+      "existed": true
+    },
+    {
+      "path": "tutorials/chase/ChaseTutorialContent.js",
+      "existed": true
+    },
+    {
+      "path": "tutorials/chase/ChaseTutorialOverlay.js",
+      "existed": true
+    },
+    {
+      "path": "ui/AgencyLedgerUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/AgencyManualReader.js",
+      "existed": true
+    },
+    {
+      "path": "ui/AlibiCloudModel.js",
+      "existed": true
+    },
+    {
+      "path": "ui/AtlasUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/CaseCloudNotebook.js",
+      "existed": true
+    },
+    {
+      "path": "ui/CaseFileUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/ColdCaseUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/CrimeBoardUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/DeadMenCloudModel.js",
+      "existed": true
+    },
+    {
+      "path": "ui/DestinationMapPainter.js",
+      "existed": true
+    },
+    {
+      "path": "ui/DestinationMeta.js",
+      "existed": true
+    },
+    {
+      "path": "ui/DestinationNavigation.js",
+      "existed": true
+    },
+    {
+      "path": "ui/DestinationPanel.js",
+      "existed": true
+    },
+    {
+      "path": "ui/DestinationTravel.js",
+      "existed": true
+    },
+    {
+      "path": "ui/DestinationWorldMap.js",
+      "existed": true
+    },
+    {
+      "path": "ui/DestinationsUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/DialogUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/EscapeTimeCallUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/ForgerObservationUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/HQExhaustionCallUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/HiddenObjectsResultOverlay.js",
+      "existed": true
+    },
+    {
+      "path": "ui/HiddenObjectsTheme.js",
+      "existed": true
+    },
+    {
+      "path": "ui/HiddenObjectsUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/HollyChapterOneCallUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/HollySurvivalCallUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/HomeTownDialogue.js",
+      "existed": true
+    },
+    {
+      "path": "ui/HudStanding.js",
+      "existed": true
+    },
+    {
+      "path": "ui/HypothesisBoardUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/InventoryUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/LegacyCaseCloudNotebook.js",
+      "existed": true
+    },
+    {
+      "path": "ui/LocationUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/MarkAgencyComputerUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/MissionReportComputer.js",
+      "existed": true
+    },
+    {
+      "path": "ui/NewsHud.js",
+      "existed": true
+    },
+    {
+      "path": "ui/NewspaperContent.js",
+      "existed": true
+    },
+    {
+      "path": "ui/NewspaperPaper.js",
+      "existed": true
+    },
+    {
+      "path": "ui/NewspaperPublicationLayout.js",
+      "existed": true
+    },
+    {
+      "path": "ui/NewspaperTimeCover.js",
+      "existed": true
+    },
+    {
+      "path": "ui/NewspaperUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/NotebookDeductionRules.js",
+      "existed": true
+    },
+    {
+      "path": "ui/NotebookWordBankToggle.js",
+      "existed": true
+    },
+    {
+      "path": "ui/NotesUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/OfficeSaveUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/PICrimeBoardUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/PIInventoryUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/PIOfficeComputerUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/PIOfficeDestinationsUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/PIOfficeNotebookIntegration.js",
+      "existed": true
+    },
+    {
+      "path": "ui/PIOfficePhoneUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/PassportUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/PayPalSandboxCheckout.js",
+      "existed": true
+    },
+    {
+      "path": "ui/PhonebookUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/PlayerCloudContacts.js",
+      "existed": true
+    },
+    {
+      "path": "ui/PlayerCloudModel.js",
+      "existed": true
+    },
+    {
+      "path": "ui/PlayerCloudNotebook.js",
+      "existed": true
+    },
+    {
+      "path": "ui/PlayerMenuUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/RoomHotspotDebug.js",
+      "existed": true
+    },
+    {
+      "path": "ui/UIScene.js",
+      "existed": true
+    },
+    {
+      "path": "ui/UISlider.js",
+      "existed": true
+    },
+    {
+      "path": "ui/WarrantUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/WorldHospitalReactionHooks.js",
+      "existed": true
+    },
+    {
+      "path": "ui/WorldPoliceReactionHooks.js",
+      "existed": true
+    },
+    {
+      "path": "ui/WorldPostOfficeReactionHooks.js",
+      "existed": true
+    },
+    {
+      "path": "ui/WorldReactionInspector.js",
+      "existed": true
+    },
+    {
+      "path": "ui/WorldReceptionReactionHooks.js",
+      "existed": true
+    },
+    {
+      "path": "ui/WorldSpyShopReactionHooks.js",
+      "existed": true
+    },
+    {
+      "path": "ui/WorldTownReactionHooks.js",
+      "existed": true
+    },
+    {
+      "path": "ui/characterCreation/AppearanceControls.js",
+      "existed": true
+    },
+    {
+      "path": "ui/characterCreation/CharacterCreationData.js",
+      "existed": true
+    },
+    {
+      "path": "ui/characterCreation/CharacterCreationTemplate.js",
+      "existed": true
+    },
+    {
+      "path": "ui/characterCreation/DifficultyCards.js",
+      "existed": true
+    },
+    {
+      "path": "ui/characterCreation/DossierView.js",
+      "existed": true
+    },
+    {
+      "path": "ui/characterCreation/ProfileCards.js",
+      "existed": true
+    },
+    {
+      "path": "ui/characterCreation/StatControls.js",
+      "existed": true
+    },
+    {
+      "path": "ui/hypothesisBoard/BoardConstants.js",
+      "existed": true
+    },
+    {
+      "path": "ui/hypothesisBoard/BoardDeduction.js",
+      "existed": true
+    },
+    {
+      "path": "ui/hypothesisBoard/BoardElements.js",
+      "existed": true
+    },
+    {
+      "path": "ui/hypothesisBoard/BoardRefresh.js",
+      "existed": true
+    },
+    {
+      "path": "ui/inventory/InventoryDiscardDialog.js",
+      "existed": true
+    },
+    {
+      "path": "ui/inventory/InventoryDragController.js",
+      "existed": true
+    },
+    {
+      "path": "ui/inventory/InventoryGraphics.js",
+      "existed": true
+    },
+    {
+      "path": "ui/inventory/InventoryView.js",
+      "existed": true
+    },
+    {
+      "path": "ui/mark-agency/AgencyMailApp.js",
+      "existed": true
+    },
+    {
+      "path": "ui/mark-agency/ReportIncidentUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/markAgencyComputerInstaller.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/AlibiAdvertEmailFlow.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/AlibiBreakInTimes.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/AlibiCaseData.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/AlibiClubDialogue.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/AlibiContactBook.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/AlibiDialogueData.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/AlibiDialogueUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/AlibiDinnerTime.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/AlibiGuidanceRules.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/AlibiGuidanceUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/AlibiImprovements.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/AlibiImprovementsBase.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/AlibiInterviewData.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/AlibiReceiptService.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/AlibiReportUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/AlibiSearchExpansion.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/AlibiSharedFaceSpace.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/AlibiSiteTemplate.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/AlibiWebArt.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/BorrowedAlibiMail.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/BusinessPageTemplate.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/CommonRoomTemplate.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ComputerAudio.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ComputerChat.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ComputerChatContent.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ComputerDesktop.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ComputerDocumentJobs.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ComputerDocumentsBase.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ComputerDocumentsCore.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ComputerDrawing.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ComputerLedger.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ComputerMonitor.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ComputerOfficeShop.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ComputerSearch.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ComputerSearchCore.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ComputerSearchHome.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ComputerSearchNotebook.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ComputerSearchResults.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ComputerSearchShared.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ComputerSearchWidgets.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ComputerShell.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ComputerTheme.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ComputerThiefdoku.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ComputerThiefdokuArt.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/DeadMailAttachment.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/DeadMenArtworkUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/DeadMenDialogueUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/DeadMenEvidenceUIBase.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/EditorialPageTemplate.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ForumPageTemplate.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/GrandConspiracyComputer.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/KeywordStyle.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/NotebookContactActions.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/OrganisationPageTemplate.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/OwlAudioAvailability.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/PIComputerApps.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/PIInventoryOfficeShop.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/PIMailbox.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/PhotoHotspotEditor.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/PhotoPIQuest.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/PublicDirectoryTemplate.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/QuestHintPurchase.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/QuestHintSystem.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ReedContactMail.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ReedGalleryViewer.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/ReedReportUI.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/SeaViewClue.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-computer/SocialProfileTemplate.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-phone/AlibiCloudPhoneNotes.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-phone/DeadMenCloudPhoneNotes.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-phone/LegacyPhoneFieldNotes.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-phone/PhoneCalls.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-phone/PhoneConfig.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-phone/PhoneDirectory.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-phone/PhoneDisplay.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-phone/PhoneInvestigation.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-phone/PhoneInvestigationBase.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-phone/PhoneTranscript.js",
+      "existed": true
+    },
+    {
+      "path": "ui/pi-phone/PlayerCloudPhoneNotes.js",
+      "existed": true
+    },
+    {
+      "path": "ui/suspectUtils.js",
+      "existed": true
+    },
+    {
+      "path": "ui/warrant/WarrantResults.js",
+      "existed": true
+    },
+    {
+      "path": "ui/warrant/WarrantSketch.js",
+      "existed": true
+    },
+    {
+      "path": "ui/warrant/warrantConfig.js",
+      "existed": true
+    },
+    {
+      "path": "assets/data/dialogue/extracted.json",
+      "existed": false
+    },
+    {
+      "path": "dialogues/DialogueText.js",
+      "existed": false
+    },
+    {
+      "path": "dialogue-migration-report.json",
+      "existed": false
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import {
   isValidId,
   getEntryId,
@@ -52,16 +53,16 @@ function assignLegacyClueId(entry) {
 export const INDEXED_COLLECTIONS = {
   cluesCollected: {
     indexKey: '_clueIndex',
-    label: 'clue',
+    label: __dialogueText("gameState/indexedCollections.js", "t_4c424a68bbc374bc8aa7"),
     prepareEntry: assignLegacyClueId
   },
   visitedEncounters: {
     indexKey: '_encounterIndex',
-    label: 'encounter'
+    label: __dialogueText("gameState/indexedCollections.js", "t_f70b7769ae02a76af966")
   },
   visitedCities: {
     indexKey: '_cityIndex',
-    label: 'city'
+    label: __dialogueText("gameState/indexedCollections.js", "t_11a62c23412b77477a71")
   }
 };
 

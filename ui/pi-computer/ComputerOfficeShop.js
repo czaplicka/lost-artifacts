@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import {
   getOfficeShopAvailability, buyOfficeItem, ownsOfficeItem,
   getEmployeeIncome, collectEmployeeIncome, getOfficeArchive
@@ -27,11 +28,11 @@ const ROW_H = 68;
 const ROW_GAP = 4;
 
 const FOOTER_JOKES = [
-  'Phone and computer are included. Pigeons sold separately. Figuratively.',
-  'Agency funds are not accepted. The agency has none.',
-  'All sales are final. All sales are also questionable.',
-  'Receipts are printed in invisible ink. For your protection.',
-  'Management is not responsible for lost pigeons, lost cases or lost dignity.'
+  __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_dc2d2af55ecc4f998b3a"),
+  __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_7b803054a9a42168220e"),
+  __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_10217c39f9b79c08dd14"),
+  __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_2c79aa654bd72b086876"),
+  __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_55606ce600dd639d6788")
 ];
 
 /* 16x16 pixel-art sprites. '.' = transparent. */
@@ -44,92 +45,92 @@ const PALETTE = {
 const SPRITES = {
   assistant: [
     '................',
-    '.....kkkkkk.....',
-    '....kppppppk....',
-    '...kppppppppk...',
-    '..kpsssssssspk..',
-    '..kpsksskskspk..',
-    '..kpsssssssspk..',
-    '...ksssrrsssk...',
-    '....kssssssk....',
-    '....kkbbbbkk....',
-    '...kbbbwwbbbk...',
-    '..kbbbbwrbbbbk..',
-    '..kbbbbbrbbbbk..',
-    '..kbbbbbrbbbbk..',
-    '..kkkkkkkkkkkk..',
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_a14fbe964c06ad71b553"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_623f79e3a9fc7aeb7326"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_2a0f03bddde78897d063"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_9f4bee2bab19463dd066"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_150b8896d7f91a24950b"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_9f4bee2bab19463dd066"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_dcc1e8cad8ec32f62ec0"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_89697d2364eb35e86aa0"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_5c0784415b42a9de548b"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_deceb66d9feb31b586e9"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_6b3b0ea4645df93b5ccb"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_959a42a61e940f662567"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_959a42a61e940f662567"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_357655244251ee1ff53d"),
     '................'
   ],
   files: [
-    '....wwwwww......',
-    '...kkkkkkkkkk...',
-    '...knnnnnnnnk...',
-    '...knNNNNNNnk...',
-    '...knnnggnnnk...',
-    '...kkkkkkkkkk...',
-    '...knnnnnnnnk...',
-    '...knNNNNNNnk...',
-    '...knnnggnnnk...',
-    '...kkkkkkkkkk...',
-    '...knnnnnnnnk...',
-    '...knNNNNNNnk...',
-    '...knnnggnnnk...',
-    '...kkkkkkkkkk...',
-    '...kk......kk...',
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_1c44e1b0853859c78f87"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_82ae4cd2dddc3ff95ae2"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_aadc1876307a9c5f1709"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_6cc827624037a0e83827"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_bf079088cfbb5ebac055"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_82ae4cd2dddc3ff95ae2"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_aadc1876307a9c5f1709"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_6cc827624037a0e83827"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_bf079088cfbb5ebac055"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_82ae4cd2dddc3ff95ae2"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_aadc1876307a9c5f1709"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_6cc827624037a0e83827"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_bf079088cfbb5ebac055"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_82ae4cd2dddc3ff95ae2"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_80696ee8603d0ba65c8b"),
     '................'
   ],
   printer: [
-    '....kwwwwwwk....',
-    '....kwwwwwwk....',
-    '....kwkkkkwk....',
-    '..kkkkkkkkkkkk..',
-    '.kNNNNNNNNNNNNk.',
-    '.kNNNNNNNNNNNNk.',
-    '.kNNNNNNNNNyeNk.',
-    '.kkkkkkkkkkkkkk.',
-    '.knnnnnnnnnnnnk.',
-    '.knkkkkkkkkkknk.',
-    '.knnnnnnnnnnnnk.',
-    '.kkkkkkkkkkkkkk.',
-    '...kwwwwwwwwk...',
-    '...kwkkwkkwwk...',
-    '...kwwwwwwwwk...',
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_2b8784b34114cdee667a"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_2b8784b34114cdee667a"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_ba8db806007c705dd87f"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_357655244251ee1ff53d"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_027a7d09e0b84dfe6b04"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_027a7d09e0b84dfe6b04"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_52022b9c7bf15482a21d"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_d27b26a34f67d7bf6a50"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_9d17dc2d46097e893912"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_f94d65ccec20084ae3a0"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_9d17dc2d46097e893912"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_d27b26a34f67d7bf6a50"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_defc13c2b16ce8d7f297"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_5c96256ae7e7af20eefb"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_defc13c2b16ce8d7f297"),
     '................'
   ],
   investigator: [
     '................',
-    '.....kkkkkk.....',
-    '....kppppppk....',
-    '....kggggggk....',
-    '..kkkppppppkkk..',
-    '..kppppppppppk..',
-    '....kssssssk....',
-    '....kskssksk....',
-    '....kssrrssk....',
-    '..kTTTwwwwTTTk..',
-    '.kTTTTTwwTTTTTk.',
-    '.kTTTTTTrTTTTTk.',
-    '.kTTTTTTTTTTTTk.',
-    '.kkkkkkkkkkkkkk.',
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_a14fbe964c06ad71b553"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_623f79e3a9fc7aeb7326"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_afe929459383ce087574"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_ac7efb4ed0b7cd4e2d98"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_20f4c3e3eecefaffd82c"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_89697d2364eb35e86aa0"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_b6d31e875c8fa1db7dbe"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_7814cfce676881d8056c"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_e503eaecf3590896913a"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_0f51835d158e0e64d0fc"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_b4cfb9d521e69dea7fa3"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_1f39d28af13a131fe830"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_d27b26a34f67d7bf6a50"),
     '................',
     '................'
   ],
   feed: [
     '................',
-    '......kkkk......',
-    '.....kTTTTk.....',
-    '......kTTk......',
-    '.....kkkkkk.....',
-    '...kTTTTTTTTk...',
-    '..kTTTTTTTTTTk..',
-    '..kTTwwwwwwTTk..',
-    '..kTTwkkkkwTTk..',
-    '..kTTwwwwwwTTk..',
-    '..kTTTTTTTTTTk..',
-    '..kTTTTTTTTTTk..',
-    '...kTTTTTTTTk...',
-    '....kkkkkkkk....',
-    '..y..y.y..y.y...',
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_91532c072634b9f34165"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_bc4f208c9d591be81425"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_2c1b548d45bbc07a1b73"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_a14fbe964c06ad71b553"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_73f5de97baf8ba52859f"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_7ed52053479a3bcb751b"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_a5a3fe474a5f8866e462"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_f921e37d13480b7a12bd"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_a5a3fe474a5f8866e462"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_7ed52053479a3bcb751b"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_7ed52053479a3bcb751b"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_73f5de97baf8ba52859f"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_e55b935e130d14317ba1"),
+    __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_5a914b2e74ebbe55c546"),
     '................'
   ]
 };
@@ -173,7 +174,7 @@ export class ComputerOfficeShop {
         if (ids.some(id => typeof id !== 'string') || new Set(ids).size !== ids.length) throw Error('Duplicate or invalid products.');
         this.catalog = data;
       } catch (error) {
-        this.error = 'The catalog could not be loaded. No money has been charged.';
+        this.error = __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_667e8764b6e07732430a");
         console.error('[ComputerOfficeShop]', error);
       } finally { this.loading = null; this.redraw(); }
     })();
@@ -197,7 +198,7 @@ export class ComputerOfficeShop {
         }
         this.feedItem = item;
       } catch (error) {
-        this.feedError = 'Pigeon feed could not be loaded. No money has been charged.';
+        this.feedError = __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_2ec52857dba5f7a4b6a4");
         console.error('[ComputerOfficeShop] Pigeon feed:', error);
       } finally { this.feedLoading = null; this.redraw(); }
     })();
@@ -208,11 +209,11 @@ export class ComputerOfficeShop {
     const items = this.catalog?.items || [];
     return [...items, {
       id: PIGEON_FEED_ID,
-      name: this.feedItem?.name || 'Pigeon Feed',
+      name: this.feedItem?.name || __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_dc44994f63bf42cd73bb"),
       category: 'supplies',
       price: PIGEON_FEED_PRICE,
-      description: this.feedItem?.description || 'Premium pigeon feed. Payment in advance. Findings not guaranteed.',
-      benefitText: 'One portion for one pigeon flight. Added to your inventory. Repeat purchases allowed.'
+      description: this.feedItem?.description || __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_52cb79e539a02ea07fc2"),
+      benefitText: __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_71aa979b55ea6043c278")
     }];
   }
 
@@ -304,7 +305,7 @@ export class ComputerOfficeShop {
     if (this.ui.app === 'office-documents') return this.documentJobs.render();
 
     const ui = this.ui, d = ui.drawing;
-    const box = this.frame('OFFICE SHOP');
+    const box = this.frame(__dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_2d7d8ad55ccae1b813af"));
     const left = box.x + 14, width = box.w - 28, top = box.y + 50;
 
     this.drawBanner(left, top, width);
@@ -312,8 +313,8 @@ export class ComputerOfficeShop {
 
     if (!this.catalog) {
       d.bevel(left, bodyY, width, 200, 0xe9e6d7, true);
-      d.text(left + 24, bodyY + 30, this.error ? 'Closed for restocking.' : 'Unpacking the shelves...', 24, INK.navy);
-      d.text(left + 24, bodyY + 74, this.error || 'Loading catalog...', 18, INK.brown, width - 48);
+      d.text(left + 24, bodyY + 30, this.error ? __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_40f473ef1459c9f8c7a3") : __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_d6ecd20aa4681f1fedd1"), 24, INK.navy);
+      d.text(left + 24, bodyY + 74, this.error || __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_1ae8bb6de90aed860c1d"), 18, INK.brown, width - 48);
       if (this.error) d.button(left + 24, bodyY + 130, 'RETRY', () => { void this.load(); });
       this.drawFooter(box);
       return;
@@ -371,15 +372,15 @@ export class ComputerOfficeShop {
     owl.fillStyle(0xe08a2e, 1);
     owl.fillTriangle(cx - 5, cy + 6, cx + 5, cy + 6, cx, cy + 18);
 
-    const title = String(this.catalog?.title || 'Office Shop').toUpperCase().slice(0, 46);
-    const intro = this.catalog?.intro || 'Unpacking the shelves...';
+    const title = String(this.catalog?.title || __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_a0bf07cb320d609e5d18")).toUpperCase().slice(0, 46);
+    const intro = this.catalog?.intro || __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_d6ecd20aa4681f1fedd1");
     d.pixel(x + 92, y + 30, title, 13, INK.gold);
     this.fitHeight(d.text(x + 92, y + 52, intro, 14, INK.silver, w - 92 - 230), 34, 11);
 
     // Wallet (LCD).
     const wx = x + w - 214, wy = y + 28;
     d.bevel(wx, wy, 198, 50, 0x0f130f, true);
-    d.pixel(wx + 12, wy + 9, 'PERSONAL CASH', 8, INK.lcd);
+    d.pixel(wx + 12, wy + 9, __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_71039533a9b56ebbc6b8"), 8, INK.lcd);
     const cash = this.balance();
     d.fit(d.pixel(wx + 12, wy + 27, cash === null ? 'N/A' : ui.money(cash), 14, INK.phosphor), cash === null ? 'N/A' : ui.money(cash), 174);
   }
@@ -425,9 +426,9 @@ export class ComputerOfficeShop {
     if (owned) { status = 'OWNED'; statusColor = INK.green; }
     else if (isFeed) {
       const count = inventoryManager.getItem(PIGEON_FEED_ID)?.quantity || 0;
-      if (count > 0) status = `IN BAG: ${count}`;
-      else if (pricey) { status = 'TOO PRICEY'; statusColor = INK.brown; }
-    } else if (pricey) { status = 'TOO PRICEY'; statusColor = INK.brown; }
+      if (count > 0) status = `${__dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_a4680f208824513074dc")}${count}`;
+      else if (pricey) { status = __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_22f8e8a9f45802e26c50"); statusColor = INK.brown; }
+    } else if (pricey) { status = __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_22f8e8a9f45802e26c50"); statusColor = INK.brown; }
     if (status) d.pixel(x + w - 12, y + 42, status, 7, statusColor).setOrigin(1, 0);
 
     // Hover + click layer
@@ -446,7 +447,7 @@ export class ComputerOfficeShop {
 
     const income = getEmployeeIncome();
     if (income.hired) {
-      d.pixel(x + 12, y + 9, 'JUNIOR INVESTIGATOR PAYROLL', 8, INK.navy);
+      d.pixel(x + 12, y + 9, __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_55dc576e76be254fac0f"), 8, INK.navy);
       const ratio = income.cap > 0 ? clamp(income.available / income.cap, 0, 1) : 0;
       d.rectangle(x + 12, y + 28, 150, 14, 0x1b2530);
       if (ratio > 0) d.rectangle(x + 14, y + 30, Math.max(2, Math.round(146 * ratio)), 10, 0x7dff9b);
@@ -457,7 +458,7 @@ export class ComputerOfficeShop {
         ui.notice = result?.message || '';
         ui.render();
       }, income.available > 0);
-      d.text(x + 12, y + 47, `$${income.amountPerDay} per 24 in-game hours. No real-world offline pay.`, 12, INK.muted, w - 24);
+      d.text(x + 12, y + 47, `${__dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_09fc96082d34c2dfc129")}${income.amountPerDay}${__dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_e086afdaf6ff4ec1d2f3")}`, 12, INK.muted, w - 24);
       return;
     }
 
@@ -466,16 +467,16 @@ export class ComputerOfficeShop {
     const owned = catalogItems.filter(entry => ownsOfficeItem(entry.id)).length;
     const percent = Math.round((owned / total) * 100);
 
-    d.pixel(x + 12, y + 9, 'OFFICE LEGITIMACY', 8, INK.navy);
+    d.pixel(x + 12, y + 9, __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_f66af623f0766508c51a"), 8, INK.navy);
     const barW = 240, segW = (barW - 4) / total;
     d.rectangle(x + 12, y + 28, barW, 14, 0x1b2530);
     for (let index = 0; index < owned; index++) {
       d.rectangle(x + 14 + index * segW, y + 30, Math.max(2, segW - 2), 10, 0xd4af37);
     }
     d.text(x + 264, y + 24, `${percent}%`, 16, INK.green);
-    const caption = owned === 0 ? 'Currently: one desk and good intentions.'
-      : owned >= total ? 'Fully legitimate. Suspiciously so.'
-        : 'Rising. Slightly. Clients may notice.';
+    const caption = owned === 0 ? __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_5e64c48e34fc9ca47fe5")
+      : owned >= total ? __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_9650aceabcc82df81d05")
+        : __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_9a44dc0831505c78abb0");
     d.text(x + 12, y + 46, caption, 13, INK.muted, w - 24);
   }
 
@@ -507,7 +508,7 @@ export class ComputerOfficeShop {
     // --- Title block ---------------------------------------------------
     const colX = pedX + ped + 18, colW = w - (colX - x) - 16;
     const category = CATEGORY_LABELS[item.category] || String(item.category || 'GOODS').toUpperCase();
-    const chipLabel = isFeed ? `${category} - REPEATABLE` : category;
+    const chipLabel = isFeed ? `${category}${__dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_3b369af048e10063743d")}` : category;
     d.bevel(colX, y + 14, chipLabel.length * 8 + 18, 22, 0xd0cec6);
     d.pixel(colX + 9, y + 21, chipLabel, 8, INK.navy);
 
@@ -529,9 +530,9 @@ export class ComputerOfficeShop {
 
     // Affordability line
     let hint = '', hintColor = INK.muted;
-    if (owned) { hint = 'Installed. Nobody has complained. Yet.'; hintColor = INK.green; }
-    else if (cash !== null && cash < item.price) { hint = `Short by ${ui.money(item.price - cash)}.`; hintColor = INK.brown; }
-    else if (cash !== null) { hint = `Cash after purchase: ${ui.money(cash - item.price)}`; }
+    if (owned) { hint = __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_0deb66652fd0c41c68f8"); hintColor = INK.green; }
+    else if (cash !== null && cash < item.price) { hint = `${__dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_7059b60d4d3ba51d13e9")}${ui.money(item.price - cash)}${__dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_cdb4ee2aea69cc6a8333")}`; hintColor = INK.brown; }
+    else if (cash !== null) { hint = `${__dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_8d0385026f7eb20b03b9")}${ui.money(cash - item.price)}`; }
     if (hint) d.text(colX, y + 114, hint, 14, hintColor, colW);
 
     // --- Description ---------------------------------------------------
@@ -541,9 +542,9 @@ export class ComputerOfficeShop {
     const boxY = y + 238, boxH = 88;
     d.rectangle(x + 16, boxY, w - 32, boxH, 0xdfe8d2);
     d.frame(x + 16, boxY, w - 32, boxH, 0x315539, 1, 2);
-    d.pixel(x + 28, boxY + 10, 'WHAT YOU GET', 8, INK.green);
+    d.pixel(x + 28, boxY + 10, __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_33b68f3d344e9c9123a8"), 8, INK.green);
     const count = inventoryManager.getItem(PIGEON_FEED_ID)?.quantity || 0;
-    const benefit = isFeed ? `${item.benefitText || ''} In inventory: ${count}.` : (item.benefitText || '');
+    const benefit = isFeed ? `${item.benefitText || ''}${__dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_2d92eb9bff3a9a595a64")}${count}${__dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_cdb4ee2aea69cc6a8333")}` : (item.benefitText || '');
     this.fitHeight(d.text(x + 28, boxY + 28, benefit, 15, INK.darkGreen, w - 56), boxH - 34, 11);
 
     // --- Action row ----------------------------------------------------
@@ -566,8 +567,8 @@ export class ComputerOfficeShop {
         const retry = d.button(nextX, actionY, 'RETRY', () => { void this.loadFeed(); });
         nextX += retry.width + 10;
       }
-      if (owned && item.id === 'office_case_files') d.button(nextX, actionY, 'OPEN ARCHIVE', () => ui.openApp('office-archive'));
-      if (owned && item.id === 'office_printer') d.button(nextX, actionY, 'DOCUMENT JOBS', () => ui.openApp('office-documents'));
+      if (owned && item.id === 'office_case_files') d.button(nextX, actionY, __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_a22c4e019ac81de99700"), () => ui.openApp('office-archive'));
+      if (owned && item.id === 'office_printer') d.button(nextX, actionY, __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_c6e18052920db0f07257"), () => ui.openApp('office-documents'));
     }
 
     // Pager (right aligned)
@@ -584,15 +585,15 @@ export class ComputerOfficeShop {
 
     let message = '', color = INK.brown;
     if (pending) {
-      message = `Confirm purchase for ${ui.money(item.price)}? Payment is due in advance.`;
+      message = `${__dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_339405a4935cfa4882f3")}${ui.money(item.price)}${__dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_c579b77b2f6fc955c4d3")}`;
     } else if (ui.notice) {
       message = ui.notice; color = this.noticeOk ? INK.green : INK.brown;
     } else if (!owned && !availability.enabled) {
       message = isFeed && !this.feedItem
-        ? this.feedError || 'Loading pigeon feed...'
+        ? this.feedError || __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_1c8a44a1aa7a7a2d3cc4")
         : availability.reason;
     } else {
-      message = 'Receipt paper loaded. Dignity not included.'; color = INK.faint;
+      message = __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_7558c29a877e6319d976"); color = INK.faint;
     }
     this.fitHeight(d.text(x + 32, receiptY + 6, message, 15, color, w - 64), receiptH - 10, 11);
   }
@@ -618,15 +619,15 @@ export class ComputerOfficeShop {
   /* ---------------------------------------------------------------- */
 
   renderArchive() {
-    const ui = this.ui, d = ui.drawing, box = this.frame('CASE FILING SYSTEM');
+    const ui = this.ui, d = ui.drawing, box = this.frame(__dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_c6a7b478fae12af722db"));
     const x = box.x + 22, y = box.y + 58;
     d.button(x, y, 'SHOP', () => ui.openApp('office-shop'));
     if (!ownsOfficeItem('office_case_files')) {
-      d.text(x, y + 70, 'Purchase the Case Filing System to open this archive.', 18, INK.brown); return;
+      d.text(x, y + 70, __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_dd297f1ec1f5aa251f39"), 18, INK.brown); return;
     }
-    d.text(x + 150, y + 8, this.query ? `Search: ${this.query}` : 'All completed cases', 17, INK.navy, 355);
+    d.text(x + 150, y + 8, this.query ? `${__dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_3363e5f143b78d2e0dfb")}${this.query}` : __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_473fd40b63c1545b802a"), 17, INK.navy, 355);
     d.button(x + 525, y, 'SEARCH', () => {
-      const value = window.prompt('Search completed PI cases:', this.query);
+      const value = window.prompt(__dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_0ab339dcb0abf64a963f"), this.query);
       if (value === null) return;
       this.query = value.trim().slice(0, 200); this.archivePage = 0; ui.render();
     });
@@ -639,7 +640,7 @@ export class ComputerOfficeShop {
 
     // Manila folder with a tab.
     d.rectangle(x + 16, panelY - 16, 170, 18, 0xd9c48a);
-    d.pixel(x + 28, panelY - 11, `CASE ${cases.length ? this.archivePage + 1 : 0} / ${cases.length}`, 8, INK.dark);
+    d.pixel(x + 28, panelY - 11, `${__dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_9920eb00b9040e7c20e1")}${cases.length ? this.archivePage + 1 : 0}${__dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_005e1574a2b5c8163046")}${cases.length}`, 8, INK.dark);
     d.rectangle(x, panelY, panelW, panelH, 0xe6d3a0);
     d.frame(x, panelY, panelW, panelH, 0x8a7440, 1, 2);
     d.rectangle(x + 12, panelY + 12, panelW - 24, panelH - 24, 0xf7efda);
@@ -647,11 +648,11 @@ export class ComputerOfficeShop {
 
     const innerX = x + 30, innerW = panelW - 60;
     if (!entry) {
-      d.text(innerX, panelY + 30, 'No completed cases found.', 22, INK.navy, innerW);
+      d.text(innerX, panelY + 30, __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_be60dbc6bead96615082"), 22, INK.navy, innerW);
     } else {
       d.fit(d.text(innerX, panelY + 26, '', 22, INK.navy), entry.title, innerW);
       d.rectangle(innerX, panelY + 58, innerW, 2, 0xd4af37);
-      if (entry.contact) d.text(innerX, panelY + 68, `Contact: ${entry.contact}`, 15, INK.green, innerW);
+      if (entry.contact) d.text(innerX, panelY + 68, `${__dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_8fe6d397489cb24d3e49")}${entry.contact}`, 15, INK.green, innerW);
       if (entry.description) {
         this.fitHeight(d.text(innerX, panelY + 92, entry.description, 16, INK.olive, innerW), 96, 11);
       }
@@ -675,7 +676,7 @@ export class ComputerOfficeShop {
         d.fit(d.text(innerX + 28, rowY, '', 16, done ? INK.green : INK.olive), objective.text || '', innerW - 28);
       });
       if (objectives.length > shown.length) {
-        d.text(innerX + 28, rowsTop + shown.length * rowH, `+${objectives.length - shown.length} more objectives [Summary shortened]`, 14, INK.muted, innerW - 28);
+        d.text(innerX + 28, rowsTop + shown.length * rowH, `${__dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_a318c24216defe206fee")}${objectives.length - shown.length}${__dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_1f73c626ed6d45f9c73c")}`, 14, INK.muted, innerW - 28);
       }
     }
 
@@ -698,7 +699,7 @@ export function installOfficeShop(ui) {
   ui.desktop.render = () => {
     renderDesktop();
     const { x, y } = ui.layout;
-    ui.desktop.createIcon(x + 292, y + 10, 128, 'Office\nShop', 'ledger', 0xd4af37, () => ui.openApp('office-shop'));
+    ui.desktop.createIcon(x + 292, y + 10, 128, __dialogueText("ui/pi-computer/ComputerOfficeShop.js", "t_92b2871bed83476a9367"), 'ledger', 0xd4af37, () => ui.openApp('office-shop'));
   };
   ui.monitor.renderApplication = () => APPS.includes(ui.app) ? shop.render() : renderApplication();
   return shop;

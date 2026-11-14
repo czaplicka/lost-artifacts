@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 const CASE = 'borrowed_alibi';
 const STORE = 'playerCloudNotebookV1';
 
@@ -345,9 +346,9 @@ export function alibiCloudQuestions(
         topic.questionLabel ||
 
         array(topic.lines).find(
-          line => line.speaker === 'You'
+          line => line.speaker === __dialogueText("ui/AlibiCloudModel.js", "t_08b041935798fbf6fd6f")
         )?.text ||
 
-        'Ask about this topic'
+        __dialogueText("ui/AlibiCloudModel.js", "t_bb4f8a01656fbb6eab2a")
     }));
 }

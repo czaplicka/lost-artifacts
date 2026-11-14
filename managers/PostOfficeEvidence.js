@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import {gameState} from '../GameData.js';
 import {requestAutosave} from '../gameStatePersistence.js';
 import * as Postal from './PostOfficeManager.js';
@@ -20,9 +21,9 @@ function attachImage(id){
   if(note){note.image=POSTAL_EVIDENCE_ART[id].url;note.caption=POSTAL_DOCUMENTS[id].title;requestAutosave();}
 }
 export function inspectPostalDetail(id,spotId){
-  if(!canViewPostalDocument(id))return{ok:false,text:'This document is not available yet.'};
+  if(!canViewPostalDocument(id))return{ok:false,text:__dialogueText("managers/PostOfficeEvidence.js", "t_7c2baad6316b3ffdf544")};
   const doc=POSTAL_DOCUMENTS[id],spot=doc.spots.find(s=>s.id===spotId);
-  if(!spot)return{ok:false,text:'No readable detail here.'};
+  if(!spot)return{ok:false,text:__dialogueText("managers/PostOfficeEvidence.js", "t_03a8995c2fc279d38b55")};
   const s=Postal.postalState();
   // Public notices may be read before accepting the case without granting a future clue.
   if(s.returnCase.stage==='new')return{ok:true,text:spot.text,complete:false};

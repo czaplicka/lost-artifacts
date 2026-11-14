@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 export class DialogUI {
     constructor(scene) {
         this.scene = scene;
@@ -130,7 +131,7 @@ export class DialogUI {
         this.nextHint = this.scene.add.text(
             boxWidth / 2 - 30,
             boxHeight / 2 - 30,
-            '▼',
+            __dialogueText("ui/DialogUI.js", "t_2e522d1f0da2cc7d6f68"),
             {
                 fontFamily: 'PressStart2P',
                 fontSize: '20px',
@@ -215,7 +216,7 @@ export class DialogUI {
             ? options.onClose
             : null;
 
-        this.speakerText.setText(entry.speaker || 'Unknown');
+        this.speakerText.setText(entry.speaker || __dialogueText("ui/DialogUI.js", "t_b764cdc0eab713746721"));
         this.setPortrait(entry.portraitKey);
 
         this.isOpen = true;
@@ -319,7 +320,7 @@ export class DialogUI {
 
     showChoices() {
         this.nextHint.setAlpha(0);
-        this.bodyText.setText('Choose an option:');
+        this.bodyText.setText(__dialogueText("ui/DialogUI.js", "t_333536d7f7e725f8449d"));
 
         const buttonWidth = 330;
         const buttonHeight = 42;
@@ -344,7 +345,7 @@ export class DialogUI {
             const buttonText = this.scene.add.text(
                 0,
                 y,
-                choice.text || 'CONTINUE',
+                choice.text || __dialogueText("ui/DialogUI.js", "t_628db0c7598820b10176"),
                 {
                     fontFamily: 'PressStart2P',
                     fontSize: '12px',

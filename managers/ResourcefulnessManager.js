@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { getEffectiveStats } from '../ui/characterCreation/CharacterCreationData.js';
 
@@ -75,14 +76,14 @@ class ResourcefulnessManager {
   }
 
   formatSearchEnergyQuote(quote) {
-    if (!quote.applied) return `Energy: ${quote.finalCost}`;
-    return `Energy: ${quote.originalCost} → ${quote.finalCost}\nResourcefulness: −${quote.saved}`;
+    if (!quote.applied) return `${__dialogueText("managers/ResourcefulnessManager.js", "t_9b9ab12dc1fbf453b5dc")}${quote.finalCost}`;
+    return `${__dialogueText("managers/ResourcefulnessManager.js", "t_9b9ab12dc1fbf453b5dc")}${quote.originalCost}${__dialogueText("managers/ResourcefulnessManager.js", "t_592f6fd0750e870cf487")}${quote.finalCost}${__dialogueText("managers/ResourcefulnessManager.js", "t_714306a9abb47918f938")}${quote.saved}`;
   }
 
   formatLocalTransportMoneyQuote(quote, currency = '') {
     const suffix = currency ? ` ${currency}` : '';
-    if (!quote.applied) return `Fare: ${quote.finalCost}${suffix}`;
-    return `Fare: ${quote.originalCost} → ${quote.finalCost}${suffix}\nResourcefulness: −${quote.discountPercent}%`;
+    if (!quote.applied) return `${__dialogueText("managers/ResourcefulnessManager.js", "t_a76476b4d438a3b012b1")}${quote.finalCost}${suffix}`;
+    return `${__dialogueText("managers/ResourcefulnessManager.js", "t_a76476b4d438a3b012b1")}${quote.originalCost}${__dialogueText("managers/ResourcefulnessManager.js", "t_592f6fd0750e870cf487")}${quote.finalCost}${suffix}${__dialogueText("managers/ResourcefulnessManager.js", "t_714306a9abb47918f938")}${quote.discountPercent}${__dialogueText("managers/ResourcefulnessManager.js", "t_bbf3f11cb5b43e700273")}`;
   }
 }
 

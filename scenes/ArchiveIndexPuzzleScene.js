@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { MainStoryManager } from '../managers/MainStoryManager.js';
 import { saveGameState } from '../gameStatePersistence.js';
@@ -10,22 +11,22 @@ const FLAG = 'duplicate_record_found';
 const XP_REWARD_ID = 'story_puzzle_small';
 const XP_EVENT_ID = JSON.stringify(['reward', XP_REWARD_ID, STATE_KEY]);
 const DATA = [
-  { id: 'expenses_0', pairId: 'expenses', title: 'EXPENSE CLAIM', body: 'Taxi to the airport.\nReceipt attached.', icon: 'receipt', type: 'DOCUMENT' },
-  { id: 'expenses_1', pairId: 'expenses', title: 'FINANCE', body: 'Ground transport\nreimbursements.', icon: 'coins', type: 'DEPARTMENT' },
-  { id: 'conservation_0', pairId: 'conservation', title: 'CONDITION REPORT', body: 'Ceramic vessel.\nNew crack after transit.', icon: 'vase', type: 'DOCUMENT' },
-  { id: 'conservation_1', pairId: 'conservation', title: 'CONSERVATION', body: 'Objects requiring\nrepair or stabilisation.', icon: 'brush', type: 'DEPARTMENT' },
-  { id: 'customs_0', pairId: 'customs', title: 'IMPORT DECLARATION', body: 'Antiquity entering\nthe country.', icon: 'crate', type: 'DOCUMENT' },
-  { id: 'customs_1', pairId: 'customs', title: 'CUSTOMS', body: 'Border clearance\nand import paperwork.', icon: 'barrier', type: 'DEPARTMENT' },
-  { id: 'training_0', pairId: 'training', title: 'COURSE CERTIFICATE', body: 'Agent passed the\nlockpicking assessment.', icon: 'key', type: 'DOCUMENT' },
-  { id: 'training_1', pairId: 'training', title: 'TRAINING', body: 'Staff qualifications\nand completed courses.', icon: 'cap', type: 'DEPARTMENT' },
-  { id: 'loan_0', pairId: 'loan', title: 'LOAN AGREEMENT', body: 'Museum borrows a mask.\nReturn due in June.', icon: 'mask', type: 'DOCUMENT' },
-  { id: 'loan_1', pairId: 'loan', title: 'LOANS', body: 'Temporary transfers\nwith a return date.', icon: 'calendar', type: 'DEPARTMENT' },
-  { id: 'maintenance_0', pairId: 'maintenance', title: 'SERVICE REQUEST', body: 'Projector emits smoke.\nNot a special effect.', icon: 'projector', type: 'DOCUMENT' },
-  { id: 'maintenance_1', pairId: 'maintenance', title: 'MAINTENANCE', body: 'Broken equipment\nand repair requests.', icon: 'wrench', type: 'DEPARTMENT' },
-  { id: 'leave_0', pairId: 'leave', title: 'LEAVE REQUEST', body: 'Five days off.\nReason: not being here.', icon: 'suitcase', type: 'DOCUMENT' },
-  { id: 'leave_1', pairId: 'leave', title: 'PERSONNEL', body: 'Staff leave\nand absence records.', icon: 'person', type: 'DEPARTMENT' },
-  { id: 'john_general', pairId: null, title: 'CATALOGUE INDEX', body: 'JM-041 / McCLANE, J.\nField report\nGENERAL ARCHIVE', icon: 'folder', type: 'INDEX' },
-  { id: 'john_restricted', pairId: null, title: 'CATALOGUE INDEX', body: 'JM-041 / McCLANE, J.\nField report\nRESTRICTED STORAGE', icon: 'lock', type: 'INDEX' }
+  { id: 'expenses_0', pairId: 'expenses', title: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_c625b1b8c856605191e0"), body: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_4ce0f00d1c6e675747d9"), icon: 'receipt', type: 'DOCUMENT' },
+  { id: 'expenses_1', pairId: 'expenses', title: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_66d9c488b5fa766b17b3"), body: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_3b1533d20a099df1ae56"), icon: 'coins', type: 'DEPARTMENT' },
+  { id: 'conservation_0', pairId: 'conservation', title: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_52efe945f9167296ad4b"), body: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_6f6f938c751254087bb3"), icon: 'vase', type: 'DOCUMENT' },
+  { id: 'conservation_1', pairId: 'conservation', title: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_7885df82014dd9253c45"), body: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_556cf8fb012f6cc0ef4a"), icon: 'brush', type: 'DEPARTMENT' },
+  { id: 'customs_0', pairId: 'customs', title: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_64ea71c657590ef413ba"), body: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_c5ea58564be0c1e0f38f"), icon: 'crate', type: 'DOCUMENT' },
+  { id: 'customs_1', pairId: 'customs', title: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_f8f2700b5e3b9b37e328"), body: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_bd4bcaf10132b7f9d60a"), icon: 'barrier', type: 'DEPARTMENT' },
+  { id: 'training_0', pairId: 'training', title: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_6a6f8af6e7113a780eab"), body: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_c5a17724b8f7e9622dc1"), icon: 'key', type: 'DOCUMENT' },
+  { id: 'training_1', pairId: 'training', title: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_25806b3b4fcf4b1659d1"), body: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_cbb8ab7feb838abf8063"), icon: 'cap', type: 'DEPARTMENT' },
+  { id: 'loan_0', pairId: 'loan', title: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_72e282e69b07f03cf79b"), body: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_f3598a9dfebf52196104"), icon: 'mask', type: 'DOCUMENT' },
+  { id: 'loan_1', pairId: 'loan', title: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_bd8e0c38e7fe662a741e"), body: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_496c38d719087b6bd043"), icon: 'calendar', type: 'DEPARTMENT' },
+  { id: 'maintenance_0', pairId: 'maintenance', title: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_1b46feb3a6b8a013838b"), body: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_5d1653276a59da9934f9"), icon: 'projector', type: 'DOCUMENT' },
+  { id: 'maintenance_1', pairId: 'maintenance', title: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_7bdba5d37c1e69519065"), body: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_c028b044978f76129980"), icon: 'wrench', type: 'DEPARTMENT' },
+  { id: 'leave_0', pairId: 'leave', title: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_e88cb87f9fc3ece0e096"), body: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_69a5b8a39c83659b7dcc"), icon: 'suitcase', type: 'DOCUMENT' },
+  { id: 'leave_1', pairId: 'leave', title: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_3f5e2e801e62cb1756d8"), body: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_23d60f060e21ba8a5184"), icon: 'person', type: 'DEPARTMENT' },
+  { id: 'john_general', pairId: null, title: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_404dde77ac060d8742e1"), body: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_ee71193e13e1a324a85a"), icon: 'folder', type: 'INDEX' },
+  { id: 'john_restricted', pairId: null, title: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_404dde77ac060d8742e1"), body: __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_c9b9ec4e3e128cf8ae39"), icon: 'lock', type: 'INDEX' }
 ];
 const PAIR_IDS = [...new Set(DATA.map(card => card.pairId).filter(Boolean))];
 
@@ -51,12 +52,12 @@ export class ArchiveIndexPuzzleScene extends BaseScene {
     this.order = valid ? [...order] : Phaser.Utils.Array.Shuffle([...ids]);
     this.cameras.main.setBackgroundColor('#171619'); this.root = this.add.container(0, 0);
     this.root.add(this.add.rectangle(640, 450, 1280, 900, 0x302729));
-    this.label(640, 45, 'THE FILING INCIDENT', 23, '#f0ce88', 'PressStart2P');
-    this.label(640, 88, 'Select a document, then the department that should receive it.', 23);
+    this.label(640, 45, __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_40ed767feeede2764aa7"), 23, '#f0ce88', 'PressStart2P');
+    this.label(640, 88, __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_5d45e9b23a99e671c7d1"), 23);
     this.progress = this.label(640, 123, '', 20, '#bbccb2');
-    this.message = this.label(640, 782, 'Match by meaning. The pictures are clues, not identical pairs.', 22);
-    this.label(485, 850, this.preview ? 'PREVIEW / no story changes' : 'FRANK: "I have a system. Allegedly."', 20, '#bbaa94');
-    const back = this.add.text(1080, 850, 'BACK', { fontFamily: 'SpecialElite, monospace', fontSize: '23px',
+    this.message = this.label(640, 782, __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_cab6cfda8df2ae9c4605"), 22);
+    this.label(485, 850, this.preview ? __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_db1d7313ec962ed15287") : __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_e1122d1fc2343ed7d3d2"), 20, '#bbaa94');
+    const back = this.add.text(1080, 850, __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_639807a2e01886a2236b"), { fontFamily: 'SpecialElite, monospace', fontSize: '23px',
       color: '#f1d89d', backgroundColor: '#4a3933', padding: { x: 24, y: 13 } }).setOrigin(0.5).setInteractive({ useHandCursor: true });
     this.root.add(back); back.on('pointerdown', () => this.closePuzzle());
     if (this.finished) this.showDiscovery(); else this.buildCards();
@@ -83,7 +84,7 @@ export class ArchiveIndexPuzzleScene extends BaseScene {
         color: '#352c29', wordWrap: { width: 208 } }).setOrigin(0, 0.5);
       const body = this.add.text(-73, 17, data.body, { fontFamily: 'SpecialElite, monospace', fontSize: '16px',
         color: '#4d4339', lineSpacing: 2, wordWrap: { width: 208 } }).setOrigin(0, 0.5);
-      const stamp = this.add.text(85, 49, 'FILED', { fontFamily: 'SpecialElite, monospace', fontSize: '19px',
+      const stamp = this.add.text(85, 49, __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_fbf6cd7473b41ac36799"), { fontFamily: 'SpecialElite, monospace', fontSize: '19px',
         color: '#245f3e', backgroundColor: '#d3d8bc', padding: { x: 4, y: 1 } }).setOrigin(0.5).setAngle(-10).setVisible(false);
       item.add([paper, type, badge, icon, title, body, stamp]); this.root.add(item);
       const card = { ...data, item, paper, stamp, matched: this.matched.has(data.pairId) }; this.cards.push(card);
@@ -91,7 +92,7 @@ export class ArchiveIndexPuzzleScene extends BaseScene {
       if (card.matched) { paper.disableInteractive(); stamp.setVisible(true); }
       this.paint(card);
     });
-    if (this.matched.size === PAIR_IDS.length) this.message.setText('Only two index cards remain. Select both and compare the destinations.');
+    if (this.matched.size === PAIR_IDS.length) this.message.setText(__dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_776815a304e431a38589"));
   }
   paint(card) {
     const selected = this.selected.includes(card), ready = card.type === 'INDEX' && this.matched.size === PAIR_IDS.length;
@@ -110,7 +111,7 @@ export class ArchiveIndexPuzzleScene extends BaseScene {
     if (first.type === 'INDEX' && second.type === 'INDEX') {
       playPuzzleSfx(this, 'paper');
       if (this.matched.size === PAIR_IDS.length) this.finishPuzzle();
-      else this.reject('Same report, different destinations. Set these aside; file the ordinary documents first.', false);
+      else this.reject(__dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_3cf66bb58f86b93c923a"), false);
       return;
     }
     if (first.pairId && first.pairId === second.pairId) {
@@ -118,13 +119,13 @@ export class ArchiveIndexPuzzleScene extends BaseScene {
       this.selected.forEach(chosen => { chosen.matched = true; chosen.stamp.setVisible(true); chosen.paper.disableInteractive(); });
       this.selected = []; this.cards.forEach(item => this.paint(item));
       playPuzzleSfx(this, 'stamp', 0.35);
-      this.message.setText(this.matched.size === PAIR_IDS.length ? 'Only two index cards remain. Select both and compare the destinations.' :
-        'Filed correctly. Frank has postponed his disappointment.');
+      this.message.setText(this.matched.size === PAIR_IDS.length ? __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_776815a304e431a38589") :
+        __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_5c9a58644e60d7e48402"));
       this.updateProgress(); this.persist(); return;
     }
     playPuzzleSfx(this, 'paper');
-    this.reject(first.type === second.type && first.type !== 'INDEX' ? 'Choose one DOCUMENT and one DEPARTMENT.' :
-      'Different paperwork. Read what this department handles, then try again.', true);
+    this.reject(first.type === second.type && first.type !== 'INDEX' ? __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_16b416ff250bcd01027b") :
+      __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_7f070af7ba9d000052fd"), true);
   }
   reject(message, count) {
     this.locked = true; if (count) this.mistakes += 1;
@@ -135,13 +136,13 @@ export class ArchiveIndexPuzzleScene extends BaseScene {
     });
   }
   updateProgress() {
-    this.progress.setText(this.finished ? 'ANOMALY FOUND' : `FILED: ${this.matched.size} / ${PAIR_IDS.length}  |  No timer. No score penalty.`);
+    this.progress.setText(this.finished ? __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_408c4bbfd23844c2f475") : `${__dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_116837fc64775fe77c19")}${this.matched.size}${__dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_005e1574a2b5c8163046")}${PAIR_IDS.length}${__dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_323676d2440ef8e6504b")}`);
   }
   persist() {
     if (this.preview) return;
     MainStoryManager.setSideClue(STATE_KEY, { version: 2, completed: this.finished, order: [...this.order],
       matchedPairIds: [...this.matched], matchedPairs: this.matched.size, mistakes: this.mistakes,
-      documentId: this.finished ? 'JM-041' : null, subject: this.finished ? 'John McClane' : null,
+      documentId: this.finished ? 'JM-041' : null, subject: this.finished ? __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_c6c05357000a64339920") : null,
       destinations: this.finished ? ['general_archive', 'restricted_storage'] : [] });
     if (this.finished) MainStoryManager.setFlag(FLAG, true);
     try { this.savedOk = saveGameState(); }
@@ -149,7 +150,7 @@ export class ArchiveIndexPuzzleScene extends BaseScene {
   }
   grantCompletionXP() {
     let result;
-    try { result = progressionManager.grantReward(XP_REWARD_ID, STATE_KEY, 'Story puzzle solved: Archive catalogue indexes'); }
+    try { result = progressionManager.grantReward(XP_REWARD_ID, STATE_KEY, __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_d525c7e1a7a12d9716aa")); }
     catch (error) {
       if (!progressionManager.hasReward(XP_EVENT_ID)) throw error;
       console.error('[ArchiveIndexPuzzle] XP notification failed after commit:', error);
@@ -168,7 +169,7 @@ export class ArchiveIndexPuzzleScene extends BaseScene {
       catch (error) {
         console.error('[ArchiveIndexPuzzle] XP settlement failed:', error);
         this.selected = []; this.cards.forEach(card => this.paint(card)); this.locked = false;
-        this.message.setText('XP could not be recorded. Select both index cards again to retry.'); return;
+        this.message.setText(__dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_a8d5d90409fd7cc2b82f")); return;
       }
     }
     this.finished = true; this.selected = []; this.persist();
@@ -177,18 +178,18 @@ export class ArchiveIndexPuzzleScene extends BaseScene {
   }
   showDiscovery() {
     this.root.add(this.add.rectangle(640, 438, 1060, 500, 0xe2d4b6).setStrokeStyle(3, 0x9c8969));
-    this.label(640, 240, 'ONE REPORT. TWO DESTINATIONS.', 29, '#4c3028');
-    this.label(640, 320, 'JM-041 / John McClane\nField report', 27, '#38302b');
+    this.label(640, 240, __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_529d9fd7415279c998fd"), 29, '#4c3028');
+    this.label(640, 320, __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_9816fbbde63a603c3e7a"), 27, '#38302b');
     this.root.add(createArchiveIcon(this, 'folder', 240, 380, 2));
     this.root.add(createArchiveIcon(this, 'lock', 750, 380, 2));
-    this.label(385, 475, 'CATALOGUE A\nGENERAL ARCHIVE', 25, '#354c3a');
-    this.label(895, 475, 'CATALOGUE B\nRESTRICTED STORAGE', 25, '#853b32');
-    this.label(640, 575, 'The same report appears in two catalogues with different access rules.\nThat deserves an explanation.', 23, '#38302b');
-    this.label(640, 645, '"One document. Twice the bureaucracy."', 22, '#725747');
-    if (this.preview) { this.message.setText('Preview complete. No story progress was changed.'); return; }
-    const xpText = this.xpGranted > 0 ? ` +${this.xpGranted} XP.` : '';
-    this.message.setText(this.savedOk === false ? 'Discovery recorded.' + xpText + ' Saving failed. Save manually before leaving.' :
-      'New lead: ask Frank about the duplicate report.' + xpText);
+    this.label(385, 475, __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_4d161c7f2d65fbdae97d"), 25, '#354c3a');
+    this.label(895, 475, __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_b4b3830456e2f18b77de"), 25, '#853b32');
+    this.label(640, 575, __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_4c9fea3ab767cdc7be3f"), 23, '#38302b');
+    this.label(640, 645, __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_539886cd2e2f58ae5170"), 22, '#725747');
+    if (this.preview) { this.message.setText(__dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_3347d4705417b396bbb1")); return; }
+    const xpText = this.xpGranted > 0 ? `${__dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_c13f23cc27f966a4eadf")}${this.xpGranted}${__dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_a73feda6e2f76a6b740b")}` : '';
+    this.message.setText(this.savedOk === false ? __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_8a0fc895da36ab65ac09") + xpText + __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_d0d65156abf04f7ac203") :
+      __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_9aa904252ae8b1252f94") + xpText);
   }
   layout() {
     if (!this.root) return;

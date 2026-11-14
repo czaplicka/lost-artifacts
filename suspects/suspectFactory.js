@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import {getSuspectData} from './suspectDataProvider.js';
 import {capitalize,createId,normalizeString,randomItem,safeClone,shuffle} from './suspectGeneratorUtils.js';
 import {getSuspectFileNotes} from './SuspectFileNotes.js';
@@ -53,7 +54,7 @@ export function normalizeForensicAttributes(source={},genderCode='nb',{preserveC
 }
 export function createVisibleTraits(forensicAttributes,existingTraits=[]){
   const hair=forensicAttributes?.hair_color?.value||'brown';
-  const candidates=shuffle([...(Array.isArray(existingTraits)?existingTraits:[]),`${capitalize(hair)} hair`,...(data().visualTraits||[])]);
+  const candidates=shuffle([...(Array.isArray(existingTraits)?existingTraits:[]),`${capitalize(hair)}${__dialogueText("suspects/suspectFactory.js", "t_4d1719606ba0803eb04f")}`,...(data().visualTraits||[])]);
   const used=new Set(),traits=[];
   for(const trait of candidates){
     if(typeof trait!=='string'||!trait.trim())continue;
@@ -77,8 +78,8 @@ export function createDecoySuspect(index=0,source={}, {
   preserveCaseProgress=false,preservePersonalProfiles=true
 }={}){
   const genderCode=normalizeGenderCode(source.gender_code||source.genderCode||source.gender||source.publicProfile?.genderCode||(preserveCaseProgress?'nb':getGenderCode()));
-  const name=source.name||source.displayName||source.publicProfile?.displayName||(preserveCaseProgress?'Unknown Suspect':createFullName(genderCode));
-  const occupation=source.occupation||source.role||source.publicProfile?.occupation||(preserveCaseProgress?'Unknown occupation':randomItem(data().occupations));
+  const name=source.name||source.displayName||source.publicProfile?.displayName||(preserveCaseProgress?__dialogueText("suspects/suspectFactory.js", "t_0f8a2ae03744676a1421"):createFullName(genderCode));
+  const occupation=source.occupation||source.role||source.publicProfile?.occupation||(preserveCaseProgress?__dialogueText("suspects/suspectFactory.js", "t_2e6176101206609a4907"):randomItem(data().occupations));
   const forensicAttributes=normalizeForensicAttributes(source,genderCode,{preserveCaseProgress});
   const notes=getSuspectFileNotes(source);
   const visibleTraits=preserveCaseProgress?[...notes.visible]:createVisibleTraits(forensicAttributes,notes.visible);

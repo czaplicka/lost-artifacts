@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { DEDUCTION_EVIDENCE_REGISTRY } from '../scenes/CSI/DeductionEvidenceRegistry.js';
 import { FIELD_BY_ALIAS } from './gridConstants.js';
 
@@ -105,11 +106,11 @@ function fieldLabel(field) {
   const canonical = canonicalField(field);
 
   if (canonical === 'material_profile') {
-    return 'MATERIAL / FILE NOTES';
+    return __dialogueText("suspectsBoard/GridData.mixin.js", "t_87b82692cc6dcce39863");
   }
 
   if (canonical === 'dust_profile') {
-    return 'MICROTRACE / HOBBIES';
+    return __dialogueText("suspectsBoard/GridData.mixin.js", "t_a2df7c0d39e11ec0a06b");
   }
 
   return getFieldLabel(canonical);
@@ -131,7 +132,7 @@ export const GridDataMixin = {
     return (
       suspect?.publicProfile?.displayName ||
       suspect?.name ||
-      'Unknown'
+      __dialogueText("suspectsBoard/GridData.mixin.js", "t_b764cdc0eab713746721")
     );
   },
 
@@ -348,9 +349,9 @@ export const GridDataMixin = {
         clue.text ||
         clue.description ||
         (
-          type === 'crime_scene_fact'
-            ? `Crime scene result: ${fieldLabel(field)} is ${value}.`
-            : `${this.getSuspectDisplayName(suspect)}: ${fieldLabel(field)} is ${value}.`
+          type === __dialogueText("suspectsBoard/GridData.mixin.js", "t_4b2daddd496aa58de719")
+            ? `${__dialogueText("suspectsBoard/GridData.mixin.js", "t_c777a76f9374d856ab8e")}${fieldLabel(field)}${__dialogueText("suspectsBoard/GridData.mixin.js", "t_81afb10b461acd8f2b7e")}${value}${__dialogueText("suspectsBoard/GridData.mixin.js", "t_cdb4ee2aea69cc6a8333")}`
+            : `${this.getSuspectDisplayName(suspect)}${__dialogueText("suspectsBoard/GridData.mixin.js", "t_45822f54a0d0e030f756")}${fieldLabel(field)}${__dialogueText("suspectsBoard/GridData.mixin.js", "t_81afb10b461acd8f2b7e")}${value}${__dialogueText("suspectsBoard/GridData.mixin.js", "t_cdb4ee2aea69cc6a8333")}`
         )
     };
   },
@@ -407,14 +408,14 @@ export const GridDataMixin = {
         field,
         value: resultLabel(field, resolvedValue),
 
-        label: field === 'dust_profile'
-          ? 'MICROTRACE ANALYSIS'
-          : 'MATERIAL ANALYSIS',
+        label: field === __dialogueText("suspectsBoard/GridData.mixin.js", "t_f8326ff535e4b036f70b")
+          ? __dialogueText("suspectsBoard/GridData.mixin.js", "t_18213d067a58bdb27f29")
+          : __dialogueText("suspectsBoard/GridData.mixin.js", "t_417cac3597812e93560c"),
 
         text:
           result.clueText ||
           text ||
-          `Lab result: ${resultLabel(field, resolvedValue)}.`
+          `${__dialogueText("suspectsBoard/GridData.mixin.js", "t_9d3834f76e56ee1a557e")}${resultLabel(field, resolvedValue)}${__dialogueText("suspectsBoard/GridData.mixin.js", "t_cdb4ee2aea69cc6a8333")}`
       });
     };
 
@@ -462,7 +463,7 @@ export const GridDataMixin = {
 
       const text = template
         ? fillTemplate(template, { value: displayValue })
-        : `Crime scene result: ${fieldLabel(field)} is ${displayValue}.`;
+        : `${__dialogueText("suspectsBoard/GridData.mixin.js", "t_c777a76f9374d856ab8e")}${fieldLabel(field)}${__dialogueText("suspectsBoard/GridData.mixin.js", "t_81afb10b461acd8f2b7e")}${displayValue}${__dialogueText("suspectsBoard/GridData.mixin.js", "t_cdb4ee2aea69cc6a8333")}`;
 
       cards.push({
         id: `crime_scene_hard_${rawField}_${index}`,
@@ -513,7 +514,7 @@ export const GridDataMixin = {
 
       const text = template
         ? fillTemplate(template, { value: displayValue })
-        : `Lab result: ${fieldLabel(field)} is ${displayValue}.`;
+        : `${__dialogueText("suspectsBoard/GridData.mixin.js", "t_9d3834f76e56ee1a557e")}${fieldLabel(field)}${__dialogueText("suspectsBoard/GridData.mixin.js", "t_81afb10b461acd8f2b7e")}${displayValue}${__dialogueText("suspectsBoard/GridData.mixin.js", "t_cdb4ee2aea69cc6a8333")}`;
 
       cards.push({
         id: `crime_scene_trace_${rawField}_${index}`,
@@ -550,15 +551,15 @@ export const GridDataMixin = {
       : [
           {
             id: 'shoe_size_category',
-            label: 'SHOE SIZE'
+            label: __dialogueText("suspectsBoard/GridData.mixin.js", "t_3e123d9791e7963a31ef")
           },
           {
             id: 'handedness',
-            label: 'DOMINANT HAND'
+            label: __dialogueText("suspectsBoard/GridData.mixin.js", "t_ff71f64490560b300afa")
           },
           {
             id: 'blood_type',
-            label: 'BLOOD TYPE'
+            label: __dialogueText("suspectsBoard/GridData.mixin.js", "t_95d92096f95755553f37")
           }
         ];
   }

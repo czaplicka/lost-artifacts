@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import {
   moneyManager,
   MONEY_SOURCE,
@@ -34,7 +35,7 @@ export class SpyShopPurchaseService {
       return {
         ok: false,
         reason: 'unavailable',
-        message: 'This item is not ready for sale.'
+        message: __dialogueText("managers/SpyShopPurchaseService.js", "t_ec162ef5a87ef540a17b")
       };
     }
 
@@ -42,7 +43,7 @@ export class SpyShopPurchaseService {
       return {
         ok: false,
         reason: 'owned',
-        message: 'You already own this item.'
+        message: __dialogueText("managers/SpyShopPurchaseService.js", "t_5fd0f778b1950dd2dbe4")
       };
     }
 
@@ -52,7 +53,7 @@ export class SpyShopPurchaseService {
       return {
         ok: false,
         reason: 'full',
-        message: 'Inventory full. Even detectives need pockets.'
+        message: __dialogueText("managers/SpyShopPurchaseService.js", "t_c85655f5cad69897b5a8")
       };
     }
 
@@ -64,14 +65,14 @@ export class SpyShopPurchaseService {
       return {
         ok: false,
         reason: 'funds',
-        message: `Not enough cash. You need $${product.price - cash} more.`
+        message: `${__dialogueText("managers/SpyShopPurchaseService.js", "t_5d8ec5e2603b9d7f534f")}${product.price - cash}${__dialogueText("managers/SpyShopPurchaseService.js", "t_6b8d42aa37473c51f642")}`
       };
     }
 
     return {
       ok: true,
       reason: 'ready',
-      message: 'Pay with your private cash.'
+      message: __dialogueText("managers/SpyShopPurchaseService.js", "t_610871ae8a045143a63b")
     };
   }
 
@@ -80,7 +81,7 @@ export class SpyShopPurchaseService {
       return {
         ok: false,
         reason: 'busy',
-        message: 'Please wait for the current purchase.'
+        message: __dialogueText("managers/SpyShopPurchaseService.js", "t_f404204666e85e7f6014")
       };
     }
 
@@ -110,7 +111,7 @@ export class SpyShopPurchaseService {
         return {
           ok: false,
           reason: 'invalid',
-          message: 'Invalid catalogue entry. Nothing was charged.'
+          message: __dialogueText("managers/SpyShopPurchaseService.js", "t_1a5044253d1081d1919b")
         };
       }
 
@@ -123,7 +124,7 @@ export class SpyShopPurchaseService {
           source: MONEY_SOURCE.CASH,
           category: ECONOMY_CATEGORY.ITEM,
           missionId: null,
-          description: `Spy Shop: ${item.name}`,
+          description: `${__dialogueText("managers/SpyShopPurchaseService.js", "t_d80dea523831ad8182bb")}${item.name}`,
           metadata: {
             itemId: item.id,
             shopId: 'spy-shop',
@@ -136,7 +137,7 @@ export class SpyShopPurchaseService {
         return {
           ok: false,
           reason: 'funds',
-          message: 'Not enough cash. Nothing was purchased.'
+          message: __dialogueText("managers/SpyShopPurchaseService.js", "t_60c88bbf1ebbc0149a2f")
         };
       }
 
@@ -194,7 +195,7 @@ export class SpyShopPurchaseService {
       return {
         ok: false,
         reason: 'error',
-        message: 'Purchase failed. Check the console before trying again.'
+        message: __dialogueText("managers/SpyShopPurchaseService.js", "t_b528c70447a94f8ea09c")
       };
     } finally {
       this.busy = false;
@@ -218,15 +219,15 @@ export class SpyShopPurchaseService {
       saved,
       itemId: item.id,
       message:
-        `Bought: ${item.name} (-$${price}).` +
+        `${__dialogueText("managers/SpyShopPurchaseService.js", "t_e86efd9beafd0e66f6b1")}${item.name}${__dialogueText("managers/SpyShopPurchaseService.js", "t_f017fb75a0a8e11ec47c")}${price}${__dialogueText("managers/SpyShopPurchaseService.js", "t_c4b2896a2081395e2823")}` +
         (
           !saved
-            ? ' Autosave failed; save your game before leaving.'
+            ? __dialogueText("managers/SpyShopPurchaseService.js", "t_d9e651cc403c50f9feed")
             : ''
         ) +
         (
           eventWarning
-            ? ' A UI listener failed; see console.'
+            ? __dialogueText("managers/SpyShopPurchaseService.js", "t_4887b3434a5f58c6ff83")
             : ''
         )
     };
@@ -240,7 +241,7 @@ export class SpyShopPurchaseService {
           source: MONEY_SOURCE.CASH,
           category: ECONOMY_CATEGORY.REFUND,
           missionId: null,
-          description: 'Spy Shop: unsuccessful purchase refunded',
+          description: __dialogueText("managers/SpyShopPurchaseService.js", "t_46ee19c192e6573e988a"),
           metadata: {
             itemId: itemId ?? null,
             purchaseId: transaction.id,
@@ -261,7 +262,7 @@ export class SpyShopPurchaseService {
       return {
         ok: false,
         reason: 'refunded',
-        message: 'Item could not be added. Payment refunded.'
+        message: __dialogueText("managers/SpyShopPurchaseService.js", "t_9f920d41e8abfeb7faf7")
       };
     } catch (error) {
       console.error(
@@ -272,7 +273,7 @@ export class SpyShopPurchaseService {
       return {
         ok: false,
         reason: 'refund_error',
-        message: 'Purchase error. Check your cash and the console before trying again.'
+        message: __dialogueText("managers/SpyShopPurchaseService.js", "t_7d26734f8194716679d3")
       };
     }
   }

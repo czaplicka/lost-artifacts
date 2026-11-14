@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // suspectsBoard/SuspectExclusion.mixin.js
 
 
@@ -54,7 +55,7 @@ export const SuspectExclusionMixin = {
 
     const result = energyManager.consumeCustom(
       EVIDENCE_GRID_ENERGY_COST,
-      `Evidence Grid: -${EVIDENCE_GRID_ENERGY_COST}`,
+      `${__dialogueText("suspectsBoard/SuspectExclusion.mixin.js", "t_1d87e52fb2b5bcd72111")}${EVIDENCE_GRID_ENERGY_COST}`,
       {
         requireFullAmount: true,
         activityType: 'suspect_exclusion'
@@ -65,7 +66,7 @@ export const SuspectExclusionMixin = {
     if (!result?.success) {
       this.modeHintText?.setText(
         result?.message ||
-          'The Evidence Grid could not be opened.'
+          __dialogueText("suspectsBoard/SuspectExclusion.mixin.js", "t_22c343893639580926a8")
       );
 
 
@@ -95,7 +96,7 @@ export const SuspectExclusionMixin = {
   // Zgodność ze starym kodem: wykluczanie dzieje się tylko w Evidence Grid.
   toggleSuspectExclusion() {
     this.modeHintText?.setText(
-      'Suspects are ruled out on the Evidence Grid.'
+      __dialogueText("suspectsBoard/SuspectExclusion.mixin.js", "t_675cf606110bbe5d8cca")
     );
 
 
@@ -114,7 +115,7 @@ export const SuspectExclusionMixin = {
 
 
     if (this.exclusionFinished) {
-      this.continueButton.buttonText.setText('[ GRID SUBMITTED ]');
+      this.continueButton.buttonText.setText(__dialogueText("suspectsBoard/SuspectExclusion.mixin.js", "t_5bc9a22b295ac27a8a27"));
       this.setButtonEnabled(this.continueButton, false);
 
 
@@ -124,7 +125,7 @@ export const SuspectExclusionMixin = {
 
 
       this.modeHintText?.setText(
-        `Evidence Grid submitted. ${clearedCount} file(s) cleared. Alibi contacts are now available in Crime City.`
+        `${__dialogueText("suspectsBoard/SuspectExclusion.mixin.js", "t_e602c4bfb6b313be1cce")}${clearedCount}${__dialogueText("suspectsBoard/SuspectExclusion.mixin.js", "t_59d002d676dde38d157e")}`
       );
 
 
@@ -133,12 +134,12 @@ export const SuspectExclusionMixin = {
 
 
     if (!this.getCrimeLabCompleted()) {
-      this.continueButton.buttonText.setText('[ CRIME LAB REQUIRED ]');
+      this.continueButton.buttonText.setText(__dialogueText("suspectsBoard/SuspectExclusion.mixin.js", "t_9551968a134b708f784d"));
       this.setButtonEnabled(this.continueButton, false);
 
 
       this.modeHintText?.setText(
-        'Complete the Crime Lab to unlock the Evidence Grid.'
+        __dialogueText("suspectsBoard/SuspectExclusion.mixin.js", "t_c9a1735abc7f8f89e6b3")
       );
 
 
@@ -151,7 +152,7 @@ export const SuspectExclusionMixin = {
 
 
     this.continueButton.buttonText.setText(
-      alreadyPaid ? '[ RESUME GRID ]' : '[ EVIDENCE GRID ]'
+      alreadyPaid ? __dialogueText("suspectsBoard/SuspectExclusion.mixin.js", "t_afbf87c0050ca3de025d") : __dialogueText("suspectsBoard/SuspectExclusion.mixin.js", "t_fc203ca20a78a14a9f07")
     );
 
 
@@ -160,8 +161,8 @@ export const SuspectExclusionMixin = {
 
     this.modeHintText?.setText(
       alreadyPaid
-        ? 'Resume your Evidence Grid. No additional energy cost.'
-        : `Rule suspects out on the Evidence Grid. Starting costs ${EVIDENCE_GRID_ENERGY_COST} energy.`
+        ? __dialogueText("suspectsBoard/SuspectExclusion.mixin.js", "t_2c8a152549f58db3ca89")
+        : `${__dialogueText("suspectsBoard/SuspectExclusion.mixin.js", "t_6fb2892db8eb45dd3f02")}${EVIDENCE_GRID_ENERGY_COST}${__dialogueText("suspectsBoard/SuspectExclusion.mixin.js", "t_936697a09eb5e43ff87a")}`
     );
   },
 
@@ -275,7 +276,7 @@ export const SuspectExclusionMixin = {
 
     if (!this.getCrimeLabCompleted()) {
       this.modeHintText?.setText(
-        'Complete the Crime Lab to unlock the Evidence Grid.'
+        __dialogueText("suspectsBoard/SuspectExclusion.mixin.js", "t_c9a1735abc7f8f89e6b3")
       );
 
 
@@ -285,7 +286,7 @@ export const SuspectExclusionMixin = {
 
     if (getEnergyManager().isForcedSleepActive()) {
       this.modeHintText?.setText(
-        'You are currently asleep. Resume the review after resting.'
+        __dialogueText("suspectsBoard/SuspectExclusion.mixin.js", "t_666195422274738bfcaa")
       );
 
 
@@ -349,7 +350,7 @@ export const SuspectExclusionMixin = {
 
       if (!moved && !this._cleanupDone) {
         this.modeHintText?.setText(
-          'The Evidence Grid could not be opened.'
+          __dialogueText("suspectsBoard/SuspectExclusion.mixin.js", "t_22c343893639580926a8")
         );
       }
 
@@ -364,7 +365,7 @@ export const SuspectExclusionMixin = {
 
       if (!this._cleanupDone) {
         this.modeHintText?.setText(
-          'The Evidence Grid could not be loaded.'
+          __dialogueText("suspectsBoard/SuspectExclusion.mixin.js", "t_26f973d25004f56a1dc8")
         );
       }
 

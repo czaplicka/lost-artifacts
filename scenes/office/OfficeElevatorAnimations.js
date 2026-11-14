@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 const STATES = {
   elevator_broken: 'broken',
   elevator_close: 'closed',
@@ -106,13 +107,13 @@ export class OfficeElevatorAnimations {
       const cycle = this.elapsed % 16000;
       const showing = cycle >= 1800 && cycle < 4100;
       const joke = Math.floor(this.elapsed / 16000) % 4 === 3;
-      this.label.setColor('#df8a76').setText(showing ? (joke ? 'NOPE' : 'ERR') : '');
+      this.label.setColor(__dialogueText("scenes/office/OfficeElevatorAnimations.js", "t_010dc4a5f4aa08b3998d")).setText(showing ? (joke ? __dialogueText("scenes/office/OfficeElevatorAnimations.js", "t_bcc85c758a6679b1320e") : __dialogueText("scenes/office/OfficeElevatorAnimations.js", "t_af440ad05977eb32497d")) : '');
       if (showing) {
         g.fillStyle(0xd07b62, 0.07);
         g.fillRect(x + 2, y + 2, 105, 80);
       }
     } else {
-      this.label.setColor('#94cbb3').setText(this.state === 'open' ? 'OPEN' : 'READY');
+      this.label.setColor(__dialogueText("scenes/office/OfficeElevatorAnimations.js", "t_c7f91bc1d4f7822f08be")).setText(this.state === __dialogueText("scenes/office/OfficeElevatorAnimations.js", "t_2348f998744212575d85") ? __dialogueText("scenes/office/OfficeElevatorAnimations.js", "t_6e10953f3e4ca159285c") : __dialogueText("scenes/office/OfficeElevatorAnimations.js", "t_c2e3ac47f4a325469c1a"));
       g.fillStyle(0x86ccb0, 0.05);
       g.fillRect(x + 2, y + 2, 105, 80);
     }

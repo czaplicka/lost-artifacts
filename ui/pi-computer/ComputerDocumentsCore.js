@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import {
   ComputerDocuments as ComputerDocumentsBase
 } from './ComputerDocumentsBase.js';
@@ -50,7 +51,7 @@ export class ComputerDocuments extends ComputerDocumentsBase {
       if (
         ui.app === 'mail' &&
         (
-          normalized === 'CASE REVIEW' ||
+          normalized === __dialogueText("ui/pi-computer/ComputerDocumentsCore.js", "t_29304bf6838d0fc4a1c1") ||
           normalized === 'REVIEW'
         )
       ) {
@@ -111,7 +112,7 @@ export class ComputerDocuments extends ComputerDocumentsBase {
     const title = d.pixel(
       titleX,
       py + 26,
-      selected.subject || 'Untitled message',
+      selected.subject || __dialogueText("ui/pi-computer/ComputerDocumentsCore.js", "t_21ac0234c691bebd8b77"),
       12,
       COLORS.text,
       titleWidth
@@ -140,7 +141,7 @@ export class ComputerDocuments extends ComputerDocumentsBase {
     const sender = d.text(
       x0 + labelWidth,
       rowY,
-      selected.from || 'Unknown sender',
+      selected.from || __dialogueText("ui/pi-computer/ComputerDocumentsCore.js", "t_615f9907b88042a4f975"),
       16,
       COLORS.muted,
       valueWidth
@@ -166,7 +167,7 @@ export class ComputerDocuments extends ComputerDocumentsBase {
       const attachments = d.text(
         x0 + labelWidth,
         rowY,
-        `${files} attachment${files === 1 ? '' : 's'}`,
+        `${files}${__dialogueText("ui/pi-computer/ComputerDocumentsCore.js", "t_daa870cc347fb50b985e")}${files === 1 ? '' : 's'}`,
         16,
         COLORS.muted,
         valueWidth

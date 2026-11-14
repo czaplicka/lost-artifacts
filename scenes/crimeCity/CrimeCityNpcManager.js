@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 import { getCaseSuspects } from '../../suspects/CaseSuspects.js';
 import { buildCrimeCityLayout } from './CrimeCityLayout.js';
@@ -61,7 +62,7 @@ export class CrimeCityNpcManager {
     return getCaseSuspects(gameState);
   }
 
-  getSuspectName(suspectId, fallback = 'Suspect') {
+  getSuspectName(suspectId, fallback = __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_f5ebb28614ebb0ee63cb")) {
     const suspect = this.getCaseSuspects().find(
       entry => entry?.id === suspectId
     );
@@ -247,7 +248,7 @@ export class CrimeCityNpcManager {
           continue;
         }
 
-        if (object.type === 'Image') {
+        if (object.type === __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_1aa4cb0bcca76e92e306")) {
           const maxSide = Math.max(
             object.width,
             object.height,
@@ -266,11 +267,11 @@ export class CrimeCityNpcManager {
             w,
             h
           );
-        } else if (object.type === 'Graphics') {
+        } else if (object.type === __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_a874fca87cdd5e4e6770")) {
           add(object.x - 12, object.y - 13, 24, 26);
         } else if (typeof object.getBounds === 'function') {
           const b = object.getBounds();
-          const pad = object.type === 'Arc' ? 8 : 0;
+          const pad = object.type === __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_7291b1b6320fe0737cd6") ? 8 : 0;
 
           add(
             b.x - pad,
@@ -736,7 +737,7 @@ export class CrimeCityNpcManager {
     const label = this.scene.add.text(
       slot.x,
       labelY,
-      encounter.witnessRole || encounter.npcName || 'Contact',
+      encounter.witnessRole || encounter.npcName || __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_2b5c3d26721ae9c350cf"),
       {
         fontFamily: 'SpecialElite',
         fontSize: `${18 * scale}px`,
@@ -812,7 +813,7 @@ export class CrimeCityNpcManager {
     const badge = this.scene.add.text(
       position.x,
       position.y,
-      excluded ? 'Out' : visited ? 'Done' : 'Alibi',
+      excluded ? __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_9a3c5460432ba66a10b0") : visited ? __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_11a6767d5674c7e45f7e") : __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_cc721a5ac5b0fd9e79d7"),
       {
         fontFamily: 'SpecialElite',
         fontSize: `${13 * scale}px`,
@@ -858,10 +859,10 @@ export class CrimeCityNpcManager {
 
     if (!this.canAccessEncounter(encounter)) {
       scene.showMessage(
-        'Complete and confirm the preliminary suspect review first.\n' +
-        'Only the remaining files can move to alibi interviews.',
+        __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_7797c5a6761bd29358d7") +
+        __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_373135cbcda06548aa2d"),
         2800,
-        '#5d2a00'
+        __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_e09afad9b0dfcb2294f9")
       );
 
       return;
@@ -869,10 +870,10 @@ export class CrimeCityNpcManager {
 
     if (this.isSuspectExcluded(encounter.suspectId)) {
       scene.showMessage(
-        `${encounter.label || 'This person'} is already excluded.\n` +
-        'Interrogating them again would be rude. And inefficient.',
+        `${encounter.label || __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_75a49069894300cfc7f9")}${__dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_83ba554e4358d613d014")}` +
+        __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_164c6c00d078e79d1f2a"),
         2600,
-        '#5d2a00'
+        __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_e09afad9b0dfcb2294f9")
       );
 
       return;
@@ -892,9 +893,9 @@ export class CrimeCityNpcManager {
       );
 
       scene.showMessage(
-        'This witness file is incomplete.',
+        __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_8b7b6cf853cb05e61081"),
         2600,
-        '#8b0000'
+        __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_f27f7bc32875ed02b2fc")
       );
 
       return;
@@ -958,10 +959,10 @@ export class CrimeCityNpcManager {
         scene.sys.isActive()
       ) {
         scene.showMessage(
-          'The interview room could not be opened.\n' +
-          'Check the AlibiScene loading error in the console.',
+          __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_a96f7fe94e1a543ad9f2") +
+          __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_d01c6cde8223fe1f187b"),
           3500,
-          '#8b0000'
+          __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_f27f7bc32875ed02b2fc")
         );
       }
     } finally {
@@ -1032,15 +1033,15 @@ export class CrimeCityNpcManager {
 
   showLayoutHint() {
     return this.createMapHint([
-      'Not enough room to display the alibi contacts.',
-      'Enlarge the game window to see the witness groups.'
+      __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_ee1007537eaf9fde6799"),
+      __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_c40c98a91d958f32263a")
     ]);
   }
 
   showEmptyLeadHint() {
     return this.createMapHint([
-      'No alibi contacts are available for the remaining suspects.',
-      'The witness list appears to have taken a personal day.'
+      __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_e3eb7d90a1dab1170d90"),
+      __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_880cf5d367d3e742bc48")
     ]);
   }
 
@@ -1050,7 +1051,7 @@ export class CrimeCityNpcManager {
     const hint = this.scene.add.text(
       width / 2,
       height - 86,
-      lines.join('\n'),
+      lines.join(__dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_01ba4719c80b6fe911b0")),
       {
         fontFamily: 'SpecialElite',
         fontSize: '16px',

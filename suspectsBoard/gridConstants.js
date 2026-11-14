@@ -1,83 +1,84 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // suspectsBoard/gridConstants.js
 
 export const FIELD_DEFS = [
   {
     id: 'hair_color',
     aliases: ['hair', 'hairColor'],
-    label: 'HAIR COLOR'
+    label: __dialogueText("suspectsBoard/gridConstants.js", "t_9be86624f7f43b815b19")
   },
   {
     id: 'blood_type',
     aliases: ['bloodType'],
-    label: 'BLOOD TYPE'
+    label: __dialogueText("suspectsBoard/gridConstants.js", "t_95d92096f95755553f37")
   },
   {
     id: 'biological_sex',
     aliases: [
       'gender', 'sex', 'biologicalSex', 'dna_gender', 'dna_profile'
     ],
-    label: 'DNA PROFILE'
+    label: __dialogueText("suspectsBoard/gridConstants.js", "t_bf6e9d9b603476cab4da")
   },
   {
     id: 'fingerprint_pattern',
     aliases: ['fingerprintPattern'],
-    label: 'FINGERPRINT'
+    label: __dialogueText("suspectsBoard/gridConstants.js", "t_0de0d411a6eb00eb2a5a")
   },
   {
     id: 'shoe_size_category',
     aliases: ['shoeSizeCategory'],
-    label: 'SHOE SIZE'
+    label: __dialogueText("suspectsBoard/gridConstants.js", "t_3e123d9791e7963a31ef")
   },
   {
     id: 'dust_profile',
     aliases: ['dustProfile', 'microtrace', 'microtrace_profile'],
-    label: 'MICROTRACE / HOBBIES'
+    label: __dialogueText("suspectsBoard/gridConstants.js", "t_a2df7c0d39e11ec0a06b")
   },
   {
     id: 'handedness',
     aliases: ['dominantHand', 'dominant_hand'],
-    label: 'DOMINANT HAND'
+    label: __dialogueText("suspectsBoard/gridConstants.js", "t_ff71f64490560b300afa")
   },
   {
     id: 'material_profile',
     aliases: ['materialProfile'],
-    label: 'MATERIAL / FILE NOTES'
+    label: __dialogueText("suspectsBoard/gridConstants.js", "t_87b82692cc6dcce39863")
   },
   {
     // Legacy only: no automatic conversion to the new material schema.
     id: 'fiber_profile',
     aliases: ['fiberProfile'],
-    label: 'FIBER ANALYSIS'
+    label: __dialogueText("suspectsBoard/gridConstants.js", "t_c734a6f0b9822dccce03")
   },
   {
     id: 'eye_color',
     aliases: ['eyes', 'eyeColor'],
-    label: 'EYE COLOR'
+    label: __dialogueText("suspectsBoard/gridConstants.js", "t_11ac62cf6f2fb7c695b7")
   },
   {
     id: 'race',
     aliases: ['ancestry'],
-    label: 'ANCESTRY'
+    label: __dialogueText("suspectsBoard/gridConstants.js", "t_b293d9ae7302a1380124")
   },
   {
     id: 'skills',
     aliases: [],
-    label: 'CRIMINAL SKILLS'
+    label: __dialogueText("suspectsBoard/gridConstants.js", "t_378a46f1eb8ddc234d12")
   },
   {
     id: 'habitus',
     aliases: [],
-    label: 'HABITS'
+    label: __dialogueText("suspectsBoard/gridConstants.js", "t_b6bdcfdb176d8ad35174")
   },
   {
     id: 'alibi',
     aliases: [],
-    label: 'ALIBI'
+    label: __dialogueText("suspectsBoard/gridConstants.js", "t_6bb9417d04fe2d77255e")
   },
   {
     id: 'motive',
     aliases: [],
-    label: 'MOTIVE'
+    label: __dialogueText("suspectsBoard/gridConstants.js", "t_34b3505c413a9872098d")
   }
 ];
 
@@ -114,4 +115,4 @@ export const COLORS = {
 };
 
 export const RULED_OUT_EVERYONE_REASON =
-  'You ruled out every single suspect. With nobody left to investigate, the case went cold and the thief walked free.';
+  __dialogueText("suspectsBoard/gridConstants.js", "t_20286ea42aad28b7fa13");

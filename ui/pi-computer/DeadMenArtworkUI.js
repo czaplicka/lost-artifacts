@@ -1,7 +1,8 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { getDeadMenArtwork, deadMenArtRoleForMail, syncDeadMenArtwork } from '../../managers/DeadMenArtwork.js';
 
 const caches=new WeakMap();
-const labels={couplePhoto:'Margaret & Edward',colin:'Colin Ward',blueFolder:'The blue folder',recorder:'Archive recorder'};
+const labels={couplePhoto:__dialogueText("ui/pi-computer/DeadMenArtworkUI.js", "t_2d0822e7386217e4dcd0"),colin:__dialogueText("ui/pi-computer/DeadMenArtworkUI.js", "t_b7e5ae2ffc6f69bea5b4"),blueFolder:__dialogueText("ui/pi-computer/DeadMenArtworkUI.js", "t_400b60153e1809fa50a3"),recorder:__dialogueText("ui/pi-computer/DeadMenArtworkUI.js", "t_3086c76e1f5820bae0ab")};
 function refresh(ui){if(ui.isOpen&&!ui.destroyed&&!ui.suspended&&!ui.booting)ui.render();}
 export function loadDeadMenTexture(scene,asset,retry=false){
  const textures=scene.textures;if(textures.exists(asset.key))return Promise.resolve(true);
@@ -46,7 +47,7 @@ export class DeadMenArtworkUI{
    hit.on('pointerdown',()=>{this.zoom={id,key:asset.key};ui.bodyPage=0;ui.render();});
   }else{
    const failed=this.status.get(asset.key)==='failed';
-   const text=d.text(x+5,y+10,failed?'Image missing.\nClick to retry.':'Loading\nillustration…',12,'#625b49',w-10);
+   const text=d.text(x+5,y+10,failed?__dialogueText("ui/pi-computer/DeadMenArtworkUI.js", "t_b926831707f45c878533"):__dialogueText("ui/pi-computer/DeadMenArtworkUI.js", "t_140ad9f6e55c6061d438"),12,'#625b49',w-10);
    if(failed)text.setInteractive({useHandCursor:true}).on('pointerdown',()=>{this.ensure(asset,true);ui.render();});
   }
   return asset;
@@ -58,7 +59,7 @@ export class DeadMenArtworkUI{
   d.rectangle(x,y,w,h,0xfaf7ed);
   this.image(asset,x+8,y+8,w-16,Math.max(20,h-76));
   d.text(x+8,y+h-64,asset.label,14,'#44402f',w-16);
-  d.button(x+8,y+h-34,'BACK TO MESSAGE',()=>{this.zoom=null;ui.bodyPage=0;ui.render();});
+  d.button(x+8,y+h-34,__dialogueText("ui/pi-computer/DeadMenArtworkUI.js", "t_df3a8dc6ef1a5c9ee7f1"),()=>{this.zoom=null;ui.bodyPage=0;ui.render();});
   return true;
  }
  sync(){syncDeadMenArtwork(this.ui.scene);}

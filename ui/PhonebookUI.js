@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { audioManager } from '../managers/AudioManager.js';
 import { EventBus } from '../EventBus.js';
 import { canUsePhone } from './phoneAccess.js';
@@ -16,7 +17,7 @@ export class PhonebookUI {
         this.boundToggleHandler = this.onToggleKeyDown.bind(this);
         this.boundAccessHandler = this.checkPhoneAccess.bind(this);
 
-        this.currentCity = 'UNKNOWN CITY';
+        this.currentCity = __dialogueText("ui/PhonebookUI.js", "t_031708f5a6c18e0a6279");
         this.policeAvailable = true;
 
         this.staticContacts = [
@@ -45,13 +46,13 @@ export class PhonebookUI {
                 available: true
             },
             {
-                name: 'INSP. HOLMES',
+                name: __dialogueText("ui/PhonebookUI.js", "t_556fae1490abd0fbbbfa"),
                 number: '555-0221',
                 key: 'holmes',
                 available: true
             },
             {
-                name: 'SGT. WATSON',
+                name: __dialogueText("ui/PhonebookUI.js", "t_d4a54e3fada33db9930f"),
                 number: '555-0233',
                 key: 'watson',
                 available: true
@@ -115,7 +116,7 @@ export class PhonebookUI {
 
     getContacts() {
         const policeContact = {
-            name: `POLICE STATION (${this.currentCity.toUpperCase()})`,
+            name: `${__dialogueText("ui/PhonebookUI.js", "t_603e94346a3cfecd4402")}${this.currentCity.toUpperCase()}${__dialogueText("ui/PhonebookUI.js", "t_ba5ec51d07a4ac0e9516")}`,
             number: this.getPoliceNumber(),
             key: 'police-station',
             available: true
@@ -140,7 +141,7 @@ export class PhonebookUI {
     }
 
     setCrimeCity(cityName) {
-        this.currentCity = cityName || 'UNKNOWN CITY';
+        this.currentCity = cityName || __dialogueText("ui/PhonebookUI.js", "t_031708f5a6c18e0a6279");
         this.policeAvailable = true;
         this.rebuildList();
     }
@@ -181,7 +182,7 @@ export class PhonebookUI {
             .setInteractive({ useHandCursor: true });
 
         this.closeHint = this.scene.add
-            .text(660, -440, 'X', {
+            .text(660, -440, __dialogueText("ui/PhonebookUI.js", "t_4b68ab3847feda7d6c62"), {
                 fontFamily: 'PressStart2P',
                 fontSize: '28px',
                 color: '#e0ff8c'
@@ -205,7 +206,7 @@ export class PhonebookUI {
         );
 
         this.titleText = this.scene.add
-            .text(0, -400, 'PHONE BOOK', {
+            .text(0, -400, __dialogueText("ui/PhonebookUI.js", "t_318b111d5cb53245c1fd"), {
                 fontFamily: 'PressStart2P',
                 fontSize: '28px',
                 color: '#e0ff8c'
@@ -458,7 +459,7 @@ export class PhonebookUI {
         pair.nameText.setColor('#8a1f1f');
         pair.numberText.setColor('#8a1f1f');
 
-        this.setStatus(`Dialing: ${contact.number}...`);
+        this.setStatus(`${__dialogueText("ui/PhonebookUI.js", "t_296f6b8bc57f89d0c38f")}${contact.number}${__dialogueText("ui/PhonebookUI.js", "t_ab5df625bc76dbd4e163")}`);
         this.playDialSequence(contact);
     }
 
@@ -513,7 +514,7 @@ export class PhonebookUI {
         }
 
         this._callPhase = 'ringing';
-        this.setStatus('Connecting...');
+        this.setStatus(__dialogueText("ui/PhonebookUI.js", "t_5f04ae9ed6a865bb382c"));
 
         this.ringingSound = audioManager.playPersistentLoop(
             'sfx_ringing'
@@ -544,8 +545,8 @@ export class PhonebookUI {
 
         this.setStatus(
             outcome === 'busy'
-                ? 'Line busy...'
-                : 'No answer...'
+                ? __dialogueText("ui/PhonebookUI.js", "t_7a9762b3ef47f5529549")
+                : __dialogueText("ui/PhonebookUI.js", "t_68209352558e8398c009")
         );
 
         this.pulseStatus();
@@ -571,8 +572,8 @@ export class PhonebookUI {
         this.statusText.setAlpha(1);
 
         const message = outcome === 'busy'
-            ? 'The line is busy. Try again later.'
-            : 'No one is picking up.';
+            ? __dialogueText("ui/PhonebookUI.js", "t_a8aea79a3c04f4ac2a16")
+            : __dialogueText("ui/PhonebookUI.js", "t_a5af6727c428735b6b13");
 
         this.setStatus(message);
 
@@ -642,7 +643,7 @@ export class PhonebookUI {
             'sfx_pickup'
         );
 
-        this.setStatus(`Connected: ${contact.name}`);
+        this.setStatus(`${__dialogueText("ui/PhonebookUI.js", "t_d5d720cd533871cc0b3a")}${contact.name}`);
 
         this._later(600, () => this.finishCall(contact));
     }

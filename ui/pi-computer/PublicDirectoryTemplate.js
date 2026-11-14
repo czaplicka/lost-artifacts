@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { getSearchProgress } from './ComputerSearchCore.js';
 import { bindKeywordStyle, refreshKeywordStyles } from './KeywordStyle.js';
 
@@ -37,9 +38,9 @@ export function directoryRows(search, page, width, size) {
 
 function listingType(page) {
   if (/classif|search_noise/i.test(page.id + ' ' + page.title)) return 'CLASSIFIEDS';
-  if (/directory|profile|contact/i.test(page.id + ' ' + page.title)) return 'PUBLIC RECORD';
-  if (/repair|business|collection/i.test(page.id + ' ' + page.title)) return 'LOCAL BUSINESS';
-  return 'AROUND TOWN';
+  if (/directory|profile|contact/i.test(page.id + ' ' + page.title)) return __dialogueText("ui/pi-computer/PublicDirectoryTemplate.js", "t_f00dc23c87febf04fefc");
+  if (/repair|business|collection/i.test(page.id + ' ' + page.title)) return __dialogueText("ui/pi-computer/PublicDirectoryTemplate.js", "t_cea12f93e35a34e3a512");
+  return __dialogueText("ui/pi-computer/PublicDirectoryTemplate.js", "t_ae5f8efdfe9f24dd3055");
 }
 
 export function renderPublicDirectory(search, page) {
@@ -78,7 +79,7 @@ export function renderPublicDirectory(search, page) {
   d.rectangle(b.x+5,b.y+5,b.w,b.h,0,.3);
   d.bevel(b.x,b.y,b.w,b.h,0xc8c2ae);
   d.rectangle(b.x+4,b.y+4,b.w-8,28,0x493e50);
-  fit(b.x+13,b.y+13,'OWL NAVIGATOR / '+(city?'CITY INDEX':'PUBLIC DIRECTORY'),b.w-66,8,'#f9e8bb',true);
+  fit(b.x+13,b.y+13,__dialogueText("ui/pi-computer/PublicDirectoryTemplate.js", "t_6a5469aa820b1a95a6fd")+(city?__dialogueText("ui/pi-computer/PublicDirectoryTemplate.js", "t_048429a968ef2110b807"):__dialogueText("ui/pi-computer/PublicDirectoryTemplate.js", "t_2f1997be3cc278772751")),b.w-66,8,'#f9e8bb',true);
   button(b.x+b.w-32,b.y+7,23,21,'X',()=>search.back());
   const ay=b.y+38;
   button(b.x+10,ay,45,27,'<',()=>search.back());
@@ -95,18 +96,18 @@ export function renderPublicDirectory(search, page) {
   d.bevel(sx+12,hy+12,markW,hh-27,gold);
   fit(sx+19,hy+22,city?'CI':'PD',markW-14,compact?12:16,'#213e48',true);
   const bx=sx+markW+24;
-  fit(bx,hy+14,city?'CITY INDEX':'PUBLIC DIRECTORY',sw-markW-38,compact?16:21,'#fff0c5',true);
-  fit(bx,hy+hh-25,page.tagline||(city?'Your town. Alphabetically suspicious.':'Public details. Private lives not included.'),sw-markW-38,compact?10:12,'#cedcd1');
+  fit(bx,hy+14,city?__dialogueText("ui/pi-computer/PublicDirectoryTemplate.js", "t_048429a968ef2110b807"):__dialogueText("ui/pi-computer/PublicDirectoryTemplate.js", "t_2f1997be3cc278772751"),sw-markW-38,compact?16:21,'#fff0c5',true);
+  fit(bx,hy+hh-25,page.tagline||(city?__dialogueText("ui/pi-computer/PublicDirectoryTemplate.js", "t_cd2472c504655cac4870"):__dialogueText("ui/pi-computer/PublicDirectoryTemplate.js", "t_52266744f5d65821f4d5")),sw-markW-38,compact?10:12,'#cedcd1');
 
   const ny=hy+hh+6, nh=28;
   d.rectangle(sx,ny,sw,nh,0xd6dfcc);
-  if(city && validPage('search_context')) button(sx+3,ny+2,118,24,'AROUND TOWN',()=>open('search_context'),true,page.id==='search_context');
+  if(city && validPage('search_context')) button(sx+3,ny+2,118,24,__dialogueText("ui/pi-computer/PublicDirectoryTemplate.js", "t_ae5f8efdfe9f24dd3055"),()=>open('search_context'),true,page.id==='search_context');
   const section=listingType(page);
   fit(sx+(city&&validPage('search_context')?132:12),ny+9,section,Math.max(1,sw-240),8,ink,true);
   button(sx+sw-88,ny+2,85,24,'NOTES',notes);
 
   const cy=ny+nh+gap, footer=b.y+b.h-35, ch=footer-cy-gap;
-  if(ch<100){fit(sx+8,cy,'Enlarge the game window to read this listing.',sw-16,12);return true;}
+  if(ch<100){fit(sx+8,cy,__dialogueText("ui/pi-computer/PublicDirectoryTemplate.js", "t_318c151efc58590ef3ec"),sw-16,12);return true;}
   // Only declared links become navigation. No new quest routes or clue sources.
   const links=(page.links||[]).filter(link=>validPage(link.pageId));
   const sidebar=sw>=780&&ch>=240, railW=sidebar?200:0;
@@ -114,27 +115,27 @@ export function renderPublicDirectory(search, page) {
   if(sidebar){
     d.bevel(sx,cy,railW,ch,0xe7ddbd);
     d.rectangle(sx+8,cy+8,railW-16,28,teal);
-    fit(sx+17,cy+18,city?'CITY DESK':'INDEX CARD',railW-34,8,'#fff1ca',true);
+    fit(sx+17,cy+18,city?__dialogueText("ui/pi-computer/PublicDirectoryTemplate.js", "t_309c9082b12eb59db821"):__dialogueText("ui/pi-computer/PublicDirectoryTemplate.js", "t_852c2c585d16714a4c00"),railW-34,8,'#fff1ca',true);
     fit(sx+14,cy+51,'SOURCE',railW-28,8,muted,true);
-    fit(sx+14,cy+72,page.brand||'Public directory',railW-28,14);
+    fit(sx+14,cy+72,page.brand||__dialogueText("ui/pi-computer/PublicDirectoryTemplate.js", "t_2b6c036f1f5287ca4fd6"),railW-28,14);
     fit(sx+14,cy+107,'SECTION',railW-28,8,muted,true);
     fit(sx+14,cy+129,section,railW-28,10,ink,true);
     let y=cy+170;
     if(links.length && ch>285){
-      fit(sx+14,y,'RELATED PAGES',railW-28,8,muted,true);y+=23;
+      fit(sx+14,y,__dialogueText("ui/pi-computer/PublicDirectoryTemplate.js", "t_d061f06e7982be43ee6a"),railW-28,8,muted,true);y+=23;
       const slots=Math.max(0,Math.floor((cy+ch-69-y)/33));
       for(const link of links.slice(0,slots)){button(sx+12,y,railW-24,27,link.label,()=>open(link.pageId));y+=33;}
     }
     if(ch>310){
       d.rectangle(sx+12,cy+ch-62,railW-24,1,0xb8aa84);
-      fit(sx+14,cy+ch-49,'A listing is a lead.',railW-28,12,muted);
-      fit(sx+14,cy+ch-29,'Not an alibi.',railW-28,12,muted);
+      fit(sx+14,cy+ch-49,__dialogueText("ui/pi-computer/PublicDirectoryTemplate.js", "t_84a6be3f31bbfef2667d"),railW-28,12,muted);
+      fit(sx+14,cy+ch-29,__dialogueText("ui/pi-computer/PublicDirectoryTemplate.js", "t_6e9ed4efc3ed7cdfd0e5"),railW-28,12,muted);
     }
   }
   d.bevel(cx,cy,cw,ch,paper,true);
   d.rectangle(cx+10,cy+10,cw-20,27,0xe8d9ab);
   fit(cx+20,cy+19,section,cw-40,8,ink,true);
-  const title=String(page.heading||page.title||'Public listing').replace(/^City Index\s*\|\s*/i,'');
+  const title=String(page.heading||page.title||__dialogueText("ui/pi-computer/PublicDirectoryTemplate.js", "t_6bfcde41fb63e6015cfb")).replace(/^City Index\s*\|\s*/i,'');
   const heading=fit(cx+18,cy+49,title,cw-36,compact?17:21);
   const top=Math.max(cy+86,heading.y+heading.height+14);
   d.rectangle(cx+16,top-8,cw-32,2,gold);
@@ -168,11 +169,11 @@ export function renderPublicDirectory(search, page) {
       x+=search.textWidth(part.text,size);
     }
   });
-  if(!rows.length)fit(cx+20,top,'No public details have been published.',cw-40,14,muted);
+  if(!rows.length)fit(cx+20,top,__dialogueText("ui/pi-computer/PublicDirectoryTemplate.js", "t_50c64ce32a94a60fc008"),cw-40,14,muted);
   button(sx,footer,42,26,'<',()=>{search.bodyPage--;search.refresh();},search.bodyPage>0);
   button(sx+48,footer,42,26,'>',()=>{search.bodyPage++;search.refresh();},search.bodyPage<count-1);
   fit(sx+101,footer+8,`${search.bodyPage+1} / ${count}`,70,11,muted);
-  if(sw>490)fit(sx+180,footer+8,'Marked text: save clue. Blue links: open page.',sw-278,10,muted);
+  if(sw>490)fit(sx+180,footer+8,__dialogueText("ui/pi-computer/PublicDirectoryTemplate.js", "t_73e4a243577fc27a6586"),sw-278,10,muted);
   button(sx+sw-86,footer,86,26,'NOTES',notes);
   return true;
 }

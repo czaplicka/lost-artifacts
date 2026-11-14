@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 // scenes/travel/TravelSeaLife.js
 // Sea-voyage extras for TravelRouteStage (only created for ship legs):
 //   - three seagulls hovering around the ship, flapping, lagging a little behind it
@@ -9,7 +10,7 @@
 import { TRAVEL_DEPTH, fs } from './TravelTextures.js';
 
 const GULL_COUNT = 3;
-const FIN_LINES = ['da-dum...', 'da-dum... da-dum...', 'it is probably a dolphin.'];
+const FIN_LINES = [__dialogueText("scenes/travel/TravelSeaLife.js", "t_4b0777ebdc5cb2fc7f56"), __dialogueText("scenes/travel/TravelSeaLife.js", "t_6f09ef95deb102c69b91"), __dialogueText("scenes/travel/TravelSeaLife.js", "t_a80196507807a2139b72")];
 
 export class TravelSeaLife {
   constructor(stage) {
@@ -118,7 +119,7 @@ export class TravelSeaLife {
         fontFamily: 'SpecialElite',
         fontSize: fs(stage.U, 20),
         color: '#f4e7c1',
-        stroke: '#1a0f08',
+        stroke: __dialogueText("scenes/travel/TravelSeaLife.js", "t_8f5ea20ab9f8b90f63a4"),
         strokeThickness: Math.max(2, Math.round(5 * stage.U))
       }).setOrigin(0.5).setAlpha(0),
       TRAVEL_DEPTH.vehicle + 1

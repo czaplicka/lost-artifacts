@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // AlibiEncounterSetup.js
 import { gameState } from '../GameData.js';
 import { getCaseSuspects } from '../suspects/CaseSuspects.js';
@@ -154,8 +155,8 @@ function buildEncounters(entry, previousEncounters = []) {
     const completed = previous?.interviewed === true && previous?.dialogueCompleted === true;
     const portrait = pickPortrait(previous, witness);
     return { ...previous, id, npcId: witness.npcId, suspectId: data.suspectId,
-      locationId: 'alibi_contact', label: `${witness.role || 'Witness'} of ${data.suspectName || 'suspect'}`,
-      witnessRole: witness.role || 'Witness', suspectName: data.suspectName || 'suspect',
+      locationId: 'alibi_contact', label: `${witness.role || __dialogueText("alibi/AlibiEncounterSetup.js", "t_5464a8914419f3a1a237")}${__dialogueText("alibi/AlibiEncounterSetup.js", "t_a4282e4b2298b90b56f7")}${data.suspectName || __dialogueText("alibi/AlibiEncounterSetup.js", "t_982776aa0b872d5a1b4d")}`,
+      witnessRole: witness.role || __dialogueText("alibi/AlibiEncounterSetup.js", "t_5464a8914419f3a1a237"), suspectName: data.suspectName || 'suspect',
       enabled: true, excluded: false, interviewed: completed, dialogueCompleted: completed,
       visited: completed, alibiWitness: true, portraitKey: portrait, textureKey: portrait };
   }));
@@ -232,7 +233,7 @@ export function getWitnessTestimony(caseKey, suspectId, npcId) {
   const witness = data.witnesses.find(item => item.npcId === npcId);
   const encounter = getWitnessEncounters(caseKey, suspectId).find(item => item.npcId === npcId);
   if (!witness || !encounter) return null;
-  return { encounterId: encounter.id, suspectId, suspectName: data.suspectName || 'the suspect',
+  return { encounterId: encounter.id, suspectId, suspectName: data.suspectName || __dialogueText("alibi/AlibiEncounterSetup.js", "t_94864ebff58640bcf9bd"),
     npcId, role: witness.role, roleId: witness.roleId, tone: witness.tone,
     portraitKey: encounter.portraitKey, textureKey: encounter.textureKey,
     statement: witness.statement, contradictionHint: witness.contradictionHint,
@@ -248,12 +249,12 @@ export function allWitnessesVisited(caseKey, suspectId) {
 }
 export function recordAlibiAccusation(caseKey, suspectId, npcId) {
   const data = getStoredWitnessData(caseKey, suspectId);
-  if (!data || !findSuspect(suspectId)) return { correct: false, message: 'Unknown suspect.' };
+  if (!data || !findSuspect(suspectId)) return { correct: false, message: __dialogueText("alibi/AlibiEncounterSetup.js", "t_cec89673eb1aca996997") };
   if (!allWitnessesVisited(caseKey, suspectId)) return {
-    correct: false, message: 'Interview every available witness before reaching a conclusion.' };
+    correct: false, message: __dialogueText("alibi/AlibiEncounterSetup.js", "t_05db60b5c05a09f52784") };
   const noLiar = npcId === NO_ALIBI_LIAR;
   const witness = noLiar ? null : data.witnesses.find(item => item.npcId === npcId);
-  if (!noLiar && !witness) return { correct: false, message: 'Unknown witness.' };
+  if (!noLiar && !witness) return { correct: false, message: __dialogueText("alibi/AlibiEncounterSetup.js", "t_276382299c3d06eebb27") };
   const correct = noLiar ? data.alibiType === 'confirmed' : witness.isLiar === true;
   gameState.alibiAccusations ??= {}; gameState.alibiAccusations[caseKey] ??= {};
   gameState.alibiAccusations[caseKey][suspectId] = npcId;
@@ -261,8 +262,8 @@ export function recordAlibiAccusation(caseKey, suspectId, npcId) {
   suspect.deductionState ??= {}; suspect.deductionState.alibiStatus = 'pending';
   requestAutosave();
   return { correct, message: correct
-    ? noLiar ? 'Correct. The accounts support a consistent alibi.' : 'Correct. That account conflicts with another witness’s testimony.'
-    : noLiar ? 'The accounts contain an unresolved contradiction.' : 'That witness is not the source of the false alibi.' };
+    ? noLiar ? __dialogueText("alibi/AlibiEncounterSetup.js", "t_7d5e7a73e77ee2904223") : __dialogueText("alibi/AlibiEncounterSetup.js", "t_7ac3cc51c3c29ff81a41")
+    : noLiar ? __dialogueText("alibi/AlibiEncounterSetup.js", "t_56e678d462b748ed00a3") : __dialogueText("alibi/AlibiEncounterSetup.js", "t_75832cececa0cb3a24f2") };
 }
 export function recordAlibiConfirmation(caseKey, suspectId) { return recordAlibiAccusation(caseKey, suspectId, NO_ALIBI_LIAR); }
 export function getAlibiAccusation(caseKey, suspectId) { return gameState.alibiAccusations?.[caseKey]?.[suspectId] || null; }

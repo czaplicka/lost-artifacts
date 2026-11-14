@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 export const BoardRendering = {
   render() {
     if (!this._isBoardUsable()) return;
@@ -31,7 +32,7 @@ export const BoardRendering = {
 
   createItemElement(item) {
     const el = document.createElement('article');
-    el.className = `crime-board__item crime-board__item--${item.type}`;
+    el.className = `${__dialogueText("crimeBoard/BoardRendering.js", "t_7286fbf0d4d24b376bbb")}${item.type}`;
     el.dataset.id = item.id;
 
 
@@ -89,65 +90,16 @@ export const BoardRendering = {
 
   getItemMarkup(item) {
     if (item.type === 'photo') {
-      return `
-        <div class="crime-board__card crime-board__card--photo">
-          <button class="crime-board__anchor crime-board__anchor--top" data-anchor="top" type="button" aria-label="Connect from top"></button>
-          <button class="crime-board__anchor crime-board__anchor--right" data-anchor="right" type="button" aria-label="Connect from right"></button>
-          <button class="crime-board__anchor crime-board__anchor--bottom" data-anchor="bottom" type="button" aria-label="Connect from bottom"></button>
-          <button class="crime-board__anchor crime-board__anchor--left" data-anchor="left" type="button" aria-label="Connect from left"></button>
-
-
-          <div class="crime-board__photo-frame">
-            <img src="${this.escapeHtml(item.image || '/assets/ui/placeholder-clue.png')}" alt="${this.escapeHtml(item.label)}" draggable="false">
-          </div>
-          <h3 class="crime-board__label">${this.escapeHtml(item.label)}</h3>
-          ${item.caption ? `<p class="crime-board__caption">${this.escapeHtml(item.caption)}</p>` : ''}
-          ${item.meta?.length ? `<ul class="crime-board__meta">${item.meta.map(value => `<li>${this.escapeHtml(value)}</li>`).join('')}</ul>` : ''}
-        </div>
-      `;
+      return `${__dialogueText("crimeBoard/BoardRendering.js", "t_12d0ba68b4d51c494f99")}${this.escapeHtml(item.image || '/assets/ui/placeholder-clue.png')}${__dialogueText("crimeBoard/BoardRendering.js", "t_1340c518c0fe44c21e19")}${this.escapeHtml(item.label)}${__dialogueText("crimeBoard/BoardRendering.js", "t_9cc2964476c4a6bf4267")}${this.escapeHtml(item.label)}${__dialogueText("crimeBoard/BoardRendering.js", "t_17991d61c7c678c3eb6b")}${item.caption ? `${__dialogueText("crimeBoard/BoardRendering.js", "t_be9dab14fd7c396e820f")}${this.escapeHtml(item.caption)}${__dialogueText("crimeBoard/BoardRendering.js", "t_75276f3cd0194a647ce8")}` : ''}${__dialogueText("crimeBoard/BoardRendering.js", "t_84fa99eaa1ae972aaeb1")}${item.meta?.length ? `${__dialogueText("crimeBoard/BoardRendering.js", "t_defbeba7842b6c974ba2")}${item.meta.map(value => `<li>${this.escapeHtml(value)}</li>`).join('')}${__dialogueText("crimeBoard/BoardRendering.js", "t_348845d8804b5c895e2a")}` : ''}${__dialogueText("crimeBoard/BoardRendering.js", "t_b75c14a915cf9a76eb1e")}`;
     }
 
 
     if (item.type === 'evidence') {
-      return `
-        <div class="crime-board__card crime-board__card--evidence">
-          <button class="crime-board__anchor crime-board__anchor--top" data-anchor="top" type="button" aria-label="Connect from top"></button>
-          <button class="crime-board__anchor crime-board__anchor--right" data-anchor="right" type="button" aria-label="Connect from right"></button>
-          <button class="crime-board__anchor crime-board__anchor--bottom" data-anchor="bottom" type="button" aria-label="Connect from bottom"></button>
-          <button class="crime-board__anchor crime-board__anchor--left" data-anchor="left" type="button" aria-label="Connect from left"></button>
-
-
-          <p class="crime-board__tag">${this.escapeHtml(item.tag || 'Evidence')}</p>
-          <h3 class="crime-board__label">${this.escapeHtml(item.label)}</h3>
-          ${item.body ? `<p class="crime-board__body">${this.escapeHtml(item.body)}</p>` : ''}
-          ${item.fields?.length ? `
-            <dl class="crime-board__facts">
-              ${item.fields.map(row => `
-                <div class="crime-board__fact">
-                  <dt>${this.escapeHtml(row.key || '')}</dt>
-                  <dd>${this.escapeHtml(row.value || '')}</dd>
-                </div>
-              `).join('')}
-            </dl>
-          ` : ''}
-        </div>
-      `;
+      return `${__dialogueText("crimeBoard/BoardRendering.js", "t_5e515334e95138b2e812")}${this.escapeHtml(item.tag || __dialogueText("crimeBoard/BoardRendering.js", "t_03867aea70acaf4c5dce"))}${__dialogueText("crimeBoard/BoardRendering.js", "t_81baf74355f4cafb45ed")}${this.escapeHtml(item.label)}${__dialogueText("crimeBoard/BoardRendering.js", "t_17991d61c7c678c3eb6b")}${item.body ? `${__dialogueText("crimeBoard/BoardRendering.js", "t_561901cf233ade5155d0")}${this.escapeHtml(item.body)}${__dialogueText("crimeBoard/BoardRendering.js", "t_75276f3cd0194a647ce8")}` : ''}${__dialogueText("crimeBoard/BoardRendering.js", "t_84fa99eaa1ae972aaeb1")}${item.fields?.length ? `${__dialogueText("crimeBoard/BoardRendering.js", "t_4b271bc2da82ca4f8387")}${item.fields.map(row => `${__dialogueText("crimeBoard/BoardRendering.js", "t_c46ab75c82302760fe4f")}${this.escapeHtml(row.key || '')}${__dialogueText("crimeBoard/BoardRendering.js", "t_6689939c82e0f67dcc7c")}${this.escapeHtml(row.value || '')}${__dialogueText("crimeBoard/BoardRendering.js", "t_515219eba26668611d00")}`).join('')}${__dialogueText("crimeBoard/BoardRendering.js", "t_9a0348008be359086499")}` : ''}${__dialogueText("crimeBoard/BoardRendering.js", "t_b75c14a915cf9a76eb1e")}`;
     }
 
 
-    return `
-      <div class="crime-board__card crime-board__card--note crime-board__card--${this.escapeHtml(item.color || 'yellow')}">
-        <button class="crime-board__anchor crime-board__anchor--top" data-anchor="top" type="button" aria-label="Connect from top"></button>
-        <button class="crime-board__anchor crime-board__anchor--right" data-anchor="right" type="button" aria-label="Connect from right"></button>
-        <button class="crime-board__anchor crime-board__anchor--bottom" data-anchor="bottom" type="button" aria-label="Connect from bottom"></button>
-        <button class="crime-board__anchor crime-board__anchor--left" data-anchor="left" type="button" aria-label="Connect from left"></button>
-
-
-        <h3 class="crime-board__label">${this.escapeHtml(item.label)}</h3>
-        ${item.text ? `<p class="crime-board__body">${this.escapeHtml(item.text)}</p>` : ''}
-        ${item.metaText ? `<p class="crime-board__meta-text">${this.escapeHtml(item.metaText)}</p>` : ''}
-      </div>
-    `;
+    return `${__dialogueText("crimeBoard/BoardRendering.js", "t_27a84bf68323b5f8b7f8")}${this.escapeHtml(item.color || 'yellow')}${__dialogueText("crimeBoard/BoardRendering.js", "t_e16b7f700fcce87762cc")}${this.escapeHtml(item.label)}${__dialogueText("crimeBoard/BoardRendering.js", "t_0c4638f7ae71f88ff6c8")}${item.text ? `${__dialogueText("crimeBoard/BoardRendering.js", "t_561901cf233ade5155d0")}${this.escapeHtml(item.text)}${__dialogueText("crimeBoard/BoardRendering.js", "t_75276f3cd0194a647ce8")}` : ''}${__dialogueText("crimeBoard/BoardRendering.js", "t_ac1e06ffe7bf6c03d4ee")}${item.metaText ? `${__dialogueText("crimeBoard/BoardRendering.js", "t_afff344a989932066c4c")}${this.escapeHtml(item.metaText)}${__dialogueText("crimeBoard/BoardRendering.js", "t_75276f3cd0194a647ce8")}` : ''}${__dialogueText("crimeBoard/BoardRendering.js", "t_01043c89f1403fad8b07")}`;
   },
 
   createLinkElement(link) {
@@ -260,8 +212,8 @@ export const BoardRendering = {
       if (link.editableByPlayer) {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'crime-board-btn crime-board-btn--ghost crime-board-btn--mini';
-        btn.textContent = 'Delete';
+        btn.className = __dialogueText("crimeBoard/BoardRendering.js", "t_971e08e3ce07c3709b9c");
+        btn.textContent = __dialogueText("crimeBoard/BoardRendering.js", "t_e2d0a54968ead24efc0d");
         btn.addEventListener('click', () => this.removeLink(link.id));
         li.appendChild(btn);
       }

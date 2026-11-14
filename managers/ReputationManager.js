@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
 
@@ -5,10 +6,10 @@ export const REPUTATION_CHANGED = 'reputation:changed';
 const FAME_THRESHOLDS = [0, 20, 50, 80];
 const CONTACT_THRESHOLD = 40;
 const RULES = Object.freeze({
-    correct_arrest: { fame: 10, integrity: 8, headline: 'Sprawca zatrzymany. Detektyw zamyka kolejną sprawę.' },
+    correct_arrest: { fame: 10, integrity: 8, headline: __dialogueText("managers/ReputationManager.js", "t_88c425e57fd10a1d422f") },
     wrong_arrest: { fame: 0, integrity: -12, headline: null },
-    case_solved: { fame: 10, integrity: 0, headline: 'Kolejna zagadka rozwiązana przez prywatnego detektywa.' },
-    media_coverage: { fame: 5, integrity: 0, headline: 'O działaniach detektywa mówią lokalne media.' },
+    case_solved: { fame: 10, integrity: 0, headline: __dialogueText("managers/ReputationManager.js", "t_6ad1ef9b7d5c76f907c2") },
+    media_coverage: { fame: 5, integrity: 0, headline: __dialogueText("managers/ReputationManager.js", "t_4ae86bdf8438bf39ab8a") },
     theft: { fame: 0, integrity: -8, headline: null },
     cheating: { fame: 0, integrity: -5, headline: null },
     fabricated_evidence: { fame: 0, integrity: -15, headline: null },
@@ -47,9 +48,9 @@ export function getNpcAccess(npcId, { isCrimeCity = false } = {}) {
     if (isCrimeCity) return { allowed: true, reason: '' };
     const side = getContactSide();
     if (npcId === 'police' && side !== 'police') return { allowed: false,
-        reason: 'Nie udostępniamy informacji osobom spoza zaufanego kręgu. Wymagana uczciwość: +40.' };
+        reason: __dialogueText("managers/ReputationManager.js", "t_7fa593408f79ae2501f0") };
     if (npcId === 'fence' && side !== 'underworld') return { allowed: false,
-        reason: 'Nie znam cię i nie zamierzam ryzykować. Wymagana uczciwość: -40 lub mniej.' };
+        reason: __dialogueText("managers/ReputationManager.js", "t_4f68f3bdbb9bf9348ac2") };
     return { allowed: true, reason: '' };
 }
 export function matchesReputation(requirements = {}) {

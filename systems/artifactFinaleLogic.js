@@ -1,14 +1,15 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 export const ARTIFACT_FINALE_VERSION = 1;
 export const FINALE_SOURCES = Object.freeze({
-  pawnshop: { label: 'Pawnbroker', place: 'Pawnbroker evidence counter',
-    explanation: 'The detained suspect identifies the pawnbroker holding the pledged package.',
-    search: 'The pawnbroker produces the pledged package and its transaction record. You open it under the recovery team’s supervision.' },
-  private_collector: { label: 'Private collector', place: 'Private collection recovery room',
-    explanation: 'The detained suspect identifies the collector who received the object after the meeting.',
-    search: 'The recovery team obtains the object from the collector. The handover is documented before you compare it with the case file.' },
-  parcel_abroad: { label: 'Parcel carrier', place: 'Carrier secure parcel counter',
-    explanation: 'The detained suspect identifies the carrier handling the shipment.',
-    search: 'The carrier traces and intercepts the parcel using the suspect’s dispatch details. The recovery team documents the opening.' }
+  pawnshop: { label: __dialogueText("systems/artifactFinaleLogic.js", "t_f3f567ad8e4c2987cb03"), place: __dialogueText("systems/artifactFinaleLogic.js", "t_8a0e585f8559294e4e55"),
+    explanation: __dialogueText("systems/artifactFinaleLogic.js", "t_68a686171b0a411243d5"),
+    search: __dialogueText("systems/artifactFinaleLogic.js", "t_b571da1078ee9cd44c8a") },
+  private_collector: { label: __dialogueText("systems/artifactFinaleLogic.js", "t_1a4f62b1f10369684860"), place: __dialogueText("systems/artifactFinaleLogic.js", "t_e7df37161edff2dbf077"),
+    explanation: __dialogueText("systems/artifactFinaleLogic.js", "t_74dd8c4b24daa8009973"),
+    search: __dialogueText("systems/artifactFinaleLogic.js", "t_2e520dd5dcb274f1f0f0") },
+  parcel_abroad: { label: __dialogueText("systems/artifactFinaleLogic.js", "t_d8420dea1e1c1f07b4a0"), place: __dialogueText("systems/artifactFinaleLogic.js", "t_faefffcf0d0fd6b8c602"),
+    explanation: __dialogueText("systems/artifactFinaleLogic.js", "t_1744acaf9e2914d5c63a"),
+    search: __dialogueText("systems/artifactFinaleLogic.js", "t_2c424d4865b8948d87cf") }
 });
 const copy = x => JSON.parse(JSON.stringify(x));
 const same = (a, b) => a != null && b != null && String(a) === String(b);
@@ -67,18 +68,18 @@ export function validArtifactFinaleRecord(record, plan) {
     (record.phase !== 'secured' || (typeof record.recoveredAt === 'string' && Number.isFinite(Date.parse(record.recoveredAt)))));
 }
 export function advanceArtifactFinale(record, plan, action, value = null) {
-  if (!validArtifactFinaleRecord(record, plan)) return { ok: false, message: 'The recovery record does not match this case.' };
+  if (!validArtifactFinaleRecord(record, plan)) return { ok: false, message: __dialogueText("systems/artifactFinaleLogic.js", "t_95778ae517136ad694e5") };
   const next = copy(record);
   if (action === 'brief' && next.phase === 'briefing') {
     next.phase = 'source'; return { ok: true, record: next };
   }
   if (action === 'select' && next.phase === 'source') {
     next.attempts++;
-    if (value !== plan.kind) return { ok: false, record: next, message: 'That destination does not match the established recovery lead.' };
+    if (value !== plan.kind) return { ok: false, record: next, message: __dialogueText("systems/artifactFinaleLogic.js", "t_51e5f2e7ee0cce90dd9f") };
     next.phase = 'inspect'; return { ok: true, record: next };
   }
   // Only the scene may mark secured, after recoverArtifact succeeds.
-  return { ok: false, message: 'That action is not available at this stage.' };
+  return { ok: false, message: __dialogueText("systems/artifactFinaleLogic.js", "t_ad9a8017966c56741a9f") };
 }
 export function makeFinaleRecoveryData(plan, recoveredAt) {
   if (!plan?.artifact?.id || typeof recoveredAt !== 'string' || !Number.isFinite(Date.parse(recoveredAt))) {

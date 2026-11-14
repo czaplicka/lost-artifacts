@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { ensureHud } from '../../hudHelpers.js';
 import { EventBus } from '../../EventBus.js';
 import { HUD_READY_TIMEOUT } from './CityConfig.js';
@@ -16,10 +17,10 @@ export class CityUi {
 
     if (!ready) {
       this.showUiLoading(
-        `Interface unavailable: ${
+        `${__dialogueText("scenes/city/CityUi.js", "t_4b7c1e0997bb0adb9d8d")}${
           (this._uiFailures || []).join(', ') ||
-          'HUD startup'
-        }.\nClick here to retry.`,
+          __dialogueText("scenes/city/CityUi.js", "t_7d3a8148e98e83ed25d4")
+        }${__dialogueText("scenes/city/CityUi.js", "t_33176504a7eae65e4526")}`,
         true
       );
 
@@ -31,7 +32,7 @@ export class CityUi {
   }
 
   showUiLoading(
-    message = 'Preparing field equipment...',
+    message = __dialogueText("scenes/city/CityUi.js", "t_dd2a83b75a9e0f2e15ad"),
     retry = false
   ) {
     this.hideUiLoading();
@@ -190,7 +191,7 @@ export class CityUi {
         }
 
         if (!cityActive) {
-          this._uiFailures = ['CityScene activation'];
+          this._uiFailures = [__dialogueText("scenes/city/CityUi.js", "t_9f49d9f49f69383f7011")];
 
           console.error(
             '[CityScene] City did not become active before HUD startup.',
@@ -267,7 +268,7 @@ export class CityUi {
             error
           );
 
-          this._uiFailures = ['HUD setup'];
+          this._uiFailures = [__dialogueText("scenes/city/CityUi.js", "t_f188de0bf7ab88cf406c")];
         }
 
         return false;

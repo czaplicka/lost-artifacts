@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { getGameTimeInSeconds } from '../CaseTimeHelper.js';
 import { getGameTimeManager } from './GameTimeManager.js';
@@ -75,14 +76,14 @@ function chargeTime(job) {
   return current.timeCharged;
 }
 export function startDocumentJob(catalog, id) {
-  if (busy || !ownsPrinter()) return { ok: false, message: 'A printer is required.' };
+  if (busy || !ownsPrinter()) return { ok: false, message: __dialogueText("managers/PIDocumentJobsManager.js", "t_87744cad9f66da686549") };
   validateDocumentCatalog(catalog);
   const offer = getDocumentJobs(catalog).find(job => job.id === id);
-  if (!offer || offer.status === 'completed') return { ok: false, message: 'This job is unavailable.' };
+  if (!offer || offer.status === 'completed') return { ok: false, message: __dialogueText("managers/PIDocumentJobsManager.js", "t_67835f17f9ce2d2dd5c1") };
   const s = state();
   // Finish the current document before starting another day’s offer.
   if (Object.values(s.jobs).some(job => job.id !== id && job.status !== 'completed')) {
-    return { ok: false, message: 'Finish your current print job first.' };
+    return { ok: false, message: __dialogueText("managers/PIDocumentJobsManager.js", "t_81a2e0471896f51273ef") };
   }
   busy = true;
   try {
@@ -102,43 +103,43 @@ export function startDocumentJob(catalog, id) {
     }
     const charged = chargeTime(state().jobs[id]);
     return { ok: charged, jobId: id, message: charged
-      ? 'Compare the original with the draft. Find the incorrect field.'
-      : 'Time update interrupted. Resume this job to finish charging the remaining time.' };
+      ? __dialogueText("managers/PIDocumentJobsManager.js", "t_c8f408ec897d085ec5bf")
+      : __dialogueText("managers/PIDocumentJobsManager.js", "t_0ab69b0089fa42cc7e0d") };
   } finally { busy = false; }
 }
 export function answerDocumentJob(id, stage, index) {
-  if (busy || !ownsPrinter()) return { ok: false, message: 'Printer unavailable.' };
+  if (busy || !ownsPrinter()) return { ok: false, message: __dialogueText("managers/PIDocumentJobsManager.js", "t_817d66f28830c81b1c4c") };
   const s = state(), job = s.jobs[id];
   if (!job || job.status !== 'active' || !job.timeCharged || !Number.isInteger(index)) {
-    return { ok: false, message: 'Start or resume the job first.' };
+    return { ok: false, message: __dialogueText("managers/PIDocumentJobsManager.js", "t_eab281f7a64eca88e37c") };
   }
   const errorIndex = job.fields.findIndex(field => field.source !== field.draft);
   const field = job.fields[errorIndex];
   if (stage === 'field' && !job.fieldChecked) {
-    if (index < 0 || index >= job.fields.length) return { ok: false, message: 'Invalid field.' };
+    if (index < 0 || index >= job.fields.length) return { ok: false, message: __dialogueText("managers/PIDocumentJobsManager.js", "t_bc93291692e2c86b16db") };
     job.attempts++;
-    if (index !== errorIndex) { save(s); return { ok: false, message: 'That field matches. Compare the other lines.' }; }
+    if (index !== errorIndex) { save(s); return { ok: false, message: __dialogueText("managers/PIDocumentJobsManager.js", "t_e3de9eb8e3a0ee07781a") }; }
     job.fieldChecked = true;
     save(s);
-    return { ok: true, message: 'Error found. Choose the correct replacement.' };
+    return { ok: true, message: __dialogueText("managers/PIDocumentJobsManager.js", "t_57f8642bf78a14d3f101") };
   }
   if (stage === 'value' && job.fieldChecked && !job.corrected) {
-    if (index < 0 || index >= field.options.length) return { ok: false, message: 'Invalid replacement.' };
+    if (index < 0 || index >= field.options.length) return { ok: false, message: __dialogueText("managers/PIDocumentJobsManager.js", "t_07d0c3ccd800ca265d95") };
     job.attempts++;
-    if (field.options[index] !== field.source) { save(s); return { ok: false, message: 'That is not what the original says.' }; }
+    if (field.options[index] !== field.source) { save(s); return { ok: false, message: __dialogueText("managers/PIDocumentJobsManager.js", "t_579e94d525cc812cbf11") }; }
     job.corrected = true;
     save(s);
-    return { ok: true, message: 'Proof approved. Print and deliver to receive payment.' };
+    return { ok: true, message: __dialogueText("managers/PIDocumentJobsManager.js", "t_f34463794d122b020e58") };
   }
-  return { ok: false, message: 'This step has already been checked.' };
+  return { ok: false, message: __dialogueText("managers/PIDocumentJobsManager.js", "t_2c9e6cf87ba9653e83ff") };
 }
 export function deliverDocumentJob(id) {
-  if (busy || !ownsPrinter()) return { ok: false, message: 'Printer unavailable.' };
+  if (busy || !ownsPrinter()) return { ok: false, message: __dialogueText("managers/PIDocumentJobsManager.js", "t_817d66f28830c81b1c4c") };
   const s = state(), job = s.jobs[id];
   if (!job || job.status === 'completed' || !job.corrected || !job.timeCharged) {
-    return { ok: false, message: 'No corrected document is ready for delivery.' };
+    return { ok: false, message: __dialogueText("managers/PIDocumentJobsManager.js", "t_f6b3fdfecb6c9758a185") };
   }
-  if (!Number.isSafeInteger(job.reward) || job.reward <= 0) return { ok: false, message: 'Invalid fee.' };
+  if (!Number.isSafeInteger(job.reward) || job.reward <= 0) return { ok: false, message: __dialogueText("managers/PIDocumentJobsManager.js", "t_efb36270d8b4db644ca9") };
   const paymentId = `pi-document:${job.id}`;
   const recorded = () => (gameState.moneyLog || []).some(entry => entry.type === 'income' &&
     entry.source === 'cash' && entry.metadata?.documentSettlementId === paymentId);
@@ -150,7 +151,7 @@ export function deliverDocumentJob(id) {
     if (!job.paid && !recorded()) {
       try {
         moneyManager.addCash(job.reward, {
-          category: ECONOMY_CATEGORY.SIDE_CASE, description: `Document job: ${job.title}`,
+          category: ECONOMY_CATEGORY.SIDE_CASE, description: `${__dialogueText("managers/PIDocumentJobsManager.js", "t_be70c587735c243e73e1")}${job.title}`,
           missionId: null, metadata: { documentSettlementId: paymentId,
             documentJobId: job.id, clericalIncome: true }
         });
@@ -167,10 +168,10 @@ export function deliverDocumentJob(id) {
     job.status = 'completed';
     job.completedAt = clock();
     save(s);
-    return { ok: true, message: `$${job.reward} received. The printer demands applause. And cyan.` };
+    return { ok: true, message: `${__dialogueText("managers/PIDocumentJobsManager.js", "t_09fc96082d34c2dfc129")}${job.reward}${__dialogueText("managers/PIDocumentJobsManager.js", "t_032dc125b670a4b08dca")}` };
   } catch (error) {
     console.error('[PIDocumentJobs] Delivery failed:', error);
     requestAutosave();
-    return { ok: false, message: 'Delivery interrupted. Retry this document; a recorded payment will not repeat.' };
+    return { ok: false, message: __dialogueText("managers/PIDocumentJobsManager.js", "t_e5c3749e03848527fbeb") };
   } finally { busy = false; }
 }

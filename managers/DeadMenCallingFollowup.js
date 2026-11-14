@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { deadMenTopicTranscript } from './DeadMenPhoneTopics.js';
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
@@ -7,41 +8,41 @@ import { DEAD_MEN_QUEST, getDeadMenProgress } from './DeadMenCallingService.js';
 
 const KEY='piDeadMenCallingFollowup', REVIEW='dead_men_folder_review';
 const clone=v=>JSON.parse(JSON.stringify(v));
-const MARGARET={id:'dead_men_margaret',name:'Margaret Vale',number:'619',listed:true,status:'available',dialogueId:null};
-const COLIN={id:'dead_men_colin',name:'Colin Ward',number:'621',listed:true,status:'available',dialogueId:null};
+const MARGARET={id:'dead_men_margaret',name:__dialogueText("managers/DeadMenCallingFollowup.js", "t_e3683593d8ba71a5c369"),number:'619',listed:true,status:'available',dialogueId:null};
+const COLIN={id:'dead_men_colin',name:__dialogueText("managers/DeadMenCallingFollowup.js", "t_b7e5ae2ffc6f69bea5b4"),number:'621',listed:true,status:'available',dialogueId:null};
 const folderInterview=[
- {speaker:'You',text:'The records confirm a copy went to Colin. That is access, not proof he made the calls. What is actually in the blue folder?'},
- {speaker:'Margaret Vale',text:'I checked the study. Invoice, invoice, a truly aggressive quantity of takeaway menus. Then a reconciliation sheet Edward prepared for the company.'},
- {speaker:'You',text:'Does it mention Colin?'},
- {speaker:'Margaret Vale',text:'It records an unexplained company payment against his expense claim. There is also a request asking him for the original supplier invoice. I will send scans, including the bank entry.'},
- {speaker:'You',text:'Keep the originals. A question in Edward’s notes is not a finding of theft. Has anyone asked you for these papers?'},
- {speaker:'Margaret Vale',text:'Colin emailed me before the recent calls. He wanted Edward’s original reconciliation sheet. He said he was tidying the company records. I am forwarding that email too.'},
- {speaker:'You',text:'May I contact him about the archive and those records?'},
- {speaker:'Margaret Vale',text:'Yes. He works through Ward Consulting. He may answer “Ward Consulting”. It is still Colin, only more expensive.'},
- {speaker:'You',text:'Thank you. I will compare his explanation with the documents, not assume that a disputed payment identifies a caller.'}
+ {speaker:__dialogueText("managers/DeadMenCallingFollowup.js", "t_08b041935798fbf6fd6f"),text:__dialogueText("managers/DeadMenCallingFollowup.js", "t_ddb6b3e272d219c776a6")},
+ {speaker:__dialogueText("managers/DeadMenCallingFollowup.js", "t_e3683593d8ba71a5c369"),text:__dialogueText("managers/DeadMenCallingFollowup.js", "t_194f2c82d1c85486cbb5")},
+ {speaker:__dialogueText("managers/DeadMenCallingFollowup.js", "t_08b041935798fbf6fd6f"),text:__dialogueText("managers/DeadMenCallingFollowup.js", "t_4cc7e6fef64e17476a7a")},
+ {speaker:__dialogueText("managers/DeadMenCallingFollowup.js", "t_e3683593d8ba71a5c369"),text:__dialogueText("managers/DeadMenCallingFollowup.js", "t_50e006b46ecafdca6f7d")},
+ {speaker:__dialogueText("managers/DeadMenCallingFollowup.js", "t_08b041935798fbf6fd6f"),text:__dialogueText("managers/DeadMenCallingFollowup.js", "t_9fc161b4ca65fa9ed586")},
+ {speaker:__dialogueText("managers/DeadMenCallingFollowup.js", "t_e3683593d8ba71a5c369"),text:__dialogueText("managers/DeadMenCallingFollowup.js", "t_326719a9c43817fb87d2")},
+ {speaker:__dialogueText("managers/DeadMenCallingFollowup.js", "t_08b041935798fbf6fd6f"),text:__dialogueText("managers/DeadMenCallingFollowup.js", "t_66c1d87b9ce75c5b2a4c")},
+ {speaker:__dialogueText("managers/DeadMenCallingFollowup.js", "t_e3683593d8ba71a5c369"),text:__dialogueText("managers/DeadMenCallingFollowup.js", "t_37e5773cc3553a54458f")},
+ {speaker:__dialogueText("managers/DeadMenCallingFollowup.js", "t_08b041935798fbf6fd6f"),text:__dialogueText("managers/DeadMenCallingFollowup.js", "t_91b9e99b232c54313aa9")}
 ];
 const colinInterview=[
- {speaker:'Colin Ward',text:'Ward Consulting. Clear answers, flexible invoicing.'},
- {speaker:'You',text:'I am investigating calls to Margaret Vale. I also need to ask about Edward’s archive and your request for the blue-folder papers.'},
- {speaker:'Colin Ward',text:'I asked for the original reconciliation sheet to finish the company accounts. Nothing unusual.'},
- {speaker:'You',text:'Did you receive Edward’s voice recordings from Mercer Audio?'},
- {speaker:'Colin Ward',text:'No. My copy contained invoices only. No voicemail files, no recorder test. I never received any voice recordings.'},
- {speaker:'You',text:'What can you tell me about expense claim CW-41 and payment TR-884?'},
- {speaker:'Colin Ward',text:'A supplier payment, as far as I remember. I would need to find the original invoice. I cannot give you more detail today.'},
- {speaker:'You',text:'Do you still have the material Mercer supplied?'},
- {speaker:'Colin Ward',text:'I keep business records. I do not see what that has to do with someone’s telephone.'},
- {speaker:'You',text:'Please preserve the archive and the relevant correspondence. I am recording your account as a statement to be checked.'},
- {speaker:'Colin Ward',text:'Of course. I have nothing to hide. Except client rates. Those are deeply personal.'}
+ {speaker:__dialogueText("managers/DeadMenCallingFollowup.js", "t_b7e5ae2ffc6f69bea5b4"),text:__dialogueText("managers/DeadMenCallingFollowup.js", "t_8cfc084730be7f544a1e")},
+ {speaker:__dialogueText("managers/DeadMenCallingFollowup.js", "t_08b041935798fbf6fd6f"),text:__dialogueText("managers/DeadMenCallingFollowup.js", "t_4baaa1bd5716c92319f7")},
+ {speaker:__dialogueText("managers/DeadMenCallingFollowup.js", "t_b7e5ae2ffc6f69bea5b4"),text:__dialogueText("managers/DeadMenCallingFollowup.js", "t_9f62a8d5da765b804524")},
+ {speaker:__dialogueText("managers/DeadMenCallingFollowup.js", "t_08b041935798fbf6fd6f"),text:__dialogueText("managers/DeadMenCallingFollowup.js", "t_743b543cf0a421c570dd")},
+ {speaker:__dialogueText("managers/DeadMenCallingFollowup.js", "t_b7e5ae2ffc6f69bea5b4"),text:__dialogueText("managers/DeadMenCallingFollowup.js", "t_6568d7526b3f6bf099d7")},
+ {speaker:__dialogueText("managers/DeadMenCallingFollowup.js", "t_08b041935798fbf6fd6f"),text:__dialogueText("managers/DeadMenCallingFollowup.js", "t_476fde4a85a9732d5d20")},
+ {speaker:__dialogueText("managers/DeadMenCallingFollowup.js", "t_b7e5ae2ffc6f69bea5b4"),text:__dialogueText("managers/DeadMenCallingFollowup.js", "t_bc202d21123af22e056b")},
+ {speaker:__dialogueText("managers/DeadMenCallingFollowup.js", "t_08b041935798fbf6fd6f"),text:__dialogueText("managers/DeadMenCallingFollowup.js", "t_126489ac6e4d84e101fa")},
+ {speaker:__dialogueText("managers/DeadMenCallingFollowup.js", "t_b7e5ae2ffc6f69bea5b4"),text:__dialogueText("managers/DeadMenCallingFollowup.js", "t_fd096a0263b8bb212f5e")},
+ {speaker:__dialogueText("managers/DeadMenCallingFollowup.js", "t_08b041935798fbf6fd6f"),text:__dialogueText("managers/DeadMenCallingFollowup.js", "t_712f4738c9d7ba41c07f")},
+ {speaker:__dialogueText("managers/DeadMenCallingFollowup.js", "t_b7e5ae2ffc6f69bea5b4"),text:__dialogueText("managers/DeadMenCallingFollowup.js", "t_ab2dd21542d0dd5188e6")}
 ];
 const papers=[
- {id:'dead_men_folder_sheet',subject:'Blue folder — Edward’s reconciliation sheet',body:'SCAN TRANSCRIPTION — ORIGINAL RETAINED BY MARGARET\nSource: blue folder in Edward Vale’s study\n\nRECONCILIATION QUERY\nExpense claim: CW-41\nSubmitted by: Colin Ward\nLinked bank payment: TR-884\nAmount: $2,400\nDescription supplied with claim: supplier services\n\nEdward’s note: “Original supplier invoice not supplied. Ask Colin to explain the payment and provide the original document. Do not close the reconciliation until checked.”\n\nThis records an unresolved accounting query. It does not establish who received the money or prove theft.'},
- {id:'dead_men_folder_bank',subject:'Blue folder — company bank entry TR-884',body:'SCAN TRANSCRIPTION — COMPANY BANK ENTRY\nSource: paper retained in Edward’s blue folder\n\nReference: TR-884\nDebit: $2,400\nStatement description: services / CW-41\n\nThe excerpt confirms a company debit matching the amount and reference on the reconciliation sheet. The retained excerpt does not identify the beneficial owner of the receiving account.\n\nA bank debit is not, by itself, evidence that Colin stole money or placed the recent calls.'},
- {id:'dead_men_colin_request',subject:'Forwarded original — Colin’s request for the sheet',body:'FORWARDED ORIGINAL EMAIL\nSource: Margaret Vale’s retained correspondence\nSender: Colin Ward\nRecipient: Margaret Vale\nSent: Friday before the three recent calls\n\nMargaret,\n\nPlease let me have Edward’s original reconciliation sheet from the blue folder. I need to resolve CW-41 / TR-884 and finish the old company records. A copy will not do; please send the original with the annotations.\n\nColin\n\nThis request predates Monday’s recent voicemail. It shows interest in the original sheet, not proof that Colin made a call or committed an accounting offence.'}
+ {id:'dead_men_folder_sheet',subject:__dialogueText("managers/DeadMenCallingFollowup.js", "t_effbb3ffa9b0d996f69b"),body:__dialogueText("managers/DeadMenCallingFollowup.js", "t_31d67c3d47dfb3a37e25")},
+ {id:'dead_men_folder_bank',subject:__dialogueText("managers/DeadMenCallingFollowup.js", "t_4d90a11db78aaf5aac08"),body:__dialogueText("managers/DeadMenCallingFollowup.js", "t_e2b60e47e25169863774")},
+ {id:'dead_men_colin_request',subject:__dialogueText("managers/DeadMenCallingFollowup.js", "t_058a16d5503288911a81"),body:__dialogueText("managers/DeadMenCallingFollowup.js", "t_435e41e42a6c7d2129e3")}
 ];
 const questions=[
- {id:'colin_denial',prompt:'Which part of Colin’s telephone statement conflicts with the Mercer records?\n\nCompare his account with manifest MV-14 and delivery acknowledgement MV-14-D2.',options:[['He received no voice files',true],['He knows Margaret',false],['He runs a business',false]],feedback:'Colin said his copy contained invoices only. The manifest lists the old recordings, and the acknowledgement records that archive delivered to him.'},
- {id:'folder_interest',prompt:'Which record establishes Colin’s interest in the original reconciliation sheet before the recent calls?',options:[['The bank entry alone',false],['Colin’s Friday email',true],['Edward’s voice alone',false]],feedback:'The forwarded Friday email names CW-41 / TR-884 and asks for the annotated original. The bank entry does not record who wanted the sheet.'},
- {id:'folder_limit',prompt:'What is the strongest supported finding?\n\nA. Colin is proved to have stolen $2,400.\nB. Colin had source access, gave an inconsistent account and wanted the original sheet; the caller is not yet proved.\nC. Edward survived.',options:[['A: Theft proved',false],['B: Leads, not proof',true],['C: Edward survived',false]],feedback:'The documents establish access, a contradiction and interest in the sheet. They do not identify the account owner or independently prove who made the calls.'}
+ {id:'colin_denial',prompt:__dialogueText("managers/DeadMenCallingFollowup.js", "t_710d2fb30006c62739f9"),options:[[__dialogueText("managers/DeadMenCallingFollowup.js", "t_6d8ae609cca1233f63d9"),true],[__dialogueText("managers/DeadMenCallingFollowup.js", "t_a97f1db17bd012f769ff"),false],[__dialogueText("managers/DeadMenCallingFollowup.js", "t_93ea893f0290d0deb3fe"),false]],feedback:__dialogueText("managers/DeadMenCallingFollowup.js", "t_55f3e62b027460014954")},
+ {id:'folder_interest',prompt:__dialogueText("managers/DeadMenCallingFollowup.js", "t_6fa0d014b1a68687b5d5"),options:[[__dialogueText("managers/DeadMenCallingFollowup.js", "t_f842c66c0d4e701824bb"),false],[__dialogueText("managers/DeadMenCallingFollowup.js", "t_b07e21a00f800bd4dfd5"),true],[__dialogueText("managers/DeadMenCallingFollowup.js", "t_23820c17149b973292c3"),false]],feedback:__dialogueText("managers/DeadMenCallingFollowup.js", "t_d08980fd17eaef28e72e")},
+ {id:'folder_limit',prompt:__dialogueText("managers/DeadMenCallingFollowup.js", "t_92b994b3c98465ab8124"),options:[[__dialogueText("managers/DeadMenCallingFollowup.js", "t_e3e9e9591cf5d563621c"),false],[__dialogueText("managers/DeadMenCallingFollowup.js", "t_d066693c380ad7bc7fdc"),true],[__dialogueText("managers/DeadMenCallingFollowup.js", "t_f9b58369c97359129ef4"),false]],feedback:__dialogueText("managers/DeadMenCallingFollowup.js", "t_f853a9e4f52deba2a30d")}
 ];
 function state(){
  const raw=gameState[KEY],s=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
@@ -55,21 +56,21 @@ function ready(){const s=state();return unlocked()&&s.folderInterview&&s.colinIn
 function current(){return questions.find(q=>!state().answers.includes(q.id))||null;}
 function reviewBody(){
  const s=state();
- if(s.reviewed)return 'REVIEW RECORDED\n\nColin’s denial of receiving voice recordings conflicts with the authorised transfer records. His Friday email shows he wanted the original reconciliation sheet before the recent calls.\n\nThe sheet records an unresolved payment query. The bank excerpt confirms a debit, not theft or the caller’s identity.';
- if(!ready())return 'BLUE FOLDER REVIEW\n\nComplete the call to Colin at Ward Consulting and open all three folder documents.\n\nStill to read:\n'+papers.filter(m=>!s.read.includes(m.id)).map(m=>'• '+m.subject).join('\n');
- return `BLUE FOLDER REVIEW — ${s.answers.length+1}/${questions.length}\n\n${current().prompt}\n\nUse NEXT OPTION and CHECK ANSWER. Refer to the Mercer documents and Colin’s interview when needed.`;
+ if(s.reviewed)return __dialogueText("managers/DeadMenCallingFollowup.js", "t_6a03fa6f5d6b92b6ebd3");
+ if(!ready())return __dialogueText("managers/DeadMenCallingFollowup.js", "t_649446dce6757bb2490f")+papers.filter(m=>!s.read.includes(m.id)).map(m=>'• '+m.subject).join('\n');
+ return `${__dialogueText("managers/DeadMenCallingFollowup.js", "t_1a760298cc1f04bacae2")}${s.answers.length+1}${__dialogueText("managers/DeadMenCallingFollowup.js", "t_8a5edab282632443219e")}${questions.length}${__dialogueText("managers/DeadMenCallingFollowup.js", "t_75a11da44c802486bc6f")}${current().prompt}${__dialogueText("managers/DeadMenCallingFollowup.js", "t_92813312818441a3f90e")}`;
 }
-function mail(id,from,subject,body){return {id,from,subject,body,date:'Dead Men Calling — follow-up'};}
+function mail(id,from,subject,body){return {id,from,subject,body,date:__dialogueText("managers/DeadMenCallingFollowup.js", "t_7a5a670df89c5716190d")};}
 function ownMail(){
  const s=state();if(!getPIQuest(DEAD_MEN_QUEST)||(!getDeadMenProgress().accessReviewed&&!s.folderInterview))return [];
- const items=[mail('dead_men_folder_next','Your case notes','The blue folder — case records', 'The archive delivery records establish access to source material. They do not, by themselves, identify the person who made the calls.')];
+ const items=[mail('dead_men_folder_next',__dialogueText("managers/DeadMenCallingFollowup.js", "t_c8bd0e9ce96dc602d59e"),__dialogueText("managers/DeadMenCallingFollowup.js", "t_39f37bcddfb4e7195339"), __dialogueText("managers/DeadMenCallingFollowup.js", "t_30a6bc382c325cd40193"))];
  if(s.folderInterview)items.unshift(
-  mail(REVIEW,'Your investigation notebook','Review Colin’s account and the blue folder',reviewBody()),
-  mail('dead_men_folder_cover','Margaret Vale','Blue-folder documents', 'Detective,\n\nI have supplied three documents: Edward’s reconciliation sheet, the bank entry and Colin’s earlier email asking for the original sheet. I have kept the originals.\n\nThe forwarded correspondence concerns Colin Ward and the references CW-41 / TR-884.\n\nThe accounts were not my responsibility. I can tell you where I found the papers, not what happened to the payment.\n\nMargaret Vale'),
-  ...papers.map(m=>mail(m.id,'Margaret Vale — supplied document',m.subject,m.body))
+  mail(REVIEW,__dialogueText("managers/DeadMenCallingFollowup.js", "t_246d256c733195b4c2b3"),__dialogueText("managers/DeadMenCallingFollowup.js", "t_6140fb3347bccfabd792"),reviewBody()),
+  mail('dead_men_folder_cover',__dialogueText("managers/DeadMenCallingFollowup.js", "t_e3683593d8ba71a5c369"),__dialogueText("managers/DeadMenCallingFollowup.js", "t_f8b00fd9a9a27fee6617"), __dialogueText("managers/DeadMenCallingFollowup.js", "t_4a59b8438edaf4c9eeb0")),
+  ...papers.map(m=>mail(m.id,__dialogueText("managers/DeadMenCallingFollowup.js", "t_354bc8e888bacd85aa74"),m.subject,m.body))
  );
- if(s.colinInterview)items.unshift(mail('dead_men_colin_statement','Your telephone transcript','Colin Ward — account to verify',(deadMenTopicTranscript('colin_initial') || transcript(colinInterview))));
- if(s.reviewed)items.unshift(mail('dead_men_contradiction_lead','Your case notes','Colin’s statement — recorded discrepancy','The folder review is complete. Colin’s statement about receiving no voice recordings conflicts with the archive delivery records.\n\nThis records a discrepancy between his account and the delivery record. It does not, by itself, establish who made the calls.'));
+ if(s.colinInterview)items.unshift(mail('dead_men_colin_statement',__dialogueText("managers/DeadMenCallingFollowup.js", "t_8aa2f38d4bd552719548"),__dialogueText("managers/DeadMenCallingFollowup.js", "t_850fecd6a4a60e66041b"),(deadMenTopicTranscript('colin_initial') || transcript(colinInterview))));
+ if(s.reviewed)items.unshift(mail('dead_men_contradiction_lead',__dialogueText("managers/DeadMenCallingFollowup.js", "t_c8bd0e9ce96dc602d59e"),__dialogueText("managers/DeadMenCallingFollowup.js", "t_f68ad2b258fe22032407"),__dialogueText("managers/DeadMenCallingFollowup.js", "t_8252642a3b5eb6a5075d")));
  return items;
 }
 function transcript(lines){return lines.map(l=>`${l.speaker}: ${l.text}`).join('\n\n');}
@@ -77,18 +78,18 @@ function note(id,label,text,meta){addPIEvidence(DEAD_MEN_QUEST,{id,label,text,me
 function sync(){
  const s=state();if(!getPIQuest(DEAD_MEN_QUEST))return;
  if(s.folderInterview){
-  note('dead_men_folder_interview','Margaret: the blue folder',(deadMenTopicTranscript('margaret_folder') || transcript(folderInterview)),'Source: completed follow-up interview');
-  note('dead_men_colin_contact','Colin Ward','Margaret identified Ward Consulting as Colin Ward’s business.','Source: client contact information');
-  for(const m of papers)if(s.read.includes(m.id))note(m.id,m.subject,m.body,'Source: client-supplied document transcription');
+  note('dead_men_folder_interview',__dialogueText("managers/DeadMenCallingFollowup.js", "t_cd4a71c65472bf0d48b1"),(deadMenTopicTranscript('margaret_folder') || transcript(folderInterview)),__dialogueText("managers/DeadMenCallingFollowup.js", "t_ab89f825bf761a296c65"));
+  note('dead_men_colin_contact',__dialogueText("managers/DeadMenCallingFollowup.js", "t_b7e5ae2ffc6f69bea5b4"),__dialogueText("managers/DeadMenCallingFollowup.js", "t_f75646effba06baa593d"),__dialogueText("managers/DeadMenCallingFollowup.js", "t_1186779f6df8af147d29"));
+  for(const m of papers)if(s.read.includes(m.id))note(m.id,m.subject,m.body,__dialogueText("managers/DeadMenCallingFollowup.js", "t_d70acc32c60f4eeb3b53"));
  }
- if(s.colinInterview)note('dead_men_colin_statement','Colin’s account — not verified',(deadMenTopicTranscript('colin_initial') || transcript(colinInterview)),'Source: completed telephone interview');
- if(s.reviewed)note('dead_men_folder_findings','Colin: access, contradiction and document interest','Colin denied receiving voice recordings. Mercer’s manifest and delivery acknowledgement conflict with that statement. His earlier email requests the annotated original of the reconciliation sheet. The documents do not establish who made the calls or prove theft.','Source: player’s completed document review');
+ if(s.colinInterview)note('dead_men_colin_statement',__dialogueText("managers/DeadMenCallingFollowup.js", "t_be84d35b0fcc28372563"),(deadMenTopicTranscript('colin_initial') || transcript(colinInterview)),__dialogueText("managers/DeadMenCallingFollowup.js", "t_aeb345dd503c04564c55"));
+ if(s.reviewed)note('dead_men_folder_findings',__dialogueText("managers/DeadMenCallingFollowup.js", "t_237fec51c016645f8c5c"),__dialogueText("managers/DeadMenCallingFollowup.js", "t_946dbce71edfd2c8e76f"),__dialogueText("managers/DeadMenCallingFollowup.js", "t_02ff5745b5e99cdd11cf"));
 }
 function markRead(id){if(!ownMail().some(m=>m.id===id))return;const s=state();if(!s.read.includes(id))save({read:[...s.read,id]});sync();}
 function check(id,index){
- const q=current();if(!ready()||!q||q.id!==id)return {ok:false,message:'Complete the interviews and read the documents first.'};
+ const q=current();if(!ready()||!q||q.id!==id)return {ok:false,message:__dialogueText("managers/DeadMenCallingFollowup.js", "t_8f03c1a43f65cfc7c6c6")};
  if(!q.options[index]?.[1])return {ok:false,message:q.feedback};
- save({answers:[...state().answers,q.id]});sync();return {ok:true,message:state().reviewed?'Review recorded.':'Evidence matched. Continue.'};
+ save({answers:[...state().answers,q.id]});sync();return {ok:true,message:state().reviewed?__dialogueText("managers/DeadMenCallingFollowup.js", "t_fa83ffaad84134de4dcd"):__dialogueText("managers/DeadMenCallingFollowup.js", "t_5016ad967c6a1a6662c0")};
 }
 export function installDeadMenFollowupMail(ui){
  const docs=ui.documents;if(docs.deadMenFollowupInstalled)return;docs.deadMenFollowupInstalled=true;
@@ -98,23 +99,23 @@ export function installDeadMenFollowupMail(ui){
   if(ui.app!=='mail'||ui.selectedId!==REVIEW||!ready()||state().reviewed)return paged(content,x,y,w,h);
   const q=current();if(!q)return paged(content,x,y,w,h);
   if(selectedKey!==q.id){selectedKey=q.id;choice=0;feedback='';ui.bodyPage=0;}
-  paged(content+'\n\nSelected answer: '+q.options[choice][0]+(feedback?'\n\n'+feedback:''),x,y,w,Math.max(24,h-42));
-  ui.drawing.button(x,y+h-32,'NEXT OPTION',()=>{if(ui.app!=='mail'||ui.selectedId!==REVIEW)return;choice=(choice+1)%q.options.length;feedback='';ui.bodyPage=0;ui.render();});
-  ui.drawing.button(x+Math.max(150,Math.floor(w/2)),y+h-32,'CHECK ANSWER',()=>{if(ui.app!=='mail'||ui.selectedId!==REVIEW)return;const result=check(q.id,choice);feedback=result.message;ui.notice=result.message;ui.bodyPage=0;ui.render();});
+  paged(content+__dialogueText("managers/DeadMenCallingFollowup.js", "t_1344275fa1f473c7e1a9")+q.options[choice][0]+(feedback?'\n\n'+feedback:''),x,y,w,Math.max(24,h-42));
+  ui.drawing.button(x,y+h-32,__dialogueText("managers/DeadMenCallingFollowup.js", "t_e69aac4a34cce29af6bc"),()=>{if(ui.app!=='mail'||ui.selectedId!==REVIEW)return;choice=(choice+1)%q.options.length;feedback='';ui.bodyPage=0;ui.render();});
+  ui.drawing.button(x+Math.max(150,Math.floor(w/2)),y+h-32,__dialogueText("managers/DeadMenCallingFollowup.js", "t_1bdb867eafc7fdd5df9b"),()=>{if(ui.app!=='mail'||ui.selectedId!==REVIEW)return;const result=check(q.id,choice);feedback=result.message;ui.notice=result.message;ui.bodyPage=0;ui.render();});
  };
  const render=docs.render.bind(docs);docs.render=()=>{render();if(ui.app==='mail')markRead(ui.selectedId);sync();};
 }
 function route(number){
  if(!unlocked())return null;
- if(number==='619')return {contact:MARGARET,lines:folderInterview,flag:'folderInterview',message:'Folder documents received.'};
- if(number==='621'&&state().folderInterview)return {contact:COLIN,lines:colinInterview,flag:'colinInterview',message:'Colin’s statement recorded.'};
+ if(number==='619')return {contact:MARGARET,lines:folderInterview,flag:'folderInterview',message:__dialogueText("managers/DeadMenCallingFollowup.js", "t_37ed958c18fb511bba82")};
+ if(number==='621'&&state().folderInterview)return {contact:COLIN,lines:colinInterview,flag:'colinInterview',message:__dialogueText("managers/DeadMenCallingFollowup.js", "t_67b8ac208dbfa20ac81d")};
  return null;
 }
 export function installDeadMenFollowupPhone(phone){
  if(phone.deadMenFollowupInstalled)return;phone.deadMenFollowupInstalled=true;let currentRoute=null;
  const start=phone.startCall.bind(phone);phone.startCall=()=>{
   const r=route(phone.number);if(!r)return start();const number=phone.number;
-  phone.cancelActivity();phone.state='ringing';phone.status='Ringing...';phone.render();phone.startRing();
+  phone.cancelActivity();phone.state='ringing';phone.status=__dialogueText("managers/DeadMenCallingFollowup.js", "t_f402468f7b8874bf7b48");phone.render();phone.startRing();
   phone.later(3000,()=>{if(phone.isOpen&&!phone.destroyed&&phone.state==='ringing'&&phone.number===number&&route(number))phone.connect(r.contact);});
  };
  const connect=phone.connect.bind(phone);phone.connect=contact=>{

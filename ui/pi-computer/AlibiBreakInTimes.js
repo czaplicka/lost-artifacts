@@ -1,12 +1,13 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { ALIBI_SEARCH_CASE, ALIBI_PHONE_CONTACT, ALIBI_CLUB_CONTACT } from './AlibiCaseData.js';
 import { ALIBI_INTERVIEW_CONTACTS } from './AlibiInterviewData.js';
 import { ALIBI_DIALOGUE_RULES } from './AlibiDialogueData.js';
 import { ALIBI_GUIDANCE_RULES } from './AlibiGuidanceRules.js';
 
-const MARKER = Symbol.for('lostArtifacts.alibiBreakInTimesV1');
+const MARKER = Symbol.for(__dialogueText("ui/pi-computer/AlibiBreakInTimes.js", "t_1b84df1bedadcc85d82a"));
 export const ALIBI_BREAKIN_TIME_KEYWORDS = [
-  { id: 'breakin_window_start', label: '20:10', cloudId: 'incident_times' },
-  { id: 'breakin_window_end', label: '20:25', cloudId: 'incident_times' }
+  { id: 'breakin_window_start', label: __dialogueText("ui/pi-computer/AlibiBreakInTimes.js", "t_6cf7350a37efb7dff4fa"), cloudId: 'incident_times' },
+  { id: 'breakin_window_end', label: __dialogueText("ui/pi-computer/AlibiBreakInTimes.js", "t_7932c6e5dd799b7a4b22"), cloudId: 'incident_times' }
 ];
 
 export function breakInTimeFragments(parts) {
@@ -43,7 +44,7 @@ export function registerAlibiBreakInTimes(definition = ALIBI_SEARCH_CASE) {
   if (definition?.id !== 'borrowed_alibi') return;
   definition.clouds ??= [];
   if (!definition.clouds.some(cloud => cloud.id === 'incident_times')) {
-    definition.clouds.push({ id: 'incident_times', title: 'INCIDENT TIME' });
+    definition.clouds.push({ id: 'incident_times', title: __dialogueText("ui/pi-computer/AlibiBreakInTimes.js", "t_35291f87773574a4452c") });
   }
   definition.keywords ??= [];
   for (const keyword of ALIBI_BREAKIN_TIME_KEYWORDS) {

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { getScoreManager } from '../managers/InvestigationManager.js';
 import { audioManager } from '../managers/AudioManager.js';
@@ -107,7 +108,7 @@ export class HiddenObjectsScene extends BaseScene {
 
 
     this.cityId = 'paris';
-    this.title = 'Crime Scene';
+    this.title = __dialogueText("scenes/HiddenObjectsScene.js", "t_deb2ecf56ab544bfcb8e");
 
 
 
@@ -262,7 +263,7 @@ export class HiddenObjectsScene extends BaseScene {
 
     this.mapPath =
       data.mapPath ||
-      `assets/crimes/${this.sceneId}.json`;
+      `${__dialogueText("scenes/HiddenObjectsScene.js", "t_6b9b2f83e78caa08cfb1")}${this.sceneId}${__dialogueText("scenes/HiddenObjectsScene.js", "t_12157ab04ed2c6accc3d")}`;
 
 
 
@@ -274,7 +275,7 @@ export class HiddenObjectsScene extends BaseScene {
 
     this.backgroundPath =
       data.backgroundPath ||
-      `assets/crimes/${this.sceneId}.jpg`;
+      `${__dialogueText("scenes/HiddenObjectsScene.js", "t_6b9b2f83e78caa08cfb1")}${this.sceneId}${__dialogueText("scenes/HiddenObjectsScene.js", "t_d912c70acf20eda7217a")}`;
 
 
 
@@ -351,7 +352,7 @@ export class HiddenObjectsScene extends BaseScene {
 
 
     this.cityId = resolvedCityId;
-    this.title = data.title || 'Crime Scene';
+    this.title = data.title || __dialogueText("scenes/HiddenObjectsScene.js", "t_deb2ecf56ab544bfcb8e");
 
 
 
@@ -524,9 +525,9 @@ export class HiddenObjectsScene extends BaseScene {
 
       if (!this.dataLoader.loadObjectsData()) {
         this.flow.handleSceneSetupFailure(
-          `Objects data "${this.objectsDataKey}" ` +
-          `(${this.objectsDataPath}) failed to load ` +
-          'or was not a valid array.'
+          `${__dialogueText("scenes/HiddenObjectsScene.js", "t_dda1d966f625e1f93ad7")}${this.objectsDataKey}${__dialogueText("scenes/HiddenObjectsScene.js", "t_769d3e22b2c440cabc1b")}` +
+          `${__dialogueText("scenes/HiddenObjectsScene.js", "t_32ebb1abcc1c601ceb9c")}${this.objectsDataPath}${__dialogueText("scenes/HiddenObjectsScene.js", "t_c4b4efe788369dc42f2d")}` +
+          __dialogueText("scenes/HiddenObjectsScene.js", "t_f9cd062e97a6563e8d36")
         );
 
 
@@ -538,7 +539,7 @@ export class HiddenObjectsScene extends BaseScene {
 
       if (!this.sceneItems.length) {
         this.flow.handleSceneSetupFailure(
-          `No objects configured for scene "${this.sceneId}".`
+          `${__dialogueText("scenes/HiddenObjectsScene.js", "t_b70382e682a646b63208")}${this.sceneId}${__dialogueText("scenes/HiddenObjectsScene.js", "t_1e4a1452ad4db45827a1")}`
         );
 
 
@@ -563,8 +564,8 @@ export class HiddenObjectsScene extends BaseScene {
         this.activeItems.length !== this.activeCount
       ) {
         this.flow.handleSceneSetupFailure(
-          `Could not prepare ${this.activeCount} hidden objects ` +
-          `for scene "${this.sceneId}".`
+          `${__dialogueText("scenes/HiddenObjectsScene.js", "t_3ae443073723eb690020")}${this.activeCount}${__dialogueText("scenes/HiddenObjectsScene.js", "t_3409b1ab06358442f7a6")}` +
+          `${__dialogueText("scenes/HiddenObjectsScene.js", "t_d8bd50d902f763641408")}${this.sceneId}${__dialogueText("scenes/HiddenObjectsScene.js", "t_1e4a1452ad4db45827a1")}`
         );
 
 
@@ -639,8 +640,8 @@ export class HiddenObjectsScene extends BaseScene {
 
 
       this.flow.handleSceneSetupFailure(
-        'The crime scene refused to cooperate. ' +
-        'Please return to the city map and try again.'
+        __dialogueText("scenes/HiddenObjectsScene.js", "t_4bf159b4a954183a06b1") +
+        __dialogueText("scenes/HiddenObjectsScene.js", "t_5d750650f552eac0f349")
       );
     } finally {
       this.isCreatingScene = false;

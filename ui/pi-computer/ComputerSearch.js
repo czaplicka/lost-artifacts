@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import {
   ComputerSearch as ComputerSearchCore
 } from './ComputerSearchCore.js';
@@ -315,7 +316,7 @@ export class ComputerSearch extends ComputerSearchCore {
       bounds.h < 470;
 
     const gap = compact ? 8 : 12;
-    const brand = page.brand || 'THE DAILY DIRT';
+    const brand = page.brand || __dialogueText("ui/pi-computer/ComputerSearch.js", "t_c6bff8c5af6e1e2792c0");
 
     drawing.rectangle(
       bounds.x + 5,
@@ -373,7 +374,7 @@ export class ComputerSearch extends ComputerSearchCore {
     this.retroFit(
       bounds.x + 40,
       bounds.y + 14,
-      `OWL NAVIGATOR / ${brand}`,
+      `${__dialogueText("ui/pi-computer/ComputerSearch.js", "t_6a5469aa820b1a95a6fd")}${brand}`,
       bounds.w - 178,
       compact ? 8 : 9,
       COLORS.cream,
@@ -444,7 +445,7 @@ export class ComputerSearch extends ComputerSearchCore {
       addressY,
       48,
       addressHeight,
-      'GO!',
+      __dialogueText("ui/pi-computer/ComputerSearch.js", "t_64db8c5cb274ab232479"),
       () => this.refresh(),
       { pink: true }
     );
@@ -495,7 +496,7 @@ export class ComputerSearch extends ComputerSearchCore {
       bannerX + 12,
       bannerY + bannerH - 20,
       page.tagline ||
-        'News. Opinions. Suspiciously confident punctuation.',
+        __dialogueText("ui/pi-computer/ComputerSearch.js", "t_e7e369c16fb8c5179d81"),
       bannerW - 24,
       compact ? 10 : 12,
       '#f5c9de'
@@ -514,7 +515,7 @@ export class ComputerSearch extends ComputerSearchCore {
     this.retroText(
       bannerX + 7,
       tickerY + 6,
-      'EXTRA!',
+      __dialogueText("ui/pi-computer/ComputerSearch.js", "t_74c56d5c885b8df9266c"),
       8,
       '#ff818b',
       0,
@@ -526,7 +527,7 @@ export class ComputerSearch extends ComputerSearchCore {
       tickerY + 5,
       page.ticker ||
         page.snippet ||
-        'Read all about it.',
+        __dialogueText("ui/pi-computer/ComputerSearch.js", "t_ca3fd65b468e302a7a1d"),
       bannerW - 74,
       12,
       '#ffe46b'
@@ -605,7 +606,7 @@ export class ComputerSearch extends ComputerSearchCore {
     const title =
       page.heading ||
       page.title ||
-      'Latest news';
+      __dialogueText("ui/pi-computer/ComputerSearch.js", "t_f74e23c21f4131b4bb77");
 
     this.retroFit(
       innerX,
@@ -749,10 +750,10 @@ export class ComputerSearch extends ComputerSearchCore {
         innerX,
         metaY + 7,
         [
-          `BY ${
+          `${__dialogueText("ui/pi-computer/ComputerSearch.js", "t_3c724ef2b86ef0ae1745")}${
             page.author ||
             page.reporter ||
-            'THE EDITORIAL DESK'
+            __dialogueText("ui/pi-computer/ComputerSearch.js", "t_a851cdc8e238285fcad7")
           }`,
           page.category || 'FEATURES'
         ].join('  /  '),
@@ -790,7 +791,7 @@ export class ComputerSearch extends ComputerSearchCore {
     for (const link of page.links || []) {
       blocks.push([
         {
-          text: `> ${link.label}`,
+          text: `${__dialogueText("ui/pi-computer/ComputerSearch.js", "t_ec4f8e3d1f7cafbdb86e")}${link.label}`,
           pageId: link.pageId
         }
       ]);
@@ -928,7 +929,7 @@ export class ComputerSearch extends ComputerSearchCore {
     this.retroFit(
       x + 10,
       y + 12,
-      page.imageHeading || 'IN THE PICTURE',
+      page.imageHeading || __dialogueText("ui/pi-computer/ComputerSearch.js", "t_b7e1b5d0d1aa21f9351d"),
       width - 20,
       8,
       '#544735',
@@ -970,7 +971,7 @@ export class ComputerSearch extends ComputerSearchCore {
       this.retroFit(
         photoX + 8,
         photoY + 16,
-        'PHOTO UNAVAILABLE',
+        __dialogueText("ui/pi-computer/ComputerSearch.js", "t_81e8132432559fda2441"),
         photoW - 16,
         8,
         '#756852'
@@ -982,7 +983,7 @@ export class ComputerSearch extends ComputerSearchCore {
       y + height - 24,
       page.imageCaption ||
         page.caption ||
-        'Editorial photograph',
+        __dialogueText("ui/pi-computer/ComputerSearch.js", "t_496bdf960b951f36e329"),
       width - 20,
       10,
       COLORS.muted
@@ -1033,7 +1034,7 @@ export class ComputerSearch extends ComputerSearchCore {
       this.retroFit(
         x + 212,
         y + 8,
-        'Underlined text: investigate / save clue',
+        __dialogueText("ui/pi-computer/ComputerSearch.js", "t_77a8ccdcd5cfcf1e0758"),
         width - 212 - notesWidth - 16,
         10,
         COLORS.muted

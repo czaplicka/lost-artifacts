@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { DW, DH, FONT_TEXT, FONT_PIXEL, SFX, ART, AMBER, AMBER_CSS, GREEN, GREEN_CSS, RED, CREAM_CSS, FAINT_CSS, SCREEN_TEXT, DIAL_X, DIAL_Y, STOP_ANGLE, HOLE_RING, MON_X, MON_Y, MON_W, MON_H, SCREEN_X, SCREEN_Y, SCREEN_W, SCREEN_H, LEDS, VU_BARS, mulberry32 } from './PhoneConfig.js';
 
 export const PhoneDisplay = {
@@ -61,7 +62,7 @@ export const PhoneDisplay = {
         g.lineBetween(cx, cy, cx, cy + sy * b);
       });
     this.ui.add(g);
-    this.t(this.ui, X + 28, Y + 20, 'LINE MONITOR', 11, AMBER_CSS, FONT_PIXEL);
+    this.t(this.ui, X + 28, Y + 20, __dialogueText("ui/pi-phone/PhoneDisplay.js", "t_aff9a5f93f8df6f4f955"), 11, AMBER_CSS, FONT_PIXEL);
     this.timerText = this.t(this.ui, X + W - 28, Y + 20, '', 11, GREEN_CSS, FONT_PIXEL).setOrigin(1, 0);
     this.ledViews = LEDS.map(([id, label, color], i) => {
       const lx = X + 28 + i * 102, ly = Y + 54;
@@ -79,13 +80,13 @@ export const PhoneDisplay = {
     for (let i = 0; i < length; i++) {
       const bx = X + 28 + i * 100, by = Y + 96;
       const bg = s.add.graphics();
-      const text = s.add.text(bx + 44, by + 46, '-', {
+      const text = s.add.text(bx + 44, by + 46, __dialogueText("ui/pi-phone/PhoneDisplay.js", "t_3973e022e93220f9212c"), {
         fontFamily: FONT_PIXEL, fontSize: '44px', color: '#4a3a1c'
       }).setOrigin(0.5);
       this.ui.add([bg, text]);
       this.digitBoxes.push({ x: bx, y: by, bg, text });
     }
-    this.t(this.ui, X + 340, Y + 80, 'LINE LEVEL', 8, FAINT_CSS, FONT_PIXEL);
+    this.t(this.ui, X + 340, Y + 80, __dialogueText("ui/pi-phone/PhoneDisplay.js", "t_f2bbe92f59ec1a1a0398"), 8, FAINT_CSS, FONT_PIXEL);
     this.vuGfx = s.add.graphics();
     this.ui.add(this.vuGfx);
     const screen = s.add.graphics();
@@ -118,17 +119,17 @@ export const PhoneDisplay = {
       scan.lineBetween(SCREEN_X + 3, y, SCREEN_X + SCREEN_W - 3, y);
     }
     this.ui.add(scan);
-    this.btnHook = this.makeKey(X + 18, Y + H - 76, 250, 46, 'PICK UP', () => this.pickUp());
+    this.btnHook = this.makeKey(X + 18, Y + H - 76, 250, 46, __dialogueText("ui/pi-phone/PhoneDisplay.js", "t_516b132887dd20dea892"), () => this.pickUp());
     this.btnDir = this.makeKey(X + W - 268, Y + H - 76, 250, 46, 'DIRECTORY', () => {
       if (this.state !== 'dialling') this.openDirectory();
     });
   },
 
   buildTopBar() {
-    this.t(this.ui, 40, 22, 'LOCAL TELEPHONE', 30, AMBER_CSS, FONT_TEXT);
+    this.t(this.ui, 40, 22, __dialogueText("ui/pi-phone/PhoneDisplay.js", "t_8207b098b4e0bce2c3e7"), 30, AMBER_CSS, FONT_TEXT);
     this.ownLine = this.t(this.ui, 42, 58, '', 14, FAINT_CSS, FONT_TEXT);
     this.t(this.ui, 40, DH - 30,
-      '0-9 dial   SPACE / ENTER continue   D directory   ESC close',
+      __dialogueText("ui/pi-phone/PhoneDisplay.js", "t_2eb808f671c1844cc91d"),
       14, '#7d7560', FONT_TEXT);
     this.makeKey(DW - 160, 20, 120, 40, 'CLOSE', () => this.close(), { size: 10 });
   },
@@ -243,9 +244,9 @@ export const PhoneDisplay = {
     const state = this.state;
     this.setHandset(state !== 'on_hook');
     const own = this.ownContact;
-    this.dialCentre.setText([own?.name || 'LOCAL PHONE', own?.number || '---'].join('\n'));
-    this.ownLine.setText(own ? `${own.name}  ·  ext. ${own.number}` : '');
-    this.btnHook.setLabel(state === 'on_hook' ? 'PICK UP' : 'HANG UP');
+    this.dialCentre.setText([own?.name || __dialogueText("ui/pi-phone/PhoneDisplay.js", "t_e97c85f5a9dce1f01d3e"), own?.number || __dialogueText("ui/pi-phone/PhoneDisplay.js", "t_cb3f91d54eee30e53e35")].join(__dialogueText("ui/pi-phone/PhoneDisplay.js", "t_01ba4719c80b6fe911b0")));
+    this.ownLine.setText(own ? `${own.name}${__dialogueText("ui/pi-phone/PhoneDisplay.js", "t_31ac14ad8ec6373c8a1c")}${own.number}` : '');
+    this.btnHook.setLabel(state === 'on_hook' ? __dialogueText("ui/pi-phone/PhoneDisplay.js", "t_516b132887dd20dea892") : __dialogueText("ui/pi-phone/PhoneDisplay.js", "t_1035b302b8a839641977"));
     this.btnDir.setEnabled(state !== 'dialling');
     this.holes.forEach(hole => {
       if (hole.input) hole.input.enabled = state === 'ready';
@@ -258,7 +259,7 @@ export const PhoneDisplay = {
     this.prompt.setVisible(connected);
     if (connected) {
       const last = this.lineIndex >= this.lines.length - 1;
-      this.prompt.setText(last ? 'END CONVERSATION >' : 'CONTINUE >');
+      this.prompt.setText(last ? __dialogueText("ui/pi-phone/PhoneDisplay.js", "t_85dd9926e5a70b9cddaa") : __dialogueText("ui/pi-phone/PhoneDisplay.js", "t_ccb844f373a3b29ad190"));
     }
     this.refreshDigits();
     this.updateLeds();
@@ -270,7 +271,7 @@ export const PhoneDisplay = {
     this.digitBoxes.forEach((box, i) => {
       const ch = this.number[i];
       const isCursor = ready && i === this.number.length;
-      box.text.setText(ch ?? '-').setColor(ch ? AMBER_CSS : '#4a3a1c');
+      box.text.setText(ch ?? __dialogueText("ui/pi-phone/PhoneDisplay.js", "t_3973e022e93220f9212c")).setColor(ch ? AMBER_CSS : '#4a3a1c');
       box.bg.clear();
       box.bg.fillStyle(0x070b08, 1);
       box.bg.fillRoundedRect(box.x, box.y, 88, 92, 8);
@@ -314,7 +315,7 @@ export const PhoneDisplay = {
       const sec = Math.floor((this.scene.time.now - this.callStart) / 1000);
       const mm = String(Math.floor(sec / 60)).padStart(2, '0');
       const ss = String(sec % 60).padStart(2, '0');
-      this.timerText.setText(`${mm}:${ss}`);
+      this.timerText.setText(`${mm}${__dialogueText("ui/pi-phone/PhoneDisplay.js", "t_e7ac0786668e0ff0f02b")}${ss}`);
     } else {
       this.timerText.setText('');
     }

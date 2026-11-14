@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import {
   ensureBackdropTexture,
   ensureKeyedTexture,
@@ -11,23 +12,23 @@ const FONT_TYPE = 'SpecialElite';
 const GOLD = 0xcbbd78;
 
 const NEWS_JOKES = [
-  'MONKEY CAMERAMAN DENIES ALL UNION VIOLATIONS',
-  'CAT ON ANCHOR DESK STILL NOT FACING CHARGES',
-  'REMINDER: A FAKE MUSTACHE IS NOT AN ALIBI',
-  'MARK AGENCY COFFEE SUBSTITUTE RECALLED. NOBODY NOTICED',
-  'WEATHER: SHIFTY, WITH A CHANCE OF CONSPIRACY',
-  'LOCAL PAWN SHOP DENIES EVER SEEING ANYTHING SHINY',
-  'EXPERTS AGREE: SOMEBODY DID SOMETHING',
-  'STAY TUNED. WE HAVE NO IDEA WHAT HAPPENS NEXT'
+  __dialogueText("scenes/tv/TvBroadcastView.js", "t_2ef6b58434584c08787a"),
+  __dialogueText("scenes/tv/TvBroadcastView.js", "t_c07a320c85bead67aedd"),
+  __dialogueText("scenes/tv/TvBroadcastView.js", "t_b90b78712f0d921e8ebb"),
+  __dialogueText("scenes/tv/TvBroadcastView.js", "t_83db54aaef9ede36336d"),
+  __dialogueText("scenes/tv/TvBroadcastView.js", "t_adbc18230fce9f9b9ec1"),
+  __dialogueText("scenes/tv/TvBroadcastView.js", "t_dcf45e8637f79ce45d3f"),
+  __dialogueText("scenes/tv/TvBroadcastView.js", "t_ccc0c6c64b7ff730c978"),
+  __dialogueText("scenes/tv/TvBroadcastView.js", "t_4498d1a6008e5f12b770")
 ];
 
 const AD_STICKERS = [
-  'AS SEEN ON TV!',
-  'NOW 14% MORE!',
-  'LIMITED OFFER!',
-  'ASK YOUR DOCTOR*',
-  '*NOT A DOCTOR',
-  'NEW AND SUSPICIOUS!'
+  __dialogueText("scenes/tv/TvBroadcastView.js", "t_9624288462dbfc70dcdb"),
+  __dialogueText("scenes/tv/TvBroadcastView.js", "t_d3ac72d5851ebd0a8da6"),
+  __dialogueText("scenes/tv/TvBroadcastView.js", "t_92c7447fa78f303cdbc0"),
+  __dialogueText("scenes/tv/TvBroadcastView.js", "t_609b8d13204870f5515c"),
+  __dialogueText("scenes/tv/TvBroadcastView.js", "t_2197a004628bca7716e3"),
+  __dialogueText("scenes/tv/TvBroadcastView.js", "t_975756b64c5f85e032dc")
 ];
 
 const AD_KINDS = ['ad', 'advertisement', 'commercial'];
@@ -575,19 +576,19 @@ export class TvBroadcastView {
 
     const fallbackLabel =
       kind === 'news'
-        ? 'BREAKING NEWS'
+        ? __dialogueText("scenes/tv/TvBroadcastView.js", "t_dfa75d11d676e1f478a8")
         : kind === 'ad'
           ? 'ADVERTISEMENT'
           : 'LIVE';
 
     u.labelText.setText(segment.label || fallbackLabel);
-    u.channelText.setText(segment.channel || 'CH-03');
+    u.channelText.setText(segment.channel || __dialogueText("scenes/tv/TvBroadcastView.js", "t_102445a0f1bbb8e12f57"));
     u.badgeText.setText(segment.badge || '');
 
     u.liveDot.setVisible(kind !== 'ad');
 
     u.tickerCapText.setText(
-      kind === 'news' ? 'NEWS' : kind === 'ad' ? 'AD' : 'LIVE'
+      kind === __dialogueText("scenes/tv/TvBroadcastView.js", "t_19fba0e995b9794fc2c2") ? __dialogueText("scenes/tv/TvBroadcastView.js", "t_7ee66c4f1536ac84dc5b") : kind === __dialogueText("scenes/tv/TvBroadcastView.js", "t_70ba33708cbfb103f1a8") ? __dialogueText("scenes/tv/TvBroadcastView.js", "t_c7bf4bbdbcd88d9d7f7c") : __dialogueText("scenes/tv/TvBroadcastView.js", "t_35e0d0360a0af6d115f9")
     );
 
     this.layoutHeader(Boolean(segment.badge), kind !== 'ad');
@@ -722,7 +723,7 @@ export class TvBroadcastView {
       u.anchorText
         .setFontFamily(FONT_PIXEL)
         .setFontSize(this.fs(11))
-        .setColor('#f8e7a7')
+        .setColor(__dialogueText("scenes/tv/TvBroadcastView.js", "t_f060c8c060261c2dc925"))
         .setText(name)
         .setPosition(panelX + Math.round(22 * k), panelY - Math.round(20 * k))
         .setVisible(true);
@@ -743,14 +744,14 @@ export class TvBroadcastView {
 
     if (facts?.artifact) {
       const lines = [
-        'THEFT REPORT',
+        __dialogueText("scenes/tv/TvBroadcastView.js", "t_6090a4d77b9d4446a0bf"),
         String(facts.artifact).toUpperCase(),
         String(facts.sourceWithCity || '').toUpperCase()
       ].filter(Boolean);
 
       u.factsText
         .setWordWrapWidth(Math.round(m.SW * 0.3), true)
-        .setText(lines.join('\n'))
+        .setText(lines.join(__dialogueText("scenes/tv/TvBroadcastView.js", "t_01ba4719c80b6fe911b0")))
         .setVisible(true);
 
       const plateW = u.factsText.width + Math.round(32 * k);
@@ -832,7 +833,7 @@ export class TvBroadcastView {
       u.anchorText
         .setFontFamily(FONT_TYPE)
         .setFontSize(this.fs(22))
-        .setColor('#d7efe5')
+        .setColor(__dialogueText("scenes/tv/TvBroadcastView.js", "t_c74965da239a2ec6379c"))
         .setText(hostName)
         .setPosition(panelX + pad + Math.round(6 * k), cursorY)
         .setVisible(true);
@@ -869,9 +870,9 @@ export class TvBroadcastView {
     u.titleText
       .setOrigin(0.5, 0)
       .setFontSize(this.fs(24))
-      .setColor('#fff6cf')
-      .setStroke('#000000', Math.round(6 * k))
-      .setAlign('center')
+      .setColor(__dialogueText("scenes/tv/TvBroadcastView.js", "t_118a641250b2a2bb189a"))
+      .setStroke(__dialogueText("scenes/tv/TvBroadcastView.js", "t_7b2817bf9b80e66d07f2"), Math.round(6 * k))
+      .setAlign(__dialogueText("scenes/tv/TvBroadcastView.js", "t_f179a509d32bd92c923f"))
       .setWordWrapWidth(m.SW - Math.round(80 * k), true)
       .setText(String(segment.title || '').toUpperCase())
       .setPosition(0, m.stageTop + Math.round(26 * k))
@@ -921,9 +922,9 @@ export class TvBroadcastView {
     u.titleText
       .setOrigin(0, 0)
       .setFontSize(this.fs(11))
-      .setColor('#fff6cf')
-      .setStroke('#000000', 0)
-      .setAlign('left')
+      .setColor(__dialogueText("scenes/tv/TvBroadcastView.js", "t_118a641250b2a2bb189a"))
+      .setStroke(__dialogueText("scenes/tv/TvBroadcastView.js", "t_7b2817bf9b80e66d07f2"), 0)
+      .setAlign(__dialogueText("scenes/tv/TvBroadcastView.js", "t_360f84035942243c6a36"))
       .setWordWrapWidth(Math.round(maxW), true)
       .setText(String(title).toUpperCase())
       .setPosition(x + Math.round(18 * k), y + Math.round(9 * k))
@@ -958,16 +959,16 @@ export class TvBroadcastView {
 
       items = [
         segment.title,
-        f.artifact ? `STOLEN: ${f.artifact}` : null,
-        f.sourceWithCity ? `LOCATION: ${f.sourceWithCity}` : null,
-        f.publicClue ? `WITNESSES REPORT: ${f.publicClue}` : null,
+        f.artifact ? `${__dialogueText("scenes/tv/TvBroadcastView.js", "t_5dc9dce49f201e7afa5f")}${f.artifact}` : null,
+        f.sourceWithCity ? `${__dialogueText("scenes/tv/TvBroadcastView.js", "t_152bbdc691a6dfb59856")}${f.sourceWithCity}` : null,
+        f.publicClue ? `${__dialogueText("scenes/tv/TvBroadcastView.js", "t_a145e6b66e998e25d4b5")}${f.publicClue}` : null,
         ...extras,
         ...jokes
       ];
     } else if (kind === 'ad') {
       items = [
         segment.title,
-        'CALL NOW. OPERATORS ARE STANDING BY (SITTING, ACTUALLY)',
+        __dialogueText("scenes/tv/TvBroadcastView.js", "t_8122b19e18816e915a0b"),
         jokes[0],
         ...extras
       ];
@@ -1100,7 +1101,7 @@ export class TvBroadcastView {
     if (!u.pauseDim?.active) return;
 
     u.pauseDim.setVisible(paused);
-    u.pauseText.setVisible(paused).setText('II  PAUSED').setPosition(0, 0);
+    u.pauseText.setVisible(paused).setText(__dialogueText("scenes/tv/TvBroadcastView.js", "t_a1607b34ad4b50ad7633")).setPosition(0, 0);
 
     if (this.pauseTween) {
       this.pauseTween.stop();

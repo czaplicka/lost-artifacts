@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { EventBus } from '../EventBus.js';
 import { inventoryManager } from '../managers/InventoryManager.js';
 import { useItem, canUseItem } from '../managers/ItemUseService.js';
@@ -7,7 +8,7 @@ import { InventoryDragController } from './inventory/InventoryDragController.js'
 import { InventoryDiscardDialog } from './inventory/InventoryDiscardDialog.js';
 import { captureApartmentInventory, recordEnvelopeViewed } from '../crimeBoard/BoardEvidenceRuntime.js';
 
-const say=text=>EventBus.emit('showDialogue',{speaker:'Detective',text});
+const say=text=>EventBus.emit('showDialogue',{speaker:__dialogueText("ui/InventoryUI.js", "t_2653ceeec1fd951707a3"),text});
 export class InventoryUI {
   constructor(scene) {
     this.scene=scene;this.isVisible=false;this.selectedItem=null;
@@ -81,7 +82,7 @@ export class InventoryUI {
     const x=view.cardX+width+gap;
     this.discardButtonBg=this.scene.add.rectangle(x,410,width,54,0x353541).setOrigin(0)
       .setStrokeStyle(2,0x6a6070).setInteractive({useHandCursor:true});
-    this.discardButtonText=this.scene.add.text(x+width/2,437,'DISCARD',{
+    this.discardButtonText=this.scene.add.text(x+width/2,437,__dialogueText("ui/InventoryUI.js", "t_61413a37fa2334328146"),{
       fontFamily:'PressStart2P',fontSize:'13px',color:'#96909b'
     }).setOrigin(0.5).setShadow(2,2,'#000000',0,false,true);
     this.discardButtonBg.on('pointerdown',(p,x,y,event)=>event?.stopPropagation());
@@ -188,7 +189,7 @@ export class InventoryUI {
         if(this.discardDialog!==dialog)return;this.discardDialog=null;
         if(!this.hasLiveView() || !this.isVisible)return;
         const result=discardInventoryItem(request,mode);
-        say(result.success?result.message:'The item changed or is no longer available. Select it again before discarding.');
+        say(result.success?result.message:__dialogueText("ui/InventoryUI.js", "t_a4b5a517cc3920139767"));
         this.render();this.scheduleRender();
       }
     });
@@ -208,8 +209,8 @@ export class InventoryUI {
   selectItem(item) {
     if(this._destroyed || this.discardDialog || !item?.id)return;
     const selected=inventoryManager.getSelectedItem();
-    if(selected?.id===item.id){inventoryManager.clearSelection();say('Item put away. For now.');}
-    else {inventoryManager.selectItem(item.id);say(`${item.name}. Let's see what this helps with.`);}
+    if(selected?.id===item.id){inventoryManager.clearSelection();say(__dialogueText("ui/InventoryUI.js", "t_520837bc0a23b0a68200"));}
+    else {inventoryManager.selectItem(item.id);say(`${item.name}${__dialogueText("ui/InventoryUI.js", "t_ed99f5098b4042673a76")}`);}
   }
   showTooltip(item) {
     if(this.hasLiveView() && this.isVisible && !this.discardDialog){

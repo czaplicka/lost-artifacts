@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 
 const WORKER = '__AssetWorkerScene';
@@ -65,7 +66,7 @@ export class AssetManager {
 
     this.progress = {
       value: 0,
-      label: 'Opening the case file...'
+      label: __dialogueText("managers/AssetManager.js", "t_75459bafc792b7effe16")
     };
 
     this.currentCity = null;
@@ -598,7 +599,7 @@ export class AssetManager {
 
           reject(
             new Error(
-              '[AssetManager] Loading cancelled.'
+              __dialogueText("managers/AssetManager.js", "t_df35bdd400b3b32c60b3")
             )
           );
         };
@@ -644,7 +645,7 @@ export class AssetManager {
           if (errors.length) {
             reject(
               new Error(
-                '[AssetManager] Load failed: ' +
+                __dialogueText("managers/AssetManager.js", "t_7a0756b37990e30619a9") +
                 errors.join(', ')
               )
             );
@@ -779,7 +780,7 @@ export class AssetManager {
         await this.ensureBundles(
           ['shared'],
           'shared',
-          'Organising the agency files...'
+          __dialogueText("managers/AssetManager.js", "t_f4aa029cdefd604228f2")
         );
       }
 
@@ -823,7 +824,7 @@ export class AssetManager {
       await this.ensureBundles(
         requested,
         token,
-        'Following the paper trail...'
+        __dialogueText("managers/AssetManager.js", "t_4be4684b866070506103")
       );
 
       const target = this.game.scene.getScene(key);
@@ -922,7 +923,7 @@ export class AssetManager {
     await this.ensureBundles(
       [bundle],
       owner,
-      'Reopening the saved case file...'
+      __dialogueText("managers/AssetManager.js", "t_dcb7dd0863852f818151")
     );
 
     return () => this.unpin(owner);

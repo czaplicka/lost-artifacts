@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 const NAVIGATION_SCENES = new Set([
   'GameScene', 'OfficeScene', 'CityScene', 'CrimeCityScene',
@@ -62,7 +63,7 @@ export class DestinationNavigation {
     if (this.isTransitioning || this.isDestroyed || this.committedTravelPayload) return false;
     const source = this.getNavigationScene();
     if (!source) {
-      this.showTravelError('Could not determine the current location.');
+      this.showTravelError(__dialogueText("ui/DestinationNavigation.js", "t_9ac14acb1c077fbca660"));
       return false;
     }
     if (source.sys.settings.key === 'DetectiveOfficeScene') {
@@ -86,9 +87,9 @@ export class DestinationNavigation {
         destinationScene: 'DetectiveOfficeScene',
         fromCity: state.currentCity || gameState.currentCity || source.sys.settings.key,
         fromCityId: state.currentCityId || gameState.currentCityId || null,
-        toCity: 'PI Office',
+        toCity: __dialogueText("ui/DestinationNavigation.js", "t_6114b7873f77428c0e51"),
         transportType: 'plane',
-        transportLabel: 'Return to PI Office',
+        transportLabel: __dialogueText("ui/DestinationNavigation.js", "t_694c51dc8a11f3ef9506"),
         travelHours: 0,
         baseTravelHours: 0,
         moneySpent: 0,
@@ -107,7 +108,7 @@ export class DestinationNavigation {
       if (!this.isDestroyed && this.scene?.sys?.isActive()) {
         this.isTransitioning = false;
         if (!this.isOpen) this.open(this.gameState || gameState);
-        this.showTravelError('The PI office could not be opened. Check the console.');
+        this.showTravelError(__dialogueText("ui/DestinationNavigation.js", "t_6d2abf6b3f5c4752f743"));
       }
       return false;
     } finally {

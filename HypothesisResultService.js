@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 import {
   gameState,
   createDefaultReconstructedHeist
@@ -72,7 +73,7 @@ export class HypothesisResultService {
       : [];
 
     const orderedSentences = safeCards.map(
-      card => card.item || 'Unknown clue'
+      card => card.item || __dialogueText("HypothesisResultService.js", "t_43645ebe7316f941b093")
     );
 
     const orderedItems = safeCards.map(card => ({
@@ -337,7 +338,7 @@ export class HypothesisResultService {
       return progressionManager.grantReward(
         'reconstruction_submitted',
         caseId,
-        'Heist reconstruction submitted'
+        __dialogueText("HypothesisResultService.js", "t_d03131a2507f7952c356")
       );
     } catch (error) {
       console.error(
@@ -604,9 +605,9 @@ export class HypothesisResultService {
     reconstruction = {}
   } = {}) {
     const titleMap = {
-      exact: 'Heist reconstruction',
-      partial: 'Partial heist theory',
-      weak: 'Uncertain heist theory'
+      exact: __dialogueText("HypothesisResultService.js", "t_b6c38ee5a8729db5fb6c"),
+      partial: __dialogueText("HypothesisResultService.js", "t_5d07683294e0c530ddd5"),
+      weak: __dialogueText("HypothesisResultService.js", "t_21dbedd952d82ea0d051")
     };
 
     const uniqueSkills =
@@ -636,7 +637,7 @@ export class HypothesisResultService {
         : finalText,
 
       uniqueSkills.length
-        ? `Likely skills: ${uniqueSkills.join(', ')}.`
+        ? `${__dialogueText("HypothesisResultService.js", "t_5335963bd330cb085126")}${uniqueSkills.join(', ')}${__dialogueText("HypothesisResultService.js", "t_cdb4ee2aea69cc6a8333")}`
         : ''
     ]
       .filter(Boolean)
@@ -658,7 +659,7 @@ export class HypothesisResultService {
 
       title:
         titleMap[resultLabel] ||
-        'Heist hypothesis',
+        __dialogueText("HypothesisResultService.js", "t_3cc96881c604bdf04ddd"),
 
       text,
       finalText,
@@ -714,7 +715,7 @@ export class HypothesisResultService {
         source: 'heist_hypothesis',
         cityId: this.cityId,
         sceneId: this.sceneId,
-        text: `Skill: ${skill}`
+        text: `${__dialogueText("HypothesisResultService.js", "t_951f93164ad0f63643af")}${skill}`
       });
     });
   }

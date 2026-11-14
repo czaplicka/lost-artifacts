@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { audioManager } from '../managers/AudioManager.js';
 import { UISlider } from '../ui/UISlider.js';
 import { BaseScene } from './BaseScene.js';
@@ -45,12 +46,12 @@ export class SettingsScene extends BaseScene {
     panel.lineStyle(3, 0xc9a227, 1);
     panel.strokeRoundedRect(cx - pw / 2, top, pw, ph, 12);
 
-    this.add.text(cx, top + 60, 'SETTINGS', {
+    this.add.text(cx, top + 60, __dialogueText("scenes/SettingsScene.js", "t_02f6ea12816a9e7b8ce8"), {
       fontFamily: 'PressStart2P', fontSize: '28px', color: '#c9a227'
     }).setOrigin(0.5).setDepth(20);
 
     this.sfxSlider = new UISlider(this, cx - 280, top + 130, 560,
-      'DIALOGUE & SFX', audioManager.getSfxVolume(), value => audioManager.setSfxVolume(value));
+      __dialogueText("scenes/SettingsScene.js", "t_3befee2005977f36475c"), audioManager.getSfxVolume(), value => audioManager.setSfxVolume(value));
     this.musicSlider = new UISlider(this, cx - 280, top + 230, 560,
       'MUSIC', audioManager.getMusicVolume(), value => audioManager.setMusicVolume(value));
     this.createMuteToggle(cx, top + 350);
@@ -114,7 +115,7 @@ export class SettingsScene extends BaseScene {
         this.childBinding = null;
         this.input.enabled = true;
         this.scene.setVisible(true);
-        this.errorLabel?.setText('Could not open this screen. Check the console.');
+        this.errorLabel?.setText(__dialogueText("scenes/SettingsScene.js", "t_f5e4fd0f93bf919e029a"));
         console.error('[SettingsScene]', error);
       }
     } finally {
@@ -162,7 +163,7 @@ export class SettingsScene extends BaseScene {
   }
 
   createMuteToggle(x, y) {
-    this.add.text(x - 200, y, 'SOUND:', {
+    this.add.text(x - 200, y, __dialogueText("scenes/SettingsScene.js", "t_cd8ad69679c93eba430f"), {
       fontFamily: 'PressStart2P', fontSize: '14px', color: '#e8d5a3'
     }).setOrigin(0, 0.5).setDepth(20);
     this.muteLabel = this.add.text(x + 80, y, '', {
@@ -179,7 +180,7 @@ export class SettingsScene extends BaseScene {
   }
 
   refreshMuteLabel(muted) {
-    this.muteLabel?.setText(muted ? '[ OFF ]' : '[ ON ]');
+    this.muteLabel?.setText(muted ? __dialogueText("scenes/SettingsScene.js", "t_379eace1d690c5e70700") : __dialogueText("scenes/SettingsScene.js", "t_91fa99a7916fd10fe8e4"));
     this.muteLabel?.setColor(muted ? '#8b6914' : '#c9a227');
   }
 

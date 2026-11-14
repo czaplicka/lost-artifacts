@@ -14,5 +14,8 @@
   "type": "commonjs",
   "dependencies": {
     "phaser": "3.90.0"
+  },
+  "devDependencies": {
+    "acorn": "^8.19.0"
   }
 }

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
 import { discoverSearchKeywords } from './ComputerSearchCore.js';
@@ -20,20 +21,20 @@ export function reedGalleryHit(x,y,photoId='conference') {
 }
 const word=(keywordId,text)=>({keywordId,text});
 export const REED_GALLERY_PHOTOS=[
-  {id:'conference',key:'Reed_gallery_conference_v3',url:'assets/side_quests/Reed/conference.webp',label:'Reception photograph',hotspots:true},
-  {id:'second',key:'Reed_gallery_second_v3',url:'assets/side_quests/Reed/second.webp',label:'Reception photograph II',hotspots:true},
-  {id:'third',key:'Reed_gallery_third_v3',url:'assets/side_quests/Reed/third.webp',label:'Conference room'}
+  {id:'conference',key:'Reed_gallery_conference_v3',url:'assets/side_quests/Reed/conference.webp',label:__dialogueText("ui/pi-computer/ReedGalleryViewer.js", "t_94a316b9868263b10fe7"),hotspots:true},
+  {id:'second',key:'Reed_gallery_second_v3',url:'assets/side_quests/Reed/second.webp',label:__dialogueText("ui/pi-computer/ReedGalleryViewer.js", "t_11e4d55ea07dbf0d4472"),hotspots:true},
+  {id:'third',key:'Reed_gallery_third_v3',url:'assets/side_quests/Reed/third.webp',label:__dialogueText("ui/pi-computer/ReedGalleryViewer.js", "t_becafdd2da1c8e5058b1")}
 ];
 const descriptions={
-  claire:['The caption identifies the woman on the left as ',word('claire','Claire Sutton'),'.'],
-  nora:['The caption identifies the woman on the right as ',word('nora','Nora Bell'),'.'],
-  jacket:['A ',word('checked_jacket','green checked jacket'),' with contrasting pocket trim.'],
-  badge:['An orange conference badge with a ',word('swallow_logo','swallow emblem'),'.']
+  claire:[__dialogueText("ui/pi-computer/ReedGalleryViewer.js", "t_4482c3b8a1d1fb5ec097"),word('claire',__dialogueText("ui/pi-computer/ReedGalleryViewer.js", "t_dd853f1a991e5416eb3a")),'.'],
+  nora:[__dialogueText("ui/pi-computer/ReedGalleryViewer.js", "t_553d0927585d80e1b7cc"),word('nora',__dialogueText("ui/pi-computer/ReedGalleryViewer.js", "t_4cca0264ed42816c466a")),'.'],
+  jacket:[__dialogueText("ui/pi-computer/ReedGalleryViewer.js", "t_7a7202fb1b53105f00a4"),word('checked_jacket',__dialogueText("ui/pi-computer/ReedGalleryViewer.js", "t_a348b9341385445cdc88")),__dialogueText("ui/pi-computer/ReedGalleryViewer.js", "t_c8e0e96e5a43acad2ac7")],
+  badge:[__dialogueText("ui/pi-computer/ReedGalleryViewer.js", "t_99babcbcf0e1a91e52b3"),word('swallow_logo',__dialogueText("ui/pi-computer/ReedGalleryViewer.js", "t_bc8278e462eb589941b6")),'.']
 };
 // REED_SECOND_PHOTO_NAMES_FIXED
 const secondPhotoDescriptions={...descriptions,
-  nora:['The caption identifies the woman on the left as ',word('nora','Nora Bell'),'.'],
-  claire:['The caption identifies the woman on the right as ',word('claire','Claire Sutton'),'.']
+  nora:[__dialogueText("ui/pi-computer/ReedGalleryViewer.js", "t_4482c3b8a1d1fb5ec097"),word('nora',__dialogueText("ui/pi-computer/ReedGalleryViewer.js", "t_4cca0264ed42816c466a")),'.'],
+  claire:[__dialogueText("ui/pi-computer/ReedGalleryViewer.js", "t_553d0927585d80e1b7cc"),word('claire',__dialogueText("ui/pi-computer/ReedGalleryViewer.js", "t_dd853f1a991e5416eb3a")),'.']
 };
 function photoDescriptions(photoId){return photoId==='second'?secondPhotoDescriptions:descriptions;}
 export function isReedGalleryKeywordKnown(id,state=gameState){return(state.piKeywordSearch?.cases?.[SEARCH]?.known||[]).includes(id);}
@@ -127,8 +128,8 @@ export class ReedGalleryViewer {
   }
   header(a){
     const d=this.ui.drawing;d.rectangle(a.x,a.y,a.w,48,0x355c47);
-    const title=d.text(a.x+18,a.y+12,'OPEN SKIES — PHOTO GALLERY',22,'#f4f0d7');
-    d.fit(title,'OPEN SKIES — PHOTO GALLERY',Math.max(40,a.w-(this.active?145:36)));
+    const title=d.text(a.x+18,a.y+12,__dialogueText("ui/pi-computer/ReedGalleryViewer.js", "t_ad7d705a304a3b867af4"),22,'#f4f0d7');
+    d.fit(title,__dialogueText("ui/pi-computer/ReedGalleryViewer.js", "t_ad7d705a304a3b867af4"),Math.max(40,a.w-(this.active?145:36)));
   }
   renderGallery(a){
     const u=this.ui,d=u.drawing;this.header(a);
@@ -138,11 +139,11 @@ export class ReedGalleryViewer {
       if(u.scene.textures.exists(photo.key)){
         const image=u.scene.add.image(x,top,photo.key).setOrigin(0).setDisplaySize(cw,ih).setInteractive({useHandCursor:true});
         d.add(image);image.on('pointerdown',()=>this.open(this.page,photo.id));
-      }else d.text(x+8,top+10,this.failures.has(photo.id)?'Image unavailable':'Loading…',14,'#4b5147',cw-16);
+      }else d.text(x+8,top+10,this.failures.has(photo.id)?__dialogueText("ui/pi-computer/ReedGalleryViewer.js", "t_7817cd06563196ee0ed9"):__dialogueText("ui/pi-computer/ReedGalleryViewer.js", "t_ba3bbbe10d8bef66441c"),14,'#4b5147',cw-16);
       const label=d.text(x,top+ih+14,photo.label,15,'#315279',cw);
       if(u.scene.textures.exists(photo.key))label.setInteractive({useHandCursor:true}).on('pointerdown',()=>this.open(this.page,photo.id));
     });
-    d.text(a.x+20,top+ih+92,'Photography: Martin Cole. Reproduction by permission of the foundation.',14,'#5f665b',a.w-40);
+    d.text(a.x+20,top+ih+92,__dialogueText("ui/pi-computer/ReedGalleryViewer.js", "t_7cb446dbdb50c4f3b67a"),14,'#5f665b',a.w-40);
   }
   render(a){
     const u=this.ui,d=u.drawing,photo=REED_GALLERY_PHOTOS.find(p=>p.id===this.photoId);

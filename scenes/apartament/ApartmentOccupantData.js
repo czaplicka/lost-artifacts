@@ -1,89 +1,90 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 export const APARTMENT_OCCUPANT_VERSION = 2;
 const clone = value => JSON.parse(JSON.stringify(value));
 const ROLES = [
-  { id: 'roommate', label: 'Roommate', intro: 'We share the rent, not a criminal enterprise. The rent is already criminal.' },
-  { id: 'partner', label: 'Partner', intro: 'We agreed to communicate more. Apparently that did not include international art theft.' }
+  { id: 'roommate', label: __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_b0bcae2bd0872cbb357b"), intro: __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_38569d877efc289b41fe") },
+  { id: 'partner', label: __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_29035e784f9305c0eb62"), intro: __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_84595c299dc0be55cf17") }
 ];
 const SCENARIOS = {
   "pawnshop": {
     "participation": {
-      "statement": "I have never handled a pawn transaction for the person living here.",
-      "evidenceLabel": "Signed Pawn Receipt",
-      "evidenceText": "A pawn receipt for a sealed package, signed by the person you are interviewing. It records a transaction made on behalf of the suspect. The contents were not inspected.",
-      "explanation": "Their signature records their participation in the pawn transaction they denied.",
-      "confession": "All right. I took a sealed package to a pawnbroker on their behalf. I was told it contained a family keepsake. Apparently every family has a priceless problem.",
-      "leadText": "The occupant admits taking a sealed package to a pawnbroker for the suspect. The contents and the current location of the artefact still need verification."
+      "statement": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_275c2868c00cf030cd27"),
+      "evidenceLabel": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_5201048a5c80f802862c"),
+      "evidenceText": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_0950043b15d06e137772"),
+      "explanation": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_5e5b2358eae6dc34fd30"),
+      "confession": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_e663b75cba10b2c8d15d"),
+      "leadText": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_3564f82c74c58fae536d")
     },
     "packaging": {
-      "statement": "I handed the pawnbroker a soft paper envelope. There was no rigid case involved.",
-      "evidenceLabel": "Pawnbroker Intake Photograph",
-      "evidenceText": "An intake photograph shows the interviewee handing a rigid metal case to the pawnbroker. The attached receipt identifies this as the same transaction carried out for the suspect. The case is closed; its contents are not visible.",
-      "explanation": "The photograph shows a rigid metal case, not the soft paper envelope described in the statement.",
-      "confession": "Fine. It was a metal case. They asked me to call it an envelope. Apparently that is what an envelope looks like after a promotion.",
-      "leadText": "The occupant admits delivering a rigid metal case to a pawnbroker for the suspect. The case contents and current whereabouts remain unverified.",
+      "statement": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_df6b1976805864a8de3f"),
+      "evidenceLabel": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_446427a62e9e4e72439a"),
+      "evidenceText": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_441a58802d4cb6b42fc4"),
+      "explanation": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_930ca00efc62a66a3ec7"),
+      "confession": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_c51b62bced3d1146b8c7"),
+      "leadText": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_4df6093b3438433d5bce"),
       "evidenceType": "photo"
     },
     "contact": {
-      "statement": "I have never exchanged a message with that pawnbroker. The suspect handled all contact.",
-      "evidenceLabel": "Printed Pawnbroker Conversation",
-      "evidenceText": "A printed two-way message thread between the interviewee and the pawnbroker. It explicitly identifies both participants. The interviewee asks the pawnbroker to keep the suspect’s pledged package until further notice, and the pawnbroker replies.",
-      "explanation": "The two-way conversation proves direct contact with the pawnbroker, contradicting the denial of any messages.",
-      "confession": "Yes, I wrote to the pawnbroker. I wanted the package kept off the shop floor. Between the second-hand kettles seemed undignified.",
-      "leadText": "The occupant admits contacting the pawnbroker about holding the suspect’s package. The conversation does not establish what was inside or whether it is still there."
+      "statement": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_494d465c710f7f051edd"),
+      "evidenceLabel": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_caebdd81c497b408eb5d"),
+      "evidenceText": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_34ffa7d5def2dbf282bb"),
+      "explanation": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_4470d2b40e89c842eecb"),
+      "confession": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_7d17cd203494267a7362"),
+      "leadText": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_9ceb9d550aa9a466dda4")
     }
   },
   "parcel_abroad": {
     "participation": {
-      "statement": "I have never arranged a shipment for the person living here.",
-      "evidenceLabel": "Signed Dispatch Receipt",
-      "evidenceText": "A dispatch receipt signed by the person you are interviewing, explicitly recording a sealed parcel sent on behalf of the suspect. Its contents and delivery address are not shown on this copy.",
-      "explanation": "The signed dispatch receipt contradicts their denial of arranging a shipment.",
-      "confession": "I sent a sealed parcel for them. They said it was a birthday present. I did think the insurance was rather ambitious for socks.",
-      "leadText": "The occupant admits dispatching a sealed parcel for the suspect. The carrier record must be checked before treating it as the stolen artefact."
+      "statement": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_d2001b4905542ab431a3"),
+      "evidenceLabel": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_704a7d1901ed6403022c"),
+      "evidenceText": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_d79057abf39467c92b49"),
+      "explanation": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_b093927b733347acb4cd"),
+      "confession": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_8e64403bb5b81a786b8f"),
+      "leadText": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_ed71f11096eb2be1bb0a")
     },
     "packaging": {
-      "statement": "I watched the carrier accept a plain cardboard box. It had no special handling marks.",
-      "evidenceLabel": "Carrier Acceptance Photograph",
-      "evidenceText": "A carrier acceptance photograph shows the interviewee beside the parcel sent for the suspect. It is a wooden crate with large FRAGILE and KEEP UPRIGHT marks. The attached dispatch record identifies this as the shipment under discussion. The crate is sealed.",
-      "explanation": "The photograph documents a marked wooden crate, contradicting the claim of a plain, unmarked cardboard box.",
-      "confession": "All right, a wooden crate. With warning labels. I was told to describe it as ordinary packaging. The crate had clearly not received that memo.",
-      "leadText": "The occupant admits arranging shipment of a marked wooden crate for the suspect. The carrier and shipment must still be traced; the contents remain unverified.",
+      "statement": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_1e2c6fa6521ee3bd4265"),
+      "evidenceLabel": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_0e7b5d9e68526c601dab"),
+      "evidenceText": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_7c50f66ff9b803cdc6e0"),
+      "explanation": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_698a4a2016e880b61c30"),
+      "confession": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_afd32161f8074ee89478"),
+      "leadText": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_abcac0c7967104b06e57"),
       "evidenceType": "photo"
     },
     "contact": {
-      "statement": "I have never spoken to the carrier’s dispatcher about the suspect’s shipment.",
-      "evidenceLabel": "Dispatch Call Transcript",
-      "evidenceText": "A printed call transcript identifies the interviewee and the carrier’s dispatcher. The dispatcher verifies the interviewee’s identity, and the interviewee requests that tracking notifications for the suspect’s shipment be sent to them.",
-      "explanation": "The identified call records direct communication about that shipment, contradicting the denial.",
-      "confession": "Yes, I called the dispatcher. I wanted the tracking notices. Someone in this household had to know where something was going.",
-      "leadText": "The occupant admits requesting tracking notices for the suspect’s shipment. Those notices may identify its route, but this transcript does not establish its contents or current location."
+      "statement": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_3eccb685aa0524f5ee64"),
+      "evidenceLabel": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_2660c310ed95c91ac58b"),
+      "evidenceText": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_c87cffc852e63578b31c"),
+      "explanation": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_c90cc91306ec40f7692e"),
+      "confession": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_aab0568a4f7c2642c8c6"),
+      "leadText": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_30a5920ccbf6f00bc177")
     }
   },
   "private_collector": {
     "participation": {
-      "statement": "I have never arranged a meeting with a collector for the person living here.",
-      "evidenceLabel": "Signed Meeting Acknowledgement",
-      "evidenceText": "A meeting acknowledgement signed by the person you are interviewing. It explicitly confirms that they arranged a private collector meeting on behalf of the suspect. No sale or transfer of an object is recorded.",
-      "explanation": "The signed acknowledgement confirms the collector meeting they denied arranging.",
-      "confession": "Yes, I arranged a meeting with a collector. They told me it was a valuation. I assumed the suspicious part would be the consulting fee.",
-      "leadText": "The occupant admits arranging a private collector meeting for the suspect. There is not yet proof of a sale or of the artefact being in the collector’s possession."
+      "statement": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_c0881cb1c239795e5a84"),
+      "evidenceLabel": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_ca8f1d7e9d165be9daf5"),
+      "evidenceText": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_861751c97c16e220a469"),
+      "explanation": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_c8bec2049adb1090c8a6"),
+      "confession": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_7b7dead1439de85f2718"),
+      "leadText": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_40dfe2ae773556b08554")
     },
     "packaging": {
-      "statement": "At the collector’s meeting I handed over only a flat paper folder. No case or crate changed hands.",
-      "evidenceLabel": "Collector Meeting Photograph",
-      "evidenceText": "A labelled photograph from the collector’s meeting shows the interviewee passing a closed padded case to the collector. The attached meeting record identifies both people and connects the meeting to the suspect. No contents are visible.",
-      "explanation": "The photograph shows the transfer of a padded case, contradicting the claim that only a paper folder changed hands.",
-      "confession": "It was a padded case. I was told to say portfolio. It appears portfolios now come with reinforced corners and emotional baggage.",
-      "leadText": "The occupant admits handing a closed case to a collector at the suspect’s meeting. The photograph does not prove which object was inside or whether ownership changed.",
+      "statement": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_18799ff67b5910ff2ab1"),
+      "evidenceLabel": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_dd76f85bba3ca0908111"),
+      "evidenceText": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_8f370a8531eaace9b0ca"),
+      "explanation": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_40fec1ed23a4f02ccf1b"),
+      "confession": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_d9e6228ea157cb0c1dbc"),
+      "leadText": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_16709bd915ec130897c7"),
       "evidenceType": "photo"
     },
     "contact": {
-      "statement": "I had never communicated with that collector before the meeting.",
-      "evidenceLabel": "Earlier Collector Correspondence",
-      "evidenceText": "Printed correspondence explicitly identifies the interviewee and the collector. Both reply to each other while discussing the suspect’s proposed meeting. The thread states that the meeting has not yet taken place.",
-      "explanation": "The correspondence explicitly predates the meeting and proves communication before it, contradicting the claimed first contact.",
-      "confession": "Yes, we exchanged messages before the meeting. Several. The collector needed assurances. I needed the collector to stop using “discreet” in every sentence.",
-      "leadText": "The occupant admits earlier correspondence with the collector about the suspect’s meeting. This establishes a contact to investigate, not a confirmed sale or the artefact’s current location."
+      "statement": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_3af6a43ef5de99bcdb06"),
+      "evidenceLabel": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_5f437e7a9b09fc641afd"),
+      "evidenceText": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_d932953c22d2013a2229"),
+      "explanation": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_65b95493ffefd6129dce"),
+      "confession": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_9e4095835858eaffdb21"),
+      "leadText": __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_3e7c7f82e72594454614")
     }
   }
 };
@@ -107,9 +108,9 @@ export function generateApartmentOccupant({ caseKey, missionId, suspectId, effec
   const id = legacy ? `occupant_${seed.toString(36)}` : `occupant_${seed.toString(36)}_v2_${selected}`;
   const evidenceId = legacy ? `${id}_signed_record` : `${id}_record`;
   const statements = [
-    { id: `${id}_rent`, text: 'The household bills are kept here. Looking through them will not improve your opinion of the electricity company.' },
+    { id: `${id}_rent`, text: __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_722f18ac220898754e2e") },
     { id: `${id}_denial`, text: scenario.statement },
-    { id: `${id}_contents`, text: legacy ? 'I cannot personally identify what was inside any sealed package.' : 'I cannot tell you where the stolen artefact is now. You will have to verify that separately.' }
+    { id: `${id}_contents`, text: legacy ? __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_848777f174561bd3d82c") : __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_771c014ad0e6ec09fb8a") }
   ];
   let ordered;
   if (legacy) {
@@ -170,27 +171,27 @@ export function createOccupantProgress(occupant) {
 }
 export function confrontApartmentOccupant(occupant, progress, statementId, evidence) {
   if (!occupant || progress?.caseKey !== occupant.caseKey || progress?.occupantId !== occupant.id) {
-    return { ok: false, reason: 'wrong_case', message: 'This interview belongs to a different case.' };
+    return { ok: false, reason: 'wrong_case', message: __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_6ba318f972a3a97636b5") };
   }
   if (!Number.isInteger(progress.attempts) || progress.attempts < 0 || typeof progress.solved !== 'boolean' ||
       progress.version !== occupant.version ||
       (occupant.version === APARTMENT_OCCUPANT_VERSION && progress.scenarioId !== occupant.scenarioId)) {
-    return { ok: false, reason: 'invalid_progress', message: 'The saved interview progress is inconsistent.' };
+    return { ok: false, reason: 'invalid_progress', message: __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_2b38c364cf5daea29be7") };
   }
   if (progress.solved) return { ok: true, repeated: true, progress: clone(progress), message: occupant.confrontation.confession };
-  if (!occupant.statements.some(s => s.id === statementId)) return { ok: false, reason: 'statement_required', message: 'Select a statement first.' };
+  if (!occupant.statements.some(s => s.id === statementId)) return { ok: false, reason: 'statement_required', message: __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_5214db2e30df64360c18") };
   const fail = (reason, message) => ({ ok: false, reason,
     progress: { ...clone(progress), attempts: progress.attempts + 1 }, message });
   const tag = evidence?.metadata?.occupantEvidence;
   if (!evidence || tag?.caseKey !== occupant.caseKey || tag?.occupantId !== occupant.id ||
       (occupant.version === APARTMENT_OCCUPANT_VERSION && tag.scenarioId !== occupant.scenarioId)) {
-    return fail('unrelated_evidence', 'This item does not contradict that statement.');
+    return fail('unrelated_evidence', __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_dfcb4e648fc598df76ad"));
   }
   if ((evidence.originalId || evidence.id) !== occupant.confrontation.evidenceId || statementId !== occupant.confrontation.statementId) {
-    return fail('no_contradiction', 'The document does not contradict the statement you selected.');
+    return fail('no_contradiction', __dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_4cb9e3e11cd9f894a766"));
   }
   return { ok: true, repeated: false,
     progress: { ...clone(progress), attempts: progress.attempts + 1, solved: true, lead: clone(occupant.lead) },
-    message: `${occupant.confrontation.confession}\n\n${occupant.confrontation.explanation}` };
+    message: `${occupant.confrontation.confession}${__dialogueText("scenes/apartament/ApartmentOccupantData.js", "t_75a11da44c802486bc6f")}${occupant.confrontation.explanation}` };
 }
 export default generateApartmentOccupant;

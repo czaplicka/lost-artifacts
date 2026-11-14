@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { supabase } from '../supabase-client.js';
 import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
@@ -56,7 +57,7 @@ export class EnterScene extends BaseScene {
     } catch (error) {
       if (this.isCurrentRun(runId)) {
         console.error('[EnterScene] Session restore failed:', error);
-        this._showNotice('Unable to restore your session.\nPlease log in again.');
+        this._showNotice(__dialogueText("scenes/EnterScene.js", "t_0e3b351a7be80fec04bf"));
       }
     } finally {
       if (this.isCurrentRun(runId)) {
@@ -90,8 +91,8 @@ export class EnterScene extends BaseScene {
   }
   _buildButtons(width, height) {
     const definitions = [
-      { key: 'loginbtn', y: BUTTON_Y.LOGIN, action: () => this.openModal('login.html') },
-      { key: 'registerbtn', y: BUTTON_Y.REGISTER, action: () => this.openModal('register.html') },
+      { key: 'loginbtn', y: BUTTON_Y.LOGIN, action: () => this.openModal(__dialogueText("scenes/EnterScene.js", "t_f7df8ca1f6a5b4e55cc0")) },
+      { key: 'registerbtn', y: BUTTON_Y.REGISTER, action: () => this.openModal(__dialogueText("scenes/EnterScene.js", "t_b501885e1f9e699b0093")) },
       { key: 'btnContinue', y: BUTTON_Y.CONTINUE, action: () => this.handlePrimaryEntry() },
       { key: 'new_game', y: BUTTON_Y.NEW_GAME, action: () => this.startNewGameFlow(this.currentUser ? 'account' : 'guest') }
     ];
@@ -132,7 +133,7 @@ export class EnterScene extends BaseScene {
     if (!this.isCurrentRun(runId)) return;
     if (error) {
       console.warn('[EnterScene] Could not restore session:', error.message);
-      this._showNotice('Unable to restore your session.\nPlease log in again.');
+      this._showNotice(__dialogueText("scenes/EnterScene.js", "t_0e3b351a7be80fec04bf"));
       return;
     }
     this.currentUser = data?.session?.user ?? null;
@@ -153,7 +154,7 @@ export class EnterScene extends BaseScene {
     if (message.type === 'lost-artefacts:auth-registered') {
       this.rememberNewGameAfterRegistration();
       this.closeModal();
-      this._showNotice('Account created!\nConfirm your e-mail, then log in.\nYour career awaits.', 6000);
+      this._showNotice(__dialogueText("scenes/EnterScene.js", "t_49256e316aa68744263d"), 6000);
       return;
     }
     if (message.type !== 'lost-artefacts:auth-signed-in') return;
@@ -168,7 +169,7 @@ export class EnterScene extends BaseScene {
       const user = data?.session?.user;
       if (error || !user) {
         console.warn('[EnterScene] No session after login:', error?.message || 'Session missing.');
-        this._showNotice('Login could not be confirmed.\nPlease try again.');
+        this._showNotice(__dialogueText("scenes/EnterScene.js", "t_26baf5b5ee70458e1328"));
         return;
       }
       this.currentUser = user;
@@ -179,7 +180,7 @@ export class EnterScene extends BaseScene {
     } catch (error) {
       if (this.isCurrentRun(runId)) {
         console.error('[EnterScene] Login handling failed:', error);
-        this._showNotice('Unable to finish login. Please try again.');
+        this._showNotice(__dialogueText("scenes/EnterScene.js", "t_9c7ad448bfdaf573d072"));
       }
     } finally {
       if (this.isCurrentRun(runId)) {
@@ -193,7 +194,7 @@ export class EnterScene extends BaseScene {
   }
   async ensurePlayerProfile(user, runId = this.enterRunId) {
     if (!user?.id || !this.isCurrentRun(runId)) return false;
-    const displayName = user.user_metadata?.display_name ?? user.email?.split('@')[0] ?? 'Agent';
+    const displayName = user.user_metadata?.display_name ?? user.email?.split('@')[0] ?? __dialogueText("scenes/EnterScene.js", "t_11b39c93777e8f1f3983");
     try {
       const { error } = await supabase.from('player_profiles')
         .upsert({ id: user.id, display_name: displayName }, { onConflict: 'id' });
@@ -246,14 +247,14 @@ export class EnterScene extends BaseScene {
         if (!started) {
           this.isEnteringGame = false;
           this.updateEntryButtons();
-          this._showNotice('Unable to begin a new case. Please try again.', 4000);
+          this._showNotice(__dialogueText("scenes/EnterScene.js", "t_4e567b063739189afad2"), 4000);
         }
       } catch (error) {
         if (!this.isCurrentRun(runId)) return;
         this.isEnteringGame = false;
         this.updateEntryButtons();
         console.error('[EnterScene] New game failed:', error);
-        this._showNotice('Unable to begin a new case. Please try again.', 4000);
+        this._showNotice(__dialogueText("scenes/EnterScene.js", "t_4e567b063739189afad2"), 4000);
       }
     })();
   }
@@ -316,15 +317,15 @@ export class EnterScene extends BaseScene {
       sheet.add(t);
       return t;
     };
-    label(36, 31, 'MARK AGENCY / ARCHIVE', 10, '#38291d', 'PressStart2P');
-    label(42, 74, 'YOUR CASE FILES', 26, '#30271f', 'SpecialElite');
-    label(43, 111, 'Unfinished business. Carefully filed.', 17, '#79654c');
-    const close = label(W - 76, 77, '[ X ]', 15, '#843b32').setInteractive({ useHandCursor: true });
+    label(36, 31, __dialogueText("scenes/EnterScene.js", "t_f50fb63cedd84f2ff058"), 10, '#38291d', 'PressStart2P');
+    label(42, 74, __dialogueText("scenes/EnterScene.js", "t_a63bbbb9ae82339aaa03"), 26, '#30271f', 'SpecialElite');
+    label(43, 111, __dialogueText("scenes/EnterScene.js", "t_365d9843a5b2e7b69a37"), 17, '#79654c');
+    const close = label(W - 76, 77, __dialogueText("scenes/EnterScene.js", "t_8e2c8e52dc76bf5ed51a"), 15, '#843b32').setInteractive({ useHandCursor: true });
     close.on('pointerdown', () => this.closeSaveSlotPicker());
     close.on('pointerover', () => close.setColor('#bc4d38'));
     close.on('pointerout', () => close.setColor('#843b32'));
-    label(43, H - 64, 'Select a file to resume your investigation.', 16, '#75634d');
-    const loadingText = label(W / 2, H / 2, 'Reading case files...', 22).setOrigin(0.5);
+    label(43, H - 64, __dialogueText("scenes/EnterScene.js", "t_92e9bcfbfb8896b48996"), 16, '#75634d');
+    const loadingText = label(W / 2, H / 2, __dialogueText("scenes/EnterScene.js", "t_162bac9307bed52bb4d8"), 22).setOrigin(0.5);
     root.setAlpha(0);
     this.createTrackedTween({ targets: root, alpha: 1, duration: 180, ease: 'Quad.Out' });
 
@@ -337,16 +338,16 @@ export class EnterScene extends BaseScene {
     } catch (error) {
       if (this.isCurrentRun(runId) && this.saveSlotPicker === root && root.active) {
         console.error('[EnterScene] Could not list saves:', error);
-        loadingText.setText('Unable to read case files.\nClose this window and try again.').setAlign('center');
+        loadingText.setText(__dialogueText("scenes/EnterScene.js", "t_7eb09407c9b63cfcd061")).setAlign('center');
       }
       return;
     }
     if (!this.isCurrentRun(runId) || this.saveSlotPicker !== root || !root.active) return;
     loadingText.destroy();
     const columns = accountMode ? [
-      { source: 'cloud', label: 'ACCOUNT ARCHIVE', metaKey: 'cloudMeta' },
-      { source: 'local', label: 'THIS BROWSER', metaKey: 'localMeta' }
-    ] : [{ source: 'local', label: 'THIS BROWSER', metaKey: 'localMeta' }];
+      { source: 'cloud', label: __dialogueText("scenes/EnterScene.js", "t_5a9a774f1b60dfc3aecd"), metaKey: 'cloudMeta' },
+      { source: 'local', label: __dialogueText("scenes/EnterScene.js", "t_807990c9d0ef4a017ab1"), metaKey: 'localMeta' }
+    ] : [{ source: 'local', label: __dialogueText("scenes/EnterScene.js", "t_807990c9d0ef4a017ab1"), metaKey: 'localMeta' }];
     const margin = 42, gap = 22;
     const columnWidth = (W - 10 - margin * 2 - gap * (columns.length - 1)) / columns.length;
     columns.forEach((column, columnIndex) => {
@@ -388,8 +389,8 @@ export class EnterScene extends BaseScene {
       card.add(t);
       return t;
     };
-    text(18, 12, `FILE 0${index + 1}`, 9, '#806c50', 'PressStart2P');
-    const name = text(18, 33, hasSave ? this.getSaveDetectiveName(meta) : 'Unassigned file', 24,
+    text(18, 12, `${__dialogueText("scenes/EnterScene.js", "t_211a0a700409e2ce5044")}${index + 1}`, 9, '#806c50', 'PressStart2P');
+    const name = text(18, 33, hasSave ? this.getSaveDetectiveName(meta) : __dialogueText("scenes/EnterScene.js", "t_6b4cf9ab2c7423af4006"), 24,
       hasSave ? '#30281f' : '#8f816c');
     // Reserve one line for the full name and shrink only when necessary.
     for (let size = 24; size >= 14; size--) {
@@ -398,12 +399,12 @@ export class EnterScene extends BaseScene {
     }
     if (name.width > width - 36) name.setScale((width - 36) / name.width);
     if (!hasSave) {
-      text(18, 81, 'No investigation on record.', 16, '#8f816c');
+      text(18, 81, __dialogueText("scenes/EnterScene.js", "t_f72b1d879f0c11b4c9c7"), 16, '#8f816c');
       return;
     }
     const description = text(18, 75, this.getSaveSlotDescription(meta), 14, '#68583f');
     if (description.width > width - 36) description.setScale((width - 36) / description.width);
-    const openLabel = text(width - 18, 13, 'OPEN >', 10, '#8e4d37').setOrigin(1, 0);
+    const openLabel = text(width - 18, 13, __dialogueText("scenes/EnterScene.js", "t_24e03ed599339942ea5c"), 10, '#8e4d37').setOrigin(1, 0);
     const hit = this.add.rectangle(0, 0, width, height, 0, 0).setOrigin(0)
       .setInteractive({ useHandCursor: true });
     card.add(hit);
@@ -421,18 +422,18 @@ export class EnterScene extends BaseScene {
 
   getSaveDetectiveName(meta) {
     const name = typeof meta?.agentName === 'string' ? meta.agentName.trim() : '';
-    return name || 'Unknown detective';
+    return name || __dialogueText("scenes/EnterScene.js", "t_1c3c21b36dbfc0c36c90");
   }
   getSaveSlotDescription(meta) {
-    if (!meta) return 'EMPTY FILE';
-    const location = String(meta.locationCode || 'Unknown location').replace(/_/g, ' ');
-    const city = String(meta.cityCode || 'Unknown city').replace(/_/g, ' ');
+    if (!meta) return __dialogueText("scenes/EnterScene.js", "t_0045fa2e36595b0e7bbe");
+    const location = String(meta.locationCode || __dialogueText("scenes/EnterScene.js", "t_2fad2d87e767ac042191")).replace(/_/g, ' ');
+    const city = String(meta.cityCode || __dialogueText("scenes/EnterScene.js", "t_2491fe94a7ba027ffff4")).replace(/_/g, ' ');
     const day = meta.dayNumber ?? 1;
     const hour = String(meta.inGameHour ?? 8).padStart(2, '0');
     const timestamp = meta.savedAt ?? meta.updatedAt;
     const date = timestamp ? new Date(timestamp) : null;
-    const savedAt = date && Number.isFinite(date.getTime()) ? date.toLocaleString() : 'Unknown time';
-    return `${location} / ${city}  |  Day ${day}, ${hour}:00\nSaved: ${savedAt}`;
+    const savedAt = date && Number.isFinite(date.getTime()) ? date.toLocaleString() : __dialogueText("scenes/EnterScene.js", "t_bdda387b434325c2d39b");
+    return `${location}${__dialogueText("scenes/EnterScene.js", "t_005e1574a2b5c8163046")}${city}${__dialogueText("scenes/EnterScene.js", "t_309e4b952d6e7edd3d80")}${day}${__dialogueText("scenes/EnterScene.js", "t_0a07f659461970d8d8dc")}${hour}${__dialogueText("scenes/EnterScene.js", "t_f93c3237cdd58bba9e8a")}${savedAt}`;
   }
 
   async loadSelectedSlot(slotKey, authMode, source, root) {
@@ -446,7 +447,7 @@ export class EnterScene extends BaseScene {
       const loadedSave = await saveManager.load(slotKey, source);
       if (!this.isCurrentRun(runId)) return;
       if (!loadedSave) {
-        this._showNotice('This case file is unavailable.', 4000);
+        this._showNotice(__dialogueText("scenes/EnterScene.js", "t_3b689ff51625cbb8d002"), 4000);
         return;
       }
       const locationType = loadedSave.meta?.locationType || 'office';
@@ -470,13 +471,13 @@ export class EnterScene extends BaseScene {
       if (!this.isCurrentRun(runId)) return;
       if (!opened) {
         this.isEnteringGame = false;
-        this._showNotice('Failed to open this case file. Please try again.', 4000);
+        this._showNotice(__dialogueText("scenes/EnterScene.js", "t_776cbd1dc2bb09399588"), 4000);
       }
     } catch (error) {
       if (!this.isCurrentRun(runId)) return;
       this.isEnteringGame = false;
       console.error(`[EnterScene] Failed to load ${source} save ${slotKey}:`, error);
-      this._showNotice('Failed to load save. Please try again.', 4000);
+      this._showNotice(__dialogueText("scenes/EnterScene.js", "t_08d6648c38d21bbb52cb"), 4000);
     } finally {
       if (this.isCurrentRun(runId)) {
         this.isLoadingSave = false;
@@ -485,7 +486,7 @@ export class EnterScene extends BaseScene {
     }
   }
   getDisplayName() {
-    return this.currentUser?.user_metadata?.display_name ?? this.currentUser?.email?.split('@')[0] ?? 'Guest';
+    return this.currentUser?.user_metadata?.display_name ?? this.currentUser?.email?.split('@')[0] ?? __dialogueText("scenes/EnterScene.js", "t_5ed8944a85a9763fd315");
   }
   addHoverEffect(button, baseScale = 1, hoverScale = 1.05) {
     button.setScale(baseScale);
@@ -495,11 +496,11 @@ export class EnterScene extends BaseScene {
   openModal(url) {
     if (!this.canUseEntry()) return;
     const overlay = document.createElement('div');
-    overlay.style.cssText = `position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.72);z-index:9999;`;
+    overlay.style.cssText = `${__dialogueText("scenes/EnterScene.js", "t_f8134cf7a4d6c0b4a0f4")}`;
     const frame = document.createElement('iframe');
     frame.src = url;
-    frame.title = 'Enter Mark Agency HQ';
-    frame.style.cssText = `width:600px;max-width:90vw;height:70vh;max-height:680px;border:4px solid #000;box-shadow:0 0 28px #000;background:#111;`;
+    frame.title = __dialogueText("scenes/EnterScene.js", "t_5bded4e4beed700a753e");
+    frame.style.cssText = `${__dialogueText("scenes/EnterScene.js", "t_d38971ffd970dd618529")}`;
     const clickHandler = event => {
       if (event.target === overlay && !this.isHandlingAuth) this.closeModal();
     };

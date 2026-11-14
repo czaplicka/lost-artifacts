@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { EventBus } from '../EventBus.js';
 
 export class CaseFileUI {
@@ -203,23 +204,23 @@ export class CaseFileUI {
 
     if (!mission) {
       return this.currentData || {
-        artifact: 'UNKNOWN ARTIFACT',
+        artifact: __dialogueText("ui/CaseFileUI.js", "t_51b01e8422efd81865f3"),
         city: '',
         country: '',
-        description: 'No more data...',
+        description: __dialogueText("ui/CaseFileUI.js", "t_a92bcba5ae63bcbb487e"),
         significance: '',
-        clue: 'No more clues...',
+        clue: __dialogueText("ui/CaseFileUI.js", "t_f5cd65724798b380a305"),
         artifactKey: 'artifact_fallback',
       };
     }
 
     return {
-      artifact: mission.artifact || 'UNKNOWN ARTIFACT',
+      artifact: mission.artifact || __dialogueText("ui/CaseFileUI.js", "t_51b01e8422efd81865f3"),
       city: mission.city || '',
       country: mission.country || '',
-      description: mission.description || 'No more data...',
+      description: mission.description || __dialogueText("ui/CaseFileUI.js", "t_a92bcba5ae63bcbb487e"),
       significance: mission.significance || mission.signifance || '',
-      clue: mission.clue || 'No more clues...',
+      clue: mission.clue || __dialogueText("ui/CaseFileUI.js", "t_f5cd65724798b380a305"),
       artifactKey: mission.artifactKey || 'artifact_fallback',
     };
   }
@@ -228,20 +229,20 @@ export class CaseFileUI {
     this.currentData = data;
 
     this.artifactText?.setText(
-      data.artifact || 'UNKNOWN ARTIFACT',
+      data.artifact || __dialogueText("ui/CaseFileUI.js", "t_51b01e8422efd81865f3"),
     );
 
     const locationText =
       data.city && data.country
         ? `${data.city}, ${data.country}`
-        : 'UNKNOWN LOCATION';
+        : __dialogueText("ui/CaseFileUI.js", "t_c8deeb08755aa18a5e7f");
 
     this.cityText?.setText(locationText);
-    this.descText?.setText(data.description || 'No more data...');
+    this.descText?.setText(data.description || __dialogueText("ui/CaseFileUI.js", "t_a92bcba5ae63bcbb487e"));
     this.significanceText?.setText(
       data.significance || data.signifance || '',
     );
-    this.tiesText?.setText(data.clue || 'No more clues...');
+    this.tiesText?.setText(data.clue || __dialogueText("ui/CaseFileUI.js", "t_f5cd65724798b380a305"));
 
     const textureKey =
       data.artifactKey

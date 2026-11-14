@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 export const SuspectBoardUIMixin = {
   createBackground() {
     const { width, height } = this.scale;
@@ -27,7 +28,7 @@ export const SuspectBoardUIMixin = {
     const { width } = this.scale;
 
     this.headerText = this.add
-      .text(width / 2, 18, 'SUSPECT FILES', {
+      .text(width / 2, 18, __dialogueText("suspectsBoard/SuspectBoardUI.mixin.js", "t_12ec4a08916995241dee"), {
         fontFamily: 'SpecialElite',
         fontSize: '34px',
         color: '#f5e7c6',
@@ -166,9 +167,9 @@ export const SuspectBoardUIMixin = {
     const { width } = this.scale;
 
     const filters = [
-      { id: 'all', label: 'ALL FILES' },
-      { id: 'active', label: 'ACTIVE' },
-      { id: 'eliminated', label: 'ELIMINATED' }
+      { id: 'all', label: __dialogueText("suspectsBoard/SuspectBoardUI.mixin.js", "t_00ff6750e1253e83505b") },
+      { id: 'active', label: __dialogueText("suspectsBoard/SuspectBoardUI.mixin.js", "t_630c2f1c0ee1b8d7da57") },
+      { id: 'eliminated', label: __dialogueText("suspectsBoard/SuspectBoardUI.mixin.js", "t_2782081803eaba95be6a") }
     ];
 
     const gap = 14;
@@ -230,7 +231,7 @@ export const SuspectBoardUIMixin = {
       y: height - 28,
       width: 46,
       height: 38,
-      label: '◀',
+      label: __dialogueText("suspectsBoard/SuspectBoardUI.mixin.js", "t_0b8da1e098dcfd8d49da"),
       fontSize: '22px',
       depth: 30,
       normalFill: 0x211711,
@@ -250,7 +251,7 @@ export const SuspectBoardUIMixin = {
       y: height - 28,
       width: 46,
       height: 38,
-      label: '▶',
+      label: __dialogueText("suspectsBoard/SuspectBoardUI.mixin.js", "t_f36bd7b77a9be1427e05"),
       fontSize: '22px',
       depth: 30,
       normalFill: 0x211711,
@@ -281,7 +282,7 @@ export const SuspectBoardUIMixin = {
       y: height - 28,
       width: 138,
       height: 38,
-      label: '[ RETURN ]',
+      label: __dialogueText("suspectsBoard/SuspectBoardUI.mixin.js", "t_410e2758ebad99881555"),
       fontSize: '9px',
       depth: 30,
       normalFill: 0x3a201b,
@@ -302,7 +303,7 @@ export const SuspectBoardUIMixin = {
       y: height - 28,
       width: 300,
       height: 38,
-      label: '[ EVIDENCE GRID ]',
+      label: __dialogueText("suspectsBoard/SuspectBoardUI.mixin.js", "t_fc203ca20a78a14a9f07"),
       fontSize: '9px',
       depth: 30,
       normalFill: 0x25422a,

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { inventoryManager } from '../../managers/InventoryManager.js';
 import { gameState } from '../../GameData.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
@@ -207,7 +208,7 @@ export class ApartmentInventoryUI {
     const label =
       item.label ||
       item.name ||
-      'Apartment evidence';
+      __dialogueText("scenes/apartament/ApartmentInventoryUI.js", "t_289784b45146fdf97176");
 
     const original = JSON.parse(JSON.stringify(item));
     const metadata = { ...(original.metadata || {}) };

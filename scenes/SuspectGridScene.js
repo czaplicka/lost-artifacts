@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 
 import { gameState } from '../GameData.js';
@@ -125,6 +126,37 @@ export class SuspectGridScene extends BaseScene {
     this.personnelNotice = null;
     this.gridStarted = false;
     this.entryData = {};
+  }
+
+
+  installGridTopHudLock() {
+    this.releaseGridTopHudLock();
+    if (typeof document === 'undefined' || !document.head) return;
+    const style = document.createElement('style');
+    style.setAttribute('data-suspect-grid-top-hud-lock', 'true');
+    style.textContent = `${__dialogueText("scenes/SuspectGridScene.js", "t_987b85c49a4abe19415a")}`;
+    document.head.appendChild(style);
+    this._gridTopHudLockStyle = style;
+  }
+
+  releaseGridTopHudLock() {
+    this._gridTopHudLockStyle?.remove();
+    this._gridTopHudLockStyle = null;
+  }
+
+  bindGridTopHudLock() {
+    this.cleanupGridTopHudLock();
+    this.installGridTopHudLock();
+    this.events.on('sleep', this.releaseGridTopHudLock, this);
+    this.events.on('wake', this.installGridTopHudLock, this);
+    this.events.once('destroy', this.cleanupGridTopHudLock, this);
+  }
+
+  cleanupGridTopHudLock() {
+    this.events.off('sleep', this.releaseGridTopHudLock, this);
+    this.events.off('wake', this.installGridTopHudLock, this);
+    this.events.off('destroy', this.cleanupGridTopHudLock, this);
+    this.releaseGridTopHudLock();
   }
 
   getCaseSuspects() {
@@ -290,6 +322,7 @@ export class SuspectGridScene extends BaseScene {
 
   create() {
     super.create();
+    this.bindGridTopHudLock();
 
     this.hideOverlayHuds();
 
@@ -321,13 +354,13 @@ export class SuspectGridScene extends BaseScene {
       if (gate.type === 'incomplete') {
         this.personnelNotice =
           new PersonnelNoticeView(this, {
-            title: 'PERSONNEL REVIEW REQUIRED',
+            title: __dialogueText("scenes/SuspectGridScene.js", "t_a4d1eef381f0b222834a"),
 
             paragraphs: [
-              'Complete the personnel shortlist before opening the evidence grid.'
+              __dialogueText("scenes/SuspectGridScene.js", "t_03822862666264bba2a2")
             ],
 
-            buttonLabel: 'Back to investigation',
+            buttonLabel: __dialogueText("scenes/SuspectGridScene.js", "t_355ed6ca1f915cf03230"),
 
             onContinue: () => {
               this.personnelNotice = null;
@@ -351,18 +384,18 @@ export class SuspectGridScene extends BaseScene {
 
         this.personnelNotice =
           new PersonnelNoticeView(this, {
-            title: 'INTERNAL REVIEW',
+            title: __dialogueText("scenes/SuspectGridScene.js", "t_a7ae97179ff9e0573966"),
 
             paragraphs: [
-              'A colleague reviewed your shortlist and found a few inconsistencies with the verified statements.',
-              'The corrected list is attached.',
-              'Nobody tell HR this counts as teamwork.'
+              __dialogueText("scenes/SuspectGridScene.js", "t_da80e772f66a5547127b"),
+              __dialogueText("scenes/SuspectGridScene.js", "t_ba70f2832ad201990a43"),
+              __dialogueText("scenes/SuspectGridScene.js", "t_30031792f406d1725111")
             ],
 
             people: correctedPeople,
 
             buttonLabel:
-              'Continue with corrected list',
+              __dialogueText("scenes/SuspectGridScene.js", "t_6215440a97ab7106501a"),
 
             onContinue: () => {
               this.personnelNotice = null;
@@ -388,14 +421,14 @@ export class SuspectGridScene extends BaseScene {
 
       this.personnelNotice =
         new PersonnelNoticeView(this, {
-          title: 'CASE FILE ERROR',
+          title: __dialogueText("scenes/SuspectGridScene.js", "t_00ff7d6b0496d2bd6eb0"),
 
           paragraphs: [
-            'The personnel review could not be prepared.',
+            __dialogueText("scenes/SuspectGridScene.js", "t_fcc64986a0c34ddbccfc"),
             error.message
           ],
 
-          buttonLabel: 'Back',
+          buttonLabel: __dialogueText("scenes/SuspectGridScene.js", "t_76900f1bfd16c8d4dd3d"),
 
           onContinue: () => {
             this.personnelNotice = null;
@@ -600,8 +633,8 @@ export class SuspectGridScene extends BaseScene {
 
     this.setFeedback(
       submitted
-        ? 'Shortlist sent. Return to Crime City to investigate the alibis.'
-        : 'Two suspects remain. Click SEND TO ALIBIS to submit your shortlist.'
+        ? __dialogueText("scenes/SuspectGridScene.js", "t_34a885cc81d7c814f06f")
+        : __dialogueText("scenes/SuspectGridScene.js", "t_4b27a4da16d0cb51c39d")
     );
   }
 
@@ -630,6 +663,7 @@ export class SuspectGridScene extends BaseScene {
   }
 
   cleanupScene() {
+    this.cleanupGridTopHudLock();
     this.personnelNotice?.destroy();
     this.personnelNotice = null;
 

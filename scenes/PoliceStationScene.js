@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import {
   PoliceStationScene as ExistingPoliceStationScene,
   hasCompletedPolicePIQuest
@@ -40,10 +41,10 @@ export class PoliceStationScene extends ExistingPoliceStationScene {
   showDialogue(id){
     super.showDialogue(id);
     if(!['start','topics'].includes(id)||!this.panel)return;
-    const choices=this.panel.querySelector('.police-choices');
-    if(!choices||!choices.textContent.includes('Goodbye.'))return;
+    const choices=this.panel.querySelector(__dialogueText("scenes/PoliceStationScene.js", "t_e0620ac96572cb04b764"));
+    if(!choices||!choices.textContent.includes(__dialogueText("scenes/PoliceStationScene.js", "t_2b687db6298b629d3bcb")))return;
     if(!choices.querySelector('[data-cold-case]')){
-      const button=this.makeButton('Any unsolved cases I can look at?',()=>void this.openColdCase(),this.dialogueVersion);
+      const button=this.makeButton(__dialogueText("scenes/PoliceStationScene.js", "t_05d7c1b8a60634bd05ca"),()=>void this.openColdCase(),this.dialogueVersion);
       button.dataset.coldCase='true';choices.prepend(button);
     }
     addPoliceWorldReactionOption(this,id,{canTalk:hasCompletedPolicePIQuest});
@@ -52,7 +53,7 @@ export class PoliceStationScene extends ExistingPoliceStationScene {
     if(this.disposed||this.navigating||this.coldCaseUI||this.coldCaseLoading)return;
     this.coldCaseLoading=true;this.coldCaseAbort=new AbortController();
     const token=this.runToken;
-    this.showPanel('Desk officer','Finding the file. The filing system is mostly geological.',[]);
+    this.showPanel(__dialogueText("scenes/PoliceStationScene.js", "t_832bb16aeb9f95e761e9"),__dialogueText("scenes/PoliceStationScene.js", "t_781e2a2e6d63abb978cc"),[]);
     try{
       const response=await fetch('assets/data/cold-cases/last-gnome-standing.json',{signal:this.coldCaseAbort.signal});
       if(!response.ok)throw new Error(`Case file: HTTP ${response.status}`);
@@ -67,15 +68,15 @@ export class PoliceStationScene extends ExistingPoliceStationScene {
     }catch(error){
       if(error.name==='AbortError'||this.disposed||this.runToken!==token)return;
       console.error('[ColdCase]',error);this.coldCaseLoading=false;
-      this.showPanel('File unavailable','The case file could not be loaded.',[
-        ['Try again.',()=>void this.openColdCase()],
-        ['Back.',()=>this.showDialogue('topics')]
+      this.showPanel(__dialogueText("scenes/PoliceStationScene.js", "t_b3b9efed9c4da3133e7b"),__dialogueText("scenes/PoliceStationScene.js", "t_ba150429d84dbbd5aa3b"),[
+        [__dialogueText("scenes/PoliceStationScene.js", "t_a0c2cc1374d949943e01"),()=>void this.openColdCase()],
+        [__dialogueText("scenes/PoliceStationScene.js", "t_4dc8c24acdcd1c8ebb19"),()=>this.showDialogue('topics')]
       ]);
     }finally{if(this.runToken===token)this.coldCaseLoading=false;}
   }
   onKey(event){
     if(this.coldCaseUI){
-      if(event.code==='Escape'){event.preventDefault();if(!event.repeat)this.coldCaseUI.escape();}
+      if(event.code===__dialogueText("scenes/PoliceStationScene.js", "t_037c968467aa3fd7c059")){event.preventDefault();if(!event.repeat)this.coldCaseUI.escape();}
       return;
     }
     if(this.coldCaseLoading)return;

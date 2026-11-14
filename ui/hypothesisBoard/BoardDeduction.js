@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { deductionManager, DEDUCTION_CHANGED } from '../../managers/DeductionManager.js';
 import { EventBus } from '../../EventBus.js';
 import { FONT_TEXT } from './BoardConstants.js';
@@ -5,7 +6,7 @@ import { FONT_TEXT } from './BoardConstants.js';
 export const BoardDeduction = {
   createDeductionControls() {
     this.deductionButtons = this.slotViews.map((view, index) => {
-      const button = this.scene.add.text(0, 0, '[ DEDUCE ]', {
+      const button = this.scene.add.text(0, 0, __dialogueText("ui/hypothesisBoard/BoardDeduction.js", "t_1d4bfe242448e576c10f"), {
         fontFamily: FONT_TEXT, fontSize: '15px', color: '#ffd966',
         backgroundColor: '#332519',
         padding: { left: 10, right: 10, top: 8, bottom: 8 }
@@ -52,10 +53,10 @@ export const BoardDeduction = {
       const request = card ? this.getSlotDeductionRequest(index) : null;
       const cached = summary.unlocked && request && deductionManager.getPreviousCheck(request);
       let label;
-      if (!summary.unlocked) label = '[ DEDUCE: REQUIRES 3 ]';
-      else if (cached) label = '[ REVIEW DEDUCTION ]';
-      else if (locked) label = '[ ALREADY CONFIRMED ]';
-      else label = `[ DEDUCE: ${summary.available} LEFT ]`;
+      if (!summary.unlocked) label = __dialogueText("ui/hypothesisBoard/BoardDeduction.js", "t_93513fc642e918ca26cb");
+      else if (cached) label = __dialogueText("ui/hypothesisBoard/BoardDeduction.js", "t_2016ae05ed1d1408648e");
+      else if (locked) label = __dialogueText("ui/hypothesisBoard/BoardDeduction.js", "t_d9887001aa3e8a137bc1");
+      else label = `${__dialogueText("ui/hypothesisBoard/BoardDeduction.js", "t_d2848348d515965a2741")}${summary.available}${__dialogueText("ui/hypothesisBoard/BoardDeduction.js", "t_502d9055b2ea736f80f4")}`;
       button.setText(label);
       button.setColor(summary.unlocked ? '#ffd966' : '#a69b87');
       button.setAlpha(this.state?.uiLocked ? 0.4 : 1);
@@ -69,18 +70,18 @@ export const BoardDeduction = {
     if (this.isDestroyed || this.state?.uiLocked) return;
     const summary = deductionManager.getSummary();
     if (!summary.unlocked) {
-      this.showFeedback('Your theory currently qualifies as a feeling. Requires Deduction 3.', '#ccb98c');
+      this.showFeedback(__dialogueText("ui/hypothesisBoard/BoardDeduction.js", "t_2a7d63eeffd0fbefccd7"), '#ccb98c');
       return;
     }
     const card = this.state?.getPlacedCard?.(slotIndex);
     if (!card) {
-      this.showFeedback('Assign a clue to this question first.', '#ffb347');
+      this.showFeedback(__dialogueText("ui/hypothesisBoard/BoardDeduction.js", "t_2d8e382f0736a9913e69"), '#ffb347');
       return;
     }
     const request = this.getSlotDeductionRequest(slotIndex);
     const previous = deductionManager.getPreviousCheck(request);
     if (!previous && this.state?.isSlotLocked?.(slotIndex)) {
-      this.showFeedback('That answer is already confirmed. Even your paperwork agrees.', '#b9efb9');
+      this.showFeedback(__dialogueText("ui/hypothesisBoard/BoardDeduction.js", "t_5e3b13fcb0cf790ba33c"), '#b9efb9');
       return;
     }
     const result = deductionManager.check({
@@ -93,26 +94,26 @@ export const BoardDeduction = {
         return {
           status: supported ? 'supported' : 'contradicted',
           message: supported
-            ? 'This clue fits this question. A theory with actual supporting evidence. How refreshing.'
-            : 'This clue does not support this answer. Your theory has developed a structural problem.'
+            ? __dialogueText("ui/hypothesisBoard/BoardDeduction.js", "t_e8bdccbde90d5a3849c8")
+            : __dialogueText("ui/hypothesisBoard/BoardDeduction.js", "t_b2392507ef17eb25d896")
         };
       }
     });
     if (!result.success) {
       const messages = {
-        no_checks_left: 'No deduction checks left for this case. Time to think without the safety net.',
-        no_active_case: 'No active case was found. Your deduction has nowhere to file itself.',
-        deduction_too_low: 'Your theory currently qualifies as a feeling. Requires Deduction 3.'
+        no_checks_left: __dialogueText("ui/hypothesisBoard/BoardDeduction.js", "t_d63e256361ab6d53f4cd"),
+        no_active_case: __dialogueText("ui/hypothesisBoard/BoardDeduction.js", "t_c4af4648d7ad1e059a84"),
+        deduction_too_low: __dialogueText("ui/hypothesisBoard/BoardDeduction.js", "t_2a7d63eeffd0fbefccd7")
       };
-      this.showFeedback(messages[result.reason] || 'Could not check this answer. No deduction check was used.', '#ffb347');
+      this.showFeedback(messages[result.reason] || __dialogueText("ui/hypothesisBoard/BoardDeduction.js", "t_4f7d1e4796df65546b2b"), '#ffb347');
       return;
     }
     this.refreshDeductionControls();
     const supported = result.entry.result.status === 'supported';
     const number = slotIndex + 1;
-    let message = `Answer ${number}: ${result.entry.result.message}`;
-    if (result.cached) message += ' (Previously checked — free.)';
-    if (result.saved === false) message += ' Warning: could not save progress.';
+    let message = `${__dialogueText("ui/hypothesisBoard/BoardDeduction.js", "t_859d99a1d1545d4e2ada")}${number}${__dialogueText("ui/hypothesisBoard/BoardDeduction.js", "t_45822f54a0d0e030f756")}${result.entry.result.message}`;
+    if (result.cached) message += __dialogueText("ui/hypothesisBoard/BoardDeduction.js", "t_dd5178a9f0866bdc0940");
+    if (result.saved === false) message += __dialogueText("ui/hypothesisBoard/BoardDeduction.js", "t_8ae189d2ee2b29484130");
     this.showFeedback(message, supported ? '#b9efb9' : '#ff9f80');
     this.flashSlot(slotIndex);
   },

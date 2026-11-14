@@ -1,33 +1,16 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { SpyShopScene as OriginalShopScene } from './SpyShopScene.js';
 import { SPY_SHOP_CONFIG } from '../config/spyShopConfig.js';
 import { SpyShopAnimations } from './spy-shop/SpyShopAnimations.js';
 
+// Hover (celownik, linia skanująca, etykieta) obsługuje teraz scena bazowa,
+// więc ta klasa dodaje już tylko animacje tła (odbicia, LED, kurz).
 export class SpyShopScene extends OriginalShopScene {
   drawBackground() {
     super.drawBackground();
     this.animatedShopBackground = [...this.children.list].reverse().find(
-      item => item.type === 'Image' && item.texture?.key === SPY_SHOP_CONFIG.backgroundKey
+      item => item.type === __dialogueText("scenes/SpyShopSceneWithAnimations.js", "t_1aa4cb0bcca76e92e306") && item.texture?.key === SPY_SHOP_CONFIG.backgroundKey
     ) ?? null;
-  }
-
-  createHotspot(cfg, index) {
-    const hotspot = super.createHotspot(cfg, index);
-    // Replace the base hover effect; retain labels, cursor and click actions.
-    hotspot.rect.removeAllListeners('pointerover');
-    hotspot.rect.on('pointerover', () => {
-      if (!this.canInteract() || this.debugMode) return;
-      hotspot.label.setVisible(true);
-    });
-    hotspot.rect.setFillStyle(0xffd27d, 0).setStrokeStyle(0);
-    return hotspot;
-  }
-
-  refreshHotspots() {
-    super.refreshHotspots();
-    if (this.disposed) return;
-    for (const hotspot of this.hotspots) {
-      hotspot.rect.setFillStyle(0xffd27d, 0).setStrokeStyle(0);
-    }
   }
 
   create() {

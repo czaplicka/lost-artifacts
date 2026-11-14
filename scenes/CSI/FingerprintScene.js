@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { BaseScene } from '../BaseScene.js';
 import { LabTerminal, TERM } from './LabTerminal.js';
 
@@ -58,11 +59,11 @@ export class FingerprintScene extends BaseScene {
       text:
         data.clueText ||
         evidenceConfig.clueText ||
-        'A partial fingerprint was recovered from the museum skylight latch.',
+        __dialogueText("scenes/CSI/FingerprintScene.js", "t_3838de63a766fa9a30b4"),
       facts: {
         certainty: '41%',
-        location: 'skylight latch',
-        classification: 'partial print'
+        location: __dialogueText("scenes/CSI/FingerprintScene.js", "t_bdc6a688845dd6a31cb7"),
+        classification: __dialogueText("scenes/CSI/FingerprintScene.js", "t_513b1758896a7f409639")
       }
     };
 
@@ -92,7 +93,7 @@ export class FingerprintScene extends BaseScene {
     this.startedAt = this.time.now;
 
     this.term = new LabTerminal(this, {
-      title: 'AFIS TERMINAL v2.03 (LICENSE EXPIRED)',
+      title: __dialogueText("scenes/CSI/FingerprintScene.js", "t_d77d9e6af748153214f7"),
       maxLines: 12
     });
 
@@ -145,19 +146,19 @@ export class FingerprintScene extends BaseScene {
 
     this.candidates = Phaser.Utils.Array.Shuffle([
       {
-        name: 'RECORD A',
+        name: __dialogueText("scenes/CSI/FingerprintScene.js", "t_891b90c8c832cf938a69"),
         value: 'partial_print_match',
         grid: matchGrid,
         ok: true
       },
       {
-        name: 'RECORD B',
+        name: __dialogueText("scenes/CSI/FingerprintScene.js", "t_f74ed0aa8a40230e9808"),
         value: 'partial_print_false_a',
         grid: wrongGridA,
         ok: false
       },
       {
-        name: 'RECORD C',
+        name: __dialogueText("scenes/CSI/FingerprintScene.js", "t_bb9e7bcc575e825814f1"),
         value: 'partial_print_false_b',
         grid: wrongGridB,
         ok: false
@@ -268,11 +269,11 @@ export class FingerprintScene extends BaseScene {
 
     const lines = [
       [
-        '> PARTIAL PRINT LIFTED FROM SKYLIGHT LATCH.',
+        __dialogueText("scenes/CSI/FingerprintScene.js", "t_d767ae1cbaf02e62ebf9"),
         {}
       ],
       [
-        '> AFIS FOUND 3 "CANDIDATES". DEFINE "CANDIDATES".',
+        __dialogueText("scenes/CSI/FingerprintScene.js", "t_fffcc8dd885bab13a21e"),
         {}
       ],
       [
@@ -284,7 +285,7 @@ export class FingerprintScene extends BaseScene {
         }
       ],
       [
-        '> PICK THE RECORD MATCHING EVERY READABLE CELL (? = UNREADABLE).',
+        __dialogueText("scenes/CSI/FingerprintScene.js", "t_07d906ad5046381dd61a"),
         { color: TERM.amber }
       ]
     ];
@@ -352,7 +353,7 @@ export class FingerprintScene extends BaseScene {
         session,
         terminal,
         () => terminal.print(
-          `> CHECKING ${candidate.name} ...`
+          `${__dialogueText("scenes/CSI/FingerprintScene.js", "t_8be179c6df815665853a")}${candidate.name}${__dialogueText("scenes/CSI/FingerprintScene.js", "t_4501c820f066129ae4d3")}`
         )
       );
 
@@ -361,7 +362,7 @@ export class FingerprintScene extends BaseScene {
       const compared = await this.terminalAction(
         session,
         terminal,
-        () => terminal.progress('COMPARING RIDGES', 1200)
+        () => terminal.progress(__dialogueText("scenes/CSI/FingerprintScene.js", "t_39f9716ccbe8d61de6e9"), 1200)
       );
 
       if (!compared) return;
@@ -402,24 +403,24 @@ export class FingerprintScene extends BaseScene {
 
     const lines = [
       [
-        '> MATCH CONFIRMED. 41% CERTAINTY.',
+        __dialogueText("scenes/CSI/FingerprintScene.js", "t_793ff8d6954db163fd96"),
         { color: TERM.amber }
       ],
       [
-        '> IN COURT? USELESS. IN OUR CASE FILE? PRICELESS.',
+        __dialogueText("scenes/CSI/FingerprintScene.js", "t_04536bc26461faf381f8"),
         {}
       ]
     ];
 
     if (timeBonus > 0) {
       lines.push([
-        `> SPEED BONUS: +${timeBonus} PTS.`,
+        `${__dialogueText("scenes/CSI/FingerprintScene.js", "t_12af905b2e0dd06cb1dd")}${timeBonus}${__dialogueText("scenes/CSI/FingerprintScene.js", "t_eeb98a5625408b801794")}`,
         { color: TERM.amber }
       ]);
     }
 
     lines.push([
-      '> CLUE READY FOR CASE FILE.',
+      __dialogueText("scenes/CSI/FingerprintScene.js", "t_5fe75d0a88dfe79b974d"),
       { color: TERM.amber }
     ]);
 
@@ -434,7 +435,7 @@ export class FingerprintScene extends BaseScene {
     }
 
     terminal.button(
-      'ADD TO CASE FILE',
+      __dialogueText("scenes/CSI/FingerprintScene.js", "t_d8c6f6bc46d3b7948ad7"),
       TERM.green,
       () => {
         if (!this.isCurrentSession(session, terminal)) {
@@ -461,7 +462,7 @@ export class FingerprintScene extends BaseScene {
       session,
       terminal,
       () => terminal.print(
-        '> MISMATCH. AFIS SUGGESTS GLASSES. (-15 PTS)',
+        __dialogueText("scenes/CSI/FingerprintScene.js", "t_45805fb534816228cb20"),
         { color: TERM.red }
       )
     );
@@ -471,7 +472,7 @@ export class FingerprintScene extends BaseScene {
     const retryPrinted = await this.terminalAction(
       session,
       terminal,
-      () => terminal.print('> TRY THE OTHER RECORDS.')
+      () => terminal.print(__dialogueText("scenes/CSI/FingerprintScene.js", "t_48dae4ffaac4d211f941"))
     );
 
     if (!retryPrinted) return;

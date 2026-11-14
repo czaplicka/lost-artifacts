@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
@@ -170,8 +171,8 @@ export class ApartmentScene extends BaseScene {
       );
 
       this.apartmentConfig.title = this.suspectName
-        ? `${this.suspectName}'s Apartment`
-        : "Suspect's Apartment";
+        ? `${this.suspectName}${__dialogueText("scenes/ApartmentScene.js", "t_981902f0835222ba7669")}`
+        : __dialogueText("scenes/ApartmentScene.js", "t_aae851ddfda832e5d80d");
 
       this.apartmentConfig.objects = (
         this.apartmentConfig.objects || []
@@ -202,7 +203,7 @@ export class ApartmentScene extends BaseScene {
       this.generationError = error;
 
       this.apartmentConfig = {
-        title: "Suspect's Apartment",
+        title: __dialogueText("scenes/ApartmentScene.js", "t_aae851ddfda832e5d80d"),
         objects: []
       };
 
@@ -443,9 +444,9 @@ export class ApartmentScene extends BaseScene {
 
     if (!this.missionArtifact) {
       this.showMessage(
-        'The case file has no valid stolen artefact. No replacement item has been generated.',
+        __dialogueText("scenes/ApartmentScene.js", "t_830afc78638fdbfa64b1"),
         5000,
-        '#8b3030'
+        __dialogueText("scenes/ApartmentScene.js", "t_c27978fb247345a3da90")
       );
     }
   }
@@ -487,7 +488,7 @@ export class ApartmentScene extends BaseScene {
       host.add.text(
         0,
         -100,
-        'APARTMENT UNAVAILABLE',
+        __dialogueText("scenes/ApartmentScene.js", "t_0bd8b40d403ff921a873"),
         {
           fontFamily: 'SpecialElite',
           fontSize: '26px',
@@ -502,9 +503,9 @@ export class ApartmentScene extends BaseScene {
       host.add.text(
         0,
         -10,
-        'This apartment could not be prepared.\n' +
-        'No replacement evidence or destination has been invented.\n' +
-        'Return to the city and check the case configuration.',
+        __dialogueText("scenes/ApartmentScene.js", "t_40a5acd3c62f11466ac3") +
+        __dialogueText("scenes/ApartmentScene.js", "t_a70054307a2ed347d1b3") +
+        __dialogueText("scenes/ApartmentScene.js", "t_2ad12a346761c34be893"),
         {
           fontFamily: 'SpecialElite',
           fontSize: '19px',
@@ -518,7 +519,7 @@ export class ApartmentScene extends BaseScene {
     const back = host.add.text(
       0,
       110,
-      '[ BACK TO CITY ]',
+      __dialogueText("scenes/ApartmentScene.js", "t_9e68ae53d4348a0b870e"),
       {
         fontFamily: 'SpecialElite',
         fontSize: '23px',
@@ -667,9 +668,9 @@ export class ApartmentScene extends BaseScene {
       );
 
       this.showMessage(
-        'Your inventory could not be opened. Please try again.',
+        __dialogueText("scenes/ApartmentScene.js", "t_57cd5b3087eb4055c12f"),
         2500,
-        '#8b3030'
+        __dialogueText("scenes/ApartmentScene.js", "t_c27978fb247345a3da90")
       );
 
       return false;
@@ -752,9 +753,9 @@ export class ApartmentScene extends BaseScene {
 
       if (pending.length) {
         this.showMessage(
-          'Some evidence from your old save is waiting for room in your inventory. Nothing has been discarded.',
+          __dialogueText("scenes/ApartmentScene.js", "t_e368f5cfd9028e31fe7f"),
           4000,
-          '#795548'
+          __dialogueText("scenes/ApartmentScene.js", "t_0fa2e0046576e38dd099")
         );
       }
     } finally {
@@ -831,7 +832,7 @@ export class ApartmentScene extends BaseScene {
       return;
     }
 
-    const label = item.label || item.name || 'Apartment clue';
+    const label = item.label || item.name || __dialogueText("scenes/ApartmentScene.js", "t_eb3a1a83b034d7988ca5");
     const description = item.description || item.hint || '';
 
     gameState.addClue({
@@ -842,7 +843,7 @@ export class ApartmentScene extends BaseScene {
       value: label,
 
       text: description
-        ? `${label} - ${description}`
+        ? `${label}${__dialogueText("scenes/ApartmentScene.js", "t_d3150495ce4f5d1a27bf")}${description}`
         : label,
 
       cityId: gameState.crimeCityId || null,
@@ -865,11 +866,11 @@ export class ApartmentScene extends BaseScene {
       return this.collectMissionArtifact(item, sourceObject);
     }
 
-    const label = item.label || item.name || 'Unknown item';
+    const label = item.label || item.name || __dialogueText("scenes/ApartmentScene.js", "t_e6b8f377328b3d42997c");
 
     if (this.hasItemAlready(item.id)) {
       this.showMessage(
-        `You already collected the ${label}.`,
+        `${__dialogueText("scenes/ApartmentScene.js", "t_fa716c35061641039467")}${label}${__dialogueText("scenes/ApartmentScene.js", "t_cdb4ee2aea69cc6a8333")}`,
         1600
       );
 
@@ -878,9 +879,9 @@ export class ApartmentScene extends BaseScene {
 
     if (!this.playerInventory.addItem(item)) {
       this.showMessage(
-        'Your inventory is full. Make room and search here again. The item is still here.',
+        __dialogueText("scenes/ApartmentScene.js", "t_fd99cd3d9b518c241fbe"),
         3000,
-        '#795548'
+        __dialogueText("scenes/ApartmentScene.js", "t_0fa2e0046576e38dd099")
       );
 
       return false;
@@ -892,15 +893,15 @@ export class ApartmentScene extends BaseScene {
 
     if (item.isEscapeClue || item.isEscapeFragment) {
       this.showMessage(
-        `Found: ${label}\n\nAdded to your inventory. The crime lab may be able to examine it.`,
+        `${__dialogueText("scenes/ApartmentScene.js", "t_baf1a103de08c1b69c02")}${label}${__dialogueText("scenes/ApartmentScene.js", "t_46f8384399d13d596a13")}`,
         3200,
-        '#795548'
+        __dialogueText("scenes/ApartmentScene.js", "t_0fa2e0046576e38dd099")
       );
     } else {
       this.showMessage(
-        `Found: ${label}\n\nAdded to your inventory.`,
+        `${__dialogueText("scenes/ApartmentScene.js", "t_baf1a103de08c1b69c02")}${label}${__dialogueText("scenes/ApartmentScene.js", "t_9116f5a5f14b49da2b27")}`,
         2300,
-        item.isRedHerring ? '#607d8b' : '#3e683d'
+        item.isRedHerring ? __dialogueText("scenes/ApartmentScene.js", "t_4eef785f0e83f023cff8") : __dialogueText("scenes/ApartmentScene.js", "t_8050ca049b2e4bda19f0")
       );
     }
 
@@ -912,7 +913,7 @@ export class ApartmentScene extends BaseScene {
       this.markItemCollected(item);
 
       this.showMessage(
-        'The recovered artefact has already been logged.',
+        __dialogueText("scenes/ApartmentScene.js", "t_029cbf38f94715b660c6"),
         1800
       );
 
@@ -921,9 +922,9 @@ export class ApartmentScene extends BaseScene {
 
     if (!this.missionArtifact) {
       this.showMessage(
-        'The stolen artefact is missing from the case file. Nothing has been logged.',
+        __dialogueText("scenes/ApartmentScene.js", "t_373b84fca0679cdf9056"),
         3500,
-        '#8b3030'
+        __dialogueText("scenes/ApartmentScene.js", "t_c27978fb247345a3da90")
       );
 
       return false;
@@ -938,7 +939,7 @@ export class ApartmentScene extends BaseScene {
         sourceObject.id || 'suspect_apartment',
 
       recoveredLocation:
-        sourceObject.label || 'Suspect Apartment'
+        sourceObject.label || __dialogueText("scenes/ApartmentScene.js", "t_02c9e55c29cb6cb663ef")
     };
 
     const before = gameState.currentMission;
@@ -960,9 +961,9 @@ export class ApartmentScene extends BaseScene {
 
     if (!this.artifactRecovered) {
       this.showMessage(
-        'The artefact could not be logged. It has not been removed.',
+        __dialogueText("scenes/ApartmentScene.js", "t_4f9493e7476c8c28df61"),
         2800,
-        '#8b3030'
+        __dialogueText("scenes/ApartmentScene.js", "t_c27978fb247345a3da90")
       );
 
       return false;
@@ -991,7 +992,7 @@ export class ApartmentScene extends BaseScene {
       this.showArtifactRecovered(artifact);
     } else {
       this.showMessage(
-        'The recovered artefact has already been logged.',
+        __dialogueText("scenes/ApartmentScene.js", "t_029cbf38f94715b660c6"),
         1800
       );
     }
@@ -1047,7 +1048,7 @@ export class ApartmentScene extends BaseScene {
       host.add.text(
         0,
         -panelHeight / 2 + 30,
-        'ARTEFACT RECOVERED!',
+        __dialogueText("scenes/ApartmentScene.js", "t_a27178a7a3851a61a832"),
         {
           fontFamily: 'PressStart2P',
           fontSize: '14px',
@@ -1079,7 +1080,7 @@ export class ApartmentScene extends BaseScene {
       host.add.text(
         0,
         panelHeight / 2 - 112,
-        artifact.label + '\nLogged in recovered artefacts.',
+        artifact.label + __dialogueText("scenes/ApartmentScene.js", "t_54e7660dd92c3b6ba6d1"),
         {
           fontFamily: 'SpecialElite',
           fontSize: '21px',
@@ -1106,7 +1107,7 @@ export class ApartmentScene extends BaseScene {
       host.add.text(
         0,
         panelHeight / 2 - 38,
-        'Continue',
+        __dialogueText("scenes/ApartmentScene.js", "t_31fbef162594de01bab0"),
         {
           fontFamily: 'SpecialElite',
           fontSize: '22px',
@@ -1174,7 +1175,7 @@ export class ApartmentScene extends BaseScene {
     this.add.text(
       x,
       72,
-      this.apartmentConfig.subtitle || 'What can you find?',
+      this.apartmentConfig.subtitle || __dialogueText("scenes/ApartmentScene.js", "t_998ca1cb9e7434fa138c"),
       {
         fontFamily: 'SpecialElite',
         fontSize: '16px',
@@ -1216,7 +1217,7 @@ export class ApartmentScene extends BaseScene {
       this.add.text(
         this.exitButton.x,
         this.exitButton.y,
-        'EXIT',
+        __dialogueText("scenes/ApartmentScene.js", "t_3a0931580d18a6e0308c"),
         {
           fontFamily: 'SpecialElite',
           fontSize: '20px',
@@ -1430,7 +1431,7 @@ export class ApartmentScene extends BaseScene {
       return progressionManager.grantReward(
         'apartment_completed',
         caseId,
-        'Apartment search completed'
+        __dialogueText("scenes/ApartmentScene.js", "t_c604c7b203daa4775d3f")
       );
     } catch (error) {
       console.error(
@@ -1499,7 +1500,7 @@ export class ApartmentScene extends BaseScene {
       this.add.text(
         width / 2,
         height / 2 - 60,
-        'Leaving already?\nThere may still be useful evidence in this apartment.',
+        __dialogueText("scenes/ApartmentScene.js", "t_46d50af5e1623539bd5b"),
         {
           fontFamily: 'SpecialElite',
           fontSize: '22px',
@@ -1543,13 +1544,13 @@ export class ApartmentScene extends BaseScene {
 
     button(
       width / 2 - panelWidth / 4 + 5,
-      'Keep searching',
+      __dialogueText("scenes/ApartmentScene.js", "t_1cffe3ad084e0e8db598"),
       () => {}
     );
 
     button(
       width / 2 + panelWidth / 4 - 5,
-      'Leave anyway',
+      __dialogueText("scenes/ApartmentScene.js", "t_65d319e0a25e3f14e485"),
       () => this.leaveApartment()
     );
   }
@@ -1619,9 +1620,9 @@ export class ApartmentScene extends BaseScene {
     this.cameras.main.fadeIn(200, 0, 0, 0);
 
     this.showMessage(
-      'Could not leave the apartment. Try EXIT again.',
+      __dialogueText("scenes/ApartmentScene.js", "t_b52ca4c9ecc17b8d201d"),
       2500,
-      '#8b3030'
+      __dialogueText("scenes/ApartmentScene.js", "t_c27978fb247345a3da90")
     );
   }
 

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { medicalReviewData as DATA,getMedicalReviewStory,storeMedicalReview } from '../medicalReviewService.js';
 import { normalizeMedical,medicalTestsDone,advanceMedicalFindings } from './medical/MedicalReviewModel.js';
@@ -13,8 +14,8 @@ export class MedicalReviewScene extends BaseScene{
   create(){
     super.create();this.cameras.main.setBackgroundColor('#080b08');const story=getMedicalReviewStory();this.allowed=this.preview||story.eligible;this.progress=normalizeMedical(DATA,this.preview?null:story);
     this.root=this.add.container(0,0);this.background=this.add.image(DATA.width/2,DATA.height/2,DATA.backgrounds.occupied.key).setDisplaySize(DATA.width,DATA.height).setVisible(this.allowed);this.root.add(this.background);
-    this.label(25,23,'MARK AGENCY / ANNUAL MEDICAL REVIEW',22).setOrigin(0,0);
-    this.exit=this.label(25,80,'< UPPER FLOOR',20).setOrigin(0,0).setInteractive({useHandCursor:true});this.exit.on('pointerdown',()=>{if(!this.modal&&!this.debug.enabled)this.closeReview();});
+    this.label(25,23,__dialogueText("scenes/MedicalReviewScene.js", "t_adf981ebd77937236ed5"),22).setOrigin(0,0);
+    this.exit=this.label(25,80,__dialogueText("scenes/MedicalReviewScene.js", "t_db26b7d387791ba818bb"),20).setOrigin(0,0).setInteractive({useHandCursor:true});this.exit.on('pointerdown',()=>{if(!this.modal&&!this.debug.enabled)this.closeReview();});
     this.status=this.label(DATA.width-25,80,'',18).setOrigin(1,0);this.tooltip=this.label(0,0,'',19).setVisible(false);
     this.tests=new MedicalTestsController(this,DATA);
     for(const source of DATA.hotspots){const def={...source},zone=this.add.zone(def.x,def.y,def.w,def.h).setOrigin(0).setInteractive({useHandCursor:true});this.root.add(zone);const h={def,zone};this.hotspots.push(h);
@@ -29,16 +30,16 @@ export class MedicalReviewScene extends BaseScene{
   canInteract(){return this.allowed&&!this.closing&&!this.modal&&!this.debug?.enabled&&this.time.now>=this.lockedUntil;}
   label(x,y,text,size=23,parent=this.root){const object=this.add.text(x,y,text,{fontFamily:'SpecialElite',fontSize:`${size}px`,color:'#ffe3b3',backgroundColor:'#102219',padding:{x:10,y:7},align:'center',wordWrap:{width:DATA.width-100},lineSpacing:5}).setOrigin(0.5);parent.add(object);return object;}
   persist(){if(this.preview||!this.allowed)return;this.savedOk=storeMedicalReview(this.progress).saved;}
-  refreshReview(){this.status?.setText(this.allowed?(this.preview?'PREVIEW / ':'')+`REACTION ${this.progress.reflex}/${DATA.rounds} / STEADY HAND ${this.progress.coordination}/${DATA.rounds}`:'Review available after mission nine and Holly\'s follow-up.');}
+  refreshReview(){this.status?.setText(this.allowed?(this.preview?__dialogueText("scenes/MedicalReviewScene.js", "t_50d1058f5474fe46bb88"):'')+`${__dialogueText("scenes/MedicalReviewScene.js", "t_77370e3b5cd3e4aa9be9")}${this.progress.reflex}${__dialogueText("scenes/MedicalReviewScene.js", "t_8a5edab282632443219e")}${DATA.rounds}${__dialogueText("scenes/MedicalReviewScene.js", "t_13c9e0f58dbbb4ff23ea")}${this.progress.coordination}${__dialogueText("scenes/MedicalReviewScene.js", "t_8a5edab282632443219e")}${DATA.rounds}`:__dialogueText("scenes/MedicalReviewScene.js", "t_23e34823c6d383e6744c"));}
   activate(id){
     if(id==='door'){this.closeReview();return;}
     if(id==='reflex'||id==='coordination'){this.tests.open(id);return;}
     if(id==='doctor'||id==='folder'){
-      if(!medicalTestsDone(DATA,this.progress)){this.notice('Dr. Hannibal Lecter','Two short tasks first: the instrument trolley for reaction, and the metronome for coordination. You may use slow assist. I am examining your paperwork tolerance, not your patience.');return;}
+      if(!medicalTestsDone(DATA,this.progress)){this.notice(__dialogueText("scenes/MedicalReviewScene.js", "t_a178cd313931199f23c9"),__dialogueText("scenes/MedicalReviewScene.js", "t_5a9c4a8a753c02633f08"));return;}
       this.findingsIndex=this.progress.completed?0:this.progress.line;this.openFindings();return;
     }
-    const messages={couch:'Use the instrument trolley for the reaction task and the metronome for steady-hand coordination. Then speak to Lecter.',eye_chart:'An eye chart. The current review uses the two interactive coordination tasks instead.',cabinet:'The cabinet is locked. Ask Lecter about the relevant record; do not browse other patients\' files.',telephone:'A private clinical line. Your investigation is not improved by impersonating the receptionist.',apple:'A carefully isolated apple. Preventative medicine, apparently.'};
-    this.notice('MEDICAL OFFICE',messages[id]||'Nothing else to examine here.');
+    const messages={couch:__dialogueText("scenes/MedicalReviewScene.js", "t_2d49489fe3be05627a7a"),eye_chart:__dialogueText("scenes/MedicalReviewScene.js", "t_4122663dd823abdabee2"),cabinet:__dialogueText("scenes/MedicalReviewScene.js", "t_a9ab6a265a4e6f3d4ea0"),telephone:__dialogueText("scenes/MedicalReviewScene.js", "t_f4857ebe92d6444d9707"),apple:__dialogueText("scenes/MedicalReviewScene.js", "t_34f6783b006993746f90")};
+    this.notice(__dialogueText("scenes/MedicalReviewScene.js", "t_5a8854e11cc56fe0379f"),messages[id]||__dialogueText("scenes/MedicalReviewScene.js", "t_aeccb8e50be763b8ca45"));
   }
   makeModal(){this.tooltip.setVisible(false);const layer=this.add.container(0,0);this.root.add(layer);this.modal=layer;return layer;}
   drawModal(layer){
@@ -51,10 +52,10 @@ export class MedicalReviewScene extends BaseScene{
   renderFindings(){
     const layer=this.modal;layer.removeAll(true);this.drawModal(layer);const line=DATA.findings[this.findingsIndex];
     this.label(688,235,line.speaker,27,layer);this.label(688,385,line.text,26,layer).setWordWrapWidth(1040);
-    this.modalButton(layer,688,555,this.findingsIndex===DATA.findings.length-1?'RECORD FINDINGS':'CONTINUE',()=>{
+    this.modalButton(layer,688,555,this.findingsIndex===DATA.findings.length-1?__dialogueText("scenes/MedicalReviewScene.js", "t_e8088c12ac0235618d67"):'CONTINUE',()=>{
       if(this.progress.completed){if(this.findingsIndex<DATA.findings.length-1){this.findingsIndex++;this.renderFindings();}else this.closeModal();return;}
       this.progress=advanceMedicalFindings(DATA,this.progress);this.persist();this.findingsIndex=this.progress.line;
-      if(this.progress.completed){this.closeModal();this.notice('REVIEW COMPLETE',DATA.objective+(this.savedOk===false?' '+DATA.messages.saveFailed:''));}else this.renderFindings();
+      if(this.progress.completed){this.closeModal();this.notice(__dialogueText("scenes/MedicalReviewScene.js", "t_245629e777c482467b50"),DATA.objective+(this.savedOk===false?' '+DATA.messages.saveFailed:''));}else this.renderFindings();
     });
   }
   closeModal(){const layer=this.modal;this.modal=null;layer?.destroy(true);this.lockedUntil=this.time.now+180;}

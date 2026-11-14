@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { ForensicHelpController } from '../CSI/ForensicHelpController.js';
 import { EventBus } from '../../EventBus.js';
 
@@ -18,7 +19,7 @@ export class TimelineHelpController extends ForensicHelpController {
 
   refresh() {
     if (this.scene.preview) {
-      if (this.hintButton?.active) this.hintButton.setText('HINT / TEST');
+      if (this.hintButton?.active) this.hintButton.setText(__dialogueText("scenes/archive/TimelineHelpController.js", "t_f3d9339f7f9eaa186ee2"));
       return;
     }
     super.refresh();
@@ -34,8 +35,8 @@ export class TimelineHelpController extends ForensicHelpController {
     const definition = this.definition();
     if (!definition) return;
     this.pause();
-    this.panel('PREVIEW HINT — NO COST', definition.text);
-    this.makeButton(0, 215, 'BACK TO TIMELINE', () => {
+    this.panel(__dialogueText("scenes/archive/TimelineHelpController.js", "t_ee0f162bac624c99ef1c"), definition.text);
+    this.makeButton(0, 215, __dialogueText("scenes/archive/TimelineHelpController.js", "t_bc5625dc08e012a17b3c"), () => {
       this.close();
       this.showEffect(definition, { text: definition.text });
     }, this.modal);
@@ -43,20 +44,20 @@ export class TimelineHelpController extends ForensicHelpController {
 
   panel(title, body) {
     const titles = {
-      'LAB ASSISTANCE': 'INVESTIGATION ASSISTANCE',
-      'LAB HINT': 'TIMELINE HINT'
+      'LAB ASSISTANCE': __dialogueText("scenes/archive/TimelineHelpController.js", "t_27853b148a3694fc8b63"),
+      'LAB HINT': __dialogueText("scenes/archive/TimelineHelpController.js", "t_0c96e0474e1360cb3328")
     };
-    if (title === 'LAB ASSISTANCE') {
-      body = 'One hint helps with the current reconstruction step.\nPurchased hints can be reviewed for free.';
+    if (title === __dialogueText("scenes/archive/TimelineHelpController.js", "t_aa4c08975bb761f44d5f")) {
+      body = __dialogueText("scenes/archive/TimelineHelpController.js", "t_83c2523d2e7340c82ee2");
     }
     return super.panel(titles[title] || title, body);
   }
 
   makeButton(x, y, label, callback, parent = null, enabled = true) {
-    label = label.replace('ASK LAB TECHNICIAN', 'ASK AGENCY ANALYST')
-      .replace('BACK TO ANALYSIS', 'BACK TO TIMELINE');
-    if (label.startsWith('CUT CORNERS')) label += '\nIntegrity -1';
-    if (label.startsWith('ASK AGENCY ANALYST')) label += '\nIntegrity +1';
+    label = label.replace(__dialogueText("scenes/archive/TimelineHelpController.js", "t_887ded7583c53dfaf1b8"), __dialogueText("scenes/archive/TimelineHelpController.js", "t_ab54be8f55c14bfdd304"))
+      .replace(__dialogueText("scenes/archive/TimelineHelpController.js", "t_e59dd6a4c606d360d6a5"), __dialogueText("scenes/archive/TimelineHelpController.js", "t_bc5625dc08e012a17b3c"));
+    if (label.startsWith(__dialogueText("scenes/archive/TimelineHelpController.js", "t_d1cbbf44341666456748"))) label += __dialogueText("scenes/archive/TimelineHelpController.js", "t_9c7fd168c10f116a0ba2");
+    if (label.startsWith(__dialogueText("scenes/archive/TimelineHelpController.js", "t_ab54be8f55c14bfdd304"))) label += __dialogueText("scenes/archive/TimelineHelpController.js", "t_314538d65759cb745d17");
     return super.makeButton(x, y, label, callback, parent, enabled);
   }
 

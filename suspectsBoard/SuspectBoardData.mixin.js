@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // suspectsBoard/SuspectBoardData.mixin.js
 import {getPublicSuspectList,getSuspectCaseSummary} from '../ui/suspectUtils.js';
 
@@ -37,21 +38,21 @@ export const SuspectBoardDataMixin = {
     try{summary=getSuspectCaseSummary();}catch(error){console.warn('[SuspectsScene] Summary unavailable.',error);}
     const results=typeof this.getCompletedCrimeLabResults==='function'?this.getCompletedCrimeLabResults():[];
     const labComplete=this.getCrimeLabCompleted?.()===true;
-    const labLabel=labComplete?'LAB: COMPLETE':results.length?`LAB: ${results.length}/3`:'LAB: PENDING';
+    const labLabel=labComplete?__dialogueText("suspectsBoard/SuspectBoardData.mixin.js", "t_5c88c43a0421003fa93a"):results.length?`${__dialogueText("suspectsBoard/SuspectBoardData.mixin.js", "t_5549929b5e54118ce170")}${results.length}${__dialogueText("suspectsBoard/SuspectBoardData.mixin.js", "t_8d2cedfe81c77aaa05d9")}`:__dialogueText("suspectsBoard/SuspectBoardData.mixin.js", "t_8ee2e444c1aa05fb32d0");
     const theory=this.gameState.reconstructedHeist?.playerTheoryResult;
     const methodRecorded=summary.hypothesisCompleted||['exact','partial','weak'].includes(theory);
-    this.summaryText?.setText(`FILES: ${suspects.length}   ACTIVE: ${suspects.length-cleared}   CLEARED: ${cleared}   ${labLabel}   METHOD: ${methodRecorded?'RECORDED':'PENDING'}`);
+    this.summaryText?.setText(`${__dialogueText("suspectsBoard/SuspectBoardData.mixin.js", "t_1550a552e9217295d875")}${suspects.length}${__dialogueText("suspectsBoard/SuspectBoardData.mixin.js", "t_2cdb95b90965eceb07e6")}${suspects.length-cleared}${__dialogueText("suspectsBoard/SuspectBoardData.mixin.js", "t_41a443aaeb8d0584f454")}${cleared}${__dialogueText("suspectsBoard/SuspectBoardData.mixin.js", "t_0aad7da77d2ed59c396c")}${labLabel}${__dialogueText("suspectsBoard/SuspectBoardData.mixin.js", "t_531704e3c8ce4550cbb7")}${methodRecorded?__dialogueText("suspectsBoard/SuspectBoardData.mixin.js", "t_1c606415d06b78f08ab0"):__dialogueText("suspectsBoard/SuspectBoardData.mixin.js", "t_332011b91ccd9887592c")}`);
     if(this.exclusionFinished) {
-      this.modeHintText?.setText('Evidence Grid submitted. Alibi contacts are available in Crime City.');return;
+      this.modeHintText?.setText(__dialogueText("suspectsBoard/SuspectBoardData.mixin.js", "t_f803f2fc9f03621507d6"));return;
     }
     if(this.excludeMode) {
-      this.modeHintText?.setText('Review the evidence and file notes. Exclusions are your decision.');return;
+      this.modeHintText?.setText(__dialogueText("suspectsBoard/SuspectBoardData.mixin.js", "t_c8fdd9a5df3a20cb2f69"));return;
     }
     if(!results.length) {
-      this.modeHintText?.setText('No completed lab reports. Complete an analysis to review its findings.');return;
+      this.modeHintText?.setText(__dialogueText("suspectsBoard/SuspectBoardData.mixin.js", "t_e8971d6c42baa1b8b713"));return;
     }
     const labels=[...new Set(results.map(r=>this.formatEvidenceField?.(r.field)||r.label))];
-    this.modeHintText?.setText(`LAB RESULTS: ${labels.join(' / ')}. Open a file or report to review the details.`);
+    this.modeHintText?.setText(`${__dialogueText("suspectsBoard/SuspectBoardData.mixin.js", "t_954ba519d13259994dce")}${labels.join(__dialogueText("suspectsBoard/SuspectBoardData.mixin.js", "t_005e1574a2b5c8163046"))}${__dialogueText("suspectsBoard/SuspectBoardData.mixin.js", "t_2ddcb29fe7b3bb0e8f14")}`);
   },
   updateFilterButtonStyles() {
     (this.filterButtons||[]).forEach(button=>{
@@ -67,7 +68,7 @@ export const SuspectBoardDataMixin = {
     const count=this.getPageCount(),multiple=count>1;
     this.previousPageButton?.setVisible(multiple);this.nextPageButton?.setVisible(multiple);this.pageText?.setVisible(multiple);
     if(!multiple)return;
-    this.pageText?.setText(`PAGE ${this.currentPage+1}/${count}`);
+    this.pageText?.setText(`${__dialogueText("suspectsBoard/SuspectBoardData.mixin.js", "t_f8119b8ecd8507346fa7")}${this.currentPage+1}${__dialogueText("suspectsBoard/SuspectBoardData.mixin.js", "t_8a5edab282632443219e")}${count}`);
     if(this.previousPageButton)this.setButtonEnabled(this.previousPageButton,this.currentPage>0);
     if(this.nextPageButton)this.setButtonEnabled(this.nextPageButton,this.currentPage<count-1);
   },

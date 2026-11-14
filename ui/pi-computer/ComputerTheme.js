@@ -1,15 +1,16 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 export const DESIGN_WIDTH = 1120;
 export const DESIGN_HEIGHT = 800;
 
 // If your @font-face names differ, change them here (single source of truth).
 export const FONTS = {
-  pixel: '"Press Start 2P", "Courier New", monospace',
-  body: '"Special Elite", "Courier New", monospace'
+  pixel: __dialogueText("ui/pi-computer/ComputerTheme.js", "t_3339c9605ddf3e8665e4"),
+  body: __dialogueText("ui/pi-computer/ComputerTheme.js", "t_800546cb1375886f1097")
 };
 
 export const COLORS = {
   // CSS colour strings (text)
-  text: '#2b2a26',
+  text: __dialogueText("ui/pi-computer/ComputerTheme.js", "t_549eec7a072c6898ecdc"),
   muted: '#6d695b',
   selected: '#173d73',
   titleText: '#f4efd8',

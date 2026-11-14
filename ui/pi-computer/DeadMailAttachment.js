@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import {
   DEAD_MAIL_ART,
   containRect,
@@ -274,7 +275,7 @@ export class DeadMailAttachment {
       return false;
     }
 
-    if (event.code === 'Escape') {
+    if (event.code === __dialogueText("ui/pi-computer/DeadMailAttachment.js", "t_037c968467aa3fd7c059")) {
       event.preventDefault();
       this.close();
     }
@@ -324,7 +325,7 @@ export class DeadMailAttachment {
 
     d.fit(
       title,
-      'ATTACHMENT — delivery_photo.webp',
+      __dialogueText("ui/pi-computer/DeadMailAttachment.js", "t_8e75da6b7c7f7910467d"),
       Math.max(1, box.w - 170)
     );
 
@@ -342,7 +343,7 @@ export class DeadMailAttachment {
     d.button(
       box.x + 14,
       toolbarY,
-      'BACK TO MAIL',
+      __dialogueText("ui/pi-computer/DeadMailAttachment.js", "t_709b7c6a930c516e8fdb"),
       () => this.close()
     );
 
@@ -359,7 +360,7 @@ export class DeadMailAttachment {
         box.x + 20,
         photoTop + 12,
         this.error ||
-          'Loading delivery photograph...',
+          __dialogueText("ui/pi-computer/DeadMailAttachment.js", "t_7df3fde958ccace1b038"),
         18,
         '#383c38',
         box.w - 40
@@ -505,8 +506,8 @@ export class DeadMailAttachment {
     d.text(
       box.x + 26,
       noteY + 8,
-      `DETAILS RECORDED: ${progress.clues.length}/3` +
-        ' — click highlighted words to add them to Field Notes.',
+      `${__dialogueText("ui/pi-computer/DeadMailAttachment.js", "t_dc848dc229b13b31db2c")}${progress.clues.length}${__dialogueText("ui/pi-computer/DeadMailAttachment.js", "t_8d2cedfe81c77aaa05d9")}` +
+        __dialogueText("ui/pi-computer/DeadMailAttachment.js", "t_d698c05bcbe8f821ebff"),
       14,
       '#5b604f',
       box.w - 52
@@ -521,8 +522,8 @@ export class DeadMailAttachment {
       d.text(
         box.x + 26,
         noteY + 40,
-        'Inspect the angel, marker or shipping label ' +
-          'in the photograph.',
+        __dialogueText("ui/pi-computer/DeadMailAttachment.js", "t_4c776cdca7aa4202c619") +
+          __dialogueText("ui/pi-computer/DeadMailAttachment.js", "t_74dbf4d6e93c0a8a866a"),
         17,
         '#343e35',
         box.w - 52

@@ -1,11 +1,12 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { EventBus } from '../../EventBus.js';
 
 const TIME_PASSED_FLAVOR_LINES = [
-  'You spent so long crawling on the floor that a guard asked if you lost a contact lens.',
-  'Your knees have submitted a formal complaint.',
-  'You examined every dust bunny twice. Thoroughness has a cost: time.',
-  'A guard offered you a mop. Apparently, you looked qualified.',
-  'You now know this room better than the people who built it.'
+  __dialogueText("scenes/hiddenObjects/HiddenObjectsTimer.js", "t_29dbf20f878a6fb234aa"),
+  __dialogueText("scenes/hiddenObjects/HiddenObjectsTimer.js", "t_d6c5bba163bc4e22cd07"),
+  __dialogueText("scenes/hiddenObjects/HiddenObjectsTimer.js", "t_0f3805b4fa5ccf37eb17"),
+  __dialogueText("scenes/hiddenObjects/HiddenObjectsTimer.js", "t_e0bdac2bf4c24a681236"),
+  __dialogueText("scenes/hiddenObjects/HiddenObjectsTimer.js", "t_64061ca64a929702dc4d")
 ];
 
 export class HiddenObjectsTimer {
@@ -153,8 +154,8 @@ export class HiddenObjectsTimer {
     ];
 
     scene.ui?.showMessage?.(
-      `${hours}h passed. ${flavor}`,
-      '#9fd3ff'
+      `${hours}${__dialogueText("scenes/hiddenObjects/HiddenObjectsTimer.js", "t_7cc2c748fe15f4a5012c")}${flavor}`,
+      __dialogueText("scenes/hiddenObjects/HiddenObjectsTimer.js", "t_b28e7a619dd4820a602d")
     );
 
     return true;

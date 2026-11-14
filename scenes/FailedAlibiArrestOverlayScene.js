@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 
@@ -18,9 +19,9 @@ const HUD_KEYS = [
 ];
 
 const FAILURE_MESSAGE =
-  'Your team followed the wrong lead. ' +
-  'While they were checking the address, ' +
-  'the real thief escaped with the artefact.';
+  __dialogueText("scenes/FailedAlibiArrestOverlayScene.js", "t_bafcd6842a1faeab3265") +
+  __dialogueText("scenes/FailedAlibiArrestOverlayScene.js", "t_04a9e2706981290d8c9e") +
+  __dialogueText("scenes/FailedAlibiArrestOverlayScene.js", "t_93a790ecf7e8ecdac267");
 
 const W = 1280;
 const H = 800;
@@ -266,7 +267,7 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
     this.label(
       32,
       33,
-      'MARK AGENCY / FIELD OPERATION',
+      __dialogueText("scenes/FailedAlibiArrestOverlayScene.js", "t_76ed3309f223fd8c3928"),
       {
         fontFamily: 'PressStart2P',
         fontSize: '16px',
@@ -605,7 +606,7 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
     this.statusText = this.label(
       W / 2,
       670,
-      'ARREST TEAM DISPATCHED',
+      __dialogueText("scenes/FailedAlibiArrestOverlayScene.js", "t_930ac80c51318b0a4a84"),
       {
         fontFamily: 'PressStart2P',
         fontSize: '18px',
@@ -617,7 +618,7 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
     this.caption = this.label(
       W / 2,
       724,
-      'Two agents. One address. What could possibly go wrong?',
+      __dialogueText("scenes/FailedAlibiArrestOverlayScene.js", "t_8757184cfa09b54f1df5"),
       {
         fontSize: '27px',
         align: 'center',
@@ -656,8 +657,8 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
       this.label(
         W / 2,
         360,
-        'Agent artwork could not be loaded.\n' +
-        'The operation will still finish.',
+        __dialogueText("scenes/FailedAlibiArrestOverlayScene.js", "t_24915589c207610a3247") +
+        __dialogueText("scenes/FailedAlibiArrestOverlayScene.js", "t_a2306a577db31a466efe"),
         {
           fontSize: '26px',
           align: 'center',
@@ -686,11 +687,11 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
         this.moving = false;
 
         this.statusText.setText(
-          'CHECKING THE ADDRESS...'
+          __dialogueText("scenes/FailedAlibiArrestOverlayScene.js", "t_08150401fb1b45f890b2")
         );
 
         this.caption.setText(
-          'A brief silence. Never a good sign.'
+          __dialogueText("scenes/FailedAlibiArrestOverlayScene.js", "t_bfd380c53085c905538d")
         );
 
         this.time.delayedCall(
@@ -711,11 +712,11 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
     this.agentsVisual?.setFlipX(false);
 
     this.statusText.setText(
-      'NO SUSPECT DETAINED'
+      __dialogueText("scenes/FailedAlibiArrestOverlayScene.js", "t_706d465563db29bcf542")
     );
 
     this.caption.setText(
-      'Wrong suspect. Excellent cardio.'
+      __dialogueText("scenes/FailedAlibiArrestOverlayScene.js", "t_d001bdf67e9734411d94")
     );
 
     this.createTrackedTween({
@@ -823,7 +824,7 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
       const opened = await this.goto(
         'GameOverScene',
         {
-          title: 'WRONG SUSPECT',
+          title: __dialogueText("scenes/FailedAlibiArrestOverlayScene.js", "t_276c1d807d02874cf29b"),
           reasonCode: 'failed_alibi_arrest',
           caseId: this.caseId,
           suspectId: this.suspectId,
@@ -853,7 +854,7 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
       this.finishing = false;
 
       this.caption.setText(
-        'Game Over could not be opened. Please try again.'
+        __dialogueText("scenes/FailedAlibiArrestOverlayScene.js", "t_3db9ca22fc3e3d1cea91")
       );
 
       this.retryButton.setVisible(true);

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
 import { inventoryManager } from '../../managers/InventoryManager.js';
@@ -97,7 +98,7 @@ class ChaseTutorial {
   issueTargets(warrant){
     const targets=[];
     const walk=object=>{
-      if(object?.type==='Text'&&object.input?.enabled&&/^\[\s*ISSUE\s*\]$/.test(object.text||''))targets.push(object);
+      if(object?.type===__dialogueText("tutorials/chase/ChaseTutorial.js", "t_71988c4d8e0803ba4519")&&object.input?.enabled&&/^\[\s*ISSUE\s*\]$/.test(object.text||''))targets.push(object);
       if(Array.isArray(object?.list))object.list.forEach(walk);
     };
     (warrant.results?.objects||[]).forEach(walk);return targets;
@@ -125,10 +126,10 @@ class ChaseTutorial {
   }
   getTheoryElements(board){
     const root=board?.boardApi?.board?.root;
-    const host=root?.closest?.('.crime-board-app')?.parentElement;
+    const host=root?.closest?.(__dialogueText("tutorials/chase/ChaseTutorial.js", "t_5f4a8917bd85d04d9691"))?.parentElement;
     if(!host)return{tab:null,panel:null,visible:false};
-    const tab=[...host.querySelectorAll('.ct-tabs button')].find(button=>button.textContent.trim()==='Case Theory');
-    const panel=host.querySelector('.ct-panel');
+    const tab=[...host.querySelectorAll(__dialogueText("tutorials/chase/ChaseTutorial.js", "t_1aa45dc7f5ac81c3a830"))].find(button=>button.textContent.trim()===__dialogueText("tutorials/chase/ChaseTutorial.js", "t_43071101a92f96747165"));
+    const panel=host.querySelector(__dialogueText("tutorials/chase/ChaseTutorial.js", "t_1376a2cbb0911e97b614"));
     return{tab,panel,visible:Boolean(panel&&!panel.hidden&&panel.getClientRects().length)};
   }
   renderBoardTutorial(board,count){
@@ -138,23 +139,23 @@ class ChaseTutorial {
     if(this.state.theoryIntroduced){this.overlay.render('return',count);return;}
     if(theory.visible){
       this.step('theory');this.overlay.render('theory_edit',count,[],{
-        nextLabel:'Understood',onNext:()=>{
+        nextLabel:__dialogueText("tutorials/chase/ChaseTutorial.js", "t_501721f0699ef8abe8d4"),onNext:()=>{
           if(!this.state||this.state.completed)return;this.state.theoryIntroduced=true;this.step('return');
         }
       });return;
     }
     if(this.state.step==='theory'){this.overlay.render('theory_open',count,[theory.tab]);return;}
-    this.overlay.render('board_edit',count,[theory.tab],{nextLabel:'Next',onNext:()=>this.step('theory')});
+    this.overlay.render('board_edit',count,[theory.tab],{nextLabel:__dialogueText("tutorials/chase/ChaseTutorial.js", "t_1ff57a29d7c9d11bdf61"),onNext:()=>this.step('theory')});
   }
   tickArrest(scene){
     this.context='arrest';const state=this.ensureArrestState();
     if(state.completed||scene.isLeaving||scene.resultCommitted||scene.selectionLocked||scene.confirmOpen||
       scene.zoomOverlay?.visible||!scene.arrestButton||!scene.displaySuspects?.length){this.overlay.hide();return;}
     if(state.step==='arrest_theory'){
-      this.overlay.render('arrest_theory',null,[],{nextLabel:'Review dossiers',onNext:()=>this.finishArrest(false)});return;
+      this.overlay.render('arrest_theory',null,[],{nextLabel:__dialogueText("tutorials/chase/ChaseTutorial.js", "t_c3424f902d041d5fc16d"),onNext:()=>this.finishArrest(false)});return;
     }
     const targets=[scene.leftArrow,scene.rightArrow].filter(target=>target&&typeof target.getBounds==='function');
-    this.overlay.render('arrest',null,targets,{nextLabel:'Next',onNext:()=>{state.step='arrest_theory';this.save();}});
+    this.overlay.render('arrest',null,targets,{nextLabel:__dialogueText("tutorials/chase/ChaseTutorial.js", "t_1ff57a29d7c9d11bdf61"),onNext:()=>{state.step='arrest_theory';this.save();}});
   }
   tick(){
     const scene=this.activeScene();

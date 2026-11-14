@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { margeTrustData as DATA,startMargeTrustFollowup,completeMargeTrustIntro,selectMargeTrustReply,completeMargeTrustResponse,getMargeTrustState,requestMargeInformalRecap } from '../../margeTrustService.js';
 import { beginMargeTrust,acknowledgeMargeTrustIntro,chooseMargeTrustReply,acknowledgeMargeTrustResponse,margeTrustAccess,getMargeTrustPreviewSource } from '../../margeTrustModel.js';
 export class MargeTrustController{
@@ -63,7 +64,7 @@ export class MargeTrustController{
   const next=s.modalButton(root,960,1000,expanded.length===1?finalLabel:'CONTINUE',()=>{
    if(s.modal!==root||s.closing)return;
    this.safely(()=>{
-    if(index<expanded.length-1){index++;speaker.setText(expanded[index].speaker);body.setText(expanded[index].text);next.setText(index===expanded.length-1?finalLabel:'CONTINUE');}
+    if(index<expanded.length-1){index++;speaker.setText(expanded[index].speaker);body.setText(expanded[index].text);next.setText(index===expanded.length-1?finalLabel:__dialogueText("scenes/hr/MargeTrustController.js", "t_628db0c7598820b10176"));}
     else{s.closeModal();onComplete?.();}
    });
   });
@@ -73,46 +74,46 @@ export class MargeTrustController{
   const state=this.state();if(!state)return;
   if(state.stage==='intro_pending'){
    const c=state.snapshot.cases[state.caseId],intro=[...c.intro];
-   if(c.notice)intro.unshift({speaker:c.notice.title,text:`From: ${c.notice.sender}. To: ${c.notice.recipient}. ${c.notice.text}`});
-   this.dialogue(intro,()=>{const r=this.apply('intro');if(!r.ok){this.scene.showStatus(DATA.messages.retry);return;}this.resume();},c.requiresReply?'CHOOSE A RESPONSE':'END CONVERSATION');
+   if(c.notice)intro.unshift({speaker:c.notice.title,text:`${__dialogueText("scenes/hr/MargeTrustController.js", "t_a981d4a44a43ec090df9")}${c.notice.sender}${__dialogueText("scenes/hr/MargeTrustController.js", "t_c5aee2970d50b2fe70b8")}${c.notice.recipient}${__dialogueText("scenes/hr/MargeTrustController.js", "t_8dccf256f6d5783e62bb")}${c.notice.text}`});
+   this.dialogue(intro,()=>{const r=this.apply('intro');if(!r.ok){this.scene.showStatus(DATA.messages.retry);return;}this.resume();},c.requiresReply?__dialogueText("scenes/hr/MargeTrustController.js", "t_426cce10880df57da960"):__dialogueText("scenes/hr/MargeTrustController.js", "t_1cad2a01acc725060cad"));
   }else if(state.stage==='awaiting_reply')this.openReplies();
   else if(state.stage==='response_pending'){
    const response=state.snapshot.responses.find(r=>r.id===state.responseId);
-   this.dialogue([{speaker:'DETECTIVE',text:response.label},...response.lines],()=>{const r=this.apply('response');if(!r.ok){this.scene.showStatus(DATA.messages.retry);return;}this.scene.showStatus(this.lastSaved?DATA.messages.recorded:DATA.messages.saveFailed);},'END CONVERSATION');
+   this.dialogue([{speaker:__dialogueText("scenes/hr/MargeTrustController.js", "t_1e954e77ee4e5253c6c5"),text:response.label},...response.lines],()=>{const r=this.apply('response');if(!r.ok){this.scene.showStatus(DATA.messages.retry);return;}this.scene.showStatus(this.lastSaved?DATA.messages.recorded:DATA.messages.saveFailed);},__dialogueText("scenes/hr/MargeTrustController.js", "t_1cad2a01acc725060cad"));
   }else this.openHub();
  }
  openReplies(){
   const s=this.scene,state=this.state();if(s.modal||s.dialogue||!state)return;
   const root=this.panel(state.snapshot.title);
   s.modalText(root,960,285,DATA.messages.choose,26,'#3c3026',1300);
-  s.modalText(root,960,350,'An apology does not restore informal access. Official case information remains available.',23,'#71583c',1300);
+  s.modalText(root,960,350,__dialogueText("scenes/hr/MargeTrustController.js", "t_bce4b72a585a485dcd44"),23,'#71583c',1300);
   state.snapshot.responses.forEach((reply,index)=>this.button(root,465+index*130,reply.label,()=>{
    const result=this.apply('reply',reply.id);if(!result.ok){s.showStatus(DATA.messages.retry);return;}
    s.closeModal();this.resume();
   }));
-  this.button(root,900,'NOT NOW',()=>{s.closeModal();s.showStatus(DATA.messages.cancelled);},580);
+  this.button(root,900,__dialogueText("scenes/hr/MargeTrustController.js", "t_095c9dd474d6ca229bb1"),()=>{s.closeModal();s.showStatus(DATA.messages.cancelled);},580);
   if(!this.lastSaved)s.showStatus(DATA.messages.saveFailed);
  }
  openHub(){
   const s=this.scene,state=this.state();if(s.modal||s.dialogue||!state)return;
-  const root=this.panel('MARGE / FOLLOW-UP');
+  const root=this.panel(__dialogueText("scenes/hr/MargeTrustController.js", "t_0b78da0157661296b7b4"));
   s.modalText(root,960,290,state.snapshot.cases[state.caseId].summary,26,'#3c3026',1300);
   if(!this.lastSaved)s.modalText(root,960,365,DATA.messages.saveFailed,22,'#8b2d25',1300);
-  this.button(root,470,'REVIEW OUR FOLLOW-UP CONVERSATION',()=>{s.closeModal();this.review();});
-  this.button(root,595,'REVIEW THE INSURANCE LEAD',()=>{s.closeModal();s.reviewDisclosure();});
-  this.button(root,720,'ASK FOR A QUICK OFF-THE-RECORD RECAP',()=>{
+  this.button(root,470,__dialogueText("scenes/hr/MargeTrustController.js", "t_94a6c3f774112c839473"),()=>{s.closeModal();this.review();});
+  this.button(root,595,__dialogueText("scenes/hr/MargeTrustController.js", "t_28cbe632eda4deacff85"),()=>{s.closeModal();s.reviewDisclosure();});
+  this.button(root,720,__dialogueText("scenes/hr/MargeTrustController.js", "t_74be0bdf04e8acd0f9d0"),()=>{
    let result;
    if(s.preview){const allowed=margeTrustAccess(state).informalRecapAllowed;result={ok:allowed,lines:allowed?state.snapshot.recap.lines:state.snapshot.recap.denied};}
    else result=requestMargeInformalRecap();
    s.closeModal();this.dialogue(result.lines,()=>this.openHub(),'BACK');
   });
-  this.button(root,895,'BACK TO HR',()=>s.closeModal(),580);
+  this.button(root,895,__dialogueText("scenes/hr/MargeTrustController.js", "t_120dba1199e0363fa2ed"),()=>s.closeModal(),580);
  }
  review(){
   const state=this.state(),c=state.snapshot.cases[state.caseId],lines=[];
   if(c.notice)lines.push({speaker:c.notice.title,text:c.notice.text});
   lines.push(...c.intro);
-  if(state.responseId){const r=state.snapshot.responses.find(r=>r.id===state.responseId);lines.push({speaker:'DETECTIVE',text:r.label},...r.lines);}
+  if(state.responseId){const r=state.snapshot.responses.find(r=>r.id===state.responseId);lines.push({speaker:__dialogueText("scenes/hr/MargeTrustController.js", "t_1e954e77ee4e5253c6c5"),text:r.label},...r.lines);}
   this.dialogue(lines,()=>this.openHub(),'BACK');
  }
 }

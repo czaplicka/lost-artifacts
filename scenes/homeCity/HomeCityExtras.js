@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 // =============================================================================
 // HomeCityExtras.js - second art pass for the Old Quarter.
 // Sits between HomeCityAmbient and HomeCityRenderer (class chain), so none of the
@@ -16,17 +17,17 @@ import { css, dark, hash, pp, poly, rect, circle, ellipse, line, hgrad, shadow, 
 
 const LABEL_LIFT = { 'pi-office': 70, 'spy-shop': 62, tavern: 36, 'police-station': 44, 'your-home': 56 };
 const SIGN_BOARDS = [
-  { y: -140, dir: -1, text: 'PI OFFICE', c: 0x6b4a2f }, { y: -114, dir: 1, text: 'TAVERN', c: 0x2f5a4a },
-  { y: -88, dir: -1, text: 'POLICE', c: 0x2f4a6b }, { y: -62, dir: 1, text: 'THE TRUTH', c: 0x5a2f3a }
+  { y: -140, dir: -1, text: __dialogueText("scenes/homeCity/HomeCityExtras.js", "t_f99419d296900dce0711"), c: 0x6b4a2f }, { y: -114, dir: 1, text: __dialogueText("scenes/homeCity/HomeCityExtras.js", "t_162bb3fee49d38655809"), c: 0x2f5a4a },
+  { y: -88, dir: -1, text: __dialogueText("scenes/homeCity/HomeCityExtras.js", "t_450cde2ef8d100697033"), c: 0x2f4a6b }, { y: -62, dir: 1, text: __dialogueText("scenes/homeCity/HomeCityExtras.js", "t_ff10a7186aff87fc1a1f"), c: 0x5a2f3a }
 ];
 const BUBBLES = {
-  ped0: ['I saw nothing. Obviously.', 'Never read the crossword. It is a trap.', 'Detective? I read about you. Briefly.'],
-  ped1: ['That pigeon owes me money.', 'Nice hat. Is it evidence?', 'Everyone here is a suspect. Especially Gary.'],
-  ped2: ['My balloon is a witness!', 'It was the butler. It is always the butler.', 'Where is your dog, detective?'],
-  dog: ['Woof. (I know where the bodies are buried. Everywhere.)', 'Woof. (That lamp post is guilty.)'],
-  taxi: ['HONK!', 'WATCH IT, GUMSHOE!', 'Taxi! ...Is occupied. By me. Move.'],
-  van: ['BEEP BEEP! Special delivery!', 'Sign here. Or do not. I am late.'],
-  cat: ['Meow. (Translation: you are late.)', 'Meow. (Translation: invoices are due.)']
+  ped0: [__dialogueText("scenes/homeCity/HomeCityExtras.js", "t_5b266269adba248a8dc4"), __dialogueText("scenes/homeCity/HomeCityExtras.js", "t_7f531918a30fefcf5de4"), __dialogueText("scenes/homeCity/HomeCityExtras.js", "t_0d28c20513765a3bda6b")],
+  ped1: [__dialogueText("scenes/homeCity/HomeCityExtras.js", "t_8758b6c0fac642e97e18"), __dialogueText("scenes/homeCity/HomeCityExtras.js", "t_5a15b299dbe6cb25b0b4"), __dialogueText("scenes/homeCity/HomeCityExtras.js", "t_a93d3d47b40f5b4520ad")],
+  ped2: [__dialogueText("scenes/homeCity/HomeCityExtras.js", "t_21d4572d86d781b3e3f8"), __dialogueText("scenes/homeCity/HomeCityExtras.js", "t_fa9d005d1cc9bb6e6dda"), __dialogueText("scenes/homeCity/HomeCityExtras.js", "t_f6582769664c57c17e24")],
+  dog: [__dialogueText("scenes/homeCity/HomeCityExtras.js", "t_538981c1a6ed81a52655"), __dialogueText("scenes/homeCity/HomeCityExtras.js", "t_49ec9225f60301ade88b")],
+  taxi: [__dialogueText("scenes/homeCity/HomeCityExtras.js", "t_431b649bf45eedaa490b"), __dialogueText("scenes/homeCity/HomeCityExtras.js", "t_78c39fdb1478fe0827ee"), __dialogueText("scenes/homeCity/HomeCityExtras.js", "t_84c4660ba7facdde2397")],
+  van: [__dialogueText("scenes/homeCity/HomeCityExtras.js", "t_7ddb6534347eccb4cbf5"), __dialogueText("scenes/homeCity/HomeCityExtras.js", "t_4f365662dd998bf6857a")],
+  cat: [__dialogueText("scenes/homeCity/HomeCityExtras.js", "t_cd95a9813832102cf65a"), __dialogueText("scenes/homeCity/HomeCityExtras.js", "t_9352681e08e6ad784cca")]
 };
 
 const BRONZE = 0x6f8f7c;
@@ -45,7 +46,7 @@ Object.assign(PROP_ART, {
     circle(ctx, 18, -50, 10, BRONZE); poly(ctx, pp([27, -50], [38, -46], [27, -44]), 0xc7a24a); circle(ctx, 22, -53, 1.8, 0x10201a);
     ellipse(ctx, 18, -58, 16, 4, 0x4d6a5c); rect(ctx, 10, -72, 16, 13, 0x4d6a5c); rect(ctx, 10, -64, 16, 3, 0x34493f);
     line(ctx, -20, -30, -34, -46, 0x4d6a5c, 3); ctx.strokeStyle = css(0xc7a24a); ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(-39, -52, 8, 0, Math.PI * 2); ctx.stroke();
-    for (let i = 0; i < 6; i++) rect(ctx, -16 + hash(i, 1, 3) * 34, -42 + hash(i, 2, 3) * 20, 3, 2, 'rgba(180,220,200,.35)');
+    for (let i = 0; i < 6; i++) rect(ctx, -16 + hash(i, 1, 3) * 34, -42 + hash(i, 2, 3) * 20, 3, 2, __dialogueText("scenes/homeCity/HomeCityExtras.js", "t_6dada1b487bba0b1c33d"));
     ctx.restore();
   } },
   signpost: { w: 150, h: 190, ax: 75, ay: 176, draw(ctx) {
@@ -53,7 +54,7 @@ Object.assign(PROP_ART, {
     circle(ctx, 0, -154, 5, 0xc7a24a);
     for (const b of SIGN_BOARDS) {
       const d = b.dir, h = 21, pts = d > 0 ? pp([-8, b.y], [50, b.y], [64, b.y + h / 2], [50, b.y + h], [-8, b.y + h]) : pp([8, b.y], [-50, b.y], [-64, b.y + h / 2], [-50, b.y + h], [8, b.y + h]);
-      poly(ctx, pts, b.c, dark(b.c, 0.5), 1.5); line(ctx, d > 0 ? -6 : 6, b.y + 2, d > 0 ? 48 : -48, b.y + 2, 'rgba(255,255,255,.22)', 1.5);
+      poly(ctx, pts, b.c, dark(b.c, 0.5), 1.5); line(ctx, d > 0 ? -6 : 6, b.y + 2, d > 0 ? 48 : -48, b.y + 2, __dialogueText("scenes/homeCity/HomeCityExtras.js", "t_ae7f66dc0e0b56eeeb80"), 1.5);
     }
   } },
   cart: { w: 150, h: 190, ax: 75, ay: 168, draw(ctx) {
@@ -142,7 +143,7 @@ export class HomeCityExtras extends HomeCityAmbient {
       this.cat = { sp, tail, cx: pi.x + 1, cy: front, sayAt: 4000 };
     }
     // leaves, steam ----------------------------------------------------------
-    const leaf = this.bake('leaf', 12, 8, ctx => { ellipse(ctx, 6, 4, 5, 3, 0xffffff); line(ctx, 1, 4, 11, 4, 'rgba(0,0,0,.3)', 1); });
+    const leaf = this.bake('leaf', 12, 8, ctx => { ellipse(ctx, 6, 4, 5, 3, 0xffffff); line(ctx, 1, 4, 11, 4, __dialogueText("scenes/homeCity/HomeCityExtras.js", "t_849be53e783796fe4e8e"), 1); });
     let trees = 0;
     for (const p of s.props) {
       if (p.kind !== 'tree' || p.variant !== 2 || trees >= 5 || !leaf) continue;
@@ -165,7 +166,7 @@ export class HomeCityExtras extends HomeCityAmbient {
       if (p.kind !== 'signpost' || this.has('hc_prop_signpost')) return;
       const a = PROP_ART.signpost, c = this.pt(p.x, p.y);
       const key = this.bake(`signtext${i}`, a.w, a.h, ctx => {
-        ctx.font = `11px ${FONT_UI}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = css(0xf6e7c1);
+        ctx.font = `${__dialogueText("scenes/homeCity/HomeCityExtras.js", "t_aea790759be5a7c00f67")}${FONT_UI}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = css(0xf6e7c1);
         for (const b of SIGN_BOARDS) ctx.fillText(b.text, b.dir > 0 ? 20 : -20, b.y + 11);
       }, -a.ax, -a.ay);
       if (key) s.add.image(c.x, c.y, key).setOrigin(a.ax / a.w, a.ay / a.h).setDepth((p.x + p.y) * 100 + 1.2);

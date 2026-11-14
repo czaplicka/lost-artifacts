@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 // MainStoryData.js
 // Etapy głównego śledztwa, uporządkowane według postępu gracza,
 // a nie chronologii wydarzeń z przeszłości bohatera.
@@ -26,9 +27,9 @@ export const MAIN_STORY_STAGES = [
   {
     id: 'joined_agency',
     order: 0,
-    title: 'Inside Mark Agency',
+    title: __dialogueText("MainStoryData.js", "t_b9d590b2f2dc65eba944"),
     description:
-      'You are already working at Mark Agency, investigating what happened to your client’s missing husband.',
+      __dialogueText("MainStoryData.js", "t_9ec22fcf1598854b6bc6"),
     unlocks: {
       locations: ['mark_agency_office'],
       npcs: ['partner_murphy', 'archivist_drebin']
@@ -37,9 +38,9 @@ export const MAIN_STORY_STAGES = [
   {
     id: 'learned_dead',
     order: 1,
-    title: 'Reported Dead',
+    title: __dialogueText("MainStoryData.js", "t_8ce464107be939713060"),
     description:
-      'You learn that the missing husband reportedly died during an artifact recovery mission.',
+      __dialogueText("MainStoryData.js", "t_dae9ea487eaff4aaec99"),
     requiredFlags: ['joined_agency'],
     unlocks: {
       npcs: ['hr_gunderson']
@@ -48,9 +49,9 @@ export const MAIN_STORY_STAGES = [
   {
     id: 'found_faked_death_clue',
     order: 2,
-    title: 'Something Does Not Add Up',
+    title: __dialogueText("MainStoryData.js", "t_686084d25acd97afd223"),
     description:
-      'You discover an inconsistency that casts doubt on the account of his death.',
+      __dialogueText("MainStoryData.js", "t_5f853804a44b1334c117"),
     requiredFlags: ['learned_dead'],
     unlocks: {
       npcs: ['supervisor_gordon']
@@ -59,9 +60,9 @@ export const MAIN_STORY_STAGES = [
   {
     id: 'confirmed_faked_death',
     order: 3,
-    title: 'A Staged Death',
+    title: __dialogueText("MainStoryData.js", "t_c39188209da7c6c70dfb"),
     description:
-      'You establish that the husband is alive and faked his death.',
+      __dialogueText("MainStoryData.js", "t_4d30f1b72fb6d4c9ea22"),
     requiredFlags: ['found_faked_death_clue'],
     unlocks: {
       npcs: ['informant_underground']
@@ -70,9 +71,9 @@ export const MAIN_STORY_STAGES = [
   {
     id: 'learned_wife_is_threat',
     order: 4,
-    title: 'The Threat at Home',
+    title: __dialogueText("MainStoryData.js", "t_f1150429c37e4f7a32b3"),
     description:
-      'You discover that your client tried to kill her husband. He faked his death to escape her.',
+      __dialogueText("MainStoryData.js", "t_787926633abf2d2d26fb"),
     requiredFlags: ['confirmed_faked_death'],
     unlocks: {
       npcs: ['doctor_lecter']
@@ -81,25 +82,25 @@ export const MAIN_STORY_STAGES = [
   {
     id: 'confronted_husband',
     order: 5,
-    title: 'His Side of the Story',
+    title: __dialogueText("MainStoryData.js", "t_2689075be73e3a0975ae"),
     description:
-      'You find the husband and hear his account of what happened.',
+      __dialogueText("MainStoryData.js", "t_d547e34e93a4674f30c3"),
     requiredFlags: ['learned_wife_is_threat']
   },
   {
     id: 'final_decision_pending',
     order: 6,
-    title: 'The Final Decision',
+    title: __dialogueText("MainStoryData.js", "t_db4d545dc066f680d5e5"),
     description:
-      'You must decide whether to arrest your client or let her go.',
+      __dialogueText("MainStoryData.js", "t_40f847c31aafca6a84df"),
     requiredFlags: ['confronted_husband']
   },
   {
     id: 'completed',
     order: 7,
-    title: 'Case Closed',
+    title: __dialogueText("MainStoryData.js", "t_7277eb50f47cadb853fa"),
     description:
-      'The investigation has ended. Its outcome depends on your final decision.',
+      __dialogueText("MainStoryData.js", "t_e0b20f8b74368318034b"),
     requiredFlags: ['final_decision_pending']
   }
 ];

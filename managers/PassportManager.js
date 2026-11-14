@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // PassportManager.js
 // Zarządza paszportem gracza: pieczątki wjazdowe, numer paszportu, statystyki podróży.
 
@@ -19,21 +20,21 @@ const STAMP_INK_COLORS = [0xb5324a, 0x2e4a8f, 0x2f6b3c, 0x7a3fa0, 0x8a5a20];
 
 // Żartobliwe dopiski celnika - dodają humoru bez wpływu na gameplay.
 const CUSTOMS_JOKES = [
-  "Nothing to declare (allegedly).",
-  "Welcome. Please don't steal anything WE own.",
-  "Occupation listed as 'Detective'. Sure, buddy.",
-  "Random search: waived. You looked too tired to lie.",
-  "Enjoy your stay. Try not to get arrested this time.",
-  "Officer napped through the whole inspection.",
-  "Suspiciously average amount of luggage.",
-  "Your tie is crooked. Also, welcome.",
-  "Passport photo does you no favors.",
-  "We noted your name. We always note the names.",
-  "Local currency exchange rate: still terrible.",
-  "Please keep all stolen artifacts in checked baggage.",
-  "Stamped without reading a single word. Efficiency!",
-  "Second visit this month? Someone's popular. Or wanted.",
-  "Customs officer whistled the theme from a spy movie."
+  __dialogueText("managers/PassportManager.js", "t_6f61f6acda49016bc75d"),
+  __dialogueText("managers/PassportManager.js", "t_c116b1d466ac646d5b98"),
+  __dialogueText("managers/PassportManager.js", "t_ea770cdef4eafc545cc6"),
+  __dialogueText("managers/PassportManager.js", "t_7ec43a935b1ee642e2af"),
+  __dialogueText("managers/PassportManager.js", "t_5615a580c7bc11d17c12"),
+  __dialogueText("managers/PassportManager.js", "t_461706b5c72654ff122e"),
+  __dialogueText("managers/PassportManager.js", "t_28f3af86d8ce4be98170"),
+  __dialogueText("managers/PassportManager.js", "t_2dcc7e3acd19b889df6d"),
+  __dialogueText("managers/PassportManager.js", "t_33e5d1c7e7058f8b5d74"),
+  __dialogueText("managers/PassportManager.js", "t_85777277ae0942e4ab53"),
+  __dialogueText("managers/PassportManager.js", "t_8b99042d677f163b7c2b"),
+  __dialogueText("managers/PassportManager.js", "t_b5adff3c08dc910dac24"),
+  __dialogueText("managers/PassportManager.js", "t_9bdb5af0ea6d93e36249"),
+  __dialogueText("managers/PassportManager.js", "t_d36db979429eb2c3e7a5"),
+  __dialogueText("managers/PassportManager.js", "t_880976a90659afe032e1")
 ];
 
 
@@ -70,7 +71,7 @@ function formatStampDate(state = gameState) {
 
   return {
     gameDay,
-    label: `${dayOfMonth} ${monthAbbr} ${year}`,
+    label: `${dayOfMonth}${__dialogueText("managers/PassportManager.js", "t_36a9e7f1c95b82ffb997")}${monthAbbr}${__dialogueText("managers/PassportManager.js", "t_36a9e7f1c95b82ffb997")}${year}`,
     short: `${dayOfMonth}/${String(date.getMonth() + 1).padStart(2, '0')}`
   };
 }
@@ -96,7 +97,7 @@ function ensurePassportState() {
   if (!passport || typeof passport !== 'object') {
     passport = {
       passportNumber: null,
-      holderName: gameState.playerName || 'J. Doe',
+      holderName: gameState.playerName || __dialogueText("managers/PassportManager.js", "t_e0a02c1bb6d91c075174"),
       issuedDayLabel: null,
       stamps: []
     };
@@ -141,7 +142,7 @@ class PassportManager {
     if (typeof gameState.playerName === 'string' && gameState.playerName.trim()) {
       return gameState.playerName.trim();
     }
-    return passport.holderName || 'J. Doe';
+    return passport.holderName || __dialogueText("managers/PassportManager.js", "t_e0a02c1bb6d91c075174");
   }
 
 
@@ -162,7 +163,7 @@ class PassportManager {
   getPlayerRank() {
     return (typeof gameState.playerRank === 'string' && gameState.playerRank.trim())
       ? gameState.playerRank.trim()
-      : 'Junior Agent';
+      : __dialogueText("managers/PassportManager.js", "t_bf32e97cd768b3cc39be");
   }
 
 
@@ -235,7 +236,7 @@ class PassportManager {
       stampId: `${locationData.id}_${dateInfo.gameDay}_${Date.now()}`,
       locationId: locationData.id,
       city: locationData.city || locationData.name || locationData.id,
-      country: locationData.country || 'Unknown Country',
+      country: locationData.country || __dialogueText("managers/PassportManager.js", "t_2ee34ccaadf588da063b"),
       travelRegion: locationData.travelRegion || null,
       gameDay: dateInfo.gameDay,
       dateLabel: dateInfo.label,
@@ -279,7 +280,7 @@ class PassportManager {
     if (!savedPassportState) return;
     gameState.passport = {
       passportNumber: savedPassportState.passportNumber || null,
-      holderName: savedPassportState.holderName || gameState.playerName || 'J. Doe',
+      holderName: savedPassportState.holderName || gameState.playerName || __dialogueText("managers/PassportManager.js", "t_e0a02c1bb6d91c075174"),
       issuedDayLabel: savedPassportState.issuedDayLabel || null,
       stamps: Array.isArray(savedPassportState.stamps) ? savedPassportState.stamps : []
     };

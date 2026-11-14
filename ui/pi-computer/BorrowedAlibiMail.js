@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import './AlibiSearchExpansion.js';
 import { gameState } from '../../GameData.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
@@ -13,137 +14,26 @@ const EVELYN = 'alibi_forward_evelyn';
 const LEGACY_ATTACHMENT = 'alibi_arthur_attachment';
 const REPLY_DELAY_MS = 10000;
 const VARIANTS = [
-  { label: 'PROFESSIONAL', body: 'I am responding to your advertisement. Please forward all three original requests, including sender details and any attachments. Please describe where and when you actually ate on Tuesday.' },
-  { label: 'FRIENDLY', body: 'I can help investigate your unexpected social life. Please send the three original messages and any attached documents. Tell me where and when you really had dinner on Tuesday.' },
-  { label: 'DIRECT', body: 'Three dinner companions is a lot to acquire by accident. Forward their original messages, with sender details and attachments. I also need the restaurant and time of your actual dinner.' }
+  { label: __dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_4d06f42d4f337548ffed"), body: __dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_8c9e768e46f41b3676c3") },
+  { label: __dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_e2220ace54b5605cdfdd"), body: __dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_75e319312082ddf705b7") },
+  { label: __dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_5b196d41da99d8a63f73"), body: __dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_c2c05f9a0bd424560a56") }
 ];
-const EVELYN_DOCUMENT = `Tuesday dinner, 7:00–9:00 p.m.
-The Copper Spoon, table six.
-Companion: Arthur Finch.
-Meal: tomato soup.
-The waiter says: “Our chef believes in second chances.”
-Arthur spills red wine on the tablecloth.
-
-DOCUMENT FOOTER
-Tuesday package — revision 2.
-Remove before forwarding.`;
+const EVELYN_DOCUMENT = `${__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_ac4946c583aa992f77a4")}`;
 const INCOMING = [
-  { id: 'alibi_arthur_reply', from: 'Arthur Finch via Box 17', subject: 'Re: Someone has been using my alibi', body: `Detective,
-
-My name is Arthur Finch. I had dinner alone at The Copper Spoon on Tuesday, from about 7:00 to 8:00 p.m. A cheese sandwich and sparkling water. This is not a confession.
-
-I have forwarded the three requests separately. I do not know these people and never agreed to confirm their stories.
-
-Evelyn's document is included with her forwarded message. I have kept the original text and footer intact.
-
-You have my permission to release my receipt for that Tuesday visit. The classifieds relay may forward this signed authorisation to the restaurant with your request.
-
-Apparently we all had a delightful evening. Please establish whether I enjoyed myself.
-
-Arthur Finch
-
-Enclosures: Nora Bell’s request; Simon Pike’s request; Evelyn Shaw’s request with its attached dinner document.` },
-  { id: 'alibi_forward_nora', from: 'Arthur Finch → forwarded: Nora Bell', subject: 'Dinner confirmation — Nora Bell', body: `FORWARDED ORIGINAL MESSAGE
-From: Nora Bell <nora.bell@post.local>
-To: Arthur Finch
-Subject: Tuesday dinner
-
-Dear Mr Finch,
-
-If anyone asks, could you confirm we had dinner at The Copper Spoon on Tuesday, from 7:00 to 9:00 p.m.?
-
-Table six, tomato soup, and the waiter saying, “Our chef believes in second chances.” You spilled red wine on the tablecloth.
-
-I would be very grateful. My sister can be quite persistent.
-
-Nora Bell` },
-  { id: 'alibi_forward_simon', from: 'Arthur Finch → forwarded: Simon Pike', subject: 'Dinner confirmation — Simon Pike', body: `FORWARDED ORIGINAL MESSAGE
-From: Simon Pike <simon.pike@post.local>
-To: Arthur Finch
-Subject: A small favour
-
-Hello Arthur,
-
-Please confirm our Tuesday dinner at The Copper Spoon if my employer calls. We were there from 7:00 to 9:00 p.m.
-
-Table six. Tomato soup. The waiter said, “Our chef believes in second chances.” Then you spilled red wine on the tablecloth.
-
-A very productive evening. Strategically speaking.
-
-Simon Pike` },
-  { id: EVELYN, from: 'Arthur Finch → forwarded: Evelyn Shaw', subject: 'Dinner confirmation — Evelyn Shaw',
-    attachments: [{ id: 'evelyn_dinner_document', name: 'Dinner confirmation — original document', type: 'text', body: EVELYN_DOCUMENT }],
-    body: `FORWARDED ORIGINAL MESSAGE
-From: Evelyn Shaw <evelyn.shaw@post.local>
-To: Arthur Finch
-Subject: Confirmation required
-
-Mr Finch,
-
-Please confirm that we dined at The Copper Spoon on Tuesday between 7:00 and 9:00 p.m.
-
-We sat at table six and ordered tomato soup. The waiter said, “Our chef believes in second chances.” You spilled red wine on the tablecloth.
-
-There is no need to provide details beyond those above.
-
-Evelyn Shaw
-
-----------------------------------------
-ATTACHED DOCUMENT — TRANSCRIPTION
-Dinner confirmation — original document
-----------------------------------------
-
-${EVELYN_DOCUMENT}
-
------ END OF ATTACHED DOCUMENT -----` }
+  { id: 'alibi_arthur_reply', from: __dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_178bf8d7d14682ceb2df"), subject: __dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_59fd9fdf8f7cdc3b8386"), body: `${__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_fc75be98139b2a2383ef")}` },
+  { id: 'alibi_forward_nora', from: __dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_2550c07939561a84d7fb"), subject: __dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_991253d67f22cfcc5e63"), body: `${__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_3986d81e88a159a19af3")}` },
+  { id: 'alibi_forward_simon', from: __dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_54caa2a0a70a171c141a"), subject: __dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_e8cd7d1d43f8f965818b"), body: `${__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_ca1c7bf8414a7bc23084")}` },
+  { id: EVELYN, from: __dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_6b1d205a3f4ca4e3c625"), subject: __dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_54df1c620fc385e2b5eb"),
+    attachments: [{ id: 'evelyn_dinner_document', name: __dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_876f83c4b96bb990de33"), type: 'text', body: EVELYN_DOCUMENT }],
+    body: `${__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_a905a3fa1b38d5efa7d1")}${EVELYN_DOCUMENT}${__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_6dbf7b030cf3c274bca8")}` }
 ];
 const RECEIPT = {
-  id: 'alibi_copper_receipt', from: 'The Copper Spoon — Manager', subject: 'Authorised copy: Arthur Finch’s Tuesday receipt',
-  body: `COPY — supplied with Arthur Finch’s permission
-
-THE COPPER SPOON
-Tuesday evening
-Receipt CS-TUE-061
-Table 6 — one guest
-Opened 19:04 | Paid 19:48
-
-Cheese sandwich ........ $8.00
-Sparkling water ....... $3.00
-TOTAL ................ $11.00
-
-Dining-room cover record: one guest; no additional covers opened at this table during this visit.
-
-Service note: kitchen failure. No hot food served throughout Tuesday evening.
-
-The receipt records this customer’s visit and order. It does not establish where the three other people actually were.
-
-Manager, The Copper Spoon`
+  id: 'alibi_copper_receipt', from: __dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_7568bf152928ba221688"), subject: __dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_d6e970c92c63cc3f72c7"),
+  body: `${__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_04da0f6a3c8cbc44dbe2")}`
 };
 const SAMPLE = {
-  id: 'alibi_club_sample', from: 'Tuesday Alibi Club — Membership', subject: 'Your free sample: Dinner Companion / TUE-DC-02',
-  body: `DEMONSTRATION ONLY — NO PURCHASE
-Tuesday Alibi Club
-Dinner Companion package
-Tuesday package — revision 2
-Reference: TUE-DC-02
-
-Claimed companion: Arthur Finch
-Venue: The Copper Spoon
-Day: Tuesday
-Time: 7:00 to 9:00 p.m.
-Table: six
-Meal: tomato soup
-Memorable incident: Arthur spilled red wine on the tablecloth.
-Waiter’s remark: “Our chef believes in second chances.”
-
-The package supplies an account to repeat. The named companion has not been contacted or asked to confirm it.
-
-This demonstration was sent at your request. No payment has been taken and no subscription opened.
-
-This template does not disclose who purchased it or what they actually did on Tuesday.
-
-Tuesday Alibi Club
-Yesterday, improved.`
+  id: 'alibi_club_sample', from: __dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_e3b7fbadff64acdaace3"), subject: __dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_bb2ea4fd38957e3becaa"),
+  body: `${__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_002a2a2781898dd8291b")}`
 };
 const MAIL_IDS = new Set([DRAFT, SENT, RECEIPT.id, LEGACY_ATTACHMENT, SAMPLE.id, ...INCOMING.map(m => m.id)]);
 
@@ -333,7 +223,7 @@ export class BorrowedAlibiMail {
     if (!this.isAlive() || !this.state.sent || this.replyReceived) return;
     this.clearReplyTimer();
     this.update({replyReceived:true,replyReceivedAt:new Date().toISOString()});
-    this.ui.notice='Arthur replied. The three forwarded requests are in Mail; Evelyn’s document is included with her message.';
+    this.ui.notice=__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_697d793c7e423554303d");
     queueMicrotask(()=>this.refresh());
   }
   install() {
@@ -346,13 +236,13 @@ export class BorrowedAlibiMail {
       const state=this.state, own=[];
       if(state.sent){
         if(this.replyReceived){
-          if(this.sampleAvailable)own.push({...SAMPLE,date:'Received after your club enquiry'});
-          if(this.receivedReceipt)own.push({...RECEIPT,date:'Received after restaurant enquiry'});
-          own.push(...INCOMING.map(m=>({...m,date:'Received after your Box 17 reply'})));
+          if(this.sampleAvailable)own.push({...SAMPLE,date:__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_1e7fbd89bf9ba9783032")});
+          if(this.receivedReceipt)own.push({...RECEIPT,date:__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_49b48aedb5bc77f8f750")});
+          own.push(...INCOMING.map(m=>({...m,date:__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_31fafdd0f4fd5f7accbd")})));
         }
-        own.push({id:SENT,from:'You → Classifieds relay, Box 17',subject:'Re: Someone has been using my alibi',date:'Sent',body:state.sentBody||VARIANTS[state.variant].body});
+        own.push({id:SENT,from:__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_5c39cb758999eab795c0"),subject:__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_59fd9fdf8f7cdc3b8386"),date:__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_c16bc82bf1f04ede04d1"),body:state.sentBody||VARIANTS[state.variant].body});
       }else if(this.active){
-        own.push({id:DRAFT,from:'Reply via Classifieds — Box 17',subject:'Re: Someone has been using my alibi',date:'Draft reply',body:'TO: Box 17 — Classifieds forwarding service\n\n'+VARIANTS[state.variant].body+'\n\n— Private Investigator\n\nChoose a tone, then SEND REPLY.'});
+        own.push({id:DRAFT,from:__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_39ea6080e43854221604"),subject:__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_59fd9fdf8f7cdc3b8386"),date:__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_0206396e59af519ae2d7"),body:__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_a4fe6ab1bf6a2dc83671")+VARIANTS[state.variant].body+__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_59a8dc6f42f61b95a216")});
       }
       return [...own,...items.filter(m=>!MAIL_IDS.has(m.id))];
     });
@@ -370,8 +260,8 @@ export class BorrowedAlibiMail {
       if(this.isEvidence()&&!u.search?.data&&!u.search?.loading&&!u.search?.error)this.loadSearch();
       if(this.isDraft()){
         const b=u.window, by=b.y+b.h-90;
-        u.drawing.button(b.x+298,by,'TONE: '+VARIANTS[this.state.variant].label,()=>{this.update({variant:(this.state.variant+1)%VARIANTS.length});u.bodyPage=0;this.refresh();});
-        u.drawing.button(b.x+b.w-190,by,'SEND REPLY',()=>this.send());
+        u.drawing.button(b.x+298,by,__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_c0d765f8cbee13ced336")+VARIANTS[this.state.variant].label,()=>{this.update({variant:(this.state.variant+1)%VARIANTS.length});u.bodyPage=0;this.refresh();});
+        u.drawing.button(b.x+b.w-190,by,__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_bd79fc30a8d3407b51d7"),()=>this.send());
       }
       if(this.isEvidence()) {
         const read = this.state.read;
@@ -380,7 +270,7 @@ export class BorrowedAlibiMail {
       }
       if(u.app==='classifieds'&&this.active&&!this.state.sent&&docs.getClassifieds?.().find(a=>a.id===u.selectedId)?.missionId===QUEST){
         const b=u.window;
-        u.drawing.button(b.x+b.w-270,b.y+b.h-101,'REPLY TO AD',()=>{
+        u.drawing.button(b.x+b.w-270,b.y+b.h-101,__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_3759b2884c0dcf2e68c3"),()=>{
           Object.assign(u,{app:'mail',selectedId:DRAFT,listPage:0,bodyPage:0,notice:''});u.viewToken=(Number(u.viewToken)||0)+1;this.refresh();
         });
       }
@@ -394,14 +284,14 @@ export class BorrowedAlibiMail {
   send() {
     if(!this.isAlive()||!this.active||this.state.sent)return;
     const now=Date.now();
-    this.update({sent:true,sentBody:VARIANTS[this.state.variant].body+'\n\n— Private Investigator',sentAt:new Date(now).toISOString(),replyDueAt:now+REPLY_DELAY_MS,replyReceived:false,replyReceivedAt:null,read:[],evelynAttachmentLayout:1});
+    this.update({sent:true,sentBody:VARIANTS[this.state.variant].body+__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_c8bf4236243a3cec24e1"),sentAt:new Date(now).toISOString(),replyDueAt:now+REPLY_DELAY_MS,replyReceived:false,replyReceivedAt:null,read:[],evelynAttachmentLayout:1});
     const quest=getPIQuest(QUEST);
     if(quest){
       const state=gameState.piQuests||{};
       gameState.piQuests={...state,quests:{...(state.quests||{}),[QUEST]:{...quest,objectives:Array.isArray(quest.objectives)?quest.objectives.map(o=>o.id==='contact_client'?{...o,completed:true}:o):quest.objectives}}};
       requestAutosave();
     }
-    Object.assign(this.ui,{selectedId:SENT,listPage:0,bodyPage:0,notice:'Reply sent. Arthur will forward the original messages with their attachments.'});
+    Object.assign(this.ui,{selectedId:SENT,listPage:0,bodyPage:0,notice:__dialogueText("ui/pi-computer/BorrowedAlibiMail.js", "t_49ff1f58db7c36e718be")});
     this.syncReplyDelivery();this.refresh();
   }
   destroy() {

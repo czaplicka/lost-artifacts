@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 const FONT_TITLE = 'PressStart2P';
 const FONT_BODY = 'SpecialElite';
 
@@ -118,7 +119,7 @@ export class OfficeDoorSigns {
     }
 
     const chevron = scene.add
-      .text(SIGN_W - 22, SIGN_H / 2, '>', {
+      .text(SIGN_W - 22, SIGN_H / 2, __dialogueText("scenes/office/OfficeDoorsigns.js", "t_62b67e1f685b7fef5110"), {
         fontFamily: FONT_TITLE,
         fontSize: '14px',
         color: '#f2d477'

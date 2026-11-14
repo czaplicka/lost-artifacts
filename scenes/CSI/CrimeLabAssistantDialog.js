@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 // scenes/CSI/CrimeLabAssistantDialog.js
 // Retro-terminal dialogue for the Crime Lab assistant.
 //
@@ -35,7 +36,7 @@ const MOODS = {
   smug: ['[^_~]', '[^o~]'],
   happy: ['[^_^]', '[^o^]'],
   panic: ['[O_O]', '[O0O]'],
-  tired: ['[x_x]', '[x.x]'],
+  tired: ['[x_x]', __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_57b0452fb4a17e50ee93")],
   proud: ['[*_*]', '[*o*]'],
   suspicious: ['[-_O]', '[-oO]']
 };
@@ -217,7 +218,7 @@ export class CrimeLabAssistantDialog {
       fontFamily: FONT_UI, fontSize: '9px', color: '#39ff14'
     }).setOrigin(0, 0);
 
-    this.hintText = s.add.text(left + w - 16, top + 11, '[ CLOSE ]', {
+    this.hintText = s.add.text(left + w - 16, top + 11, __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_368d075bc49762386ec9"), {
       fontFamily: FONT_UI, fontSize: '8px', color: '#ffcc00'
     }).setOrigin(1, 0).setInteractive({ useHandCursor: true });
     this.hintText.on('pointerdown', (p, x, y, event) => {
@@ -231,7 +232,7 @@ export class CrimeLabAssistantDialog {
 
     const showKeys = Boolean(s.sys.game.device?.os?.desktop) && w >= 640;
     this.keyHint = showKeys
-      ? s.add.text(0, top + 14, 'SPACE skip   1-4 answer', {
+      ? s.add.text(0, top + 14, __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_0ee1f386c927e01b14b0"), {
           fontFamily: FONT_UI, fontSize: '7px', color: '#5f7f6a'
         }).setOrigin(0, 0)
       : null;
@@ -347,12 +348,12 @@ export class CrimeLabAssistantDialog {
       const pending = this.scene?.getPendingAssistantCount?.() || 0;
       return pending
         ? pick([
-            'The delegated reports are not ready yet. I do not read out unverified findings. I have a reputation. It is small, but it is mine.',
-            'Delegated reports are still in progress. No unverified findings will be read out, however nicely you ask.'
+            __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_32fffe82bc2e53aa6ecd"),
+            __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_3a5852aac6b0986e7348")
           ])
         : pick([
-            'Nothing was delegated on this case. The workstations are all yours. Congratulations, I suppose.',
-            'No delegated reports for this case. The workstations are yours. Please do not name any of them.'
+            __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_40c755d9880ed14b1672"),
+            __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_2f45d446c4e010a0c9af")
           ]);
     }
 
@@ -364,16 +365,16 @@ export class CrimeLabAssistantDialog {
     const pending = this.scene?.getPendingAssistantCount?.() ?? 0;
 
     let text;
-    if (remaining > 1) text = `${remaining} analyses remain for you. Follow the station labels. They are mostly right.`;
-    else if (remaining === 1) text = 'One analysis remains for you. One. You have this.';
-    else text = 'Your assigned analyses are complete.';
+    if (remaining > 1) text = `${remaining}${__dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_6b1fd29009b2eb28e0c7")}`;
+    else if (remaining === 1) text = __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_5f5af2fa5725f708416c");
+    else text = __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_9751ce44a985169659e9");
 
     if (pending) {
-      return `${text}\n${pending} delegated ${plural(pending, 'report is', 'reports are')} still pending.`;
+      return `${text}${__dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_01ba4719c80b6fe911b0")}${pending}${__dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_4cb80ca8309f49e83b4f")}${plural(pending, __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_82812bc7da9a90351756"), __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_6b2563c49802652fefa2"))}${__dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_f497f557f53b657cf702")}`;
     }
 
     if (!remaining) {
-      return 'All required reports are recorded. The evidence is ready for your review. Please nobody touch anything else.';
+      return __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_1f58ae971d238297163f");
     }
 
     return text;
@@ -382,7 +383,7 @@ export class CrimeLabAssistantDialog {
   getTimeCostText(ctx) {
     const hours = Number(ctx.hours) || 0;
     if (hours <= 0) return '';
-    return `Heads up: the analyses still on your plate will cost about ${hours} ${plural(hours, 'hour', 'hours')} of case time. Science does not hurry, and the clock does not wait.`;
+    return `${__dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_078aae974076e91018f5")}${hours}${__dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_36a9e7f1c95b82ffb997")}${plural(hours, 'hour', 'hours')}${__dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_064ec361f5d1e6d0ce66")}`;
   }
 
   getProgressVerdictText(ctx) {
@@ -391,21 +392,21 @@ export class CrimeLabAssistantDialog {
 
     if (completed >= total) {
       return pick([
-        'Every analysis is on record and nothing has exploded. By lab standards, that is a glowing review. I may even stop sighing.',
-        'All results recorded. You are, statistically, my favourite visitor. The bar was a stapler. But still.'
+        __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_af1c0ce8daf8eb3dfe18"),
+        __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_3348d77e4b199aca197c")
       ]);
     }
 
     if (completed === 0) {
       return pick([
-        'Nothing analysed yet. Which is fine. Every case starts with a lot of nothing and a mildly judgemental assistant.',
-        'Zero analyses so far. The samples are patient. The clock is not. I am somewhere in between.'
+        __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_77cf7bd12cbcbd868198"),
+        __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_ee86fc3fd63eac7fd4b4")
       ]);
     }
 
     return pick([
-      `${completed} of ${total} analyses on record. Solid. Keep going and nobody has to write a strongly worded memo.`,
-      `${completed} out of ${total}. Not bad. Not a medal, but I would not take the certificate away either.`
+      `${completed}${__dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_a4282e4b2298b90b56f7")}${total}${__dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_8340181228444c7c5981")}`,
+      `${completed}${__dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_1f46dc2625be6d1bef44")}${total}${__dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_2f430e5e0eb80fa43f8b")}`
     ]);
   }
 
@@ -444,7 +445,7 @@ export class CrimeLabAssistantDialog {
     let list = this.extension?.augmentChoices ? this.extension.augmentChoices(this, base) : base;
     if (!Array.isArray(list)) list = base;
 
-    return list.length ? list : [{ text: 'Continue.', action: 'close' }];
+    return list.length ? list : [{ text: __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_f3daf2941865055833e9"), action: 'close' }];
   }
 
   paginateText(text) {
@@ -505,7 +506,7 @@ export class CrimeLabAssistantDialog {
     this.clearChoices();
     this.clearPagers();
 
-    this.speakerText.setText(node.speaker || 'LAB ASSISTANT').setColor(node.color || '#39ff14');
+    this.speakerText.setText(node.speaker || __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_c8e3674bd53680fa2602")).setColor(node.color || '#39ff14');
     this.updateKeyHint();
     this.setFace(false);
 
@@ -632,14 +633,14 @@ export class CrimeLabAssistantDialog {
     const L = this.layout;
     const y = L.pagerY;
 
-    this.pager(L.left + L.pad, y, '◀ BACK', () => {
+    this.pager(L.left + L.pad, y, __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_8c7b09f40643709607d6"), () => {
       this.textPage--;
       this.renderCurrentNode();
     }, this.textPage > 0);
 
     this.pager(L.left + L.width / 2, y, `${this.textPage + 1}/${this.textPages.length}`, null, false, 0.5);
 
-    const next = this.pager(L.left + L.width - L.pad, y, 'NEXT ▼', () => {
+    const next = this.pager(L.left + L.width - L.pad, y, __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_f17256f576e862d34a67"), () => {
       this.textPage++;
       this.renderCurrentNode();
     }, !last, 1);
@@ -693,7 +694,7 @@ export class CrimeLabAssistantDialog {
         fontFamily: FONT_UI, fontSize: '10px', color: '#ffcc00'
       }).setOrigin(0, 0.5);
 
-      const label = s.add.text(x + 34, y + rowHeight / 2, choice.text || 'Continue', {
+      const label = s.add.text(x + 34, y + rowHeight / 2, choice.text || __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_31fbef162594de01bab0"), {
         fontFamily: FONT_TEXT, fontSize: '17px', color: '#fff4c7',
         wordWrap: { width: w - 48, useAdvancedWrap: true }
       }).setOrigin(0, 0.5);
@@ -723,12 +724,12 @@ export class CrimeLabAssistantDialog {
 
     if (pages > 1) {
       const y = L.choiceStart + L.choiceArea - 12;
-      this.pager(L.left + L.pad, y, '◀ Answers', () => {
+      this.pager(L.left + L.pad, y, __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_aca14ae21feeeda4d338"), () => {
         this.choicePage--;
         this.renderCurrentNode();
       }, this.choicePage > 0);
       this.pager(L.left + L.width / 2, y, `${this.choicePage + 1}/${pages}`, null, false, 0.5);
-      this.pager(L.left + L.width - L.pad, y, 'Answers ▶', () => {
+      this.pager(L.left + L.width - L.pad, y, __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_de138c5cd258cb5bc1d1"), () => {
         this.choicePage++;
         this.renderCurrentNode();
       }, this.choicePage < pages - 1, 1);
@@ -764,7 +765,7 @@ export class CrimeLabAssistantDialog {
 
     const code = event.code;
 
-    if (code === 'Space' || code === 'Enter' || code === 'NumpadEnter') {
+    if (code === __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_20eac5aae274985fd886") || code === __dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_dc8659db6d416dc32fca") || code === 'NumpadEnter') {
       event.preventDefault();
       this.advance();
       return;

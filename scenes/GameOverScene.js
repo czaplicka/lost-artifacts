@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../gameStatePersistence.js';
 import { EventBus } from '../EventBus.js';
@@ -17,25 +18,25 @@ const ASSET_KEYS = [
   'officer_right_01', 'officer_right_02', 'paper_01', 'paper_02', 'paper_03',
   'police_car', 'pouch', 'thief', 'wall'
 ];
-const LEGACY_WRONG_ARREST_MESSAGE = 'Incorrect suspect detained. The real thief escaped before the bureau could act.';
-const LEGACY_MISSING_WARRANT_MESSAGE = 'Without a signed warrant, the agency could not act in time. ' +
-  'The thief escaped before the arrest team arrived.';
+const LEGACY_WRONG_ARREST_MESSAGE = __dialogueText("scenes/GameOverScene.js", "t_9046d6f0d000a468d137");
+const LEGACY_MISSING_WARRANT_MESSAGE = __dialogueText("scenes/GameOverScene.js", "t_08304ee57102f7ed1848") +
+  __dialogueText("scenes/GameOverScene.js", "t_5a91840746e019e7fdaf");
 const GAME_OVER_REASONS = {
-  trail_cold: { title: 'The trail has gone cold', message:
-    'The thief used the four days you spent in the crime city to buy a ticket, ' +
-    'a wig and a new personality.\n' +
-    'By the time you looked up, the trail was colder than the coffee at Mark Agency.' },
-  time_expired: { title: 'Time is up', message:
-    'Seven days. That is how long the thief needed to disappear, ' +
-    'and exactly how long you needed to be almost there.\n' +
-    'The artefact is gone. The paperwork, sadly, is not.' },
-  wrong_arrest: { title: 'Wrong person. Real consequences.', message:
-    'The bureau reviewed your report. You arrested the wrong person.\n' +
-    'The real thief escaped with the artefact. ' +
-    'An innocent person got a cell, and you got the paperwork.' },
-  missing_warrant: { title: 'No warrant. No arrest.', message:
-    'Without a signed warrant, the arrest team could not act.\n' +
-    'The thief escaped before the paperwork caught up.' }
+  trail_cold: { title: __dialogueText("scenes/GameOverScene.js", "t_bcaffa1374cae76d1496"), message:
+    __dialogueText("scenes/GameOverScene.js", "t_876436ed9207e0b65222") +
+    __dialogueText("scenes/GameOverScene.js", "t_a344e2591e1459120a90") +
+    __dialogueText("scenes/GameOverScene.js", "t_3ba79980c6f533594cc5") },
+  time_expired: { title: __dialogueText("scenes/GameOverScene.js", "t_f650a24d3933b4b0048c"), message:
+    __dialogueText("scenes/GameOverScene.js", "t_78d1b1c7701932d3277b") +
+    __dialogueText("scenes/GameOverScene.js", "t_300f54b13e93f8af1510") +
+    __dialogueText("scenes/GameOverScene.js", "t_309cd2e1f223f10e0618") },
+  wrong_arrest: { title: __dialogueText("scenes/GameOverScene.js", "t_f4434bb735732b0d7ff9"), message:
+    __dialogueText("scenes/GameOverScene.js", "t_0474d7765c381d1f8cc1") +
+    __dialogueText("scenes/GameOverScene.js", "t_8c2373e32fcbcc807781") +
+    __dialogueText("scenes/GameOverScene.js", "t_ee308efa897589a56172") },
+  missing_warrant: { title: __dialogueText("scenes/GameOverScene.js", "t_34cf6203d76c5d8d71a8"), message:
+    __dialogueText("scenes/GameOverScene.js", "t_c409940216ba60ade64b") +
+    __dialogueText("scenes/GameOverScene.js", "t_207ab8741ac82f1c9b30") }
 };
 function isKnownReason(value) {
   return typeof value === 'string' && Object.prototype.hasOwnProperty.call(GAME_OVER_REASONS, value);
@@ -60,13 +61,13 @@ export class GameOverScene extends BaseScene {
     else if (isKnownReason(savedReason)) this.reasonCode = savedReason;
     else this.reasonCode = this.resolveLegacyReason(savedReason);
     const known = isKnownReason(this.reasonCode) ? GAME_OVER_REASONS[this.reasonCode] : null;
-    this.titleTextValue = data.title || known?.title || 'You have failed the mission';
-    this.messageTextValue = data.message || known?.message || incomingReason || savedReason || 'The case has been lost.';
+    this.titleTextValue = data.title || known?.title || __dialogueText("scenes/GameOverScene.js", "t_d3d990d4a5fe150eb7d3");
+    this.messageTextValue = data.message || known?.message || incomingReason || savedReason || __dialogueText("scenes/GameOverScene.js", "t_88fb22daee7c62ae1cfe");
   }
   preload() {
     if (!this.cache.audio.exists(FAILURE_SFX_KEY)) this.load.audio(FAILURE_SFX_KEY, 'assets/audio/game_over.mp3');
     for (const key of ASSET_KEYS) {
-      if (!this.textures.exists(key)) this.load.image(key, `assets/game_over/${key}.webp`);
+      if (!this.textures.exists(key)) this.load.image(key, `${__dialogueText("scenes/GameOverScene.js", "t_716bbdf8577d9e3c100d")}${key}${__dialogueText("scenes/GameOverScene.js", "t_ed140d91e29553b83699")}`);
     }
     if (!this.textures.exists('btnContinue')) this.load.image('btnContinue', 'assets/continue.png');
   }
@@ -81,7 +82,7 @@ export class GameOverScene extends BaseScene {
     audioManager.stopAllVoice(); audioManager.stopAllSfx();
     this.applyGameOverConsequences();
     this.stage = this.add.container(0, 0); this.buildStreet(); this.buildMedallion(); this.buildResultPanel();
-    this.skipHint = this.add.text(960, 1015, 'CLICK TO SKIP INTRO', {
+    this.skipHint = this.add.text(960, 1015, __dialogueText("scenes/GameOverScene.js", "t_ad378c8c442bccfda0e9"), {
       fontFamily: 'SpecialElite', fontSize: '21px', color: '#cfba92'
     }).setOrigin(0.5);
     this.stage.add(this.skipHint); this.layoutStage();

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import {
   TicketAnalysisPanel as TicketAnalysisPanelBase
 } from './TicketAnalysisPanelBase.js';
@@ -193,17 +194,17 @@ export class TicketAnalysisPanel extends TicketAnalysisPanelBase {
     const opened = scene.assistantDialog.open({
       dialogue: {
         id: 'lab_evidence_handover',
-        defaultNodeId: '__evidence_result',
+        defaultNodeId: __dialogueText("scenes/CSI/TicketAnalysisPanel.js", "t_d898fd4e9b9ae1e0f3a1"),
 
         nodes: {
           __evidence_result: {
-            speaker: 'LAB ASSISTANT',
+            speaker: __dialogueText("scenes/CSI/TicketAnalysisPanel.js", "t_c8e3674bd53680fa2602"),
             text,
 
             choices: [
               {
-                text: 'Thanks. I will take it from here.',
-                action: 'close'
+                text: __dialogueText("scenes/CSI/TicketAnalysisPanel.js", "t_20e38c3b4104e4667d70"),
+                action: __dialogueText("scenes/CSI/TicketAnalysisPanel.js", "t_310ff200149b44a32f12")
               }
             ]
           }

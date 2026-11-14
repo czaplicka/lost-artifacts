@@ -1,8 +1,9 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { getPassportManager } from '../managers/PassportManager.js';
 import { EventBus } from '../EventBus.js';
 
-const FONT_PIXEL = '"PressStart2P", monospace';
-const FONT_TYPE = '"SpecialElite", monospace';
+const FONT_PIXEL = __dialogueText("ui/PassportUI.js", "t_0336425eb481eb5cd669");
+const FONT_TYPE = __dialogueText("ui/PassportUI.js", "t_edfb958930e8bcd8562c");
 
 const PAGE_WIDTH = 720;
 const PAGE_HEIGHT = 460;
@@ -423,12 +424,12 @@ export class PassportUI {
       this.scene.add.text(
         0,
         -COVER_HEIGHT / 2 + 26,
-        'PASSPORT',
+        __dialogueText("ui/PassportUI.js", "t_02bc6c3992cd863da0d8"),
         {
           fontFamily: FONT_PIXEL,
           fontSize: '18px',
           color: '#d8c48a',
-          stroke: '#1a0e05',
+          stroke: __dialogueText("ui/PassportUI.js", "t_e00a579669b77dab4a01"),
           strokeThickness: 4
         }
       ).setOrigin(0.5)
@@ -437,7 +438,7 @@ export class PassportUI {
     const close = this.scene.add.text(
       COVER_WIDTH / 2 - 26,
       -COVER_HEIGHT / 2 + 22,
-      'X',
+      __dialogueText("ui/PassportUI.js", "t_4b68ab3847feda7d6c62"),
       {
         fontFamily: FONT_PIXEL,
         fontSize: '14px',
@@ -455,8 +456,8 @@ export class PassportUI {
     this.pagesGroup = this.scene.add.container(0, 10);
     this.container.add(this.pagesGroup);
 
-    this.prevBtn = this._navButton(-285, 247, '< PREV', -1);
-    this.nextBtn = this._navButton(285, 247, 'NEXT >', 1);
+    this.prevBtn = this._navButton(-285, 247, __dialogueText("ui/PassportUI.js", "t_86af811671fe29fad1d2"), -1);
+    this.nextBtn = this._navButton(285, 247, __dialogueText("ui/PassportUI.js", "t_58b85f2ea88bf1a9ba16"), 1);
 
     this.pageCounterText = this.scene.add.text(
       0, 247, '',
@@ -652,11 +653,11 @@ export class PassportUI {
     );
 
     const range = stamps.length
-      ? `${first + 1}-${last} of ${stamps.length} stamps`
-      : '0 stamps';
+      ? `${first + 1}${__dialogueText("ui/PassportUI.js", "t_3973e022e93220f9212c")}${last}${__dialogueText("ui/PassportUI.js", "t_a4282e4b2298b90b56f7")}${stamps.length}${__dialogueText("ui/PassportUI.js", "t_921ae7b224d41b014e47")}`
+      : __dialogueText("ui/PassportUI.js", "t_afa100a5c425a914d421");
 
     this.pageCounterText.setText(
-      `Page ${this.currentPage + 1}/${totalPages} · ${range}`
+      `${__dialogueText("ui/PassportUI.js", "t_6076934f99bd42435b95")}${this.currentPage + 1}${__dialogueText("ui/PassportUI.js", "t_8a5edab282632443219e")}${totalPages}${__dialogueText("ui/PassportUI.js", "t_588da410532073f8daec")}${range}`
     );
 
     this.prevBtn.setAlpha(this.currentPage > 0 ? 1 : 0.3);
@@ -762,7 +763,7 @@ export class PassportUI {
 
     this._addPageText(
       x, y + 2,
-      'ANY PERSON HOLDING THIS DOCUMENT IS\nPROBABLY IN OVER THEIR HEAD.',
+      __dialogueText("ui/PassportUI.js", "t_b74c0cdd017dd672d8b4"),
       9,
       '#6b5a3a'
     );
@@ -780,7 +781,7 @@ export class PassportUI {
 
     this.pagesGroup.add(
       this.scene.add.text(
-        photoX + 45, photoY + 55, '🕵',
+        photoX + 45, photoY + 55, __dialogueText("ui/PassportUI.js", "t_149d3daf03e0a37fb210"),
         { fontSize: '44px' }
       ).setOrigin(0.5).setAlpha(0.55)
     );
@@ -795,7 +796,7 @@ export class PassportUI {
     this.pagesGroup.add(
       this.scene.add.text(
         photoX + 45, photoY + 55,
-        'REDACTED',
+        __dialogueText("ui/PassportUI.js", "t_b83c7778c23a8d199def"),
         {
           fontFamily: FONT_PIXEL,
           fontSize: '9px',
@@ -805,13 +806,13 @@ export class PassportUI {
     );
 
     const countries = manager.getVisitedCountries().filter(
-      country => country && country !== 'Unknown Country'
+      country => country && country !== __dialogueText("ui/PassportUI.js", "t_2ee34ccaadf588da063b")
     ).length;
 
     const sideFields = [
       ['RANK', manager.getPlayerRank()],
-      ['ISSUED', data.issuedDayLabel || 'Not stamped yet'],
-      ['TRIPS', `${manager.getStampCount()} (${countries} countries)`]
+      ['ISSUED', data.issuedDayLabel || __dialogueText("ui/PassportUI.js", "t_6bca4c42e6679f719750")],
+      ['TRIPS', `${manager.getStampCount()}${__dialogueText("ui/PassportUI.js", "t_4f5a2ada1166172aa174")}${countries}${__dialogueText("ui/PassportUI.js", "t_dfbeeed5575b82dca6d2")}`]
     ];
 
     sideFields.forEach(([label, value], index) => {
@@ -826,7 +827,7 @@ export class PassportUI {
     });
 
     const fields = [
-      ['SURNAME / GIVEN NAME', holder]
+      [__dialogueText("ui/PassportUI.js", "t_360bfcfe9a2c5c73d512"), holder]
     ];
 
     const alias = manager.getAlias();
@@ -834,8 +835,8 @@ export class PassportUI {
     if (alias) fields.push(['ALIAS', alias]);
 
     fields.push(
-      ['PASSPORT NO.', number],
-      ['AUTHORITY', 'MARK AGENCY']
+      [__dialogueText("ui/PassportUI.js", "t_7f284ff33842d7c3c39d"), number],
+      ['AUTHORITY', __dialogueText("ui/PassportUI.js", "t_9246fca97ffafae56410")]
     );
 
     fields.forEach(([label, value], index) => {
@@ -881,7 +882,7 @@ export class PassportUI {
       this.scene.add.text(
         centerX,
         RIGHT_PAGE.y + 10,
-        'VISAS & ENTRIES',
+        __dialogueText("ui/PassportUI.js", "t_0debeba5df69acd54ea8"),
         {
           fontFamily: FONT_PIXEL,
           fontSize: '9px',
@@ -894,8 +895,8 @@ export class PassportUI {
 
     const notice = unseenPage !== null &&
       unseenPage !== this.currentPage
-        ? `New stamp on page ${unseenPage + 1}`
-        : 'Previous stamps stay on earlier pages.';
+        ? `${__dialogueText("ui/PassportUI.js", "t_b1a16d159578910e1467")}${unseenPage + 1}`
+        : __dialogueText("ui/PassportUI.js", "t_a29744b4857a393d34ba");
 
     this.noticeText = this.scene.add.text(
       centerX,
@@ -915,7 +916,7 @@ export class PassportUI {
         this.scene.add.text(
           centerX,
           0,
-          'No stamps yet.\nGo catch a flight, detective.',
+          __dialogueText("ui/PassportUI.js", "t_58cd64a1c00534be6825"),
           {
             fontFamily: FONT_TYPE,
             fontSize: '15px',
@@ -1019,7 +1020,7 @@ export class PassportUI {
 
     addText(
       -8,
-      String(stamp.country || 'Unknown Country').toUpperCase(),
+      String(stamp.country || __dialogueText("ui/PassportUI.js", "t_2ee34ccaadf588da063b")).toUpperCase(),
       16
     );
 
@@ -1045,7 +1046,7 @@ export class PassportUI {
         this.scene.add.text(
           radius - 10,
           -radius + 10,
-          `x${stamp.visitNumber}`,
+          `${__dialogueText("ui/PassportUI.js", "t_2d711642b726b0440162")}${stamp.visitNumber}`,
           {
             fontFamily: FONT_PIXEL,
             fontSize: '10px',
@@ -1066,7 +1067,7 @@ export class PassportUI {
         fontSize: '12px',
         color: '#5a4a30',
         align: 'center',
-        fontStyle: 'italic',
+        fontStyle: __dialogueText("ui/PassportUI.js", "t_db2365bb7a376f09d1dd"),
         wordWrap: { width: 200, useAdvancedWrap: true }
       }
     ).setOrigin(0.5, 0);

@@ -1,15 +1,16 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { latestWorldNewspaperEvent, readWorldReactions } from '../systems/WorldReactionModel.js';
 
 const installed=new WeakMap();
-const TOPIC='Seen the latest case news?';
+const TOPIC=__dialogueText("ui/WorldHospitalReactionHooks.js", "t_1a34c8f172305020d364");
 const RESPONSES={
-  agency_convicted:'A verdict, then. I read the bulletin. That still doesn’t make a detective’s coat suitable medical equipment.',
-  agency_released:'The court released the defendant. That’s the outcome reported. Speculation is not a medical specialty.',
-  agency_suspect_arrested:'Someone was detained. That is not a conviction. We also prefer to finish an examination before announcing the result.',
-  agency_pursuit_escape:'The report says the pursuit ended without an arrest. I’ll leave the running commentary to the television.',
-  agency_time_expired:'The bulletin says the inquiry ended unresolved. I won’t diagnose an investigation from a headline.'
+  agency_convicted:__dialogueText("ui/WorldHospitalReactionHooks.js", "t_bfc6a45c635ae5585a0d"),
+  agency_released:__dialogueText("ui/WorldHospitalReactionHooks.js", "t_1a6e473ae5b11f494643"),
+  agency_suspect_arrested:__dialogueText("ui/WorldHospitalReactionHooks.js", "t_d22c617375f267c2faac"),
+  agency_pursuit_escape:__dialogueText("ui/WorldHospitalReactionHooks.js", "t_9e327b8c9b1c307c6c0e"),
+  agency_time_expired:__dialogueText("ui/WorldHospitalReactionHooks.js", "t_b7210a8b0f5504632b50")
 };
 const seenKey=id=>JSON.stringify(['HospitalScene','reception_nurse',id]);
 function seenEntries(state){
@@ -23,7 +24,7 @@ export function getHospitalWorldReaction(state){
   if(!event||event.visibility!=='public'||event.system!=='agency'||
     String(event.campaignId)!==String(state._createdAt)||!RESPONSES[event.kind]||
     seenEntries(state).includes(seenKey(event.id)))return null;
-  return{eventId:event.id,text:`The bulletin mentioned the ${event.artifact||'artefact'} case in ${event.cityName||'the city'}.\n\n${RESPONSES[event.kind]}`};
+  return{eventId:event.id,text:`${__dialogueText("ui/WorldHospitalReactionHooks.js", "t_8eaad1d5679904cf64c8")}${event.artifact||__dialogueText("ui/WorldHospitalReactionHooks.js", "t_4edfbd28d0483e702f24")}${__dialogueText("ui/WorldHospitalReactionHooks.js", "t_f42b9f039db44f945dae")}${event.cityName||__dialogueText("ui/WorldHospitalReactionHooks.js", "t_0f53fb3533eb343bc155")}${__dialogueText("ui/WorldHospitalReactionHooks.js", "t_0673d69ff78439adfb40")}${RESPONSES[event.kind]}`};
 }
 export function markHospitalWorldReaction(state,eventId){
   const history=readWorldReactions(state);
@@ -62,7 +63,7 @@ function showReaction(scene,token,canEnter){
     }
     scene.talk();
   };
-  scene.showDialogue(selected.text,[['Something else.',back]]);
+  scene.showDialogue(selected.text,[[__dialogueText("ui/WorldHospitalReactionHooks.js", "t_240f1c9f302be82fb90a"),back]]);
   if(scene.dialogue?.data)scene.dialogue.data.worldHospitalEventId=selected.eventId;
 }
 export function installHospitalWorldReactions(scene,{canEnter}={}){

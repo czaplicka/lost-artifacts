@@ -1,13 +1,14 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
 import { inventoryManager } from '../../managers/InventoryManager.js';
 import { prepareApartmentEvidenceAudio, playApartmentEvidenceAudio } from './ApartmentEvidenceAudio.js';
 
 const FIELD = 'eyes';
-const LABELS = { eyes: 'Eye colour' };
+const LABELS = { eyes: __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_f24248e0b8d7f74c4f41") };
 const HOST_IDS = ['desk', 'bookshelf', 'framed_photo', 'nightstand_drawer', 'jewelry_box'];
 const valid = value => typeof value === 'string' && Boolean(value.trim()) &&
-  !['NONE', 'UNKNOWN', 'N/A', 'NOT KNOWN'].includes(value.trim().toUpperCase());
+  !['NONE', 'UNKNOWN', 'N/A', __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_0b30531b53399a61493f")].includes(value.trim().toUpperCase());
 const values = value => (Array.isArray(value) ? value : [value]).filter(valid).map(text => text.trim());
 const same = (a, b) => String(a).trim().toUpperCase() === String(b).trim().toUpperCase();
 function hash(value) {
@@ -55,9 +56,9 @@ function makeIdentityClue(item, context, cityId = null) {
   const lead = item.identityLead;
   return {
     id: item.id, type: 'apartment_identity', category: FIELD, key: FIELD, value: lead.value,
-    text: 'False identity evidence: an order for forged identification ' +
-      "matches the suspect's recorded name and occupation. " + 'Their real name is still unknown. ' +
-      `${LABELS[FIELD]}: ${lead.value}. ` + `Source: ${lead.sourceLabel || 'Apartment hiding place'}.`,
+    text: __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_b40a2e84ef852e23273a") +
+      __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_ea8c395eefa093da333c") + __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_c139078899613b123dad") +
+      `${LABELS[FIELD]}${__dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_45822f54a0d0e030f756")}${lead.value}${__dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_8dccf256f6d5783e62bb")}` + `${__dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_1a5ac0bd0b6b5765b313")}${lead.sourceLabel || __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_e8813d8b2a9cb72563cc")}${__dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_cdb4ee2aea69cc6a8333")}`,
     missionId: context.missionId, caseKey: context.key, cityId, source: 'suspect_apartment_identity'
   };
 }
@@ -115,26 +116,26 @@ export function ensureApartmentIdentityItem(scene, config) {
   }
   if (plan.hostId !== config.id) return null;
   prepareApartmentEvidenceAudio(scene);
-  const description = "An envelope containing the suspect's photograph, " +
-    'a forged ID proof matching the name and occupation ' + 'in the suspect file, and a note:\n\n' +
-    '"Your new ID is ready. The name and occupation are ' + 'exactly as requested. Memorise both before using it. ' +
-    'And stop signing your real name on the collection receipt."\n\n' +
-    `The ID proof records the eye colour as ${plan.value}.\n\n` +
-    'The receipt is missing. Nothing here reveals the real name. ' + 'The identity in the suspect file is an alias.';
+  const description = __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_1cdf0ec4a009c5a12c94") +
+    __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_7f9f2341544fc0f69f0e") + __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_09c0a7d77315ad6eaff7") +
+    __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_10bee1771c811131205d") + __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_1d957d2566fbe30e4604") +
+    __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_8658291cef5b3744461b") +
+    `${__dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_771686f285496038109c")}${plan.value}${__dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_0673d69ff78439adfb40")}` +
+    __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_22a2cafd661f3b374b10") + __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_22c8c1d9d465e513d32b");
   const item = {
-    id: clueId(context.key), type: 'document', label: 'ID Preparation Envelope', description, quantity: 1,
+    id: clueId(context.key), type: 'document', label: __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_3b236d2dc31ca33b2d59"), description, quantity: 1,
     isClue: true, isIdentityLead: true, isRedHerring: false, isArtifact: false, isEscapeClue: false, isEscapeFragment: false,
     identityLead: { version: 3, caseKey: context.key, missionId: context.missionId, field: FIELD, value: plan.value,
-      hostId: plan.hostId, sourceLabel: config.label || 'Apartment hiding place' },
-    metadata: { useMessage: 'The suspect used a false identity. ' + 'Their real name is still unknown. ' +
-      'Use the recovered eye colour to narrow the wanted records.' }
+      hostId: plan.hostId, sourceLabel: config.label || __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_e8813d8b2a9cb72563cc") },
+    metadata: { useMessage: __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_153635b0d4210636d49c") + __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_c139078899613b123dad") +
+      __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_213b5334315c1aa15b8c") }
   };
   config.unlocks = [...(config.unlocks || []).filter(entry => entry?.id !== item.id), item];
   if (config.id === 'framed_photo') {
     config.discoveryAction = 'move';
-    config.actionHint = 'A thin envelope is caught beneath the frame backing. Turn the frame over.';
+    config.actionHint = __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_f552d5c716ee170b6671");
   } else {
-    config.actionHint = (config.actionHint ? config.actionHint + ' ' : '') + 'There may be private papers tucked out of sight.';
+    config.actionHint = (config.actionHint ? config.actionHint + ' ' : '') + __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_0385226a640c40bf9628");
   }
   // Repair only from a carried document that matches this case.
   const carried = findCarriedIdentityItem(context);
@@ -163,7 +164,7 @@ export function collectApartmentIdentityItem(scene, item) {
   if (!record || !values(record[FIELD]).some(value => same(value, lead.value))) return false;
   if (!scene.playerInventory.hasItem(item.id) && !scene.hasItemAlready(item.id)) {
     if (!scene.playerInventory.addItem(item)) {
-      scene.showMessage('Your inventory is full. The envelope is still in its hiding place.', 3000, '#795548'); return false;
+      scene.showMessage(__dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_028a067ccef8666c0094"), 3000, __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_0fa2e0046576e38dd099")); return false;
     }
     playApartmentEvidenceAudio(scene);
   }
@@ -171,11 +172,11 @@ export function collectApartmentIdentityItem(scene, item) {
   scene.markItemCollected(item); scene.persistApartmentState(); requestAutosave();
   if (!recorded) {
     console.warn('[ApartmentIdentityEvidence] Envelope collected; notebook update failed.');
-    scene.showMessage('Envelope added to your inventory. The notebook could not be updated. ' +
-      'Keep the envelope; its recorded detail remains available.', 6500, '#795548'); return true;
+    scene.showMessage(__dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_f552f0bccb92653046f1") +
+      __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_9a49d1b9edbd7b02e63a"), 6500, __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_0fa2e0046576e38dd099")); return true;
   }
-  scene.showMessage('The suspect used a false identity. Their real name is still unknown.\n\n' +
-    `Recorded: ${LABELS[FIELD]} — ${lead.value}\n` + "Use this detail in the warrant's suspect filters.", 6500, '#3e683d');
+  scene.showMessage(__dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_7d84df840e2f68bc3514") +
+    `${__dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_b5a01795ed70c0b26195")}${LABELS[FIELD]}${__dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_3b2e8119b6fcc97df985")}${lead.value}${__dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_01ba4719c80b6fe911b0")}` + __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_28abc6227b4e9b7435d0"), 6500, __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_8050ca049b2e4bda19f0"));
   return true;
 }
 export function applyApartmentIdentityClues(ui) {

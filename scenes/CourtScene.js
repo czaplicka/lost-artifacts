@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../gameStatePersistence.js';
@@ -312,13 +313,13 @@ export class CourtScene extends BaseScene {
   createInterface() {
     this.heading = this.text(
       760, 35,
-      'COURT HEARING',
+      __dialogueText("scenes/CourtScene.js", "t_b9273ae8082e2173c68e"),
       28, '#ffe3a0', 1390
     );
 
     this.defendantText = this.text(
       760, 78,
-      `Defendant: ${this.record.facts.defendantName}`,
+      `${__dialogueText("scenes/CourtScene.js", "t_24f7715cc455bf61a556")}${this.record.facts.defendantName}`,
       22, '#f7e6bc', 1390
     );
 
@@ -346,14 +347,14 @@ export class CourtScene extends BaseScene {
 
     this.text(
       1650, 96,
-      '1–4: answer | Enter: continue | ←/→: pages',
+      __dialogueText("scenes/CourtScene.js", "t_be3d3e7be90cc6e357db"),
       14, '#d5c5a3', 530
     );
 
     this.hintButton = this.smallButton(
       this.root,
       1780, 38, 190, 48,
-      'HINT [H]',
+      __dialogueText("scenes/CourtScene.js", "t_091dd40e60f2e9b59368"),
       () => this.openHint(),
       22
     ).bg;
@@ -361,7 +362,7 @@ export class CourtScene extends BaseScene {
     this.previousPage = this.smallButton(
       this.root,
       680, 470, 220, 42,
-      'PREVIOUS PAGE',
+      __dialogueText("scenes/CourtScene.js", "t_cf47bf01ca2d4be9a7af"),
       () => this.changePage(-1),
       18
     );
@@ -369,7 +370,7 @@ export class CourtScene extends BaseScene {
     this.nextPage = this.smallButton(
       this.root,
       1240, 470, 220, 42,
-      'NEXT PAGE',
+      __dialogueText("scenes/CourtScene.js", "t_22730864a426b31fa91a"),
       () => this.changePage(1),
       18
     );
@@ -387,7 +388,7 @@ export class CourtScene extends BaseScene {
 
     this.text(
       1650, 145,
-      "JUDGE'S CONFIDENCE",
+      __dialogueText("scenes/CourtScene.js", "t_576e5b6d3fd66512ba0f"),
       20, '#ffe3a0', 390
     );
 
@@ -400,7 +401,7 @@ export class CourtScene extends BaseScene {
 
     this.text(
       1650, 366,
-      `Conviction threshold: ${COURT_CONFIG.convictionThreshold}`,
+      `${__dialogueText("scenes/CourtScene.js", "t_9d7f2b2874f5f861b9ab")}${COURT_CONFIG.convictionThreshold}`,
       18, '#d5c5a3', 390
     );
 
@@ -412,8 +413,8 @@ export class CourtScene extends BaseScene {
     this.rapportText = this.text(
       1650, 402,
       rapport === undefined
-        ? 'Rapport bonus: +0 (existing trial)'
-        : `Rapport ${rapport} | Starting bonus +${bonus}`,
+        ? __dialogueText("scenes/CourtScene.js", "t_93c534eea402e6c1b932")
+        : `${__dialogueText("scenes/CourtScene.js", "t_37a7768eccdc0419d750")}${rapport}${__dialogueText("scenes/CourtScene.js", "t_b55cd8d99aaa449e79f1")}${bonus}`,
       18, '#98d6b0', 390
     );
   }
@@ -489,7 +490,7 @@ export class CourtScene extends BaseScene {
     graphics.fillStyle(0xffefb5, 1);
     graphics.fillCircle(cx, cy, 8);
 
-    this.trustValue.setText(`${value}/100`);
+    this.trustValue.setText(`${value}${__dialogueText("scenes/CourtScene.js", "t_2f07766fd476de0ab959")}`);
   }
 
   makeAnswer(x, y, index) {
@@ -545,7 +546,7 @@ export class CourtScene extends BaseScene {
 
     if (this.backgroundFailed) {
       this.showInfo(
-        'Courtroom background unavailable. Check assets/local/courtroom.webp.'
+        __dialogueText("scenes/CourtScene.js", "t_968cbc9e0f433d8d92e6")
       );
     }
   }
@@ -595,7 +596,7 @@ export class CourtScene extends BaseScene {
         }
 
         this.heading.setText(
-          `${question.side === 'prosecutor' ? 'PROSECUTION' : 'DEFENCE'} — ${record.index + 1}/${record.questions.length}`
+          `${question.side === __dialogueText("scenes/CourtScene.js", "t_5b6e4c26a352100e1252") ? __dialogueText("scenes/CourtScene.js", "t_5ae131912dad5af8ebe5") : __dialogueText("scenes/CourtScene.js", "t_9f3bed01ba593455014c")}${__dialogueText("scenes/CourtScene.js", "t_3b2e8119b6fcc97df985")}${record.index + 1}${__dialogueText("scenes/CourtScene.js", "t_8a5edab282632443219e")}${record.questions.length}`
         );
 
         this.questionPages = this.measuredPages(
@@ -630,7 +631,7 @@ export class CourtScene extends BaseScene {
           .setVisible(true);
 
         if (record.phase === 'feedback') {
-          this.heading.setText('TESTIMONY ASSESSED');
+          this.heading.setText(__dialogueText("scenes/CourtScene.js", "t_fe2ed2b3a64b2f8c2b78"));
 
           this.questionPages = this.measuredPages(
             this.questionText,
@@ -638,16 +639,16 @@ export class CourtScene extends BaseScene {
             158
           );
 
-          this.answerPages = [['CONTINUE / ENTER']];
+          this.answerPages = [[__dialogueText("scenes/CourtScene.js", "t_4dda5b3688460481be8d")]];
         } else if (record.phase === 'verdict') {
           const convicted =
             record.verdict === 'convicted';
 
-          this.heading.setText('VERDICT');
+          this.heading.setText(__dialogueText("scenes/CourtScene.js", "t_b5a12b170c05f093fd1c"));
 
           const result = convicted
-            ? 'The court finds the defendant guilty.'
-            : 'The prosecution has not established the case. The defendant is released.';
+            ? __dialogueText("scenes/CourtScene.js", "t_f54758ef7109892cc2e9")
+            : __dialogueText("scenes/CourtScene.js", "t_36e4fe0854e8b64decbe");
 
           this.questionPages = this.measuredPages(
             this.questionText,
@@ -661,8 +662,8 @@ export class CourtScene extends BaseScene {
 
           this.answerPages = [[
             convicted
-              ? 'CLOSE CASE / ENTER'
-              : 'GAME OVER / ENTER'
+              ? __dialogueText("scenes/CourtScene.js", "t_056680b1b366e9e15a76")
+              : __dialogueText("scenes/CourtScene.js", "t_010008e310e8969f0576")
           ]];
         } else {
           this.showRenderError();
@@ -718,7 +719,7 @@ export class CourtScene extends BaseScene {
     this.pageLabel
       .setVisible(multiple)
       .setText(
-        `PAGE ${this.pageIndex + 1} / ${this.pageCount}`
+        `${__dialogueText("scenes/CourtScene.js", "t_f8119b8ecd8507346fa7")}${this.pageIndex + 1}${__dialogueText("scenes/CourtScene.js", "t_005e1574a2b5c8163046")}${this.pageCount}`
       );
 
     this.enableButton(
@@ -758,22 +759,22 @@ export class CourtScene extends BaseScene {
     const record = this.record;
 
     if (!record) {
-      return 'No trial is currently available.';
+      return __dialogueText("scenes/CourtScene.js", "t_e468a6490d8927ab57bd");
     }
 
     if (record.phase === 'verdict') {
-      return 'Read every page of the verdict. A release explains which final finding was missing or whether confidence was insufficient. Close this note and use the result button.';
+      return __dialogueText("scenes/CourtScene.js", "t_755ced30b78b89dca953");
     }
 
     if (record.phase === 'feedback') {
-      return 'Read the assessment before continuing. A weak answer and a missing final case finding are different problems. The final verdict will explain any unresolved finding.';
+      return __dialogueText("scenes/CourtScene.js", "t_96bd535d525726cd0d46");
     }
 
     if (record.version === 3) {
-      return 'This hearing checks the FINAL Case Theory, not your three reconstruction attempts or discarded drafts.\n\nThe prosecution asks about motive, means and opportunity. The defence tests the identity chain and the other forensic match. At most one procedural objection can be added.\n\nExplain the collected finding, not just the conclusion. A forged-ID envelope establishes an alias; it did not directly reveal the real name.\n\nRead all pages before answering. Rapport helps but is not required. One weaker answer need not defeat a properly established case. This hint does not choose an answer.';
+      return __dialogueText("scenes/CourtScene.js", "t_c7ee7257fcf272d8d60f");
     }
 
-    return 'This is a previously started hearing. Its original questions and scoring have been preserved. Read every page and distinguish supported facts from assumptions. New hearings use the shorter final Case Theory format.';
+    return __dialogueText("scenes/CourtScene.js", "t_3f994287cc50aa77daec");
   }
 
   openHint() {
@@ -804,7 +805,7 @@ export class CourtScene extends BaseScene {
 
     const heading = this.add.text(
       960, 245,
-      'COURTROOM HINT',
+      __dialogueText("scenes/CourtScene.js", "t_39d33596e45d31dc0142"),
       {
         fontFamily: 'PressStart2P, monospace',
         fontSize: '22px',
@@ -838,7 +839,7 @@ export class CourtScene extends BaseScene {
     this.smallButton(
       modal,
       960, 820, 350, 62,
-      'BACK TO COURT / ESC',
+      __dialogueText("scenes/CourtScene.js", "t_b2716190d148bce9dd48"),
       () => this.closeHint(),
       24
     );
@@ -901,7 +902,7 @@ export class CourtScene extends BaseScene {
     this.hintPageLabel
       .setVisible(more)
       .setText(
-        `${this.hintPage + 1} / ${this.hintPages.length}`
+        `${this.hintPage + 1}${__dialogueText("scenes/CourtScene.js", "t_005e1574a2b5c8163046")}${this.hintPages.length}`
       );
 
     this.enableButton(
@@ -965,7 +966,7 @@ export class CourtScene extends BaseScene {
     }
 
     if (this.hintModal) {
-      if (['Escape', 'KeyH'].includes(event.code)) {
+      if ([__dialogueText("scenes/CourtScene.js", "t_037c968467aa3fd7c059"), 'KeyH'].includes(event.code)) {
         this.closeHint();
       } else if (
         ['ArrowRight', 'PageDown'].includes(event.code)
@@ -1012,7 +1013,7 @@ export class CourtScene extends BaseScene {
     }
 
     if (
-      ['Enter', 'NumpadEnter'].includes(event.code) &&
+      [__dialogueText("scenes/CourtScene.js", "t_dc8659db6d416dc32fca"), 'NumpadEnter'].includes(event.code) &&
       this.record?.phase !== 'question'
     ) {
       this.press(0);
@@ -1112,7 +1113,7 @@ export class CourtScene extends BaseScene {
       this.notice?.setText(
         saved === true
           ? ''
-          : 'Trial save failed. Keep this tab open.'
+          : __dialogueText("scenes/CourtScene.js", "t_a946beff022d854c48a8")
       );
 
       return saved === true;
@@ -1120,7 +1121,7 @@ export class CourtScene extends BaseScene {
       console.error('[CourtScene] Save:', error);
 
       this.notice?.setText(
-        'Trial save failed. Keep this tab open.'
+        __dialogueText("scenes/CourtScene.js", "t_a946beff022d854c48a8")
       );
 
       return false;
@@ -1139,14 +1140,14 @@ export class CourtScene extends BaseScene {
     this.nextPage?.root.setVisible(false);
     this.pageLabel?.setVisible(false);
 
-    this.heading.setText('TRIAL SAVE ERROR');
+    this.heading.setText(__dialogueText("scenes/CourtScene.js", "t_29ade348e70b7fde88ff"));
 
     this.questionText.setText(
-      'This stage cannot be displayed.\nDo not overwrite your saved game.'
+      __dialogueText("scenes/CourtScene.js", "t_768203c8619f0eab235e")
     );
 
     this.notice?.setText(
-      'Invalid question data, layout or trial phase.'
+      __dialogueText("scenes/CourtScene.js", "t_d0810f3f6138cde6789c")
     );
   }
 
@@ -1203,7 +1204,7 @@ export class CourtScene extends BaseScene {
     gameState.gameOverReason = convicted
       ? ''
       : record.verdictExplanation ||
-        'The court released the defendant. The prosecution failed to establish the case.';
+        __dialogueText("scenes/CourtScene.js", "t_e5b82991c30c36fdca1c");
   }
 
   grantConvictionXP() {
@@ -1266,7 +1267,7 @@ export class CourtScene extends BaseScene {
       result = progressionManager.grantReward(
         XP_REWARD_ID,
         scopeId,
-        'Agency case won: guilty verdict'
+        __dialogueText("scenes/CourtScene.js", "t_e317899a7baff51deb61")
       );
     } catch (error) {
       if (!progressionManager.hasReward(eventId)) {
@@ -1322,7 +1323,7 @@ export class CourtScene extends BaseScene {
       )
     ) {
       this.notice?.setText(
-        'The verdict cannot be committed: inconsistent trial data.'
+        __dialogueText("scenes/CourtScene.js", "t_0061bde06e56e89e6bf2")
       );
 
       return;
@@ -1346,7 +1347,7 @@ export class CourtScene extends BaseScene {
           this.busy = false;
 
           this.notice?.setText(
-            'Court XP could not be recorded. Keep this tab open and press Enter to retry.'
+            __dialogueText("scenes/CourtScene.js", "t_0a2fdabe9cb29d2011d1")
           );
 
           return;
@@ -1360,7 +1361,7 @@ export class CourtScene extends BaseScene {
         this.busy = false;
 
         this.notice?.setText(
-          'Verdict save failed. Press Enter to retry.'
+          __dialogueText("scenes/CourtScene.js", "t_c2d01ad716e68d42a338")
         );
 
         return;
@@ -1372,8 +1373,8 @@ export class CourtScene extends BaseScene {
           caseId: record.caseId,
           suspectId: record.suspectId,
           title: convicted
-            ? 'CONVICTED'
-            : 'DEFENDANT RELEASED',
+            ? __dialogueText("scenes/CourtScene.js", "t_4fc3901171364d578013")
+            : __dialogueText("scenes/CourtScene.js", "t_92624f92e0a888fb966d"),
           reasonCode: convicted
             ? 'court_conviction'
             : 'court_release',
@@ -1385,7 +1386,7 @@ export class CourtScene extends BaseScene {
         this.busy = false;
 
         this.notice?.setText(
-          'Could not open the result screen. Press Enter to retry.'
+          __dialogueText("scenes/CourtScene.js", "t_c4aba1f97a164694ab1c")
         );
       }
     } catch (error) {
@@ -1395,7 +1396,7 @@ export class CourtScene extends BaseScene {
         this.busy = false;
 
         this.notice?.setText(
-          'Could not finish the trial. Press Enter to retry.'
+          __dialogueText("scenes/CourtScene.js", "t_61d0d405ead05c55d3df")
         );
       }
     }

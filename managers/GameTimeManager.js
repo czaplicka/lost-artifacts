@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { EventBus } from '../EventBus.js';
 import { gameState } from '../GameData.js';
 import { getTimeChangedPayload } from '../CaseTimeHelper.js';
@@ -7,7 +8,7 @@ import { getEnergyManager } from './EnergyManager.js';
 const OWNER_KEY = 'GameTimeManager';
 const MINUTES_PER_HOUR = 60;
 const MINUTES_PER_DAY = 1440;
-const DEFAULT_TIME_STATE = Object.freeze({ day: 1, hour: 8, minute: 0, partOfDay: 'Morning' });
+const DEFAULT_TIME_STATE = Object.freeze({ day: 1, hour: 8, minute: 0, partOfDay: __dialogueText("managers/GameTimeManager.js", "t_e9376a281aac57bb78e2") });
 let timeManagerInstance = null;
 function toFiniteNumber(value, fallback) {
     const n = Number(value);
@@ -94,10 +95,10 @@ export class GameTimeManager {
         return payload;
     }
     updatePartOfDay() {
-        if (this.currentHour >= 6 && this.currentHour < 12) this.partOfDay = 'Morning';
-        else if (this.currentHour >= 12 && this.currentHour < 18) this.partOfDay = 'Afternoon';
-        else if (this.currentHour >= 18 && this.currentHour < 22) this.partOfDay = 'Evening';
-        else this.partOfDay = 'Night';
+        if (this.currentHour >= 6 && this.currentHour < 12) this.partOfDay = __dialogueText("managers/GameTimeManager.js", "t_e9376a281aac57bb78e2");
+        else if (this.currentHour >= 12 && this.currentHour < 18) this.partOfDay = __dialogueText("managers/GameTimeManager.js", "t_fb847b43637eee429168");
+        else if (this.currentHour >= 18 && this.currentHour < 22) this.partOfDay = __dialogueText("managers/GameTimeManager.js", "t_458c1fed574354042397");
+        else this.partOfDay = __dialogueText("managers/GameTimeManager.js", "t_4e9f8db8242b57e72e00");
     }
     destroy() {
         EventBus.clearScope(OWNER_KEY);

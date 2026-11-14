@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import * as Postal from '../managers/PostOfficeManager.js';
 import { HomeTownDialogue } from '../ui/HomeTownDialogue.js';
@@ -47,7 +48,7 @@ export class PostOfficeScene extends BaseScene {
     if(!this.textures.exists(key)&&this.view==='room'&&this.textures.exists(POST_OFFICE_ART.empty.key))key=POST_OFFICE_ART.empty.key;
     const missing=!key||!this.textures.exists(key);
     if(!missing)this.visuals.add(this.add.image(this.fit.x,this.fit.y,key).setOrigin(0).setDisplaySize(1920*this.fit.s,1080*this.fit.s));
-    else this.visuals.add(this.add.text(20,top+20,'Image not loaded:\n'+(art?.url||'unknown asset'),this.style(18)));
+    else this.visuals.add(this.add.text(20,top+20,__dialogueText("scenes/PostOfficeScene.js", "t_c54ad1bbc1e09689f9e7")+(art?.url||__dialogueText("scenes/PostOfficeScene.js", "t_77d8435a38c1f74d60f0")),this.style(18)));
     this.tooltip=this.add.text(15,h-42,'',this.style(17)).setVisible(false);this.visuals.add(this.tooltip);
     this.spots().forEach((cfg,index)=>this.makeHotspot(cfg,index));
     if(doc){
@@ -64,9 +65,9 @@ export class PostOfficeScene extends BaseScene {
         while(text.height>overlay.h*s&&parseInt(text.style.fontSize)>7)text.setFontSize(parseInt(text.style.fontSize)-1);
         this.visuals.add(text);
       }
-      this.addButton(14,h-40,'[ READ TRANSCRIPT ]',()=>this.readTranscript(),16);
+      this.addButton(14,h-40,__dialogueText("scenes/PostOfficeScene.js", "t_5846a5f11aa1614da230"),()=>this.readTranscript(),16);
     }
-    this.addButton(w-14,h-40,'[ HINT ]',()=>this.openHints(),16,1);
+    this.addButton(w-14,h-40,__dialogueText("scenes/PostOfficeScene.js", "t_1d2748c1af57746f1812"),()=>this.openHints(),16,1);
     if(this.view!=='room')this.addNavigationButton(w-28-w*.22,12,NAV.back,()=>this.goBack(),navHeight);
     this.addNavigationButton(14,12,NAV.exit,()=>void this.leave(),navHeight,0);
     this.drawHintMarker();this.editor?.build();
@@ -85,19 +86,19 @@ export class PostOfficeScene extends BaseScene {
   changeView(view){this.closeModal();this.view=view;this.documentId=null;this.renderView();}
   clearHover(){this.tooltip?.setVisible(false);}
   openDocument(id){
-    if(!canViewPostalDocument(id))return this.info('RETURN TO SENDER','This document is not available at this stage.');
+    if(!canViewPostalDocument(id))return this.info(__dialogueText("scenes/PostOfficeScene.js", "t_ce246efc0e53c6412f7a"),__dialogueText("scenes/PostOfficeScene.js", "t_64629d348541da73cdeb"));
     this.closeModal();if(this.view!=='document')this.documentOrigin=this.view;
     this.view='document';this.documentId=id;this.renderView();
   }
   closeDocument(){this.closeModal();this.view=this.documentOrigin==='restante'?'restante':'room';this.documentId=null;this.renderView();}
   readTranscript(){
     const doc=this.documents[this.documentId];
-    this.panel(doc.title,doc.overlay?.text||'Choose a detail to read it.',doc.spots.map(spot=>[spot.label,()=>this.inspectDocumentSpot(spot.id)]));
+    this.panel(doc.title,doc.overlay?.text||__dialogueText("scenes/PostOfficeScene.js", "t_9e237f22c4b775f0bd45"),doc.spots.map(spot=>[spot.label,()=>this.inspectDocumentSpot(spot.id)]));
   }
   inspectDocumentSpot(spotId){
     const result=inspectPostalDetail(this.documentId,spotId);syncPostalNotebook();
     const doc=this.documents[this.documentId];
-    this.panel(doc.title,result.text+(result.complete&&doc.clue?'\n\nAll details inspected. Evidence recorded in your case notes.':''),
+    this.panel(doc.title,result.text+(result.complete&&doc.clue?__dialogueText("scenes/PostOfficeScene.js", "t_d92fdbb55497c176918c"):''),
       doc.spots.filter(spot=>spot.id!==spotId).map(spot=>[spot.label,()=>this.inspectDocumentSpot(spot.id)]));
   }
   makeHotspot(cfg,index){
@@ -111,10 +112,10 @@ export class PostOfficeScene extends BaseScene {
   onKey(event){
     if(event.target?.isContentEditable||['INPUT','TEXTAREA','SELECT'].includes(event.target?.tagName)||event.ctrlKey||event.metaKey||event.altKey||event.repeat)return;
     if(this.editor?.key(event)){
-      if(event.code==='Escape'&&this.editor.enabled)this.editor.toggle();
+      if(event.code===__dialogueText("scenes/PostOfficeScene.js", "t_037c968467aa3fd7c059")&&this.editor.enabled)this.editor.toggle();
       return;
     }
-    if(event.code==='Escape'){event.preventDefault();if(this.modal)this.closeModal();else if(this.view==='room')void this.leave();else this.goBack();}
+    if(event.code===__dialogueText("scenes/PostOfficeScene.js", "t_037c968467aa3fd7c059")){event.preventDefault();if(this.modal)this.closeModal();else if(this.view==='room')void this.leave();else this.goBack();}
   }
   closeModal(){this.dialogue?.close(false);this.modal=null;this.clearHover();}
   panel(title,text,choices=[],portrait=false){
@@ -125,80 +126,80 @@ export class PostOfficeScene extends BaseScene {
   dispatch(action){
     if(this.modal||this.exiting)return;
     if(action==='talk')return this.talk();
-    if(action==='return'||action==='service')return this.talk('“Ding. Yes, that is the full extent of the bell’s investigative powers. How can I help?”');
+    if(action==='return'||action==='service')return this.talk(__dialogueText("scenes/PostOfficeScene.js", "t_b89122a79e83317ac2aa"));
     if(action==='restante')return this.changeView('restante');
     if(action==='notice')return this.openDocument('notice');
     if(action==='collect')return this.collectReply();
     if(['write','deposit'].includes(action))return this.correspondence();
-    if(action==='route')return this.info('DELIVERY ROUTE','Private courier deliveries are not part of the local postal round. Ask the postman about a specific delivery.');
-    if(action==='parcels')return this.info('UNDELIVERED PARCELS','“FRAGILE” on every side. The contents have better legal protection than I do.');
-    if(action==='policy')return this.info('POSTAL POLICY','No name. No problem. No refunds. A remarkably complete business plan.');
+    if(action==='route')return this.info(__dialogueText("scenes/PostOfficeScene.js", "t_c4044fad6c65500b9378"),__dialogueText("scenes/PostOfficeScene.js", "t_6a693eeda8cec77ae9e7"));
+    if(action==='parcels')return this.info(__dialogueText("scenes/PostOfficeScene.js", "t_e48a8adb8d97406658af"),__dialogueText("scenes/PostOfficeScene.js", "t_1f50add92d063e046037"));
+    if(action==='policy')return this.info(__dialogueText("scenes/PostOfficeScene.js", "t_a93f84f82992ddbdc19c"),__dialogueText("scenes/PostOfficeScene.js", "t_b74da47eeaa7ab2c48b3"));
   }
   collectReply(){
     if(canViewPostalDocument('reply'))return this.openDocument('reply');
     const message=Postal.collectPostalReply();syncPostalNotebook();
     if(canViewPostalDocument('reply')){syncPostalEvidenceImages();return this.openDocument('reply');}
-    this.info('POSTE RESTANTE',message);
+    this.info(__dialogueText("scenes/PostOfficeScene.js", "t_9a1d4939c221991f52c6"),message);
   }
-  talk(message='“I don’t read people’s mail. I judge them by the envelopes.”'){
-    const choices=[['Returning letter',()=>this.caseMenu()],['Poste restante',()=>this.changeView('restante')]];
-    if(canDiscussPostalDeadMail())choices.push(['Dead Mail / Florence',()=>this.deadMail()]);
+  talk(message=__dialogueText("scenes/PostOfficeScene.js", "t_db76acbe114fdff17f40")){
+    const choices=[[__dialogueText("scenes/PostOfficeScene.js", "t_be792a0cb80d0c412e1c"),()=>this.caseMenu()],[__dialogueText("scenes/PostOfficeScene.js", "t_88aac9b0c74879698739"),()=>this.changeView('restante')]];
+    if(canDiscussPostalDeadMail())choices.push([__dialogueText("scenes/PostOfficeScene.js", "t_9faf1fd5294f364aa146"),()=>this.deadMail()]);
     this.panel('POSTMAN',message,choices,true);
   }
-  deadMail(message='“Florence Finch? Yes, I can discuss our service. A private courier’s business is another matter. Show me what you have.”'){
-    this.panel('POSTMAN',message,[...['photo','route','gate'].map((id,i)=>[['Delivery photo','Your route','Service Gate B'][i],()=>this.deadMail(discussPostalDeadMail(id))]),['Other matters',()=>this.talk()]],true);
+  deadMail(message=__dialogueText("scenes/PostOfficeScene.js", "t_e136c088138b947cf0b4")){
+    this.panel('POSTMAN',message,[...['photo','route','gate'].map((id,i)=>[[__dialogueText("scenes/PostOfficeScene.js", "t_0293a4db8164d160e2ac"),__dialogueText("scenes/PostOfficeScene.js", "t_fdd85b70187dc8f62c41"),__dialogueText("scenes/PostOfficeScene.js", "t_6d140c2d564f9d1ffc76")][i],()=>this.deadMail(discussPostalDeadMail(id))]),[__dialogueText("scenes/PostOfficeScene.js", "t_64646486e814dc4b26d0"),()=>this.talk()]],true);
   }
   caseMenu(message=''){
     syncPostalNotebook();const record=Postal.postalState().returnCase,choices=[];let text=message;
     if(record.stage==='new'){
-      text=text||'“Three addresses, four returns. The last forwarding address is your office. You may inspect the envelope. The seal stays intact.”';
-      choices.push(['Accept case',()=>{Postal.startReturnCase();syncPostalNotebook();this.openDocument('envelope');}]);
+      text=text||__dialogueText("scenes/PostOfficeScene.js", "t_c2238db299edbd397c5a");
+      choices.push([__dialogueText("scenes/PostOfficeScene.js", "t_a178b6a78bdc3d07591a"),()=>{Postal.startReturnCase();syncPostalNotebook();this.openDocument('envelope');}]);
     }else{
-      text=text||'“What would you like to follow up on?”';
-      choices.push(['Examine the envelope',()=>this.openDocument('envelope')]);
-      if(record.clues.includes('envelope'))choices.push(['Ask about forwarding permission',()=>this.openDocument('card')]);
-      if(record.clues.includes('notice'))choices.push(['Review the public notice',()=>this.openDocument('notice')]);
-      if(record.stage==='investigating'&&record.clues.length===3)choices.push(['Identify recipient',()=>this.deduction()]);
-      if(['identified','waiting'].includes(record.stage))choices.push(['Poste restante',()=>this.changeView('restante')]);
-      if(record.stage==='waiting')choices.push(['Check reply',()=>this.collectReply()]);
+      text=text||__dialogueText("scenes/PostOfficeScene.js", "t_823b0147968cc2638c4e");
+      choices.push([__dialogueText("scenes/PostOfficeScene.js", "t_c4f6cd042b4b6134593d"),()=>this.openDocument('envelope')]);
+      if(record.clues.includes('envelope'))choices.push([__dialogueText("scenes/PostOfficeScene.js", "t_a54b5da880bf890aec79"),()=>this.openDocument('card')]);
+      if(record.clues.includes('notice'))choices.push([__dialogueText("scenes/PostOfficeScene.js", "t_b103ce6128ade2838e13"),()=>this.openDocument('notice')]);
+      if(record.stage==='investigating'&&record.clues.length===3)choices.push([__dialogueText("scenes/PostOfficeScene.js", "t_76fa4b064aed8af78ad6"),()=>this.deduction()]);
+      if(['identified','waiting'].includes(record.stage))choices.push([__dialogueText("scenes/PostOfficeScene.js", "t_88aac9b0c74879698739"),()=>this.changeView('restante')]);
+      if(record.stage==='waiting')choices.push([__dialogueText("scenes/PostOfficeScene.js", "t_8fec81657ba8ebc8cf65"),()=>this.collectReply()]);
       if(record.stage==='reply'){
-        text=message||'Ellis asks you to leave the sealed letter for CLOCKWORK and keep his new name private.';
-        choices.push(['Read Ellis’s reply',()=>this.openDocument('reply')],['Keep name private (+2 integrity)',()=>this.finishCase('private')],['Disclose name (-2 integrity)',()=>this.finishCase('disclose')]);
+        text=message||__dialogueText("scenes/PostOfficeScene.js", "t_857b1a3ae0869e513e16");
+        choices.push([__dialogueText("scenes/PostOfficeScene.js", "t_2f867370392b000ec90d"),()=>this.openDocument('reply')],[__dialogueText("scenes/PostOfficeScene.js", "t_0590ec81ed567e85b375"),()=>this.finishCase('private')],[__dialogueText("scenes/PostOfficeScene.js", "t_03e78342efe8e7f3d6fa"),()=>this.finishCase('disclose')]);
       }
       if(record.stage==='completed'){
-        text=message||'Case closed. Base reward: 80 cash and 100 points. Your decision is recorded in your case notes.';
-        choices.push(['Read reply',()=>this.openDocument('reply')],['Postal commendation',()=>this.openDocument('reward')]);
+        text=message||__dialogueText("scenes/PostOfficeScene.js", "t_c7d8bcba8ba671730645");
+        choices.push([__dialogueText("scenes/PostOfficeScene.js", "t_fd2dbead2126d9634247"),()=>this.openDocument('reply')],[__dialogueText("scenes/PostOfficeScene.js", "t_982e6df090ccce717f2b"),()=>this.openDocument('reward')]);
       }
     }
-    choices.push(['Other matters',()=>this.talk()]);this.panel('POSTMAN',text,choices,true);
+    choices.push([__dialogueText("scenes/PostOfficeScene.js", "t_64646486e814dc4b26d0"),()=>this.talk()]);this.panel('POSTMAN',text,choices,true);
   }
   finishCase(choice){
     const message=finishPostalCase(choice);syncPostalNotebook();
     if(Postal.postalState().returnCase.stage==='completed'){
       syncPostalEvidenceImages();this.openDocument('reward');
-      this.panel('CASE CLOSED',choice==='private'
-        ? 'Delivered. Eventually.\n\nBase reward: 80 cash + 100 points.\nIntegrity +2: Ellis’s new name remains private.'
-        : 'Delivered. Eventually.\n\nBase reward: 80 cash + 100 points.\nIntegrity -2: Ellis’s new name was disclosed despite his request.');
+      this.panel(__dialogueText("scenes/PostOfficeScene.js", "t_3825cb7a28815e93b278"),choice==='private'
+        ? __dialogueText("scenes/PostOfficeScene.js", "t_1c83f8bd40ca0ea6b75c")
+        : __dialogueText("scenes/PostOfficeScene.js", "t_0ef31a7034b573d28ff5"));
     }else this.caseMenu(message);
   }
-  deduction(message='Which interpretation connects all three authorised sources?'){
-    this.panel('RETURN TO SENDER',message,[['Ellis Bell / A. Reed',()=>this.caseMenu(Postal.identifyRecipient('ellis'))],['The PI office',()=>this.deduction(Postal.identifyRecipient('office'))],['CLOCKWORK is a home',()=>this.deduction(Postal.identifyRecipient('address'))],['Review evidence',()=>this.caseMenu()]]);
+  deduction(message=__dialogueText("scenes/PostOfficeScene.js", "t_b25bb0bf239399c0d85b")){
+    this.panel(__dialogueText("scenes/PostOfficeScene.js", "t_ce246efc0e53c6412f7a"),message,[[__dialogueText("scenes/PostOfficeScene.js", "t_c24a897eb2aeb610497f"),()=>this.caseMenu(Postal.identifyRecipient('ellis'))],[__dialogueText("scenes/PostOfficeScene.js", "t_4cae2e618eac4b894dc7"),()=>this.deduction(Postal.identifyRecipient('office'))],[__dialogueText("scenes/PostOfficeScene.js", "t_9b4044ed4336171eb6e0"),()=>this.deduction(Postal.identifyRecipient('address'))],[__dialogueText("scenes/PostOfficeScene.js", "t_5e068aeb73ef51893182"),()=>this.caseMenu()]]);
   }
   correspondence(message=''){
     const record=Postal.postalState().returnCase;
-    if(!['identified','waiting','reply','completed'].includes(record.stage))return this.info('POSTE RESTANTE','Establish the intended recipient from the envelope and authorised records first.');
+    if(!['identified','waiting','reply','completed'].includes(record.stage))return this.info(__dialogueText("scenes/PostOfficeScene.js", "t_9a1d4939c221991f52c6"),__dialogueText("scenes/PostOfficeScene.js", "t_107e1811a00e9dc1de58"));
     const choices=[];
     if(record.stage==='identified'){
-      for(const password of ['SECOND HAND','OPEN SESAME','DEAD LETTER'])choices.push([password,()=>this.correspondence(Postal.leavePostalMessage('CLOCKWORK',password,'A sealed letter addressed to your former trading name has reached the PI office. Please confirm how you wish to receive it.'))]);
-    }else choices.push(['Check reply',()=>this.collectReply()],['Review case',()=>this.caseMenu()]);
-    this.panel('CLOCKWORK',message||'Select the contact password. Hint: old clocks can have a second life.',choices);
+      for(const password of [__dialogueText("scenes/PostOfficeScene.js", "t_9e3ce8d3f0616285504a"),__dialogueText("scenes/PostOfficeScene.js", "t_6278571567bd45616c6f"),__dialogueText("scenes/PostOfficeScene.js", "t_91f18fe806b2ef031916")])choices.push([password,()=>this.correspondence(Postal.leavePostalMessage('CLOCKWORK',password,__dialogueText("scenes/PostOfficeScene.js", "t_0ff04e715864d063e90d")))]);
+    }else choices.push([__dialogueText("scenes/PostOfficeScene.js", "t_8fec81657ba8ebc8cf65"),()=>this.collectReply()],[__dialogueText("scenes/PostOfficeScene.js", "t_1bf27bd9b754f9fc3a0d"),()=>this.caseMenu()]);
+    this.panel('CLOCKWORK',message||__dialogueText("scenes/PostOfficeScene.js", "t_40bb39ed39768ef9da42"),choices);
   }
   openHints(){
     const count=hintManager.getAvailableCount();const choices=[];
-    if(count>0)choices.push([`USE FREE HINT (${count})`,()=>this.applyHint('free_hint')]);
-    if(!postalHintUsed('squad_help'))choices.push(['ASK FOR AUTHORISED HELP (+1 integrity)',()=>this.applyHint('squad_help')]);
-    if(!postalHintUsed('cut_corners'))choices.push(['PEEK AT PRIVATE RECORDS (-1 integrity)',()=>this.applyHint('cut_corners')]);
-    this.panel('A LITTLE HELP?',`Free hints available: ${count}.\n\nFree hints use your shared supply. Authorised help and private-record access can each be used once for this case. No money, time or energy cost. A hint points to one next step; it does not collect evidence.`,choices);
+    if(count>0)choices.push([`${__dialogueText("scenes/PostOfficeScene.js", "t_9aa56441d1dbebae2beb")}${count}${__dialogueText("scenes/PostOfficeScene.js", "t_ba5ec51d07a4ac0e9516")}`,()=>this.applyHint('free_hint')]);
+    if(!postalHintUsed('squad_help'))choices.push([__dialogueText("scenes/PostOfficeScene.js", "t_f785c58379cdf7bbac98"),()=>this.applyHint('squad_help')]);
+    if(!postalHintUsed('cut_corners'))choices.push([__dialogueText("scenes/PostOfficeScene.js", "t_e5e9328332c5f8fa4907"),()=>this.applyHint('cut_corners')]);
+    this.panel(__dialogueText("scenes/PostOfficeScene.js", "t_a5662670f19aa35c92d6"),`${__dialogueText("scenes/PostOfficeScene.js", "t_10e799b95ced0c089ce0")}${count}${__dialogueText("scenes/PostOfficeScene.js", "t_e6e749fdc44ba05e893a")}`,choices);
   }
   applyHint(method){
     if(this.hintBusy)return;this.hintBusy=true;
@@ -221,7 +222,7 @@ export class PostOfficeScene extends BaseScene {
   }
   async leave(){
     if(this.modal||this.exiting)return;this.exiting=true;syncPostalNotebook();
-    try{const opened=await this.goto('HomeCityScene',{entryPoint:'post-office'});if(opened===false&&!this._cleanupDone){this.exiting=false;this.info('EXIT','Could not return to town. Please try again.');}}
-    catch(error){console.error('[PostOfficeScene] Exit failed:',error);if(!this._cleanupDone){this.exiting=false;this.info('EXIT','Could not return to town. Please try again.');}}
+    try{const opened=await this.goto('HomeCityScene',{entryPoint:'post-office'});if(opened===false&&!this._cleanupDone){this.exiting=false;this.info('EXIT',__dialogueText("scenes/PostOfficeScene.js", "t_e02a1ccf9b3526681918"));}}
+    catch(error){console.error('[PostOfficeScene] Exit failed:',error);if(!this._cleanupDone){this.exiting=false;this.info('EXIT',__dialogueText("scenes/PostOfficeScene.js", "t_e02a1ccf9b3526681918"));}}
   }
 }

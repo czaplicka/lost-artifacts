@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
 import { DestinationNavigation } from './DestinationNavigation.js';
@@ -81,7 +82,7 @@ export class DestinationsUI {
     this.mapImage = this.worldMap.baseImage;
 
     this.closeBtn = scene.add
-      .text(width - 100, 75, 'X', {
+      .text(width - 100, 75, __dialogueText("ui/DestinationsUI.js", "t_4b68ab3847feda7d6c62"), {
         fontFamily: 'SpecialElite',
         fontSize: '48px',
         color: this.theme.closeColor
@@ -166,17 +167,7 @@ export class DestinationsUI {
 
     EventBus.emit('hideHUD');
 
-    const news = this.getRegisteredScene('NewsHud');
-
-    if (news) {
-      this.newsVisibility = {
-        newspaper: news.newspaperButton?.visible !== false,
-        tv: news.tvButton?.visible !== false
-      };
-
-      news.events?.emit('setNewspaperVisible', false);
-      news.events?.emit('setTvVisible', false);
-    }
+    this.acquireDestinationNewsLock();
 
     this.updateHQButton();
     this.updateOfficeButton();
@@ -201,12 +192,12 @@ export class DestinationsUI {
 
     if (this.committedTravelPayload) {
       this.transportPrompt
-        .setColor('#ff9d6b')
+        .setColor(__dialogueText("ui/DestinationsUI.js", "t_e5ce4dbdca8ab29e7605"))
         .setText(
-          'This journey was already processed, but the travel screen failed to open.'
+          __dialogueText("ui/DestinationsUI.js", "t_f9b4bfc5ab1e5f15fcf7")
         );
 
-      this.confirmLabel.setText('Retry travel screen');
+      this.confirmLabel.setText(__dialogueText("ui/DestinationsUI.js", "t_bdcb4e18897d4795bb1b"));
       this.confirmButton.setFillStyle(0xb57928, 1);
       this.confirmButton.setAlpha(1);
       this.confirmLabel.setAlpha(1);
@@ -252,9 +243,28 @@ export class DestinationsUI {
       }
     }
 
+    this.releaseDestinationNewsLock();
     this.newsVisibility = null;
 
     return true;
+  }
+
+  acquireDestinationNewsLock() {
+    this.releaseDestinationNewsLock();
+    const news = this.getRegisteredScene('NewsHud');
+    if (!news) return;
+    news.destinationMapLocks ??= new Set();
+    news.destinationMapLocks.add(this);
+    this.lockedDestinationNewsScene = news;
+    news.syncLocationVisibility?.();
+  }
+
+  releaseDestinationNewsLock() {
+    const news = this.lockedDestinationNewsScene;
+    this.lockedDestinationNewsScene = null;
+    if (!news) return;
+    news.destinationMapLocks?.delete(this);
+    news.syncLocationVisibility?.();
   }
 
   resetSelectionState() {
@@ -274,6 +284,7 @@ export class DestinationsUI {
 
   destroy() {
     if (this.isDestroyed) return;
+    this.releaseDestinationNewsLock();
 
     this.isDestroyed = true;
 

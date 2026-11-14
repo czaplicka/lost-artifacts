@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { installPIComputerApps } from './pi-computer/PIComputerApps.js';
 import { installDeadMenWebUI } from '../managers/DeadMenWebIntegration.js';
 import { ComputerDrawing } from './pi-computer/ComputerDrawing.js';
@@ -49,7 +50,7 @@ export class PIOfficeComputerUI {
    const target = event.target;
    if (target?.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target?.tagName)) return;
    if (this.photoQuest.debugEditor.handleKey(event)) return;
-   if (event.code !== 'Escape') return;
+   if (event.code !== __dialogueText("ui/PIOfficeComputerUI.js", "t_037c968467aa3fd7c059")) return;
    event.preventDefault();
    if (this.booting) { this.cancelPendingBootStart(); this.monitor.finishBoot(); return; }
    if (this.menuOpen) { this.menuOpen = false; this.render(); return; }
@@ -143,10 +144,10 @@ export class PIOfficeComputerUI {
   if (this.destroyed || !this.isOpen || this.suspended || this.booting) return;
   this.menuOpen = false;
   if (app === 'investigations') {
-   this.launchExternal(this.options.onOpenInvestigations, 'The investigation board is currently unavailable.'); return;
+   this.launchExternal(this.options.onOpenInvestigations, __dialogueText("ui/PIOfficeComputerUI.js", "t_73823e9f15ce33210794")); return;
   }
   if (app === 'travel') {
-   this.launchExternal(this.options.onOpenWorldTravel, 'World travel is currently unavailable.'); return;
+   this.launchExternal(this.options.onOpenWorldTravel, __dialogueText("ui/PIOfficeComputerUI.js", "t_beb88912eb497d426c22")); return;
   }
   if (app === 'desktop') {
    this.shell.closeFocused(); this.viewToken++; this.render(); return;
@@ -177,7 +178,7 @@ export class PIOfficeComputerUI {
   if (typeof document === 'undefined' || !document.fonts) {
    this.fontPromise = Promise.resolve(); return this.fontPromise;
   }
-  const specs = ['16px "Special Elite"', '10px "Press Start 2P"'];
+  const specs = [__dialogueText("ui/PIOfficeComputerUI.js", "t_c594bab135733168f0a1"), __dialogueText("ui/PIOfficeComputerUI.js", "t_183ac5384aa8ad405ce2")];
   try {
    if (specs.every(spec => document.fonts.check(spec))) {
     this.fontPromise = Promise.resolve(); return this.fontPromise;
@@ -195,7 +196,7 @@ export class PIOfficeComputerUI {
   return this.fontPromise;
  }
  money(value) {
-  return Number.isFinite(value) ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value) : 'Unknown';
+  return Number.isFinite(value) ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value) : __dialogueText("ui/PIOfficeComputerUI.js", "t_b764cdc0eab713746721");
  }
  render() { this.monitor.render(); }
  getMail() { return this.documents.getMail(); }
@@ -227,15 +228,15 @@ export class PIOfficeComputerUI {
   try {
    const result = await this.options.onAcceptMission(advert);
    accepted = result?.ok === true;
-   message = accepted ? result.message || 'Case accepted.' : result?.message || 'This case could not be accepted.';
-   message = String(message).replace(/\bJob\b/g, 'Case').replace(/\bjob\b/g, 'case');
+   message = accepted ? result.message || __dialogueText("ui/PIOfficeComputerUI.js", "t_d3cab958304cb8e0feb8") : result?.message || __dialogueText("ui/PIOfficeComputerUI.js", "t_eb03d21abb19938ca14c");
+   message = String(message).replace(/\bJob\b/g, __dialogueText("ui/PIOfficeComputerUI.js", "t_15f86e24ed25aed15493")).replace(/\bjob\b/g, 'case');
    if (accepted && !this.destroyed) {
     try { this.documents.alibiAdvertEmailFlow?.onAccepted?.(advert); }
     catch (error) { console.error('[PIOfficeComputerUI] Contact preservation failed:', error); }
    }
   } catch (error) {
    console.error('[PIOfficeComputerUI] Accept case failed:', error);
-   message = 'Could not accept this case. Please try again.';
+   message = __dialogueText("ui/PIOfficeComputerUI.js", "t_4d56dfb5302bfe950174");
   } finally {
    this.accepting = false;
    if (!this.destroyed && this.isOpen && !this.suspended) {

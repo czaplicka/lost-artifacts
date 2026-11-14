@@ -1,0 +1,22 @@
+[
+  {
+    "path": "game.html",
+    "existed": false
+  },
+  {
+    "path": "index.html",
+    "existed": true
+  },
+  {
+    "path": "login.html",
+    "existed": true
+  },
+  {
+    "path": "assets\\css\\landing.css",
+    "existed": false
+  },
+  {
+    "path": "assets\\js\\landing.js",
+    "existed": false
+  }
+]

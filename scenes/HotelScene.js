@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { getEnergyManager } from '../managers/EnergyManager.js';
 import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
@@ -31,7 +32,7 @@ const CITY_ALIASES = {
 };
 
 const EXPIRED_BOOKING_MESSAGE =
-  'Your hotel booking expired at midnight. A new room charge applies for today.';
+  __dialogueText("scenes/HotelScene.js", "t_8aec927944223b17ae32");
 
 function normalizeCityId(value) {
   const id = String(value || '')
@@ -232,7 +233,7 @@ export class HotelScene extends BaseScene {
 
   getHotelChoiceMessage() {
     if (!this.cityId) {
-      return 'Missing city ID. Hotel booking is unavailable.';
+      return __dialogueText("scenes/HotelScene.js", "t_51e575a32ca5508466fd");
     }
 
     return this.getExpiredBooking()
@@ -256,7 +257,7 @@ export class HotelScene extends BaseScene {
       return;
     }
 
-    this.monologue?.startIdle?.('idle.hotel');
+    this.monologue?.startIdle?.(__dialogueText("scenes/HotelScene.js", "t_34ed01425c564207652c"));
   }
 
   createBackground(width, height) {
@@ -276,13 +277,13 @@ export class HotelScene extends BaseScene {
     this.roomTitle = this.add.text(
       width / 2,
       46,
-      'HOTEL ROOM',
+      __dialogueText("scenes/HotelScene.js", "t_c2b46553f77612c851ce"),
       {
         fontFamily: 'PressStart2P',
         fontSize: '24px',
         color: '#ffffff',
         align: 'center',
-        stroke: '#000000',
+        stroke: __dialogueText("scenes/HotelScene.js", "t_7b2817bf9b80e66d07f2"),
         strokeThickness: 5
       }
     )
@@ -292,13 +293,13 @@ export class HotelScene extends BaseScene {
     this.roomSubtitle = this.add.text(
       width / 2,
       84,
-      'Sleep is cheaper than therapy. Usually.',
+      __dialogueText("scenes/HotelScene.js", "t_4c4ad3615949cd056416"),
       {
         fontFamily: 'SpecialElite',
         fontSize: '20px',
         color: '#f1e6b8',
         align: 'center',
-        stroke: '#000000',
+        stroke: __dialogueText("scenes/HotelScene.js", "t_7b2817bf9b80e66d07f2"),
         strokeThickness: 4
       }
     )
@@ -310,7 +311,7 @@ export class HotelScene extends BaseScene {
     this.add.text(
       width / 2,
       height - 76,
-      '[ ESC TO LEAVE ]',
+      __dialogueText("scenes/HotelScene.js", "t_7847db07fb69c0374aa6"),
       {
         fontFamily: 'PressStart2P',
         fontSize: '12px',
@@ -370,8 +371,8 @@ export class HotelScene extends BaseScene {
         panelW / 2,
         34,
         expired
-          ? 'HOTEL BOOKING EXPIRED'
-          : 'CHOOSE YOUR HOTEL',
+          ? __dialogueText("scenes/HotelScene.js", "t_69f722adc8925e541b8a")
+          : __dialogueText("scenes/HotelScene.js", "t_3dcc9c299e6e02c3c58c"),
         {
           fontFamily: 'PressStart2P',
           fontSize: '20px',
@@ -384,7 +385,7 @@ export class HotelScene extends BaseScene {
       this.add.text(
         panelW / 2,
         78,
-        'One charge per city per day. Mark Agency picks up the bill.',
+        __dialogueText("scenes/HotelScene.js", "t_a271e7175973d601c685"),
         {
           fontFamily: 'SpecialElite',
           fontSize: '21px',
@@ -401,7 +402,7 @@ export class HotelScene extends BaseScene {
       this.add.text(
         panelW / 2,
         114,
-        `AGENCY BUDGET: $${balance}`,
+        `${__dialogueText("scenes/HotelScene.js", "t_e40363cb6503a9692eeb")}${balance}`,
         {
           fontFamily: 'PressStart2P',
           fontSize: '14px',
@@ -455,11 +456,11 @@ export class HotelScene extends BaseScene {
 
       addText(175, config.tierLabel, 22, '#ffe066');
       addText(210, option.label, 24, '#ffffff');
-      addText(250, `$${option.cost} / day`, 24, '#f6dc8c');
+      addText(250, `${__dialogueText("scenes/HotelScene.js", "t_09fc96082d34c2dfc129")}${option.cost}${__dialogueText("scenes/HotelScene.js", "t_448a17b8a5ae9199304b")}`, 24, '#f6dc8c');
 
       addText(
         290,
-        `${Math.round(config.recoveryMultiplier * 100)}% sleep recovery`,
+        `${Math.round(config.recoveryMultiplier * 100)}${__dialogueText("scenes/HotelScene.js", "t_2b2667db468abf308db2")}`,
         20,
         '#f1e6b8'
       );
@@ -469,8 +470,8 @@ export class HotelScene extends BaseScene {
       addText(
         380,
         affordable
-          ? (expired ? 'RENEW BOOKING' : 'CHECK IN')
-          : 'INSUFFICIENT AGENCY FUNDS',
+          ? (expired ? __dialogueText("scenes/HotelScene.js", "t_1bc913d5bf0b43d47492") : __dialogueText("scenes/HotelScene.js", "t_005767d9cfdd2478b92a"))
+          : __dialogueText("scenes/HotelScene.js", "t_805aa4826c1d133a5b6d"),
         17,
         affordable ? '#b5ed9d' : '#e89585'
       );
@@ -492,7 +493,7 @@ export class HotelScene extends BaseScene {
     const cancel = this.add.text(
       panelW / 2,
       490,
-      '[ RETURN TO CITY ]',
+      __dialogueText("scenes/HotelScene.js", "t_739a682d2f1d89e6eba1"),
       {
         fontFamily: 'PressStart2P',
         fontSize: '13px',
@@ -539,12 +540,12 @@ export class HotelScene extends BaseScene {
 
       const purchase = moneyManager.buyHotel(option, {
         cityId: this.cityId,
-        description: `Hotel check-in: ${option.label}`
+        description: `${__dialogueText("scenes/HotelScene.js", "t_e61e95d2671a538347e8")}${option.label}`
       });
 
       if (!purchase.ok) {
         this.hotelChoiceMessage?.setText(
-          'Not enough agency funds. The minibar remains a distant dream.'
+          __dialogueText("scenes/HotelScene.js", "t_d820b8284a5515a4a1f4")
         );
         return;
       }
@@ -569,7 +570,7 @@ export class HotelScene extends BaseScene {
       );
 
       this.hotelChoiceMessage?.setText(
-        'Check-in failed. Please check the console before trying again.'
+        __dialogueText("scenes/HotelScene.js", "t_d4cbddd4b662d1d7a1cc")
       );
     } finally {
       this.isBookingHotel = false;
@@ -660,9 +661,9 @@ export class HotelScene extends BaseScene {
         returnSceneKey: 'HotelScene',
         mission,
         gameState,
-        reporterName: 'Colette Duvall',
+        reporterName: __dialogueText("scenes/HotelScene.js", "t_a29624fe378fdc63fb64"),
         stationName:
-          `${gameState.currentCity || mission.city || 'Local'} Night Report`
+          `${gameState.currentCity || mission.city || __dialogueText("scenes/HotelScene.js", "t_8c31e6e7223097e2e484")}${__dialogueText("scenes/HotelScene.js", "t_4363031583f205672bb0")}`
       });
 
       if (this._cleanupDone || status !== 'opened') return;

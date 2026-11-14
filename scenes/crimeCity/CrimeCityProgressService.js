@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 // scenes/crimeCity/CrimeCityProgressService.js
 import { gameState } from '../../GameData.js';
 import { getEnergyManager } from '../../managers/EnergyManager.js';
@@ -193,10 +194,10 @@ export class CrimeCityProgressService {
 
   showUnresolvedAlibisMessage() {
     this.scene?.showMessage?.(
-      'Resolve every suspect alibi before dispatching the arrest team.\n' +
-      'Interview the witnesses and file a conclusion for each suspect.',
+      __dialogueText("scenes/crimeCity/CrimeCityProgressService.js", "t_7bd1c7a25225aa66b887") +
+      __dialogueText("scenes/crimeCity/CrimeCityProgressService.js", "t_6578325017d726f4c4bf"),
       3500,
-      '#5d2a00'
+      __dialogueText("scenes/crimeCity/CrimeCityProgressService.js", "t_e09afad9b0dfcb2294f9")
     );
   }
 
@@ -222,7 +223,7 @@ export class CrimeCityProgressService {
       const cost = energyManager.getTravelCost(key);
       const affordability = energyManager.canAfford(cost);
       if (!affordability.ok) { this.showNoEnergyPopup(); return false; }
-      const result = energyManager.consumeCustom(cost, `Travel (${key}): -${cost}`, {
+      const result = energyManager.consumeCustom(cost, `${__dialogueText("scenes/crimeCity/CrimeCityProgressService.js", "t_592efc34d9485f9ae821")}${key}${__dialogueText("scenes/crimeCity/CrimeCityProgressService.js", "t_24e778466d407e0a9e47")}${cost}`, {
         requireFullAmount: true, activityType: `travel_${key}`
       });
       if (!result?.success) { this.showNoEnergyPopup(); return false; }

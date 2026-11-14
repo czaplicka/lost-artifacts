@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 export const BoardEditor = {
   bindEditor() {
     if (this.editor.saveBtn) {
@@ -129,61 +130,18 @@ export const BoardEditor = {
 
 
     if (type === 'photo') {
-      wrap.innerHTML = `
-        <label class="crime-board-field">
-          <span>Image URL</span>
-          <input name="image" type="text" value="${this.escapeAttribute(item.image || '')}">
-        </label>
-        <label class="crime-board-field">
-          <span>Caption</span>
-          <textarea name="caption" rows="3">${this.escapeHtml(item.caption || '')}</textarea>
-        </label>
-        <label class="crime-board-field">
-          <span>Meta (comma separated)</span>
-          <input name="meta" type="text" value="${this.escapeAttribute((item.meta || []).join(', '))}">
-        </label>
-      `;
+      wrap.innerHTML = `${__dialogueText("crimeBoard/BoardEditor.js", "t_5de0893f4a94e6e2ed86")}${this.escapeAttribute(item.image || '')}${__dialogueText("crimeBoard/BoardEditor.js", "t_4257d9414f60300e840c")}${this.escapeHtml(item.caption || '')}${__dialogueText("crimeBoard/BoardEditor.js", "t_61b2dd36abdd6a80c879")}${this.escapeAttribute((item.meta || []).join(', '))}${__dialogueText("crimeBoard/BoardEditor.js", "t_22bdd17f152aff957185")}`;
       return;
     }
 
 
     if (type === 'evidence') {
-      wrap.innerHTML = `
-        <label class="crime-board-field">
-          <span>Tag</span>
-          <input name="tag" type="text" value="${this.escapeAttribute(item.tag || 'Evidence')}">
-        </label>
-        <label class="crime-board-field">
-          <span>Body</span>
-          <textarea name="body" rows="5">${this.escapeHtml(item.body || '')}</textarea>
-        </label>
-        <label class="crime-board-field">
-          <span>Fields (one per line: key:value)</span>
-          <textarea name="fields" rows="6">${this.escapeHtml((item.fields || []).map(row => `${row.key || ''}:${row.value || ''}`).join('\n'))}</textarea>
-        </label>
-        <label class="crime-board-field">
-          <span>Motive guess ID (clueId)</span>
-          <input name="clueId" type="text" value="${this.escapeAttribute(item.clueId || '')}" placeholder="e.g. gambling_debt">
-        </label>
-      `;
+      wrap.innerHTML = `${__dialogueText("crimeBoard/BoardEditor.js", "t_a2984a9711bbce44eba6")}${this.escapeAttribute(item.tag || __dialogueText("crimeBoard/BoardEditor.js", "t_03867aea70acaf4c5dce"))}${__dialogueText("crimeBoard/BoardEditor.js", "t_84e64fd75650cb4eb1ce")}${this.escapeHtml(item.body || '')}${__dialogueText("crimeBoard/BoardEditor.js", "t_5a390cf2b2414ee5ee98")}${this.escapeHtml((item.fields || []).map(row => `${row.key || ''}:${row.value || ''}`).join('\n'))}${__dialogueText("crimeBoard/BoardEditor.js", "t_70bdcd087fe180b010a1")}${this.escapeAttribute(item.clueId || '')}${__dialogueText("crimeBoard/BoardEditor.js", "t_549e10687cfbfbb03c63")}`;
       return;
     }
 
 
-    wrap.innerHTML = `
-      <label class="crime-board-field">
-        <span>Text</span>
-        <textarea name="text" rows="5">${this.escapeHtml(item.text || '')}</textarea>
-      </label>
-      <label class="crime-board-field">
-        <span>Meta text</span>
-        <input name="metaText" type="text" value="${this.escapeAttribute(item.metaText || '')}">
-      </label>
-      <label class="crime-board-field">
-        <span>Motive guess ID (clueId)</span>
-        <input name="clueId" type="text" value="${this.escapeAttribute(item.clueId || '')}" placeholder="e.g. gambling_debt">
-      </label>
-    `;
+    wrap.innerHTML = `${__dialogueText("crimeBoard/BoardEditor.js", "t_81258b792458fecd7c97")}${this.escapeHtml(item.text || '')}${__dialogueText("crimeBoard/BoardEditor.js", "t_3e6208df8d943d6f1d81")}${this.escapeAttribute(item.metaText || '')}${__dialogueText("crimeBoard/BoardEditor.js", "t_ee9be53d9e0c8de80a64")}${this.escapeAttribute(item.clueId || '')}${__dialogueText("crimeBoard/BoardEditor.js", "t_68ee643c6f9aeabae8e9")}`;
   },
 
   applyEditorChanges() {
@@ -218,7 +176,7 @@ export const BoardEditor = {
       patch.body = '';
       patch.fields = [];
     } else if (type === 'evidence') {
-      patch.tag = form.elements.tag?.value.trim() || 'Evidence';
+      patch.tag = form.elements.tag?.value.trim() || __dialogueText("crimeBoard/BoardEditor.js", "t_03867aea70acaf4c5dce");
       patch.body = form.elements.body?.value.trim() || '';
       patch.fields = this.parseFieldsTextarea(form.elements.fields?.value || '');
       patch.image = '';

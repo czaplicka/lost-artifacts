@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { canUsePhone } from './phoneAccess.js';
 
 export class PlayerMenuUI {
@@ -342,7 +343,7 @@ export class PlayerMenuUI {
                 .text(
                     hitArea.x,
                     y + 3,
-                    `${index}: ${button.key}`,
+                    `${index}${__dialogueText("ui/PlayerMenuUI.js", "t_45822f54a0d0e030f756")}${button.key}`,
                     {
                         fontFamily: 'monospace',
                         fontSize: '10px',
@@ -502,7 +503,7 @@ export class PlayerMenuUI {
                 {
                     ...style,
                     color: hotkeyColor,
-                    fontStyle: 'bold'
+                    fontStyle: __dialogueText("ui/PlayerMenuUI.js", "t_e0007a5bca8d91586274")
                 }
             )
             .setOrigin(0);
@@ -670,11 +671,11 @@ export class PlayerMenuUI {
         };
 
         const left = this.scene.add
-            .text(spacing, 0, '▼', arrowStyle)
+            .text(spacing, 0, __dialogueText("ui/PlayerMenuUI.js", "t_2e522d1f0da2cc7d6f68"), arrowStyle)
             .setOrigin(0.5);
 
         const right = this.scene.add
-            .text(-spacing, 0, '▼', arrowStyle)
+            .text(-spacing, 0, __dialogueText("ui/PlayerMenuUI.js", "t_2e522d1f0da2cc7d6f68"), arrowStyle)
             .setOrigin(0.5);
 
         this.toggleArrows = { left, right };
@@ -721,77 +722,57 @@ export class PlayerMenuUI {
     createMenuButtons() {
         const data = [
             {
-                key: 'office_storage',
-                label: 'Storage',
-                hotkey: '',
-                officeRoom: 'storage',
-                fallbackIcon: 'ST',
-                action: () => {
-                    void this.openOfficeRoom('storage');
-                }
-            },
-            {
-                key: 'office_archive',
-                label: 'Archive',
-                hotkey: '',
-                officeRoom: 'archive',
-                fallbackIcon: 'AR',
-                action: () => {
-                    void this.openOfficeRoom('archive');
-                }
-            },
-            {
                 key: 'filebutt',
-                label: 'Case File',
+                label: __dialogueText("ui/PlayerMenuUI.js", "t_a27af7ddb3070a665659"),
                 hotkey: 'f',
                 action: () => this.openCasefile()
             },
             {
                 key: 'note',
-                label: 'Notebook',
+                label: __dialogueText("ui/PlayerMenuUI.js", "t_0dec07abf92dbe7289d6"),
                 hotkey: 'n',
                 action: () => this.openNotes()
             },
             {
                 key: 'atlas',
-                label: 'Atlas',
+                label: __dialogueText("ui/PlayerMenuUI.js", "t_9dee1c0ed39ef4e2686f"),
                 hotkey: 'a',
                 action: () => this.openAtlas()
             },
             {
                 key: 'plane',
-                label: 'Travel',
+                label: __dialogueText("ui/PlayerMenuUI.js", "t_d2b98fb53714f23cc0aa"),
                 hotkey: 't',
                 action: () => this.openDestinations()
             },
             {
                 key: 'warrant',
-                label: 'Warrant',
+                label: __dialogueText("ui/PlayerMenuUI.js", "t_df3ece88f1a5d0f00463"),
                 hotkey: 'w',
                 action: () => this.openWarrant()
             },
             {
                 key: 'crime_board',
-                label: 'Crime Board',
+                label: __dialogueText("ui/PlayerMenuUI.js", "t_f4c2190c4738d459c48d"),
                 hotkey: 'c',
                 restricted: true,
                 action: () => this.openCrimeBoard()
             },
             {
                 key: 'telephone',
-                label: 'Telephone',
+                label: __dialogueText("ui/PlayerMenuUI.js", "t_84ecd6328b8064e6c537"),
                 hotkey: 'p',
                 action: () => this.openPhone()
             },
             {
                 key: 'passport',
-                label: 'Passport',
+                label: __dialogueText("ui/PlayerMenuUI.js", "t_3173c1c8cfe02e326ce2"),
                 hotkey: 's',
                 action: () => this.openPassport()
             },
             {
                 key: 'inventory',
-                label: 'Inventory',
+                label: __dialogueText("ui/PlayerMenuUI.js", "t_758f487fe8e9fcc59cec"),
                 hotkey: 'i',
                 iconKey: 'inventory_icon',
                 fallbackIcon: '🎒',
@@ -859,7 +840,7 @@ export class PlayerMenuUI {
                     .text(
                         0,
                         iconY,
-                        item.fallbackIcon || '❔',
+                        item.fallbackIcon || __dialogueText("ui/PlayerMenuUI.js", "t_4abd8ab8e98ed5c97343"),
                         {
                             fontFamily: item.officeRoom
                                 ? 'SpecialElite'
@@ -1104,8 +1085,8 @@ export class PlayerMenuUI {
 
         this.updateMenuInteractivity();
 
-        this.toggleArrows?.left.setText('▲');
-        this.toggleArrows?.right.setText('▲');
+        this.toggleArrows?.left.setText(__dialogueText("ui/PlayerMenuUI.js", "t_671fd067cc0e773bbd07"));
+        this.toggleArrows?.right.setText(__dialogueText("ui/PlayerMenuUI.js", "t_671fd067cc0e773bbd07"));
 
         this.scene.tweens.add({
             targets: this.container,
@@ -1142,8 +1123,8 @@ export class PlayerMenuUI {
 
         this.updateMenuInteractivity();
 
-        this.toggleArrows?.left.setText('▼');
-        this.toggleArrows?.right.setText('▼');
+        this.toggleArrows?.left.setText(__dialogueText("ui/PlayerMenuUI.js", "t_2e522d1f0da2cc7d6f68"));
+        this.toggleArrows?.right.setText(__dialogueText("ui/PlayerMenuUI.js", "t_2e522d1f0da2cc7d6f68"));
 
         this.scene.tweens.add({
             targets: this.container,
@@ -1194,12 +1175,12 @@ export class PlayerMenuUI {
         this.scene.closeAllUIPanels();
 
         this.scene.caseFileUI.open({
-            artifact: mission.artifact || 'UNKNOWN ARTIFACT',
+            artifact: mission.artifact || __dialogueText("ui/PlayerMenuUI.js", "t_51b01e8422efd81865f3"),
             city: mission.city || '',
             country: mission.country || '',
-            description: mission.description || 'No more data...',
+            description: mission.description || __dialogueText("ui/PlayerMenuUI.js", "t_a92bcba5ae63bcbb487e"),
             significance: mission.significance || '',
-            clue: mission.clue || 'No more clues...',
+            clue: mission.clue || __dialogueText("ui/PlayerMenuUI.js", "t_f5cd65724798b380a305"),
             artifactKey: mission.artifactKey || 'artifact_fallback'
         });
 

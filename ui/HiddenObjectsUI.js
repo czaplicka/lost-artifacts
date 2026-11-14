@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { hintManager } from '../managers/HintManager.js';
 import { getEnergyManager } from '../managers/EnergyManager.js';
 import { EventBus } from '../EventBus.js';
@@ -15,24 +16,24 @@ import {
 
 const HINT_OPTIONS = {
   cut_corners: {
-    label: 'CUT CORNERS',
+    label: __dialogueText("ui/HiddenObjectsUI.js", "t_d1cbbf44341666456748"),
     description:
-      'Skip the evidence-handling checklist.\n' +
-      'Faster now. Awkward in court.',
+      __dialogueText("ui/HiddenObjectsUI.js", "t_ac0630027454e1d04f40") +
+      __dialogueText("ui/HiddenObjectsUI.js", "t_590ad6b2cf887218e788"),
     energy: 5,
     minutes: 10,
-    moralLabel: 'Procedural misconduct',
+    moralLabel: __dialogueText("ui/HiddenObjectsUI.js", "t_dd97bc15c7f8e4dc0e10"),
     accent: 0xd9382f
   },
 
   squad_help: {
-    label: 'ASK SQUAD FOR HELP',
+    label: __dialogueText("ui/HiddenObjectsUI.js", "t_3f359aebd4e84382b085"),
     description:
-      'Request a documented second sweep.\n' +
-      'More eyes. More paperwork.',
+      __dialogueText("ui/HiddenObjectsUI.js", "t_e53c48ca30f3ee072128") +
+      __dialogueText("ui/HiddenObjectsUI.js", "t_ccd2ded0c8c7954c2e4d"),
     energy: 10,
     minutes: 30,
-    moralLabel: 'Documented assistance',
+    moralLabel: __dialogueText("ui/HiddenObjectsUI.js", "t_cdef3c50459582fc42db"),
     accent: 0x4aa3df
   }
 };
@@ -40,11 +41,11 @@ const HINT_OPTIONS = {
 const FREE_HINT_ACCENT = 0x7cb342;
 
 const OPENING_LINES = [
-  'Touch nothing. Click everything.',
-  'Everything is evidence. Mostly.',
-  'Somebody was here. Somebody with questionable taste.',
-  'Look closely. The dust bunnies are witnesses.',
-  'The paperwork can wait. The clues cannot.'
+  __dialogueText("ui/HiddenObjectsUI.js", "t_e36697fe9276d336a5f6"),
+  __dialogueText("ui/HiddenObjectsUI.js", "t_b6b6e65ad08cb18b80df"),
+  __dialogueText("ui/HiddenObjectsUI.js", "t_53896a91202f46b0198f"),
+  __dialogueText("ui/HiddenObjectsUI.js", "t_23ecbffc0670a3f8b564"),
+  __dialogueText("ui/HiddenObjectsUI.js", "t_ff7310487a60a8de438a")
 ];
 
 const TYPE_DELAY_MS = 14;
@@ -244,7 +245,7 @@ export class HiddenObjectsUI {
 
     this.own(
       scene.add
-        .text(left, card.y + 30, 'CASE FILE', {
+        .text(left, card.y + 30, __dialogueText("ui/HiddenObjectsUI.js", "t_c95495641200bd4f90b7"), {
           fontFamily: F.pixel,
           fontSize: '10px',
           color: C.inkSoftHex
@@ -255,7 +256,7 @@ export class HiddenObjectsUI {
 
     const title = this.own(
       scene.add
-        .text(left, card.y + 48, String(scene.title || 'Crime Scene'), {
+        .text(left, card.y + 48, String(scene.title || __dialogueText("ui/HiddenObjectsUI.js", "t_deb2ecf56ab544bfcb8e")), {
           fontFamily: F.body,
           fontSize: '26px',
           color: C.inkHex,
@@ -278,7 +279,7 @@ export class HiddenObjectsUI {
         scene,
         card.x + card.w - inner - 64,
         card.y + 84,
-        'TOP SECRET',
+        __dialogueText("ui/HiddenObjectsUI.js", "t_b3a141f79a292ddb6273"),
         C.red,
         C.redHex,
         { angle: -9, fontSize: 11, sub: '*ish', alpha: 0.78 }
@@ -334,7 +335,7 @@ export class HiddenObjectsUI {
 
     this.timerText = this.own(
       scene.add
-        .text(left + plateW / 2, y + 42, '0:00', {
+        .text(left + plateW / 2, y + 42, __dialogueText("ui/HiddenObjectsUI.js", "t_a1810a5d58132b72c6ca"), {
           fontFamily: F.pixel,
           fontSize: '22px',
           color: C.amber
@@ -407,7 +408,7 @@ export class HiddenObjectsUI {
 
     this.missesText = this.own(
       scene.add
-        .text(left, y, `Misses: ${scene.incorrectClicks}`, {
+        .text(left, y, `${__dialogueText("ui/HiddenObjectsUI.js", "t_398ee3526fb37d7653d0")}${scene.incorrectClicks}`, {
           fontFamily: F.body,
           fontSize: '18px',
           color: '#8b2a22'
@@ -485,7 +486,7 @@ export class HiddenObjectsUI {
 
     this.own(
       scene.add
-        .text(left, y, 'EVIDENCE TO LOCATE', {
+        .text(left, y, __dialogueText("ui/HiddenObjectsUI.js", "t_85e6253920951a2feee5"), {
           fontFamily: F.pixel,
           fontSize: '10px',
           color: C.inkHex
@@ -496,7 +497,7 @@ export class HiddenObjectsUI {
 
     this.counterText = this.own(
       scene.add
-        .text(left + innerW, y, '0/0', {
+        .text(left + innerW, y, __dialogueText("ui/HiddenObjectsUI.js", "t_5513e3eabba6d75402c1"), {
           fontFamily: F.pixel,
           fontSize: '10px',
           color: C.inkSoftHex
@@ -568,7 +569,7 @@ export class HiddenObjectsUI {
           .text(
             textX,
             cy,
-            String(item.item ?? item.id ?? '???'),
+            String(item.item ?? item.id ?? __dialogueText("ui/HiddenObjectsUI.js", "t_a03b221c6c6eae7122ca")),
             {
               fontFamily: F.body,
               fontSize: `${baseFont}px`,
@@ -672,7 +673,7 @@ export class HiddenObjectsUI {
 
     this.hintLabel = this.own(
       scene.add
-        .text(left + width / 2 + 14, y + height / 2, 'HINT', {
+        .text(left + width / 2 + 14, y + height / 2, __dialogueText("ui/HiddenObjectsUI.js", "t_fc1b8229a4cd735b71b2"), {
           fontFamily: F.pixel,
           fontSize: '13px',
           color: '#fff2c4'
@@ -714,7 +715,7 @@ export class HiddenObjectsUI {
 
     this.own(
       scene.add
-        .text(left + 12, y + 10, 'DISPATCH', {
+        .text(left + 12, y + 10, __dialogueText("ui/HiddenObjectsUI.js", "t_6630eaab9cc1ef0a6b05"), {
           fontFamily: F.pixel,
           fontSize: '8px',
           color: '#8f7f55'
@@ -750,7 +751,7 @@ export class HiddenObjectsUI {
     } else {
       this.backBtn = this.own(
         this.scene.add
-          .text(width - 125, 46, 'RETURN TO CITY', {
+          .text(width - 125, 46, __dialogueText("ui/HiddenObjectsUI.js", "t_a85865723550b5ee5f98"), {
             fontFamily: F.pixel,
             fontSize: '12px',
             color: '#fff2c4',
@@ -840,7 +841,7 @@ export class HiddenObjectsUI {
       }
     }
 
-    this.counterText?.setText(`${found}/${items.length}`);
+    this.counterText?.setText(`${found}${__dialogueText("ui/HiddenObjectsUI.js", "t_8a5edab282632443219e")}${items.length}`);
 
     if (
       this.hintMarker &&
@@ -859,7 +860,7 @@ export class HiddenObjectsUI {
       summary?.available ??
       hintManager.getAvailableCount();
 
-    this.hintLabel.setText(`HINT (${count})`);
+    this.hintLabel.setText(`${__dialogueText("ui/HiddenObjectsUI.js", "t_3ae7f543a38da68eeaeb")}${count}${__dialogueText("ui/HiddenObjectsUI.js", "t_ba5ec51d07a4ac0e9516")}`);
   }
 
   updateTimer(timeLeft) {
@@ -913,7 +914,7 @@ export class HiddenObjectsUI {
 
   updateScoreAndMisses(score, misses) {
     this.scoreText?.setText(String(score));
-    this.missesText?.setText(`Misses: ${misses}`);
+    this.missesText?.setText(`${__dialogueText("ui/HiddenObjectsUI.js", "t_398ee3526fb37d7653d0")}${misses}`);
     this.redrawTally(misses);
   }
 
@@ -1076,15 +1077,15 @@ export class HiddenObjectsUI {
       energyManager.isManualSleepActive()
     ) {
       this.showMessage(
-        'Even excellent eyesight requires being awake.',
-        '#ffb3b3'
+        __dialogueText("ui/HiddenObjectsUI.js", "t_1d6c8c7c5d38ec517e03"),
+        __dialogueText("ui/HiddenObjectsUI.js", "t_67f0c667a89e3ff3f3e3")
       );
 
       return;
     }
 
     if (!this.getRemainingZones().length) {
-      this.showMessage('Nothing left to find.');
+      this.showMessage(__dialogueText("ui/HiddenObjectsUI.js", "t_8dea46e27214c2f2069a"));
       return;
     }
 
@@ -1138,7 +1139,7 @@ export class HiddenObjectsUI {
     );
 
     const title = this.scene.add
-      .text(0, -250, 'A LITTLE HELP?', {
+      .text(0, -250, __dialogueText("ui/HiddenObjectsUI.js", "t_a5662670f19aa35c92d6"), {
         fontFamily: F.body,
         fontSize: '32px',
         color: '#f8e7b9',
@@ -1160,7 +1161,7 @@ export class HiddenObjectsUI {
       .text(
         0,
         -205,
-        `Free hints available: ${available}`,
+        `${__dialogueText("ui/HiddenObjectsUI.js", "t_10e799b95ced0c089ce0")}${available}`,
         {
           fontFamily: F.body,
           fontSize: '20px',
@@ -1184,8 +1185,8 @@ export class HiddenObjectsUI {
     this.addHintOption({
       y: -140,
       width: panelWidth - 56,
-      label: 'USE FREE HINT',
-      details: 'One hint from your personal supply.',
+      label: __dialogueText("ui/HiddenObjectsUI.js", "t_7070fa9368aa3c6ac621"),
+      details: __dialogueText("ui/HiddenObjectsUI.js", "t_0b46a91993057575e66d"),
       accent: FREE_HINT_ACCENT,
       enabled: available > 0,
       callback: () => this.applyHint('free_hint')
@@ -1206,10 +1207,10 @@ export class HiddenObjectsUI {
         label: option.label,
         details:
           `${option.description}\n` +
-          `${option.energy} energy · ` +
-          `${option.minutes} min · ` +
+          `${option.energy}${__dialogueText("ui/HiddenObjectsUI.js", "t_1c824ac2ef61504caab0")}` +
+          `${option.minutes}${__dialogueText("ui/HiddenObjectsUI.js", "t_46e2a1c0fa99b3a30875")}` +
           option.moralLabel +
-          (affordability.ok ? '' : ' · Not enough energy'),
+          (affordability.ok ? '' : __dialogueText("ui/HiddenObjectsUI.js", "t_ef2118931d5fc3708370")),
         accent: option.accent,
         enabled: affordability.ok,
         callback: () => this.applyHint(method)
@@ -1231,7 +1232,7 @@ export class HiddenObjectsUI {
     this.hintModal.add(this.hintModalMessage);
 
     const cancel = this.scene.add
-      .text(0, 240, 'KEEP LOOKING', {
+      .text(0, 240, __dialogueText("ui/HiddenObjectsUI.js", "t_ae64ab8f97b421e26608"), {
         fontFamily: F.pixel,
         fontSize: '12px',
         color: '#f8e7b9',
@@ -1419,7 +1420,7 @@ export class HiddenObjectsUI {
       const option = HINT_OPTIONS[method];
 
       if (!option) {
-        this.failHint('Unknown hint option.');
+        this.failHint(__dialogueText("ui/HiddenObjectsUI.js", "t_1c4499395a2cad3b7fc2"));
         return;
       }
 
@@ -1438,7 +1439,7 @@ export class HiddenObjectsUI {
 
       const payment = energyManager.consumeCustom(
         option.energy,
-        `Hidden-object hint (${method}): -${option.energy}`,
+        `${__dialogueText("ui/HiddenObjectsUI.js", "t_13eebc6f47310322afc1")}${method}${__dialogueText("ui/HiddenObjectsUI.js", "t_24e778466d407e0a9e47")}${option.energy}`,
         {
           requireFullAmount: true,
           activityType: 'hidden_object_hint'
@@ -1448,7 +1449,7 @@ export class HiddenObjectsUI {
       if (!payment.success) {
         this.failHint(
           payment.message ||
-          'Unable to pay for this hint.'
+          __dialogueText("ui/HiddenObjectsUI.js", "t_46d8443d2df91eb89143")
         );
 
         return;
@@ -1476,7 +1477,7 @@ export class HiddenObjectsUI {
 
     if (!result?.success) {
       this.failHint(
-        'No free hints left. Choose another option.'
+        __dialogueText("ui/HiddenObjectsUI.js", "t_c2182305ee1def14963e")
       );
 
       return;
@@ -1504,15 +1505,15 @@ export class HiddenObjectsUI {
       this.highlightZone(target);
 
       this.showMessage(
-        'Your eyes may want to investigate that glow.',
-        '#f8e7b9'
+        __dialogueText("ui/HiddenObjectsUI.js", "t_0e39dd5178372cf5b0d1"),
+        __dialogueText("ui/HiddenObjectsUI.js", "t_b88d87941c116a422f15")
       );
 
       if (result.saved === false) {
         this.showMessage(
-          'Hint used, but autosave failed. ' +
-          'Progress may not survive reloading.',
-          '#ffb3b3'
+          __dialogueText("ui/HiddenObjectsUI.js", "t_01406f2a7bb1225d25d6") +
+          __dialogueText("ui/HiddenObjectsUI.js", "t_d3cfe1480446dcbf4803"),
+          __dialogueText("ui/HiddenObjectsUI.js", "t_67f0c667a89e3ff3f3e3")
         );
       }
     };

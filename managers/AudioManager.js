@@ -1,8 +1,9 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 const STORAGE = {
   MUSIC: 'la_musicVol', SFX: 'la_sfxVol', MUTED: 'la_muted',
   TRACK: 'la_jukeboxTrack', MODE: 'la_jukeboxMode'
 };
-const DEFAULTS = { MUSIC: 0.2, SFX: 0.8, MUTED: false };
+const DEFAULTS = { MUSIC: 0.1, SFX: 0.8, MUTED: false };
 const AUDIO_HOST_KEY = '__LostArtifactsAudioHost';
 const BACKGROUND_KEYS = new Set(['themeMusic', 'themeGame']);
 const CATALOG_URL = new URL('../assets/audio/music/tracks.json', import.meta.url);
@@ -38,7 +39,7 @@ async function loadJukeboxCatalog() {
       });
     }));
   } catch (error) {
-    catalogError = `Cannot load assets/audio/music/tracks.json: ${error.name === 'AbortError' ? 'request timed out' : error.message}`;
+    catalogError = `${__dialogueText("managers/AudioManager.js", "t_3510ce16934aa9687fbd")}${error.name === 'AbortError' ? __dialogueText("managers/AudioManager.js", "t_93deb3798f1b6a3ee1a0") : error.message}`;
     console.error('[Jukebox]', catalogError);
     return Object.freeze([]);
   } finally {
@@ -338,7 +339,7 @@ class AudioManager {
     if (this._canPlay(track.key)) return Promise.resolve();
     if (this._loads.has(track.key)) return this._loads.get(track.key);
     const host = this._ensureAudioHost();
-    if (!host) return Promise.reject(new Error('Audio host is unavailable.'));
+    if (!host) return Promise.reject(new Error(__dialogueText("managers/AudioManager.js", "t_247ba4a8509927aa1baa")));
     const promise = new Promise((resolve, reject) => {
       let finished = false, timer;
       const completeEvent = `filecomplete-audio-${track.key}`;
@@ -349,10 +350,10 @@ class AudioManager {
         this._loadCancels.delete(cancel);
         if (error) reject(error); else resolve();
       };
-      const cancel = () => finish(new Error('Audio loading cancelled.'));
+      const cancel = () => finish(new Error(__dialogueText("managers/AudioManager.js", "t_afc44a0b2eab47657ca4")));
       const done = () => finish();
       const failed = file => {
-        if (file.key === track.key) finish(new Error(`Cannot load ${track.url}`));
+        if (file.key === track.key) finish(new Error(`${__dialogueText("managers/AudioManager.js", "t_1706f34e03ed1a78c892")}${track.url}`));
       };
       const begin = () => {
         if (finished) return;
@@ -364,7 +365,7 @@ class AudioManager {
         } catch (error) { finish(error); }
       };
       this._loadCancels.add(cancel);
-      timer = setTimeout(() => finish(new Error(`Loading timed out: ${track.url}`)), 45000);
+      timer = setTimeout(() => finish(new Error(`${__dialogueText("managers/AudioManager.js", "t_568d6944b0ff0cd339eb")}${track.url}`)), 45000);
       if (host.sys.isActive() && host.load) begin();
       else host.events.once('create', begin);
     });
@@ -405,8 +406,8 @@ class AudioManager {
       return Promise.reject(new Error(catalogError));
     }
     const track = JUKEBOX_TRACKS.find(t => t.id === id);
-    if (!track) return Promise.reject(new Error(`Unknown jukebox track: ${id}`));
-    if (!this.game) return Promise.reject(new Error('Initialize AudioManager first.'));
+    if (!track) return Promise.reject(new Error(`${__dialogueText("managers/AudioManager.js", "t_c11ee2b6a648b4590c03")}${id}`));
+    if (!this.game) return Promise.reject(new Error(__dialogueText("managers/AudioManager.js", "t_087ac6af55623406694d")));
     this._detachJukeboxCompletion();
     const request = ++this._requestId, game = this.game;
     this.selectedTrack = id; safeSet(STORAGE.TRACK, id);

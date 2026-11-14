@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { drawWebsiteNavigation } from './WebsiteNavigation.js';
 import { isForumPage, renderForum } from './ForumPageTemplate.js';
 import { organisationKind, renderOrganisation } from './OrganisationPageTemplate.js';
@@ -23,46 +24,46 @@ const ALIBI_TEMPLATES = {
 };
 
 const ALIBI_PRESENTATION = {
-  club_home: { tagline: 'PRIVATE SERVICES & ENQUIRIES', sectionLabel: 'ABOUT OUR SERVICES' },
-  club_packages: { tagline: 'PRIVATE SERVICES & ENQUIRIES', sectionLabel: 'PACKAGES & DEMONSTRATIONS' },
-  club_contact: { tagline: 'PRIVATE SERVICES & ENQUIRIES', sectionLabel: 'CONTACT & ENQUIRIES' },
-  pie_results: { tagline: 'CIVIC EVENTS OFFICE', sectionLabel: 'OFFICIAL EVENT RESULTS' },
-  game_results: { tagline: 'TABLETOP CIRCLE', sectionLabel: 'OFFICIAL MATCH RECORDS' },
-  morrow_notice: { sectionLabel: 'PUBLIC COMPANY STATEMENT' },
-  morrow_contact: { sectionLabel: 'AUTHORISED COMPANY CONTACT' },
-  arthur_namesake: { tagline: 'PERSONAL COLLECTION ARCHIVE', sectionLabel: 'COLLECTION NOTES' },
-  owl_wine_merchants: { sectionLabel: 'SHOP OFFERS' },
-  owl_receipt_stationery: { sectionLabel: 'STATIONERY & SUPPLIES' },
-  owl_nora_namesake: { sectionLabel: 'ABOUT THE BAKERY' },
-  owl_simon_namesake: { sectionLabel: 'SHOP & EQUIPMENT' },
-  owl_evelyn_namesake: { sectionLabel: 'COSTUME HIRE' },
-  owl_tuesday_parcels: { sectionLabel: 'COLLECTION SERVICES' }
+  club_home: { tagline: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_d788943f764aa5431a0c"), sectionLabel: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_1743931182b9b6f6a8c1") },
+  club_packages: { tagline: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_d788943f764aa5431a0c"), sectionLabel: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_689320be640905c9e85b") },
+  club_contact: { tagline: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_d788943f764aa5431a0c"), sectionLabel: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_0bae0c38da623697d2da") },
+  pie_results: { tagline: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_6328000342be5a057e9b"), sectionLabel: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_7d5ac7d84e75abaa6c3c") },
+  game_results: { tagline: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_82517bcb0c8a0c5b8fbb"), sectionLabel: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_ee093c27ef6b234275b4") },
+  morrow_notice: { sectionLabel: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_5eaf2892e17fc34b1c4f") },
+  morrow_contact: { sectionLabel: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_310d1f9de53391191fce") },
+  arthur_namesake: { tagline: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_22576acdaeed0f594a96"), sectionLabel: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_d1fe549e1a8d505725b0") },
+  owl_wine_merchants: { sectionLabel: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_71769656a7e30e5074d0") },
+  owl_receipt_stationery: { sectionLabel: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_cf0ae232e87aa9a44c55") },
+  owl_nora_namesake: { sectionLabel: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_0800b90bb3e4b8e638a3") },
+  owl_simon_namesake: { sectionLabel: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_dc9e1a6790924ba6b443") },
+  owl_evelyn_namesake: { sectionLabel: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_c7794a577bee03c04a7b") },
+  owl_tuesday_parcels: { sectionLabel: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_7fbf9f5b1fe5e492fb91") }
 };
 
 const PALETTES = {
   hotel: {
     dark: 0x23494d, light: 0xdde8df, gold: 0xc3a465,
-    label: 'HOTEL & HOSPITALITY', section: 'GUEST INFORMATION', navigation: 'OFFICIAL WEBSITE',
+    label: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_2c7a53f4e4644d76a184"), section: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_8a4fe4a65a6c5612502f"), navigation: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_332c88662404dac5646b"),
     paper: 0xf8f2e5, navigationColor: 0xe5dac5
   },
   restaurant: {
     dark: 0x653b3d, light: 0xeee1d3, gold: 0xc6a16b,
-    label: 'RESTAURANT & DINING', section: 'FROM THE HOUSE', navigation: 'OFFICIAL WEBSITE',
+    label: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_098ea2a5f51388fb97a0"), section: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_905b3298a9a55b819bd1"), navigation: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_332c88662404dac5646b"),
     paper: 0xf8f2e5, navigationColor: 0xe5dac5
   },
   business: {
     dark: 0x354a65, light: 0xdce4e9, gold: 0xc0a36a,
-    label: 'SERVICES & ENQUIRIES', section: 'COMPANY INFORMATION', navigation: 'OFFICIAL WEBSITE',
+    label: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_4c4e8cb1dac12e33d930"), section: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_f32dc840205a985d30fa"), navigation: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_332c88662404dac5646b"),
     paper: 0xf8f2e5, navigationColor: 0xe5dac5
   },
   memorial: {
     dark: 0x414b43, light: 0xe3e5d9, gold: 0xb8b092,
-    label: 'MEMORIES & FAMILY CORRESPONDENCE', section: 'FAMILY ARCHIVE', navigation: 'FAMILY PAGES',
+    label: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_b85595a1bc640aa8c3a2"), section: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_5d24343bea6e98a1320c"), navigation: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_fb5c43589a2586864f16"),
     paper: 0xf6f3e9, navigationColor: 0xe4e3d7
   },
   classifieds: {
     dark: 0x65543f, light: 0xe5dcc5, gold: 0xc8ab70,
-    label: 'LOCAL CLASSIFIEDS', section: 'COMMUNITY NOTICEBOARD', navigation: 'PUBLIC NOTICES',
+    label: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_ccbee5af2ccce2213175"), section: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_093539ca560ad2de9b05"), navigation: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_dd0a203dfbbad9b7b57d"),
     paper: 0xf5edda, navigationColor: 0xe6d9b9
   }
 };
@@ -107,7 +108,7 @@ export function businessKind(page) {
   const selected = page.template || page.businessType || page.theme;
   if (['hotel', 'restaurant', 'business', 'classifieds'].includes(selected)) return selected;
   if (page.layout === 'retro-business') return 'business';
-  if (page.id?.startsWith('copper_') || page.brand === 'THE COPPER SPOON') return 'restaurant';
+  if (page.id?.startsWith('copper_') || page.brand === __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_b4783cdbda4aa272dec8")) return 'restaurant';
   if (page.brand === 'SWIFTWING') return 'business';
   return null;
 }
@@ -130,7 +131,7 @@ export function installBusinessPages(ui) {
       if (isClubOverride(page)) {
         return renderOrganisation(this, {
           ...page, template: 'association', theme: 'organisation',
-          sectionLabel: page.sectionLabel || 'CLUB MEMBERS', tagline: page.tagline || 'CLUB & COMMUNITY'
+          sectionLabel: page.sectionLabel || __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_45ef12542d66578acbd0"), tagline: page.tagline || __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_4f816d3b2562cb8d6197")
         }, 'association');
       }
       const kind = businessKind(page);
@@ -160,7 +161,7 @@ function journalGalleryPresentation(search, page, kind) {
   return {
     page: { ...page, links },
     gallery: page.id === 'miramar_event' && target
-      ? { label: 'Event gallery', pageId: target.id }
+      ? { label: __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_3363a7e2246cb1af4f50"), pageId: target.id }
       : null
   };
 }
@@ -203,7 +204,7 @@ function renderBusiness(search, originalPage, kind) {
   drawing.rectangle(bounds.x + 5, bounds.y + 5, bounds.w, bounds.h, 0x000000, 0.3);
   drawing.bevel(bounds.x, bounds.y, bounds.w, bounds.h, 0xc8bda7);
   drawing.rectangle(bounds.x + 4, bounds.y + 4, bounds.w - 8, 28, 0x493e50);
-  fit(bounds.x + 13, bounds.y + 13, `OWL NAVIGATOR / ${brand}`, bounds.w - 148, 8, '#f9e8bb', true);
+  fit(bounds.x + 13, bounds.y + 13, `${__dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_6a5469aa820b1a95a6fd")}${brand}`, bounds.w - 148, 8, '#f9e8bb', true);
   button(bounds.x + bounds.w - 32, bounds.y + 7, 23, 21, 'X', () => search.back());
   const addressY = bounds.y + 38;
   button(bounds.x + 10, addressY, 45, 27, '<', () => search.back());
@@ -238,7 +239,7 @@ function renderBusiness(search, originalPage, kind) {
   const footerY = bounds.y + bounds.h - 35;
   const contentH = footerY - contentY - gap;
   if (contentH < 65) {
-    fit(sectionX + 8, contentY, 'Enlarge the game window to read this page.', sectionW - 16, 12);
+    fit(sectionX + 8, contentY, __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_aa234bc57eb8e25b0c9c"), sectionW - 16, 12);
     return;
   }
   const photoPage = photoForPage(search, page, kind);
@@ -252,7 +253,7 @@ function renderBusiness(search, originalPage, kind) {
     const imageHeight = contentH - 54;
     drawing.rectangle(sectionX + 8, contentY + 8, photoWidth - 16, imageHeight, palette.light);
     const image = search.art(photoPage.imageKey, sectionX + 10, contentY + 10, photoWidth - 20, imageHeight - 4);
-    if (!image) fit(sectionX + 18, contentY + 24, 'PHOTOGRAPH UNAVAILABLE', photoWidth - 36, 8, css(palette.dark), true);
+    if (!image) fit(sectionX + 18, contentY + 24, __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_8b7d716c7840da9bcc37"), photoWidth - 36, 8, css(palette.dark), true);
     fit(sectionX + 12, contentY + contentH - 35, page.imageCaption || photoPage.imageCaption || brand,
       photoWidth - 24, 11, css(palette.dark));
     fit(sectionX + 12, contentY + contentH - 19, page.photoCredit || photoPage.photoCredit || palette.navigation,
@@ -268,7 +269,7 @@ function renderBusiness(search, originalPage, kind) {
   // Reserve a separate in-article row so the gallery button cannot cover text.
   const galleryHeight = gallery ? 38 : 0;
   if (gallery && contentH < 52 + lineHeight + galleryHeight) {
-    fit(articleX + 15, contentY + 46, 'Enlarge the game window to read this page.', articleW - 30, 12);
+    fit(articleX + 15, contentY + 46, __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_aa234bc57eb8e25b0c9c"), articleW - 30, 12);
     return;
   }
   const rows = Math.max(1, Math.floor((contentH - 52 - galleryHeight) / lineHeight));

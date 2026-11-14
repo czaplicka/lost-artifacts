@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 import {
   tierOf,
   SCENE_TIERS,
@@ -43,7 +44,7 @@ export class SceneLoader {
 
   ensure(key) {
     if (this._destroyed) {
-      return Promise.reject(new Error('[SceneLoader] Loader has been destroyed.'));
+      return Promise.reject(new Error(__dialogueText("SceneLoader.js", "t_89678c5a9f8b6b0000c8")));
     }
     if (this.has(key)) return Promise.resolve(this.get(key));
     const existing = this._tasks.get(key);
@@ -65,7 +66,7 @@ export class SceneLoader {
 
   _unknownSceneError(key) {
     return new Error(
-      `[SceneLoader] Unknown scene key "${key}". Add it to sceneRegistry.js.`
+      `${__dialogueText("SceneLoader.js", "t_e41a49efaa0646d4feb2")}${key}${__dialogueText("SceneLoader.js", "t_ce6db0c28050fa7b0e71")}`
     );
   }
 
@@ -350,7 +351,7 @@ export class SceneLoader {
       try { this.game.scene.stop(OVERLAY_KEY); } catch {}
     }
     this._overlayOwned = false;
-    const error = new Error('[SceneLoader] Loader was destroyed.');
+    const error = new Error(__dialogueText("SceneLoader.js", "t_68ad39bc12ddd3a90dd4"));
     for (const task of [...this._tasks.values()]) this._finishTask(task, error);
     this._backgroundQueue.clear();
     this._pending.clear();

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // tutorial-compact-objectives-v1
 import { EventBus } from '../EventBus.js';
 import { PlayerMenuUI } from '../ui/PlayerMenuUI.js';
@@ -18,68 +19,68 @@ export const CRIME_TUTORIAL_STEPS = [
 ];
 const STEP_CONTENT = {
   crime_scene: {
-    title: 'EVERYTHING IS EVIDENCE',
-    objective: 'Search the crime scene and find the hidden objects.',
-    hint: 'Every object matters until you know how the crime happened. Free hint: slow and safe. Legal hint: costs money. Illegal hint: HQ will pretend it never saw it.',
-    targetHotspot: 'crime-scene', success: 'Lots of objects, zero context. Perfect. That is what the lab is for.'
+    title: __dialogueText("tutorials/CrimeCityTutorial.js", "t_b179e89d5451215f66c9"),
+    objective: __dialogueText("tutorials/CrimeCityTutorial.js", "t_396f8165e6c7ddf84c1d"),
+    hint: __dialogueText("tutorials/CrimeCityTutorial.js", "t_698b9cf384ad2ceab4fb"),
+    targetHotspot: 'crime-scene', success: __dialogueText("tutorials/CrimeCityTutorial.js", "t_cc91b09ffcb426913432")
   },
   crime_lab: {
-    title: 'SCIENCE DOES THE BORING PART',
-    objective: 'Go to the Crime Lab and collect the forensic result.',
-    hint: 'For this first case, the lab has already analysed the evidence. Later, you will have to do it yourself.',
-    targetHotspot: 'crime-lab', success: 'The lab found something useful. Naturally, they will explain it over the phone.'
+    title: __dialogueText("tutorials/CrimeCityTutorial.js", "t_d0bedf0c191928f395e7"),
+    objective: __dialogueText("tutorials/CrimeCityTutorial.js", "t_7eabc10201d8278c339b"),
+    hint: __dialogueText("tutorials/CrimeCityTutorial.js", "t_8adc6da1cbd1d17bfe7b"),
+    targetHotspot: 'crime-lab', success: __dialogueText("tutorials/CrimeCityTutorial.js", "t_0a3caf483cfc74688dd5")
   },
   phone_lab: {
-    title: 'THE NERDS CALL BACK',
-    objective: 'Answer the Crime Lab call and hear the reconstruction.',
-    hint: 'The report explains how the theft was carried out. Listen carefully: the method will matter later.',
-    targetHotspot: 'phone', success: 'Now you know what kind of thief you are looking for.'
+    title: __dialogueText("tutorials/CrimeCityTutorial.js", "t_1375d784d15263207988"),
+    objective: __dialogueText("tutorials/CrimeCityTutorial.js", "t_08808396627e86370fee"),
+    hint: __dialogueText("tutorials/CrimeCityTutorial.js", "t_e9fbc37b2cdf6615f604"),
+    targetHotspot: 'phone', success: __dialogueText("tutorials/CrimeCityTutorial.js", "t_40cfca41c403bc9f9e39")
   },
   hypothesis: {
-    title: 'HOW DID THEY DO IT?', objective: 'Reconstruct the theft.',
-    hint: 'Place the elements in the slots. The system tells you what fits, what almost fits, and what is nonsense. Three tries, then it costs points.',
-    targetHotspot: 'hypothesis', success: 'Now you know what skills the thief needed.'
+    title: __dialogueText("tutorials/CrimeCityTutorial.js", "t_810fa3b5d9418487cfa9"), objective: __dialogueText("tutorials/CrimeCityTutorial.js", "t_5e5c6cd8f11508e06b2a"),
+    hint: __dialogueText("tutorials/CrimeCityTutorial.js", "t_85ad93eafb3dae20fee4"),
+    targetHotspot: 'hypothesis', success: __dialogueText("tutorials/CrimeCityTutorial.js", "t_cdb8bfbdf4711d519710")
   },
   suspects: {
-    title: 'TEN PEOPLE, ONE THIEF',
-    objective: 'Open the Evidence Grid to compare the suspects with the evidence.',
-    hint: 'Use the forensic clues and the reconstruction to narrow down your suspects. You decide who does not fit.',
-    targetHotspot: 'suspect-grid', success: 'The files are open. Time to see whose story survives the evidence.'
+    title: __dialogueText("tutorials/CrimeCityTutorial.js", "t_4ace015fa0941eef096c"),
+    objective: __dialogueText("tutorials/CrimeCityTutorial.js", "t_59f7beb50ca0cc785a4c"),
+    hint: __dialogueText("tutorials/CrimeCityTutorial.js", "t_3bbb247a90f205e3e3f7"),
+    targetHotspot: 'suspect-grid', success: __dialogueText("tutorials/CrimeCityTutorial.js", "t_020d9feb00ebd493aefa")
   },
   suspect_grid: {
-    title: 'THE GRID', objective: 'Use the remaining clues to narrow your shortlist to two people.',
-    hint: 'Combine the forensic clues with the skills needed for the theft. Click SEND TO ALIBIS to submit your shortlist, then return to Crime City.',
-    targetHotspot: 'suspect-grid', success: 'Two suspects remain. Evidence got us this far. Now we need their stories.'
+    title: __dialogueText("tutorials/CrimeCityTutorial.js", "t_b5e6b36926054fbc858d"), objective: __dialogueText("tutorials/CrimeCityTutorial.js", "t_97f30e451538697cf614"),
+    hint: __dialogueText("tutorials/CrimeCityTutorial.js", "t_6cea0271c6fe2903439d"),
+    targetHotspot: 'suspect-grid', success: __dialogueText("tutorials/CrimeCityTutorial.js", "t_ed1a7a1b1769d3de48c1")
   },
   talk_to_npcs: {
-    title: 'SMALL TALK, BIG ALIBIS', objective: 'Talk to the witnesses and collect their accounts.',
-    hint: 'Ask about the remaining suspects and where they were during the theft. Everybody has an alibi. Some of them are even true.',
-    targetHotspot: 'city-npc', success: 'Witness accounts collected. Trust issues unlocked.'
+    title: __dialogueText("tutorials/CrimeCityTutorial.js", "t_458f9ec1869ff5f1c5d9"), objective: __dialogueText("tutorials/CrimeCityTutorial.js", "t_c3b96318a759db560542"),
+    hint: __dialogueText("tutorials/CrimeCityTutorial.js", "t_a42b435fc930122264b7"),
+    targetHotspot: 'city-npc', success: __dialogueText("tutorials/CrimeCityTutorial.js", "t_1410fe6ad886c6b5a654")
   },
   find_liar: {
-    title: 'SOMEBODY IS LYING', objective: 'Compare the testimonies with the timeline and expose the false alibi.',
-    hint: 'Check the stories against each other. Someone is covering for a suspect. Their confidence is not supporting evidence.',
-    targetHotspot: 'alibi-board', success: 'The alibi has collapsed. Time to visit the apartment.'
+    title: __dialogueText("tutorials/CrimeCityTutorial.js", "t_06cd95af021e931de365"), objective: __dialogueText("tutorials/CrimeCityTutorial.js", "t_b1f6dfad514e777ebc84"),
+    hint: __dialogueText("tutorials/CrimeCityTutorial.js", "t_90300513a4af31cd8386"),
+    targetHotspot: 'alibi-board', success: __dialogueText("tutorials/CrimeCityTutorial.js", "t_f3fa4dbfee624492c90f")
   },
   visit_apartment: {
-    title: 'FOLLOW THE ADDRESS', objective: "Visit the suspect's apartment.",
-    hint: 'The false alibi gives you your next lead. You still need more information before issuing an arrest warrant.',
-    targetHotspot: 'apartment', success: 'Nobody home. How considerate of them to leave the evidence.'
+    title: __dialogueText("tutorials/CrimeCityTutorial.js", "t_536c9ccb84f8d0069c82"), objective: __dialogueText("tutorials/CrimeCityTutorial.js", "t_5b6588dd45cab881a3f5"),
+    hint: __dialogueText("tutorials/CrimeCityTutorial.js", "t_a500a7ac6e4c61b384bc"),
+    targetHotspot: 'apartment', success: __dialogueText("tutorials/CrimeCityTutorial.js", "t_221981bb683cb28f7f1c")
   },
   search_apartment: {
-    title: 'HOME SWEET CRIME SCENE', objective: 'Search the apartment and collect the escape evidence.',
-    hint: 'Inspect the objects and collect useful items. Keep the ticket: the Crime Lab can examine it. Then return to Crime City.',
-    targetHotspot: null, success: 'Next stop: the Crime Lab. Your ticket needs a second opinion.'
+    title: __dialogueText("tutorials/CrimeCityTutorial.js", "t_c102e0ed754206fb88ec"), objective: __dialogueText("tutorials/CrimeCityTutorial.js", "t_2421a1de44fae81f518d"),
+    hint: __dialogueText("tutorials/CrimeCityTutorial.js", "t_5fdde590ece0cae81bf5"),
+    targetHotspot: null, success: __dialogueText("tutorials/CrimeCityTutorial.js", "t_2ad59f46625fcb9fbb93")
   },
   ticket_lab: {
-    title: 'A TICKET TO SOMEWHERE', objective: 'Return to the Crime Lab and have the ticket examined.',
-    hint: 'Ask the lab to examine the ticket from your inventory. A damaged destination is still a destination. Just less cooperative.',
-    targetHotspot: 'crime-lab', success: 'Destination clue recovered. Time to put the travel budget in danger.'
+    title: __dialogueText("tutorials/CrimeCityTutorial.js", "t_0a52b7d83faa57d79481"), objective: __dialogueText("tutorials/CrimeCityTutorial.js", "t_9822c06f13c76e6c47ec"),
+    hint: __dialogueText("tutorials/CrimeCityTutorial.js", "t_9ad172ebdf017a4d7bfa"),
+    targetHotspot: 'crime-lab', success: __dialogueText("tutorials/CrimeCityTutorial.js", "t_9c10d0671b6ea5f480ba")
   },
   pursuit: {
-    title: 'THE CHASE IS ON', objective: 'Open Travel in the bottom menu and follow the destination clue.',
-    hint: 'Use the lab result to choose your next city. The thief has a head start. Do not give them a sightseeing allowance.',
-    targetHotspot: 'travel', success: 'Tutorial complete. Follow the trail, detective.'
+    title: __dialogueText("tutorials/CrimeCityTutorial.js", "t_d3cecb4f05065c6ff9d3"), objective: __dialogueText("tutorials/CrimeCityTutorial.js", "t_e76bc9ed34c1b358fd42"),
+    hint: __dialogueText("tutorials/CrimeCityTutorial.js", "t_330f6b7bee175fcfb9dc"),
+    targetHotspot: 'travel', success: __dialogueText("tutorials/CrimeCityTutorial.js", "t_f1be86cd9cc389a7c0a5")
   }
 };
 
@@ -141,15 +142,15 @@ export class CrimeCityTutorial {
     const submitted = this.scene.isGridShortlistSubmitted?.() === true;
     const remaining = this.scene.getGridRemainingSuspects?.().length ?? 0;
     if (submitted) return {
-      ...base, title: 'THE GRID / RETURN',
-      objective: 'Shortlist sent. Return to Crime City.',
-      hint: 'Click the glowing CRIME CITY button at the bottom left. Next, we will check the witnesses and their alibis.',
+      ...base, title: __dialogueText("tutorials/CrimeCityTutorial.js", "t_8dab8da6117b9bad2517"),
+      objective: __dialogueText("tutorials/CrimeCityTutorial.js", "t_66bd164ab6e236a20147"),
+      hint: __dialogueText("tutorials/CrimeCityTutorial.js", "t_d7b758117e35738dd7ea"),
       targetHotspot: 'grid-return', gridPhase: 'return'
     };
     if (remaining === 2) return {
-      ...base, title: 'THE GRID / SEND',
-      objective: 'Two suspects remain. Click SEND TO ALIBIS.',
-      hint: 'Use the glowing button at the bottom right to submit your shortlist. Then return to Crime City.',
+      ...base, title: __dialogueText("tutorials/CrimeCityTutorial.js", "t_e65de23fd9c62eab2454"),
+      objective: __dialogueText("tutorials/CrimeCityTutorial.js", "t_5eef2ab87dde0030dbd5"),
+      hint: __dialogueText("tutorials/CrimeCityTutorial.js", "t_a08ad7534081cb98400f"),
       targetHotspot: 'grid-send', gridPhase: 'send'
     };
     return { ...base, targetHotspot: null, gridPhase: 'compare' };
@@ -233,7 +234,7 @@ export class CrimeCityTutorial {
     // The Grid return action owns this transition, not the Send button or an event.
     if (stepId === 'suspect_grid' && this.sceneKey === 'SuspectGridScene' && !this.scene.gridLeaving) return;
     if (!advanceCrimeTutorial(this.gameState, stepId)) return;
-    this.showFeedback(message ?? this.stepContent[stepId]?.success ?? 'Good work, detective.', 'success');
+    this.showFeedback(message ?? this.stepContent[stepId]?.success ?? __dialogueText("tutorials/CrimeCityTutorial.js", "t_7a451d0bfc4d551badcb"), 'success');
     requestAutosave();
     if (this.tutorialState.completed) { this.finish(false); return; }
     this.setStep(this.tutorialState.step);
@@ -329,7 +330,7 @@ export class CrimeCityTutorial {
       const portrait = this.scene.textures.exists(PORTRAIT_KEY)
         ? this.scene.add.image(portraitX, portraitY, PORTRAIT_KEY).setScrollFactor(0).setDisplaySize(PORTRAIT_SIZE, PORTRAIT_SIZE)
         : this.scene.add.rectangle(portraitX, portraitY, PORTRAIT_SIZE, PORTRAIT_SIZE, 0xd7c58f, 0.3).setScrollFactor(0);
-      const nameplate = this.scene.add.text(portraitX, portraitY + PORTRAIT_SIZE / 2 + 7, 'HQ', { fontFamily: FONT_PIXEL, fontSize: '8px', color: '#f2d477' }).setScrollFactor(0).setOrigin(0.5, 0);
+      const nameplate = this.scene.add.text(portraitX, portraitY + PORTRAIT_SIZE / 2 + 7, __dialogueText("tutorials/CrimeCityTutorial.js", "t_a688d83ae8586526909c"), { fontFamily: FONT_PIXEL, fontSize: '8px', color: '#f2d477' }).setScrollFactor(0).setOrigin(0.5, 0);
       items.push(frame, portrait, nameplate);
     }
     this.stepNumberText = this.scene.add.text(textLeft, panelTop + (collapsed ? 9 : 12), '', { fontFamily: FONT_PIXEL, fontSize: '8px', color: '#f2d477' }).setScrollFactor(0);
@@ -343,14 +344,14 @@ export class CrimeCityTutorial {
     const skipW = 136, skipH = 26, skipX = panelLeft + panelWidth - skipW / 2 - 10, skipY = panelTop + 8 + skipH / 2;
     const skipBorder = this.scene.add.rectangle(skipX, skipY, skipW, skipH, COLORS.panel, 0.35).setScrollFactor(0).setStrokeStyle(1, COLORS.accent, 0.72);
     const skipButton = this.scene.add.rectangle(skipX, skipY, skipW, skipH, 0, 0.001).setScrollFactor(0).setInteractive({ useHandCursor: true });
-    const skipText = this.scene.add.text(skipX, skipY, 'SKIP TUTORIAL ▸', { fontFamily: FONT_PIXEL, fontSize: '7px', color: '#d7c58f' }).setScrollFactor(0).setOrigin(0.5);
+    const skipText = this.scene.add.text(skipX, skipY, __dialogueText("tutorials/CrimeCityTutorial.js", "t_8cc97df53fb818d8aca7"), { fontFamily: FONT_PIXEL, fontSize: '7px', color: '#d7c58f' }).setScrollFactor(0).setOrigin(0.5);
     skipButton.on('pointerover', () => skipText.setColor('#f2d477'));
     skipButton.on('pointerout', () => skipText.setColor('#d7c58f'));
     skipButton.on('pointerdown', (pointer, lx, ly, event) => { event?.stopPropagation?.(); this.skip(); });
     const toggleSize = 26, toggleX = skipX - skipW / 2 - 8 - toggleSize / 2;
     const toggleBorder = this.scene.add.rectangle(toggleX, skipY, toggleSize, toggleSize, COLORS.panel, 0.35).setScrollFactor(0).setStrokeStyle(1, COLORS.accent, 0.72);
     const toggleButton = this.scene.add.rectangle(toggleX, skipY, toggleSize, toggleSize, 0, 0.001).setScrollFactor(0).setInteractive({ useHandCursor: true });
-    const toggleText = this.scene.add.text(toggleX, skipY, collapsed ? '+' : '–', { fontFamily: FONT_PIXEL, fontSize: '12px', color: '#d7c58f' }).setScrollFactor(0).setOrigin(0.5);
+    const toggleText = this.scene.add.text(toggleX, skipY, collapsed ? __dialogueText("tutorials/CrimeCityTutorial.js", "t_a318c24216defe206fee") : __dialogueText("tutorials/CrimeCityTutorial.js", "t_d4f85d36757c12f0c6da"), { fontFamily: FONT_PIXEL, fontSize: '12px', color: '#d7c58f' }).setScrollFactor(0).setOrigin(0.5);
     toggleButton.on('pointerover', () => toggleText.setColor('#f2d477'));
     toggleButton.on('pointerout', () => toggleText.setColor('#d7c58f'));
     toggleButton.on('pointerdown', (pointer, lx, ly, event) => { event?.stopPropagation?.(); this.toggleCollapsed(); });
@@ -363,7 +364,7 @@ export class CrimeCityTutorial {
   updateOverlay(step) {
     if (!this.overlay?.scene || !step) return;
     if (this.currentStep === 'suspect_grid' && this.sceneKey === 'SuspectGridScene') step = this.getDisplayStep();
-    this.stepNumberText?.setText(`CRIME CITY ${step.number}/${CRIME_TUTORIAL_STEPS.length}`);
+    this.stepNumberText?.setText(`${__dialogueText("tutorials/CrimeCityTutorial.js", "t_3262bad163455d887a75")}${step.number}${__dialogueText("tutorials/CrimeCityTutorial.js", "t_8a5edab282632443219e")}${CRIME_TUTORIAL_STEPS.length}`);
     this.titleText?.setText(this.collapsed ? (step.objective || step.title) : step.title);
     if (this.collapsed && this.titleText && this.panel) {
       const width = Math.max(80, this.panel.width - 32);

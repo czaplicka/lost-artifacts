@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 const MODES = {
   agency_storage_manager: 'manager',
   agency_storage_room_v2: 'empty'
@@ -14,7 +15,7 @@ const WINDOW_PANES = [
   [269,192,322,208,322,340,269,339],
   [269,370,322,373,322,500,269,505]
 ];
-const CONSOLE_LINES=['STOCK CHECK','ROPES: 12','HOOKS: DENIED','FORMS: MANY','ALL FILED.'];
+const CONSOLE_LINES=[__dialogueText("scenes/storage/StorageManagerAnimations.js", "t_6ec3bc83342aa27be337"),__dialogueText("scenes/storage/StorageManagerAnimations.js", "t_f7146339f76e064b4686"),__dialogueText("scenes/storage/StorageManagerAnimations.js", "t_9642291d70622372da04"),__dialogueText("scenes/storage/StorageManagerAnimations.js", "t_564caee50ee1b490349a"),__dialogueText("scenes/storage/StorageManagerAnimations.js", "t_09fc748457679468d4aa")];
 
 export class StorageManagerAnimations {
   constructor(scene) {
@@ -98,7 +99,7 @@ export class StorageManagerAnimations {
       if(remaining>=line.length+8){lines.push(line);remaining-=line.length+8;}
       else{current=line.slice(0,Math.min(remaining,line.length));break;}
     }
-    this.console.setText([...lines,current].slice(0,5).join('\n'));
+    this.console.setText([...lines,current].slice(0,5).join(__dialogueText("scenes/storage/StorageManagerAnimations.js", "t_01ba4719c80b6fe911b0")));
     const row=Math.min(lines.length,4);
     this.cursorX=547+current.length*4.8;this.cursorY=489+row*11;
     this.cursorVisible=lines.length<CONSOLE_LINES.length&&Math.floor(this.elapsed/550)%2===0;

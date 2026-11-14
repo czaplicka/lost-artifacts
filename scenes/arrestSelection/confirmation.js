@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { FONT_PIXEL, FONT_TYPE, PAL } from './config.js';
 
 export const confirmationMethods = {
@@ -24,7 +25,7 @@ export const confirmationMethods = {
     const band = this.add.rectangle(0, -150, 900, 80, 0x4a3118, 1);
 
     const title = this.add
-      .text(0, -150, 'ISSUE ARREST ORDER?', {
+      .text(0, -150, __dialogueText("scenes/arrestSelection/confirmation.js", "t_073477e26c90cb450c63"), {
         fontFamily: FONT_PIXEL,
         fontSize: '24px',
         color: PAL.goldCss
@@ -49,7 +50,7 @@ export const confirmationMethods = {
       stroke: 0xf7e6bc
     });
 
-    const noBtn = this.createButton(190, 120, 320, 70, 'KEEP LOOKING', {
+    const noBtn = this.createButton(190, 120, 320, 70, __dialogueText("scenes/arrestSelection/confirmation.js", "t_ae64ab8f97b421e26608"), {
       fontSize: '16px'
     });
 
@@ -78,7 +79,7 @@ export const confirmationMethods = {
     );
 
     this.confirmBody.setText(
-      `You are about to detain\n${name.toUpperCase()}.\nThis decision is final.`
+      `${__dialogueText("scenes/arrestSelection/confirmation.js", "t_b8bf0babcdc097f78a57")}${name.toUpperCase()}${__dialogueText("scenes/arrestSelection/confirmation.js", "t_a5f016ea6919e28368a9")}`
     );
 
     this.confirmOpen = true;

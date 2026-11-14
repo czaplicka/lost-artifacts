@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 
 import {
@@ -24,36 +25,36 @@ import {
 
 const DEFINITIONS = Object.freeze({
   pi_grand_conspiracy: Object.freeze({
-    title: 'The Midnight Gardener',
+    title: __dialogueText("managers/PICaseRewards.js", "t_71a2c6ba30280bbece40"),
     cash: 100,
     xpReward: 'pi_case_small',
     xp: 50,
     achievementId: 'pi_midnight_gardener',
-    achievementTitle: 'Much Ado About Mulch',
+    achievementTitle: __dialogueText("managers/PICaseRewards.js", "t_71971b9e8bb96ff99ba4"),
     achievementDescription:
-      'Solve The Midnight Gardener. Suspicion is not a fertiliser.'
+      __dialogueText("managers/PICaseRewards.js", "t_5532691fccc8a42fdb8e")
   }),
 
   pi_moms_not_proud: Object.freeze({
-    title: "Mom's Not Proud",
+    title: __dialogueText("managers/PICaseRewards.js", "t_988e6ec5492baf05487d"),
     cash: 150,
     xpReward: 'pi_case_small',
     xp: 50,
     achievementId: 'pi_phantom_artist',
-    achievementTitle: 'Caught in the Paint',
+    achievementTitle: __dialogueText("managers/PICaseRewards.js", "t_d2669a5b9ac1be474332"),
     achievementDescription:
-      'Solve the Phantom artist case. The writing was on the wall.'
+      __dialogueText("managers/PICaseRewards.js", "t_83a67ab9caae026887e4")
   }),
 
   pi_short_shorts: Object.freeze({
-    title: 'Who Wears Short Shorts?',
+    title: __dialogueText("managers/PICaseRewards.js", "t_38c4bff985b025984966"),
     cash: 200,
     xpReward: 'pi_case_medium',
     xp: 100,
     achievementId: 'pi_short_shorts',
-    achievementTitle: 'The Full Picture',
+    achievementTitle: __dialogueText("managers/PICaseRewards.js", "t_a4d86efb396273f92b56"),
     achievementDescription:
-      'Resolve the insurance investigation using evidence, not assumptions.'
+      __dialogueText("managers/PICaseRewards.js", "t_91b8d28082cbc5ef43e4")
   })
 });
 
@@ -146,7 +147,7 @@ function settleCash(caseId, definition) {
     moneyManager.addCash(definition.cash, {
       category: ECONOMY_CATEGORY.SIDE_CASE,
       missionId: caseId,
-      description: `PI case: ${definition.title}`,
+      description: `${__dialogueText("managers/PICaseRewards.js", "t_4b5212bb2acdab23e8a4")}${definition.title}`,
 
       metadata: {
         piCaseRewardId: paymentId(caseId),
@@ -188,7 +189,7 @@ function settleXP(caseId, definition) {
       const result = progressionManager.grantReward(
         definition.xpReward,
         caseId,
-        `PI case completed: ${definition.title}`
+        `${__dialogueText("managers/PICaseRewards.js", "t_e51810bc4200869d7993")}${definition.title}`
       );
 
       if (
@@ -263,14 +264,14 @@ export function settlePICaseRewards(caseId) {
   if (!definition || !quest) {
     return {
       ok: false,
-      message: 'This PI case has no reward definition.'
+      message: __dialogueText("managers/PICaseRewards.js", "t_bd73721aff86b6ef9f45")
     };
   }
 
   if (busy.has(caseId)) {
     return {
       ok: false,
-      message: 'The case is being processed.'
+      message: __dialogueText("managers/PICaseRewards.js", "t_6e6e9bd9c6134527ed6c")
     };
   }
 
@@ -280,7 +281,7 @@ export function settlePICaseRewards(caseId) {
     return {
       ok: true,
       alreadySettled: true,
-      message: 'This case has already been paid.'
+      message: __dialogueText("managers/PICaseRewards.js", "t_9b14ac060d679278ba18")
     };
   }
 
@@ -297,7 +298,7 @@ export function settlePICaseRewards(caseId) {
   ) {
     return {
       ok: false,
-      message: 'Finish the investigation and report first.'
+      message: __dialogueText("managers/PICaseRewards.js", "t_749c27e267387bf6a6ae")
     };
   }
 
@@ -345,9 +346,9 @@ export function settlePICaseRewards(caseId) {
       rewards: getPICaseRewardPreview(caseId),
 
       message:
-        `Case closed. $${definition.cash} received. ` +
-        `XP reward: ${definition.xp}. ` +
-        'Reputation reward: +10 (maximum 100).'
+        `${__dialogueText("managers/PICaseRewards.js", "t_6f0f63bb129c1b150714")}${definition.cash}${__dialogueText("managers/PICaseRewards.js", "t_4ef97769ac591dab769f")}` +
+        `${__dialogueText("managers/PICaseRewards.js", "t_6a2928e587fca3e638f6")}${definition.xp}${__dialogueText("managers/PICaseRewards.js", "t_8dccf256f6d5783e62bb")}` +
+        __dialogueText("managers/PICaseRewards.js", "t_30359846dfbc8db59fe3")
     };
   } catch (error) {
     console.error(
@@ -360,8 +361,8 @@ export function settlePICaseRewards(caseId) {
     return {
       ok: false,
       message:
-        'Settlement interrupted. Retry the report. ' +
-        'Recorded rewards will not be repeated.'
+        __dialogueText("managers/PICaseRewards.js", "t_59dd928c3257aa7003c9") +
+        __dialogueText("managers/PICaseRewards.js", "t_ce9eb3707406a7f8f47f")
     };
   } finally {
     busy.delete(caseId);

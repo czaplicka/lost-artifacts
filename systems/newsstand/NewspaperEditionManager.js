@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import {
   SHARED_NEWSPAPER_ARTICLES
 } from './SharedNewspaperArticles.js';
@@ -48,131 +49,131 @@ export function getNewspaperDay(state) {
 
 const MISSION_TEXTS = [
   [
-    'Agency Reviews {artifact} Case',
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_b7f7993fc490ee9697d8"),
 
-    'Investigators work through the details. ' +
-    'Administration works through the stationery.',
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_a62c086c1c3c7aea735d") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_67ced25815218cecdf7e"),
 
-    'Mark Agency is reviewing the case concerning ' +
-    '{artifact} and {location} in {city}. Staff have ' +
-    'been reminded to distinguish established facts ' +
-    'from attractive theories. The distinction is ' +
-    'considered important, particularly when ' +
-    'explaining either to a lawyer. The agency has ' +
-    'not authorised the use of red string as a ' +
-    'substitute for evidence.'
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_5362e0899254cf4e85e3") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_12ce39aa4d7b870874ea") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_23aada5c681f6d945cd6") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_3112ff35f1656ff7e6ba") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_05d75d12957c72fca583") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_af20c85e3e8e9e33c9f8") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_a6b8bba149c35c9637f2") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_f86ddb8abb1659f6115d")
   ],
 
   [
-    '{artifact} Case Attracts Questions, Then More Questions',
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_ba0ae5a44e69e9f87501"),
 
-    'The simplest questions continue to require ' +
-    'the most careful answers.',
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_f09b46906ec1a8045e22") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_b32517d16e85b5333777"),
 
-    'The case concerning {artifact} remains a subject ' +
-    'of attention at Mark Agency. Officials stress ' +
-    'that a convincing explanation must account for ' +
-    'the evidence, not merely fit on the investigation ' +
-    'board. A proposal to use smaller handwriting has ' +
-    'been returned to its author. Enquiries about ' +
-    '{location} in {city} should be directed through ' +
-    'the proper channels.'
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_66796be7fddaa101b6f5") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_21cc57056a3fe49d80c5") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_d5a2bf6bdb6a32f7d5fd") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_0c39799560a9b624249c") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_134b99e7a84b42adae5d") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_3ed1bee157fdbde2177f") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_959860bfb9007cb19845") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_bfce5db7246e1828c12b")
   ],
 
   [
-    'Paperwork Follows {artifact} Investigation',
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_7b4e75b93217f5942649"),
 
-    'Every important detail deserves a record. ' +
-    'Some records apparently deserve another record.',
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_dd405be95121b2c9f0b6") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_54b9b0d3ab8cfa418325"),
 
-    'Mark Agency staff handling the {artifact} case ' +
-    'have been asked to keep their notes clear and ' +
-    'their evidence properly documented. The matter ' +
-    'concerns {location} in {city}. An internal ' +
-    'reminder explains that a folder marked IMPORTANT ' +
-    'does not become more useful when placed inside ' +
-    'a second folder marked VERY IMPORTANT.'
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_5e0ce94d34d4352c1682") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_37cc10f7d6b084373bb8") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_da61c698f0577df7dc16") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_7bb8fc4b61c3d4e0e804") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_f31cc1a3f9197962631c") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_0f24856e7f1b7fe053cc") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_225ab4af3d970c3d0afe")
   ],
 
   [
-    'Agency Urges Caution Over {artifact} Theories',
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_23096982416afc09f9d5"),
 
-    'An interesting possibility is not automatically ' +
-    'a useful conclusion.',
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_930de85f5c5f2509a314") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_704967ade09a9e17d096"),
 
-    'Mark Agency has reminded personnel discussing ' +
-    'the {artifact} case to avoid presenting ' +
-    'speculation as fact. The reminder applies ' +
-    'equally to meetings, telephone calls and ' +
-    'conversations near the coffee machine. Staff ' +
-    'examining the circumstances at {location} in ' +
-    '{city} are encouraged to ask difficult questions, ' +
-    'preferably before announcing that everything ' +
-    'is obvious.'
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_82467083c16c7a5807bd") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_56ba8e348ad5457996f6") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_df3f4ffcc80d480a5850") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_8ad9e0d5a862e4095d53") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_1677131548e0be369b29") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_ea94936df28ba1f4e75d") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_2e66ee79665a5e974216") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_9d9afb0d94197bdcddeb") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_a72dee9e96b943f6121c")
   ],
 
   [
-    '{artifact} Briefing Keeps Maps on the Table',
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_f3fd4f4539c85fa19afe"),
 
-    'The agency recommends looking at the destination ' +
-    'before booking the journey.',
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_c70399956639bcf40582") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_43e4635486ab7cff4d4c"),
 
-    'The case concerning {artifact} has prompted ' +
-    'another reminder about careful fieldwork. ' +
-    'Mark Agency expects accurate notes, properly ' +
-    'handled evidence and travel claims that can ' +
-    'survive basic arithmetic. The reference file ' +
-    'identifies {location} in {city}. An employee who ' +
-    'asked whether sightseeing counted as ' +
-    'reconnaissance has been advised to be ' +
-    'considerably more specific.'
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_879cc883be3bebae59c5") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_1c655da18b6c4f7ae270") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_9a94051b5c474a7508f0") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_40cfc050a8ae37cf06a4") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_36fcef546d68ffa6f36e") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_4dc33f79c9660d14ab09") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_9e2c1750459c357d9031") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_388c0abf60ae86b01018") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_cb8159ab8100d866b7ae")
   ],
 
   [
-    'Agency Requests Readable Notes on {artifact}',
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_5d7a683ed3c777b400c4"),
 
-    'Handwriting is not an encryption method, ' +
-    'despite appearances.',
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_cfd17eb99ce0ac9bc7e4") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_065fc6ed6ace1de4555e"),
 
-    'Staff reviewing the {artifact} case have been ' +
-    'asked to write names and places legibly. ' +
-    'The case file concerns {location} in {city}, ' +
-    'a fact the agency would prefer not to reconstruct ' +
-    'from three ambiguous squiggles. A proposal to ' +
-    'employ a handwriting specialist to read the ' +
-    'investigators’ own notes is awaiting a cost estimate.'
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_fd15d0e289d7f7015bd5") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_f0ae8428f6ce01777b2f") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_ba62919f429490c2a9a5") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_5533e8f768a3334cb79b") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_9dbde7c03ea48eaae24a") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_340a18d3c664eddbbfd1") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_8c2da3d55d7dfdbbb04f")
   ],
 
   [
-    '{artifact} Case Inspires Reminder About Evidence',
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_70b20a6abd5598ef2552"),
 
-    'Please label the bag before having a breakthrough.',
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_a6069c1de58bec59d721"),
 
-    'Mark Agency has circulated guidance on ' +
-    'documenting material associated with the ' +
-    '{artifact} case. Staff are reminded that a ' +
-    'dramatic pause does not establish provenance. ' +
-    'The case references {location} in {city}. ' +
-    'Personal shopping, lunch receipts and objects ' +
-    'described only as interesting should not be ' +
-    'filed together merely because they fit in ' +
-    'the same envelope.'
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_fc771580d8e54e8c39d1") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_7bb2a366d6783a220ace") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_4f168d3f5da61bd62620") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_cf6f0dac5ae4adcd557e") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_92621b2e70b205734f1d") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_4dcf0ebfe5a347c78288") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_6daf34270354f50c6f61") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_bb53c0d61fb31a5a27fb") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_2a81eaf39557894f4d8f")
   ],
 
   [
-    'Agency Keeps {artifact} Discussion Professional',
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_16ec1f62751e8967d559"),
 
-    'Professional, in this instance, means no betting pool.',
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_d0dec82a598b6ad83b3e"),
 
-    'An internal notice asks employees discussing ' +
-    'the {artifact} case to focus on verifiable ' +
-    'information. Management has clarified that ' +
-    'confidence, seniority and winning the office ' +
-    'crossword do not make a theory correct. ' +
-    'The case concerns {location} in {city}. ' +
-    'The notice ends by requesting that whoever ' +
-    'borrowed the noticeboard pins return at least ' +
-    'some of them.'
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_88df70a36a577870144f") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_3640818149780a4d50bd") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_47246224498a167d4433") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_fe83c4fc51b5ce7aaad4") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_8413660301028b688ca1") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_ba50111c7565abcca224") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_64c861778f8eba5b92d2") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_3eac8db0f460f2650c96") +
+    __dialogueText("systems/newsstand/NewspaperEditionManager.js", "t_abd6393176e5901bf9c1")
   ]
 ];
 

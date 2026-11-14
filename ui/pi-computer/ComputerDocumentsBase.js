@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { COLORS, FONTS } from './ComputerTheme.js';
 import { BorrowedAlibiMail } from './BorrowedAlibiMail.js';
 import { AlibiReportUI } from './AlibiReportUI.js';
@@ -52,7 +53,7 @@ function shortSender(from) {
     String(from ?? '')
       .replace(/<[^>]*>/g, '')
       .replace(/["']/g, '')
-      .trim() || 'Unknown sender'
+      .trim() || __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_615f9907b88042a4f975")
   );
 }
 
@@ -415,7 +416,7 @@ export class ComputerDocuments {
             ? 'DRAFT'
             : 'PRIVATE'
           : selected.kind === 'pi'
-            ? 'PI CASE'
+            ? __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_b42c0129c920e37e171a")
             : 'ODDITIES',
         isMail
           ? isDraftMail(selected)
@@ -485,7 +486,7 @@ export class ComputerDocuments {
       d.pixel(
         cx,
         top + innerH / 2 + 24,
-        'NO MESSAGES',
+        __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_6d2aedf776b31bfc37f0"),
         12,
         COLORS.text
       ).setOrigin(0.5, 0);
@@ -493,7 +494,7 @@ export class ComputerDocuments {
       d.text(
         cx,
         top + innerH / 2 + 54,
-        'The mailbox is quiet. Too quiet.',
+        __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_4d2d7a183b9ee2094c34"),
         16,
         COLORS.muted,
         Math.max(120, box.w - 120)
@@ -507,7 +508,7 @@ export class ComputerDocuments {
     d.text(
       box.x + 44,
       box.y + 90,
-      'No advertisements available.\n\nThe city is suspiciously honest today.',
+      __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_478fe8a93363cfb86044"),
       18,
       COLORS.muted,
       box.w - 90
@@ -530,7 +531,7 @@ export class ComputerDocuments {
     const ui = this.ui;
     const d = ui.drawing;
 
-    const titleStr = selected.title || 'Untitled advertisement';
+    const titleStr = selected.title || __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_59e8cfa76aa1a5c718d0");
     const titleWidth = Math.max(70, innerW - 130);
 
     const title = d
@@ -540,12 +541,12 @@ export class ComputerDocuments {
     const requiredItems = getAdvertRequiredItems(selected);
 
     const metadata = [
-      `Contact: ${selected.contact || 'Not provided'}`,
+      `${__dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_8fe6d397489cb24d3e49")}${selected.contact || __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_d83b9ff3c07a8390e2ea")}`,
       Number.isFinite(selected.reward)
-        ? `Offered payment: ${ui.money(selected.reward)}`
+        ? `${__dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_ca35f7159b1097361950")}${ui.money(selected.reward)}`
         : null,
       requiredItems.length
-        ? `Equipment required: ${requiredItems
+        ? `${__dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_cf483696f4c24f7876b6")}${requiredItems
             .map(getRequiredItemLabel)
             .join(', ')}`
         : null
@@ -588,7 +589,7 @@ export class ComputerDocuments {
       .pixel(
         tx,
         py + 26,
-        selected.subject || 'Untitled message',
+        selected.subject || __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_21ac0234c691bebd8b77"),
         12,
         COLORS.text,
         titleWidth
@@ -603,9 +604,9 @@ export class ComputerDocuments {
     );
 
     const rows = [
-      ['FROM', selected.from || 'Unknown sender'],
-      ['TO', selected.to || 'You'],
-      ['DATE', selected.date || 'Unknown']
+      ['FROM', selected.from || __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_615f9907b88042a4f975")],
+      ['TO', selected.to || __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_08b041935798fbf6fd6f")],
+      ['DATE', selected.date || __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_b764cdc0eab713746721")]
     ];
 
     const files = attachmentCount(selected);
@@ -613,7 +614,7 @@ export class ComputerDocuments {
     if (files > 0) {
       rows.push([
         'FILES',
-        `${files} attachment${files === 1 ? '' : 's'}`
+        `${files}${__dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_daa870cc347fb50b985e")}${files === 1 ? '' : 's'}`
       ]);
     }
 
@@ -717,7 +718,7 @@ export class ComputerDocuments {
 
     d.fit(
       title,
-      (isMail ? item.subject : item.title) || 'Untitled',
+      (isMail ? item.subject : item.title) || __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_f59ab8d1331b7b16952f"),
       rowW - (textX - rowX) - 12 - (draft ? 48 : 0)
     );
 
@@ -727,7 +728,7 @@ export class ComputerDocuments {
 
     const metaStr = isMail
       ? `${shortSender(item.from)}${item.date ? ` · ${item.date}` : ''}`
-      : `${item.kind === 'pi' ? 'PI CASE' : 'ODDITIES'}${
+      : `${item.kind === 'pi' ? __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_b42c0129c920e37e171a") : 'ODDITIES'}${
           item.contact ? ` · ${item.contact}` : ''
         }`;
 
@@ -794,21 +795,21 @@ export class ComputerDocuments {
     const locked = !requirements.ok;
 
     const labels = {
-      active: 'CASE ACCEPTED',
-      completed: 'CASE COMPLETED',
-      failed: 'CASE FAILED',
-      abandoned: 'CASE CLOSED'
+      active: __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_c70cacc1f5ee8c47c3cb"),
+      completed: __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_f7f37ae3f8a1d3822995"),
+      failed: __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_e882a85bb9561edab220"),
+      abandoned: __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_3825cb7a28815e93b278")
     };
 
     const label = !connected
-      ? 'APPLICATIONS UNAVAILABLE'
+      ? __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_51f20505963f7ee9bfd1")
       : locked
-        ? 'EQUIPMENT REQUIRED'
+        ? __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_b65cb7f19d4a7bfb9f6f")
         : !available
-          ? labels[status] || 'CASE UNAVAILABLE'
+          ? labels[status] || __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_5ac9f11fe6967391e56b")
           : ui.accepting
-            ? 'PLEASE WAIT...'
-            : 'ACCEPT CASE';
+            ? __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_9dafd8f8b8d7f70bc7f6")
+            : __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_c6d34a3f78e7d2224c67");
 
     ui.drawing.button(
       x,

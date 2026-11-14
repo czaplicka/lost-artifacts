@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { APPEARANCE_OPTIONS, renderAvatarPreview } from '../ui/characterCreation/AppearanceControls.js';
 import { createRandomIdentity } from '../ui/characterCreation/CharacterCreationData.js';
 import { saveGameState } from '../gameStatePersistence.js';
@@ -15,7 +16,7 @@ function shuffle(items) {
 }
 function clock(minutes) {
   const h=Math.floor(minutes/60)%24,m=minutes%60;
-  return `${h%12||12}${m?':'+String(m).padStart(2,'0'):''} ${h<12?'a.m.':'p.m.'}`;
+  return `${h%12||12}${m?':'+String(m).padStart(2,'0'):''} ${h<12?__dialogueText("suspects/PersonnelRoster.js", "t_7b455f2dd791ffcc1278"):__dialogueText("suspects/PersonnelRoster.js", "t_36e11c186286bdb79b77")}`;
 }
 export function occupationMatches(collection,occupation) {
   return collection.match.test(occupation)||collection.roles.some(role=>normalize(role)===normalize(occupation));
@@ -79,8 +80,8 @@ export function buildPersonnelRoster(state,suspects) {
     }
     const situation=c.situation.replaceAll('{from}',clock(window.startMinute-60)).replaceAll('{to}',clock(window.endMinute+60));
     statements.push({id:`statement:${c.id}`,speaker:createRandomIdentity().name,speakerRole:c.witness,
-      text:`${pick(['You mean','Oh,','I remember'])} ${c.clue}? ${situation} ${c.joke} Nobody left before we finished. You can check the recording if you like.`,
-      corroboration:'The attendance records and continuous recording have been checked. Everyone described in this account was identified, and their presence covers the time of the theft.',
+      text:`${pick([__dialogueText("suspects/PersonnelRoster.js", "t_3259cd7c1fbf2dc3ded8"),__dialogueText("suspects/PersonnelRoster.js", "t_964b460c427971129122"),__dialogueText("suspects/PersonnelRoster.js", "t_e1e0f9ec60f0dd154242")])}${__dialogueText("suspects/PersonnelRoster.js", "t_36a9e7f1c95b82ffb997")}${c.clue}${__dialogueText("suspects/PersonnelRoster.js", "t_23eeade931d8902dde57")}${situation}${__dialogueText("suspects/PersonnelRoster.js", "t_36a9e7f1c95b82ffb997")}${c.joke}${__dialogueText("suspects/PersonnelRoster.js", "t_6435bdb71889415758f4")}`,
+      corroboration:__dialogueText("suspects/PersonnelRoster.js", "t_db537205afc126376015"),
       clearedIds:ids,collectionId:c.id});
   }
   for(const s of statements){
@@ -122,7 +123,7 @@ export function submitPersonnelShortlist(roster) {
   return true;
 }
 function loadStyles(){
-  for(const [id,path] of [['personnel-v2','../assets/css/personnel-roster.css'],['personnel-avatars','../assets/css/character-creation.css']]){
+  for(const [id,path] of [['personnel-v2',__dialogueText("suspects/PersonnelRoster.js", "t_f13829eddecedcd941b6")],['personnel-avatars',__dialogueText("suspects/PersonnelRoster.js", "t_d976a2ef02321c60c588")]]){
     if(document.getElementById(id))continue;
     const link=document.createElement('link');link.id=id;link.rel='stylesheet';link.href=new URL(path,import.meta.url).href;document.head.append(link);
   }
@@ -132,17 +133,8 @@ export class PersonnelRosterView {
     this.scene=scene;this.roster=roster;this.onComplete=onComplete;this.onClose=onClose;
     this.selectedStatement=Math.max(0,Math.min(roster.selectedStatement||0,roster.statements.length-1));
     this.handleClick=this.handleClick.bind(this);this.resize=this.resize.bind(this);loadStyles();
-    this.element=scene.add.dom(0,0).createFromHTML(`
-      <section class="personnel-roster" aria-label="Personnel files">
-        <header class="personnel-header"><div><h1>PERSONNEL FILES</h1><p>${esc(roster.location||'')} — Read the accounts. Cross out anyone you can rule out.</p></div><button type="button" data-close>Back</button></header>
-        <section class="personnel-testimony" aria-label="Witness statement">
-          <div class="personnel-witness-bar"><button type="button" data-prev aria-label="Previous witness">&#8249;</button><div data-speaker></div><button type="button" data-next aria-label="Next witness">&#8250;</button></div>
-          <blockquote data-statement></blockquote><details><summary>Investigator's note</summary><p data-corroboration></p></details>
-        </section>
-        <div class="personnel-grid" data-grid aria-label="People connected to the case"></div>
-        <footer><p data-message role="status" aria-live="polite"></p><button type="button" data-confirm>Submit shortlist</button></footer>
-      </section>`).setOrigin(0,0).setDepth(2000).setScrollFactor(0);
-    this.root=this.element.node.querySelector('.personnel-roster');this.root.addEventListener('click',this.handleClick);scene.scale.on('resize',this.resize);this.render();this.resize();
+    this.element=scene.add.dom(0,0).createFromHTML(`${__dialogueText("suspects/PersonnelRoster.js", "t_7f48cd959ba007fbdc08")}${esc(roster.location||'')}${__dialogueText("suspects/PersonnelRoster.js", "t_c35c1e133be5d9db1c99")}`).setOrigin(0,0).setDepth(2000).setScrollFactor(0);
+    this.root=this.element.node.querySelector(__dialogueText("suspects/PersonnelRoster.js", "t_0abdcccbbdd807c54557"));this.root.addEventListener('click',this.handleClick);scene.scale.on('resize',this.resize);this.render();this.resize();
   }
   resize(){
     if(!this.element?.node)return;
@@ -153,17 +145,17 @@ export class PersonnelRosterView {
     const excluded=new Set(this.roster.excludedIds||[]);
     this.root.querySelector('[data-grid]').innerHTML=this.roster.people.map(person=>{
       const wrapper=document.createElement('div');wrapper.innerHTML=renderAvatarPreview({appearance:person.appearance,name:person.name});
-      const avatar=wrapper.querySelector('.agency-id-avatar');avatar.removeAttribute('data-avatar-preview');
+      const avatar=wrapper.querySelector(__dialogueText("suspects/PersonnelRoster.js", "t_64781541f2719c61a61f"));avatar.removeAttribute('data-avatar-preview');
       if(person.appearance?.hairHex)avatar.style.setProperty('--hair',person.appearance.hairHex);
-      avatar.setAttribute('aria-label',`Portrait of ${person.name}`);
-      return `<button type="button" class="personnel-card${excluded.has(person.id)?' is-cleared':''}" data-person="${esc(person.id)}" aria-pressed="${excluded.has(person.id)}" aria-label="${esc(person.name)}, ${esc(person.occupation)}"><span class="personnel-photo">${avatar.outerHTML}<span class="personnel-stamp" aria-hidden="true">CLEARED</span></span><span class="personnel-name">${esc(person.name)}</span><span class="personnel-occupation">${esc(person.occupation)}</span></button>`;
+      avatar.setAttribute('aria-label',`${__dialogueText("suspects/PersonnelRoster.js", "t_4ebf2947be9412144d12")}${person.name}`);
+      return `${__dialogueText("suspects/PersonnelRoster.js", "t_145ee8e5bdb8d9c619cb")}${excluded.has(person.id)?__dialogueText("suspects/PersonnelRoster.js", "t_777741c0f535a5e37e71"):''}${__dialogueText("suspects/PersonnelRoster.js", "t_2dcc6dd830e42ff686fe")}${esc(person.id)}${__dialogueText("suspects/PersonnelRoster.js", "t_b3c0b044207f0ecc4137")}${excluded.has(person.id)}${__dialogueText("suspects/PersonnelRoster.js", "t_f50d324d8a3b2119bca7")}${esc(person.name)}${__dialogueText("suspects/PersonnelRoster.js", "t_0a07f659461970d8d8dc")}${esc(person.occupation)}${__dialogueText("suspects/PersonnelRoster.js", "t_e7968067112a6a975bbf")}${avatar.outerHTML}${__dialogueText("suspects/PersonnelRoster.js", "t_74dbe18716cdd018db34")}${esc(person.name)}${__dialogueText("suspects/PersonnelRoster.js", "t_6d65c3cec938f427f5d1")}${esc(person.occupation)}${__dialogueText("suspects/PersonnelRoster.js", "t_fed48d69b2f478abb2f5")}`;
     }).join('');
     this.renderStatement();this.updateCount();
-    if(this.roster.updatedFromPreviousVersion)this.root.querySelector('[data-message]').textContent='Personnel files updated. Please review the new accounts.';
+    if(this.roster.updatedFromPreviousVersion)this.root.querySelector('[data-message]').textContent=__dialogueText("suspects/PersonnelRoster.js", "t_070a69b94aa33997a3b2");
   }
   renderStatement(){
     const s=this.roster.statements[this.selectedStatement];
-    this.root.querySelector('[data-speaker]').innerHTML=`<strong>${esc(s.speaker)}</strong><span>${esc(s.speakerRole||'Witness')}</span>`;
+    this.root.querySelector('[data-speaker]').innerHTML=`<strong>${esc(s.speaker)}</strong><span>${esc(s.speakerRole||__dialogueText("suspects/PersonnelRoster.js", "t_5464a8914419f3a1a237"))}</span>`;
     this.root.querySelector('[data-statement]').textContent=`“${s.text}”`;
     this.root.querySelector('[data-corroboration]').textContent=s.corroboration||'';this.root.querySelector('details').open=false;
   }

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import {
   saveGameState
 } from '../../gameStatePersistence.js';
@@ -278,7 +279,7 @@ export class CrimeLabEvidenceService {
     const label =
       evidence.label ||
       entryFor(type)?.label ||
-      'Forensic Analysis';
+      __dialogueText("scenes/CSI/CrimeLabEvidenceService.js", "t_d2f42de4fcfd1fbdaa64");
 
     const clueType =
       evidence.clueType ||
@@ -288,9 +289,9 @@ export class CrimeLabEvidenceService {
       evidence.clueText ||
       payload.clueText ||
       payload.clue?.text ||
-      `Laboratory analysis confirms: ${
+      `${__dialogueText("scenes/CSI/CrimeLabEvidenceService.js", "t_c3a8aab15c7d72b57838")}${
         displayValue(type, value)
-      }.`;
+      }${__dialogueText("scenes/CSI/CrimeLabEvidenceService.js", "t_cdb4ee2aea69cc6a8333")}`;
 
     const sourceConfirmed =
       evidence.sourceConfirmed === true;
@@ -490,7 +491,7 @@ export class CrimeLabEvidenceService {
       return progressionManager.grantReward(
         'csi_completed',
         caseKey,
-        'CSI analysis set completed'
+        __dialogueText("scenes/CSI/CrimeLabEvidenceService.js", "t_747d106caa6c836b095f")
       );
     } catch (error) {
       console.error(
@@ -523,7 +524,7 @@ export class CrimeLabEvidenceService {
       payload.aborted
     ) {
       return this.rejectedResult(
-        'Analysis not completed.'
+        __dialogueText("scenes/CSI/CrimeLabEvidenceService.js", "t_de5f20b77689a295e478")
       );
     }
 

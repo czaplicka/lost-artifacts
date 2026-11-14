@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 import { FONT_PIXEL, FONT_TYPE, PAL } from './config.js';
 
@@ -111,11 +112,11 @@ export const resultsMethods = {
     };
 
     if (!isCorrect) {
-      payload.title = 'FALSE ARREST';
+      payload.title = __dialogueText("scenes/arrestSelection/results.js", "t_47066c7130024a821dc3");
 
       payload.message =
         gameState.gameOverReason ||
-        'Incorrect suspect detained. The real thief escaped.';
+        __dialogueText("scenes/arrestSelection/results.js", "t_3e3f06f1a2d108e4892b");
     }
 
     this.resultOverlay.setVisible(false);

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
@@ -6,15 +7,15 @@ import { CEMETERY_BUILDING, enterCemeteryFromMap } from './homeCity/CemeteryMapA
 
 const KEY = 'HomeCityScene';
 const COLS = 26, ROWS = 22, HW = 64, HH = 32, OX = 1600, OY = 240;
-const INSTRUCTION = 'Arrow keys or click to walk. Enter at a door to enter.';
+const INSTRUCTION = __dialogueText("scenes/HomeCityScene.js", "t_8fa98636da35e169410b");
 const ARROWS = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
 const BUILDINGS = [
-  { id: 'pi-office', name: 'PI Office', x: 4, y: 3, w: 3, h: 3, color: 0xc5ab79, message: '' },
-  { id: 'spy-shop', name: 'Spy Shop', x: 12, y: 3, w: 3, h: 3, color: 0x688d8b,
-    message: 'Closed for a discreet inventory. Even the inventory is undercover.' },
-  { id: 'tavern', name: 'Tavern', x: 20, y: 5, w: 3, h: 3, color: 0xae7458, message: '' },
-  { id: 'police-station', name: 'Police Station', x: 5, y: 13, w: 4, h: 3, color: 0x758aa5, message: '' },
-  { id: 'your-home', name: 'Your Home', x: 16, y: 14, w: 3, h: 3, color: 0x96905c, message: '' },
+  { id: 'pi-office', name: __dialogueText("scenes/HomeCityScene.js", "t_6114b7873f77428c0e51"), x: 4, y: 3, w: 3, h: 3, color: 0xc5ab79, message: '' },
+  { id: 'spy-shop', name: __dialogueText("scenes/HomeCityScene.js", "t_3255c8c9c96d793690e2"), x: 12, y: 3, w: 3, h: 3, color: 0x688d8b,
+    message: __dialogueText("scenes/HomeCityScene.js", "t_dc734ee249455bda8af7") },
+  { id: 'tavern', name: __dialogueText("scenes/HomeCityScene.js", "t_255a70fd8ebfcbcfa78f"), x: 20, y: 5, w: 3, h: 3, color: 0xae7458, message: '' },
+  { id: 'police-station', name: __dialogueText("scenes/HomeCityScene.js", "t_e0cc86d123eb4754e7b3"), x: 5, y: 13, w: 4, h: 3, color: 0x758aa5, message: '' },
+  { id: 'your-home', name: __dialogueText("scenes/HomeCityScene.js", "t_5840e59828db3828789f"), x: 16, y: 14, w: 3, h: 3, color: 0x96905c, message: '' },
   CEMETERY_BUILDING
 ];
 // Props may be multi-cell (w/h). `variant` picks tree species / car colour (0-2).
@@ -45,23 +46,23 @@ const PROPS = [
 ];
 // One-liners when the player clicks a prop. Cycles through the list.
 const PROP_QUIPS = {
-  lamp: ['A streetlamp. It has seen things. It refuses to testify.', 'This lamp has been on the case longer than I have.'],
-  bench: ['Bench: 40% comfort, 60% pigeon.', 'Somebody left a newspaper. The crossword is already solved. Suspicious.'],
-  planter: ['These flowers have a rock-solid alibi. Mostly water.', 'Nobody waters these. Nobody has to. They are afraid of the lady next door.'],
-  board: ['MISSING: one alibi. Last seen near the tavern. Reward: a warm handshake.', 'Wanted posters. Half of them are for me. I am choosing not to look.'],
-  bin: ['I am not digging through that without a warrant.', 'Smells like evidence. Or lunch. Hard to say.'],
-  tree: ['A tree. Suspiciously leafy.', 'Perfect cover for a stakeout. Also perfect cover for squirrels.'],
-  bush: ['Ideal hiding spot. I know. I checked. Twice.', 'Something rustled. I am pretending it was the wind.'],
-  hydrant: ['A fire hydrant. Dogs treat it as a crime scene.', 'Hydrant: red, loud, and always at the wrong end of the block.'],
-  mailbox: ['Mail for the dead goes in the other box.', 'Return to sender. Sender unknown. Typical.'],
-  kiosk: ['Newspapers, gum, and rumours. All three are stale.', 'HOT NEWS: local detective ignores kiosk. More at eleven.'],
-  crate: ['Empty bottles. The tavern calls it recycling. I call it evidence.', 'Fragile. Like my sense of justice before noon.'],
-  statue: ['Monument to the Unknown Pigeon. Died as he lived: on a windowsill.', 'The plaque says: "He saw everything. Told nobody." My kind of guy.'],
-  signpost: ['Four arrows. Three of them are useful. THE TRUTH points nowhere.', 'THE TRUTH: closed for lunch. Since 1987.'],
-  cart: ['Sir Loin\'s Hot Dogs. Contains 0% dog. Allegedly.', 'No, I do not take bribes in sausage. ...Mustard, maybe.'],
-  phonebooth: ['Out of order. The phone, not the detective.', 'Someone left a coin inside. Evidence, or a very cheap tip.'],
-  clock: ['It has said ten past ten for years. Right twice a day, like me.', 'Time flies. Deadlines fly faster.'],
-  car: ['Parked illegally. Not my department. Also not my car.', 'Vintage. The engine is cold. So is the case.']
+  lamp: [__dialogueText("scenes/HomeCityScene.js", "t_32874e1a6e965eabc9d9"), __dialogueText("scenes/HomeCityScene.js", "t_79fda5d986c17d5e38d8")],
+  bench: [__dialogueText("scenes/HomeCityScene.js", "t_31115bf96d69447c27b4"), __dialogueText("scenes/HomeCityScene.js", "t_2b091f903af17d44c46a")],
+  planter: [__dialogueText("scenes/HomeCityScene.js", "t_239539b5617025beed2d"), __dialogueText("scenes/HomeCityScene.js", "t_c8bdeb17251409a2bbd2")],
+  board: [__dialogueText("scenes/HomeCityScene.js", "t_34008446a4748c1cc5dc"), __dialogueText("scenes/HomeCityScene.js", "t_7284f6c0873f5ed63c93")],
+  bin: [__dialogueText("scenes/HomeCityScene.js", "t_84af536b36ecebfaa139"), __dialogueText("scenes/HomeCityScene.js", "t_bc7368b86e37ff762b98")],
+  tree: [__dialogueText("scenes/HomeCityScene.js", "t_78b2f0d6589dacf6a9fd"), __dialogueText("scenes/HomeCityScene.js", "t_b4cfb45e5a46eec528d7")],
+  bush: [__dialogueText("scenes/HomeCityScene.js", "t_69ec535ff656d7e2c4d6"), __dialogueText("scenes/HomeCityScene.js", "t_c5e82bf70a956c2512c3")],
+  hydrant: [__dialogueText("scenes/HomeCityScene.js", "t_1d25d66bfad624be0845"), __dialogueText("scenes/HomeCityScene.js", "t_dcbc9e669171a8ce8ca7")],
+  mailbox: [__dialogueText("scenes/HomeCityScene.js", "t_bb2a56746ef26c160581"), __dialogueText("scenes/HomeCityScene.js", "t_2969365a6f62668b2fa0")],
+  kiosk: [__dialogueText("scenes/HomeCityScene.js", "t_c9df4f47a41be1fba825"), __dialogueText("scenes/HomeCityScene.js", "t_1504daee090bf6eb16a8")],
+  crate: [__dialogueText("scenes/HomeCityScene.js", "t_45d33ca338fe2cf4275c"), __dialogueText("scenes/HomeCityScene.js", "t_db320865b8c11108051c")],
+  statue: [__dialogueText("scenes/HomeCityScene.js", "t_d71cb9a4d52c0c1f9567"), __dialogueText("scenes/HomeCityScene.js", "t_558f66e2cebbb888609e")],
+  signpost: [__dialogueText("scenes/HomeCityScene.js", "t_1367f6dc5b4bfaa12d0d"), __dialogueText("scenes/HomeCityScene.js", "t_b428f139370c91f11c07")],
+  cart: [__dialogueText("scenes/HomeCityScene.js", "t_af44ec56e0163b5e8674"), __dialogueText("scenes/HomeCityScene.js", "t_2c35bde020c196d9526f")],
+  phonebooth: [__dialogueText("scenes/HomeCityScene.js", "t_efdf02b7b7120e1f40bb"), __dialogueText("scenes/HomeCityScene.js", "t_c697005d5ab02d2eeb65")],
+  clock: [__dialogueText("scenes/HomeCityScene.js", "t_774c94b3b3b9ed41c526"), __dialogueText("scenes/HomeCityScene.js", "t_52e73a773d2f38b7f947")],
+  car: [__dialogueText("scenes/HomeCityScene.js", "t_fb3072621ea966582da4"), __dialogueText("scenes/HomeCityScene.js", "t_a172bd0350b5fa2ad0d1")]
 };
 
 export class HomeCityScene extends BaseScene {
@@ -185,7 +186,7 @@ export class HomeCityScene extends BaseScene {
   createInterface() {
     const body = { fontFamily: 'SpecialElite, monospace', color: '#f4e4c0', padding: { x: 18, y: 10 } };
     this.hudPanel = this.add.graphics().setScrollFactor(0).setDepth(19990);
-    this.title = this.add.text(24, 20, 'YOUR NEIGHBORHOOD  /  OLD QUARTER', { fontFamily: 'PressStart2P, monospace',
+    this.title = this.add.text(24, 20, __dialogueText("scenes/HomeCityScene.js", "t_e8ef85bd3b7b928fd139"), { fontFamily: 'PressStart2P, monospace',
       fontSize: '17px', color: '#ffe19b', padding: { x: 18, y: 12 } }).setScrollFactor(0).setDepth(20000);
     this.feedback = this.add.text(24, 78, INSTRUCTION, { ...body, fontSize: '24px',
       wordWrap: { width: this.scale.width - 100 } }).setScrollFactor(0).setDepth(20000);
@@ -215,8 +216,8 @@ export class HomeCityScene extends BaseScene {
         this.path = this.path.slice(0, 1); this.destinationBuilding = null; this.movementMode = 'keyboard';
         this.targetMarker.setVisible(false); this.cityArt.clearRoute(); this.cityArt.selectBuilding();
       }
-    } else if (event.code === 'Escape') { event.preventDefault(); this.cancelWalking(); }
-    else if (event.code === 'Enter' && !event.repeat) { event.preventDefault(); this.enterNearbyBuilding(); }
+    } else if (event.code === __dialogueText("scenes/HomeCityScene.js", "t_037c968467aa3fd7c059")) { event.preventDefault(); this.cancelWalking(); }
+    else if (event.code === __dialogueText("scenes/HomeCityScene.js", "t_dc8659db6d416dc32fca") && !event.repeat) { event.preventDefault(); this.enterNearbyBuilding(); }
   }
   onCityKeyUp(event) { this.heldArrows.delete(event.code); }
   onCityBlur() { this.heldArrows.clear(); if (!this.disposed && !this.navigating) this.cancelWalking(); }
@@ -234,7 +235,7 @@ export class HomeCityScene extends BaseScene {
   enterNearbyBuilding() {
     if (this.path.length || this.navigating || this.disposed) return;
     const nearby = this.buildings.find(b => Math.abs(b.door.x - this.position.x) + Math.abs(b.door.y - this.position.y) <= 1);
-    if (!nearby) { this.say('Move closer to a door, then press Enter.'); return; }
+    if (!nearby) { this.say(__dialogueText("scenes/HomeCityScene.js", "t_bfef5891e43f6bffb72c")); return; }
     this.heldArrows.clear(); this.cityArt.selectBuilding(nearby.id);
     const route = this.findPath(this.position, nearby.door);
     if (route === null) return;
@@ -245,7 +246,7 @@ export class HomeCityScene extends BaseScene {
     return this.props.find(p => x >= p.x && x < p.x + (p.w || 1) && y >= p.y && y < p.y + (p.h || 1)) ?? null;
   }
   sayQuip(prop) {
-    const lines = PROP_QUIPS[prop?.kind]; if (!lines) { this.say('That spot is occupied. Try the sidewalk or select a building.'); return; }
+    const lines = PROP_QUIPS[prop?.kind]; if (!lines) { this.say(__dialogueText("scenes/HomeCityScene.js", "t_2c1c3570cf6aaee1fc9c")); return; }
     const i = this.quipIndex[prop.kind] ?? 0; this.quipIndex[prop.kind] = i + 1; this.say(lines[i % lines.length]);
   }
   onPointer(pointer, objects = []) {
@@ -260,19 +261,19 @@ export class HomeCityScene extends BaseScene {
     const target = building ? building.door : this.unproject(world.x, world.y);
     if (!this.walkable(target.x, target.y)) {
       const prop = this.propAt(target.x, target.y);
-      if (prop) this.sayQuip(prop); else this.say('That spot is occupied. Try the sidewalk or select a building.');
+      if (prop) this.sayQuip(prop); else this.say(__dialogueText("scenes/HomeCityScene.js", "t_2c1c3570cf6aaee1fc9c"));
       return;
     }
     const anchor = this.path.length ? this.path[0] : this.position;
     const route = this.findPath(anchor, target);
-    if (route === null) { this.say('No clear route to that spot.'); return; }
+    if (route === null) { this.say(__dialogueText("scenes/HomeCityScene.js", "t_e05daf966df5c046a77a")); return; }
     this.heldArrows.clear(); this.movementMode = 'pointer';
     this.path = this.path.length ? [{ ...anchor }, ...route] : route;
     this.destinationBuilding = building ?? null;
     this.cityArt.selectBuilding(building?.id); this.cityArt.showRoute(this.path);
     const p = this.project(target.x, target.y);
     this.targetMarker.setPosition(p.x, p.y).setVisible(true);
-    if (building) this.say(`Walking to ${building.name}...`);
+    if (building) this.say(`${__dialogueText("scenes/HomeCityScene.js", "t_08635302aeebeb765839")}${building.name}${__dialogueText("scenes/HomeCityScene.js", "t_ab5df625bc76dbd4e163")}`);
     if (!this.path.length) this.arrive();
   }
   findPath(start, target) {
@@ -349,14 +350,14 @@ export class HomeCityScene extends BaseScene {
     else if (building.id === 'police-station') void this.openPoliceStation();
     else if (building.id === 'cemetery') void this.openCemetery();
     else if (building.id === 'your-home') void this.openHome();
-    else this.say(`${building.name}: ${building.message}`);
+    else this.say(`${building.name}${__dialogueText("scenes/HomeCityScene.js", "t_45822f54a0d0e030f756")}${building.message}`);
   }
-  async openOffice() { return this.openCityInterior('DetectiveOfficeScene', 'The office could not be opened. Please try again.'); }
-  async openSpyShop() { return this.openCityInterior('SpyShopScene', 'The shop could not be opened. Please try again.'); }
-  async openTavern() { return this.openCityInterior('TavernScene', 'The tavern could not be opened. Please try again.'); }
-  async openPoliceStation() { return this.openCityInterior('PoliceStationScene', 'The police station could not be opened. Please try again.'); }
+  async openOffice() { return this.openCityInterior('DetectiveOfficeScene', __dialogueText("scenes/HomeCityScene.js", "t_ce48c0204acfad02e624")); }
+  async openSpyShop() { return this.openCityInterior('SpyShopScene', __dialogueText("scenes/HomeCityScene.js", "t_4a3c62f9cfcfdc024f0b")); }
+  async openTavern() { return this.openCityInterior('TavernScene', __dialogueText("scenes/HomeCityScene.js", "t_94ba4db8a5c58979ab8d")); }
+  async openPoliceStation() { return this.openCityInterior('PoliceStationScene', __dialogueText("scenes/HomeCityScene.js", "t_2a2eebf400be046510bc")); }
   async openCemetery() { return enterCemeteryFromMap(this); }
-  async openHome() { return this.openCityInterior('PigeonLoftScene', 'The pigeon loft could not be opened. Please try again.'); }
+  async openHome() { return this.openCityInterior('PigeonLoftScene', __dialogueText("scenes/HomeCityScene.js", "t_a960edd54084720c2d36")); }
   async openCityInterior(sceneKey, errorMessage) {
     if (this.disposed || this.navigating) return false;
     this.navigating = true; this.heldArrows.clear();

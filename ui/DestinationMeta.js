@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // DestinationMeta.js
 
 export const TRANSPORT_UI_META = {
@@ -110,53 +111,53 @@ export function getCityLonLat(location) {
 
 // ---------------------------------------------------------------- humor
 export const CITY_QUIPS = {
-    london: 'LONDON: Weather forecast is "yes". Bring an umbrella and low expectations.',
-    paris: 'PARIS: Strike probability 94%. Croissant availability: also 94%.',
-    new_delhi: 'NEW DELHI: Spice level is classified. Your stomach has no clearance.',
-    warsaw: 'WARSAW: Pierogi reserves are strategic. Do not ask how many.',
-    new_york_city: 'NEW YORK: Everyone is walking fast. Nobody is going anywhere.',
-    berlin: 'BERLIN: Techno is mandatory after 11 PM. So is queueing.',
-    toronto: 'TORONTO: Apologies per minute: 12. Please excuse the statistic.',
-    kotte: 'KOTTE: Humidity is personal here. It will hug you.',
-    islamabad: 'ISLAMABAD: Tea acceptable at any hour. Refusing it is a mission failure.',
-    nairobi: 'NAIROBI: Safari is not covered by the expense policy. We checked twice.',
-    tokyo: 'TOKYO: Vending machines outnumber suspects. Still, we count both.',
-    hq: 'HQ: Location redacted. Coffee also redacted. Morale: pending.'
+    london: __dialogueText("ui/DestinationMeta.js", "t_0385f29a7e04050050e5"),
+    paris: __dialogueText("ui/DestinationMeta.js", "t_3fd0e83798bf102f7172"),
+    new_delhi: __dialogueText("ui/DestinationMeta.js", "t_58ee069c75b4c62a1093"),
+    warsaw: __dialogueText("ui/DestinationMeta.js", "t_fa59d732719d862cfefa"),
+    new_york_city: __dialogueText("ui/DestinationMeta.js", "t_a30e0760b43c82faccab"),
+    berlin: __dialogueText("ui/DestinationMeta.js", "t_6e25aa0151ce6332d182"),
+    toronto: __dialogueText("ui/DestinationMeta.js", "t_422a4343f213f7759a6a"),
+    kotte: __dialogueText("ui/DestinationMeta.js", "t_4322b93cfa0f8a028320"),
+    islamabad: __dialogueText("ui/DestinationMeta.js", "t_cdd55b594fb5023122a5"),
+    nairobi: __dialogueText("ui/DestinationMeta.js", "t_bb928593ad425e98636e"),
+    tokyo: __dialogueText("ui/DestinationMeta.js", "t_2e24808fbd15fa2f958f"),
+    hq: __dialogueText("ui/DestinationMeta.js", "t_51a67ff163097149caa3")
 };
 
 export function getCityQuip(location) {
     const id = getCityId(location);
     return CITY_QUIPS[id] ||
-        `${String(location?.city || 'THIS PLACE').toUpperCase()}: No intel. Bring snacks and confidence.`;
+        `${String(location?.city || __dialogueText("ui/DestinationMeta.js", "t_09414855d35d53b1be06")).toUpperCase()}${__dialogueText("ui/DestinationMeta.js", "t_66e4970a86ce3581fbdd")}`;
 }
 
 export const AGENCY_TICKER_LINES = [
-    'UPLINK STABLE. COFFEE LEVELS: CRITICAL.',
-    'SATELLITE 7 REPORTS: A LOT OF WATER.',
-    'AGENT LAST SEEN IN DUTY-FREE. STATUS: SHOPPING.',
-    'REMINDER: EXPENSE REPORTS ARE NOT A PERSONALITY.',
-    'DRONE 3 IS FOLLOWING THE WRONG SUSPECT. AGAIN.',
-    'ENCRYPTING MAP... PASSWORD IS "PASSWORD1". RELAX.',
-    'TRAVEL DESK NOTICE: LAYOVERS BUILD CHARACTER.',
-    'THREAT LEVEL: MODERATE. SNACK LEVEL: LOW.',
-    'CLASSIFIED ITEM REDACTED BY CLASSIFIED OFFICER.',
-    'FUN FACT: THE OCEAN IS NOT A SHORTCUT.',
-    'CLEARANCE CHECK: YES(ISH).',
-    'TIP: LOOK CONFIDENT. NOBODY CHECKS THE MAP.'
+    __dialogueText("ui/DestinationMeta.js", "t_ceb755fc389aa13e62b0"),
+    __dialogueText("ui/DestinationMeta.js", "t_4e241ab0f0c5197bea28"),
+    __dialogueText("ui/DestinationMeta.js", "t_e97e356ec700397586e1"),
+    __dialogueText("ui/DestinationMeta.js", "t_2ca0cfe9136f5ce8f3c9"),
+    __dialogueText("ui/DestinationMeta.js", "t_8ed7f3458940badc2f0f"),
+    __dialogueText("ui/DestinationMeta.js", "t_a54260345f7027293c2d"),
+    __dialogueText("ui/DestinationMeta.js", "t_0fb1d29a3f0b94e51b0d"),
+    __dialogueText("ui/DestinationMeta.js", "t_fd42bdbfb8411c2cb327"),
+    __dialogueText("ui/DestinationMeta.js", "t_bfb2238037ca144c9cd8"),
+    __dialogueText("ui/DestinationMeta.js", "t_66157d5ec518a7f056e8"),
+    __dialogueText("ui/DestinationMeta.js", "t_010e73b324d4c6560aab"),
+    __dialogueText("ui/DestinationMeta.js", "t_d5265b1ae083190c33ad")
 ];
 
 export const PI_FIELD_NOTES = [
-    'Note to self: never trust a map drawn by a man named Dave.',
-    'The X marks the spot. The Y marks the trouble.',
-    'Remember: airports are just very expensive caves.',
-    'Hat: check. Whip: check. Receipts: lost.',
-    'If the map is upside down, so is the budget.',
-    'Snakes? Why does it always have to be layovers?',
-    'That stain is from yesterday\u2019s coffee. Probably.',
-    'Archaeology is 10% digging, 90% waiting for baggage.',
-    'Everything belongs in a museum. Especially me, at this pace.',
-    'Pack light. The suspect certainly did.',
-    'The landlady called again. The rent is also an artefact now.'
+    __dialogueText("ui/DestinationMeta.js", "t_884628f956df69c2ef3a"),
+    __dialogueText("ui/DestinationMeta.js", "t_4cc8bf498f737bced4a2"),
+    __dialogueText("ui/DestinationMeta.js", "t_df10336034f62c168820"),
+    __dialogueText("ui/DestinationMeta.js", "t_14a0922e44ccbf2a9f1f"),
+    __dialogueText("ui/DestinationMeta.js", "t_580a42ce0bddfc594f18"),
+    __dialogueText("ui/DestinationMeta.js", "t_f30593a056d014c5ca6e"),
+    __dialogueText("ui/DestinationMeta.js", "t_7b2c693facb1c0b6c00b"),
+    __dialogueText("ui/DestinationMeta.js", "t_b257bd3ff5db2fca3eb5"),
+    __dialogueText("ui/DestinationMeta.js", "t_448e7c7fd65e9febd9d8"),
+    __dialogueText("ui/DestinationMeta.js", "t_5bf731ea050aec10b8bf"),
+    __dialogueText("ui/DestinationMeta.js", "t_3e8d3b3ac1a793f9ea1f")
 ];
 
 // ---------------------------------------------------------------- themes
@@ -173,7 +174,7 @@ export const DESTINATION_THEMES = {
         ink: 0xffffff,
         fallbackBg: 0x04111b,
 
-        panelTitle: 'Travel dossier',
+        panelTitle: __dialogueText("ui/DestinationMeta.js", "t_4749991ebc69a760d82c"),
         panelBg: 0x061018,
         panelAlpha: 0.94,
         panelStroke: 0x00e5ff,
@@ -196,11 +197,11 @@ export const DESTINATION_THEMES = {
         transportTextSelected: '#06141c',
 
         hq: {
-            fill: 0x0a1e2a, stroke: 0x00e5ff, hover: 0x0f3a4d, text: '#d9fbff',
+            fill: 0x0a1e2a, stroke: 0x00e5ff, hover: 0x0f3a4d, text: __dialogueText("ui/DestinationMeta.js", "t_2d0f6e8213940bdb2b18"),
             blockedFill: 0x1b2229, blockedStroke: 0x5c6b73, blockedText: '#8aa0a8'
         },
         office: {
-            fill: 0x1d1a0c, stroke: 0xffcc00, hover: 0x3a3210, text: '#fff3c4'
+            fill: 0x1d1a0c, stroke: 0xffcc00, hover: 0x3a3210, text: __dialogueText("ui/DestinationMeta.js", "t_6bee238daf9a980b31a4")
         },
         closeColor: '#00e5ff',
 
@@ -219,7 +220,7 @@ export const DESTINATION_THEMES = {
         ink: 0x2b1a0c,
         fallbackBg: 0xd9c08f,
 
-        panelTitle: 'Expedition ledger',
+        panelTitle: __dialogueText("ui/DestinationMeta.js", "t_cdbc56ee8758fa5033f9"),
         panelBg: 0xe6d3a1,
         panelAlpha: 0.97,
         panelStroke: 0x4a3320,
@@ -242,11 +243,11 @@ export const DESTINATION_THEMES = {
         transportTextSelected: '#2a1b0d',
 
         hq: {
-            fill: 0xd8c28c, stroke: 0x4a3320, hover: 0xc9b077, text: '#3b2a18',
+            fill: 0xd8c28c, stroke: 0x4a3320, hover: 0xc9b077, text: __dialogueText("ui/DestinationMeta.js", "t_b4f2be10329a6d83d047"),
             blockedFill: 0xbfb08a, blockedStroke: 0x7d6e4d, blockedText: '#7d6e4d'
         },
         office: {
-            fill: 0xcfd8a8, stroke: 0x4f5d2a, hover: 0xbfca94, text: '#2b3a14'
+            fill: 0xcfd8a8, stroke: 0x4f5d2a, hover: 0xbfca94, text: __dialogueText("ui/DestinationMeta.js", "t_65f6894c279952cf98e5")
         },
         closeColor: '#8b2a1d',
 
@@ -265,5 +266,5 @@ CITY_ID_MAP.Singapore = 'singapore';
 CITY_COORDINATES.singapore = [103.8198, 1.3521];
 if (!GAME_COUNTRIES_ISO3.includes('SGP')) GAME_COUNTRIES_ISO3.push('SGP');
 COUNTRY_ISO3.singapore = 'SGP';
-CITY_QUIPS.singapore = 'SINGAPORE: The Merlion has no comment. Mostly water.';
+CITY_QUIPS.singapore = __dialogueText("ui/DestinationMeta.js", "t_878bbec23394bbe06662");
 // END SINGAPORE CITY INTEGRATION v1

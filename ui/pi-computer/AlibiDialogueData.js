@@ -1,7 +1,8 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { ALIBI_SEARCH_CASE, ALIBI_PHONE_CONTACT, ALIBI_CLUB_CONTACT } from './AlibiCaseData.js';
 import { ALIBI_INTERVIEW_CONTACTS } from './AlibiInterviewData.js';
 
-export const COPPER_EMAIL='receipts@copperspoon.local';
+export const COPPER_EMAIL=__dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_cdea600ae0c10db4b42b");
 export const ALIBI_DIALOGUE_RULES=[
   {
     "contactId": "alibi_copper_spoon",
@@ -20,20 +21,20 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Was the restaurant open on Tuesday evening?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_c696a233beddc889f1c3")
       },
       {
-        "speaker": "Manager",
-        "text": "The dining room was. The hot kitchen was not. Cold sandwiches, drinks and increasingly detailed apologies."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_38140d0f8337fdf53de3")
       },
       {
-        "speaker": "You",
-        "text": "For the whole evening?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_d29364229216e0b1820b")
       },
       {
-        "speaker": "Manager",
-        "text": "The whole evening. A printed menu is not a record of what we could actually serve."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_3a9d3c9b4172be6a7fea")
       }
     ]
   },
@@ -55,12 +56,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Could anyone have ordered tomato soup on Tuesday evening?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_c9db6ba1d075e64ce479")
       },
       {
-        "speaker": "Manager",
-        "text": "No. Our hot kitchen was closed throughout the evening. The soup remained on the website, where it enjoyed excellent health."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_9eb73649feaf49aef9df")
       }
     ]
   },
@@ -81,12 +82,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "How long did the kitchen failure last?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_1e6f428fdcff5d3f4f47")
       },
       {
-        "speaker": "Manager",
-        "text": "All Tuesday evening. Cold food and drinks only. If someone claims a hot meal, compare that claim with this service record."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_3764f7edc185a821f31b")
       }
     ]
   },
@@ -105,20 +106,20 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Would you remember spilled wine?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_f0cde5eaff00c142553b")
       },
       {
-        "speaker": "Manager",
-        "text": "Perhaps. But a stained tablecloth is not a guest register."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_59abde49f987d42da8c3")
       },
       {
-        "speaker": "You",
-        "text": "What would establish the visit?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_3fcd59944fac58bd9221")
       },
       {
-        "speaker": "Manager",
-        "text": "An authorised receipt request. Ask me about a receipt and I will give you the address."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_ebfb9ac0cac60f2d3e55")
       }
     ]
   },
@@ -137,20 +138,20 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Can you check Arthur Finch’s Tuesday order?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4fc9c56fa9671ac0ae43")
       },
       {
-        "speaker": "Manager",
-        "text": "With his written permission, not just a name on the telephone."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4ed7d24753cf1bcda960")
       },
       {
-        "speaker": "You",
-        "text": "How do I request the record?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a17b5778439bf46d60a1")
       },
       {
-        "speaker": "Manager",
-        "text": "Ask about a receipt. I will give you our email address. The request and the authorisation must be in writing."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4642715d0607e84b724b")
       }
     ]
   },
@@ -171,12 +172,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 30,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Arthur’s correspondence includes permission to release his receipt."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_568f204ca8983dcef87e")
       },
       {
-        "speaker": "Manager",
-        "text": "Then ask for our receipt address and forward that authorisation with your request. A conversation is not a delivered document."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_6894567f47476189e7a4")
       }
     ]
   },
@@ -195,27 +196,27 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Where do I request a receipt?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_088f1869b1092c1e25c3")
       },
       {
-        "speaker": "Manager",
-        "text": "receipts@copperspoon.local. Include the customer’s name, the evening and their written permission.",
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_161122ed1ab88f8f0165"),
         "fragments": [
           {
             "keywordId": "copper_email",
-            "text": "receipts@copperspoon.local"
+            "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_cdea600ae0c10db4b42b")
           },
-          ". Include the customer’s name, the evening and their written permission."
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_b02b601482a9cfed8729")
         ]
       },
       {
-        "speaker": "You",
-        "text": "You will reply to that email?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_d8b6e98661bb245ddd4d")
       },
       {
-        "speaker": "Manager",
-        "text": "With the relevant record once the permission checks out. No guessing which sandwich belongs to your investigation."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_edfd8bfb951fecc31645")
       }
     ]
   },
@@ -235,27 +236,27 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Where do I request a receipt?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_088f1869b1092c1e25c3")
       },
       {
-        "speaker": "Manager",
-        "text": "receipts@copperspoon.local. Include the customer’s name, the evening and their written permission.",
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_161122ed1ab88f8f0165"),
         "fragments": [
           {
             "keywordId": "copper_email",
-            "text": "receipts@copperspoon.local"
+            "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_cdea600ae0c10db4b42b")
           },
-          ". Include the customer’s name, the evening and their written permission."
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_b02b601482a9cfed8729")
         ]
       },
       {
-        "speaker": "You",
-        "text": "You will reply to that email?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_d8b6e98661bb245ddd4d")
       },
       {
-        "speaker": "Manager",
-        "text": "With the relevant record once the permission checks out. No guessing which sandwich belongs to your investigation."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_edfd8bfb951fecc31645")
       }
     ]
   },
@@ -275,27 +276,27 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Where do I request a receipt?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_088f1869b1092c1e25c3")
       },
       {
-        "speaker": "Manager",
-        "text": "receipts@copperspoon.local. Include the customer’s name, the evening and their written permission.",
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_161122ed1ab88f8f0165"),
         "fragments": [
           {
             "keywordId": "copper_email",
-            "text": "receipts@copperspoon.local"
+            "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_cdea600ae0c10db4b42b")
           },
-          ". Include the customer’s name, the evening and their written permission."
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_b02b601482a9cfed8729")
         ]
       },
       {
-        "speaker": "You",
-        "text": "You will reply to that email?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_d8b6e98661bb245ddd4d")
       },
       {
-        "speaker": "Manager",
-        "text": "With the relevant record once the permission checks out. No guessing which sandwich belongs to your investigation."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_edfd8bfb951fecc31645")
       }
     ]
   },
@@ -314,19 +315,19 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "I have written permission to obtain a receipt."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_d0e13422117c1c1bcbfe")
       },
       {
-        "speaker": "Manager",
-        "text": "Put the customer’s name and that authorisation in the request to receipts@copperspoon.local. “Someone said it was fine” is not an accepted document format.",
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_40319a14b182481ddb92"),
         "fragments": [
-          "Put the customer’s name and that authorisation in the request to ",
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_6ae53db12980209bdfa8"),
           {
             "keywordId": "copper_email",
-            "text": "receipts@copperspoon.local"
+            "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_cdea600ae0c10db4b42b")
           },
-          ". “Someone said it was fine” is not an accepted document format."
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_fe97ffb9a7e320f42a36")
         ]
       }
     ]
@@ -348,19 +349,19 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 40,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Can you remind me how to request the receipt?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_aad715c4afd57aaa8d12")
       },
       {
-        "speaker": "Manager",
-        "text": "Use receipts@copperspoon.local. Name Arthur Finch, specify Tuesday evening and forward his permission. Then check our reply in Mail. Starting a second telephone conversation does not send the first email.",
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_b740f6d44fd12aaa78e5"),
         "fragments": [
-          "Use ",
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_bb33dbdb2f216aee5a55"),
           {
             "keywordId": "copper_email",
-            "text": "receipts@copperspoon.local"
+            "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_cdea600ae0c10db4b42b")
           },
-          ". Name Arthur Finch, specify Tuesday evening and forward his permission. Then check our reply in Mail. Starting a second telephone conversation does not send the first email."
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_2e5a3b95759b31a1f6ca")
         ]
       }
     ]
@@ -383,12 +384,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 40,
     "lines": [
       {
-        "speaker": "You",
-        "text": "I have the receipt. What can it actually establish?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_0c93b1fcdca07a11de13")
       },
       {
-        "speaker": "Manager",
-        "text": "Read its date, transaction times, order and recorded guest count. Compare those facts with the original dinner claims. The total is not a personality test."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_33ce7a741486363526a1")
       }
     ]
   },
@@ -408,27 +409,27 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Where do I request a receipt?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_088f1869b1092c1e25c3")
       },
       {
-        "speaker": "Manager",
-        "text": "receipts@copperspoon.local. Include the customer’s name, the evening and their written permission.",
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_161122ed1ab88f8f0165"),
         "fragments": [
           {
             "keywordId": "copper_email",
-            "text": "receipts@copperspoon.local"
+            "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_cdea600ae0c10db4b42b")
           },
-          ". Include the customer’s name, the evening and their written permission."
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_b02b601482a9cfed8729")
         ]
       },
       {
-        "speaker": "You",
-        "text": "You will reply to that email?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_d8b6e98661bb245ddd4d")
       },
       {
-        "speaker": "Manager",
-        "text": "With the relevant record once the permission checks out. No guessing which sandwich belongs to your investigation."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_edfd8bfb951fecc31645")
       }
     ]
   },
@@ -447,12 +448,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Does this Tuesday package establish a dinner here?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_26fc5ccb2b7a20b06e88")
       },
       {
-        "speaker": "Manager",
-        "text": "A story sold somewhere else is not an entry in our till. Ask us about Tuesday’s service or an authorised receipt. Ask the supplier for its sample."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8b2085f74dfa9c78a23b"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_93597fb13a68d678983a")
       }
     ]
   },
@@ -471,12 +472,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Do you sell actual dinners?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8d26057952b57a2267ea")
       },
       {
-        "speaker": "Membership secretary",
-        "text": "Descriptions of dinners. Actual food is difficult to standardise. Ask about the Dinner Companion package; it comes with an impressively specific yesterday."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a03a465214aba97f9cc6"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8b235de37515304cf045")
       }
     ]
   },
@@ -497,35 +498,35 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "What is included in Dinner Companion?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a54631501c02ec229405")
       },
       {
-        "speaker": "Membership secretary",
-        "text": "A restaurant, a timetable and a respectable companion. Details make a story reassuringly specific.",
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a03a465214aba97f9cc6"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_1056584b70d4a6434740"),
         "fragments": [
-          "A restaurant, a timetable and a ",
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_204476320ac565be366e"),
           {
             "keywordId": "respectable_witness",
-            "text": "respectable companion"
+            "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_15e40dad60c34d938071")
           },
-          ". Details make a story reassuringly specific."
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_31dec9cae5a549eb073c")
         ]
       },
       {
-        "speaker": "You",
-        "text": "Can I inspect an example?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_9d0ab137fba1d3971473")
       },
       {
-        "speaker": "Membership secretary",
-        "text": "Ask for a free sample. No payment, subscription or actual friend required.",
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a03a465214aba97f9cc6"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_1a40a815fa4fb10aa630"),
         "fragments": [
-          "Ask for a ",
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_d46ba79bcd4a40efe525"),
           {
             "keywordId": "sample",
-            "text": "free sample"
+            "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_61059a5e4686e0bf046b")
           },
-          ". No payment, subscription or actual friend required."
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a819090cf4fb7f614d6f")
         ]
       }
     ]
@@ -547,12 +548,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 20,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Please send a sample."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_de1d62c0946dfe8382bb")
       },
       {
-        "speaker": "Membership secretary",
-        "text": "Of which product? Ask about the Dinner Companion package first. Otherwise I might send our extremely unconvincing fishing trip."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a03a465214aba97f9cc6"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_6c68a4290084ebc2ac25")
       }
     ]
   },
@@ -577,20 +578,20 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 40,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Please send the Dinner Companion demonstration to my office mailbox."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_86de8c09f5326fde3095")
       },
       {
-        "speaker": "Membership secretary",
-        "text": "A demonstration only: TUE-DC-02. No payment and no subscription."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a03a465214aba97f9cc6"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_6ca5bb9899d2f16d0199")
       },
       {
-        "speaker": "You",
-        "text": "The full example wording?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_9be2adbdb9849526e368")
       },
       {
-        "speaker": "Membership secretary",
-        "text": "Yes. It is now in your mailbox. Please read the small print. It is where we keep most of the honesty."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a03a465214aba97f9cc6"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_b90619d6ec6c4cb6b72f")
       }
     ]
   },
@@ -611,12 +612,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 60,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Can I have the sample again?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4383376e3ddf5b025472")
       },
       {
-        "speaker": "Membership secretary",
-        "text": "The demonstration is already in your mailbox. Read its reference and exact wording. We do not charge for repeated instructions for opening a letter."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a03a465214aba97f9cc6"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_7d11a4228c1754301718")
       }
     ]
   },
@@ -638,12 +639,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 20,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Please send a sample."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_de1d62c0946dfe8382bb")
       },
       {
-        "speaker": "Membership secretary",
-        "text": "Of which product? Ask about the Dinner Companion package first. Otherwise I might send our extremely unconvincing fishing trip."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a03a465214aba97f9cc6"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_6c68a4290084ebc2ac25")
       }
     ]
   },
@@ -669,20 +670,20 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 40,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Please send the Dinner Companion demonstration to my office mailbox."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_86de8c09f5326fde3095")
       },
       {
-        "speaker": "Membership secretary",
-        "text": "A demonstration only: TUE-DC-02. No payment and no subscription."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a03a465214aba97f9cc6"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_6ca5bb9899d2f16d0199")
       },
       {
-        "speaker": "You",
-        "text": "The full example wording?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_9be2adbdb9849526e368")
       },
       {
-        "speaker": "Membership secretary",
-        "text": "Yes. It is now in your mailbox. Please read the small print. It is where we keep most of the honesty."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a03a465214aba97f9cc6"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_b90619d6ec6c4cb6b72f")
       }
     ]
   },
@@ -704,12 +705,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 60,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Can I have the sample again?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4383376e3ddf5b025472")
       },
       {
-        "speaker": "Membership secretary",
-        "text": "The demonstration is already in your mailbox. Read its reference and exact wording. We do not charge for repeated instructions for opening a letter."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a03a465214aba97f9cc6"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_7d11a4228c1754301718")
       }
     ]
   },
@@ -729,12 +730,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Your version label appears on a dinner document."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_f94dc1c969b87595b73e")
       },
       {
-        "speaker": "Membership secretary",
-        "text": "It is a version label, not a customer list. Ask about the Dinner Companion package and request a sample. Compare the full wording, not merely the number two."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a03a465214aba97f9cc6"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_eb58644ceebb0de6e475")
       }
     ]
   },
@@ -753,12 +754,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Does the named companion know they are my witness?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_7d86fa77d26182b4ad7b")
       },
       {
-        "speaker": "Membership secretary",
-        "text": "Some are so independent they do not know they work for us. The package supplies an account, not independent confirmation."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a03a465214aba97f9cc6"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_65f1ec0c1e44e0cb1a94")
       }
     ]
   },
@@ -777,12 +778,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Can you tell me whether this person used your material?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_db3df735e5ac19e51d3c")
       },
       {
-        "speaker": "Membership secretary",
-        "text": "We do not disclose customers. We can supply a demonstration. Compare it with a document you already possess; I cannot make that comparison for you."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a03a465214aba97f9cc6"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_3114c84de8c1c3dc8cc3")
       }
     ]
   },
@@ -801,12 +802,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Can you tell me whether this person used your material?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_db3df735e5ac19e51d3c")
       },
       {
-        "speaker": "Membership secretary",
-        "text": "We do not disclose customers. We can supply a demonstration. Compare it with a document you already possess; I cannot make that comparison for you."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a03a465214aba97f9cc6"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_3114c84de8c1c3dc8cc3")
       }
     ]
   },
@@ -825,12 +826,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Can you confirm that the soup was served?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_bd1fdc55d2a68c091214")
       },
       {
-        "speaker": "Membership secretary",
-        "text": "We sell an account. We do not operate the restaurant. Ask them about the meal and ask us about the Dinner Companion sample."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a03a465214aba97f9cc6"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a2142c00a7dd206c5a2c")
       }
     ]
   },
@@ -851,20 +852,20 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "You asked Arthur Finch to confirm a Tuesday dinner. Did he agree?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_41c2d482ec1ee6b45f2b")
       },
       {
-        "speaker": "Nora Bell",
-        "text": "No. He has the original message I sent."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_6d5e5e7e9f24597da1a6")
       },
       {
-        "speaker": "You",
-        "text": "Three requests contain the same meal and incident."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_b7e888cff24076bf0f94")
       },
       {
-        "speaker": "Nora Bell",
-        "text": "Then compare the actual accounts. If you think I used a sample, bring its reference. A shared fondness for soup is not your strongest argument."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_31cbdacf923b2b7ce1f8")
       }
     ]
   },
@@ -884,12 +885,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Your message describes tomato soup."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_df9cf59df89bdc8bb002")
       },
       {
-        "speaker": "Nora Bell",
-        "text": "That is what it says. Have you checked service on that specific Tuesday? The usual menu does not tell you what the kitchen actually served."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_e160fc94343afb11ad4c")
       }
     ]
   },
@@ -909,12 +910,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Do you recognise “revision 2” on the dinner document?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08947c8ffbf0bfa8be82")
       },
       {
-        "speaker": "Nora Bell",
-        "text": "A document version is not a confession. Find the actual sample and its reference if you believe the wording came from it."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_528844fcd2078ca9a73f")
       }
     ]
   },
@@ -936,20 +937,20 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 20,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Your account matches TUE-DC-02."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_c6567c9d4e67b0759d74")
       },
       {
-        "speaker": "Nora Bell",
-        "text": "Have you checked Arthur’s actual visit?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_1a407d67b34df416cc9e")
       },
       {
-        "speaker": "You",
-        "text": "He says he was alone."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_36d21b512ae771c1e924")
       },
       {
-        "speaker": "Nora Bell",
-        "text": "Then obtain his authorised restaurant receipt. Do not settle a documented question by choosing whose voice sounds more convincing."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_81c138f570a63bcc3f9a")
       }
     ]
   },
@@ -973,12 +974,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 30,
     "lines": [
       {
-        "speaker": "You",
-        "text": "I have the sample and Arthur’s receipt."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_818ba9d5e41df86125e8")
       },
       {
-        "speaker": "Nora Bell",
-        "text": "And have you asked the restaurant about Tuesday’s service? Check that specific evening before claiming the meal was impossible."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_e17d8c67768c9370f26f")
       }
     ]
   },
@@ -1003,12 +1004,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 35,
     "lines": [
       {
-        "speaker": "You",
-        "text": "I want to compare your account with the sample."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4d0911011a6f4bfb96f8")
       },
       {
-        "speaker": "Nora Bell",
-        "text": "Then obtain the original demonstration from its supplier. A reference without the source is not the comparison you say you have."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a81b9ef4d12835b1537b")
       }
     ]
   },
@@ -1036,27 +1037,27 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 60,
     "lines": [
       {
-        "speaker": "You",
-        "text": "TUE-DC-02 repeats your account. Arthur’s receipt records one diner, and the restaurant confirms there was no soup. Why send that story?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_9a2196d2c67532867971")
       },
       {
-        "speaker": "Nora Bell",
-        "text": "All right. I bought it. Arthur was never with me."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_ac7b76517530bde63705")
       },
       {
-        "speaker": "You",
-        "text": "Where were you?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_62051ad5594a82661dd6")
       },
       {
-        "speaker": "Nora Bell",
-        "text": "At the Civic Pie Challenge. I won. This is considerably less dignified than the dinner I invented.",
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4d0213de17999a6e3d3c"),
         "fragments": [
-          "At the ",
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_9d37314fdda0ae496d21"),
           {
             "keywordId": "pie_contest",
-            "text": "Civic Pie Challenge"
+            "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_5b3d2434d90ebb6f24e3")
           },
-          ". I won. This is considerably less dignified than the dinner I invented."
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_3b5ec5cc0cd6f347c356")
         ]
       }
     ]
@@ -1079,28 +1080,28 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 100,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Who can independently check your Civic Pie Challenge attendance?",
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_3a1bbaf691b1db5a031b"),
         "fragments": [
-          "Who can independently check your ",
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_c1cb13b9a2692efd086b"),
           {
             "keywordId": "pie_contest",
-            "text": "Civic Pie Challenge"
+            "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_5b3d2434d90ebb6f24e3")
           },
-          " attendance?"
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_7c549175fb5ef4e91e78")
         ]
       },
       {
-        "speaker": "Nora Bell",
-        "text": "The event office publishes the Tuesday results and the judge’s continuous stage record."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_6cd5461e6611dc9b5bc0")
       },
       {
-        "speaker": "You",
-        "text": "Not just a list of participants?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_9326e11a0ad6fc46bda9")
       },
       {
-        "speaker": "Nora Bell",
-        "text": "The record gives check-in, the award and whether I left. I could not slip away quietly with seven slices of pie in me."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_44714bc7c8e9325a92a9")
       }
     ]
   },
@@ -1122,20 +1123,20 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Who can independently check your Civic Pie Challenge attendance?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_3a1bbaf691b1db5a031b")
       },
       {
-        "speaker": "Nora Bell",
-        "text": "The event office publishes the Tuesday results and the judge’s continuous stage record."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_6cd5461e6611dc9b5bc0")
       },
       {
-        "speaker": "You",
-        "text": "Not just a list of participants?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_9326e11a0ad6fc46bda9")
       },
       {
-        "speaker": "Nora Bell",
-        "text": "The record gives check-in, the award and whether I left. I could not slip away quietly with seven slices of pie in me."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_44714bc7c8e9325a92a9")
       }
     ]
   },
@@ -1156,28 +1157,28 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 50,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Who can independently check your Civic Pie Challenge attendance?",
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_3a1bbaf691b1db5a031b"),
         "fragments": [
-          "Who can independently check your ",
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_c1cb13b9a2692efd086b"),
           {
             "keywordId": "pie_contest",
-            "text": "Civic Pie Challenge"
+            "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_5b3d2434d90ebb6f24e3")
           },
-          " attendance?"
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_7c549175fb5ef4e91e78")
         ]
       },
       {
-        "speaker": "Nora Bell",
-        "text": "The event office publishes the Tuesday results and the judge’s continuous stage record."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_6cd5461e6611dc9b5bc0")
       },
       {
-        "speaker": "You",
-        "text": "Not just a list of participants?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_9326e11a0ad6fc46bda9")
       },
       {
-        "speaker": "Nora Bell",
-        "text": "The record gives check-in, the award and whether I left. I could not slip away quietly with seven slices of pie in me."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_44714bc7c8e9325a92a9")
       }
     ]
   },
@@ -1199,12 +1200,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Why invent dinner?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_6f3a9210174fb400ad4f")
       },
       {
-        "speaker": "Nora Bell",
-        "text": "My sister organised a family meal. I claimed a prior engagement with someone respectable. Competitive pie eating under fluorescent lighting was harder to explain."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_385d4fb2112bcd756472")
       }
     ]
   },
@@ -1224,12 +1225,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Tell me about the wine incident."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_556956d2539bf1131087")
       },
       {
-        "speaker": "Nora Bell",
-        "text": "Repeating the written account would not make it independent evidence. If you have the actual sample reference and restaurant records, put those to me."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4cca0264ed42816c466a"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_bc9abb73028c85f480fc")
       }
     ]
   },
@@ -1250,20 +1251,20 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "You asked Arthur Finch to confirm a Tuesday dinner. Did he agree?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_41c2d482ec1ee6b45f2b")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "No. He has the original message I sent."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_6d5e5e7e9f24597da1a6")
       },
       {
-        "speaker": "You",
-        "text": "Three requests contain the same meal and incident."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_b7e888cff24076bf0f94")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "Then compare the actual accounts. If you think I used a sample, bring its reference. A shared fondness for soup is not your strongest argument."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_31cbdacf923b2b7ce1f8")
       }
     ]
   },
@@ -1283,12 +1284,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Your message describes tomato soup."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_df9cf59df89bdc8bb002")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "That is what it says. Have you checked service on that specific Tuesday? The usual menu does not tell you what the kitchen actually served."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_e160fc94343afb11ad4c")
       }
     ]
   },
@@ -1308,12 +1309,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Do you recognise “revision 2” on the dinner document?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08947c8ffbf0bfa8be82")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "A document version is not a confession. Find the actual sample and its reference if you believe the wording came from it."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_528844fcd2078ca9a73f")
       }
     ]
   },
@@ -1335,20 +1336,20 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 20,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Your account matches TUE-DC-02."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_c6567c9d4e67b0759d74")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "Have you checked Arthur’s actual visit?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_1a407d67b34df416cc9e")
       },
       {
-        "speaker": "You",
-        "text": "He says he was alone."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_36d21b512ae771c1e924")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "Then obtain his authorised restaurant receipt. Do not settle a documented question by choosing whose voice sounds more convincing."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_81c138f570a63bcc3f9a")
       }
     ]
   },
@@ -1372,12 +1373,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 30,
     "lines": [
       {
-        "speaker": "You",
-        "text": "I have the sample and Arthur’s receipt."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_818ba9d5e41df86125e8")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "And have you asked the restaurant about Tuesday’s service? Check that specific evening before claiming the meal was impossible."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_e17d8c67768c9370f26f")
       }
     ]
   },
@@ -1402,12 +1403,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 35,
     "lines": [
       {
-        "speaker": "You",
-        "text": "I want to compare your account with the sample."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4d0911011a6f4bfb96f8")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "Then obtain the original demonstration from its supplier. A reference without the source is not the comparison you say you have."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a81b9ef4d12835b1537b")
       }
     ]
   },
@@ -1435,27 +1436,27 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 60,
     "lines": [
       {
-        "speaker": "You",
-        "text": "TUE-DC-02 repeats your dinner account. Arthur’s receipt and the restaurant’s service confirmation contradict it. Where were you?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_757d9f3a97b63a32e166")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "I bought the story to avoid a compulsory company dinner. Arthur did not agree to any of it."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_47ac704fff62b82d0af5")
       },
       {
-        "speaker": "You",
-        "text": "Your actual evening?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_466b7858d0e8d1a89f2e")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "I was playing in the Rook & Ruin Open. Describing it as a serious strategic commitment was entirely accurate.",
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_745c9e2d0046be74d97f"),
         "fragments": [
-          "I was playing in the ",
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_e339037fef0f401172a3"),
           {
             "keywordId": "board_tournament",
-            "text": "Rook & Ruin Open"
+            "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a05e96774c14aa4f0766")
           },
-          ". Describing it as a serious strategic commitment was entirely accurate."
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_b51e93e9fa9eaba832a4")
         ]
       }
     ]
@@ -1478,20 +1479,20 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 100,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Who can check your Rook & Ruin match times?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_5fdc1ce65aca5bb56909")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "The club publishes the official results and referee’s signed, timed match sheet."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8053961414897ef9e959")
       },
       {
-        "speaker": "You",
-        "text": "Does it record breaks and substitutes?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_49d9702a0064c5849c39")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "Yes. The final table was supervised. Check the sheet rather than my account. The referee noticed everything, including my expression after the dice roll."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_cb4cc6375f12c899f9ec")
       }
     ]
   },
@@ -1513,20 +1514,20 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Who can check your Rook & Ruin match times?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_5fdc1ce65aca5bb56909")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "The club publishes the official results and referee’s signed, timed match sheet."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8053961414897ef9e959")
       },
       {
-        "speaker": "You",
-        "text": "Does it record breaks and substitutes?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_49d9702a0064c5849c39")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "Yes. The final table was supervised. Check the sheet rather than my account. The referee noticed everything, including my expression after the dice roll."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_cb4cc6375f12c899f9ec")
       }
     ]
   },
@@ -1547,20 +1548,20 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 50,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Who can check your Rook & Ruin match times?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_5fdc1ce65aca5bb56909")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "The club publishes the official results and referee’s signed, timed match sheet."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8053961414897ef9e959")
       },
       {
-        "speaker": "You",
-        "text": "Does it record breaks and substitutes?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_49d9702a0064c5849c39")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "Yes. The final table was supervised. Check the sheet rather than my account. The referee noticed everything, including my expression after the dice roll."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_cb4cc6375f12c899f9ec")
       }
     ]
   },
@@ -1582,12 +1583,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Why conceal the tournament?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_ac457d12142d32a330cb")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "The company dinner was described as optional but professionally revealing. At the tournament the rules were merely complicated. At work they were apparently metaphysical."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_1c8483c8f328fd991300")
       }
     ]
   },
@@ -1607,12 +1608,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Tell me about the wine incident."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_556956d2539bf1131087")
       },
       {
-        "speaker": "Simon Pike",
-        "text": "Repeating the written account would not make it independent evidence. If you have the actual sample reference and restaurant records, put those to me."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_95df72b5037a3593588e"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_bc9abb73028c85f480fc")
       }
     ]
   },
@@ -1631,12 +1632,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Arthur disputes the dinner account you sent him."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_7c1900b78bb83eba4e67")
       },
       {
-        "speaker": "Evelyn Shaw",
-        "text": "Then identify a detail you have checked. “It sounds suspicious” is not evidence wearing a better coat."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_f693eba06ad2594e170c"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_91c8ab5dd57637863517")
       }
     ]
   },
@@ -1656,12 +1657,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Your account says tomato soup."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_38d27ab7da87545181b8")
       },
       {
-        "speaker": "Evelyn Shaw",
-        "text": "Have you checked that evening’s restaurant service? Quoting the dish back at me is not the same thing as contradicting it."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_f693eba06ad2594e170c"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4d637acf02c5e7b111d3")
       }
     ]
   },
@@ -1681,12 +1682,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Your attachment says “Tuesday package — revision 2”."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_02310f2f4c549f0975fd")
       },
       {
-        "speaker": "Evelyn Shaw",
-        "text": "A document can have a version number. If you think it came from a product, obtain that product’s actual sample."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_f693eba06ad2594e170c"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_67a6bedf16b3b2be3114")
       }
     ]
   },
@@ -1708,12 +1709,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 20,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Your account matches TUE-DC-02."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_c6567c9d4e67b0759d74")
       },
       {
-        "speaker": "Evelyn Shaw",
-        "text": "Wording is one question. Arthur’s actual visit is another. Obtain his authorised receipt before saying that it contradicts me."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_f693eba06ad2594e170c"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_ad31cc4b39bdb4339119")
       }
     ]
   },
@@ -1737,12 +1738,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 30,
     "lines": [
       {
-        "speaker": "You",
-        "text": "I have the sample and the receipt."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_f7e3fc52b7c253430da4")
       },
       {
-        "speaker": "Evelyn Shaw",
-        "text": "Then check Tuesday service with the restaurant. Their standard menu does not establish what was served."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_f693eba06ad2594e170c"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_4106a234b08e8f45b1ae")
       }
     ]
   },
@@ -1767,8 +1768,8 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 35,
     "lines": [
       {
-        "speaker": "Evelyn Shaw",
-        "text": "Obtain the original demonstration. I will not argue about a source you have not requested."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_f693eba06ad2594e170c"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_5eaf6f2c576c9f08a31c")
       }
     ]
   },
@@ -1794,27 +1795,27 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 60,
     "lines": [
       {
-        "speaker": "You",
-        "text": "The TUE-DC-02 sample repeats your account. Arthur’s receipt records one diner, and the restaurant served no soup. Do you stand by it?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_02bd7e796d27e3565c22")
       },
       {
-        "speaker": "Evelyn Shaw",
-        "text": "A copied account proves that words were copied. I stand by what I sent."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_f693eba06ad2594e170c"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8baf0cb41023d6ec7fa8")
       },
       {
-        "speaker": "You",
-        "text": "Is there anything else about Tuesday you expect questions about?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_970c5cb57a0230173de9")
       },
       {
-        "speaker": "Evelyn Shaw",
-        "text": "If you mean the Tuesday break-in at my employer, ask about that. I have no intention of defending soup all evening.",
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_f693eba06ad2594e170c"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_1ccffdc5619454c69dc1"),
         "fragments": [
-          "If you mean the ",
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_35ebd082f60229bc6774"),
           {
             "keywordId": "records_breakin",
-            "text": "Tuesday break-in"
+            "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_e49ba0c10e6e41898c4c")
           },
-          " at my employer, ask about that. I have no intention of defending soup all evening."
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_ae4dd985978ef82a487d")
         ]
       }
     ]
@@ -1836,12 +1837,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "What do you know about the Tuesday break-in?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_81a70ecf4592a35ba94d")
       },
       {
-        "speaker": "Evelyn Shaw",
-        "text": "The company’s liaison handles its public statement. If you dispute my dinner account, finish that question with the sample and restaurant evidence first."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_f693eba06ad2594e170c"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_0c5925ee72b283032ebf")
       }
     ]
   },
@@ -1864,28 +1865,28 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 50,
     "lines": [
       {
-        "speaker": "You",
-        "text": "The public statement says an item was taken during the Tuesday break-in. What do you know about it?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_9324261bd4ca5ec3fd7c")
       },
       {
-        "speaker": "Evelyn Shaw",
-        "text": "That blue folder was empty anyway. You are making a great deal out of nothing.",
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_f693eba06ad2594e170c"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_2ca5a4eb462301f30d20"),
         "fragments": [
-          "That ",
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_00b2138021018046386b"),
           {
             "keywordId": "blue_folder",
-            "text": "blue folder"
+            "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_5e4ba369aac7ad63f846")
           },
-          " was empty anyway. You are making a great deal out of nothing."
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_e51f0b5a107d59b1066f")
         ]
       },
       {
-        "speaker": "You",
-        "text": "I said an item. I did not describe a folder or its colour."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_1dbe7ce7e3aeded95ace")
       },
       {
-        "speaker": "Evelyn Shaw",
-        "text": "Then ask the company what they published. I have nothing else to add."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_f693eba06ad2594e170c"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a463a1b9ed49fb0d717e")
       }
     ]
   },
@@ -1907,12 +1908,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "What do you know about the Tuesday break-in?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_81a70ecf4592a35ba94d")
       },
       {
-        "speaker": "Evelyn Shaw",
-        "text": "The company’s liaison handles its public statement. If you dispute my dinner account, finish that question with the sample and restaurant evidence first."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_f693eba06ad2594e170c"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_0c5925ee72b283032ebf")
       }
     ]
   },
@@ -1936,28 +1937,28 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 50,
     "lines": [
       {
-        "speaker": "You",
-        "text": "The public statement says an item was taken during the Tuesday break-in. What do you know about it?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_9324261bd4ca5ec3fd7c")
       },
       {
-        "speaker": "Evelyn Shaw",
-        "text": "That blue folder was empty anyway. You are making a great deal out of nothing.",
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_f693eba06ad2594e170c"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_2ca5a4eb462301f30d20"),
         "fragments": [
-          "That ",
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_00b2138021018046386b"),
           {
             "keywordId": "blue_folder",
-            "text": "blue folder"
+            "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_5e4ba369aac7ad63f846")
           },
-          " was empty anyway. You are making a great deal out of nothing."
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_e51f0b5a107d59b1066f")
         ]
       },
       {
-        "speaker": "You",
-        "text": "I said an item. I did not describe a folder or its colour."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_1dbe7ce7e3aeded95ace")
       },
       {
-        "speaker": "Evelyn Shaw",
-        "text": "Then ask the company what they published. I have nothing else to add."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_f693eba06ad2594e170c"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_a463a1b9ed49fb0d717e")
       }
     ]
   },
@@ -1979,16 +1980,16 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Where did you hear the description of the missing item?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_ee9981ed860b72bc0b5f")
       },
       {
-        "speaker": "Evelyn Shaw",
-        "text": "I am not adding to my statement."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_f693eba06ad2594e170c"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_3b68575d24013744d6bc")
       },
       {
-        "speaker": "You",
-        "text": "Then I will preserve your exact words and ask the records liaison whether the description was public."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_e355c6639ad8b0c58560")
       }
     ]
   },
@@ -2007,19 +2008,19 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Who handles the incident statement?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_00ab7fc67259e9ab1f80")
       },
       {
-        "speaker": "Records liaison",
-        "text": "This office. Ask about the Tuesday break-in or bring a specific witness detail for us to check. Keep observation and inference separate; I am running out of coloured pens.",
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_3f7991714910557e69d8"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_e32076dc03c05376fd40"),
         "fragments": [
-          "This office. Ask about the ",
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_7f7b9570f05a144e7fb0"),
           {
             "keywordId": "records_breakin",
-            "text": "Tuesday break-in"
+            "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_e49ba0c10e6e41898c4c")
           },
-          " or bring a specific witness detail for us to check. Keep observation and inference separate; I am running out of coloured pens."
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_1ed9ce8487f06fdb5d9a")
         ]
       }
     ]
@@ -2041,20 +2042,20 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Can you confirm the interval and what you published?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_d58e93b59b0812b49757")
       },
       {
-        "speaker": "Records liaison",
-        "text": "Tuesday, 20:10 to 20:25. The alarm and responding staff establish the interval. An item was taken; its physical description and contents were withheld."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_3f7991714910557e69d8"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_8c68c8ca16e304625557")
       },
       {
-        "speaker": "You",
-        "text": "So a name on an event list would not be enough to check someone’s whereabouts?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_f0d3496ab646d9e28b84")
       },
       {
-        "speaker": "Records liaison",
-        "text": "Correct. You need independent records covering the whole interval, not just evidence that they attended at some point."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_3f7991714910557e69d8"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_7a57fcd3143e589308ae")
       }
     ]
   },
@@ -2073,12 +2074,12 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Evelyn works for you. Does that establish involvement?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_181d3b49cdac084568cd")
       },
       {
-        "speaker": "Records liaison",
-        "text": "Employment establishes employment. Bring a specific statement she volunteered about the incident, quoted accurately. We cannot check an atmosphere of suspicion."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_3f7991714910557e69d8"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_0fb352c8573d58726da5")
       }
     ]
   },
@@ -2097,19 +2098,19 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Can you verify the soup account?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_ceb0de86f9a8693d4d5c")
       },
       {
-        "speaker": "Records liaison",
-        "text": "Company records, not restaurant orders. Ask the restaurant about dinner and ask us about the Tuesday break-in.",
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_3f7991714910557e69d8"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_0a0add2cc76b5aee98b6"),
         "fragments": [
-          "Company records, not restaurant orders. Ask the restaurant about dinner and ask us about the ",
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_7e2a3df35ddc47ef2e52"),
           {
             "keywordId": "records_breakin",
-            "text": "Tuesday break-in"
+            "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_e49ba0c10e6e41898c4c")
           },
-          "."
+          __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_cdb4ee2aea69cc6a8333")
         ]
       }
     ]
@@ -2134,20 +2135,20 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Evelyn volunteered “blue folder” and said it was empty. I had only mentioned a missing item. Was that description public?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_351ee8ca37f83fc5394d")
       },
       {
-        "speaker": "Records liaison",
-        "text": "I checked with the records manager. The physical description matches the missing item. It was not public, and Evelyn was not on the internal notification list."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_3f7991714910557e69d8"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_3facfd81b388a3f5f0c1")
       },
       {
-        "speaker": "You",
-        "text": "That leaves the source of her knowledge unexplained."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_d34f231a3c6727b86eba")
       },
       {
-        "speaker": "Records liaison",
-        "text": "Yes. Preserve her words. This is a concrete discrepancy, not proof of theft. Someone else could have told her."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_3f7991714910557e69d8"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_aa382a46b6fc6a1bffae")
       }
     ]
   },
@@ -2170,20 +2171,20 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 10,
     "lines": [
       {
-        "speaker": "You",
-        "text": "Evelyn volunteered “blue folder” and said it was empty. I had only mentioned a missing item. Was that description public?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_351ee8ca37f83fc5394d")
       },
       {
-        "speaker": "Records liaison",
-        "text": "I checked with the records manager. The physical description matches the missing item. It was not public, and Evelyn was not on the internal notification list."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_3f7991714910557e69d8"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_3facfd81b388a3f5f0c1")
       },
       {
-        "speaker": "You",
-        "text": "That leaves the source of her knowledge unexplained."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_d34f231a3c6727b86eba")
       },
       {
-        "speaker": "Records liaison",
-        "text": "Yes. Preserve her words. This is a concrete discrepancy, not proof of theft. Someone else could have told her."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_3f7991714910557e69d8"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_aa382a46b6fc6a1bffae")
       }
     ]
   },
@@ -2204,21 +2205,21 @@ export const ALIBI_DIALOGUE_RULES=[
     "priority": 80,
     "lines": [
       {
-        "speaker": "You",
-        "text": "What belongs in the report?"
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_6669ed1758b29a5fafde")
       },
       {
-        "speaker": "Records liaison",
-        "text": "The contradicted account, the independent checks and Evelyn’s exact words. Separate those supported findings from the unanswered question. A useful report does not need to pretend it is a verdict."
+        "speaker": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_3f7991714910557e69d8"),
+        "text": __dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_e7359b8c1e58177bfa47")
       }
     ]
   }
 ];
-const marker=Symbol.for('lostArtifacts.alibiDialogueDataV2');
+const marker=Symbol.for(__dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_b849ca4fe30d772db4d9"));
 export function ensureAlibiDialogueDefinitions(definition=ALIBI_SEARCH_CASE) {
   if (definition?.id!=='borrowed_alibi') return;
   if (!definition.keywords.some(k=>k.id==='copper_email')) definition.keywords.push({
-    id:'copper_email',label:COPPER_EMAIL,email:COPPER_EMAIL,contactName:'The Copper Spoon — Receipts',cloudId:'places'
+    id:'copper_email',label:COPPER_EMAIL,email:COPPER_EMAIL,contactName:__dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_ffe6e882ae998d4000bf"),cloudId:'places'
   });
 }
 export function installAlibiDialogueData() {
@@ -2228,8 +2229,8 @@ export function installAlibiDialogueData() {
     const own=ALIBI_DIALOGUE_RULES.filter(rule=>rule.contactId===contact.id);
     if (!own.length) continue;
     contact.topics=own.map(rule=>({...rule,terms:[...rule.terms]}));
-    contact.choicePrompt='Choose one or two collected clues. Click highlighted words in the transcript to add new leads. Replies explain missing evidence.';
-    contact.fallback=[{speaker:'You',text:'Those clues do not form a precise question for this contact. I should ask about the dinner, its source document, or the relevant incident — and keep the people separate.'}];
+    contact.choicePrompt=__dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_eb8921726c1f43567cdb");
+    contact.fallback=[{speaker:__dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_08b041935798fbf6fd6f"),text:__dialogueText("ui/pi-computer/AlibiDialogueData.js", "t_f26b3eadd2798cec7ddc")}];
     contact.fallbackVariants=undefined;
     contact[marker]=true;
   }

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 import { openAlarmPanel } from './alarmPanelLauncher.js';
 import { GordonSearchScene } from './scenes/GordonSearchScene.js';
 import { MainStoryManager } from './managers/MainStoryManager.js';
@@ -26,7 +27,7 @@ export function openGordonAccessPanel(game=window.game,{preview=true,onFinished=
       try{
         const opened=openGordonSearch(game,{preview:false,onFinished:roomResult=>finish({...roomResult,panelCompleted:true})});
         if(!opened)throw new Error('The search scene is already open.');
-      }catch(error){console.error('[Gordon access]',error);finish({...result,error:error.message});game.scene.keys[parent]?.showOfficeStatusMessage?.('The door is unlocked, but the empty office could not be opened.');}
+      }catch(error){console.error('[Gordon access]',error);finish({...result,error:error.message});game.scene.keys[parent]?.showOfficeStatusMessage?.(__dialogueText("gordonAccessPanelLauncher.js", "t_39b478be8cd494e83ec2"));}
     });
   }});
 }

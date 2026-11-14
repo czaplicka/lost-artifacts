@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import {
   getArchiveCaseId, getMissionReportForm, saveMissionReportDraft,
@@ -5,26 +6,7 @@ import {
 } from '../archiveReportService.js';
 import { prepareMissionReportAudio,playMissionReportAudio,stopMissionReportAudio } from './MissionReportAudio.js';
 
-const CSS = `
-.mr-terminal{position:fixed;inset:0;z-index:2147483000;background:#080c0bf5;color:#c9ffd0;
- display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;
- font:clamp(17px,2vw,24px)/1.65 SpecialElite,monospace;overflow:auto;overscroll-behavior:contain}
-.mr-terminal *{box-sizing:border-box}
-.mr-terminal .mr-monitor{width:min(960px,100%);max-height:100%;overflow:auto;border:8px solid #514b3c;
- border-radius:14px;background:#102019;padding:clamp(16px,3vw,36px);box-shadow:0 0 45px #0f462a}
-.mr-terminal h2{font:clamp(13px,2vw,21px)/1.6 PressStart2P,monospace;color:#e8d697;margin:0 0 20px}
-.mr-terminal p{margin:14px 0}
-.mr-terminal button{font:inherit;line-height:1.3;cursor:pointer;border:1px solid #80a58b;
- background:#152e20;color:#dcffe3;padding:10px 13px;border-radius:3px;min-height:44px;touch-action:manipulation}
-.mr-terminal button:focus-visible{outline:3px solid #fff0a1;outline-offset:3px}
-.mr-terminal button[disabled]{opacity:.35;cursor:default}
-.mr-terminal .mr-slot{display:inline-block;color:#ffe69b;border-style:dashed;max-width:100%;vertical-align:baseline}
-.mr-terminal .mr-slot[aria-pressed=true]{background:#405034;border:2px solid #ffe69b}
-.mr-terminal .mr-slot.mr-error{border:2px solid #ff8b89;color:#ffb4b1}
-.mr-terminal .mr-bank,.mr-terminal .mr-actions{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
-.mr-terminal .mr-status{min-height:2em;color:#ffe69b}
-.mr-terminal small{display:block;font-size:.8em;color:#9ab6a0}
-`;
+const CSS = `${__dialogueText("ui/MissionReportComputer.js", "t_7cba86ae316b8238dae9")}`;
 export class MissionReportComputer {
   constructor(scene) {
     this.scene = scene; this.state = scene.gameState ?? gameState;
@@ -34,11 +16,11 @@ export class MissionReportComputer {
   async open() {
     if (this.root) return;
     if (!isSuccessfulCase(this.state)) {
-      this.scene.showOfficeStatusMessage('The report terminal opens after a successful mission. Go solve something.'); return;
+      this.scene.showOfficeStatusMessage(__dialogueText("ui/MissionReportComputer.js", "t_4ebb625d7f1199573e47")); return;
     }
     if (document.fullscreenElement?.tagName === 'CANVAS') {
       try { await document.exitFullscreen(); }
-      catch { this.scene.showOfficeStatusMessage('Leave fullscreen mode to open the report terminal.'); return; }
+      catch { this.scene.showOfficeStatusMessage(__dialogueText("ui/MissionReportComputer.js", "t_c98312af369581c679c7")); return; }
     }
     if (this.scene._cleanupDone || !this.scene.sys.isActive()) return;
     this.locations = this.scene.cache.json.get('locations') || [];
@@ -47,18 +29,18 @@ export class MissionReportComputer {
     this.answers = { ...(this.form.answers || {}) };
     this.active = this.form.fields?.find(field => !this.answers[field.id])?.id ?? this.form.fields?.[0]?.id;
     this.message = !this.form.ok ? this.form.error : this.form.printed
-      ? 'Printed. Deliver your Mission Report to Frank Drebin, or collect it if your inventory was full.'
-      : 'Select a blank, then click a word below.';
+      ? __dialogueText("ui/MissionReportComputer.js", "t_a8915eca26a4ecdbe310")
+      : __dialogueText("ui/MissionReportComputer.js", "t_4e27d8fae1091aace3a0");
     this.previousFocus = document.activeElement;
     this.root = document.createElement('div'); this.root.className = 'mr-terminal';
     this.root.setAttribute('role', 'dialog'); this.root.setAttribute('aria-modal', 'true');
-    this.root.setAttribute('aria-label', 'Mission report computer');
+    this.root.setAttribute('aria-label', __dialogueText("ui/MissionReportComputer.js", "t_c116321bcc5f84e8ab23"));
     const style = document.createElement('style'); style.textContent = CSS; this.root.append(style);
     this.panel = document.createElement('section'); this.panel.className = 'mr-monitor'; this.root.append(this.panel);
     this.root.addEventListener('keydown', event => {
       event.stopPropagation();
-      if (event.key === 'Escape') { event.preventDefault(); this.close(); }
-      if (event.key === 'Tab') {
+      if (event.key === __dialogueText("ui/MissionReportComputer.js", "t_037c968467aa3fd7c059")) { event.preventDefault(); this.close(); }
+      if (event.key === __dialogueText("ui/MissionReportComputer.js", "t_90ddf1963abb36c9921c")) {
         const focusable = [...this.panel.querySelectorAll('button:not([disabled])')];
         const first = focusable[0], last = focusable[focusable.length - 1];
         if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
@@ -86,7 +68,7 @@ export class MissionReportComputer {
   persist() {
     if (!this.current() || this.form.printed || this.form.submitted) return;
     const saved = saveMissionReportDraft(this.answers, this.locations, this.state);
-    if (saved.ok && !saved.saved) this.message = 'Draft kept for this session. Automatic saving is unavailable.';
+    if (saved.ok && !saved.saved) this.message = __dialogueText("ui/MissionReportComputer.js", "t_3ae9efccd974b5687ff5");
   }
   slot(field) {
     const option = this.form.options.find(option => option.id === this.answers[field.id]);
@@ -96,28 +78,28 @@ export class MissionReportComputer {
       }
       this.active = field.id; this.render(); this.panel.querySelector(`[data-slot="${field.id}"]`)?.focus();
     }, this.form.printed || this.form.submitted);
-    button.className = 'mr-slot' + (this.errors.has(field.id) ? ' mr-error' : ''); button.dataset.slot = field.id;
+    button.className = 'mr-slot' + (this.errors.has(field.id) ? __dialogueText("ui/MissionReportComputer.js", "t_defa1d718f85180e724c") : ''); button.dataset.slot = field.id;
     button.setAttribute('aria-pressed', String(this.active === field.id));
     button.setAttribute('aria-label', `${field.hint}: ${option?.label ?? 'blank'}`); return button;
   }
   render() {
     if (!this.root) return;
-    this.panel.replaceChildren(); this.panel.append(this.node('h2', 'MARK AGENCY // MISSION REPORT'));
+    this.panel.replaceChildren(); this.panel.append(this.node('h2', __dialogueText("ui/MissionReportComputer.js", "t_a3e456c492d599d272ec")));
     if (this.form.ok) {
       const artifact = this.form.fields[0], suspect = this.form.fields[this.form.fields.length - 1], route = this.form.fields.slice(1, -1);
-      const first = this.node('p', 'The investigation concerned the theft of ');
+      const first = this.node('p', __dialogueText("ui/MissionReportComputer.js", "t_6a0d63b857fcd85fc086"));
       first.append(this.slot(artifact), document.createTextNode('.')); this.panel.append(first);
-      const path = this.node('p', route.length ? 'The escape route led through ' : 'The case did not require an international pursuit.');
+      const path = this.node('p', route.length ? __dialogueText("ui/MissionReportComputer.js", "t_07ee7bf3e402b367dff2") : __dialogueText("ui/MissionReportComputer.js", "t_56d907ca85f60813ea59"));
       route.forEach((field, index) => {
-        if (index) path.append(document.createTextNode(index === route.length - 1 ? ' and ' : ', '));
+        if (index) path.append(document.createTextNode(index === route.length - 1 ? __dialogueText("ui/MissionReportComputer.js", "t_e3ee915a8e8c7aa02d2f") : ', '));
         path.append(this.slot(field));
       });
-      if (route.length) path.append(document.createTextNode(', in that order.')); this.panel.append(path);
-      const last = this.node('p', 'The investigation resulted in the arrest of ');
+      if (route.length) path.append(document.createTextNode(__dialogueText("ui/MissionReportComputer.js", "t_63cde612d8867467154d"))); this.panel.append(path);
+      const last = this.node('p', __dialogueText("ui/MissionReportComputer.js", "t_c4e68dcb0d04fe3fa772"));
       last.append(this.slot(suspect), document.createTextNode('.')); this.panel.append(last);
-      this.panel.append(this.node('small', 'No agency stationery was harmed during this investigation.'));
+      this.panel.append(this.node('small', __dialogueText("ui/MissionReportComputer.js", "t_4c1a5dfa9fb6efab7243")));
       if (!this.form.printed && !this.form.submitted) {
-        this.panel.append(this.node('small', 'Click the selected filled blank again to clear it.'));
+        this.panel.append(this.node('small', __dialogueText("ui/MissionReportComputer.js", "t_3bf02943e3b8e4c86b4f")));
         const bank = this.node('div', undefined, 'mr-bank');
         for (const option of this.form.options) {
           bank.append(this.button(option.label, () => {
@@ -130,12 +112,12 @@ export class MissionReportComputer {
         this.panel.append(bank);
       }
     }
-    const status = this.node('p', this.form.submitted ? 'This report has already been filed with Frank Drebin.'
-      : this.form.printed ? this.message || 'Printed. Deliver the report to Frank Drebin.' : this.message, 'mr-status');
+    const status = this.node('p', this.form.submitted ? __dialogueText("ui/MissionReportComputer.js", "t_2db126cb52ca14cd5ea1")
+      : this.form.printed ? this.message || __dialogueText("ui/MissionReportComputer.js", "t_4c25e3cb675926624a62") : this.message, 'mr-status');
     status.setAttribute('role', 'status'); this.panel.append(status);
     const actions = this.node('div', undefined, 'mr-actions');
-    if (this.form.ok && !this.form.submitted) actions.append(this.button(this.form.printed ? 'COLLECT REPORT' : 'PRINT REPORT', () => this.print()));
-    actions.append(this.button('BACK TO OFFICE', () => this.close())); this.panel.append(actions);
+    if (this.form.ok && !this.form.submitted) actions.append(this.button(this.form.printed ? __dialogueText("ui/MissionReportComputer.js", "t_a075e6c0c9999238411d") : __dialogueText("ui/MissionReportComputer.js", "t_f8a8438b2477eec70f4f"), () => this.print()));
+    actions.append(this.button(__dialogueText("ui/MissionReportComputer.js", "t_ff5f9aad3fd2c4689b70"), () => this.close())); this.panel.append(actions);
   }
   print() {
     if (!this.current()) { this.close(); return; }
@@ -144,13 +126,13 @@ export class MissionReportComputer {
     const result = printMissionReport(this.answers, this.locations, this.state);
     this.errors = new Set(result.errors || []); this.form = getMissionReportForm(this.locations, this.state);
     if (!before.printed && this.form.printed && !this.form.submitted) playMissionReportAudio(this);
-    if (result.ok) this.message = 'Printed! Your Mission Report is in your inventory. Deliver it to Frank Drebin.';
-    else if (result.reason === 'incorrect') this.message = 'Please correct the marked blanks. No penalties. The printer has seen worse.';
-    else if (result.reason === 'full') this.message = 'Report ready. Free an inventory slot, then collect it here or visit Frank.';
-    else if (result.reason === 'conflict') this.message = 'A report for another case is still in your inventory. Nothing was replaced.';
-    else this.message = result.error || 'The report could not be printed. Please try again.';
-    if (result.saved === false) this.message += ' Automatic saving is unavailable; save manually.';
-    this.render(); this.panel.querySelector('.mr-actions button')?.focus();
+    if (result.ok) this.message = __dialogueText("ui/MissionReportComputer.js", "t_d958c1b50eb1aaad9d9d");
+    else if (result.reason === 'incorrect') this.message = __dialogueText("ui/MissionReportComputer.js", "t_b7651a5cb6ca7d14bc0a");
+    else if (result.reason === 'full') this.message = __dialogueText("ui/MissionReportComputer.js", "t_907aff1b563921ddd7ee");
+    else if (result.reason === 'conflict') this.message = __dialogueText("ui/MissionReportComputer.js", "t_a3ea1e7a3519129da937");
+    else this.message = result.error || __dialogueText("ui/MissionReportComputer.js", "t_a537e2ab9aa37cae4dc3");
+    if (result.saved === false) this.message += __dialogueText("ui/MissionReportComputer.js", "t_519ddc601bc6b19c03b9");
+    this.render(); this.panel.querySelector(__dialogueText("ui/MissionReportComputer.js", "t_6c420b5470a69a556a5a"))?.focus();
   }
   close({ save = true } = {}) {
     stopMissionReportAudio(this);
@@ -165,7 +147,7 @@ export class MissionReportComputer {
 export function installReportComputerButton(scene) {
   if (scene._reportComputerInstalled) return; scene._reportComputerInstalled = true;
   const computer = new MissionReportComputer(scene);
-  const button = scene.add.text(24, 290, 'COMPUTER >', { fontFamily: 'SpecialElite', fontSize: '22px', color: '#f2d477',
+  const button = scene.add.text(24, 290, __dialogueText("ui/MissionReportComputer.js", "t_77dc4c650af15511a631"), { fontFamily: 'SpecialElite', fontSize: '22px', color: '#f2d477',
     backgroundColor: '#17110e', padding: { x: 14, y: 10 } }).setScrollFactor(0).setDepth(100).setInteractive({ useHandCursor: true });
   let opening = false;
   button.on('pointerdown', async pointer => {
@@ -175,7 +157,7 @@ export function installReportComputerButton(scene) {
     try { await computer.open(); }
     catch (error) {
       console.error('[MissionReportComputer] Open failed:', error); computer.close({ save: false });
-      scene.showOfficeStatusMessage('The report terminal could not be opened. Please try again.');
+      scene.showOfficeStatusMessage(__dialogueText("ui/MissionReportComputer.js", "t_ee3b7e0e49591cf79f9a"));
     } finally { opening = false; }
   });
   button.on('pointerover', () => button.setColor('#ffffff')); button.on('pointerout', () => button.setColor('#f2d477'));

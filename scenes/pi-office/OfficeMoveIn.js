@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import {
   completeOfficeMoveIn
 } from '../../managers/PIOfficeShopManager.js';
@@ -48,8 +49,8 @@ export class OfficeMoveIn {
     this.caption = scene.add.text(
       0,
       0,
-      'The listing said "room for improvement".\n' +
-        'It was technically correct.',
+      __dialogueText("scenes/pi-office/OfficeMoveIn.js", "t_562844445339553ed5f5") +
+        __dialogueText("scenes/pi-office/OfficeMoveIn.js", "t_f6c79fa9c364fa7aafea"),
       {
         fontFamily: 'SpecialElite, monospace',
         fontSize: '22px',
@@ -63,7 +64,7 @@ export class OfficeMoveIn {
     this.button = scene.add.text(
       0,
       0,
-      'MAKE IT WORK',
+      __dialogueText("scenes/pi-office/OfficeMoveIn.js", "t_127e7c579e43c0d12574"),
       {
         fontFamily: 'PressStart2P, monospace',
         fontSize: '15px',

@@ -1,159 +1,160 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { TRANSPORT_CONFIG } from '../TransportConfig.js';
 
 // Fictional game network. Coordinates and corridors are not live passenger services.
 export const TRAVEL_NODES = {
   "london": {
-    "name": "London",
+    "name": __dialogueText("config/TravelNetwork.js", "t_ecc0e7dc084f141b2947"),
     "x": 895,
     "y": 340
   },
   "paris": {
-    "name": "Paris",
+    "name": __dialogueText("config/TravelNetwork.js", "t_5dd272b4f316b776a7b8"),
     "x": 910,
     "y": 410
   },
   "berlin": {
-    "name": "Berlin",
+    "name": __dialogueText("config/TravelNetwork.js", "t_dad114b6ed7342bac65c"),
     "x": 985,
     "y": 340
   },
   "warsaw": {
-    "name": "Warsaw",
+    "name": __dialogueText("config/TravelNetwork.js", "t_2d59f8dd13aafd7bc427"),
     "x": 1030,
     "y": 360
   },
   "new_delhi": {
-    "name": "New Delhi",
+    "name": __dialogueText("config/TravelNetwork.js", "t_9ed6d0e61816a424d0e0"),
     "x": 1290,
     "y": 490
   },
   "islamabad": {
-    "name": "Islamabad",
+    "name": __dialogueText("config/TravelNetwork.js", "t_56247fb8d8b053bdfce3"),
     "x": 1250,
     "y": 420
   },
   "kotte": {
-    "name": "Kotte",
+    "name": __dialogueText("config/TravelNetwork.js", "t_f1ddbe4637bad445991c"),
     "x": 1325,
     "y": 570
   },
   "nairobi": {
-    "name": "Nairobi",
+    "name": __dialogueText("config/TravelNetwork.js", "t_5bfc2e5513a487037e6a"),
     "x": 1080,
     "y": 500
   },
   "tokyo": {
-    "name": "Tokyo",
+    "name": __dialogueText("config/TravelNetwork.js", "t_ec2d191680171ca96031"),
     "x": 1530,
     "y": 380
   },
   "new_york_city": {
-    "name": "New York City",
+    "name": __dialogueText("config/TravelNetwork.js", "t_5a59ef2e40c5f89adb8c"),
     "x": 600,
     "y": 400
   },
   "toronto": {
-    "name": "Toronto",
+    "name": __dialogueText("config/TravelNetwork.js", "t_121730bd619d2df5d68a"),
     "x": 480,
     "y": 360
   },
   "dover": {
-    "name": "Dover",
+    "name": __dialogueText("config/TravelNetwork.js", "t_88fa0e9c8ec31bd6ea6b"),
     "x": 902,
     "y": 365
   },
   "calais": {
-    "name": "Calais",
+    "name": __dialogueText("config/TravelNetwork.js", "t_19214c2fea71ede95f66"),
     "x": 908,
     "y": 380
   },
   "istanbul": {
-    "name": "Istanbul",
+    "name": __dialogueText("config/TravelNetwork.js", "t_70af65c90d5642c0a1eb"),
     "x": 1100,
     "y": 410
   },
   "tehran": {
-    "name": "Tehran",
+    "name": __dialogueText("config/TravelNetwork.js", "t_cc06146070ec57abdbc0"),
     "x": 1190,
     "y": 420
   },
   "lahore": {
-    "name": "Lahore",
+    "name": __dialogueText("config/TravelNetwork.js", "t_3048eb5bfe958b497825"),
     "x": 1265,
     "y": 460
   },
   "cairo": {
-    "name": "Cairo",
+    "name": __dialogueText("config/TravelNetwork.js", "t_62af713f580cae7ec275"),
     "x": 1090,
     "y": 450
   },
   "khartoum": {
-    "name": "Khartoum",
+    "name": __dialogueText("config/TravelNetwork.js", "t_1e8ee08d840fbed1fd2f"),
     "x": 1080,
     "y": 475
   },
   "addis_ababa": {
-    "name": "Addis Ababa",
+    "name": __dialogueText("config/TravelNetwork.js", "t_a2274316a50b701a6deb"),
     "x": 1100,
     "y": 490
   },
   "mombasa": {
-    "name": "Mombasa",
+    "name": __dialogueText("config/TravelNetwork.js", "t_12bb63d9a04311b33fbb"),
     "x": 1100,
     "y": 520
   },
   "mumbai": {
-    "name": "Mumbai",
+    "name": __dialogueText("config/TravelNetwork.js", "t_9f2ba6981e36ea0fca6c"),
     "x": 1260,
     "y": 525
   },
   "karachi": {
-    "name": "Karachi",
+    "name": __dialogueText("config/TravelNetwork.js", "t_59edcc61af65e1ccac06"),
     "x": 1225,
     "y": 480
   },
   "colombo": {
-    "name": "Colombo",
+    "name": __dialogueText("config/TravelNetwork.js", "t_467f29d648705d956b83"),
     "x": 1320,
     "y": 565
   },
   "nagapattinam": {
-    "name": "Nagapattinam",
+    "name": __dialogueText("config/TravelNetwork.js", "t_0a0eb81ae9b8024a635d"),
     "x": 1305,
     "y": 550
   },
   "kankesanthurai": {
-    "name": "Kankesanthurai",
+    "name": __dialogueText("config/TravelNetwork.js", "t_f9420ccd5154d6d96dd0"),
     "x": 1315,
     "y": 555
   },
   "singapore": {
-    "name": "Singapore",
+    "name": __dialogueText("config/TravelNetwork.js", "t_c96dd81db196cca5f57b"),
     "x": 1410,
     "y": 590
   },
   "yokohama": {
-    "name": "Yokohama",
+    "name": __dialogueText("config/TravelNetwork.js", "t_1142e7a035d073ba4ce2"),
     "x": 1535,
     "y": 390
   },
   "southampton": {
-    "name": "Southampton",
+    "name": __dialogueText("config/TravelNetwork.js", "t_3c1def48af45cb974830"),
     "x": 885,
     "y": 365
   },
   "le_havre": {
-    "name": "Le Havre",
+    "name": __dialogueText("config/TravelNetwork.js", "t_34d0b51bcb36e9aa7551"),
     "x": 900,
     "y": 395
   },
   "hamburg": {
-    "name": "Hamburg",
+    "name": __dialogueText("config/TravelNetwork.js", "t_47afcff3dcb9e9891e7b"),
     "x": 975,
     "y": 330
   },
   "gdansk": {
-    "name": "Gdansk",
+    "name": __dialogueText("config/TravelNetwork.js", "t_f9a0d0bb257274a68361"),
     "x": 1030,
     "y": 335
   }
@@ -161,306 +162,306 @@ export const TRAVEL_NODES = {
 
 export const TRAVEL_CONNECTIONS = [
   {
-    "from": "london",
+    "from": __dialogueText("config/TravelNetwork.js", "t_6089854c94ca5454b76b"),
     "to": "paris",
     "mode": "train"
   },
   {
-    "from": "london",
+    "from": __dialogueText("config/TravelNetwork.js", "t_6089854c94ca5454b76b"),
     "to": "dover",
     "mode": "bus"
   },
   {
-    "from": "dover",
+    "from": __dialogueText("config/TravelNetwork.js", "t_4bcfb67d53702a50e327"),
     "to": "calais",
     "mode": "ship",
     "ferry": true,
     "hours": 2
   },
   {
-    "from": "calais",
+    "from": __dialogueText("config/TravelNetwork.js", "t_7c513fab4c8c8889451e"),
     "to": "paris",
     "mode": "bus"
   },
   {
-    "from": "paris",
+    "from": __dialogueText("config/TravelNetwork.js", "t_1670f2e42fefa5044d59"),
     "to": "berlin",
     "mode": "train"
   },
   {
-    "from": "paris",
+    "from": __dialogueText("config/TravelNetwork.js", "t_1670f2e42fefa5044d59"),
     "to": "berlin",
     "mode": "bus"
   },
   {
-    "from": "berlin",
+    "from": __dialogueText("config/TravelNetwork.js", "t_fb38a93fd89e1a5fc785"),
     "to": "warsaw",
     "mode": "train"
   },
   {
-    "from": "berlin",
+    "from": __dialogueText("config/TravelNetwork.js", "t_fb38a93fd89e1a5fc785"),
     "to": "warsaw",
     "mode": "bus"
   },
   {
-    "from": "warsaw",
+    "from": __dialogueText("config/TravelNetwork.js", "t_d488c170e99aa6a388b9"),
     "to": "istanbul",
     "mode": "train"
   },
   {
-    "from": "warsaw",
+    "from": __dialogueText("config/TravelNetwork.js", "t_d488c170e99aa6a388b9"),
     "to": "istanbul",
     "mode": "bus"
   },
   {
-    "from": "istanbul",
+    "from": __dialogueText("config/TravelNetwork.js", "t_751c59fe1fa734e61bec"),
     "to": "tehran",
     "mode": "train"
   },
   {
-    "from": "istanbul",
+    "from": __dialogueText("config/TravelNetwork.js", "t_751c59fe1fa734e61bec"),
     "to": "tehran",
     "mode": "bus"
   },
   {
-    "from": "tehran",
+    "from": __dialogueText("config/TravelNetwork.js", "t_6ab4a31413e4329fe1ba"),
     "to": "lahore",
     "mode": "train"
   },
   {
-    "from": "tehran",
+    "from": __dialogueText("config/TravelNetwork.js", "t_6ab4a31413e4329fe1ba"),
     "to": "lahore",
     "mode": "bus"
   },
   {
-    "from": "lahore",
+    "from": __dialogueText("config/TravelNetwork.js", "t_feb81ca45117d135c1f6"),
     "to": "islamabad",
     "mode": "train"
   },
   {
-    "from": "lahore",
+    "from": __dialogueText("config/TravelNetwork.js", "t_feb81ca45117d135c1f6"),
     "to": "islamabad",
     "mode": "bus"
   },
   {
-    "from": "lahore",
+    "from": __dialogueText("config/TravelNetwork.js", "t_feb81ca45117d135c1f6"),
     "to": "new_delhi",
     "mode": "train"
   },
   {
-    "from": "lahore",
+    "from": __dialogueText("config/TravelNetwork.js", "t_feb81ca45117d135c1f6"),
     "to": "new_delhi",
     "mode": "bus"
   },
   {
-    "from": "nairobi",
+    "from": __dialogueText("config/TravelNetwork.js", "t_a5c49775b0a68d9f4dbd"),
     "to": "mombasa",
     "mode": "train"
   },
   {
-    "from": "nairobi",
+    "from": __dialogueText("config/TravelNetwork.js", "t_a5c49775b0a68d9f4dbd"),
     "to": "mombasa",
     "mode": "bus"
   },
   {
-    "from": "new_delhi",
+    "from": __dialogueText("config/TravelNetwork.js", "t_53980f9ea4143ab6fd7a"),
     "to": "mumbai",
     "mode": "train"
   },
   {
-    "from": "new_delhi",
+    "from": __dialogueText("config/TravelNetwork.js", "t_53980f9ea4143ab6fd7a"),
     "to": "mumbai",
     "mode": "bus"
   },
   {
-    "from": "new_delhi",
+    "from": __dialogueText("config/TravelNetwork.js", "t_53980f9ea4143ab6fd7a"),
     "to": "nagapattinam",
     "mode": "train"
   },
   {
-    "from": "new_delhi",
+    "from": __dialogueText("config/TravelNetwork.js", "t_53980f9ea4143ab6fd7a"),
     "to": "nagapattinam",
     "mode": "bus"
   },
   {
-    "from": "islamabad",
+    "from": __dialogueText("config/TravelNetwork.js", "t_2a495a6770e82baef293"),
     "to": "karachi",
     "mode": "train"
   },
   {
-    "from": "islamabad",
+    "from": __dialogueText("config/TravelNetwork.js", "t_2a495a6770e82baef293"),
     "to": "karachi",
     "mode": "bus"
   },
   {
-    "from": "kankesanthurai",
+    "from": __dialogueText("config/TravelNetwork.js", "t_ae8533fd2cfc568142c3"),
     "to": "colombo",
     "mode": "train"
   },
   {
-    "from": "kankesanthurai",
+    "from": __dialogueText("config/TravelNetwork.js", "t_ae8533fd2cfc568142c3"),
     "to": "colombo",
     "mode": "bus"
   },
   {
-    "from": "colombo",
+    "from": __dialogueText("config/TravelNetwork.js", "t_468f3a27ec26ff3914b7"),
     "to": "kotte",
     "mode": "train"
   },
   {
-    "from": "colombo",
+    "from": __dialogueText("config/TravelNetwork.js", "t_468f3a27ec26ff3914b7"),
     "to": "kotte",
     "mode": "bus"
   },
   {
-    "from": "new_york_city",
+    "from": __dialogueText("config/TravelNetwork.js", "t_472d2ae8627a05b807a0"),
     "to": "toronto",
     "mode": "train"
   },
   {
-    "from": "new_york_city",
+    "from": __dialogueText("config/TravelNetwork.js", "t_472d2ae8627a05b807a0"),
     "to": "toronto",
     "mode": "bus"
   },
   {
-    "from": "tokyo",
+    "from": __dialogueText("config/TravelNetwork.js", "t_afe04579004049ccce18"),
     "to": "yokohama",
     "mode": "train"
   },
   {
-    "from": "tokyo",
+    "from": __dialogueText("config/TravelNetwork.js", "t_afe04579004049ccce18"),
     "to": "yokohama",
     "mode": "bus"
   },
   {
-    "from": "london",
+    "from": __dialogueText("config/TravelNetwork.js", "t_6089854c94ca5454b76b"),
     "to": "southampton",
     "mode": "train"
   },
   {
-    "from": "london",
+    "from": __dialogueText("config/TravelNetwork.js", "t_6089854c94ca5454b76b"),
     "to": "southampton",
     "mode": "bus"
   },
   {
-    "from": "paris",
+    "from": __dialogueText("config/TravelNetwork.js", "t_1670f2e42fefa5044d59"),
     "to": "le_havre",
     "mode": "train"
   },
   {
-    "from": "paris",
+    "from": __dialogueText("config/TravelNetwork.js", "t_1670f2e42fefa5044d59"),
     "to": "le_havre",
     "mode": "bus"
   },
   {
-    "from": "berlin",
+    "from": __dialogueText("config/TravelNetwork.js", "t_fb38a93fd89e1a5fc785"),
     "to": "hamburg",
     "mode": "train"
   },
   {
-    "from": "berlin",
+    "from": __dialogueText("config/TravelNetwork.js", "t_fb38a93fd89e1a5fc785"),
     "to": "hamburg",
     "mode": "bus"
   },
   {
-    "from": "warsaw",
+    "from": __dialogueText("config/TravelNetwork.js", "t_d488c170e99aa6a388b9"),
     "to": "gdansk",
     "mode": "train"
   },
   {
-    "from": "warsaw",
+    "from": __dialogueText("config/TravelNetwork.js", "t_d488c170e99aa6a388b9"),
     "to": "gdansk",
     "mode": "bus"
   },
   {
-    "from": "istanbul",
+    "from": __dialogueText("config/TravelNetwork.js", "t_751c59fe1fa734e61bec"),
     "to": "cairo",
     "mode": "bus"
   },
   {
-    "from": "cairo",
+    "from": __dialogueText("config/TravelNetwork.js", "t_6d2805b8ba496887d08f"),
     "to": "khartoum",
     "mode": "bus"
   },
   {
-    "from": "khartoum",
+    "from": __dialogueText("config/TravelNetwork.js", "t_edb075da89732c35dd6d"),
     "to": "addis_ababa",
     "mode": "bus"
   },
   {
-    "from": "addis_ababa",
+    "from": __dialogueText("config/TravelNetwork.js", "t_e6ffb5c596f382b00b08"),
     "to": "nairobi",
     "mode": "bus"
   },
   {
-    "from": "nagapattinam",
+    "from": __dialogueText("config/TravelNetwork.js", "t_5e32660c0dc887e8dff2"),
     "to": "kankesanthurai",
     "mode": "ship",
     "ferry": true,
     "hours": 4
   },
   {
-    "from": "southampton",
+    "from": __dialogueText("config/TravelNetwork.js", "t_d2263b3772d959f633ee"),
     "to": "new_york_city",
     "mode": "ship",
     "hours": 120
   },
   {
-    "from": "new_york_city",
+    "from": __dialogueText("config/TravelNetwork.js", "t_472d2ae8627a05b807a0"),
     "to": "toronto",
     "mode": "ship",
     "hours": 48
   },
   {
-    "from": "southampton",
+    "from": __dialogueText("config/TravelNetwork.js", "t_d2263b3772d959f633ee"),
     "to": "le_havre",
     "mode": "ship",
     "hours": 8
   },
   {
-    "from": "le_havre",
+    "from": __dialogueText("config/TravelNetwork.js", "t_5a0e2e33d69991c0da26"),
     "to": "hamburg",
     "mode": "ship",
     "hours": 18
   },
   {
-    "from": "hamburg",
+    "from": __dialogueText("config/TravelNetwork.js", "t_d1d470d61a1e5e55f995"),
     "to": "gdansk",
     "mode": "ship",
     "hours": 18
   },
   {
-    "from": "southampton",
+    "from": __dialogueText("config/TravelNetwork.js", "t_d2263b3772d959f633ee"),
     "to": "mombasa",
     "mode": "ship",
     "hours": 144
   },
   {
-    "from": "mombasa",
+    "from": __dialogueText("config/TravelNetwork.js", "t_8e56f734fff3c9d92c67"),
     "to": "karachi",
     "mode": "ship",
     "hours": 72
   },
   {
-    "from": "karachi",
+    "from": __dialogueText("config/TravelNetwork.js", "t_eca1dbf552edfe3038ad"),
     "to": "mumbai",
     "mode": "ship",
     "hours": 24
   },
   {
-    "from": "mumbai",
+    "from": __dialogueText("config/TravelNetwork.js", "t_d209bcc17778fd19fd2b"),
     "to": "colombo",
     "mode": "ship",
     "hours": 36
   },
   {
-    "from": "colombo",
+    "from": __dialogueText("config/TravelNetwork.js", "t_468f3a27ec26ff3914b7"),
     "to": "singapore",
     "mode": "ship",
     "hours": 60
   },
   {
-    "from": "singapore",
+    "from": __dialogueText("config/TravelNetwork.js", "t_51e2a46721d104d9148d"),
     "to": "yokohama",
     "mode": "ship",
     "hours": 96
@@ -542,7 +543,7 @@ function finish(legs, type) {
     hours: travel[i] / 100, transferHours: waits[i] / 100, cost: costs[i] }));
   const modes = [...new Set(completed.map(l => l.transportType))];
   const label = modes.map(mode => mode === 'ship' && type !== 'ship'
-    ? 'Ferry' : TRANSPORT_CONFIG[mode].label).join(' + ');
+    ? __dialogueText("config/TravelNetwork.js", "t_be3152d00da37fd330a5") : TRANSPORT_CONFIG[mode].label).join(' + ');
   return {
     version: 2, transportType: type, label, legs: completed, transferCount: transfers,
     baseTravelHours: totalHours, moneySpent: fare,

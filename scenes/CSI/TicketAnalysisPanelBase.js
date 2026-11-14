@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 // Evidence handover uses the existing Inventory entry in the bottom player menu.
 import { EventBus } from '../../EventBus.js';
 import { inventoryManager } from '../../managers/InventoryManager.js';
@@ -76,7 +77,7 @@ export class TicketAnalysisPanel {
     this.highlight = scene.add.rectangle(0, 0, 230, 410, 0x39ff14, 0.10)
       .setOrigin(0).setStrokeStyle(3, 0x39ff14, 0.9)
       .setScrollFactor(0).setDepth(65).setVisible(false);
-    this.dropLabel = scene.add.text(0, 0, 'Give evidence', {
+    this.dropLabel = scene.add.text(0, 0, __dialogueText("scenes/CSI/TicketAnalysisPanelBase.js", "t_3986d462fb7b06a2550e"), {
       fontFamily: 'SpecialElite', fontSize: '20px', color: '#b9ff8f',
       backgroundColor: '#07111b', padding: { x: 8, y: 5 }
     }).setOrigin(0.5, 1).setScrollFactor(0).setDepth(66).setVisible(false);
@@ -134,7 +135,7 @@ export class TicketAnalysisPanel {
     this.layout();
     const over = this.isOverAssistant(data);
     this.highlight?.setVisible(true).setFillStyle(0x39ff14, over ? 0.25 : 0.08);
-    this.dropLabel?.setVisible(true).setText(over ? 'Release to examine' : 'Give evidence');
+    this.dropLabel?.setVisible(true).setText(over ? __dialogueText("scenes/CSI/TicketAnalysisPanelBase.js", "t_35f2c27c9e9304882b79") : __dialogueText("scenes/CSI/TicketAnalysisPanelBase.js", "t_3986d462fb7b06a2550e"));
   }
 
   hideHighlight() {
@@ -152,11 +153,11 @@ export class TicketAnalysisPanel {
       const response = analyseEscapeEvidence(this.scene.cache.json.get('locations'), {
         state: this.scene.gameState, itemId: drop.itemId
       });
-      this.showResponse(response.message || 'The analysis could not be completed.');
+      this.showResponse(response.message || __dialogueText("scenes/CSI/TicketAnalysisPanelBase.js", "t_0c5047746ac0b05a26ed"));
       this.scene.hud?.refreshFromScene();
     } catch (error) {
       console.error('[TicketAnalysisPanel] Evidence analysis failed.', error);
-      this.showResponse('The analysis could not be completed. Your evidence has not been removed.');
+      this.showResponse(__dialogueText("scenes/CSI/TicketAnalysisPanelBase.js", "t_743330d6bada1491601e"));
     } finally {
       this.handlingDrop = false;
       this.refresh();
@@ -168,10 +169,10 @@ export class TicketAnalysisPanel {
     inventoryManager.close();
     const opened = scene.assistantDialog.open({
       dialogue: {
-        id: 'lab_evidence_handover', defaultNodeId: '__evidence_result', nodes: {
+        id: 'lab_evidence_handover', defaultNodeId: __dialogueText("scenes/CSI/TicketAnalysisPanelBase.js", "t_d898fd4e9b9ae1e0f3a1"), nodes: {
           __evidence_result: {
-            speaker: 'LAB ASSISTANT', text,
-            choices: [{ text: 'Thanks. I will take it from here.', action: 'close' }]
+            speaker: __dialogueText("scenes/CSI/TicketAnalysisPanelBase.js", "t_c8e3674bd53680fa2602"), text,
+            choices: [{ text: __dialogueText("scenes/CSI/TicketAnalysisPanelBase.js", "t_20e38c3b4104e4667d70"), action: __dialogueText("scenes/CSI/TicketAnalysisPanelBase.js", "t_310ff200149b44a32f12") }]
           }
         }
       },
@@ -194,8 +195,8 @@ export class TicketAnalysisPanel {
     if (dialog.currentNodeId !== root && dialog.currentNodeId !== 'greeting') return choices;
     const result = getTicketAnalysis(this.scene.gameState);
     return [
-      { text: 'How do I give you evidence?', action: 'explain_evidence_handover' },
-      ...(result?.completed ? [{ text: 'Remind me what you found.', action: 'recall_escape_analysis' }] : []),
+      { text: __dialogueText("scenes/CSI/TicketAnalysisPanelBase.js", "t_47a20bb6a10f7b957781"), action: 'explain_evidence_handover' },
+      ...(result?.completed ? [{ text: __dialogueText("scenes/CSI/TicketAnalysisPanelBase.js", "t_b6981849adb26511243b"), action: 'recall_escape_analysis' }] : []),
       ...choices
     ];
   }
@@ -206,13 +207,13 @@ export class TicketAnalysisPanel {
     const result = getTicketAnalysis(this.scene.gameState);
     const text = choice.action === 'recall_escape_analysis' && result?.completed
       ? result.assistantText || (result.airportCode
-        ? `The destination code is ${result.airportCode}. It is in your notebook.`
-        : result.clueText || 'The finding is in your notebook.')
-      : 'Close this conversation, open Inventory from the bottom menu (or press I), and drag the object onto me.\n\nOne object at a time. This is a laboratory, not a clearance sale.';
+        ? `${__dialogueText("scenes/CSI/TicketAnalysisPanelBase.js", "t_2fb1322f5ec14ca05b00")}${result.airportCode}${__dialogueText("scenes/CSI/TicketAnalysisPanelBase.js", "t_4d89da235d17af27e347")}`
+        : result.clueText || __dialogueText("scenes/CSI/TicketAnalysisPanelBase.js", "t_a5f81b08249bfa2a9d69"))
+      : __dialogueText("scenes/CSI/TicketAnalysisPanelBase.js", "t_7502628f73850203f726");
     dialog.dialogue.nodes.__evidence_help = {
-      speaker: 'LAB ASSISTANT', text, choices: [
-        { text: 'Back to my questions.', next: previousNode },
-        { text: 'Let me get the evidence.', action: 'close' }
+      speaker: __dialogueText("scenes/CSI/TicketAnalysisPanelBase.js", "t_c8e3674bd53680fa2602"), text, choices: [
+        { text: __dialogueText("scenes/CSI/TicketAnalysisPanelBase.js", "t_db162f05a084e8bd8cda"), next: previousNode },
+        { text: __dialogueText("scenes/CSI/TicketAnalysisPanelBase.js", "t_00cba3949ff20084cc70"), action: 'close' }
       ]
     };
     dialog.currentNodeId = '__evidence_help';

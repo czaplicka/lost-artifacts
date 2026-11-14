@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { latestOfficeReaction, readWorldReactions } from './WorldReactionModel.js';
 
 const NPCS=new Set(['archivist_drebin','alex_murphy']);
@@ -6,40 +7,40 @@ const LINES={
   alex_murphy:{},
   archivist_drebin:{
     agency_convicted:[
-      'A conviction. Excellent. A conclusion with a court attached.',
-      'The verdict belongs with the report. They tend to drift apart if left unsupervised.'
+      __dialogueText("systems/WorldNpcReactionModel.js", "t_5832e2b6ba0f1204b94b"),
+      __dialogueText("systems/WorldNpcReactionModel.js", "t_898d4c6d632305637a41")
     ],
     agency_released:[
-      'The court released the defendant. The archive will record that outcome.',
-      'An inconvenient result still gets a folder. We are remarkably inclusive that way.'
+      __dialogueText("systems/WorldNpcReactionModel.js", "t_b6dae3f7ad43841a1c39"),
+      __dialogueText("systems/WorldNpcReactionModel.js", "t_1e50f3b4483d64ce764f")
     ],
     agency_time_expired:[
-      'Unresolved when the time ran out. That goes in the record too.',
-      'An unfinished enquiry is not an empty folder. Please don’t make me demonstrate the difference.'
+      __dialogueText("systems/WorldNpcReactionModel.js", "t_2584321f16751302d823"),
+      __dialogueText("systems/WorldNpcReactionModel.js", "t_f299e749f05bd73436a7")
     ],
     agency_suspect_arrested:[
-      'An arrest is recorded. A verdict is not.',
-      'They are different entries. I have spent years defending this distinction from enthusiastic handwriting.'
+      __dialogueText("systems/WorldNpcReactionModel.js", "t_a05eff28e0888dc5ed94"),
+      __dialogueText("systems/WorldNpcReactionModel.js", "t_47e0f4570db29a2a32eb")
     ],
     agency_pursuit_escape:[
-      'The pursuit ended without a detention. I’ll keep the description precise.',
-      '“Almost” is not a recognised case status.'
+      __dialogueText("systems/WorldNpcReactionModel.js", "t_5d69b6bae24f3f782735"),
+      __dialogueText("systems/WorldNpcReactionModel.js", "t_a6344bb339b53d6c53e0")
     ],
     agency_arrest_missing_warrant:[
-      'No warrant, no completed arrest.',
-      'Leaving the document out does not make the file lighter in any useful sense.'
+      __dialogueText("systems/WorldNpcReactionModel.js", "t_d66d512688bc2d29a8da"),
+      __dialogueText("systems/WorldNpcReactionModel.js", "t_8549e2c5505da4976ee8")
     ],
     agency_arrest_warrant_mismatch:[
-      'The warrant names someone else. Keep that discrepancy in the report.',
-      'The archive does not accept retroactive spelling corrections to people.'
+      __dialogueText("systems/WorldNpcReactionModel.js", "t_42e591cf09e587166cd9"),
+      __dialogueText("systems/WorldNpcReactionModel.js", "t_c939ac498836bd819732")
     ],
     agency_empty_apartment:[
-      'The address was reached. The suspect was not found there.',
-      'I shall resist the temptation to file a statement from the furniture.'
+      __dialogueText("systems/WorldNpcReactionModel.js", "t_d770cc1c4027172c0396"),
+      __dialogueText("systems/WorldNpcReactionModel.js", "t_637d60ddcacf9e16ee7a")
     ],
     agency_wrong_arrest_attempt:[
-      'An operation based on the wrong lead, with no suspect detained.',
-      'That is what the record says. Do not improve it on the way to my desk.'
+      __dialogueText("systems/WorldNpcReactionModel.js", "t_9c91e89e397de6d1efc8"),
+      __dialogueText("systems/WorldNpcReactionModel.js", "t_853c1ea42f4fcee1983b")
     ]
   }
 };
@@ -60,7 +61,7 @@ export function getWorldNpcReaction(state,npcId,{caseId=null,alexDialogues=null}
   if(!lines||seenEntries(state).includes(seenKey(npcId,event.id)))return null;
   return{
     npcId,eventId:event.id,
-    lines:[(npcId==='alex_murphy'?alexDialogues.reactionIntro.replace(/\{artifact\}|\{city\}/g,key=>key==='{artifact}'?(event.artifact||'artefact'):(event.cityName||'the city')):`About the ${event.artifact||'artefact'} case in ${event.cityName||'the city'}.`),...lines]
+    lines:[(npcId===__dialogueText("systems/WorldNpcReactionModel.js", "t_bdb45b11c1a417005118")?alexDialogues.reactionIntro.replace(/\{artifact\}|\{city\}/g,key=>key===__dialogueText("systems/WorldNpcReactionModel.js", "t_80a460f582ba7424d625")?(event.artifact||__dialogueText("systems/WorldNpcReactionModel.js", "t_4edfbd28d0483e702f24")):(event.cityName||__dialogueText("systems/WorldNpcReactionModel.js", "t_0f53fb3533eb343bc155"))):`${__dialogueText("systems/WorldNpcReactionModel.js", "t_5f7134c4419ded9e1e4a")}${event.artifact||__dialogueText("systems/WorldNpcReactionModel.js", "t_4edfbd28d0483e702f24")}${__dialogueText("systems/WorldNpcReactionModel.js", "t_f42b9f039db44f945dae")}${event.cityName||__dialogueText("systems/WorldNpcReactionModel.js", "t_0f53fb3533eb343bc155")}${__dialogueText("systems/WorldNpcReactionModel.js", "t_cdb4ee2aea69cc6a8333")}`),...lines]
   };
 }
 export function markWorldNpcReaction(state,npcId,eventId){

@@ -1,220 +1,221 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { getEffectiveStats } from '../ui/characterCreation/CharacterCreationData.js';
 
-export const COOPERATION_LABELS = ['Guarded', 'Cautious', 'Cooperative', 'Open'];
+export const COOPERATION_LABELS = [__dialogueText("alibi/AlibiCooperation.js", "t_35d309ba5fab3077776b"), __dialogueText("alibi/AlibiCooperation.js", "t_5fe257db86adbd23c86f"), __dialogueText("alibi/AlibiCooperation.js", "t_2ba147f4089632cec120"), __dialogueText("alibi/AlibiCooperation.js", "t_ed077f3d8125d60dca19")];
 export const APPROACHES = [
-  { id: 'reassure', label: 'Reassure', line: 'We can take this one question at a time.' },
-  { id: 'direct', label: 'Be direct', line: 'Let us separate what happened from what you assumed.' },
-  { id: 'joke', label: 'Share a joke', line: 'The notebook is intimidating. The handwriting is worse.' }
+  { id: 'reassure', label: __dialogueText("alibi/AlibiCooperation.js", "t_a28ffdd7cf5f07f158e4"), line: __dialogueText("alibi/AlibiCooperation.js", "t_d1f6450e475caa2889d8") },
+  { id: 'direct', label: __dialogueText("alibi/AlibiCooperation.js", "t_d5f05999c771c5fdafa3"), line: __dialogueText("alibi/AlibiCooperation.js", "t_6bd709e2733a86f95c97") },
+  { id: 'joke', label: __dialogueText("alibi/AlibiCooperation.js", "t_c6bec1d1abcc0d092499"), line: __dialogueText("alibi/AlibiCooperation.js", "t_ea77fee3da3ee05afe8c") }
 ];
 export const CHALLENGES = [
-  { id: 'host', label: "The host's location" },
-  { id: 'room', label: 'The sealed room' },
-  { id: 'departure', label: 'The early departure' },
-  { id: 'arrival', label: 'The late arrival' },
-  { id: 'date', label: 'The attendance date' },
-  { id: 'duration', label: 'The length of the visit' }
+  { id: 'host', label: __dialogueText("alibi/AlibiCooperation.js", "t_db3326fdb86043e470e8") },
+  { id: 'room', label: __dialogueText("alibi/AlibiCooperation.js", "t_298902d6b6852aa1dd78") },
+  { id: 'departure', label: __dialogueText("alibi/AlibiCooperation.js", "t_ff280fb01cdef32ca7ef") },
+  { id: 'arrival', label: __dialogueText("alibi/AlibiCooperation.js", "t_2c70b6453a1f4f4c5089") },
+  { id: 'date', label: __dialogueText("alibi/AlibiCooperation.js", "t_70e00855b627da814340") },
+  { id: 'duration', label: __dialogueText("alibi/AlibiCooperation.js", "t_36a97a66efda94f33918") }
 ];
 
 const PROFILES = [
   { id: 'worried', likes: 'reassure', dislikes: 'direct',
-    hint: 'Keeps checking whether you are writing down every word.',
+    hint: __dialogueText("alibi/AlibiCooperation.js", "t_aadff47461a7cfc99689"),
     openings: [
-      'Am I in trouble, or merely adjacent to trouble? I need to dress appropriately.',
-      'You said a few questions. Is that a legal quantity or an optimistic one?',
-      'I have never been interviewed before. Unless the bank counts. That felt hostile.',
-      'Please do not underline my name. It looks much guiltier underlined.',
-      'Can we start with a question I cannot accidentally incriminate myself answering?',
-      'I made tea. Then I worried that offering tea looked suspicious. So now it is cold.' ] },
+      __dialogueText("alibi/AlibiCooperation.js", "t_05ab39f693e90b08c8aa"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_c4cb12ef2fe807299f50"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_fdba5d513b82912cc3c9"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_e79a436308ad1700dfb7"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_28735d969cf59bfdb0f6"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_6dccf132ab4b1def7018") ] },
   { id: 'busy', likes: 'direct', dislikes: 'joke',
-    hint: 'Watches the clock, but listens closely when you mention a specific detail.',
+    hint: __dialogueText("alibi/AlibiCooperation.js", "t_b9f0c9123980777f21d8"),
     openings: [
-      'Five minutes. My unfinished work has started reproducing.',
-      'Please have a question ready. I have already postponed postponing something.',
-      'Can we skip the ceremonial introduction and proceed to the actual problem?',
-      'I scheduled a nervous breakdown for four. You are in its slot.',
-      'You have my attention. Temporarily. It is on loan from several deadlines.',
-      'I do not mind questions. I mind questions with a scenic route.' ] },
+      __dialogueText("alibi/AlibiCooperation.js", "t_c36757d4a260907a7a61"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_b26799060edb61a4a7f9"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_ee5e92abccb59b98133f"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_ccf36773a99ab8ae87d4"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_328941ecff458cd8abea"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_89b129049279a815b514") ] },
   { id: 'chatty', likes: 'joke', dislikes: 'direct',
-    hint: 'Answers questions you have not asked yet. Some of them twice.',
+    hint: __dialogueText("alibi/AlibiCooperation.js", "t_06b2505f3ad4f29f9a86"),
     openings: [
-      'Finally, someone taking notes. My family has stopped even pretending.',
-      'Where shall I begin? Before you say the beginning, I have several.',
-      'I was hoping you would visit. Not because of the theft. Terrible business. Lovely notebook.',
-      'Do you want the short version or the version with the interesting people?',
-      'I promised myself I would not gossip. Fortunately, this is a public service.',
-      'Sit down. The chair squeaks, but it has never contradicted me.' ] },
+      __dialogueText("alibi/AlibiCooperation.js", "t_3f14434c0352e07df95e"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_c877a044f2dbe0de84ec"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_91ca1c7e7c5fad456da1"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_9303098613f140895420"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_02f0949a53191871c14d"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_868c4d38370b7ee70bdf") ] },
   { id: 'precise', likes: 'direct', dislikes: 'reassure',
-    hint: 'Corrects your wording before answering your question.',
+    hint: __dialogueText("alibi/AlibiCooperation.js", "t_8acde61f8db8e5a982ed"),
     openings: [
-      'I can tell you what I observed. Please do not promote it to omniscience.',
-      'Approximately is a perfectly good word. People should use it more honestly.',
-      'Are you recording facts, impressions, or the dangerous soup made from both?',
-      'Before we begin: remembering a detail and explaining it are different activities.',
-      'Ask one question at a time. Compound questions produce decorative answers.',
-      'I have brought my notes. No, you may not rearrange the tabs.' ] },
+      __dialogueText("alibi/AlibiCooperation.js", "t_e99c5d66a0c69053f76a"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_422b5e666dda25893b11"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_1976aeb701af7c0130b0"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_0ceb499ac0669ddff1c3"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_206bfe715a6d3cc5c8c4"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_5a4bb9bb6b7ddd8f4087") ] },
   { id: 'proud', likes: 'reassure', dislikes: 'joke',
-    hint: 'Straightens up whenever the conversation touches on their reputation.',
+    hint: __dialogueText("alibi/AlibiCooperation.js", "t_8a7d13983e8327d42aca"),
     openings: [
-      'I assume this is a request for assistance, not an accusation wearing a hat.',
-      'My name has never appeared in a police report. I would prefer a favourable debut.',
-      'I am happy to clarify matters. I am less happy to become a matter.',
-      'You may ask your questions. Please remember that courtesy remains legal.',
-      'I have a reputation. Unfortunately, it has arrived before my explanation.',
-      'Let us conduct this professionally. My neighbours are conducting it through the curtains.' ] },
+      __dialogueText("alibi/AlibiCooperation.js", "t_adec099ee2af9741a302"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_57cfba5ff8f851ce5a1a"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_bca1f6d6d65f35843e7d"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_dad0121f5390f7e9c0fc"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_f6d36c7b60da2ba840bb"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_7e9c1699a3ac7b51762e") ] },
   { id: 'dry', likes: 'joke', dislikes: 'reassure',
-    hint: 'Uses humour to keep the conversation at arm’s length.',
+    hint: __dialogueText("alibi/AlibiCooperation.js", "t_130c50af98d74ac55792"),
     openings: [
-      'A detective. Excellent. The afternoon was threatening to become affordable.',
-      'Do come in. The furniture has already retained counsel.',
-      'I suppose telling you I am boring would sound like an elaborate cover story.',
-      'Ask away. My diary is less exciting than the stationery suggests.',
-      'Should I look natural? People asking me to look natural generally ruin it.',
-      'I knew buying a suspiciously comfortable chair would eventually attract investigators.' ] }
+      __dialogueText("alibi/AlibiCooperation.js", "t_fbd99dfd598c66800fdd"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_9c33dec28d81ba75eec8"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_142d56b6bd642307852a"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_e4e44a621299c49a5458"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_658c68d90c9b0a254450"),
+      __dialogueText("alibi/AlibiCooperation.js", "t_93896016e1b017117196") ] }
 ];
 
 const APPROACH_LINES = {
   reassure: [
-    'We can take this one question at a time.',
-    'You can correct a word without defending your entire character.',
-    'I am interested in your account, not in making you nervous.',
-    'If you are unsure, say so. Uncertainty is allowed in this notebook.',
-    'There is no prize for answering before you have thought.',
-    'I will listen first. We can untangle the difficult parts afterwards.',
-    'Let us keep the questions manageable. One knot at a time.',
-    'You do not have to make the story sound impressive. Just accurate.' ],
+    __dialogueText("alibi/AlibiCooperation.js", "t_d1f6450e475caa2889d8"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_cdd7eebb8164cce5dda0"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_0ca39183e9980f6b90ae"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_da97c1f5dbb3849dc3fb"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_ffcc4f245bd439eca3db"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_f084c36b2b606bcaab69"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_036125cd29f976178dba"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_4e4fb1703152a54d073f") ],
   direct: [
-    'Let us separate what happened from what you assumed.',
-    'One detail first. Then we can deal with the next.',
-    'Tell me what you personally observed, without filling in the gaps.',
-    'I will keep this brief and specific.',
-    'Let us work through your account in order.',
-    'A clear answer will help more than a polished one.',
-    'Start with what you know. Leave the interpretation to me.',
-    'I need precision, not a performance.' ],
+    __dialogueText("alibi/AlibiCooperation.js", "t_6bd709e2733a86f95c97"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_343e50404caa5d9cbdf9"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_fe5033081e07303494f3"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_37d800923eccf00a281c"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_4b84f5774faf1ce7cc0f"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_941fc83139aa19b7e38a"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_59d680451005189a53ff"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_7fa2409a69d6da15f96e") ],
   joke: [
-    'The notebook is intimidating. The handwriting is worse.',
-    'Relax. My pen only looks judgemental.',
-    'I would offer coffee, but the agency classifies it as a coercive measure.',
-    'This is the informal part. The formal part has considerably worse chairs.',
-    'I promise not to say interesting while looking ominously at the ceiling.',
-    'My job is mostly listening. The hat does the dramatic work.',
-    'The notebook has heard worse. Mostly my expense claims.',
-    'Let us disappoint the neighbours and have a perfectly ordinary conversation.' ]
+    __dialogueText("alibi/AlibiCooperation.js", "t_ea77fee3da3ee05afe8c"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_3d18a57dbbc4a759a35b"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_c1cc286cd4998cbabf93"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_61ddab41ac040c2db923"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_e8af3ae650e71580d60f"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_2e9d2eb28941ab95320f"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_d55c2d4ee8dcf49570cf"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_59d178c72cac01c72155") ]
 };
 const RESPONSES = {
   reassure: {
-    positive: ['All right. One thing at a time sounds survivable.', 'Thank you. I was answering the accusation I imagined, not the question you asked.', 'That helps. I can stop preparing a defence for my choice of curtains.', 'Fine. Let me find the words before you find the conclusions.'],
-    neutral: ['I understand. What would you like to ask?', 'All right. I am listening.', 'We can do that. Start with your question.'],
-    negative: ['Please do not manage my feelings. Ask your question.', 'I am not a frightened child. I would prefer a precise question.', 'The soothing voice is making this feel considerably more serious.'] },
+    positive: [__dialogueText("alibi/AlibiCooperation.js", "t_42b5f0fb41b201911005"), __dialogueText("alibi/AlibiCooperation.js", "t_6db292fbe51f98d47aac"), __dialogueText("alibi/AlibiCooperation.js", "t_82b7d2e980e606dda4cb"), __dialogueText("alibi/AlibiCooperation.js", "t_16540dee75c566cc17b6")],
+    neutral: [__dialogueText("alibi/AlibiCooperation.js", "t_316781e849ad117696e0"), __dialogueText("alibi/AlibiCooperation.js", "t_9b07dd049d8793bcacb4"), __dialogueText("alibi/AlibiCooperation.js", "t_3e4eebb982ead9bd0c5c")],
+    negative: [__dialogueText("alibi/AlibiCooperation.js", "t_70e397bbc7359e157623"), __dialogueText("alibi/AlibiCooperation.js", "t_2b48269395e9d9ff64e5"), __dialogueText("alibi/AlibiCooperation.js", "t_a42fd24901828f091241")] },
   direct: {
-    positive: ['Good. A question with edges. I can work with that.', 'Thank you. Specific is much easier than suspiciously conversational.', 'Excellent. We may finish before my next obligation develops teeth.', 'Yes. Let us keep observation and interpretation in separate drawers.'],
-    neutral: ['All right. Which detail first?', 'Ask. I will answer what I can.', 'That seems reasonable.'],
-    negative: ['You could let me finish being a person before turning me into a bullet point.', 'That sounded less like a question than a verdict looking for furniture.', 'Please stop marching through the conversation. I am still in it.'] },
+    positive: [__dialogueText("alibi/AlibiCooperation.js", "t_d825d73b986f2f48dc17"), __dialogueText("alibi/AlibiCooperation.js", "t_fd462339d70ab2b94f7f"), __dialogueText("alibi/AlibiCooperation.js", "t_94884ef75529d2872225"), __dialogueText("alibi/AlibiCooperation.js", "t_26ba473214b017bdf387")],
+    neutral: [__dialogueText("alibi/AlibiCooperation.js", "t_e6c72cfaf3eaf1bfd8ae"), __dialogueText("alibi/AlibiCooperation.js", "t_3e2e8f55be096c86c6de"), __dialogueText("alibi/AlibiCooperation.js", "t_d297a55a3c8e399f9fc7")],
+    negative: [__dialogueText("alibi/AlibiCooperation.js", "t_8b4b2136cb5082d2e0c0"), __dialogueText("alibi/AlibiCooperation.js", "t_af92e76fb5000938930a"), __dialogueText("alibi/AlibiCooperation.js", "t_642a54b33d848dc6d3e2")] },
   joke: {
-    positive: ['Ha. All right. You may interrogate the chair after me.', 'Fine. The notebook can stay. It seems adequately humiliated.', 'Good. Someone remembered we are allowed to breathe between questions.', 'I was expecting grim silence. This is an improvement, professionally speaking.'],
-    neutral: ['Right. Your question?', 'I see. Shall we continue?', 'Noted. I am not sure the joke needs to go in the report.'],
-    negative: ['Can we investigate first and workshop your material afterwards?', 'I did not realise my afternoon came with a supporting comedian.', 'I would rather you took my account seriously.'] }
+    positive: [__dialogueText("alibi/AlibiCooperation.js", "t_e2a76c334d170604f5e9"), __dialogueText("alibi/AlibiCooperation.js", "t_8397b2f1e1a71733013c"), __dialogueText("alibi/AlibiCooperation.js", "t_b525da975d322d248bb3"), __dialogueText("alibi/AlibiCooperation.js", "t_2efd764e80db4a2a253a")],
+    neutral: [__dialogueText("alibi/AlibiCooperation.js", "t_5cd04a839bed288803ad"), __dialogueText("alibi/AlibiCooperation.js", "t_746b2c7e263839f63b02"), __dialogueText("alibi/AlibiCooperation.js", "t_dce9918ef446f84d082c")],
+    negative: [__dialogueText("alibi/AlibiCooperation.js", "t_7644d9733fc854477bdd"), __dialogueText("alibi/AlibiCooperation.js", "t_57a87634cc1939dc7033"), __dialogueText("alibi/AlibiCooperation.js", "t_759f6886df73df268e36")] }
 };
 
 const OPINIONS = {
   short: [
-    'Sharing a room does not automatically create a friendship. Otherwise I would be married to my dentist.',
-    'I can describe our contact. Their entire personality was not included in the booking.',
-    'My opinion has never survived being shortened for someone else’s convenience.',
-    'I try to keep personal taste out of official matters. It gets fingerprints on everything.',
-    'We know each other. That is a fact, not a character reference.',
-    'I am not their biographer. The advance would have been disappointing.',
-    'There is a difference between recognising someone and understanding them.',
-    'I would rather tell you what happened than provide a review with stars.',
-    'My feelings are not a clock, a receipt, or an eyewitness.',
-    'Please do not turn an awkward acquaintance into a criminal conspiracy.' ],
+    __dialogueText("alibi/AlibiCooperation.js", "t_184cd881de183bb6e5ca"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_e7f246694df6adfcd62e"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_1d0dfd4d10b1d70f2539"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_a170fa83e1e1db0a958c"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_81f3368d52f8cd7c90a2"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_c30ae17e6dafa8d1ef33"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_f8104b922895a137da71"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_7dc82f26dab7e68bfeef"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_0f9bf3eb714951ad502b"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_58de031fe0af2a7dc48d") ],
   open: [
-    'I sometimes confuse being confident about someone with actually knowing them. I try to catch myself doing it.',
-    'People can be irritating without being criminals. Otherwise this city would require a much larger prison.',
-    'I would prefer you quoted my observations rather than my mood.',
-    'I am trying not to let hindsight edit every impression I ever had.',
-    'An investigation makes ordinary memories look theatrical. That does not make them evidence.',
-    'I can dislike a habit without pretending it explains an entire person.',
-    'The honest answer is that I do not know them as well as this conversation makes it sound.',
-    'I have opinions. I would not trust all of them with a badge.' ],
+    __dialogueText("alibi/AlibiCooperation.js", "t_5c03efc1f8b1ed2d40df"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_5e934e86a1e70a0485e0"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_5d1e403c182713decb7b"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_2fbb081c62654ab714eb"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_bee64520724bdb774559"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_7069dc75ce23989b1995"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_05eb286bc418e3782b46"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_5992d635d798088db3fa") ],
   secret: [
-    'I rehearsed sounding helpful. Unfortunately, it made me sound rehearsed.',
-    'I was worried about being quoted badly. So I answered badly. A very efficient little disaster.',
-    'I dislike not knowing an answer. That is my problem, not a reason for you to accept one.',
-    'I wanted this conversation to be short. That is not the same thing as wanting it to be accurate.',
-    'I nearly asked someone what I should say. Then I realised that was an appalling sentence.',
-    'I have been imagining the neighbours discussing this. They already have terrible source standards.',
-    'I am embarrassed by how much the notebook bothers me. It is just paper with ambition.',
-    'I was trying to sound certain enough to be left alone. That is a feeling, not evidence.' ]
+    __dialogueText("alibi/AlibiCooperation.js", "t_ed603c5da82e38547984"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_974ae333f66f35810c6a"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_c6d7580b27876f89188e"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_e9641555578cd8197b46"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_8f6ea03308afbb9e337d"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_336cb6419f6591cd2bc1"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_2122b73f7813e199afcc"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_52c0a2dd7c00fea8e181") ]
 };
 
 const CUES = {
   space: [
-    'You tap your pen again and I lose the sentence. Let me finish thinking before you ask the next part.',
-    'I keep trying to answer quickly and tangling the words. I need a little room to put them in order.',
-    'Every interruption sends me back to the beginning. Please let me get to the end of a thought.',
-    'I am looking for the right words. Another question will not make them arrive faster.',
-    'I can explain, but not while I am also trying to keep up with you.',
-    'I need to say this in my own words. Otherwise I will just agree with yours.' ],
+    __dialogueText("alibi/AlibiCooperation.js", "t_92d096875417b5bf0c6a"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_7ecf695f21a437dd8a6e"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_7af8c879c20d6c0959e0"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_f40e50853565fdeea1d9"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_50a84ed8058be2478692"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_3b9074c2024c8b709faa") ],
   press: [
-    'You keep circling the issue. Ask me exactly which part you want explained.',
-    'A gentle general question is still a general question. Put the disputed detail to me plainly.',
-    'Do not soften the question until it has no shape. Say what needs answering.',
-    'I cannot explain a vague suspicion. Give me a precise point to address.',
-    'We are drifting. Bring me back to the detail you are challenging.',
-    'Ask the difficult question directly. I would rather deal with it than dance around it.' ],
+    __dialogueText("alibi/AlibiCooperation.js", "t_214103c201bcbcf4a129"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_e6310ededa546ef6d063"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_1ba35d926a2b90844910"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_16bc9b78771569674b53"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_6ad1090962d3ee3e25c3"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_e6972f23eedc17a37a2e") ],
   pause: [
-    'We are repeating each other now. I need to step back from this question before I answer it again.',
-    'I am defending the sentence instead of thinking about it. Can we set it aside for a moment?',
-    'Nothing useful is happening while we keep pushing this same point. Let us change the subject briefly.',
-    'I need to come back to this with a clearer head. Right now I am just repeating myself.',
-    'I have stopped listening properly. A short break would help more than another version of the question.',
-    'Can we leave this point alone for a moment? I want to reconsider it, not rehearse it.' ]
+    __dialogueText("alibi/AlibiCooperation.js", "t_9a678fc6a7224c66a284"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_262b3ff6ce5cac5a2539"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_775fadfbc78cb5869f29"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_2958eed91da791504b92"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_4dc941a9cbfcd0eea7d2"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_40e8f83d8d76a8b67c52") ]
 };
 const FOLLOWUPS = {
-  space: ['Take your time. Finish the thought in your own words.', 'I will stop interrupting. Tell me what you can stand by.', 'There is no rush. Work through that sentence.'],
-  press: ['Address the disputed detail directly. What exactly are you claiming?', 'Let us be precise. Explain that part of your account.', 'Stay with this point. I need a specific answer.'],
-  pause: ['We will leave that point there for a moment.', 'All right. Take a step back from the question.', 'We can pause this line of questioning.']
+  space: [__dialogueText("alibi/AlibiCooperation.js", "t_94792519cb1f2c5299ab"), __dialogueText("alibi/AlibiCooperation.js", "t_de169cf21de0db134c38"), __dialogueText("alibi/AlibiCooperation.js", "t_4e45e084076bd2257493")],
+  press: [__dialogueText("alibi/AlibiCooperation.js", "t_c272dba84fd7af85cfe1"), __dialogueText("alibi/AlibiCooperation.js", "t_317ecc6e973cf53a50e6"), __dialogueText("alibi/AlibiCooperation.js", "t_6d0355df14d0c16ec178")],
+  pause: [__dialogueText("alibi/AlibiCooperation.js", "t_1d427ed36e86d276242a"), __dialogueText("alibi/AlibiCooperation.js", "t_8e638cb7548d3f4962a2"), __dialogueText("alibi/AlibiCooperation.js", "t_3fbffebfe1b54a4c2200")]
 };
 const RETRACTIONS = {
   host: [
-    'I withdraw my claim that we were together at my apartment. That meeting did not happen as I described it. I cannot provide that alibi.',
-    'My account of us being together at my apartment was false. I withdraw it. Do not use that meeting as their alibi.',
-    'I need to correct the claim about my apartment: the meeting I described did not happen that way. I cannot support that alibi.' ],
+    __dialogueText("alibi/AlibiCooperation.js", "t_89101285f1d13690a3cf"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_0d602da8791f355ccd8f"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_091fb96bf13c233eebbf") ],
   room: [
-    'I withdraw my claim that we were inside that room together. We were not having the meeting I described. I cannot provide that alibi.',
-    'The meeting inside that room was not as I described it. My claim that we were there together was false. I withdraw it.',
-    'Do not use my account of that room as their alibi. We were not inside having the meeting I claimed.' ],
+    __dialogueText("alibi/AlibiCooperation.js", "t_5bdc60da0400bf7aa6aa"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_a711be5da4baebd17e33"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_b1c4ae34a1ff15c4e4be") ],
   departure: [
-    'I withdraw my claim that they stayed with me throughout that period. My account of uninterrupted attendance was false.',
-    'They did not stay with me throughout the period I claimed. I withdraw that uninterrupted-attendance claim.',
-    'I cannot stand by my claim that they remained with me the whole time. That part of my account was false.' ],
+    __dialogueText("alibi/AlibiCooperation.js", "t_a737e2ef6f41002181cc"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_9d96ba459d1f0774c6fd"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_89fb6555cd1307755095") ],
   arrival: [
-    'I withdraw my claim that they were already with me before the theft. I cannot support that arrival time.',
-    'The arrival time I gave you cannot stand. My claim that they were with me before the theft was false.',
-    'Do not rely on my claim that they had arrived before the theft. I withdraw that part of the account.' ],
+    __dialogueText("alibi/AlibiCooperation.js", "t_d3e04af601abc90490c9"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_b17893d291eefe4de63c"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_2a47309ae93e467b1858") ],
   date: [
-    'I withdraw my claim that the meeting I described happened on the day of the theft. I presented the wrong day as their alibi.',
-    'I used the wrong day. The meeting I described was not on the day of the theft. I withdraw that alibi.',
-    'That meeting cannot support their alibi for the day of the theft. I presented a different day as if it were that one.' ],
+    __dialogueText("alibi/AlibiCooperation.js", "t_f740a642f225f5d21ab5"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_304b5e764be4b3c75f0c"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_2d4d17659280452f45ce") ],
   duration: [
-    'I withdraw my claim that the visit lasted throughout the theft. I extended the visit in my account.',
-    'I made the visit sound longer than it was. It did not last throughout the theft. I withdraw that claim.',
-    'The length of the visit in my account was false. I extended it to cover the theft. I withdraw that alibi.' ]
+    __dialogueText("alibi/AlibiCooperation.js", "t_c480924880b0bb88290f"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_a7206e8af82a9610748a"),
+    __dialogueText("alibi/AlibiCooperation.js", "t_b54c85f9c41ce23c63d6") ]
 };
 const STAND_BY = [
-  'I have reconsidered that point. I stand by my original account. Compare it with the other statements rather than my manner.',
-  'I am not revising that claim. If there is a conflict, identify it in the accounts themselves.',
-  'That question does not change my account. My willingness to talk is not a verdict on it.',
-  'I can discuss the point, but I am not withdrawing it. The original statement is still my statement.'
+  __dialogueText("alibi/AlibiCooperation.js", "t_5088643105580fcbec0f"),
+  __dialogueText("alibi/AlibiCooperation.js", "t_259fd47ecee0684d0d7c"),
+  __dialogueText("alibi/AlibiCooperation.js", "t_350207bdb6dc3b50fa71"),
+  __dialogueText("alibi/AlibiCooperation.js", "t_cb49a92d4dbe2d8aeddb")
 ];
 const PROGRESS = [
-  'All right. I can think about what I actually said rather than how this conversation looks.',
-  'That is clearer. I am separating my account from my reaction to your question.',
-  'I understand the point now. Let me reconsider the wording before I stand behind it.',
-  'Yes. We should deal with the actual claim, not with who sounds more confident.'
+  __dialogueText("alibi/AlibiCooperation.js", "t_a8c5a2ce933744c3f06b"),
+  __dialogueText("alibi/AlibiCooperation.js", "t_42efce72b156512c67c3"),
+  __dialogueText("alibi/AlibiCooperation.js", "t_2bfa1cad7f51eafffd34"),
+  __dialogueText("alibi/AlibiCooperation.js", "t_6c13fc8cfd7d89605b24")
 ];
 
 function hash(value) {
@@ -315,12 +316,12 @@ export function applyApproach(caseKey, encounterId, approachId) {
   if (approachId === personality.likes) {
     change = 1; kind = 'positive';
     if (getRapport() >= 3 && !state.positiveBonusUsed) {
-      change = 2; state.positiveBonusUsed = true; note = 'Rapport helped establish trust.';
+      change = 2; state.positiveBonusUsed = true; note = __dialogueText("alibi/AlibiCooperation.js", "t_69c2df17663c13ffb0f1");
     }
   } else if (approachId === personality.dislikes) {
     change = -1; kind = 'negative';
     if (getRapport() >= 4 && !state.protectionUsed) {
-      change = 0; state.protectionUsed = true; note = 'Rapport softened an awkward moment.';
+      change = 0; state.protectionUsed = true; note = __dialogueText("alibi/AlibiCooperation.js", "t_9e2ad7bca797e5e57be2");
     }
   }
   state.level = Math.max(0, Math.min(3, previous + change));
@@ -328,7 +329,7 @@ export function applyApproach(caseKey, encounterId, approachId) {
   return addEntry(state, `approach:${approachId}`,
     pick(APPROACH_LINES[approachId], `${state.dialogueSeed}:approach:${approachId}`),
     pick(RESPONSES[approachId][kind], `${state.dialogueSeed}:response:${approachId}`),
-    [`Cooperation ${state.level - previous >= 0 ? '+' : ''}${state.level - previous}.`, note].filter(Boolean).join(' '));
+    [`${__dialogueText("alibi/AlibiCooperation.js", "t_86dfcbe96f81c8b24f6a")}${state.level - previous >= 0 ? '+' : ''}${state.level - previous}${__dialogueText("alibi/AlibiCooperation.js", "t_cdb4ee2aea69cc6a8333")}`, note].filter(Boolean).join(' '));
 }
 export function askWitness(caseKey, encounterId, topic) {
   const state = getCooperationState(caseKey, encounterId);
@@ -339,29 +340,29 @@ export function askWitness(caseKey, encounterId, topic) {
   let question, answer, note = '';
   switch (topic) {
     case 'statement':
-      question = `Where was ${subject.suspectName || 'the suspect'} during the theft?`;
+      question = `${__dialogueText("alibi/AlibiCooperation.js", "t_ed98a51f13ee311163da")}${subject.suspectName || __dialogueText("alibi/AlibiCooperation.js", "t_94864ebff58640bcf9bd")}${__dialogueText("alibi/AlibiCooperation.js", "t_d1d34c0c325770a074a2")}`;
       answer = witness.statement; break;
     case 'person':
-      question = 'What do you think of them personally?';
+      question = __dialogueText("alibi/AlibiCooperation.js", "t_12b2a831ca1bc49a7410");
       answer = pick(OPINIONS.short, `${state.dialogueSeed}:opinion`);
-      note = 'Personal opinion — not proof of guilt.'; break;
+      note = __dialogueText("alibi/AlibiCooperation.js", "t_6103e3deb399b1b5fd32"); break;
     case 'personal':
       if (state.level < 2 || !state.asked.includes('person')) return null;
-      question = 'And what is your personal impression?';
+      question = __dialogueText("alibi/AlibiCooperation.js", "t_a93621d4044c024cfbf7");
       answer = pick(OPINIONS.open, `${state.dialogueSeed}:personal`);
-      note = 'Personal opinion — not proof of guilt.'; break;
+      note = __dialogueText("alibi/AlibiCooperation.js", "t_6103e3deb399b1b5fd32"); break;
     case 'withheld':
       if (state.level < 3 || !state.asked.includes('statement')) return null;
-      question = 'Was there something you were reluctant to tell me?';
+      question = __dialogueText("alibi/AlibiCooperation.js", "t_aa64b60d351ed0fb658b");
       answer = state.revisedStatement
-        ? 'Keep both versions of my account. Correcting it does not erase what I originally said.'
+        ? __dialogueText("alibi/AlibiCooperation.js", "t_d8aa4209ad692a765cda")
         : pick(OPINIONS.secret, `${state.dialogueSeed}:withheld`);
-      note = 'Personal disclosure — not independent evidence.'; break;
+      note = __dialogueText("alibi/AlibiCooperation.js", "t_e64d272f93ccf5d05997"); break;
     case 'summary':
       if (state.level < 2 || !state.asked.includes('statement') || !witness.timelineCard?.label) return null;
-      question = 'What is the key point of your original account?';
+      question = __dialogueText("alibi/AlibiCooperation.js", "t_51662909a5e637e3b031");
       answer = witness.timelineCard.label;
-      note = state.revisedStatement ? 'Original account — subsequently withdrawn.' : 'Summary of a claim, not independent verification.';
+      note = state.revisedStatement ? __dialogueText("alibi/AlibiCooperation.js", "t_58597cdcc94a3c9ebf5c") : __dialogueText("alibi/AlibiCooperation.js", "t_51f1f554e97ae202544c");
       break;
     default: return null;
   }
@@ -396,8 +397,8 @@ export function challengeWitness(caseKey, encounterId, topic) {
   state.pendingChallenge = topic;
   // Every topic gets the same conversational process. Opening a topic never identifies a liar.
   return addEntry(state, `challenge:${topic}:${thread.attempts}`,
-    `I would like to review your account in relation to ${challenge.label.toLowerCase()}.`,
-    cue(state, topic, thread), 'Listen to the response before choosing how to continue.');
+    `${__dialogueText("alibi/AlibiCooperation.js", "t_5bd803ea30a7e7c5e0dd")}${challenge.label.toLowerCase()}${__dialogueText("alibi/AlibiCooperation.js", "t_cdb4ee2aea69cc6a8333")}`,
+    cue(state, topic, thread), __dialogueText("alibi/AlibiCooperation.js", "t_90fdcc39bc55240d1882"));
 }
 export function followUpChallenge(caseKey, encounterId, mode) {
   if (!['space', 'press', 'pause'].includes(mode)) return null;
@@ -415,15 +416,15 @@ export function followUpChallenge(caseKey, encounterId, mode) {
     // A pause always allows leaving the topic. Progress and cue survive a later visit.
     if (mode === 'pause') state.pendingChallenge = null;
     return addEntry(state, `followup:${topic}:${state.transcript.length}`, question,
-      (mode === 'pause' ? 'All right. We can return to it. ' : 'That is not helping me answer. ') + cue(state, topic, thread),
-      previous !== state.level ? 'Cooperation -1. No revised account.' : 'No revised account. The evidence remains available.');
+      (mode === 'pause' ? __dialogueText("alibi/AlibiCooperation.js", "t_1dcc056924e2f92b7e41") : __dialogueText("alibi/AlibiCooperation.js", "t_56eb4522b22b954e7a33")) + cue(state, topic, thread),
+      previous !== state.level ? __dialogueText("alibi/AlibiCooperation.js", "t_fe3d8093a611fd98fac7") : __dialogueText("alibi/AlibiCooperation.js", "t_4b6ca203ad788ed1cdbe"));
   }
   thread.stage++;
   if (thread.stage < 2) {
     if (mode === 'pause') state.pendingChallenge = null;
     return addEntry(state, `step:${topic}:1`, question,
       pick(PROGRESS, `${state.dialogueSeed}:${topic}:progress`) + ' ' + cue(state, topic, thread),
-      mode === 'pause' ? 'Topic paused. Return to this challenge when ready.' : 'The discussion continues. No account has been withdrawn.');
+      mode === 'pause' ? __dialogueText("alibi/AlibiCooperation.js", "t_98ac20afb469f65888f9") : __dialogueText("alibi/AlibiCooperation.js", "t_33f3ec84d5c6bcda5226"));
   }
   state.pendingChallenge = null;
   thread.resolved = true;
@@ -432,10 +433,10 @@ export function followUpChallenge(caseKey, encounterId, mode) {
   if (relevant) {
     state.revisedStatement = pick(RETRACTIONS[topic], `${state.dialogueSeed}:${topic}:revision`);
     return addEntry(state, 'revision', question,
-      (mode === 'pause' ? 'Before we move on, I need to correct something. ' : '') + state.revisedStatement,
-      'Revised account recorded. The original remains in the history.');
+      (mode === 'pause' ? __dialogueText("alibi/AlibiCooperation.js", "t_3cc240938570f04f1f4f") : '') + state.revisedStatement,
+      __dialogueText("alibi/AlibiCooperation.js", "t_9eace54b8fa91b612eba"));
   }
   return addEntry(state, `resolved:${topic}`, question,
     pick(STAND_BY, `${state.dialogueSeed}:${topic}:standby`),
-    'Account unchanged. This is not an independent verification or a verdict.');
+    __dialogueText("alibi/AlibiCooperation.js", "t_acbcd35a27c76e7eeeed"));
 }

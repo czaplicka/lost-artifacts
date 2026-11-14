@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 import { gameState } from './GameData.js';
 import { getDifficultyConfig } from './DifficultySettings.js';
 
@@ -64,7 +65,7 @@ export class HiddenObjectsResolver {
   buildReconstructionCardsFromActiveItems(activeItems, cityId, sceneId) {
     const thief = gameState.currentThief || null, thiefSkills = this.normalizeSkills(thief?.skills);
     const difficulty = this.scene.registry?.get('difficulty') || gameState.difficulty || 'field', config = getDifficultyConfig(difficulty);
-    const allCards = activeItems.map((item,index) => ({id:item.id,cardId:`card_${index}`,item:item.item||`Clue ${index+1}`,text:item.item||`Clue ${index+1}`,skills:this.normalizeSkills(item.skills),cityId,scene:sceneId,isCorrect:Boolean(item.isCorrect),correctOrder:Number.isInteger(item.correctOrder)?item.correctOrder:-1,clueType:item.clueType||'softclue',heistExplanation:item.heistExplanation||'',trueExplanation:item.trueExplanation||'',isRedHerring:Boolean(item.isRedHerring)}));
+    const allCards = activeItems.map((item,index) => ({id:item.id,cardId:`card_${index}`,item:item.item||`${__dialogueText("HiddenObjectsResolver.js", "t_d60af32fbb35a3ff5c2d")}${index+1}`,text:item.item||`${__dialogueText("HiddenObjectsResolver.js", "t_d60af32fbb35a3ff5c2d")}${index+1}`,skills:this.normalizeSkills(item.skills),cityId,scene:sceneId,isCorrect:Boolean(item.isCorrect),correctOrder:Number.isInteger(item.correctOrder)?item.correctOrder:-1,clueType:item.clueType||'softclue',heistExplanation:item.heistExplanation||'',trueExplanation:item.trueExplanation||'',isRedHerring:Boolean(item.isRedHerring)}));
     const correct = allCards.filter(card => card.isCorrect).sort((a,b) => a.correctOrder-b.correctOrder).slice(0,3);
     return {cityId,sceneId,thiefId:gameState.currentThiefId||thief?.id||null,thiefName:thief?.name||null,thiefSkills,allCards,correctCardIds:correct.map(card=>card.id),correctSequence:correct.map(card=>card.id),selectedCards:[],playerOrderedCards:[],playerOrderedSentences:[],playerFinalText:'',playerSkills:[],playerTheoryScore:0,playerTheoryResult:null,playerSlotFeedback:[],playerAttemptsLeft:config.reconstructionAttempts};
   }

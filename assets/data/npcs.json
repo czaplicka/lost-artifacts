@@ -1,0 +1,185 @@
+{
+  "version": 1,
+  "npcs": {
+    "bankier": {
+      "id": "bankier",
+      "role": "Banker",
+      "displayName": "Banker",
+      "dialogueId": "bankier",
+      "portraits": {
+        "white": {
+          "key": "bankier_w"
+        },
+        "black": {
+          "key": "bankier_b"
+        },
+        "asian": {
+          "key": "bankier_a"
+        },
+        "south_asia": {
+          "key": "bankier_h"
+        }
+      }
+    },
+    "fence": {
+      "id": "fence",
+      "role": "Fence",
+      "displayName": "Fence",
+      "dialogueId": "fence",
+      "portraits": {
+        "white": {
+          "key": "fence_w"
+        },
+        "black": {
+          "key": "fence_b"
+        },
+        "asian": {
+          "key": "fence_a"
+        },
+        "south_asia": {
+          "key": "fence_h"
+        }
+      }
+    },
+    "knajpa": {
+      "id": "knajpa",
+      "role": "Restaurant Manager",
+      "displayName": "Restaurant Manager",
+      "dialogueId": "knajpa",
+      "portraits": {
+        "white": {
+          "key": "knajpa_w"
+        },
+        "black": {
+          "key": "knajpa_b"
+        },
+        "asian": {
+          "key": "knajpa_a"
+        },
+        "south_asia": {
+          "key": "knajpa_h"
+        }
+      }
+    },
+    "maid": {
+      "id": "maid",
+      "role": "Maid",
+      "displayName": "Maid",
+      "dialogueId": "maid",
+      "portraits": {
+        "white": {
+          "key": "maid_w"
+        },
+        "black": {
+          "key": "maid_b"
+        },
+        "asian": {
+          "key": "maid_a"
+        },
+        "south_asia": {
+          "key": "maid_h"
+        }
+      }
+    },
+    "parkingowy": {
+      "id": "parkingowy",
+      "role": "Parking Worker",
+      "displayName": "Parking Worker",
+      "dialogueId": "parkingowy",
+      "portraits": {
+        "white": {
+          "key": "parkingowy_w"
+        },
+        "black": {
+          "key": "parkingowy_b"
+        },
+        "asian": {
+          "key": "parkingowy_a"
+        },
+        "south_asia": {
+          "key": "parkingowy_h"
+        }
+      }
+    },
+    "police": {
+      "id": "police",
+      "role": "Police Officer",
+      "displayName": "Police Officer",
+      "dialogueId": "police",
+      "portraits": {
+        "white": {
+          "key": "police_w"
+        },
+        "black": {
+          "key": "police_b"
+        },
+        "asian": {
+          "key": "police_a"
+        },
+        "south_asia": {
+          "key": "police_h"
+        }
+      }
+    },
+    "stewardessa": {
+      "id": "stewardessa",
+      "role": "Flight Attendant",
+      "displayName": "Flight Attendant",
+      "dialogueId": "stewardessa",
+      "portraits": {
+        "white": {
+          "key": "stewardessa_w"
+        },
+        "black": {
+          "key": "stewardessa_b"
+        },
+        "asian": {
+          "key": "stewardessa_a"
+        },
+        "south_asia": {
+          "key": "stewardessa_h"
+        }
+      }
+    },
+    "bum": {
+      "id": "bum",
+      "role": "Homeless Man",
+      "displayName": "Homeless Man",
+      "dialogueId": "bum",
+      "portraits": {
+        "white": {
+          "key": "bum_w"
+        },
+        "black": {
+          "key": "bum_b"
+        },
+        "asian": {
+          "key": "bum_a"
+        },
+        "south_asia": {
+          "key": "bum_h"
+        }
+      }
+    },
+    "sailor": {
+      "id": "sailor",
+      "role": "Sailor",
+      "displayName": "Sailor",
+      "dialogueId": "sailor",
+      "portraits": {
+        "white": {
+          "key": "sailor_w"
+        },
+        "black": {
+          "key": "sailor_b"
+        },
+        "asian": {
+          "key": "sailor_a"
+        },
+        "south_asia": {
+          "key": "sailor_h"
+        }
+      }
+    }
+  }
+}

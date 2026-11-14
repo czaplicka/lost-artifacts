@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 const ROOT = 'assets/pi/office/';
 
 export const PI_OFFICE_IMAGES = [
@@ -20,73 +21,73 @@ export const PI_OFFICE_LAYERS = [
   {
     id: 'office_books',
     key: 'books',
-    label: 'Reference books',
+    label: __dialogueText("config/piOfficeUpgradeConfig.js", "t_624612ef68aa9af92b9d"),
     action: 'inspect',
     message:
-      'An impressive collection. Some of the books have even been opened.'
+      __dialogueText("config/piOfficeUpgradeConfig.js", "t_2029d545d7c7988d27df")
   },
   {
     id: 'office_painting',
     key: 'painting',
-    label: 'Framed painting',
+    label: __dialogueText("config/piOfficeUpgradeConfig.js", "t_7118439e7f0ed2acb9e8"),
     action: 'inspect',
     message:
-      'Original art. According to the receipt, which is also original art.'
+      __dialogueText("config/piOfficeUpgradeConfig.js", "t_cd7be85c0566fcfc5f7e")
   },
   {
     id: 'office_artifact',
     key: 'artifact',
-    label: 'Display artefact',
+    label: __dialogueText("config/piOfficeUpgradeConfig.js", "t_5df13116a952957967c3"),
     action: 'inspect',
     message:
-      'A legally acquired conversation piece. Please stop asking.'
+      __dialogueText("config/piOfficeUpgradeConfig.js", "t_b01fae5dc3c8dafb5aa0")
   },
   {
     id: 'office_chairs',
     key: 'chairs',
-    label: 'Visitor chairs',
+    label: __dialogueText("config/piOfficeUpgradeConfig.js", "t_917422d8b9d4e7be5f2c"),
     action: 'inspect',
     message:
-      'Clients can now sit comfortably while withholding relevant information.'
+      __dialogueText("config/piOfficeUpgradeConfig.js", "t_b5cf7a7dd2a8e5a7b6da")
   },
   {
     id: 'office_coffee',
     key: 'coffee',
-    label: 'Coffee machine',
+    label: __dialogueText("config/piOfficeUpgradeConfig.js", "t_f5caf04f3b23704c3131"),
     action: 'inspect',
     message:
-      'The coffee is strong. The business model remains under investigation.'
+      __dialogueText("config/piOfficeUpgradeConfig.js", "t_f41bea6c7508c3e35529")
   },
   {
     id: 'office_tv',
     key: 'pi__office__tv',
-    label: 'Television',
+    label: __dialogueText("config/piOfficeUpgradeConfig.js", "t_7e7536a95dcfb769ac5b"),
     action: 'inspect',
     message:
-      'The television is installed. Programme selection will follow.'
+      __dialogueText("config/piOfficeUpgradeConfig.js", "t_ee726bd3862b4c6c5df4")
   },
   {
     id: 'office_crime_board',
     key: 'pi__office__crime-board',
-    label: 'Investigation board',
+    label: __dialogueText("config/piOfficeUpgradeConfig.js", "t_761dc89ce50bae18728a"),
     action: 'investigations'
   },
   {
     id: 'office_case_files',
     key: 'case-files',
-    label: 'Case files',
+    label: __dialogueText("config/piOfficeUpgradeConfig.js", "t_379b0a5b2b40623a825b"),
     action: 'archive'
   },
   {
     id: 'office_printer',
     key: 'printer',
-    label: 'Printer',
+    label: __dialogueText("config/piOfficeUpgradeConfig.js", "t_024eac5b1a63e0f892e1"),
     action: 'documents'
   },
   {
     id: 'office_notepad',
     key: 'notepad',
-    label: 'Case notes',
+    label: __dialogueText("config/piOfficeUpgradeConfig.js", "t_54c2a0df2066284a217f"),
     action: 'notebook'
   }
 ];
@@ -95,7 +96,7 @@ export const PI_OFFICE_LAYERS = [
 export const PI_BIG_OFFICE_HOTSPOTS = [
   {
     id: 'computer',
-    label: 'Computer',
+    label: __dialogueText("config/piOfficeUpgradeConfig.js", "t_76ed42d22129dc354362"),
     x: 0.531,
     y: 0.554,
     w: 0.116,
@@ -104,7 +105,7 @@ export const PI_BIG_OFFICE_HOTSPOTS = [
   },
   {
     id: 'phone',
-    label: 'Phone',
+    label: __dialogueText("config/piOfficeUpgradeConfig.js", "t_63dceb8800b2dd4af956"),
     x: 0.621,
     y: 0.613,
     w: 0.071,
@@ -113,7 +114,7 @@ export const PI_BIG_OFFICE_HOTSPOTS = [
   },
   {
     id: 'city-door',
-    label: 'Go to your city',
+    label: __dialogueText("config/piOfficeUpgradeConfig.js", "t_a702c0a54c9e904b9a09"),
     x: 0.424,
     y: 0.418,
     w: 0.093,

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { shuffle } from './suspectGeneratorUtils.js';
 
@@ -66,7 +67,7 @@ export function getRandomSuspectLineup(
 ) {
   assertLineupCondition(
     Array.isArray(allSuspects),
-    'allSuspects must be an array.',
+    __dialogueText("suspects/suspectHelpers.js", "t_5826780b37804660dcb6"),
     {
       receivedType: typeof allSuspects
     }
@@ -74,7 +75,7 @@ export function getRandomSuspectLineup(
 
   assertLineupCondition(
     Number.isInteger(lineupSize) && lineupSize >= 2,
-    'lineupSize must be an integer greater than or equal to 2.',
+    __dialogueText("suspects/suspectHelpers.js", "t_e23521133532036e5914"),
     {
       lineupSize
     }
@@ -82,7 +83,7 @@ export function getRandomSuspectLineup(
 
   assertLineupCondition(
     typeof thiefId === 'string' && thiefId.trim().length > 0,
-    'A valid case thief suspect ID is required.',
+    __dialogueText("suspects/suspectHelpers.js", "t_1196dc32bcfd6b92fcff"),
     {
       thiefId,
       trueThiefCaseSuspectId: gameState.trueThiefCaseSuspectId,
@@ -95,7 +96,7 @@ export function getRandomSuspectLineup(
 
   assertLineupCondition(
     validSuspects.length >= lineupSize,
-    `Need at least ${lineupSize} valid suspects.`,
+    `${__dialogueText("suspects/suspectHelpers.js", "t_7fe0149529d0312f492e")}${lineupSize}${__dialogueText("suspects/suspectHelpers.js", "t_bc3d70c98fb201e048d8")}`,
     {
       lineupSize,
       validSuspectsCount: validSuspects.length
@@ -108,7 +109,7 @@ export function getRandomSuspectLineup(
 
   assertLineupCondition(
     Boolean(realThief),
-    `Case thief "${thiefId}" was not found in the suspect list.`,
+    `${__dialogueText("suspects/suspectHelpers.js", "t_2e4fcb49440798d8ec1a")}${thiefId}${__dialogueText("suspects/suspectHelpers.js", "t_a57950201f292b6a0dea")}`,
     {
       thiefId,
       validSuspectIds: validSuspects.map(
@@ -123,7 +124,7 @@ export function getRandomSuspectLineup(
 
   assertLineupCondition(
     decoys.length >= lineupSize - 1,
-    `Need at least ${lineupSize - 1} decoys for the lineup.`,
+    `${__dialogueText("suspects/suspectHelpers.js", "t_7fe0149529d0312f492e")}${lineupSize - 1}${__dialogueText("suspects/suspectHelpers.js", "t_6c58469b988b9a3c4cad")}`,
     {
       requiredDecoys: lineupSize - 1,
       availableDecoys: decoys.length,

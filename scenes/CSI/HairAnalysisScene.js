@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { BaseForensicMinigame } from './BaseForensicMinigame.js';
 import { ForensicHelpController } from './ForensicHelpController.js';
 import { gameState } from '../../GameData.js';
@@ -41,9 +42,9 @@ export class HairAnalysisScene extends BaseForensicMinigame {
   }
 
 
-  getTitle() { return 'HAIR FIBER ANALYSIS'; }
-  getSubtitle() { return 'Microscope strand classification'; }
-  getRetryHint() { return 'Compare the strand with the reference samples again.'; }
+  getTitle() { return __dialogueText("scenes/CSI/HairAnalysisScene.js", "t_89f69eee43f406e44c54"); }
+  getSubtitle() { return __dialogueText("scenes/CSI/HairAnalysisScene.js", "t_7e59d815872c6ae46305"); }
+  getRetryHint() { return __dialogueText("scenes/CSI/HairAnalysisScene.js", "t_c958698d74e4da6ba2e8"); }
   createEvidenceFlow() { this.startStep1(); }
 
 
@@ -69,8 +70,8 @@ export class HairAnalysisScene extends BaseForensicMinigame {
     this.hasStrandOnTweezers = false;
     this.hasStrandOnSlide = false;
     this.setStep(0);
-    this.setInstructions('Step 1: Transfer the strand from the evidence bag onto the slide.');
-    this.setDialogue('Use the tweezers: bag first, slide second.');
+    this.setInstructions(__dialogueText("scenes/CSI/HairAnalysisScene.js", "t_c02ab252a5654e8ba10c"));
+    this.setDialogue(__dialogueText("scenes/CSI/HairAnalysisScene.js", "t_4c85778a0f332c7aad95"));
     this.createDesk();
     const { width, height } = this.scale;
     this.bag = this.addStageObject(this.add.image(width * 0.92, height * 0.78, 'evidence_bag')
@@ -94,14 +95,14 @@ export class HairAnalysisScene extends BaseForensicMinigame {
         this.hasStrandOnTweezers = true;
         this.preparedStrand = this.addStageObject(this.add.image(x, y, this.getHairStrandKey())
           .setDisplaySize(200, 150).setDepth(4));
-        this.setDialogue('Strand picked up. Place it on the slide.');
+        this.setDialogue(__dialogueText("scenes/CSI/HairAnalysisScene.js", "t_378dfa916ddcbfae99f8"));
       } else if (this.hasStrandOnTweezers && this.slide.getBounds().contains(x, y)) {
         this.hasStrandOnTweezers = false;
         this.hasStrandOnSlide = true;
         this.stageTransitioning = true;
         this.preparedStrand.setPosition(this.slide.x, this.slide.y).setDepth(2);
         this.tweezers.disableInteractive().setVisible(false);
-        this.setDialogue('Strand placed on the slide.');
+        this.setDialogue(__dialogueText("scenes/CSI/HairAnalysisScene.js", "t_de5d2e70bc40e2734a92"));
         this.later(350, () => this.startStep2());
       }
     });
@@ -113,8 +114,8 @@ export class HairAnalysisScene extends BaseForensicMinigame {
     this.stageTransitioning = false;
     this.reagentApplied = false;
     this.setStep(1);
-    this.setInstructions('Step 2: Apply reagent directly to the strand.');
-    this.setDialogue('The small blue dot marks the actual pipette tip.');
+    this.setInstructions(__dialogueText("scenes/CSI/HairAnalysisScene.js", "t_c0f5e3037d6ba67c8e19"));
+    this.setDialogue(__dialogueText("scenes/CSI/HairAnalysisScene.js", "t_6c0f5f1e9ddfb2f461e4"));
     this.createDesk();
     const { width } = this.scale;
     this.slide = this.addStageObject(this.add.image(width * 0.4, 670, 'hair_board')
@@ -140,14 +141,14 @@ export class HairAnalysisScene extends BaseForensicMinigame {
       if (Phaser.Math.Distance.Between(x, y, this.slide.x, this.slide.y) <= 75) {
         this.reagentApplied = true;
         this.stageTransitioning = true;
-        this.setDialogue('Reagent applied directly to the strand.');
+        this.setDialogue(__dialogueText("scenes/CSI/HairAnalysisScene.js", "t_56d5277887c085f9e280"));
         target.setVisible(false);
         marker.setVisible(false);
         this.pipette.disableInteractive().setVisible(false);
         this.later(500, () => this.startStep3());
       } else {
         this.penalize(5);
-        this.setDialogue('Aim the blue pipette tip at the circle around the strand.');
+        this.setDialogue(__dialogueText("scenes/CSI/HairAnalysisScene.js", "t_f45f0ab8571daea974f7"));
         this.pipette.setPosition(width * 0.63, 580);
         marker.setPosition(this.pipette.x + dx, this.pipette.y + dy);
       }
@@ -176,8 +177,8 @@ export class HairAnalysisScene extends BaseForensicMinigame {
     this.microscopeExamined = false;
     this.sampleViews = [];
     this.setStep(2);
-    this.setInstructions('Step 3: Inspect the strand, then choose a reference sample.');
-    this.setDialogue('Click the microscope. You can reopen it to compare again.');
+    this.setInstructions(__dialogueText("scenes/CSI/HairAnalysisScene.js", "t_c1c9a90c99ed4881fa47"));
+    this.setDialogue(__dialogueText("scenes/CSI/HairAnalysisScene.js", "t_ded3c25f8c7a89dbe00c"));
     this.createDesk();
     const { width, height } = this.scale;
     this.microscopeHotspot = this.addStageObject(this.add.zone(width * 0.4, height * 0.37, 400, 720)
@@ -188,7 +189,7 @@ export class HairAnalysisScene extends BaseForensicMinigame {
     const x = width * 0.85, y = height * 0.5;
     this.addStageObject(this.add.rectangle(x, y, 380, 420, 0x0d1713, 0.95)
       .setStrokeStyle(2, 0x39ff14, 0.6).setDepth(1));
-    this.addStageObject(this.add.text(x, y - 180, 'Reference samples', {
+    this.addStageObject(this.add.text(x, y - 180, __dialogueText("scenes/CSI/HairAnalysisScene.js", "t_41670ebe52fbb4975882"), {
       fontFamily: 'SpecialElite', fontSize: '20px', color: '#ffe8a3'
     }).setOrigin(0.5).setDepth(2));
     this.swatchValues = this.getHairOptions();
@@ -203,7 +204,7 @@ export class HairAnalysisScene extends BaseForensicMinigame {
       image.on('pointerdown', () => {
         if (this.resolved || this.microscopeOpened) return;
         if (!this.microscopeExamined) {
-          this.setDialogue('Inspect the strand under the microscope first.');
+          this.setDialogue(__dialogueText("scenes/CSI/HairAnalysisScene.js", "t_3496ed2b1f3fc699ff9b"));
           return;
         }
         this.resolveChoice(value, value === this.correctValue, 10);
@@ -225,7 +226,7 @@ export class HairAnalysisScene extends BaseForensicMinigame {
       .setDisplaySize(width * 0.7, height * 0.7).setDepth(501));
     const strand = this.addStageObject(this.add.image(width / 2, height / 2, this.getHairStrandKey())
       .setDisplaySize(760, 300).setDepth(502));
-    const label = this.addStageObject(this.add.text(width / 2, height - 100, 'CLICK TO CLOSE — YOU CAN EXAMINE AGAIN', {
+    const label = this.addStageObject(this.add.text(width / 2, height - 100, __dialogueText("scenes/CSI/HairAnalysisScene.js", "t_05737eb57111032dccdd"), {
       fontFamily: 'PressStart2P', fontSize: '10px', color: '#ffe8a3'
     }).setOrigin(0.5).setDepth(503));
     const objects = [overlay, frame, strand, label];
@@ -234,7 +235,7 @@ export class HairAnalysisScene extends BaseForensicMinigame {
       objects.forEach(object => object.destroy());
       this.stageObjects = this.stageObjects.filter(object => !objects.includes(object));
       this.microscopeOpened = false;
-      this.setDialogue('Compare the strand with the reference samples.');
+      this.setDialogue(__dialogueText("scenes/CSI/HairAnalysisScene.js", "t_d84a7d770c9ac9dea112"));
     });
   }
 
@@ -243,30 +244,30 @@ export class HairAnalysisScene extends BaseForensicMinigame {
     if (this.resolved || this.stageTransitioning) return null;
     if (this.currentStep === 0) {
       return this.hasStrandOnTweezers ? {
-        id: 'place_strand', instructions: 'Drag the tweezers. Release their tip over the slide.',
-        text: 'The strand is already held. Move the tweezers to the highlighted slide and release.',
+        id: 'place_strand', instructions: __dialogueText("scenes/CSI/HairAnalysisScene.js", "t_b9f8a23262627e29faa9"),
+        text: __dialogueText("scenes/CSI/HairAnalysisScene.js", "t_662ba258f207cd0424c7"),
         targets: [this.slide]
       } : {
-        id: 'pick_up_strand', instructions: 'Drag the tweezers to the evidence bag, then release. Carry the strand to the slide.',
-        text: 'Start with the highlighted tweezers and evidence bag. The tip, not the handle, must reach the bag.',
+        id: 'pick_up_strand', instructions: __dialogueText("scenes/CSI/HairAnalysisScene.js", "t_5f441846ae7b1ca2a0f3"),
+        text: __dialogueText("scenes/CSI/HairAnalysisScene.js", "t_5efd81de080df40ae469"),
         targets: [this.tweezers, this.bag]
       };
     }
     if (this.currentStep === 1) return {
-      id: 'apply_reagent', instructions: 'Drag the pipette. Release when its small blue tip marker is inside the blue target circle.',
-      text: 'The target is the hair on the slide. Align the small blue pipette marker with its centre, then release.',
+      id: 'apply_reagent', instructions: __dialogueText("scenes/CSI/HairAnalysisScene.js", "t_1e219a18568dda9fb993"),
+      text: __dialogueText("scenes/CSI/HairAnalysisScene.js", "t_daaf07bd17cae416d73f"),
       targets: [this.preparedStrand]
     };
     if (this.currentStep === 2) {
       if (!this.microscopeExamined) return {
-        id: 'inspect_strand', instructions: 'Click the microscope to open the enlarged view. Click the dark background to close it.',
-        text: 'The highlighted microscope holds the prepared strand. Open it before comparing the reference samples.',
+        id: 'inspect_strand', instructions: __dialogueText("scenes/CSI/HairAnalysisScene.js", "t_03d7fd661330e9e9135e"),
+        text: __dialogueText("scenes/CSI/HairAnalysisScene.js", "t_5324ae34b800e3ebd55b"),
         targets: [this.microscopeHotspot]
       };
       const excluded = [...this.swatchValues].filter(value => value !== this.correctValue).sort()[0];
       return {
-        id: 'compare_samples', instructions: 'Compare the enlarged strand with the four samples. You may reopen the microscope for free.',
-        text: 'One reference has been ruled out. Compare the remaining samples with the strand; the answer is still yours.',
+        id: 'compare_samples', instructions: __dialogueText("scenes/CSI/HairAnalysisScene.js", "t_0248d964a559161483f6"),
+        text: __dialogueText("scenes/CSI/HairAnalysisScene.js", "t_65400d1d56949336de9b"),
         excludedValue: excluded, targets: []
       };
     }
@@ -279,7 +280,7 @@ export class HairAnalysisScene extends BaseForensicMinigame {
     const sample = this.sampleViews.find(item => item.value === receipt.excludedValue);
     if (sample && sample.value !== this.correctValue) {
       sample.image.disableInteractive().setAlpha(0.25);
-      sample.label.setText(`${this.toDisplayText(sample.value)} — ruled out`).setAlpha(0.55);
+      sample.label.setText(`${this.toDisplayText(sample.value)}${__dialogueText("scenes/CSI/HairAnalysisScene.js", "t_a607de78b71c7e823e7e")}`).setAlpha(0.55);
     }
   }
 

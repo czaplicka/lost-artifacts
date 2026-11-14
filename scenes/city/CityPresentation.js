@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 import { getGameTimeManager } from '../../managers/GameTimeManager.js';
 import { LOCATION_HOURS, CITY_BACKGROUND_KEYS } from './CityConfig.js';
@@ -27,19 +28,19 @@ export class CityPresentation {
       0, 0, this.scale.width, 80, 0x000000, 0.45
     ).setOrigin(0);
 
-    this.add.text(40, 24, `${city.city}, ${city.country}`, {
+    this.add.text(40, 24, `${city.city}${__dialogueText("scenes/city/CityPresentation.js", "t_0a07f659461970d8d8dc")}${city.country}`, {
       fontFamily: 'SpecialElite',
       fontSize: '28px',
       color: '#ffffff'
     });
 
-    let subtitle = 'Talk to witnesses and follow the trail.';
+    let subtitle = __dialogueText("scenes/city/CityPresentation.js", "t_fa7d03540474e4ed4166");
 
     if (this.isFinalShowdown) {
       subtitle =
-        'The suspect is cornered. Review the evidence and make the arrest.';
+        __dialogueText("scenes/city/CityPresentation.js", "t_6461b5c2b5b92355c350");
     } else if (this.cityCompleted) {
-      subtitle = 'City cleared. Choose the next destination on the map.';
+      subtitle = __dialogueText("scenes/city/CityPresentation.js", "t_440c1bc38f87a7ba0d16");
     }
 
     this.add.text(40, 54, subtitle, {
@@ -52,9 +53,9 @@ export class CityPresentation {
 
   showNoEnergyPopup() {
     this.showMessage(
-      "You're too exhausted, detective.\nGet some rest before continuing the case.",
+      __dialogueText("scenes/city/CityPresentation.js", "t_e75e9531dcc8081dac4c"),
       2400,
-      '#8b0000'
+      __dialogueText("scenes/city/CityPresentation.js", "t_f27f7bc32875ed02b2fc")
     );
   }
 
@@ -100,10 +101,10 @@ export class CityPresentation {
     const allowed = (LOCATION_HOURS[locationId] || []).join(', ');
 
     const waitLabel = waitMinutes === null
-      ? 'Opening unavailable'
+      ? __dialogueText("scenes/city/CityPresentation.js", "t_097ea6975eaa7c5250f2")
       : waitMinutes === 0
-        ? 'Enter now'
-        : `Wait ${this.formatWaitDuration(waitMinutes)}`;
+        ? __dialogueText("scenes/city/CityPresentation.js", "t_a89d634b7f1a322c63f1")
+        : `${__dialogueText("scenes/city/CityPresentation.js", "t_405a8d5892fbd33b66f2")}${this.formatWaitDuration(waitMinutes)}`;
 
     const overlay = this.add.rectangle(
       0, 0, width, height, 0x000000, 0.7
@@ -123,10 +124,10 @@ export class CityPresentation {
       width / 2,
       height / 2 - 50,
       [
-        'Location is currently closed.',
-        `Open: ${allowed}`,
-        `Current: ${this.formatCityClock(clock)} (${this.getPartOfDayForHour(clock.hour)})`
-      ].join('\n'),
+        __dialogueText("scenes/city/CityPresentation.js", "t_3a9c3073a340ea9e1d33"),
+        `${__dialogueText("scenes/city/CityPresentation.js", "t_377de36aed83402230d5")}${allowed}`,
+        `${__dialogueText("scenes/city/CityPresentation.js", "t_f1560699839571d33e6b")}${this.formatCityClock(clock)}${__dialogueText("scenes/city/CityPresentation.js", "t_4f5a2ada1166172aa174")}${this.getPartOfDayForHour(clock.hour)}${__dialogueText("scenes/city/CityPresentation.js", "t_ba5ec51d07a4ac0e9516")}`
+      ].join(__dialogueText("scenes/city/CityPresentation.js", "t_01ba4719c80b6fe911b0")),
       {
         fontFamily: 'SpecialElite',
         fontSize: '20px',
@@ -158,7 +159,7 @@ export class CityPresentation {
     const cancelBtn = this.add.text(
       width / 2,
       height / 2 + 80,
-      'Return',
+      __dialogueText("scenes/city/CityPresentation.js", "t_6b0143d03864993fdf69"),
       {
         fontFamily: 'SpecialElite',
         fontSize: '22px',
@@ -227,7 +228,7 @@ export class CityPresentation {
 
       if (minutesToWait === null) {
         warningText.setText(
-          'No opening time is available for this location.'
+          __dialogueText("scenes/city/CityPresentation.js", "t_4c5ea29c71818b9a73ce")
         );
         return;
       }
@@ -267,9 +268,9 @@ export class CityPresentation {
           cleanupPopup();
 
           this.showMessage(
-            'Waiting could not be completed.\nCheck the clock before trying again.',
+            __dialogueText("scenes/city/CityPresentation.js", "t_f0f6601cc0893dd3e172"),
             4000,
-            '#8b0000'
+            __dialogueText("scenes/city/CityPresentation.js", "t_f27f7bc32875ed02b2fc")
           );
         }
       }

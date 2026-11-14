@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { saveGameState, requestAutosave } from '../gameStatePersistence.js';
 import { ScoreManager } from './ScoreManager.js';
@@ -90,16 +91,16 @@ export function generateDestinationsForCurrentCity(locations,options={}) {
   const result=[],seen=new Set();
   const add=location=>{
     if (!location?.city) return;
-    const id=resolveLocationId(location,'persistent destination');
+    const id=resolveLocationId(location,__dialogueText("managers/InvestigationManager.js", "t_65afc49c6bd71876248f"));
     if (!id || id===cityId || id===HQ_ID || seen.has(id)) return;
     seen.add(id); result.push(location);
   };
   const requireDestination=location=>{
     if (!location?.city) return;
-    const id=resolveLocationId(location,'required local destination');
+    const id=resolveLocationId(location,__dialogueText("managers/InvestigationManager.js", "t_1229fcba13b3d9cad3a3"));
     if (!id || id===cityId || id===HQ_ID || seen.has(id)) return;
     if (result.length>=MAX_DESTINATIONS) {
-      const removed=result.pop(); seen.delete(resolveLocationId(removed,'replaced destination'));
+      const removed=result.pop(); seen.delete(resolveLocationId(removed,__dialogueText("managers/InvestigationManager.js", "t_977aad90549c96db0874")));
     }
     add(location);
   };
@@ -107,7 +108,7 @@ export function generateDestinationsForCurrentCity(locations,options={}) {
     for (const id of savedIds) add(getLocationById(id,list));
   } else if (options.preserveCurrent && Array.isArray(gameState.currentDestinations)) {
     for (const location of gameState.currentDestinations) {
-      if (location?.city) add(getLocationById(resolveLocationId(location,'existing destination'),list));
+      if (location?.city) add(getLocationById(resolveLocationId(location,__dialogueText("managers/InvestigationManager.js", "t_758417d9129a189ebfe5")),list));
     }
   }
   requireDestination(getLocationById(getLocalRouteTargetId(cityId),list));
@@ -115,7 +116,7 @@ export function generateDestinationsForCurrentCity(locations,options={}) {
   if (result.length<MAX_DESTINATIONS) {
     const filler=list.filter(location=>{
       if (!location?.city) return false;
-      const id=resolveLocationId(location,'destination filler');
+      const id=resolveLocationId(location,__dialogueText("managers/InvestigationManager.js", "t_803fd8615e173901b279"));
       return id && id!==cityId && id!==HQ_ID && !seen.has(id);
     });
     for (const location of shuffle(filler)) {
@@ -124,7 +125,7 @@ export function generateDestinationsForCurrentCity(locations,options={}) {
     }
   }
   const selected=result.slice(0,MAX_DESTINATIONS);
-  const ids=selected.map(location=>resolveLocationId(location,'saved destination'));
+  const ids=selected.map(location=>resolveLocationId(location,__dialogueText("managers/InvestigationManager.js", "t_508fa613609f545d6808")));
   if (JSON.stringify(savedIds)!==JSON.stringify(ids)) {
     gameState.destinationMapMemory={...memory,cities:{...memory.cities,[key]:ids}};
     requestAutosave();

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 export const PENCIL_COLORS = {
   skin: {
     WHITE: 0xffe0bd,
@@ -46,12 +47,12 @@ export const FEATURE_TEXTURES = {
 };
 
 // Cechy, które ukrywają domyślną warstwę sketch_hair.
-export const HAIR_OVERRIDE_FEATURES = ['BIG FOREHEAD'];
+export const HAIR_OVERRIDE_FEATURES = [__dialogueText("ui/warrant/warrantConfig.js", "t_0da0810b1405d4a96303")];
 
 // Cechy, które przyjmują kolor włosów.
 export const HAIR_COLORED_FEATURES = [
-  'LONG HAIR',
-  'BIG FOREHEAD',
+  __dialogueText("ui/warrant/warrantConfig.js", "t_d4bf972585383546b102"),
+  __dialogueText("ui/warrant/warrantConfig.js", "t_0da0810b1405d4a96303"),
   'BEARD',
   'MOUSTACHE',
   'GOATEE'
@@ -77,26 +78,26 @@ export const MAX_RESULTS = 3;
 export const MIN_TRAITS = 3;
 
 export const TRAIT_FIELDS = [
-  ['gender', 'Gender'],
-  ['race', 'Race / Skin'],
-  ['hair', 'Hair'],
-  ['eyes', 'Eyes'],
-  ['accent', 'Accent'],
-  ['features', 'Features']
+  ['gender', __dialogueText("ui/warrant/warrantConfig.js", "t_a04630ef8bc3da8c864a")],
+  ['race', __dialogueText("ui/warrant/warrantConfig.js", "t_9667a418b91c9c8b8155")],
+  ['hair', __dialogueText("ui/warrant/warrantConfig.js", "t_ababed4823ab79d226ba")],
+  ['eyes', __dialogueText("ui/warrant/warrantConfig.js", "t_a39e9d9816a99fc02aa4")],
+  ['accent', __dialogueText("ui/warrant/warrantConfig.js", "t_a5c6fb18c9af89b22a79")],
+  ['features', __dialogueText("ui/warrant/warrantConfig.js", "t_5697d03daef4de9cf8db")]
 ];
 
 export const NO_MATCH_JOKES = [
-  'Nobody in our files looks like that.\nAre you sure you drew a person and not a potato?',
-  'The registry shrugged. Try fewer traits.',
-  'Zero matches. Maybe your witness had a few drinks.',
-  'Our database has never seen this person.\nNeither has anyone else. Suspicious.',
-  'No results. The clerk is pretending to look busy.'
+  __dialogueText("ui/warrant/warrantConfig.js", "t_256ae5752d037a32998c"),
+  __dialogueText("ui/warrant/warrantConfig.js", "t_715013924b3eedd7f7e1"),
+  __dialogueText("ui/warrant/warrantConfig.js", "t_3dba5c83921ccddef60e"),
+  __dialogueText("ui/warrant/warrantConfig.js", "t_8c13d28d20e87aeccb02"),
+  __dialogueText("ui/warrant/warrantConfig.js", "t_b5d80697315d2738b4cd")
 ];
 
 export const WARRANT_JOKES = [
-  'The judge signed it without reading. Efficiency!',
-  'Warrant stamped. The coffee break can wait.',
-  'Somewhere, a suspect just felt a chill.',
-  'Paperwork done. The hard part is catching them.',
-  'Signed, sealed, and slightly coffee-stained.'
+  __dialogueText("ui/warrant/warrantConfig.js", "t_a7b0d53b930abb4e4390"),
+  __dialogueText("ui/warrant/warrantConfig.js", "t_55928850ac8f61ebd48c"),
+  __dialogueText("ui/warrant/warrantConfig.js", "t_a6b378d947c12d8ecfdb"),
+  __dialogueText("ui/warrant/warrantConfig.js", "t_448f8eb521539c43ce78"),
+  __dialogueText("ui/warrant/warrantConfig.js", "t_0e7796b56c3d7b443295")
 ];

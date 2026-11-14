@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { inventoryManager } from './InventoryManager.js';
 import { MainStoryManager } from './MainStoryManager.js';
 import { ItemsLoader } from '../ItemsLoader.js';
@@ -43,5 +44,5 @@ export function getAgencyManualChapter(id='overview'){
   const index=getAgencyManualPageIndex(id),page=agencyManualData.pages[index>=0?index:0];
   const heading=page.blocks.find(block=>block.t==='h1');
   return{id:page.id,title:heading?.text??page.header??page.id,
-    paragraphs:page.blocks.filter(block=>block.t!=='h1').flatMap(blockText).map(text=>text.replace(/\*\*/g,''))};
+    paragraphs:page.blocks.filter(block=>block.t!==__dialogueText("managers/AgencyManualService.js", "t_33112ee14ee469c3eb52")).flatMap(blockText).map(text=>text.replace(/\*\*/g,''))};
 }

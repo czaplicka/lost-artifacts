@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { getCaseSuspects } from '../suspects/CaseSuspects.js';
 import { decorateBoardEvidence } from './BoardEvidenceModel.js';
 import { captureApartmentInventory } from './BoardEvidenceRuntime.js';
@@ -37,10 +38,10 @@ export function syncCrimeBoardSuspects(api,state){
  const oldIds=new Set(oldCards.map(i=>i.id)),unknownIds=new Set(oldCards.filter(i=>i.tags?.includes('unknown')).map(i=>i.id));
  const cards=subjects.map(({suspect,challenged},index)=>({id:`case-suspect-${suspect.id}`,type:'evidence',
   x:65+(index%2)*270,y:130+Math.floor(index/2)*235,z:6,rotation:index%2?1.8:-1.8,pinned:false,
-  label:suspect.publicProfile?.displayName||suspect.name||'Suspect file',tag:challenged?'Alibi challenged':'Remaining suspect',
-  body:challenged?'Alibi challenged in your filed report.':'Retained after the Evidence Grid. Alibi review pending.',
-  fields:[{key:'Occupation',value:suspect.publicProfile?.occupation||suspect.occupation||'Unknown role'},
-   {key:'Status',value:challenged?'Alibi challenged':'Under investigation'}],suspectId:suspect.id,
+  label:suspect.publicProfile?.displayName||suspect.name||__dialogueText("crimeBoard/BoardSuspects.js", "t_5143070be2bdad09d9b1"),tag:challenged?__dialogueText("crimeBoard/BoardSuspects.js", "t_4950a6936b51e0bd2c5b"):__dialogueText("crimeBoard/BoardSuspects.js", "t_112d1515dceb2594ad19"),
+  body:challenged?__dialogueText("crimeBoard/BoardSuspects.js", "t_5acb2c5272296d76f7e6"):__dialogueText("crimeBoard/BoardSuspects.js", "t_aadfee5a9e219afdad12"),
+  fields:[{key:'Occupation',value:suspect.publicProfile?.occupation||suspect.occupation||__dialogueText("crimeBoard/BoardSuspects.js", "t_1db2d66a8edb2f1e4892")},
+   {key:'Status',value:challenged?__dialogueText("crimeBoard/BoardSuspects.js", "t_4950a6936b51e0bd2c5b"):__dialogueText("crimeBoard/BoardSuspects.js", "t_f9bdb11906ee6022145d")}],suspectId:suspect.id,
   tags:['suspect','case-suspect',challenged?'alibi-challenged':'grid-candidate'],discovered:true,createdByPlayer:false,editableByPlayer:false}));
  data.items=data.items.filter(item=>!oldIds.has(item.id)).concat(cards);
  const validIds=new Set(data.items.map(i=>i.id)),replacementIds=cards.map(c=>c.id),links=[],pairs=new Set();

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { EventBus } from '../EventBus.js';
@@ -29,8 +30,8 @@ export function settlePostalCase() {
   gameState.postOffice = {...s, returnCase: {...r, rewardVersion: 1,
     rewardCash: 80, rewardPoints: 100, rewardAt: new Date().toISOString()}};
   moneyManager.addCash(80, {category: 'side_case', missionId: CASE,
-    description: 'Return to Sender completed', metadata: {settlementId: CASE + ':reward:v1'}});
-  new ScoreManager().addScoreEvent(100, 'Return to Sender completed', {applyMultiplier: false});
+    description: __dialogueText("managers/PostalCaseSupport.js", "t_dce73df4168457da66ea"), metadata: {settlementId: CASE + ':reward:v1'}});
+  new ScoreManager().addScoreEvent(100, __dialogueText("managers/PostalCaseSupport.js", "t_dce73df4168457da66ea"), {applyMultiplier: false});
   integrityOnce(CASE + ':privacy:v1', r.ending === 'private' ? 2 : -2);
   checkAndAwardAchievements();
   requestAutosave();
@@ -43,23 +44,23 @@ export function finishPostalCase(choice) {
 }
 export function nextPostalHint() {
   const s = Postal.postalState(), r = s.returnCase;
-  if (r.stage === 'new') return {view: 'room', id: 'postman', text: 'Speak to the postman about the returning letter and accept the case.'};
+  if (r.stage === 'new') return {view: 'room', id: 'postman', text: __dialogueText("managers/PostalCaseSupport.js", "t_118798b1e0cb70312a97")};
   if (r.stage === 'investigating') {
     for (const id of ['envelope', 'card', 'notice']) {
       if (r.clues.includes(id)) continue;
       const doc = POSTAL_DOCUMENTS[id];
       const spot = doc.spots.find(p => !(s.evidenceViews?.[id] || []).includes(p.id));
       return {view: 'document', documentId: id, id: spot?.id,
-        text: `Inspect ${spot?.label || 'the remaining details'} on ${doc.title}.`};
+        text: `${__dialogueText("managers/PostalCaseSupport.js", "t_137aaa51a676ee7ed407")}${spot?.label || __dialogueText("managers/PostalCaseSupport.js", "t_854ed679cbbc28e29248")}${__dialogueText("managers/PostalCaseSupport.js", "t_0f580db40fe255332f11")}${doc.title}${__dialogueText("managers/PostalCaseSupport.js", "t_cdb4ee2aea69cc6a8333")}`};
     }
-    return {view: 'room', id: 'postman', text: 'Compare the names on the public notice with the original recipient. Tell the postman who the letter belongs to.'};
+    return {view: 'room', id: 'postman', text: __dialogueText("managers/PostalCaseSupport.js", "t_d0a3b473ee60c7418194")};
   }
-  if (r.stage === 'identified') return {view: 'restante', id: 'writing', text: 'Leave a message for CLOCKWORK at the writing desk. Think of the hand of a clock that counts seconds.'};
+  if (r.stage === 'identified') return {view: 'restante', id: 'writing', text: __dialogueText("managers/PostalCaseSupport.js", "t_64f193f9b9e717b9d3a3")};
   if (r.stage === 'waiting') {
-    if (s.visits <= (s.restante.clockwork?.leftVisit ?? s.visits)) return {view: 'room', text: 'Leave the post office and return. The reply arrives on your next visit.'};
-    return {view: 'restante', id: 'clockwork', text: 'Check the CLOCKWORK collection slot for a reply.'};
+    if (s.visits <= (s.restante.clockwork?.leftVisit ?? s.visits)) return {view: 'room', text: __dialogueText("managers/PostalCaseSupport.js", "t_ef68dcfb3cd5f0540ee8")};
+    return {view: 'restante', id: 'clockwork', text: __dialogueText("managers/PostalCaseSupport.js", "t_e5c4a6f6ca60abf97556")};
   }
-  if (r.stage === 'reply') return {view: 'document', documentId: 'reply', id: 'message', text: 'Read Ellis’s reply, then speak to the postman to decide what to tell the sender.'};
+  if (r.stage === 'reply') return {view: 'document', documentId: 'reply', id: 'message', text: __dialogueText("managers/PostalCaseSupport.js", "t_a89d8112418d3f5ae692")};
   return null;
 }
 export function postalHintUsed(method) {
@@ -67,32 +68,32 @@ export function postalHintUsed(method) {
 }
 export function usePostalHint(method) {
   const target = nextPostalHint();
-  if (!target) return {success: false, text: 'This case is already closed.'};
-  if (!['free_hint', 'squad_help', 'cut_corners'].includes(method)) return {success: false, text: 'Unknown hint method.'};
-  if (method !== 'free_hint' && postalHintUsed(method)) return {success: false, text: 'This method has already been used for this case.'};
+  if (!target) return {success: false, text: __dialogueText("managers/PostalCaseSupport.js", "t_3f993e19cb8d49a65b0f")};
+  if (!['free_hint', 'squad_help', 'cut_corners'].includes(method)) return {success: false, text: __dialogueText("managers/PostalCaseSupport.js", "t_b1859155e67639e3020b")};
+  if (method !== 'free_hint' && postalHintUsed(method)) return {success: false, text: __dialogueText("managers/PostalCaseSupport.js", "t_98cd64ba9f557c8e268a")};
   const context = {caseId: CASE, missionId: CASE, sceneId: 'PostOfficeScene', itemId: target.documentId || target.id || 'next_step'};
   const result = method === 'free_hint' ? hintManager.useFreeHint(context)
     : hintManager.recordPaidHint(method, context, {energy: 0, minutes: 0, cash: 0});
   return result.success ? {...result, target, text: target.text}
-    : {...result, text: 'No free hints available.'};
+    : {...result, text: __dialogueText("managers/PostalCaseSupport.js", "t_215f35ba21eaf7119b23")};
 }
 
 import {isDeadMailPreviewEnabled,getDeadMailProgress,DEAD_MAIL_PREVIEW_CASE} from './DeadMailManager.js';
 import {registerPICase,addPIEvidence} from './PIInvestigationManager.js';
 export function canDiscussPostalDeadMail(){return isDeadMailPreviewEnabled();}
 export function discussPostalDeadMail(id){
-  if(!canDiscussPostalDeadMail())return 'Bring me a case to discuss first.';
+  if(!canDiscussPostalDeadMail())return __dialogueText("managers/PostalCaseSupport.js", "t_f4ef461477f5684ab95b");
   const p=getDeadMailProgress();
-  if(p.clues.length<3)return 'Inspect Florence’s delivery photograph and collect its three details first. I cannot identify a delivery from a description of a feeling.';
+  if(p.clues.length<3)return __dialogueText("managers/PostalCaseSupport.js", "t_817159e2d01f086e1224");
   const entries={
-    photo:['Courier label','The delivery label in Florence’s photograph belongs to a private courier, not the town postal service. The local post office cannot authenticate that courier’s delivery status.'],
-    route:['Not the postal round','The postman says he did not deliver the photographed parcel. His route does not include private-courier deliveries. This does not identify who did deliver it.'],
-    gate:['An instruction, not a signature','SERVICE GATE B is a delivery instruction, not the name or signature of a recipient. A photograph of a parcel at a location does not establish who collected it.']
+    photo:[__dialogueText("managers/PostalCaseSupport.js", "t_e2f10087eb02afc209ad"),__dialogueText("managers/PostalCaseSupport.js", "t_9e14d9af9285f5ff0a62")],
+    route:[__dialogueText("managers/PostalCaseSupport.js", "t_930da03b7edef6bc653a"),__dialogueText("managers/PostalCaseSupport.js", "t_ad32a42a873a7f43d64e")],
+    gate:[__dialogueText("managers/PostalCaseSupport.js", "t_198eb291f96bc0da57e7"),__dialogueText("managers/PostalCaseSupport.js", "t_9fe9969d0812f23760d2")]
   };
-  if(!entries[id])return 'Which delivery are we discussing?';
+  if(!entries[id])return __dialogueText("managers/PostalCaseSupport.js", "t_520e101ebba574e430c1");
   const [label,text]=entries[id];
-  registerPICase({id:DEAD_MAIL_PREVIEW_CASE,kind:'side',requiresBoard:true,title:'Dead Mail'});
-  addPIEvidence(DEAD_MAIL_PREVIEW_CASE,{id:'postal-dead-'+id,label,text,metaText:'Post Office',color:'blue',pinned:true});
+  registerPICase({id:DEAD_MAIL_PREVIEW_CASE,kind:'side',requiresBoard:true,title:__dialogueText("managers/PostalCaseSupport.js", "t_16abdc3e0b396e03e229")});
+  addPIEvidence(DEAD_MAIL_PREVIEW_CASE,{id:'postal-dead-'+id,label,text,metaText:__dialogueText("managers/PostalCaseSupport.js", "t_bf90c07b7526b278c9c8"),color:'blue',pinned:true});
   const s=Postal.postalState();if(!s.dead.includes(id)){gameState.postOffice={...s,dead:[...s.dead,id]};requestAutosave();}
   return text;
 }

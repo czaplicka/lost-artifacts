@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 const CASE='dead_men_calling';
 const STORE='playerCloudNotebookV1';
 const array=v=>Array.isArray(v)?v:[];
@@ -28,16 +29,16 @@ const SUBJECTS={
  leo_verification:['dm_edward','dm_archive','dm_mercer','dm_leo','dm_colin']
 };
 const LABELS={
- dm_margaret_edward:'Edward’s office and belongings',
- dm_margaret_calls:'The recent calls',
- margaret_initial:'Ask for the older recordings',
- dm_margaret_folder_early:'Edward’s blue folders',
- margaret_access:'Who handled the archive?',
- margaret_folder:'Ask to see the papers',
- leo_transfer:'Ask about the archive transfer',
- colin_confrontation:'Put the statement and receipt to Colin',
- margaret_consent:'Request permission for a comparison',
- leo_verification:'Ask for the comparison results'
+ dm_margaret_edward:__dialogueText("ui/DeadMenCloudModel.js", "t_eb44152e2c0adfdd38cd"),
+ dm_margaret_calls:__dialogueText("ui/DeadMenCloudModel.js", "t_e2fcc4149c86ce95a850"),
+ margaret_initial:__dialogueText("ui/DeadMenCloudModel.js", "t_522a5db44db171750e6c"),
+ dm_margaret_folder_early:__dialogueText("ui/DeadMenCloudModel.js", "t_e084e472dc80fd570fb9"),
+ margaret_access:__dialogueText("ui/DeadMenCloudModel.js", "t_a44ba1c7cefc4adb7cc3"),
+ margaret_folder:__dialogueText("ui/DeadMenCloudModel.js", "t_7db90134714811192f08"),
+ leo_transfer:__dialogueText("ui/DeadMenCloudModel.js", "t_a2bfe6372795985ed447"),
+ colin_confrontation:__dialogueText("ui/DeadMenCloudModel.js", "t_b3f77c423f4fcf24b7bb"),
+ margaret_consent:__dialogueText("ui/DeadMenCloudModel.js", "t_6e4b6f27668fb66fd770"),
+ leo_verification:__dialogueText("ui/DeadMenCloudModel.js", "t_c035a3199fd1c9dbfebd")
 };
 export function deadMenCloudQuestions(state,definition,cloud,topics){
  if(definition?.id!==CASE||!cloud?.titleKey)return [];
@@ -53,7 +54,7 @@ export function deadMenCloudQuestions(state,definition,cloud,topics){
   const key=(topic.group||'')+'|'+question;
   if(seen.has(key))continue;seen.add(key);
   let label=LABELS[topic.group];
-  if(topic.group==='colin_initial')label=topic.effect==='colinInterview'?'Ask about the archive copy':'Ask about the accounting papers';
+  if(topic.group==='colin_initial')label=topic.effect==='colinInterview'?__dialogueText("ui/DeadMenCloudModel.js", "t_6c1fceb0afba142e25d1"):__dialogueText("ui/DeadMenCloudModel.js", "t_ff5129cf5b8525cb2766");
   result.push({...topic,questionLabel:label||question});
  }
  return result;

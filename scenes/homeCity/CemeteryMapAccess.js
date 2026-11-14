@@ -1,19 +1,20 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
 import { syncDeadMailOfficeQuest } from '../../managers/DeadMailOfficeIntegration.js';
 
-export const CEMETERY_BUILDING={id:'cemetery',name:'Blackthorn Cemetery',x:20,y:13,w:4,h:4,color:0x66735a,message:''};
+export const CEMETERY_BUILDING={id:'cemetery',name:__dialogueText("scenes/homeCity/CemeteryMapAccess.js", "t_fcd5ad393af860802561"),x:20,y:13,w:4,h:4,color:0x66735a,message:''};
 export const CEMETERY_REFUSALS=[
- "I don't do graveyard shifts unless they're billable.",
- "The residents aren't going anywhere. I'll come back with a paying client.",
- "I'm not charging into a cemetery without someone to charge.",
- "I'd rather not meet my future neighbours off the clock."
+ __dialogueText("scenes/homeCity/CemeteryMapAccess.js", "t_2031ac200dbe604ceded"),
+ __dialogueText("scenes/homeCity/CemeteryMapAccess.js", "t_c53f2303abc388bad605"),
+ __dialogueText("scenes/homeCity/CemeteryMapAccess.js", "t_277c4d77694ed9b21924"),
+ __dialogueText("scenes/homeCity/CemeteryMapAccess.js", "t_c2ab3515cbcabe59a235")
 ];
 export function cemeteryEntryStatus(state=gameState){
  const q=state.piQuests?.quests?.pi_dead_mail_preview;
  if(q?.metadata?.contentId!=='dead_mail'||!['active','completed'].includes(q.status))return {allowed:false,reason:'no_case'};
  const p=state.deadMailPreview||{};
- if(p.chapterComplete!==true&&p.dayComplete!==true&&p.finale?.completed!==true)return {allowed:false,reason:'no_location',message:'A graveyard is not a substitute for reading the case file. Photograph first, wandering ominously later.'};
+ if(p.chapterComplete!==true&&p.dayComplete!==true&&p.finale?.completed!==true)return {allowed:false,reason:'no_location',message:__dialogueText("scenes/homeCity/CemeteryMapAccess.js", "t_d0d26244c10a3b86665b")};
  if(p.dayComplete!==true)return {allowed:true,part:'day'};
  return {allowed:true,part:p.night?.complete===true?'finale':'night'};
 }
@@ -22,7 +23,7 @@ export function cemeteryEntryMessage(city,status){
   const index=Number.isInteger(city.cemeteryRefusalIndex)?city.cemeteryRefusalIndex:0;
   city.cemeteryRefusalIndex=(index+1)%CEMETERY_REFUSALS.length;return CEMETERY_REFUSALS[index%CEMETERY_REFUSALS.length];
  }
- return status.message||'The cemetery is not available for this investigation yet.';
+ return status.message||__dialogueText("scenes/homeCity/CemeteryMapAccess.js", "t_d1d5797ba38b50e32539");
 }
 export function cemeteryMapParent(game,part){
  const city=game?.scene?.keys?.HomeCityScene;
@@ -68,6 +69,6 @@ export async function enterCemeteryFromMap(city){
  }catch(error){
   console.error('[CemeteryMapAccess]',error);if(target&&onExit){target.events.off('shutdown',onExit);target.events.off('destroy',onExit);}
   if(key&&game.scene.isActive(key))game.scene.stop(key);
-  if(!city.disposed&&city.runToken===token)city.say('The cemetery file could not be opened. Apparently even the dead have paperwork.');return false;
+  if(!city.disposed&&city.runToken===token)city.say(__dialogueText("scenes/homeCity/CemeteryMapAccess.js", "t_8992dbe6ec25cd70fca3"));return false;
  }finally{if(!opened&&!city.disposed&&city.runToken===token)city.navigating=false;}
 }

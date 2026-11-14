@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { inventoryManager } from '../managers/InventoryManager.js';
 import { getEvidenceCaseKey, readApartmentEvidence, evidenceMatchesCase } from '../managers/ApartmentEvidenceModel.js';
@@ -22,7 +23,7 @@ export function captureApartmentInventory(state=gameState) {
   for(const raw of inventoryManager.getAllItems()) {
     if(!raw?.metadata?.apartment || Number(raw.quantity ?? 1)<=0 || !evidenceMatchesCase(raw,state))continue;
     const item=readApartmentEvidence(raw);
-    next.materials[raw.id]={name:raw.name || item.label || 'Apartment material',originalId:item.originalId};
+    next.materials[raw.id]={name:raw.name || item.label || __dialogueText("crimeBoard/BoardEvidenceRuntime.js", "t_985f13ce263cb00b201b"),originalId:item.originalId};
     const key=item.artifactKey;
     if(item.isArtifact===true && key && key===state.currentMission.artifactKey &&
       !next.recoveredArtifacts.some(entry=>entry.artifactKey===key)) {

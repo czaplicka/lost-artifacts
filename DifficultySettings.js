@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 export const DEFAULT_DIFFICULTY = 'field';
 
 const RANDOM_EVENT_SETTINGS = Object.freeze({
@@ -27,8 +28,8 @@ const RANDOM_EVENT_SETTINGS = Object.freeze({
 export const DIFFICULTY = Object.freeze({
     rookie: Object.freeze({
         id: 'rookie',
-        label: 'ROOKIE DETECTIVE',
-        description: 'Extra guidance. More retries. Less paperwork.',
+        label: __dialogueText("DifficultySettings.js", "t_3e6b212e38b2bb8a83aa"),
+        description: __dialogueText("DifficultySettings.js", "t_600b7737cd8fb54defaf"),
 
         hiddenObjectCount: 6,
         reconstructionOptions: 6,
@@ -56,8 +57,8 @@ export const DIFFICULTY = Object.freeze({
 
     field: Object.freeze({
         id: 'field',
-        label: 'FIELD AGENT',
-        description: 'Standard Mark Agency field procedure.',
+        label: __dialogueText("DifficultySettings.js", "t_898b1ad9707eac7ca046"),
+        description: __dialogueText("DifficultySettings.js", "t_66d12def874fa622b577"),
 
         hiddenObjectCount: 6,
         reconstructionOptions: 6,
@@ -81,8 +82,8 @@ export const DIFFICULTY = Object.freeze({
 
     master: Object.freeze({
         id: 'master',
-        label: 'MASTER SLEUTH',
-        description: 'Fewer second chances. Better coffee not guaranteed.',
+        label: __dialogueText("DifficultySettings.js", "t_15970d29cd6269fe928c"),
+        description: __dialogueText("DifficultySettings.js", "t_7121496487a129750ed1"),
 
         hiddenObjectCount: 7,
         reconstructionOptions: 7,

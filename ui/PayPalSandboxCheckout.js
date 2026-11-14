@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { supabase } from '../supabase-client.js';
 
 const CLIENT_ID = 'BAA1ttLiwIaOJXUhNvVraeRaBwqFYcXhto48D_fdR4alVuBljIS6UZ_4AfBOPKUMysnSYHmi2lDcaJ5NLM';
@@ -16,13 +17,13 @@ async function loadSdk() {
           script.async = true;
           const timer = setTimeout(() => {
             script.remove();
-            reject(new Error('PayPal SDK loading timed out.'));
+            reject(new Error(__dialogueText("ui/PayPalSandboxCheckout.js", "t_eccf8346cdd8ab0cea12")));
           }, 30000);
           script.onload = () => { clearTimeout(timer); resolve(); };
           script.onerror = () => {
             clearTimeout(timer);
             script.remove();
-            reject(new Error('Could not load PayPal SDK.'));
+            reject(new Error(__dialogueText("ui/PayPalSandboxCheckout.js", "t_187c4583bd9a00004871")));
           };
           document.head.appendChild(script);
         });
@@ -43,21 +44,9 @@ export function openPayPalSandbox(scene) {
   if (current) { current.focus(); return; }
   const host = document.createElement('div');
   host.style.cssText = 'position:fixed;inset:0;z-index:100000;background:#000b;display:grid;place-items:center;padding:16px;box-sizing:border-box;pointer-events:auto';
-  host.innerHTML = `
-    <section role="dialog" aria-modal="true" aria-labelledby="paypal-test-title" tabindex="-1"
-      style="box-sizing:border-box;width:min(540px,100%);max-height:90dvh;overflow:auto;background:#dac69d;color:#30271e;padding:28px;border:4px solid #59442e;box-shadow:0 12px 70px #000;font-family:SpecialElite,monospace">
-      <h2 id="paypal-test-title" style="margin:0 0 16px">PAYPAL SANDBOX TEST</h2>
-      <p>Test Expansion — Sandbox Only</p>
-      <p style="font-size:25px">1.00 EUR — test funds only</p>
-      <p>No mission is included. This test does not unlock Dead Mail.</p>
-      <p data-status role="status" aria-live="polite" style="white-space:pre-wrap;min-height:65px">Checking your account…</p>
-      <div data-pay hidden><paypal-button></paypal-button></div>
-      <button data-retry hidden type="button">Retry confirmation — same order</button>
-      <button data-refresh type="button">Refresh status</button>
-      <button data-close type="button">Back to store</button>
-    </section>`;
+  host.innerHTML = `${__dialogueText("ui/PayPalSandboxCheckout.js", "t_2dcaad9d74d3aebba2d0")}`;
   for (const b of host.querySelectorAll('button')) {
-    b.style.cssText='font:inherit;padding:12px;margin:8px 8px 0 0;cursor:pointer';
+    b.style.cssText=__dialogueText("ui/PayPalSandboxCheckout.js", "t_1fe39d44946650479d1b");
   }
   document.body.appendChild(host);
   const panel = host.querySelector('section');
@@ -98,8 +87,8 @@ export function openPayPalSandbox(scene) {
   const setBusy = value => { busy = value; sync(); };
   const fail = error => {
     console.error('[PayPal Sandbox]', error);
-    say(`${error.message || 'Unexpected error.'}\n` +
-      (orderId ? 'Use Retry confirmation or resume PayPal. Do not create another purchase.' : 'No payment has been confirmed.'));
+    say(`${error.message || __dialogueText("ui/PayPalSandboxCheckout.js", "t_f1178eb9fb3d63cff0fa")}${__dialogueText("ui/PayPalSandboxCheckout.js", "t_01ba4719c80b6fe911b0")}` +
+      (orderId ? __dialogueText("ui/PayPalSandboxCheckout.js", "t_9f1f495913b5e99bcd01") : __dialogueText("ui/PayPalSandboxCheckout.js", "t_a1ca90e442fd3668c6a7")));
   };
   const dispose = (force = false) => {
     if (disposed || (busy && !force)) return;
@@ -114,12 +103,12 @@ export function openPayPalSandbox(scene) {
   };
   const onShutdown = () => dispose(true);
   function onKey(event) {
-    if (event.key === 'Escape') {
+    if (event.key === __dialogueText("ui/PayPalSandboxCheckout.js", "t_037c968467aa3fd7c059")) {
       event.preventDefault(); event.stopImmediatePropagation();
       dispose();
     }
-    if (event.key === 'Tab') {
-      const nodes = [...panel.querySelectorAll('button:not([hidden]):not(:disabled), paypal-button')]
+    if (event.key === __dialogueText("ui/PayPalSandboxCheckout.js", "t_90ddf1963abb36c9921c")) {
+      const nodes = [...panel.querySelectorAll(__dialogueText("ui/PayPalSandboxCheckout.js", "t_bc3b62f3e3ca296201b1"))]
         .filter(node => node.getClientRects().length);
       if (!nodes.length) { event.preventDefault(); panel.focus(); return; }
       if (event.shiftKey && (document.activeElement === nodes[0] || document.activeElement === panel)) {
@@ -165,7 +154,7 @@ export function openPayPalSandbox(scene) {
     owned = Boolean(result.data);
     if (owned) {
       try { localStorage.removeItem(key()); } catch { /* Optional cache. */ }
-      say('OWNED — SANDBOX ONLY\nTest entitlement found on your game account. No real mission was unlocked.');
+      say(__dialogueText("ui/PayPalSandboxCheckout.js", "t_29edc5475becaf78b0f6"));
       sync(); return;
     }
     const orders = await supabase.from('store_sandbox_orders')
@@ -177,9 +166,9 @@ export function openPayPalSandbox(scene) {
     if (orders.error) throw new Error(`Order lookup failed: ${orders.error.message}`);
     orderId = orders.data?.[0]?.paypal_order_id || null;
     if (orderId) {
-      say('An existing test order was found.\nRetry confirmation, or use PayPal to resume that same order.');
+      say(__dialogueText("ui/PayPalSandboxCheckout.js", "t_82e72b461c4e68e80313"));
     } else {
-      say('Ready for a Sandbox payment using test funds.\nSign in to PayPal with a Sandbox Personal buyer account.');
+      say(__dialogueText("ui/PayPalSandboxCheckout.js", "t_6d1a35a39f5c8e20063b"));
     }
     sync();
   }
@@ -188,10 +177,10 @@ export function openPayPalSandbox(scene) {
     if (confirming) return confirming;
     confirming = (async () => {
       if (!orderId || id !== orderId) throw new Error('Order mismatch. Refresh status.');
-      say('Verifying the test payment…');
+      say(__dialogueText("ui/PayPalSandboxCheckout.js", "t_445d50f9b5406efa6da6"));
       const data = await invoke('paypal-sandbox-capture-order', { orderId: id });
       if (data.status === 'PENDING') {
-        say('PayPal confirmation is pending. No access has been granted.\nRetry confirmation later for this same order.');
+        say(__dialogueText("ui/PayPalSandboxCheckout.js", "t_85aa44731f8fa18955dc"));
         return;
       }
       if (data.status !== 'COMPLETED' || data.owned !== true) {
@@ -249,13 +238,13 @@ export function openPayPalSandbox(scene) {
             await confirm(data.orderId);
           } catch (error) { fail(error); }
         },
-        onCancel: () => say('Checkout closed. No new purchase will be created.\nThe same test order can be resumed or checked.'),
-        onError: error => fail(new Error(error.message || 'PayPal checkout error.'))
+        onCancel: () => say(__dialogueText("ui/PayPalSandboxCheckout.js", "t_5ed853b1c44e92d5b74b")),
+        onError: error => fail(new Error(error.message || __dialogueText("ui/PayPalSandboxCheckout.js", "t_b17899918cf00e540027")))
       });
       payButton.addEventListener('click', async () => {
         if (busy || owned || disposed) return;
         setBusy(true);
-        say('Opening PayPal Sandbox…');
+        say(__dialogueText("ui/PayPalSandboxCheckout.js", "t_aab545b20e7c355ab442"));
         try {
           await paymentSession.start({ presentationMode: 'popup' }, createOrResumeOrder());
         } catch (error) { fail(error); }

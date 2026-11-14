@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { escapeTimelineData as DATA, getEscapeTimelineStory, storeEscapeTimeline } from '../escapeTimelineService.js';
 import { normalizeEscape, advanceEscapeClarification, placeEscapeCard, evaluateEscape, escapeHint } from './storage/EscapeTimelineModel.js';
@@ -29,9 +30,9 @@ export class EscapeTimelineScene extends BaseScene {
     this.content = this.add.container(0, 0); this.root.add(this.content);
     this.label(720, 42, DATA.title, 24, '#f0ce88', 'PressStart2P', this.root);
     this.button(1235, 972, 'BACK', () => this.closeTimeline(), this.root);
-    this.mode = this.label(720, 1006, this.preview ? 'PREVIEW / no story changes' :
-      'STORY / a separate reconstruction from the earlier crash account', 13, '#baa98e', 'SpecialElite', this.root);
-    if (!this.allowed) this.label(720, 480, "Finish mission eight, the archive follow-up and Alex's admission first.", 29);
+    this.mode = this.label(720, 1006, this.preview ? __dialogueText("scenes/EscapeTimelineScene.js", "t_db1d7313ec962ed15287") :
+      __dialogueText("scenes/EscapeTimelineScene.js", "t_fe7c3cd29673a481a79c"), 13, '#baa98e', 'SpecialElite', this.root);
+    if (!this.allowed) this.label(720, 480, __dialogueText("scenes/EscapeTimelineScene.js", "t_21d55de9984b2a58ea4b"), 29);
     else if (!this.progress.clarificationHeard) this.buildClarification(); else this.buildBoard();
     this.layout(); this.trackInputEvent(this.scale, 'resize', this.layout);
     if (this.input.keyboard) this.trackInputEvent(this.input.keyboard, 'keydown-ESC', event => {
@@ -56,10 +57,10 @@ export class EscapeTimelineScene extends BaseScene {
     }); parent.add(object); return object;
   }
   buildClarification() {
-    this.content.removeAll(true); this.label(720, 230, 'ONE WITNESS QUESTION FIRST', 28, '#f0ce88');
+    this.content.removeAll(true); this.label(720, 230, __dialogueText("scenes/EscapeTimelineScene.js", "t_755ee6928d36d1cb9592"), 28, '#f0ce88');
     this.label(720, 470, DATA.clarification[this.progress.clarificationLine], 30);
     this.button(720, 770, this.progress.clarificationLine === DATA.clarification.length - 1 ?
-      'RECORD CLARIFICATION / RECONSTRUCT' : 'CONTINUE', () => {
+      __dialogueText("scenes/EscapeTimelineScene.js", "t_842023449004f11a1186") : 'CONTINUE', () => {
       if (this.time.now < this.inputLockedUntil) return;
       this.inputLockedUntil = this.time.now + 180;
       this.progress = advanceEscapeClarification(DATA, this.progress); this.persist();
@@ -68,10 +69,10 @@ export class EscapeTimelineScene extends BaseScene {
   }
   buildBoard() {
     this.content.removeAll(true);
-    this.label(720, 88, 'Select an event, read its source, then place it on the timeline.', 21);
-    this.label(720, 120, 'Five supported events. Three unsupported interpretations. Sources are free; HINT is optional.', 20, '#c5b59a');
-    this.label(360, 159, 'EVENT CARDS', 19, '#cdbb9a');
-    this.label(1080, 159, 'EARLIEST TO LATEST', 19, '#cdbb9a');
+    this.label(720, 88, __dialogueText("scenes/EscapeTimelineScene.js", "t_98d71b47559a887ab145"), 21);
+    this.label(720, 120, __dialogueText("scenes/EscapeTimelineScene.js", "t_24741cff7cf28e8e233f"), 20, '#c5b59a');
+    this.label(360, 159, __dialogueText("scenes/EscapeTimelineScene.js", "t_ae090581dd9ad5cc19b7"), 19, '#cdbb9a');
+    this.label(1080, 159, __dialogueText("scenes/EscapeTimelineScene.js", "t_386d3375ef1d41c1d1b3"), 19, '#cdbb9a');
     Phaser.Utils.Array.Shuffle([...DATA.cards]).forEach((card, index) => {
       const x = 193 + (index % 2) * 344, y = 243 + Math.floor(index / 2) * 110;
       const box = this.add.rectangle(x, y, 326, 100, 0xe2d4b6).setStrokeStyle(2, 0x9b8662)
@@ -98,19 +99,19 @@ export class EscapeTimelineScene extends BaseScene {
       this.slotObjects.push({ box, text });
     }
     this.content.add(this.add.rectangle(720, 736, 1360, 116, 0xe2d4b6).setStrokeStyle(2, 0x9b8662));
-    this.sourceTitle = this.label(720, 701, 'SOURCE / NOT A PAID HINT', 18, '#74463a');
-    this.sourceBody = this.label(720, 750, 'Select any card to read its linked document or testimony.', 20, '#3d332c');
+    this.sourceTitle = this.label(720, 701, __dialogueText("scenes/EscapeTimelineScene.js", "t_108b1fd9151c8c24d764"), 18, '#74463a');
+    this.sourceBody = this.label(720, 750, __dialogueText("scenes/EscapeTimelineScene.js", "t_006b078135800e361ea4"), 20, '#3d332c');
     this.sourceBody.setWordWrapWidth(1300);
-    this.label(720, 819, 'WHAT IS SUPPORTED?', 19, '#cdbb9a');
+    this.label(720, 819, __dialogueText("scenes/EscapeTimelineScene.js", "t_84cdca535d0221086214"), 19, '#cdbb9a');
     DATA.conclusions.forEach((item, index) => {
       const button = this.button(260 + index * 460, 864, item.label, () => {
         if (!this.canEdit()) return;
         this.progress.conclusion = item.id; this.persist(); this.refreshBoard();
       }); this.conclusionButtons.push({ id: item.id, button });
     });
-    this.message = this.label(720, 918, 'Select a card and a slot. Select two slots to swap. CLEAR SLOT removes a card.', 20);
-    this.checkButton = this.button(265, 972, 'CHECK TIMELINE', () => this.checkTimeline());
-    this.clearButton = this.button(600, 972, 'CLEAR SLOT', () => this.clearSlot());
+    this.message = this.label(720, 918, __dialogueText("scenes/EscapeTimelineScene.js", "t_6b1c550cbaf46058f1b6"), 20);
+    this.checkButton = this.button(265, 972, __dialogueText("scenes/EscapeTimelineScene.js", "t_b4493e0624ec05e17e42"), () => this.checkTimeline());
+    this.clearButton = this.button(600, 972, __dialogueText("scenes/EscapeTimelineScene.js", "t_dfaa13932eb9b80ee382"), () => this.clearSlot());
     this.timelineHelp = new TimelineHelpController(this); this.timelineHelp.create();
     this.refreshBoard(); if (this.finished) this.showSuccess();
   }
@@ -118,7 +119,7 @@ export class EscapeTimelineScene extends BaseScene {
   inspect(id) {
     const card = DATA.cards.find(item => item.id === id);
     const source = DATA.evidence.find(item => item.id === card?.evidence);
-    if (source) { this.sourceTitle.setText(`${card.title} / ${source.title}`); this.sourceBody.setText(source.text); }
+    if (source) { this.sourceTitle.setText(`${card.title}${__dialogueText("scenes/EscapeTimelineScene.js", "t_005e1574a2b5c8163046")}${source.title}`); this.sourceBody.setText(source.text); }
   }
   chooseSlot(index) {
     if (this.closing || this.timelineHelp?.modal) return;
@@ -149,7 +150,7 @@ export class EscapeTimelineScene extends BaseScene {
     });
     this.slotObjects.forEach(({ box, text }, index) => {
       const card = DATA.cards.find(item => item.id === this.progress.slots[index]);
-      text.setText(`${index + 1}. ${card?.title ?? '[ select a card, then click here ]'}`);
+      text.setText(`${index + 1}${__dialogueText("scenes/EscapeTimelineScene.js", "t_8dccf256f6d5783e62bb")}${card?.title ?? __dialogueText("scenes/EscapeTimelineScene.js", "t_c86957f856ebb1f781bf")}`);
       box.setStrokeStyle(this.selectedSlot === index ? 4 : 2, this.selectedSlot === index ? 0xe7ac48 : 0x957a58);
     });
     this.conclusionButtons.forEach(({ id, button }) => button.setBackgroundColor(this.progress.conclusion === id ? '#725337' : '#4a3933'));
@@ -160,7 +161,7 @@ export class EscapeTimelineScene extends BaseScene {
       Number.isInteger(hint.slotIndex) ? this.slotObjects[hint.slotIndex]?.box : null,
       hint.conclusionId ? this.conclusionButtons.find(item => item.id === hint.conclusionId)?.button : null].filter(Boolean) };
   }
-  setDialogue(text) { this.message?.setText(`HINT: ${text}`).setFontSize(18); }
+  setDialogue(text) { this.message?.setText(`${__dialogueText("scenes/EscapeTimelineScene.js", "t_e0e94082545fdad681ba")}${text}`).setFontSize(18); }
   persist() {
     if (this.preview || !this.allowed) return;
     const result = storeEscapeTimeline(this.progress);
@@ -181,10 +182,10 @@ export class EscapeTimelineScene extends BaseScene {
     this.checkButton.setVisible(false); this.clearButton.setVisible(false);
     this.timelineHelp?.hintButton?.setVisible(false);
     this.conclusionButtons.forEach(item => item.button.disableInteractive());
-    this.sourceTitle.setText('SUPPORTED: ESCAPE BEFORE IMPACT'); this.sourceBody.setText(DATA.success);
-    this.message.setText(this.preview ? 'Reconstruction complete / preview only.' : this.savedOk === false ?
+    this.sourceTitle.setText(__dialogueText("scenes/EscapeTimelineScene.js", "t_cd2088cb02151e7272f7")); this.sourceBody.setText(DATA.success);
+    this.message.setText(this.preview ? __dialogueText("scenes/EscapeTimelineScene.js", "t_a291ed7256cec4187b32") : this.savedOk === false ?
       DATA.messages.saveFailed : this.stageSynced === false ?
-      'Reconstruction saved, but story stage synchronization needs review.' : DATA.messages.complete).setFontSize(20);
+      __dialogueText("scenes/EscapeTimelineScene.js", "t_68abfdfff6c9f05c1967") : DATA.messages.complete).setFontSize(20);
     this.refreshBoard();
   }
   layout() {

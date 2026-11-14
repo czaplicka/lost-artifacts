@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
 import { getGameTimeManager } from './GameTimeManager.js';
@@ -26,13 +27,13 @@ export class ReedContactService{
  canSend(){if(!this.data)return false;return gameState.piQuests?.quests?.[this.data.questId]?.status==='active'&&(gameState.piKeywordSearch?.cases?.[this.data.searchCaseId]?.known||[]).includes(this.data.requiredKeyword)&&!getReedContactRecord();}
  save(record){gameState[KEY]=record;requestAutosave();EventBus.emit(REED_CONTACT_CHANGED);}
  send(route,officeNumber,selection){
-  if(!this.canSend()||!['office','mobile'].includes(route))return{ok:false,message:'This message cannot be sent.'};
-  const mobile=ownedMobileLine();if(route==='mobile'&&!mobile)return{ok:false,message:'No mobile telephone with a number is available.'};
-  const number=route==='mobile'?mobile.number:String(officeNumber||'').trim();if(!number)return{ok:false,message:'No office telephone number is available.'};
+  if(!this.canSend()||!['office','mobile'].includes(route))return{ok:false,message:__dialogueText("managers/ReedContactService.js", "t_85b537b74f32c37549f2")};
+  const mobile=ownedMobileLine();if(route==='mobile'&&!mobile)return{ok:false,message:__dialogueText("managers/ReedContactService.js", "t_1fea131a19bd4843cac3")};
+  const number=route==='mobile'?mobile.number:String(officeNumber||'').trim();if(!number)return{ok:false,message:__dialogueText("managers/ReedContactService.js", "t_ec7c930d5b4e1641e349")};
   const chosen=validateReedMailSelection(this.data,selection,number,gameState.playerName);if(!chosen.ok)return chosen;
   const now=this.now(),c=this.data;
   this.save({version:1,status:'waiting',route,number,mobileItemId:route==='mobile'?mobile.itemId:null,sentAt:now,nextAttemptAt:nextReedCallMinute(now,c.delayMinutes,c),attempts:0,body:chosen.body,to:chosen.to,variantId:chosen.variantId});
-  return{ok:true,message:'Message sent.'};
+  return{ok:true,message:__dialogueText("managers/ReedContactService.js", "t_a3d34439a0167e2ebfa6")};
  }
  eligibleScene(){
   const c=this.data,s=getReedContactRecord();if(!c||!s||gameState.isGameActive===false)return null;
@@ -54,8 +55,8 @@ export class ReedContactService{
  clearPanel(){this.panel?.destroy(true);this.panel=null;this.panelScene=null;this.ringSound?.stop?.();this.ringSound?.destroy?.();this.ringSound=null;}
  showRing(scene){
   this.clearPanel();this.panelScene=scene;const{width,height}=scene.scale,w=Math.min(340,width-24),root=scene.add.container(width-w-12,Math.max(12,height-112)).setDepth(10000);this.panel=root;
-  root.add(scene.add.rectangle(0,0,w,98,0x24372f,.98).setOrigin(0).setInteractive());root.add(scene.add.text(12,10,'Incoming call',{fontFamily:'SpecialElite, monospace',fontSize:'20px',color:'#fff0bf'}));
-  const a=scene.add.text(12,55,'[ ANSWER ]',{fontFamily:'SpecialElite, monospace',fontSize:'18px',color:'#a9e3bd'}).setInteractive({useHandCursor:true}),i=scene.add.text(w-12,55,'[ IGNORE ]',{fontFamily:'SpecialElite, monospace',fontSize:'18px',color:'#e2b58a'}).setOrigin(1,0).setInteractive({useHandCursor:true});root.add(a);root.add(i);a.on('pointerdown',()=>this.answer());i.on('pointerdown',()=>this.ignore());
+  root.add(scene.add.rectangle(0,0,w,98,0x24372f,.98).setOrigin(0).setInteractive());root.add(scene.add.text(12,10,__dialogueText("managers/ReedContactService.js", "t_a31650d8480673f5aafe"),{fontFamily:'SpecialElite, monospace',fontSize:'20px',color:'#fff0bf'}));
+  const a=scene.add.text(12,55,__dialogueText("managers/ReedContactService.js", "t_569571744c7853c81c52"),{fontFamily:'SpecialElite, monospace',fontSize:'18px',color:'#a9e3bd'}).setInteractive({useHandCursor:true}),i=scene.add.text(w-12,55,__dialogueText("managers/ReedContactService.js", "t_3d71a7b1b5f2153ff09e"),{fontFamily:'SpecialElite, monospace',fontSize:'18px',color:'#e2b58a'}).setOrigin(1,0).setInteractive({useHandCursor:true});root.add(a);root.add(i);a.on('pointerdown',()=>this.answer());i.on('pointerdown',()=>this.ignore());
   if(scene.cache.audio.exists('sfx_ringing'))try{this.ringSound=scene.sound.add('sfx_ringing',{loop:true,volume:.35});this.ringSound.play();}catch(_){}
  }
  ignore(){const s=getReedContactRecord();this.clearPanel();if(!s||s.status!=='waiting')return;this.save({...s,attempts:s.attempts+1,lastMissedAt:this.now(),nextAttemptAt:nextReedCallMinute(this.now(),this.data.retryMinutes,this.data)});}
@@ -69,16 +70,16 @@ export class ReedContactService{
   this.session.cleanup=()=>{p.nextLine=original.nextLine;p.hangUp=original.hangUp;p.close=original.close;};
   p.nextLine=()=>{if(p.typingItem)return original.nextLine.call(p);if(p.lineIndex>=p.lines.length-1){this.complete();return original.nextLine.call(p);}return original.nextLine.call(p);};
   p.hangUp=()=>{this.interrupt();return original.hangUp.call(p);};p.close=()=>{this.interrupt();return original.close.call(p);};
-  p.state='connected';p.contactName='Claire Sutton';p.number='';p.lines=JSON.parse(JSON.stringify(this.data.lines));p.lineIndex=0;p.callStart=p.scene.time.now;p.clearLog();p.showDialogueLine();
+  p.state='connected';p.contactName=__dialogueText("managers/ReedContactService.js", "t_dd853f1a991e5416eb3a");p.number='';p.lines=JSON.parse(JSON.stringify(this.data.lines));p.lineIndex=0;p.callStart=p.scene.time.now;p.clearLog();p.showDialogueLine();
  }
  openMobileCall(){
   const session=this.session;if(!session)return;const scene=session.scene,{width:W,height:H}=scene.scale,root=scene.add.container(0,0).setDepth(11000);this.panel=root;this.panelScene=scene;
   root.add(scene.add.rectangle(0,0,W,H,0x070d0a,.96).setOrigin(0).setInteractive());const w=Math.min(650,W-32),x=(W-w)/2,y=Math.max(20,(H-300)/2);
-  root.add(scene.add.text(x,y,'MOBILE — Claire Sutton',{fontFamily:'SpecialElite, monospace',fontSize:'22px',color:'#ffd18b'}));const line=this.data.lines[session.index];
+  root.add(scene.add.text(x,y,__dialogueText("managers/ReedContactService.js", "t_266efe55a8945eb0d53b"),{fontFamily:'SpecialElite, monospace',fontSize:'22px',color:'#ffd18b'}));const line=this.data.lines[session.index];
   root.add(scene.add.text(x,y+52,line.speaker,{fontFamily:'SpecialElite, monospace',fontSize:'17px',color:'#9cdfb3'}));root.add(scene.add.text(x,y+85,line.text,{fontFamily:'SpecialElite, monospace',fontSize:'20px',color:'#eee4c9',wordWrap:{width:w}}));
-  const next=scene.add.text(x,y+245,session.index===this.data.lines.length-1?'[ END CALL ]':'[ CONTINUE ]',{fontFamily:'SpecialElite, monospace',fontSize:'18px',color:'#ffe2a0'}).setInteractive({useHandCursor:true});root.add(next);
+  const next=scene.add.text(x,y+245,session.index===this.data.lines.length-1?__dialogueText("managers/ReedContactService.js", "t_95d114fcb614c00b96cb"):__dialogueText("managers/ReedContactService.js", "t_50f34a845279312ca4b6"),{fontFamily:'SpecialElite, monospace',fontSize:'18px',color:'#ffe2a0'}).setInteractive({useHandCursor:true});root.add(next);
   next.on('pointerdown',()=>{if(!this.session)return;if(this.session.index>=this.data.lines.length-1){this.complete();return;}this.session.index++;this.clearPanel();this.openMobileCall();});
-  const end=scene.add.text(x+w,y+245,'[ HANG UP ]',{fontFamily:'SpecialElite, monospace',fontSize:'18px',color:'#d6a894'}).setOrigin(1,0).setInteractive({useHandCursor:true});root.add(end);end.on('pointerdown',()=>this.interrupt());
+  const end=scene.add.text(x+w,y+245,__dialogueText("managers/ReedContactService.js", "t_ebb4bc53ca166ba6d594"),{fontFamily:'SpecialElite, monospace',fontSize:'18px',color:'#d6a894'}).setOrigin(1,0).setInteractive({useHandCursor:true});root.add(end);end.on('pointerdown',()=>this.interrupt());
  }
  endSession(retry){const session=this.session;this.session=null;session?.cleanup?.();this.clearPanel();const s=getReedContactRecord();if(retry&&s?.status==='in_call')this.save({...s,status:'waiting',nextAttemptAt:nextReedCallMinute(this.now(),this.data.retryMinutes,this.data)});}
  interrupt(){this.endSession(true);}

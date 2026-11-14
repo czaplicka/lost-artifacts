@@ -1,8 +1,10 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import {FONT_TEXT,MON_X,DH} from './PhoneConfig.js';
 import {gameState} from '../../GameData.js';
 import {cloudCase,cloudTitle} from '../PlayerCloudModel.js';
 import {alibiCloudQuestions} from '../AlibiCloudModel.js';
 import {phoneCaseProgress} from './PhoneInvestigation.js';
+import {bindPhoneNotesAction} from './PhoneNotesActions.js';
 const CASE='borrowed_alibi';
 export function renderAlibiCloudPhoneNotes(){
   this.clearPaper();
@@ -16,11 +18,10 @@ export function renderAlibiCloudPhoneNotes(){
     fontFamily:FONT_TEXT,fontSize:`${size}px`,color,wordWrap:{width:wrapWidth,useAdvancedWrap:true},lineSpacing:4}));
   const button=(x,y,label,action,enabled=true)=>{
     const object=text(x,y,label,17,enabled?'#345b68':'#a59779');
-    if(enabled)object.setInteractive({useHandCursor:true}).on('pointerdown',(pointer,lx,ly,event)=>{event?.stopPropagation();action();});
-    return object;
+    if(enabled)bindPhoneNotesAction(investigation,root,object,action);return object;
   };
   add(scene.add.rectangle(0,0,width,height,0xeee1b7).setOrigin(0).setInteractive());
-  text(30,18,'CASE TOPICS',22);
+  text(30,18,__dialogueText("ui/pi-phone/AlibiCloudPhoneNotes.js", "t_9c8c92c07f2da2c4bdb0"),22);
   const contactId=this.active.id||this.active.number;
   if(this.alibiCloudContact!==contactId){this.alibiCloudContact=contactId;this.alibiCloudId=null;this.notePage=0;}
   const progress=cloudCase(gameState,CASE),clouds=progress.clouds.filter(cloud=>cloud.titleKey);
@@ -30,18 +31,15 @@ export function renderAlibiCloudPhoneNotes(){
   let entries;
   if(activeCloud){
     text(30,55,cloudTitle(gameState,definition,activeCloud)+' ?',18);
-    entries=alibiCloudQuestions(gameState,definition,activeCloud,this.active,flags).map(topic=>({
-      label:topic.questionLabel,action:()=>{
-        if(investigation.phase!=='choose'||phone.directoryOpen||phone.state!=='connected'||investigation.active?.caseId!==CASE)return;
-        const latestCloud=cloudCase(gameState,CASE).clouds.find(cloud=>cloud.id===activeCloud.id);
-        if(!latestCloud)return;
-        const currentFlags=phoneCaseProgress(CASE).flags||[];
-        const currentTopic=alibiCloudQuestions(gameState,definition,latestCloud,investigation.active,currentFlags).find(item=>item.id===topic.id);
-        if(!currentTopic){phone.render();return;}
-        investigation.pending=currentTopic;investigation.play(currentTopic.lines,'response');
-      }
-    }));
-  }else entries=clouds.map(cloud=>({label:cloudTitle(gameState,definition,cloud)+' ?',action:()=>{
+    entries=alibiCloudQuestions(gameState,definition,activeCloud,this.active,flags).map(topic=>({label:topic.questionLabel,action:()=>{
+      if(investigation.phase!=='choose'||phone.directoryOpen||phone.state!=='connected'||investigation.active?.caseId!==CASE)return;
+      const latestCloud=cloudCase(gameState,CASE).clouds.find(cloud=>cloud.id===activeCloud.id);if(!latestCloud)return;
+      const currentFlags=phoneCaseProgress(CASE).flags||[];
+      const currentTopic=alibiCloudQuestions(gameState,definition,latestCloud,investigation.active,currentFlags).find(item=>item.id===topic.id);
+      if(!currentTopic){phone.render();return;}
+      investigation.pending=currentTopic;investigation.play(currentTopic.lines,'response');
+    }}));
+  }else entries=clouds.map(cloud=>({label:cloudTitle(gameState,definition,cloud)+__dialogueText("ui/pi-phone/AlibiCloudPhoneNotes.js", "t_81d6591c690c70c74282"),action:()=>{
     if(investigation.phase!=='choose'||phone.directoryOpen)return;
     investigation.alibiCloudId=cloud.id;investigation.notePage=0;phone.render();
   }}));
@@ -57,15 +55,13 @@ export function renderAlibiCloudPhoneNotes(){
   if(currentPage.length)pages.push(currentPage);if(!pages.length)pages.push([]);
   this.notePage=Math.max(0,Math.min(pages.length-1,Number(this.notePage)||0));
   for(const entry of pages[this.notePage])button(30,entry.y,entry.label,entry.action,choosing);
-  if(!entries.length)text(30,listTop,activeCloud
-    ?'No question is supported by the details in this cloud at this stage.'
-    :'Open CASE NOTES and create a named cloud. You can organise new words without ending this call.',17,'#786c54');
-  button(30,height-82,'< PAGE',()=>{investigation.notePage--;phone.render();},choosing&&this.notePage>0);
+  if(!entries.length)text(30,listTop,activeCloud?__dialogueText("ui/pi-phone/AlibiCloudPhoneNotes.js", "t_fe5204006499a29c3f19"):__dialogueText("ui/pi-phone/AlibiCloudPhoneNotes.js", "t_e9bf758279570baddf99"),17,'#786c54');
+  button(30,height-82,__dialogueText("ui/pi-phone/AlibiCloudPhoneNotes.js", "t_d463afc6ea8f75cc6b55"),()=>{investigation.notePage--;phone.render();},choosing&&this.notePage>0);
   text(width/2,height-80,`${this.notePage+1}/${pages.length}`,14);
-  button(width-108,height-82,'PAGE >',()=>{investigation.notePage++;phone.render();},choosing&&this.notePage<pages.length-1);
-  button(30,height-40,activeCloud?'[ TOPICS ]':'[ REFRESH ]',()=>{investigation.alibiCloudId=null;investigation.notePage=0;phone.render();},choosing);
+  button(width-108,height-82,__dialogueText("ui/pi-phone/AlibiCloudPhoneNotes.js", "t_8188caf087609e305acc"),()=>{investigation.notePage++;phone.render();},choosing&&this.notePage<pages.length-1);
+  button(30,height-40,activeCloud?__dialogueText("ui/pi-phone/AlibiCloudPhoneNotes.js", "t_9e905f09f84609111358"):__dialogueText("ui/pi-phone/AlibiCloudPhoneNotes.js", "t_a1129ed66b026c7ba94c"),()=>{investigation.alibiCloudId=null;investigation.notePage=0;phone.render();},choosing);
   const transcripts=phoneCaseProgress(CASE).transcripts||[];
-  button(190,height-40,'[ READ LAST ]',()=>investigation.replay(),choosing&&transcripts.length>0);
-  if(choosing){phone.logContainer.setVisible(false);phone.prompt.setVisible(false);phone.statusText.setVisible(true).setText('Choose a topic from your named clouds.');}
+  button(190,height-40,__dialogueText("ui/pi-phone/AlibiCloudPhoneNotes.js", "t_57122ddcbe5aaddde50a"),()=>investigation.replay(),choosing&&transcripts.length>0);
+  if(choosing){phone.logContainer.setVisible(false);phone.prompt.setVisible(false);phone.statusText.setVisible(true).setText(__dialogueText("ui/pi-phone/AlibiCloudPhoneNotes.js", "t_90c1a393d4e412163ab2"));}
   if(phone.directoryOpen){root.setVisible(false);phone.ui.bringToTop(phone.dir);}
 }

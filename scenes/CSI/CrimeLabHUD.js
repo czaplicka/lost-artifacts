@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { EventBus } from '../../EventBus.js';
 import { getCaseTimeRemaining } from '../../CaseTimeHelper.js';
 
@@ -28,7 +29,7 @@ export class CrimeLabHUD {
       .setStrokeStyle(2, 0x39ff14, 0.65);
 
     const locationText = this.scene.add
-      .text(18, 12, 'MARK AGENCY // CRIME LAB', {
+      .text(18, 12, __dialogueText("scenes/CSI/CrimeLabHUD.js", "t_d6e4f58b9bc27723bc30"), {
         fontFamily: 'PressStart2P',
         fontSize: '10px',
         color: '#39ff14'
@@ -130,7 +131,7 @@ export class CrimeLabHUD {
     const artifact =
       mission.artifact ||
       mission.artifactName ||
-      'Active Case';
+      __dialogueText("scenes/CSI/CrimeLabHUD.js", "t_8e6714336bad613bfebc");
 
     this._setText(
       this.labCaseText,
@@ -139,7 +140,7 @@ export class CrimeLabHUD {
 
     this._setText(
       this.labProgressText,
-      `ANALYSES: ${completedCount}/${totalStations}`
+      `${__dialogueText("scenes/CSI/CrimeLabHUD.js", "t_69846522c8264dde2ffe")}${completedCount}${__dialogueText("scenes/CSI/CrimeLabHUD.js", "t_8a5edab282632443219e")}${totalStations}`
     );
 
     const parsedSeconds = Number(remainingSeconds);
@@ -149,7 +150,7 @@ export class CrimeLabHUD {
       Number.isFinite(parsedSeconds);
 
     if (!hasValidTime) {
-      this._setText(this.labTimerText, 'TIME: --:--');
+      this._setText(this.labTimerText, __dialogueText("scenes/CSI/CrimeLabHUD.js", "t_a16ab5263f06498ae90c"));
       this._setColor(this.labTimerText, '#ffcc00');
       return;
     }
@@ -160,7 +161,7 @@ export class CrimeLabHUD {
     );
 
     if (expired || safeSeconds === 0) {
-      this._setText(this.labTimerText, 'TIME: EXPIRED');
+      this._setText(this.labTimerText, __dialogueText("scenes/CSI/CrimeLabHUD.js", "t_4affd94aceb7b8322fd1"));
       this._setColor(this.labTimerText, '#ff2b2b');
       return;
     }
@@ -173,8 +174,8 @@ export class CrimeLabHUD {
     const paddedSeconds = String(seconds).padStart(2, '0');
 
     const formattedTime = hours > 0
-      ? `TIME: ${String(hours).padStart(2, '0')}:${paddedMinutes}:${paddedSeconds}`
-      : `TIME: ${paddedMinutes}:${paddedSeconds}`;
+      ? `${__dialogueText("scenes/CSI/CrimeLabHUD.js", "t_2711cad3396f8b39fd62")}${String(hours).padStart(2, '0')}${__dialogueText("scenes/CSI/CrimeLabHUD.js", "t_e7ac0786668e0ff0f02b")}${paddedMinutes}${__dialogueText("scenes/CSI/CrimeLabHUD.js", "t_e7ac0786668e0ff0f02b")}${paddedSeconds}`
+      : `${__dialogueText("scenes/CSI/CrimeLabHUD.js", "t_2711cad3396f8b39fd62")}${paddedMinutes}${__dialogueText("scenes/CSI/CrimeLabHUD.js", "t_e7ac0786668e0ff0f02b")}${paddedSeconds}`;
 
     const color = safeSeconds <= 60
       ? '#ff5c5c'

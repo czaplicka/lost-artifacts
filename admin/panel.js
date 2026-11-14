@@ -1,6 +1,6 @@
 import {supabase} from '../supabase-client.js';
 const $=id=>document.getElementById(id);
-const sections=[['cities','Miasta'],['city-places','Lokalizacje miejskie'],['crime-scenes','Miejsca zbrodni'],['artifacts','Artefakty'],['crime-cities','Sprawy — edytor łączony'],['music','Muzyka']];
+const sections=[['cities','Miasta'],['city-places','Lokalizacje miejskie'],['npcs','NPC — postacie'],['npc-dialogues','Dialogi NPC'],['motives','Motywy przestępstwa'],['publications','Gazety i TIME'],['television','Telewizja'],['inventory-shops','Przedmioty i sklepy'],['crime-scenes','Miejsca zbrodni'],['artifacts','Artefakty'],['crime-cities','Sprawy — edytor łączony'],['music','Muzyka']];
 let authorized=false,checking=0,activeUser=null,loggingOut=false;
 function message(text,error=false){$('status').textContent=text;$('status').classList.toggle('error',error);}
 function clearWorkspace(){authorized=false;activeUser=null;$('workspace').hidden=true;$('frames').replaceChildren();$('account').textContent='';for(const b of $('menu').children)b.setAttribute('aria-pressed','false');}

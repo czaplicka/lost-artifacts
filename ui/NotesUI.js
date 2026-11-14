@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import {
   saveGameState,
   requestAutosave
@@ -12,7 +13,7 @@ export class NotesUI {
     this.isTyping = false;
     this.currentGameState = null;
 
-    this.cluePages = ['No clues found yet...'];
+    this.cluePages = [__dialogueText("ui/NotesUI.js", "t_e845043e42f03687c039")];
     this.cluePageIndex = 0;
     this.lastCluesText = null;
 
@@ -52,7 +53,7 @@ export class NotesUI {
     this.container.add(bg);
 
     const closeBtn = this.scene.add
-      .text(width * 0.87, height * 0.03, 'X', {
+      .text(width * 0.87, height * 0.03, __dialogueText("ui/NotesUI.js", "t_4b68ab3847feda7d6c62"), {
         fontFamily: 'SpecialElite',
         fontSize: '48px',
         color: '#000000'
@@ -65,7 +66,7 @@ export class NotesUI {
     this.cluesTitleText = this.scene.add.text(
       width * 0.17,
       height * 0.06,
-      'Clues',
+      __dialogueText("ui/NotesUI.js", "t_86aa514b105ec9eca158"),
       {
         fontFamily: 'SpecialElite',
         fontSize: '26px',
@@ -97,7 +98,7 @@ export class NotesUI {
     this.prevCluesBtn = this.createPageButton(
       width * 0.17,
       height * 0.82,
-      '< PREV',
+      __dialogueText("ui/NotesUI.js", "t_86af811671fe29fad1d2"),
       () => this.changeCluePage(-1)
     );
 
@@ -114,7 +115,7 @@ export class NotesUI {
     this.nextCluesBtn = this.createPageButton(
       width * 0.44,
       height * 0.82,
-      'NEXT >',
+      __dialogueText("ui/NotesUI.js", "t_58b85f2ea88bf1a9ba16"),
       () => this.changeCluePage(1)
     );
 
@@ -123,7 +124,7 @@ export class NotesUI {
     this.gameNotesTitleText = this.scene.add.text(
       width * 0.52,
       height * 0.13,
-      'Your notes',
+      __dialogueText("ui/NotesUI.js", "t_55576676783c7f797f5a"),
       {
         fontFamily: 'SpecialElite',
         fontSize: '22px',
@@ -140,7 +141,7 @@ export class NotesUI {
       .text(
         width * 0.68,
         height * 0.15,
-        '[ CLICK TO WRITE | ESC TO STOP ]',
+        __dialogueText("ui/NotesUI.js", "t_51876a61a7c89f640704"),
         {
           fontFamily: 'SpecialElite',
           fontSize: '16px',
@@ -157,16 +158,16 @@ export class NotesUI {
         height * 0.4,
         'textarea',
         [
-          'width: 400px',
-          'height: 500px',
-          'font-family: "IndieFlower"',
-          'font-size: 22px',
-          'background: transparent',
-          'border: none',
-          'outline: none',
-          'resize: none',
-          'color: #000000',
-          'pointer-events: auto'
+          __dialogueText("ui/NotesUI.js", "t_f91830934749f0910256"),
+          __dialogueText("ui/NotesUI.js", "t_23927985a9d7b783fd32"),
+          __dialogueText("ui/NotesUI.js", "t_9238955ee4613783b3d1"),
+          __dialogueText("ui/NotesUI.js", "t_7e954fdb9f22e7efff09"),
+          __dialogueText("ui/NotesUI.js", "t_8c3a5d4f399e59727106"),
+          __dialogueText("ui/NotesUI.js", "t_723c9b4e31276b15c90b"),
+          __dialogueText("ui/NotesUI.js", "t_1f6d5babe8d9f56a8029"),
+          __dialogueText("ui/NotesUI.js", "t_f94f245916770018e5b1"),
+          __dialogueText("ui/NotesUI.js", "t_f80a833bf1a2c7522f9d"),
+          __dialogueText("ui/NotesUI.js", "t_07da01c9c993e83bdd1b")
         ].join('; ') + ';',
         ''
       )
@@ -199,7 +200,7 @@ export class NotesUI {
     );
 
     const clearBtn = this.scene.add
-      .text(width * 0.68, height * 0.82, '[ CLEAR NOTES ]', {
+      .text(width * 0.68, height * 0.82, __dialogueText("ui/NotesUI.js", "t_d6535da07e962d7840a0"), {
         fontFamily: 'SpecialElite',
         fontSize: '20px',
         color: '#8b0000'
@@ -273,7 +274,7 @@ export class NotesUI {
     );
 
     this.cluesPageText.setText(
-      `${this.cluePageIndex + 1} / ${this.cluePages.length}`
+      `${this.cluePageIndex + 1}${__dialogueText("ui/NotesUI.js", "t_005e1574a2b5c8163046")}${this.cluePages.length}`
     );
 
     this.setPageButtonEnabled(
@@ -294,7 +295,7 @@ export class NotesUI {
         )
       : [];
 
-    if (!clues.length) return ['No clues found yet...'];
+    if (!clues.length) return [__dialogueText("ui/NotesUI.js", "t_e845043e42f03687c039")];
 
     const pages = [];
     let currentPage = '';
@@ -348,7 +349,7 @@ export class NotesUI {
 
     finishPage();
 
-    return pages.length ? pages : ['No clues found yet...'];
+    return pages.length ? pages : [__dialogueText("ui/NotesUI.js", "t_e845043e42f03687c039")];
   }
 
   bindKeyboardShortcut() {
@@ -379,7 +380,7 @@ export class NotesUI {
   }
 
   onGlobalKeyDown(event) {
-    if (!this.isOpen || event.key !== 'Escape') return;
+    if (!this.isOpen || event.key !== __dialogueText("ui/NotesUI.js", "t_037c968467aa3fd7c059")) return;
 
     event.preventDefault();
 
@@ -394,7 +395,7 @@ export class NotesUI {
     if (this.isTyping) return;
 
     this.isTyping = true;
-    this.modeHintText.setText('[ WRITING... ESC TO STOP ]');
+    this.modeHintText.setText(__dialogueText("ui/NotesUI.js", "t_e756cdd23b0541d1e044"));
 
     if (this.scene.input?.keyboard) {
       this.scene.input.keyboard.enabled = false;
@@ -406,7 +407,7 @@ export class NotesUI {
     if (!this.isTyping) return;
 
     this.isTyping = false;
-    this.modeHintText.setText('[ CLICK TO WRITE | ESC TO STOP ]');
+    this.modeHintText.setText(__dialogueText("ui/NotesUI.js", "t_51876a61a7c89f640704"));
 
     if (this.scene.input?.keyboard) {
       this.scene.input.keyboard.enabled = true;
@@ -428,15 +429,15 @@ export class NotesUI {
 
   humanizeCategory(category) {
     const map = {
-      hair: 'Hair',
-      eyes: 'Eyes',
-      features: 'Feature',
-      accent: 'Accent',
-      skills: 'Skill',
-      habitus: 'Habit'
+      hair: __dialogueText("ui/NotesUI.js", "t_ababed4823ab79d226ba"),
+      eyes: __dialogueText("ui/NotesUI.js", "t_a39e9d9816a99fc02aa4"),
+      features: __dialogueText("ui/NotesUI.js", "t_3d377ae910dce03ac324"),
+      accent: __dialogueText("ui/NotesUI.js", "t_a5c6fb18c9af89b22a79"),
+      skills: __dialogueText("ui/NotesUI.js", "t_6df1bb18a59ab97df82e"),
+      habitus: __dialogueText("ui/NotesUI.js", "t_55aa512df89ee35e7e99")
     };
 
-    return map[category] || 'Trait';
+    return map[category] || __dialogueText("ui/NotesUI.js", "t_28e3e479e087b8b42748");
   }
 
   formatSuspectClue(clue) {
@@ -447,7 +448,7 @@ export class NotesUI {
   }
 
   formatTravelClue(clue) {
-    return clue.tag || clue.text || 'Travel clue recorded.';
+    return clue.tag || clue.text || __dialogueText("ui/NotesUI.js", "t_7598bad2684e0dadd6d7");
   }
 
   formatGenericClue(clue) {
@@ -456,11 +457,11 @@ export class NotesUI {
     if (clue.value) return String(clue.value);
     if (clue.key) return String(clue.key);
 
-    return 'Unsorted clue';
+    return __dialogueText("ui/NotesUI.js", "t_fdb899912f269ea0c8af");
   }
 
   formatClue(clue) {
-    if (!clue) return 'Unknown clue';
+    if (!clue) return __dialogueText("ui/NotesUI.js", "t_43645ebe7316f941b093");
     if (typeof clue === 'string') return clue;
 
     if (clue.type === 'travel') {
@@ -484,9 +485,9 @@ export class NotesUI {
       : [];
 
     return clues.length
-      ? 'Clues:\n\n' +
+      ? __dialogueText("ui/NotesUI.js", "t_98ff99a01683b5ddba02") +
           clues.map(clue => `- ${this.formatClue(clue)}`).join('\n\n')
-      : 'Clues:\n\nNo clues found yet...';
+      : __dialogueText("ui/NotesUI.js", "t_305b20f6fcc4dd9ae5b8");
   }
 
   refresh(gameState = this.currentGameState) {

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { piInventoryManager } from '../managers/PIInventoryManager.js';
@@ -7,7 +8,7 @@ import { getReputation } from '../managers/ReputationManager.js';
 
 const CASE_ID = 'pi_grand_conspiracy';
 const STATE_VERSION = 3;
-const ROOT = 'assets/side_quests/Grand Conspiracy/';
+const ROOT = __dialogueText("scenes/GrandConspiracyScene.js", "t_06d6e406ed40e9e7ef72");
 
 const ASSETS = {
   gc_garden: 'garden.webp',
@@ -25,66 +26,66 @@ const PHOTO_IDS = ['gardening', 'bulbs', 'newspaper'];
 const OBJECTS = [
   {
     key: 'gc_newspaper',
-    text: 'A newspaper beside the dog. The crossword has fallen into the wrong paws.'
+    text: __dialogueText("scenes/GrandConspiracyScene.js", "t_643a72cd7029795a73f5")
   },
   {
     key: 'gc_dog',
-    text: 'The security department has entered power-saving mode.'
+    text: __dialogueText("scenes/GrandConspiracyScene.js", "t_8abe42e28bd93d08a4eb")
   },
   {
     key: 'gc_shovel',
-    text: 'A hand trowel. Perkins would probably call it a miniature burial device.'
+    text: __dialogueText("scenes/GrandConspiracyScene.js", "t_1d7af5039832fb7944de")
   },
   {
     key: 'gc_bag',
-    text: 'A closed sack. Contents: unknown. Perkins has already identified them as “definitely something”.'
+    text: __dialogueText("scenes/GrandConspiracyScene.js", "t_5c17293a4393db84d779")
   },
   {
     key: 'gc_bag_onion',
-    text: 'Plant bulbs, with papery skins and roots. These can be photographed without inventing a conspiracy.'
+    text: __dialogueText("scenes/GrandConspiracyScene.js", "t_fdfbcbf0206bda53c6e6")
   },
   {
     key: 'gc_wheelbarrow',
-    text: 'A wheelbarrow. No engine, no number plate, no international conspiracy.'
+    text: __dialogueText("scenes/GrandConspiracyScene.js", "t_26e8160796e14a8f187d")
   },
   {
     key: 'gc_grandma',
-    text: 'Olga is watering the vegetable beds. The vegetables are the only confirmed beneficiaries.'
+    text: __dialogueText("scenes/GrandConspiracyScene.js", "t_15a11ba9fec7726cb6b6")
   }
 ];
 
 const REPORTS = {
   honest: {
-    title: 'REPORT THE FACTS',
+    title: __dialogueText("scenes/GrandConspiracyScene.js", "t_bee9835d95dd9134bdf9"),
     effect: 'honest_report',
     delta: 5,
     text:
-      'Olga was observed watering her vegetable beds. ' +
-      'She opened a sack containing plant bulbs. ' +
-      'A newspaper was photographed beside her sleeping dog.\n\n' +
-      'Olga says she gardens at midnight to avoid the client’s unsolicited advice. ' +
-      'She says the dog carries newspapers into the garden and agrees to return this one. ' +
-      'The photographs do not independently establish how the newspaper arrived.\n\n' +
-      'No evidence of criminal activity was established.',
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_72d98b6c85ccaf0b8e98") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_91e9a67276c3801538b1") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_291def0b1cad3a24feca") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_1b5276b77804e3a0e76f") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_a72c053fa368c8cfbb3f") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_8c1e0188b86cea2a5266") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_4ff5515e44098ba826e5"),
     reply:
-      'Perkins: “So she waits until midnight to avoid speaking to me?”\n\n' +
-      'You: “That is her explanation.”\n\n' +
-      'Perkins: “Suspiciously plausible. I dislike it.”'
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_1934296ba038a44066bb") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_6bdcfb94179d1e785f1c") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_a3b8def21992b0b604f6")
   },
 
   sensational: {
-    title: 'TELL HIM WHAT HE WANTS',
+    title: __dialogueText("scenes/GrandConspiracyScene.js", "t_3c8fe28d4fc3ea5de0a7"),
     effect: 'concealed_findings',
     delta: -5,
     text:
-      'Olga was active in the garden at midnight. ' +
-      'A sack, digging equipment and a wheelbarrow were present. ' +
-      'The client’s missing newspaper was found near the dog.\n\n' +
-      'Further suspicion is encouraged. The photographs showing ordinary gardening ' +
-      'and plant bulbs, and Olga’s explanation, are deliberately omitted.',
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_8a1664f818d69bdc4c52") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_720f03c209323523280b") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_9b49f6dc301eca2c8463") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_3fd247884d6ddde07555") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_c9dc3148037e5bef6684"),
     reply:
-      'Perkins: “I KNEW IT. Gardening equipment. In a garden!”\n\n' +
-      'You close the file. The facts remain innocent. Your report does not.'
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_2e208c51bc4cdd70e09f") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_33eeda95aa4dfe687bb4")
   }
 };
 
@@ -195,7 +196,7 @@ export class GrandConspiracyScene extends Phaser.Scene {
       this.text(
         40,
         90,
-        `Missing garden assets:\n${missing.join('\n')}`,
+        `${__dialogueText("scenes/GrandConspiracyScene.js", "t_4597f5aecddd084c6aae")}${missing.join('\n')}`,
         24,
         this.W - 80
       );
@@ -257,7 +258,7 @@ export class GrandConspiracyScene extends Phaser.Scene {
     this.text(
       28,
       24,
-      'THE MIDNIGHT GARDENER',
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_52aab31eec4d8c1a423d"),
       20
     ).setDepth(100);
 
@@ -339,10 +340,10 @@ export class GrandConspiracyScene extends Phaser.Scene {
     this.refresh();
 
     if (this.read().completed) {
-      this.say('Case closed. Perkins has paid for an explanation he did not particularly enjoy.');
+      this.say(__dialogueText("scenes/GrandConspiracyScene.js", "t_ad42dff11fd9b457fb04"));
     } else {
       this.say(
-        'Switch on the camera. Drag a frame around Olga and her watering can to photograph the gardening.'
+        __dialogueText("scenes/GrandConspiracyScene.js", "t_433a6fb0c914d77299bd")
       );
     }
   }
@@ -490,7 +491,7 @@ export class GrandConspiracyScene extends Phaser.Scene {
     const label = this.text(
       r.x + 42,
       r.y + 38,
-      'CAMERA ON — DRAG TO FRAME',
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_80d31c8f56fb9baae4a5"),
       21
     );
 
@@ -539,19 +540,19 @@ export class GrandConspiracyScene extends Phaser.Scene {
   toggleCamera() {
     if (this.photoMode) {
       this.setCamera(false);
-      this.say('Camera put away. You can inspect the garden.');
+      this.say(__dialogueText("scenes/GrandConspiracyScene.js", "t_d7c5d6a19e48652c3453"));
       return;
     }
 
     if (!piInventoryManager.hasItem('camera')) {
-      this.say('You need a camera in your PI inventory.');
+      this.say(__dialogueText("scenes/GrandConspiracyScene.js", "t_ca7dcd78623f50850e2c"));
       return;
     }
 
     this.setCamera(true);
 
     this.say(
-      'Drag a frame around the subject. Release to take the photograph. Include the context, not the entire garden.'
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_0ae7aca23b3018102df0")
     );
   }
 
@@ -614,12 +615,12 @@ export class GrandConspiracyScene extends Phaser.Scene {
 
     if (!piInventoryManager.hasItem('camera')) {
       this.setCamera(false);
-      this.say('Your PI camera is no longer available.');
+      this.say(__dialogueText("scenes/GrandConspiracyScene.js", "t_a1ec347ede5ab0e7a738"));
       return;
     }
 
     if (frame.w < 20 || frame.h < 20) {
-      this.say('Hold and drag to frame a photograph. A click is not a frame.');
+      this.say(__dialogueText("scenes/GrandConspiracyScene.js", "t_d7d36c5d5d2b60ddf320"));
       return;
     }
 
@@ -627,7 +628,7 @@ export class GrandConspiracyScene extends Phaser.Scene {
       {
         id: 'gardening',
         bounds: this.bounds.gc_grandma,
-        text: 'Olga watering the beds. The photograph establishes gardening, not a motive.'
+        text: __dialogueText("scenes/GrandConspiracyScene.js", "t_14e44602816c3a2d3972")
       },
       {
         id: 'newspaper',
@@ -635,7 +636,7 @@ export class GrandConspiracyScene extends Phaser.Scene {
           this.bounds.gc_dog,
           this.bounds.gc_newspaper
         ]),
-        text: 'The dog and newspaper together. The photograph does not establish who brought it here.'
+        text: __dialogueText("scenes/GrandConspiracyScene.js", "t_07914c0b2a38d26db3d6")
       }
     ];
 
@@ -643,7 +644,7 @@ export class GrandConspiracyScene extends Phaser.Scene {
       targets.push({
         id: 'bulbs',
         bounds: this.bounds.gc_bag_onion,
-        text: 'The open sack contains plant bulbs. An important detail Perkins may not enjoy.'
+        text: __dialogueText("scenes/GrandConspiracyScene.js", "t_9a8053ae0d37b7fec5c1")
       });
     }
 
@@ -653,7 +654,7 @@ export class GrandConspiracyScene extends Phaser.Scene {
 
     if (matching.length !== 1) {
       this.say(
-        'No clear evidence frame. Include one complete subject: Olga and her can, the open sack, or the dog WITH the newspaper.'
+        __dialogueText("scenes/GrandConspiracyScene.js", "t_6548f8016ff58818d54a")
       );
 
       return;
@@ -663,7 +664,7 @@ export class GrandConspiracyScene extends Phaser.Scene {
     const progress = this.read();
 
     if (progress.photos.includes(target.id)) {
-      this.say('Already documented. Additional copies do not make it more suspicious.');
+      this.say(__dialogueText("scenes/GrandConspiracyScene.js", "t_5e46e08c9feef1173803"));
       return;
     }
 
@@ -681,7 +682,7 @@ export class GrandConspiracyScene extends Phaser.Scene {
     });
 
     this.refresh();
-    this.say(`Photograph recorded. ${target.text}`);
+    this.say(`${__dialogueText("scenes/GrandConspiracyScene.js", "t_924462bc093b4fd80f23")}${target.text}`);
   }
 
   keepWatching() {
@@ -699,7 +700,7 @@ export class GrandConspiracyScene extends Phaser.Scene {
     this.transitioning = true;
     this.refreshActions();
 
-    this.say('You wait quietly. No time or energy is charged.');
+    this.say(__dialogueText("scenes/GrandConspiracyScene.js", "t_ace372ab306671cecfa3"));
 
     this.tweens.add({
       targets: this.curtain,
@@ -720,7 +721,7 @@ export class GrandConspiracyScene extends Phaser.Scene {
             this.refresh();
 
             this.say(
-              'A little later, Olga has opened the sack. Plant bulbs. She has resumed watering. Photograph the contents.'
+              __dialogueText("scenes/GrandConspiracyScene.js", "t_79d99c1780cf6c06ed3d")
             );
           }
         });
@@ -734,22 +735,22 @@ export class GrandConspiracyScene extends Phaser.Scene {
     this.setCamera(false);
 
     this.showModal(
-      'CALLING OVER THE FENCE',
-      'You: “Olga? Why do you garden at midnight?”\n\n' +
-      'Olga: “Because at noon Perkins explains how I should water. ' +
-      'At two he explains soil. At four he explains why my tomatoes lack ambition.”\n\n' +
-      '“At midnight, the plants get water and I get silence. Until you arrived.”\n\n' +
-      'You: “And his newspaper?”\n\n' +
-      'Olga: “The dog brings them. He takes the gardening section. ' +
-      'Perkins only notices when the crossword disappears. Tell him he can have it back.”\n\n' +
-      'This is Olga’s account, not something the photographs prove.',
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_d79b6ce58b6d0a50f593"),
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_9e879ba1efdf554adf02") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_5521143ab7f12228970a") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_9f0eb5edff3aed805ce8") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_1c5b551eb59c43e509fa") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_a5f460ac664753e903b1") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_d6afda892ac42d998d50") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_969426a2822b2b7cd1f6") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_dfafb4a7ee4f37e2e5cd"),
       [{
-        label: 'RECORD HER EXPLANATION',
+        label: __dialogueText("scenes/GrandConspiracyScene.js", "t_524ce7ed8a72e0c4d4d4"),
         action: () => {
           this.write({ talked: true });
           this.closeModal();
           this.refresh();
-          this.say('Olga’s explanation recorded. Prepare your report for Perkins.');
+          this.say(__dialogueText("scenes/GrandConspiracyScene.js", "t_9837384de2be0512a7b2"));
         }
       }]
     );
@@ -768,24 +769,24 @@ export class GrandConspiracyScene extends Phaser.Scene {
     }
 
     this.showModal(
-      'REPORT TO PERKINS',
-      'The photographs show gardening, plant bulbs and a newspaper beside a dog.\n\n' +
-      'Olga has explained her midnight routine. You can report the findings, ' +
-      'or deliberately omit the innocent explanation to encourage Perkins’s suspicions.\n\n' +
-      'Both endings: $100, 50 XP, reputation +10 up to its cap, ' +
-      'and the “Much Ado About Mulch” achievement.\n\n' +
-      'The choice changes integrity, not the contents of the photographs.',
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_04592858521cc7209c9a"),
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_d2115ba9721141812946") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_c85900c678383a5755cd") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_f3518e4f7c5a3f332d0f") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_f25a3f56760a2fffe304") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_aded1cf23b17694de8f3") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_05c4cc2fa7302f405442"),
       [
         {
-          label: 'FACTS (+5 INTEGRITY)',
+          label: __dialogueText("scenes/GrandConspiracyScene.js", "t_87ea4660d3f7b77b3058"),
           action: () => this.previewReport('honest')
         },
         {
-          label: 'SENSATION (-5 INTEGRITY)',
+          label: __dialogueText("scenes/GrandConspiracyScene.js", "t_1c4889c90a9e7f7ec203"),
           action: () => this.previewReport('sensational')
         },
         {
-          label: 'BACK',
+          label: __dialogueText("scenes/GrandConspiracyScene.js", "t_639807a2e01886a2236b"),
           action: () => this.closeModal()
         }
       ]
@@ -802,17 +803,17 @@ export class GrandConspiracyScene extends Phaser.Scene {
     this.showModal(
       report.title,
       report.text +
-      '\n\nREWARDS: $100 · 50 XP · reputation +10 (cap 100)' +
-      '\nACHIEVEMENT: Much Ado About Mulch' +
-      `\nINTEGRITY: ${report.delta > 0 ? '+' : ''}${report.delta} (subject to limits)` +
-      '\n\nConfirming locks this ending. An interrupted settlement can be retried.',
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_2cef4423efc596d274e8") +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_6d2f8566ba24e3aea59e") +
+      `${__dialogueText("scenes/GrandConspiracyScene.js", "t_f5f54457a0d479da5966")}${report.delta > 0 ? '+' : ''}${report.delta}${__dialogueText("scenes/GrandConspiracyScene.js", "t_9f57956d29521daecbfc")}` +
+      __dialogueText("scenes/GrandConspiracyScene.js", "t_d72f450fd47bb39f3365"),
       [
         {
-          label: locked ? 'RETRY SETTLEMENT' : 'CONFIRM & SEND',
+          label: locked ? __dialogueText("scenes/GrandConspiracyScene.js", "t_ba87a42726b3f1f42515") : __dialogueText("scenes/GrandConspiracyScene.js", "t_d4eff7742a1bf950c3db"),
           action: () => this.submitReport(choice)
         },
         {
-          label: locked ? 'CLOSE' : 'BACK',
+          label: locked ? __dialogueText("scenes/GrandConspiracyScene.js", "t_f13a1ed0cf3c4197ec8f") : __dialogueText("scenes/GrandConspiracyScene.js", "t_639807a2e01886a2236b"),
           action: () => {
             if (locked) this.closeModal();
             else this.chooseReport();
@@ -843,7 +844,7 @@ export class GrandConspiracyScene extends Phaser.Scene {
     if (!quest) {
       this.closeModal();
       this.say(
-        'Accept The Midnight Gardener in Classifieds before submitting the report. Your observations are saved.'
+        __dialogueText("scenes/GrandConspiracyScene.js", "t_faaf60a758356eb91279")
       );
       return;
     }
@@ -853,13 +854,13 @@ export class GrandConspiracyScene extends Phaser.Scene {
       quest.rewardSettlement?.completed !== true
     ) {
       this.closeModal();
-      this.say('This contract cannot be settled in its current state.');
+      this.say(__dialogueText("scenes/GrandConspiracyScene.js", "t_e7b04f9d851a45324334"));
       return;
     }
 
     if (!Array.isArray(quest.objectives) || !quest.objectives.length) {
       this.closeModal();
-      this.say('The contract has no valid objectives. Check the case definition.');
+      this.say(__dialogueText("scenes/GrandConspiracyScene.js", "t_d1b60f098e1f818a77b5"));
       return;
     }
 
@@ -908,7 +909,7 @@ export class GrandConspiracyScene extends Phaser.Scene {
               ...(current.resolution || {}),
               endingId: choice,
               report: report.text,
-              witnessStatement: 'Olga explains that she gardens at midnight to avoid Perkins’s commentary.',
+              witnessStatement: __dialogueText("scenes/GrandConspiracyScene.js", "t_fb2f912ed1d97451f7b1"),
               photoIds: [...this.read().photos]
             }
           }
@@ -931,14 +932,14 @@ export class GrandConspiracyScene extends Phaser.Scene {
       this.refresh();
 
       this.showModal(
-        'CASE CLOSED',
+        __dialogueText("scenes/GrandConspiracyScene.js", "t_3825cb7a28815e93b278"),
         report.reply +
-        '\n\nSettlement recorded: $100, 50 XP, reputation reward +10 ' +
-        '(maximum 100), achievement: Much Ado About Mulch.' +
-        `\nIntegrity decision: ${report.delta > 0 ? '+' : ''}${report.delta}.` +
-        '\n\nRecorded rewards are not paid again.',
+        __dialogueText("scenes/GrandConspiracyScene.js", "t_a3670a8808206a7c1c68") +
+        __dialogueText("scenes/GrandConspiracyScene.js", "t_09587bde93137a974f5a") +
+        `${__dialogueText("scenes/GrandConspiracyScene.js", "t_838ba4766fe998f2219e")}${report.delta > 0 ? '+' : ''}${report.delta}${__dialogueText("scenes/GrandConspiracyScene.js", "t_cdb4ee2aea69cc6a8333")}` +
+        __dialogueText("scenes/GrandConspiracyScene.js", "t_0108130e77e672f875a8"),
         [{
-          label: 'BACK TO THE GARDEN',
+          label: __dialogueText("scenes/GrandConspiracyScene.js", "t_194d49d3c085f555240e"),
           action: () => this.closeModal()
         }]
       );
@@ -947,7 +948,7 @@ export class GrandConspiracyScene extends Phaser.Scene {
 
       this.closeModal();
       this.say(
-        'Report settlement interrupted. Use REPORT to retry the same ending. Recorded rewards will not repeat.'
+        __dialogueText("scenes/GrandConspiracyScene.js", "t_1049d8d2f614831ecdd6")
       );
     } finally {
       this.submitting = false;
@@ -974,9 +975,9 @@ export class GrandConspiracyScene extends Phaser.Scene {
       {
         id,
         type: 'note',
-        label: 'Final report — The Midnight Gardener',
+        label: __dialogueText("scenes/GrandConspiracyScene.js", "t_49e8e4e137e1612036c6"),
         text: reportText,
-        metaText: 'Report sent to Elder Perkins',
+        metaText: __dialogueText("scenes/GrandConspiracyScene.js", "t_03a0bbc92d6fd115e5ec"),
         color: 'yellow',
         x: 120,
         y: 380,
@@ -1099,7 +1100,7 @@ export class GrandConspiracyScene extends Phaser.Scene {
 
     if (!progress.completed && !this.transitioning) {
       entries.push({
-        label: this.photoMode ? 'CAMERA: ON' : 'CAMERA: OFF',
+        label: this.photoMode ? __dialogueText("scenes/GrandConspiracyScene.js", "t_4f0872ab8f825e8ae4b4") : __dialogueText("scenes/GrandConspiracyScene.js", "t_bfb78c847e15030fb830"),
         action: () => this.toggleCamera()
       });
 
@@ -1108,21 +1109,21 @@ export class GrandConspiracyScene extends Phaser.Scene {
         !progress.bagOpened
       ) {
         entries.push({
-          label: 'KEEP WATCHING',
+          label: __dialogueText("scenes/GrandConspiracyScene.js", "t_78a1238c348bbf458529"),
           action: () => this.keepWatching()
         });
       }
 
       if (this.allPhotos()) {
         entries.push({
-          label: progress.talked ? 'TALK AGAIN' : 'CALL TO OLGA',
+          label: progress.talked ? __dialogueText("scenes/GrandConspiracyScene.js", "t_14cd31ca6827a5c5bbf5") : __dialogueText("scenes/GrandConspiracyScene.js", "t_b4da0d0bee773ccfdc2a"),
           action: () => this.talkToOlga()
         });
       }
 
       if (progress.talked && this.allPhotos()) {
         entries.push({
-          label: 'REPORT',
+          label: __dialogueText("scenes/GrandConspiracyScene.js", "t_255633313f2c2771dd5b"),
           action: () => this.chooseReport()
         });
       }
@@ -1135,7 +1136,7 @@ export class GrandConspiracyScene extends Phaser.Scene {
         x, y, entry.label, entry.action
       );
 
-      if (entry.label === 'CAMERA: ON') {
+      if (entry.label === __dialogueText("scenes/GrandConspiracyScene.js", "t_4f0872ab8f825e8ae4b4")) {
         button.setBackgroundColor('#7a2a22');
       }
 
@@ -1157,7 +1158,7 @@ export class GrandConspiracyScene extends Phaser.Scene {
 
   refresh() {
     this.counter.setText(
-      `PHOTOS: ${this.read().photos.length}/3`
+      `${__dialogueText("scenes/GrandConspiracyScene.js", "t_261f2e3cbdeff3d74dd3")}${this.read().photos.length}${__dialogueText("scenes/GrandConspiracyScene.js", "t_8d2cedfe81c77aaa05d9")}`
     );
 
     this.applyBagState();

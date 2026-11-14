@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { getPigeonLoft, feedPigeon, renamePigeon, sendPigeon, collectPigeonFind, buyPigeonPerch } from '../managers/PigeonManager.js';
 import { PIGEON_FINDS, PIGEON_COLLECTIONS } from '../config/pigeonConfig.js';
@@ -18,7 +19,7 @@ export function choosePigeonFeedingTarget(state, selectedSlot) {
 export class PigeonLoftScene extends BaseScene {
   constructor() { super({ key: 'PigeonLoftScene' }); }
   preload() {
-    for (const key of ASSETS) if (!this.textures.exists(key)) this.load.image(key, `assets/pi/home/${key}.webp`);
+    for (const key of ASSETS) if (!this.textures.exists(key)) this.load.image(key, `${__dialogueText("scenes/PigeonLoftScene.js", "t_dd5cc3ea8364c52c82b4")}${key}${__dialogueText("scenes/PigeonLoftScene.js", "t_ed140d91e29553b83699")}`);
   }
   create() {
     super.create(); this.registry.set('currentSceneKey', 'PigeonLoftScene');
@@ -121,8 +122,8 @@ export class PigeonLoftScene extends BaseScene {
     this.button(18, 16, '[EXIT]', () => { void this.exitLoft(); });
     this.button(112, 16, '[COLLECTION]', () => this.openModal('collection'));
     if (this.state.nextPerchPrice != null) this.button(282, 16,
-      `[BUY CAGE ${ORDER[this.state.perches]} / $${this.state.nextPerchPrice}]`, () => this.openModal('buy'));
-    this.text(18, 61, `Feed: ${this.state.feed}`, 18).setBackgroundColor('#191b16').setPadding(6, 4);
+      `${__dialogueText("scenes/PigeonLoftScene.js", "t_de9e57f9078f36d8a6ce")}${ORDER[this.state.perches]}${__dialogueText("scenes/PigeonLoftScene.js", "t_dfd7a1215ec723c23ecf")}${this.state.nextPerchPrice}${__dialogueText("scenes/PigeonLoftScene.js", "t_cfae0d4248f7142f7b17")}`, () => this.openModal('buy'));
+    this.text(18, 61, `${__dialogueText("scenes/PigeonLoftScene.js", "t_28235f094a9f57ecd5f4")}${this.state.feed}`, 18).setBackgroundColor('#191b16').setPadding(6, 4);
     this.state.birds.forEach((bird, index) => {
       const label = bird.name.length > 17 ? bird.name.slice(0, 16) + '…' : bird.name;
       this.button(140 + index * 235, 59, label, () => {
@@ -150,9 +151,9 @@ export class PigeonLoftScene extends BaseScene {
     zone.on('pointerover', () => {
       if (this.modal || this.leaving || this.debugMode) return;
       let label = cfg.label;
-      if (cfg.id === 'feeder') label = 'Feeder — click to pour one portion';
+      if (cfg.id === 'feeder') label = __dialogueText("scenes/PigeonLoftScene.js", "t_665750de0c29d934b7fc");
       const match = cfg.id.match(/^p([123])$/), bird = match ? this.state.slots.find(s => s.slot === Number(match[1]))?.bird : null;
-      if (bird) label = `${bird.name} — actions are under the name above`;
+      if (bird) label = `${bird.name}${__dialogueText("scenes/PigeonLoftScene.js", "t_29600e7ef43c4c031378")}`;
       this.tooltip.setText(label).setOrigin(0, 1);
       this.tooltip.setPosition(Math.max(8, Math.min(cfg.x, W - this.tooltip.width - 8)),
         Math.max(this.tooltip.height + 8, cfg.y - cfg.h / 2 - 8)).setVisible(true);
@@ -187,14 +188,14 @@ export class PigeonLoftScene extends BaseScene {
   pourGrain() {
     if (this.leaving || this.debugMode) return;
     let state; try { state = getPigeonLoft(); } catch (error) { this.feedback(error.message); return; }
-    if (state.feed < 1) { this.feedback('No grain in inventory. Buy Pigeon Feed on the office computer ($2 per portion).'); return; }
+    if (state.feed < 1) { this.feedback(__dialogueText("scenes/PigeonLoftScene.js", "t_9a396236abe51d763194")); return; }
     const target = choosePigeonFeedingTarget(state, this.selectedSlot);
     if (!target) {
       const ready = state.birds.find(b => b.status === 'ready');
       const fed = state.birds.find(b => b.status === 'home' && b.fed);
-      this.feedback(ready ? `${ready.name} is back. Collect the parcel before feeding again.`
-        : fed ? `${fed.name} already has grain. Click its name and choose SEND PIGEON.`
-        : 'All pigeons are away. Wait for a return before pouring more grain.'); return;
+      this.feedback(ready ? `${ready.name}${__dialogueText("scenes/PigeonLoftScene.js", "t_c6f815187053f6369ee1")}`
+        : fed ? `${fed.name}${__dialogueText("scenes/PigeonLoftScene.js", "t_4b2c953cb7fec93ce4de")}`
+        : __dialogueText("scenes/PigeonLoftScene.js", "t_4d41bf73152ece2778ae")); return;
     }
     this.selectedSlot = target.slot;
     this.action(() => feedPigeon(target.slot));
@@ -202,14 +203,14 @@ export class PigeonLoftScene extends BaseScene {
   activate(id) {
     this.tooltip?.setVisible(false);
     if (id === 'cabinet') { this.openModal('collection'); return; }
-    if (id === 'food') { this.feedback(`Feed: ${this.state.feed}. Computer > Office Shop > Pigeon Feed ($2).`); return; }
+    if (id === 'food') { this.feedback(`${__dialogueText("scenes/PigeonLoftScene.js", "t_28235f094a9f57ecd5f4")}${this.state.feed}${__dialogueText("scenes/PigeonLoftScene.js", "t_d9c0dae561f78db26d96")}`); return; }
     if (id === 'feeder') { this.pourGrain(); return; }
     const match = id.match(/^(cage|p)([123])(b?)$/); if (!match) return;
     this.selectedSlot = Number(match[2]); const bird = this.state.slots.find(s => s.slot === this.selectedSlot)?.bird;
     if (match[3] && bird) this.action(() => collectPigeonFind(bird.id));
-    else if (bird) this.feedback(bird.fed ? `${bird.name} has grain. Click its name above to send it.`
-      : `${bird.name}: click the name above for actions.`);
-    else this.feedback('Empty cage. Click the feeder once to pour grain and attract a pigeon.');
+    else if (bird) this.feedback(bird.fed ? `${bird.name}${__dialogueText("scenes/PigeonLoftScene.js", "t_5c9e31662dc66fca5a72")}`
+      : `${bird.name}${__dialogueText("scenes/PigeonLoftScene.js", "t_930ee0aa29cdc77e4349")}`);
+    else this.feedback(__dialogueText("scenes/PigeonLoftScene.js", "t_d4ae1e090bc427aeada2"));
   }
   openModal(kind) { this.modal = kind; this.renderLoft(); }
   action(callback) {
@@ -236,23 +237,23 @@ export class PigeonLoftScene extends BaseScene {
     this.panel(x, y, w, h); this.button(x + w - 48, y + 10, 'X', () => this.closeModal());
     if (collection) { this.renderCollectionContents(x, y); return; }
     if (this.modal === 'buy') {
-      this.text(x + 16, y + 18, 'EMPTY CAGE', 23, w - 80);
-      this.text(x + 16, y + 75, `Buy cage ${ORDER[this.state.perches]} for $${this.state.nextPerchPrice}?\nA pigeon arrives only after you add grain.`, 21, w - 36);
-      this.button(x + 16, y + 220, 'CONFIRM PURCHASE', () => this.action(() => buyPigeonPerch())); return;
+      this.text(x + 16, y + 18, __dialogueText("scenes/PigeonLoftScene.js", "t_812ce38dea8054bb097c"), 23, w - 80);
+      this.text(x + 16, y + 75, `${__dialogueText("scenes/PigeonLoftScene.js", "t_4d9bc36fe92c88779216")}${ORDER[this.state.perches]}${__dialogueText("scenes/PigeonLoftScene.js", "t_d7b44ac23c2419a3fce1")}${this.state.nextPerchPrice}${__dialogueText("scenes/PigeonLoftScene.js", "t_70a999ca03af92f3cb54")}`, 21, w - 36);
+      this.button(x + 16, y + 220, __dialogueText("scenes/PigeonLoftScene.js", "t_43c6cbf9c47f25d725c6"), () => this.action(() => buyPigeonPerch())); return;
     }
     const bird = this.state.slots.find(s => s.slot === this.selectedSlot)?.bird;
-    this.text(x + 16, y + 18, bird?.name || 'Empty cage', 23, w - 80);
-    if (!bird) { this.button(x + 16, y + 160, 'POUR ONE PORTION', () => this.pourGrain(), this.state.feed > 0); return; }
+    this.text(x + 16, y + 18, bird?.name || __dialogueText("scenes/PigeonLoftScene.js", "t_a6acfee7867682cc8356"), 23, w - 80);
+    if (!bird) { this.button(x + 16, y + 160, __dialogueText("scenes/PigeonLoftScene.js", "t_72f90a53bf0d3eaa42dd"), () => this.pourGrain(), this.state.feed > 0); return; }
     this.statusText = this.text(x + 16, y + 74, this.status(bird), 21, w - 36);
     this.button(x + 16, y + 160, 'RENAME', () => { this.nameDraft = bird.name; this.openModal('rename'); });
-    if (bird.status === 'ready') this.button(x + 16, y + 225, 'COLLECT FIND', () => this.action(() => collectPigeonFind(bird.id)));
-    else if (bird.status === 'home' && bird.fed) this.button(x + 16, y + 225, 'SEND PIGEON', () => this.action(() => sendPigeon(bird.id)));
-    else if (bird.status === 'home') this.button(x + 16, y + 225, 'POUR ONE PORTION', () => this.pourGrain(), this.state.feed > 0);
+    if (bird.status === 'ready') this.button(x + 16, y + 225, __dialogueText("scenes/PigeonLoftScene.js", "t_be082c01d0e4a959879e"), () => this.action(() => collectPigeonFind(bird.id)));
+    else if (bird.status === 'home' && bird.fed) this.button(x + 16, y + 225, __dialogueText("scenes/PigeonLoftScene.js", "t_fb17f3492295a2faab1f"), () => this.action(() => sendPigeon(bird.id)));
+    else if (bird.status === 'home') this.button(x + 16, y + 225, __dialogueText("scenes/PigeonLoftScene.js", "t_72f90a53bf0d3eaa42dd"), () => this.pourGrain(), this.state.feed > 0);
   }
   renderRename() {
     this.layer.add(this.add.rectangle(0, 0, W, H, 0x000000, 0.5).setOrigin(0).setInteractive()); this.panel(350, 210, 580, 285);
-    this.text(380, 236, 'NAME YOUR PIGEON', 17, 500).setFontFamily('PressStart2P, monospace');
-    this.text(380, 278, 'Every good investigator needs an alias.', 20, 500);
+    this.text(380, 236, __dialogueText("scenes/PigeonLoftScene.js", "t_eac38de519db811a5dad"), 17, 500).setFontFamily(__dialogueText("scenes/PigeonLoftScene.js", "t_6fbf2e36fd327aff69ef"));
+    this.text(380, 278, __dialogueText("scenes/PigeonLoftScene.js", "t_a00fe6ecd5060f7df64a"), 20, 500);
     this.button(872, 222, 'X', () => this.cancelRename()); this.button(390, 408, 'SAVE', () => this.saveName());
     this.button(735, 408, 'CANCEL', () => this.cancelRename()); this.mountNameInput(390, 328, 500, 50);
   }
@@ -261,17 +262,17 @@ export class PigeonLoftScene extends BaseScene {
     const ox = (this.scale.width - W * fit) / 2, oy = (this.scale.height - H * fit) / 2;
     const sx = rect.width / this.scale.width, sy = rect.height / this.scale.height;
     const input = document.createElement('input'); input.type = 'text'; input.maxLength = 24; input.value = this.nameDraft;
-    input.setAttribute('aria-label', 'Pigeon name'); input.autocomplete = 'off'; input.spellcheck = false;
+    input.setAttribute('aria-label', __dialogueText("scenes/PigeonLoftScene.js", "t_ffb4f02003c171562ca1")); input.autocomplete = 'off'; input.spellcheck = false;
     Object.assign(input.style, { position: 'fixed', zIndex: '10000', boxSizing: 'border-box',
       left: `${rect.left + (ox + x * fit) * sx}px`, top: `${rect.top + (oy + y * fit) * sy}px`,
       width: `${w * fit * sx}px`, height: `${h * fit * sy}px`, fontFamily: 'SpecialElite, monospace',
       fontSize: `${Math.max(16, 24 * fit * sx)}px`, background: '#eee0bd', color: '#30291d',
-      border: '3px solid #9a8050', borderRadius: '0', padding: '6px 12px', outline: 'none' });
+      border: __dialogueText("scenes/PigeonLoftScene.js", "t_2f1bed17aa7eb98e7fac"), borderRadius: '0', padding: __dialogueText("scenes/PigeonLoftScene.js", "t_a26abe2827821940c7f4"), outline: 'none' });
     input.addEventListener('input', () => { this.nameDraft = input.value; });
     input.addEventListener('keydown', event => {
       event.stopPropagation(); if (event.isComposing) return;
-      if (event.key === 'Enter') { event.preventDefault(); this.saveName(); }
-      else if (event.key === 'Escape') { event.preventDefault(); this.cancelRename(); }
+      if (event.key === __dialogueText("scenes/PigeonLoftScene.js", "t_dc8659db6d416dc32fca")) { event.preventDefault(); this.saveName(); }
+      else if (event.key === __dialogueText("scenes/PigeonLoftScene.js", "t_037c968467aa3fd7c059")) { event.preventDefault(); this.cancelRename(); }
     });
     document.body.appendChild(input); this.nameInput = input;
     if (this.input.keyboard) { this.keyboardBeforeName = this.input.keyboard.enabled; this.input.keyboard.enabled = false; }
@@ -295,16 +296,16 @@ export class PigeonLoftScene extends BaseScene {
       this.text(x + 18, top, `${set.name}: ${count}/${set.ids.length}`, 22);
       set.ids.forEach((id, col) => {
         const find = PIGEON_FINDS.find(f => f.id === id), n = this.state.collection[id] || 0, left = x + 18 + col * 376;
-        this.text(left, top + 38, n ? `${find?.name} (x${n})` : '???', 20, 350);
-        this.text(left, top + 76, n ? find?.description || '' : 'Not found yet.', 17, 350, '#b8bdbb');
+        this.text(left, top + 38, n ? `${find?.name}${__dialogueText("scenes/PigeonLoftScene.js", "t_2b9d1444011849172821")}${n}${__dialogueText("scenes/PigeonLoftScene.js", "t_ba5ec51d07a4ac0e9516")}` : '???', 20, 350);
+        this.text(left, top + 76, n ? find?.description || '' : __dialogueText("scenes/PigeonLoftScene.js", "t_7b836f6aa310c14725a5"), 17, 350, '#b8bdbb');
       });
-    }); this.text(x + 18, y + 445, `Junk discarded: ${this.state.junkDiscarded}`, 17);
+    }); this.text(x + 18, y + 445, `${__dialogueText("scenes/PigeonLoftScene.js", "t_38db2e3b55d734ecceff")}${this.state.junkDiscarded}`, 17);
   }
   status(bird) {
-    if (bird.status === 'ready') return `Back with: ${bird.find?.name || 'a surprise'}`;
-    if (bird.status === 'home') return bird.fed ? 'Fed and ready for a flight.' : 'At home. Click the feeder to add grain.';
+    if (bird.status === 'ready') return `${__dialogueText("scenes/PigeonLoftScene.js", "t_a9121f225bf87d447559")}${bird.find?.name || __dialogueText("scenes/PigeonLoftScene.js", "t_12ad6683e4b443ea7419")}`;
+    if (bird.status === 'home') return bird.fed ? __dialogueText("scenes/PigeonLoftScene.js", "t_a15616b1273c4cc10cb4") : __dialogueText("scenes/PigeonLoftScene.js", "t_ab019752dd2af26e6b17");
     const minutes = Math.ceil(bird.remainingMs / 60000), hours = Math.floor(minutes / 60);
-    return hours ? `Returns in ${hours}h ${minutes % 60}m` : `Returns in ${minutes}m`;
+    return hours ? `${__dialogueText("scenes/PigeonLoftScene.js", "t_882be3f6abb3ad0e1dfa")}${hours}${__dialogueText("scenes/PigeonLoftScene.js", "t_17c76396f75dbc3aeb88")}${minutes % 60}${__dialogueText("scenes/PigeonLoftScene.js", "t_62c66a7a5dd70c314661")}` : `${__dialogueText("scenes/PigeonLoftScene.js", "t_882be3f6abb3ad0e1dfa")}${minutes}${__dialogueText("scenes/PigeonLoftScene.js", "t_62c66a7a5dd70c314661")}`;
   }
   refreshState() {
     if (!this.layer || this._cleanupDone || this.debugMode) return;
@@ -317,12 +318,12 @@ export class PigeonLoftScene extends BaseScene {
   }
   editorText() {
     const c = this.configs[this.selectedIndex];
-    return `LOCAL HOTSPOTS: ${c?.id} | x:${Math.round(c?.x || 0)} y:${Math.round(c?.y || 0)} w:${Math.round(c?.w || 0)} h:${Math.round(c?.h || 0)}\nDrag / Arrows: move | Shift+Arrows: resize | Alt: 1px | Tab: select | C: export | D: close. Actions disabled.`;
+    return `${__dialogueText("scenes/PigeonLoftScene.js", "t_20c46d97c1f5789e1f85")}${c?.id}${__dialogueText("scenes/PigeonLoftScene.js", "t_01c59aaed25f30342584")}${Math.round(c?.x || 0)}${__dialogueText("scenes/PigeonLoftScene.js", "t_8278a5c11d3d9380f821")}${Math.round(c?.y || 0)}${__dialogueText("scenes/PigeonLoftScene.js", "t_1b89a9604b178452218e")}${Math.round(c?.w || 0)}${__dialogueText("scenes/PigeonLoftScene.js", "t_3f4674b8e35cc249a199")}${Math.round(c?.h || 0)}${__dialogueText("scenes/PigeonLoftScene.js", "t_058c128b39a43663ae0a")}`;
   }
   drawEditorHelp() { this.debugText = this.text(18, 165, this.editorText(), 16, 1100, '#a5ffd4').setBackgroundColor('#191b16').setPadding(8, 6); }
   onKey(event) {
     if (event.target?.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target?.tagName)) return;
-    if (event.code === 'Escape') {
+    if (event.code === __dialogueText("scenes/PigeonLoftScene.js", "t_037c968467aa3fd7c059")) {
       if (this.modal === 'rename') this.cancelRename(); else if (this.modal) this.closeModal();
       else if (this.debugMode) { this.debugMode = false; this.renderLoft(); } return;
     }
@@ -333,7 +334,7 @@ export class PigeonLoftScene extends BaseScene {
       console.log('COPY INTO config/pigeonHotspots.js:');
       console.log('export const PIGEON_HOTSPOTS = ' + JSON.stringify(this.configs.map(c => ({ ...c, auto: false })), null, 2) + ';'); return;
     }
-    if (event.code === 'Tab') {
+    if (event.code === __dialogueText("scenes/PigeonLoftScene.js", "t_90ddf1963abb36c9921c")) {
       event.preventDefault(); this.selectedIndex = (this.selectedIndex + (event.shiftKey ? -1 : 1) + this.configs.length) % this.configs.length;
       this.drawAllHotspots(); return;
     }
@@ -348,6 +349,6 @@ export class PigeonLoftScene extends BaseScene {
     if (this.leaving || this.debugMode) return;
     this.detachNameInput(); this.leaving = true;
     const moved = await this.goto('HomeCityScene', { entryPoint: 'your-home' });
-    if (moved === false && !this._cleanupDone) { this.leaving = false; this.feedback('Could not return to town. Please try again.'); }
+    if (moved === false && !this._cleanupDone) { this.leaving = false; this.feedback(__dialogueText("scenes/PigeonLoftScene.js", "t_e02a1ccf9b3526681918")); }
   }
 }

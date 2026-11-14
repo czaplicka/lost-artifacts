@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { EventBus } from '../../EventBus.js';
 import { gameState } from '../../GameData.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
@@ -7,9 +8,9 @@ import { ReedReportUI } from './ReedReportUI.js';
 
 const REED_MESSAGE_ID='reed_claire_outgoing',DRAFT_KEY='reedMailDraft',OUTGOING_KEY='piKeywordOutgoingMail';
 const GENERIC_VARIANTS=[
- {id:'formal',label:'FORMAL',body:'Hello,\n\nI am a private investigator following up on an enquiry. I would appreciate an opportunity to ask you a few questions. Please reply when convenient.\n\nKind regards,\n'},
- {id:'discreet',label:'DISCREET',body:'Hello,\n\nI would like to speak with you about a private enquiry. I would prefer not to discuss the details in an unsolicited message. Please let me know whether you are willing to talk.\n\nThank you,\n'},
- {id:'direct',label:'DIRECT',body:'Hello,\n\nI am investigating a matter that may involve you. Can you contact me so I can ask a few questions?\n\nRegards,\n'}
+ {id:'formal',label:__dialogueText("ui/pi-computer/ReedContactMail.js", "t_6561aafebbd0580df69a"),body:__dialogueText("ui/pi-computer/ReedContactMail.js", "t_7f60157819c41c63df26")},
+ {id:'discreet',label:__dialogueText("ui/pi-computer/ReedContactMail.js", "t_7185bae96cfc29712457"),body:__dialogueText("ui/pi-computer/ReedContactMail.js", "t_25327e4d601ff548b5ac")},
+ {id:'direct',label:__dialogueText("ui/pi-computer/ReedContactMail.js", "t_5b196d41da99d8a63f73"),body:__dialogueText("ui/pi-computer/ReedContactMail.js", "t_3a52889453765b031571")}
 ];
 function extractEmail(value){
  if(typeof value!=='string')return '';
@@ -41,7 +42,7 @@ export class ReedContactMail{
    const items=original(...args).filter(message=>!managedIds.has(message.id));
    const config=this.service.data,sent=getReedContactRecord(),reedMessages=[];
    if(config&&sent&&gameState.piQuests?.quests?.[config.questId])reedMessages.push({
-    id:REED_MESSAGE_ID,from:`You → ${sent.to||config.email}`,subject:`Sent: ${config.subject}`,
+    id:REED_MESSAGE_ID,from:`${__dialogueText("ui/pi-computer/ReedContactMail.js", "t_a6cd4a7f9ea8eb99f4a2")}${sent.to||config.email}`,subject:`${__dialogueText("ui/pi-computer/ReedContactMail.js", "t_c43a4c853003ad59f3d4")}${config.subject}`,
     date:this.formatReedDate(sent.sentAt),body:sent.body
    });
    return [...outgoing.slice().reverse(),...reedMessages,...items];
@@ -54,7 +55,7 @@ export class ReedContactMail{
    const result=original(...args);
    if(!this.dead&&ui.app==='mail'&&ui.window){
     // Keep the entire action button left of the title-bar controls.
-    ui.drawing.button(ui.window.x+ui.window.w-300,ui.window.y+6,'NEW MAIL',()=>void this.openComposer());
+    ui.drawing.button(ui.window.x+ui.window.w-300,ui.window.y+6,__dialogueText("ui/pi-computer/ReedContactMail.js", "t_ea1d31c7cc79a22e408d"),()=>void this.openComposer());
    }
    return result;
   });
@@ -81,7 +82,7 @@ export class ReedContactMail{
  formatReedDate(value){
   const minutes=Number.isFinite(value)?value:0,day=Math.floor(minutes/1440)+1;
   const hour=String(Math.floor((minutes%1440)/60)).padStart(2,'0'),minute=String(minutes%60).padStart(2,'0');
-  return `Day ${day}, ${hour}:${minute}`;
+  return `${__dialogueText("ui/pi-computer/ReedContactMail.js", "t_df2441a485d20426bd94")}${day}${__dialogueText("ui/pi-computer/ReedContactMail.js", "t_0a07f659461970d8d8dc")}${hour}${__dialogueText("ui/pi-computer/ReedContactMail.js", "t_e7ac0786668e0ff0f02b")}${minute}`;
  }
  available(){const config=this.service.data;return Boolean(config?.questId&&gameState.piQuests?.quests?.[config.questId]?.status==='active');}
  knownAddress(){
@@ -116,7 +117,7 @@ export class ReedContactMail{
   if(!this.isLive()||!this.composing)return;
   const currentCaseId=this.ui.search.definition?.id;
   const recipient=this.getRecipients().find(contact=>contact.caseId===currentCaseId&&contact.keywordId===keywordId);
-  if(!recipient){this.ui.notice='Select a discovered email address from FIELD NOTES.';this.refresh();return;}
+  if(!recipient){this.ui.notice=__dialogueText("ui/pi-computer/ReedContactMail.js", "t_bf8f8564ea06ff323fa7");this.refresh();return;}
   this.updateDraft({to:recipient.email,caseId:recipient.caseId,keywordId:recipient.keywordId,variantId:null,route:null});
   this.ui.bodyPage=0;this.ui.notice='';this.refresh();
  }
@@ -138,7 +139,7 @@ export class ReedContactMail{
   const results=await Promise.allSettled([this.loadReedService(),ui.search.load()]);
   if(!this.isCurrentComposer(token))return;
   for(const result of results)if(result.status==='rejected')console.error('[ReedContactMail] Could not load mail data:',result.reason);
-  if(!ui.search.data)ui.notice='Field notes could not be loaded. Close this message and try again.';
+  if(!ui.search.data)ui.notice=__dialogueText("ui/pi-computer/ReedContactMail.js", "t_d3521e81af86c1de01b4");
   this.refresh();
  }
  closeComposer(){this.composing=false;this.ui.bodyPage=0;this.ui.selectedId=null;this.refresh();}
@@ -152,8 +153,8 @@ export class ReedContactMail{
   this.updateDraft({route});this.ui.bodyPage=0;this.refresh();
  }
  getMessageBody(){
-  const detective=String(gameState.playerName||'Detective');
-  if(this.hasReedRecipient())return buildReedMailBody(this.draft.variantId,this.replyNumber()||'[reply number]',detective);
+  const detective=String(gameState.playerName||__dialogueText("ui/pi-computer/ReedContactMail.js", "t_2653ceeec1fd951707a3"));
+  if(this.hasReedRecipient())return buildReedMailBody(this.draft.variantId,this.replyNumber()||__dialogueText("ui/pi-computer/ReedContactMail.js", "t_50594b26784ef708c4bf"),detective);
   const variant=GENERIC_VARIANTS.find(item=>item.id===this.draft.variantId);
   return variant?variant.body+detective:'';
  }
@@ -168,7 +169,7 @@ export class ReedContactMail{
   let sequence=Math.max(Number.isSafeInteger(oldSequence)?oldSequence:0,previous.length)+1;
   const existingIds=new Set(previous.map(message=>message.id));
   while(existingIds.has(`pi_keyword_mail_${sequence}`))sequence++;
-  const message={id:`pi_keyword_mail_${sequence}`,from:`You → ${this.draft.to}`,to:this.draft.to,subject:'Sent: Private enquiry',date:'Sent',body:this.getMessageBody(),caseId:this.draft.caseId||null,keywordId:this.draft.keywordId||null};
+  const message={id:`pi_keyword_mail_${sequence}`,from:`${__dialogueText("ui/pi-computer/ReedContactMail.js", "t_a6cd4a7f9ea8eb99f4a2")}${this.draft.to}`,to:this.draft.to,subject:__dialogueText("ui/pi-computer/ReedContactMail.js", "t_cc4bd250402db5c50478"),date:__dialogueText("ui/pi-computer/ReedContactMail.js", "t_c16bc82bf1f04ede04d1"),body:this.getMessageBody(),caseId:this.draft.caseId||null,keywordId:this.draft.keywordId||null};
   gameState[OUTGOING_KEY]={version:1,sequence,messages:[...previous,message]};return message.id;
  }
  send(){
@@ -179,10 +180,10 @@ export class ReedContactMail{
    if(this.hasReedRecipient()){
     const result=this.service.send(this.draft.route,this.officeNumber(),{to:this.draft.to,variantId:this.draft.variantId});
     this.ui.notice=result.message;if(!result.ok)return;selectedId=REED_MESSAGE_ID;
-   }else{selectedId=this.saveGenericMessage();this.ui.notice='Message sent. A reply is not guaranteed.';}
+   }else{selectedId=this.saveGenericMessage();this.ui.notice=__dialogueText("ui/pi-computer/ReedContactMail.js", "t_5eba784071062b8dea97");}
    this.composing=false;gameState[DRAFT_KEY]=null;requestAutosave();
    this.ui.selectedId=selectedId;this.ui.bodyPage=0;this.ui.listPage=0;
-  }catch(error){console.error('[ReedContactMail] Send failed:',error);this.ui.notice='The message could not be sent. Please try again.';}
+  }catch(error){console.error('[ReedContactMail] Send failed:',error);this.ui.notice=__dialogueText("ui/pi-computer/ReedContactMail.js", "t_afa6e675f2acc26d3fcc");}
   finally{this.sending=false;this.refresh();}
  }
  renderComposer(){
@@ -190,14 +191,14 @@ export class ReedContactMail{
   const ui=this.ui,drawing=ui.drawing,bounds=ui.window;if(!bounds)return;
   const x=bounds.x+14,y=bounds.y+47,width=bounds.w-28,bottom=bounds.y+bounds.h-43;
   drawing.rectangle(x,y,width,bottom-y,0xf2ecd6);
-  drawing.pixel(x+14,y+10,'NEW MESSAGE',11,'#303b32');
+  drawing.pixel(x+14,y+10,__dialogueText("ui/pi-computer/ReedContactMail.js", "t_62044d0aca92c29658f1"),11,'#303b32');
   drawing.button(x+width-102,y+1,'BACK',()=>this.closeComposer());
   drawing.text(x+14,y+45,'TO:',15,'#303b32');
   drawing.bevel(x+60,y+36,width-76,31,0xffffff,true);
   const hasRecipient=this.hasRecipient(),address=drawing.text(x+70,y+44,'',15,'#303b32');
   drawing.fit(address,hasRecipient?this.draft.to:'',Math.max(20,width-90));
   if(!hasRecipient){
-   drawing.text(x+14,y+76,'Select an email address from FIELD NOTES.\nUse the case tabs to find addresses from other enquiries.',13,'#6f6a53',width-28);
+   drawing.text(x+14,y+76,__dialogueText("ui/pi-computer/ReedContactMail.js", "t_469bfd11fa271ad4768e"),13,'#6f6a53',width-28);
    drawing.button(x+width-102,bottom-56,'SEND',()=>this.send(),false);return;
   }
   this.renderReedMessage({x,y,width,bottom});
@@ -210,13 +211,13 @@ export class ReedContactMail{
   });
   const bodyY=y+151,controlsY=bottom-65,body=this.getMessageBody();
   if(body)ui.documents.renderPagedText(body,x+14,bodyY,width-28,Math.max(46,controlsY-bodyY-24));
-  else drawing.text(x+14,bodyY,'Select a message.',16,'#77715c');
+  else drawing.text(x+14,bodyY,__dialogueText("ui/pi-computer/ReedContactMail.js", "t_4b78f1400d337e6e7fa7"),16,'#77715c');
   if(isReed){
-   drawing.text(x+14,controlsY-13,'Reply telephone:',13,'#303b32');
+   drawing.text(x+14,controlsY-13,__dialogueText("ui/pi-computer/ReedContactMail.js", "t_5ee39a51c4818f430293"),13,'#303b32');
    drawing.button(x+14,controlsY+9,(this.draft.route==='office'?'• ':'')+'OFFICE',()=>this.chooseReplyRoute('office'),Boolean(this.officeNumber()));
    drawing.button(x+155,controlsY+9,(this.draft.route==='mobile'?'• ':'')+'MOBILE',()=>this.chooseReplyRoute('mobile'),Boolean(ownedMobileLine()));
    drawing.text(x+305,controlsY+18,this.replyNumber(),14,'#575c4c');
-  }else drawing.text(x+14,controlsY-13,'A reply is not guaranteed. Silence is not an alibi.',13,'#575c4c',Math.max(60,width-140));
+  }else drawing.text(x+14,controlsY-13,__dialogueText("ui/pi-computer/ReedContactMail.js", "t_8a33c61f6e41e14bbd11"),13,'#575c4c',Math.max(60,width-140));
   drawing.button(x+width-102,controlsY+9,'SEND',()=>this.send(),Boolean(this.canSend()));
  }
  destroy(){

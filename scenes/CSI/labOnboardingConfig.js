@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 export const LAB_ONBOARDING_CONFIG = {
   call_only: {
     mode: 'call_only',
@@ -5,11 +6,11 @@ export const LAB_ONBOARDING_CONFIG = {
     playerGameCount: 0,
     assistantResultCount: 3,
     assistantPresent: true,
-    hintTitle: 'FORENSIC RESULTS READY',
+    hintTitle: __dialogueText("scenes/CSI/labOnboardingConfig.js", "t_29ae4802185cf89af706"),
     hintText:
-      'The lab assistant has finished all three analyses. Review the evidence to narrow the suspect list.',
+      __dialogueText("scenes/CSI/labOnboardingConfig.js", "t_a6190a9dc0226bc7a5d0"),
     assistantLine:
-      'I handled the samples. You handle the part where the suspect panics.'
+      __dialogueText("scenes/CSI/labOnboardingConfig.js", "t_62c67ea70a38595f4030")
   },
 
   single_game: {
@@ -18,11 +19,11 @@ export const LAB_ONBOARDING_CONFIG = {
     playerGameCount: 1,
     assistantResultCount: 2,
     assistantPresent: true,
-    hintTitle: 'ONE SAMPLE NEEDS YOU',
+    hintTitle: __dialogueText("scenes/CSI/labOnboardingConfig.js", "t_338043f44d68443e4b71"),
     hintText:
-      'Two results are ready. Complete one analysis to finish the forensic profile.',
+      __dialogueText("scenes/CSI/labOnboardingConfig.js", "t_cf6dfdeffc69ef4cac37"),
     assistantLine:
-      'I have two results. You get one machine and a very flattering amount of responsibility.'
+      __dialogueText("scenes/CSI/labOnboardingConfig.js", "t_4796f8e303ce4b3c8071")
   },
 
   two_games: {
@@ -31,11 +32,11 @@ export const LAB_ONBOARDING_CONFIG = {
     playerGameCount: 2,
     assistantResultCount: 1,
     assistantPresent: true,
-    hintTitle: 'TWO SAMPLES REMAIN',
+    hintTitle: __dialogueText("scenes/CSI/labOnboardingConfig.js", "t_7d20c876487bb1f8e24f"),
     hintText:
-      'One result is ready. Complete two analyses to finish the forensic profile.',
+      __dialogueText("scenes/CSI/labOnboardingConfig.js", "t_f4bb82ee59739b9388a0"),
     assistantLine:
-      'I saved you the interesting samples. That was either kindness or a mistake.'
+      __dialogueText("scenes/CSI/labOnboardingConfig.js", "t_e3fc713c15f25825dbb1")
   },
 
   three_games: {
@@ -44,11 +45,11 @@ export const LAB_ONBOARDING_CONFIG = {
     playerGameCount: 3,
     assistantResultCount: 0,
     assistantPresent: true,
-    hintTitle: 'FULL FORENSIC SHIFT',
+    hintTitle: __dialogueText("scenes/CSI/labOnboardingConfig.js", "t_237951e1cf266ad625e0"),
     hintText:
-      'All three samples are waiting. Complete the analyses to build the forensic profile.',
+      __dialogueText("scenes/CSI/labOnboardingConfig.js", "t_a36155ec88c9048414c1"),
     assistantLine:
-      'Three samples, three machines, and one coffee machine that is legally evidence.'
+      __dialogueText("scenes/CSI/labOnboardingConfig.js", "t_f977f30f2119ff9bb0be")
   },
 
   solo_three_games: {
@@ -57,11 +58,11 @@ export const LAB_ONBOARDING_CONFIG = {
     playerGameCount: 3,
     assistantResultCount: 0,
     assistantPresent: false,
-    hintTitle: 'LABORATORY ACCESS GRANTED',
+    hintTitle: __dialogueText("scenes/CSI/labOnboardingConfig.js", "t_c4648a50de842acdb09a"),
     hintText:
-      'The assistant is unavailable. Complete all three analyses to build the forensic profile.',
+      __dialogueText("scenes/CSI/labOnboardingConfig.js", "t_085ac8199adceb343f0b"),
     assistantLine:
-      'NOTE: Use the machines in the order the labels suggest. The labels are mostly right.'
+      __dialogueText("scenes/CSI/labOnboardingConfig.js", "t_8c4b1efb070ad0d5da3a")
   }
 };
 

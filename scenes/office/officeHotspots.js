@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import {
   installMarkAgencyComputer
 } from '../../ui/markAgencyComputerInstaller.js';
@@ -13,8 +14,8 @@ export function createOfficeHotspotDefinitions(scene) {
       y: 687,
       width: 995,
       height: 270,
-      label: 'Desk',
-      monologueKey: 'inspect.desk',
+      label: __dialogueText("scenes/office/officeHotspots.js", "t_210e51e019366706681f"),
+      monologueKey: __dialogueText("scenes/office/officeHotspots.js", "t_216776170504f412af27"),
       action: () => scene.openWarrant()
     },
     {
@@ -24,8 +25,8 @@ export function createOfficeHotspotDefinitions(scene) {
       y: 10,
       width: 800,
       height: 430,
-      label: 'Crime Board',
-      monologueKey: 'inspect.crimeBoard',
+      label: __dialogueText("scenes/office/officeHotspots.js", "t_f4c2190c4738d459c48d"),
+      monologueKey: __dialogueText("scenes/office/officeHotspots.js", "t_eadbfd908567fd5952a7"),
       action: () => scene.openCrimeBoard()
     },
     {
@@ -35,8 +36,8 @@ export function createOfficeHotspotDefinitions(scene) {
       y: 476,
       width: 160,
       height: 160,
-      label: 'Globe',
-      monologueKey: 'inspect.globe',
+      label: __dialogueText("scenes/office/officeHotspots.js", "t_b565e65f5df7c2f5d588"),
+      monologueKey: __dialogueText("scenes/office/officeHotspots.js", "t_0808b7aac30c2db656f6"),
       action: () => scene.openDestinations()
     },
     {
@@ -46,8 +47,8 @@ export function createOfficeHotspotDefinitions(scene) {
       y: 457,
       width: 370,
       height: 600,
-      label: 'Case File Cabinet',
-      monologueKey: 'inspect.caseFileCabinet',
+      label: __dialogueText("scenes/office/officeHotspots.js", "t_9a5f3b57e45f2ffd2284"),
+      monologueKey: __dialogueText("scenes/office/officeHotspots.js", "t_8e86b283b1afa736b1b9"),
       action: () => scene.openCasefile()
     },
     {
@@ -57,8 +58,8 @@ export function createOfficeHotspotDefinitions(scene) {
       y: 610,
       width: 340,
       height: 150,
-      label: 'Money Ledger',
-      monologueKey: 'inspect.ledger',
+      label: __dialogueText("scenes/office/officeHotspots.js", "t_23754348a003977afbf1"),
+      monologueKey: __dialogueText("scenes/office/officeHotspots.js", "t_fb121486eee92f81e424"),
       action: () => scene.agencyLedgerUI.open()
     },
     {
@@ -68,8 +69,8 @@ export function createOfficeHotspotDefinitions(scene) {
       y: 703,
       width: 190,
       height: 100,
-      label: 'Book',
-      monologueKey: 'inspect.notesBook',
+      label: __dialogueText("scenes/office/officeHotspots.js", "t_909cb81127c5e1944b16"),
+      monologueKey: __dialogueText("scenes/office/officeHotspots.js", "t_ac6f0152cf68a96aa403"),
       action: () => scene.openNotes()
     },
     {
@@ -79,8 +80,8 @@ export function createOfficeHotspotDefinitions(scene) {
       y: 469,
       width: 165,
       height: 155,
-      label: 'Wanted Database',
-      monologueKey: 'inspect.wantedDatabase',
+      label: __dialogueText("scenes/office/officeHotspots.js", "t_3222baf08382591a146f"),
+      monologueKey: __dialogueText("scenes/office/officeHotspots.js", "t_18ad122f9da11bf604b2"),
       action: () => {
         void scene.openWantedDatabase();
       }
@@ -92,8 +93,8 @@ export function createOfficeHotspotDefinitions(scene) {
       y: 150,
       width: 815,
       height: 780,
-      label: 'Recovered Artifacts',
-      monologueKey: 'inspect.recoveredArtifacts',
+      label: __dialogueText("scenes/office/officeHotspots.js", "t_ebcabaff441b24debdff"),
+      monologueKey: __dialogueText("scenes/office/officeHotspots.js", "t_16d24874dd17dbdf1a10"),
       action: () => {
         void scene.openRecoveredArtifacts();
       }
@@ -105,8 +106,8 @@ export function createOfficeHotspotDefinitions(scene) {
       y: 270,
       width: 325,
       height: 270,
-      label: 'Atlas',
-      monologueKey: 'inspect.atlas',
+      label: __dialogueText("scenes/office/officeHotspots.js", "t_9dee1c0ed39ef4e2686f"),
+      monologueKey: __dialogueText("scenes/office/officeHotspots.js", "t_e7ee68e78b0d90c14242"),
       action: () => scene.openAtlas()
     },
     {
@@ -116,11 +117,11 @@ export function createOfficeHotspotDefinitions(scene) {
       y: 193,
       width: 590,
       height: 760,
-      label: 'Broken Elevator',
-      monologueKey: 'inspect.brokenElevator',
+      label: __dialogueText("scenes/office/officeHotspots.js", "t_3baea391162382d303e4"),
+      monologueKey: __dialogueText("scenes/office/officeHotspots.js", "t_fa39c3b51b271bec0391"),
       action: () => {
         scene.showOfficeStatusMessage(
-          'The elevator is broken. A bold architectural statement.'
+          __dialogueText("scenes/office/officeHotspots.js", "t_fa98b3af7252a0132504")
         );
       }
     },

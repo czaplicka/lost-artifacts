@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { MediumOfficeScene } from './MediumOfficeScene.js';
 import { saveGameState } from '../gameStatePersistence.js';
 import { MEDIUM_OFFICE_CONFIG } from '../config/mediumOfficeConfig.js';
@@ -7,7 +8,7 @@ export class MediumOfficeFloorScene extends MediumOfficeScene{
   init(data={}){super.init(data);this.hrOpening=false;this.gordonOpening=false;this.medicalOpening=false;this.hrEntry=null;this.gordonEntry=null;this.medicalEntry=null;}
   create(){
     super.create();const make=(y,label,callback)=>{const entry=this.add.text(MEDIUM_OFFICE_CONFIG.width-30,y,label,this.style(23)).setOrigin(1,0).setInteractive({useHandCursor:true});this.root.add(entry);entry.on('pointerover',()=>{if(!this.uiLocked)entry.setColor('#ffffff');});entry.on('pointerout',()=>entry.setColor('#ffe5ae'));entry.on('pointerdown',callback);return entry;};
-    this.hrEntry=make(30,'HUMAN RESOURCES >',()=>{void this.openHR();});this.gordonEntry=make(85,'SUPERVISOR >',()=>{void this.openGordon();});this.medicalEntry=make(140,'MEDICAL REVIEW >',()=>{void this.openMedical();});this.refreshPanelLock();
+    this.hrEntry=make(30,__dialogueText("scenes/MediumOfficeFloorScene.js", "t_3b86c6e4d138d2604e3a"),()=>{void this.openHR();});this.gordonEntry=make(85,__dialogueText("scenes/MediumOfficeFloorScene.js", "t_e6ea8e744b05611bbed5"),()=>{void this.openGordon();});this.medicalEntry=make(140,__dialogueText("scenes/MediumOfficeFloorScene.js", "t_782fb42ff2ccea59537b"),()=>{void this.openMedical();});this.refreshPanelLock();
   }
   refreshPanelLock(){
     super.refreshPanelLock();if(this.hrOpening||this.gordonOpening||this.medicalOpening)this.applyLock(true);const usable=this.allowed&&!this.uiLocked&&!this.leaving&&!this.debugMode;
@@ -28,15 +29,15 @@ export class MediumOfficeFloorScene extends MediumOfficeScene{
       const launch=kind==='hr'?module.openMargeHR:kind==='gordon'?module.openGordonInterview:module.openMedicalReview;
       const opened=launch(this.game,{preview:false,returnSceneKey:'MediumOfficeScene',onFinished:result=>{
         if(!this.isCurrentOfficeRun(token))return;this[flag]=false;this.registry.set('currentSceneKey','MediumOfficeScene');this.refreshPanelLock();
-        if(kind==='gordon'&&result?.completed)this.showOfficeStatusMessage(result.saved===false?'The meeting is complete, but saving failed. Save manually.':'Gordon ended the meeting. The next story event follows mission seven.');
-        if(kind==='medical')this.showOfficeStatusMessage(result?.completed?(result.saved===false?medicalReviewData.messages.saveFailed:medicalReviewData.messages.complete):'Medical review progress saved. Return to finish it.');
+        if(kind==='gordon'&&result?.completed)this.showOfficeStatusMessage(result.saved===false?__dialogueText("scenes/MediumOfficeFloorScene.js", "t_ecbb454f323cd0192300"):__dialogueText("scenes/MediumOfficeFloorScene.js", "t_e24538ce9dca75fbd8be"));
+        if(kind==='medical')this.showOfficeStatusMessage(result?.completed?(result.saved===false?medicalReviewData.messages.saveFailed:medicalReviewData.messages.complete):__dialogueText("scenes/MediumOfficeFloorScene.js", "t_9f323d5d6396d2a5a295"));
       }});if(!opened)throw new Error('This room is already open or unavailable.');
-    }catch(error){console.error('[MediumOfficeFloorScene]',kind,error);if(this.isCurrentOfficeRun(token)){this[flag]=false;this.refreshPanelLock();this.showOfficeStatusMessage(error.message||'The room could not be opened.');}}
+    }catch(error){console.error('[MediumOfficeFloorScene]',kind,error);if(this.isCurrentOfficeRun(token)){this[flag]=false;this.refreshPanelLock();this.showOfficeStatusMessage(error.message||__dialogueText("scenes/MediumOfficeFloorScene.js", "t_41114f31774aa2f93ba6"));}}
   }
   async returnDownstairs(){
     if(!this.isOfficeActive()||this.uiLocked||this.debugMode||this.hrOpening||this.gordonOpening||this.medicalOpening)return;
     this.leaving=true;this.refreshPanelLock();saveGameState();
-    try{const opened=await this.goto('OfficeScene',{gameState:this.gameState,entryView:'elevator'});if(opened===false&&!this.disposed){this.leaving=false;this.refreshPanelLock();this.showOfficeStatusMessage('The lower floor could not be opened.');}}
+    try{const opened=await this.goto('OfficeScene',{gameState:this.gameState,entryView:'elevator'});if(opened===false&&!this.disposed){this.leaving=false;this.refreshPanelLock();this.showOfficeStatusMessage(__dialogueText("scenes/MediumOfficeFloorScene.js", "t_288e37be0f0f2573f5eb"));}}
     catch(error){if(!this.disposed){this.leaving=false;this.refreshPanelLock();this.showOfficeStatusMessage(error.message);}}
   }
 }

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // ui/PIOfficeDestinationsUI.js
 
 import { DestinationsUI } from './DestinationsUI.js';
@@ -57,7 +58,7 @@ export class PIOfficeDestinationsUI extends DestinationsUI {
     const source = this.getNavigationScene();
 
     if (!source) {
-      this.showTravelError('Could not determine the current location.');
+      this.showTravelError(__dialogueText("ui/PIOfficeDestinationsUI.js", "t_9ac14acb1c077fbca660"));
       return false;
     }
 
@@ -83,15 +84,15 @@ export class PIOfficeDestinationsUI extends DestinationsUI {
         returnToPIOffice: false,
         destinationScene: 'OfficeScene',
 
-        fromCity: 'PI Office',
+        fromCity: __dialogueText("ui/PIOfficeDestinationsUI.js", "t_6114b7873f77428c0e51"),
         fromCityId: 'hq',
 
-        toCity: 'Mark Agency Headquarters',
+        toCity: __dialogueText("ui/PIOfficeDestinationsUI.js", "t_d30a57953b11809a70cf"),
         toCityId: 'hq',
         cityId: 'hq',
 
         transportType: 'plane',
-        transportLabel: 'Return to HQ',
+        transportLabel: __dialogueText("ui/PIOfficeDestinationsUI.js", "t_544977013d58aaafa203"),
 
         travelHours: 0,
         baseTravelHours: 0,
@@ -131,7 +132,7 @@ export class PIOfficeDestinationsUI extends DestinationsUI {
         }
 
         this.showTravelError(
-          'HQ could not be opened. Check the console.'
+          __dialogueText("ui/PIOfficeDestinationsUI.js", "t_0e62280ad633280ecfb4")
         );
       }
 

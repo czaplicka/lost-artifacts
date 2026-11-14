@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { getEnergyManager } from './EnergyManager.js';
 
 export const SAVE_CONSTANTS = {
@@ -33,7 +34,7 @@ function bounded(operation, milliseconds = 8000) {
   return Promise.race([
     Promise.resolve().then(operation),
     new Promise((_, reject) => {
-      timer = setTimeout(() => reject(new Error('Cloud connection timed out.')), milliseconds);
+      timer = setTimeout(() => reject(new Error(__dialogueText("managers/SaveManager.js", "t_240881d5a9151c71b16b"))), milliseconds);
     })
   ]).finally(() => clearTimeout(timer));
 }
@@ -74,7 +75,7 @@ export class SaveManager {
       saveVersion: 1, gameVersion: this.gameVersion, slotKey,
       meta: {
         savedAt: new Date().toISOString(),
-        agentName: state.playerName || 'Detective',
+        agentName: state.playerName || __dialogueText("managers/SaveManager.js", "t_2653ceeec1fd951707a3"),
         locationCode: context.locationCode ?? state.location?.code ?? state.currentLocationId ?? 'unknown',
         cityCode: context.cityCode ?? state.location?.cityCode ?? state.currentCityId ?? null,
         locationType: context.locationType ?? state.location?.type ?? 'unknown',
@@ -142,7 +143,7 @@ export class SaveManager {
       const save = this.safeReadLocal(key);
       if (!save) return null;
       const state = save.data.state ?? save.data;
-      const meta = { ...save.meta, agentName: save.meta?.agentName || state.playerName || 'Detective' };
+      const meta = { ...save.meta, agentName: save.meta?.agentName || state.playerName || __dialogueText("managers/SaveManager.js", "t_2653ceeec1fd951707a3") };
       this.writeLocalMeta(key, meta);
       return meta;
     } catch (error) { console.warn('[SaveManager]', error); return null; }

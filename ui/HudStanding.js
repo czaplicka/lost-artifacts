@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { EventBus } from '../EventBus.js';
 
 import {
@@ -7,194 +8,7 @@ import {
 
 const STYLE_ID = 'hud-standing-styles';
 
-const STANDING_CSS = `
-  #hud-container .hud-standing-row {
-    box-sizing: border-box;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 16px;
-    width: 100%;
-    margin-top: 8px;
-    padding: 10px 12px 11px;
-    background: linear-gradient(
-      180deg,
-      #251810 0%,
-      #170e09 100%
-    );
-    border: 1px solid var(--hud-brass-dark, #5a4416);
-    border-radius: 3px;
-    box-shadow:
-      inset 0 0 0 1px rgba(0, 0, 0, 0.6),
-      inset 0 1px 0 rgba(255, 225, 150, 0.06);
-    color: var(--hud-text, #f1e4c3);
-    font-family: var(--hud-font-type, 'SpecialElite', Georgia, serif);
-  }
-
-  #hud-container .hud-standing-stat {
-    min-width: 0;
-    outline: none;
-    cursor: help;
-  }
-
-  #hud-container .hud-standing-heading {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 6px;
-    margin-bottom: 7px;
-    line-height: 1.2;
-  }
-
-  #hud-container .hud-standing-label {
-    min-width: 0;
-    font-family: var(--hud-font-pixel, 'PressStart2P', monospace);
-    font-size: 7px;
-    letter-spacing: 0.5px;
-    color: var(--hud-muted, #a28970);
-    white-space: nowrap;
-  }
-
-  #hud-container .hud-standing-value {
-    flex-shrink: 0;
-    font-size: 14px;
-    font-variant-numeric: tabular-nums;
-    color: #fff7df;
-    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.7);
-    white-space: nowrap;
-  }
-
-  #hud-container .hud-standing-track {
-    position: relative;
-    box-sizing: border-box;
-    height: 11px;
-    overflow: hidden;
-    border: 1px solid var(--hud-brass-dim, #8a6d1f);
-    border-radius: 2px;
-    background: #0d0805;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.75);
-  }
-
-  /* LED-segment overlay on top of the fills */
-  #hud-container .hud-standing-track::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    pointer-events: none;
-    background: repeating-linear-gradient(
-      90deg,
-      transparent 0 6px,
-      rgba(0, 0, 0, 0.45) 6px 7px
-    );
-  }
-
-  #hud-container .hud-standing-fill {
-    position: absolute;
-    top: 1px;
-    bottom: 1px;
-    width: 0;
-    border-radius: 1px;
-    transition: width 280ms ease, left 280ms ease;
-  }
-
-  #hud-container .hud-standing-fame-fill {
-    left: 1px;
-    max-width: calc(100% - 2px);
-    background: linear-gradient(
-      180deg,
-      #f0d77a 0%,
-      #d4af37 55%,
-      #a98621 100%
-    );
-  }
-
-  #hud-container .hud-standing-integrity-fill {
-    left: 50%;
-    background: linear-gradient(
-      180deg,
-      #b9d9c9 0%,
-      #71988a 100%
-    );
-  }
-
-  #hud-container .hud-standing-integrity-fill.is-negative {
-    background: linear-gradient(
-      180deg,
-      #e0a58f 0%,
-      #a8503d 100%
-    );
-  }
-
-  #hud-container .hud-standing-marker {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    z-index: 3;
-    width: 1px;
-    pointer-events: none;
-    background: rgba(226, 211, 180, 0.35);
-  }
-
-  #hud-container .hud-standing-marker.is-center {
-    left: 50%;
-    background: rgba(245, 231, 204, 0.9);
-  }
-
-  #hud-container .hud-standing-marker.is-underworld {
-    left: 30%;
-  }
-
-  #hud-container .hud-standing-marker.is-police {
-    left: 70%;
-  }
-
-  #hud-container .hud-standing-status {
-    display: block;
-    margin-top: 6px;
-    font-size: 11px;
-    line-height: 1.3;
-    color: var(--hud-muted, #b6a88f);
-  }
-
-  #hud-container .hud-standing-stat:focus-visible {
-    outline: 2px solid var(--hud-brass, #d4af37);
-    outline-offset: 4px;
-  }
-
-  #hud-container.collapsed .hud-standing-row {
-    display: none;
-  }
-
-  @media (max-width: 600px) {
-    #hud-container .hud-standing-row {
-      gap: 10px;
-      margin-top: 6px;
-      padding: 8px 8px 9px;
-    }
-
-    #hud-container .hud-standing-label {
-      font-size: 6px;
-    }
-
-    #hud-container .hud-standing-value {
-      font-size: 12px;
-    }
-
-    #hud-container .hud-standing-track {
-      height: 9px;
-    }
-
-    #hud-container .hud-standing-status {
-      font-size: 10px;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    #hud-container .hud-standing-fill {
-      transition: none;
-    }
-  }
-`;
+const STANDING_CSS = `${__dialogueText("ui/HudStanding.js", "t_9ea4369b15886c2a758e")}`;
 
 function installStyles() {
   let style = document.getElementById(STYLE_ID);
@@ -217,18 +31,18 @@ function clamp(value, min, max) {
 }
 
 function getFameStatus(fame) {
-  if (fame >= 80) return 'Renowned';
-  if (fame >= 50) return 'Recognized';
-  if (fame >= 20) return 'Local name';
+  if (fame >= 80) return __dialogueText("ui/HudStanding.js", "t_0e8e2975c83c0572eebe");
+  if (fame >= 50) return __dialogueText("ui/HudStanding.js", "t_1c3862efbf2eb38a5a85");
+  if (fame >= 20) return __dialogueText("ui/HudStanding.js", "t_8c3be4d4f8fd41f63aea");
 
-  return 'Unknown';
+  return __dialogueText("ui/HudStanding.js", "t_b764cdc0eab713746721");
 }
 
 function getIntegrityStatus(integrity) {
-  if (integrity >= 40) return 'Police trusted';
-  if (integrity <= -40) return 'Underworld trusted';
+  if (integrity >= 40) return __dialogueText("ui/HudStanding.js", "t_93fdf0728bba43844708");
+  if (integrity <= -40) return __dialogueText("ui/HudStanding.js", "t_1d03bf9433366f476896");
 
-  return 'Unaffiliated';
+  return __dialogueText("ui/HudStanding.js", "t_489fc73883fae4e14759");
 }
 
 export function createHudStanding(
@@ -239,7 +53,7 @@ export function createHudStanding(
   } = {}
 ) {
   const content =
-    hudContainer?.querySelector('.hud-content');
+    hudContainer?.querySelector(__dialogueText("ui/HudStanding.js", "t_000fe423fa15b05430f2"));
 
   if (!(content instanceof HTMLElement)) {
     console.error(
@@ -259,86 +73,7 @@ export function createHudStanding(
   root.id = 'hud-standing-row';
   root.className = 'hud-standing-row';
 
-  root.innerHTML = `
-    <div
-      class="hud-standing-stat"
-      data-standing="fame"
-      tabindex="0"
-    >
-      <div class="hud-standing-heading">
-        <span class="hud-standing-label">REPUTATION</span>
-        <span
-          class="hud-standing-value"
-          data-standing-value="fame"
-        >0/100</span>
-      </div>
-
-      <div
-        class="hud-standing-track"
-        role="meter"
-        aria-label="Reputation"
-        aria-valuemin="0"
-        aria-valuemax="100"
-        aria-valuenow="0"
-      >
-        <div
-          class="hud-standing-fill hud-standing-fame-fill"
-        ></div>
-      </div>
-
-      <span
-        class="hud-standing-status"
-        data-standing-status="fame"
-      >Unknown</span>
-    </div>
-
-    <div
-      class="hud-standing-stat"
-      data-standing="integrity"
-      tabindex="0"
-    >
-      <div class="hud-standing-heading">
-        <span class="hud-standing-label">INTEGRITY</span>
-        <span
-          class="hud-standing-value"
-          data-standing-value="integrity"
-        >0</span>
-      </div>
-
-      <div
-        class="hud-standing-track"
-        role="meter"
-        aria-label="Integrity"
-        aria-valuemin="-100"
-        aria-valuemax="100"
-        aria-valuenow="0"
-      >
-        <div
-          class="hud-standing-fill hud-standing-integrity-fill"
-        ></div>
-
-        <span
-          class="hud-standing-marker is-underworld"
-          aria-hidden="true"
-        ></span>
-
-        <span
-          class="hud-standing-marker is-center"
-          aria-hidden="true"
-        ></span>
-
-        <span
-          class="hud-standing-marker is-police"
-          aria-hidden="true"
-        ></span>
-      </div>
-
-      <span
-        class="hud-standing-status"
-        data-standing-status="integrity"
-      >Unaffiliated</span>
-    </div>
-  `;
+  root.innerHTML = `${__dialogueText("ui/HudStanding.js", "t_eff35b35769b9b997bcb")}`;
 
   // Wewnątrz istniejącego panelu, pod SCORE / CASH.
   content.appendChild(root);
@@ -362,10 +97,10 @@ export function createHudStanding(
     root.querySelector('[data-standing-status="integrity"]');
 
   const fameFill =
-    root.querySelector('.hud-standing-fame-fill');
+    root.querySelector(__dialogueText("ui/HudStanding.js", "t_c2c8a95b37594971e3c7"));
 
   const integrityFill =
-    root.querySelector('.hud-standing-integrity-fill');
+    root.querySelector(__dialogueText("ui/HudStanding.js", "t_1a7c1e43bd6822177a16"));
 
   const fameMeter =
     fameStat.querySelector('[role="meter"]');
@@ -438,7 +173,7 @@ export function createHudStanding(
 
     fameMeter.setAttribute(
       'aria-valuetext',
-      `${fame} out of 100. ${fameDescription}.`
+      `${fame}${__dialogueText("ui/HudStanding.js", "t_4b761ad96f2ccf9d8db1")}${fameDescription}${__dialogueText("ui/HudStanding.js", "t_cdb4ee2aea69cc6a8333")}`
     );
 
     integrityMeter.setAttribute(
@@ -488,10 +223,10 @@ export function createHudStanding(
     const { fame } = getReputation();
 
     return [
-      `REPUTATION: ${fame}/100`,
-      'How well known you are.',
-      'Solved cases and media coverage increase your reputation.',
-      'Your reputation affects which cases come your way.'
+      `${__dialogueText("ui/HudStanding.js", "t_3bec14be04a6104288a8")}${fame}${__dialogueText("ui/HudStanding.js", "t_2f07766fd476de0ab959")}`,
+      __dialogueText("ui/HudStanding.js", "t_4049fde1085ef3238a75"),
+      __dialogueText("ui/HudStanding.js", "t_59a7a8ec6699230bfbda"),
+      __dialogueText("ui/HudStanding.js", "t_df973403d4339b6cdd9d")
     ].join('\n');
   });
 
@@ -499,11 +234,11 @@ export function createHudStanding(
     const { integrity } = getReputation();
 
     return [
-      `INTEGRITY: ${integrity > 0 ? '+' : ''}${integrity}`,
-      'Your methods shape who trusts you.',
-      'Police contacts require +40 or more.',
-      'Underworld contacts require -40 or less.',
-      'These contact restrictions do not apply to crime-city witnesses.'
+      `${__dialogueText("ui/HudStanding.js", "t_dfea1ac9e9df167ccc0a")}${integrity > 0 ? '+' : ''}${integrity}`,
+      __dialogueText("ui/HudStanding.js", "t_b82be0c04eaf7c2dfdce"),
+      __dialogueText("ui/HudStanding.js", "t_ba412817d472735843fa"),
+      __dialogueText("ui/HudStanding.js", "t_0bf20fdcd8b0fd6a3a24"),
+      __dialogueText("ui/HudStanding.js", "t_cb0d1b95dfa971d3c87c")
     ].join('\n');
   });
 

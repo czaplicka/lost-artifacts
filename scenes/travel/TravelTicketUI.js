@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 // scenes/travel/TravelTicketUI.js
 // HUD pieces of the travel transition. Everything is built from Graphics/Text so no
 // extra assets are required. All objects are registered in scene.effectObjects.
@@ -32,12 +33,12 @@ export function createTravelHeader(scene, { width, U, transport, vehicleKey, fro
   const route = register(scene, scene.add.text(
     width / 2,
     70 * U,
-    returning ? 'Back to the private office' : `${fromCity}  →  ${toCity}`,
+    returning ? __dialogueText("scenes/travel/TravelTicketUI.js", "t_7291df60b5934300beed") : `${fromCity}${__dialogueText("scenes/travel/TravelTicketUI.js", "t_58d08b7ffa48faede71f")}${toCity}`,
     {
       fontFamily: 'SpecialElite',
       fontSize: fs(U, 40),
       color: '#f4e7c1',
-      stroke: '#1a0f08',
+      stroke: __dialogueText("scenes/travel/TravelTicketUI.js", "t_8f5ea20ab9f8b90f63a4"),
       strokeThickness: Math.max(2, Math.round(6 * U))
     }
   ).setOrigin(0.5));
@@ -121,7 +122,7 @@ export class TravelTicket {
     c.add(scene.add.text(left + 20 * U, top + 23 * U, transport.ticketTitle, {
       fontFamily: 'PressStart2P', fontSize: fs(U, 15), color: '#f4e7c1'
     }).setOrigin(0, 0.5));
-    text(stubX - 16 * U, top + 23 * U, `No. ${Phaser.Math.Between(1000, 9999)}`, 16, '#c9b88e', { ox: 1 });
+    text(stubX - 16 * U, top + 23 * U, `${__dialogueText("scenes/travel/TravelTicketUI.js", "t_2de5cf832dbecaac9cd2")}${Phaser.Math.Between(1000, 9999)}`, 16, '#c9b88e', { ox: 1 });
 
     // route fields
     const x0 = left + 24 * U;
@@ -180,9 +181,9 @@ export class TravelTicket {
     const energy = this.energy * p;
     const energyLabel = Number.isInteger(energy) ? String(energy) : energy.toFixed(1);
 
-    this.timeText.setText(`+${hours}h`);
-    this.costText.setText(`$${money}`);
-    this.energyText.setText(`${energy > 0 ? '+' : ''}${energyLabel}`);
+    this.timeText.setText(`${__dialogueText("scenes/travel/TravelTicketUI.js", "t_a318c24216defe206fee")}${hours}${__dialogueText("scenes/travel/TravelTicketUI.js", "t_aaa9402664f1a41f40eb")}`);
+    this.costText.setText(`${__dialogueText("scenes/travel/TravelTicketUI.js", "t_09fc96082d34c2dfc129")}${money}`);
+    this.energyText.setText(`${energy > 0 ? __dialogueText("scenes/travel/TravelTicketUI.js", "t_a318c24216defe206fee") : ''}${energyLabel}`);
     this.energyText.setColor(this.energy < 0 ? '#8a2b1e' : this.energy > 0 ? '#2f6b3a' : INK);
   }
 
@@ -270,14 +271,14 @@ export class TravelJournal {
     this.typing?.remove(false);
 
     let index = 0;
-    this.text.setText('_');
+    this.text.setText(__dialogueText("scenes/travel/TravelTicketUI.js", "t_d2e2adf7177b7a8afddb"));
     this.typing = this.scene.time.addEvent({
       delay: speed,
       repeat: Math.max(0, line.length - 1),
       callback: () => {
         index += 1;
         if (!this.text?.active) return;
-        this.text.setText(line.slice(0, index) + (index < line.length ? '_' : ''));
+        this.text.setText(line.slice(0, index) + (index < line.length ? __dialogueText("scenes/travel/TravelTicketUI.js", "t_d2e2adf7177b7a8afddb") : ''));
       }
     });
   }
@@ -357,14 +358,14 @@ export function createPassportMark(scene, { width, height, U, country }) {
   ring.lineStyle(2 * U, color, 0.9);
   ring.strokeCircle(0, 0, 53 * U);
 
-  const top = scene.add.text(0, -34 * U, 'ENTRY', {
+  const top = scene.add.text(0, -34 * U, __dialogueText("scenes/travel/TravelTicketUI.js", "t_6ee9657aa896385e14b3"), {
     fontFamily: 'PressStart2P', fontSize: fs(U, 10), color: hex(color)
   }).setOrigin(0.5);
   const name = scene.add.text(0, 0, country, {
     fontFamily: 'SpecialElite', fontSize: fs(U, 19), color: hex(color), align: 'center',
     wordWrap: { width: 96 * U }
   }).setOrigin(0.5);
-  const bottom = scene.add.text(0, 36 * U, '* * *', {
+  const bottom = scene.add.text(0, 36 * U, __dialogueText("scenes/travel/TravelTicketUI.js", "t_109510644bb4c21f8eb3"), {
     fontFamily: 'SpecialElite', fontSize: fs(U, 18), color: hex(color)
   }).setOrigin(0.5);
 
@@ -402,10 +403,10 @@ export function createPhoneNotice(scene, { width, U }) {
   g.lineStyle(2 * U, 0xd4af37, 0.9);
   g.strokeRoundedRect(-w / 2, -h / 2, w, h, 10 * U);
 
-  const title = scene.add.text(0, -16 * U, 'RING RING!', {
+  const title = scene.add.text(0, -16 * U, __dialogueText("scenes/travel/TravelTicketUI.js", "t_dbf28aa359d7f95293f7"), {
     fontFamily: 'PressStart2P', fontSize: fs(U, 12), color: '#d4af37'
   }).setOrigin(0.5);
-  const body = scene.add.text(0, 14 * U, 'Headquarters has thoughts.', {
+  const body = scene.add.text(0, 14 * U, __dialogueText("scenes/travel/TravelTicketUI.js", "t_6c8552e2a06d5f4784fb"), {
     fontFamily: 'SpecialElite', fontSize: fs(U, 22), color: '#f4e7c1'
   }).setOrigin(0.5);
 

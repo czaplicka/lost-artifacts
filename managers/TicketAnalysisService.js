@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { inventoryManager } from './InventoryManager.js';
 import { requestAutosave } from '../gameStatePersistence.js';
@@ -122,29 +123,29 @@ function recordExamination(item, text, useful, state) {
 
 function refusalFor(item) {
   if (item.isArtifact || item.type === 'artifact') {
-    return 'A recovered artefact belongs in the case records, not my centrifuge. The museum has already had a difficult week.';
+    return __dialogueText("managers/TicketAnalysisService.js", "t_20c08e0e81b8a550b562");
   }
 
   if (item.isRedHerring) {
-    return 'Examined. No useful travel information. This object is innocent, which is more than I can say for my coffee machine.';
+    return __dialogueText("managers/TicketAnalysisService.js", "t_f5c15ce2421e5e6fdd25");
   }
 
   if (item.isEscapeFragment) {
-    return 'This appears to be part of something. Try combining the matching pieces before asking me to perform a miracle.';
+    return __dialogueText("managers/TicketAnalysisService.js", "t_dc92d0cef18a83eaf9bc");
   }
 
   if (item.isEscapeClue) {
-    return 'This may be a travel lead, but I have no reliable analysis for it yet. I will not invent a destination.';
+    return __dialogueText("managers/TicketAnalysisService.js", "t_45ad9f29871d30b11343");
   }
 
-  return 'No useful destination information. I can examine the object, detective. I cannot make it confess.';
+  return __dialogueText("managers/TicketAnalysisService.js", "t_3a85dd6bbcdffc8fdb78");
 }
 
 function resolveLead(item, target, state) {
   if (!isCurrentCaseEvidence(item, state)) {
     return {
       ok: false,
-      message: 'This evidence belongs to another case. Please keep the paperwork in its own crime.'
+      message: __dialogueText("managers/TicketAnalysisService.js", "t_6ce6367569a84791ed8e")
     };
   }
 
@@ -162,7 +163,7 @@ function resolveLead(item, target, state) {
     if (!airportCode) {
       return {
         ok: false,
-        message: 'This destination has no valid airport code in the case configuration.'
+        message: __dialogueText("managers/TicketAnalysisService.js", "t_8813600b4c4d74d51b89")
       };
     }
 
@@ -171,8 +172,8 @@ function resolveLead(item, target, state) {
       kind: 'airport_code',
       airportCode,
       value: airportCode,
-      clueText: `Damaged ticket analysis: destination airport code ${airportCode}.`,
-      assistantText: `The destination code is ${airportCode}.\n\nThe ink survived. The passenger's travel plans did not.\nI have recorded the code in your notebook.`
+      clueText: `${__dialogueText("managers/TicketAnalysisService.js", "t_e07033aa62be1d47b4f9")}${airportCode}${__dialogueText("managers/TicketAnalysisService.js", "t_cdb4ee2aea69cc6a8333")}`,
+      assistantText: `${__dialogueText("managers/TicketAnalysisService.js", "t_2fb1322f5ec14ca05b00")}${airportCode}${__dialogueText("managers/TicketAnalysisService.js", "t_f83367b6d4ef318f3909")}`
     };
   }
 
@@ -189,7 +190,7 @@ function resolveLead(item, target, state) {
       kind: 'location_hint',
       value: hint.trim(),
       clueText: hint.trim(),
-      assistantText: `${hint.trim()}\n\nI have recorded the finding in your notebook.`
+      assistantText: `${hint.trim()}${__dialogueText("managers/TicketAnalysisService.js", "t_724aff2f54382a9245b7")}`
     };
   }
 
@@ -214,7 +215,7 @@ export function analyseEscapeEvidence(
   ) {
     return {
       ok: false,
-      message: 'This case is no longer active.'
+      message: __dialogueText("managers/TicketAnalysisService.js", "t_7a18b0effb24df007cb4")
     };
   }
 
@@ -225,7 +226,7 @@ export function analyseEscapeEvidence(
   if (!raw) {
     return {
       ok: false,
-      message: 'That item is no longer in your inventory.'
+      message: __dialogueText("managers/TicketAnalysisService.js", "t_404b51781ed87b2948de")
     };
   }
 
@@ -234,7 +235,7 @@ export function analyseEscapeEvidence(
   if (!isCurrentCaseEvidence(item, state)) {
     return {
       ok: false,
-      message: 'This evidence belongs to another case.'
+      message: __dialogueText("managers/TicketAnalysisService.js", "t_acbdf0b2bdb81d9c3307")
     };
   }
 
@@ -275,9 +276,9 @@ export function analyseEscapeEvidence(
       previous.assistantText ||
       (
         previous.airportCode
-          ? `The destination code is ${previous.airportCode}. It is already in your notebook.`
+          ? `${__dialogueText("managers/TicketAnalysisService.js", "t_2fb1322f5ec14ca05b00")}${previous.airportCode}${__dialogueText("managers/TicketAnalysisService.js", "t_aca93cc76fc99252558c")}`
           : previous.clueText ||
-            'The finding is already in your notebook.'
+            __dialogueText("managers/TicketAnalysisService.js", "t_c60b04cf262e1ed39d32")
       );
 
     recordExamination(item, text, true, state);
@@ -299,7 +300,7 @@ export function analyseEscapeEvidence(
   ) {
     return {
       ok: false,
-      message: 'The investigation deadline has expired.'
+      message: __dialogueText("managers/TicketAnalysisService.js", "t_8c10ae4475fb392cd058")
     };
   }
 
@@ -317,7 +318,7 @@ export function analyseEscapeEvidence(
   ) {
     return {
       ok: false,
-      message: 'The existing escape route is missing. No new route has been generated.'
+      message: __dialogueText("managers/TicketAnalysisService.js", "t_1a536aec645d9e29c8a7")
     };
   }
 
@@ -332,7 +333,7 @@ export function analyseEscapeEvidence(
   if (!validRoute) {
     return {
       ok: false,
-      message: 'The saved escape route contains an invalid destination. It has not been replaced.'
+      message: __dialogueText("managers/TicketAnalysisService.js", "t_1af25932b62f7c6335e5")
     };
   }
 
@@ -361,7 +362,7 @@ export function analyseEscapeEvidence(
     ) {
       return {
         ok: false,
-        message: 'The route belongs to a different crime city.'
+        message: __dialogueText("managers/TicketAnalysisService.js", "t_5dd216ce2bad69853553")
       };
     }
 
@@ -374,7 +375,7 @@ export function analyseEscapeEvidence(
     ) {
       return {
         ok: false,
-        message: 'This route has already advanced beyond the first escape destination.'
+        message: __dialogueText("managers/TicketAnalysisService.js", "t_6146142f3fd5e9d2af07")
       };
     }
 
@@ -386,7 +387,7 @@ export function analyseEscapeEvidence(
     ) {
       return {
         ok: false,
-        message: 'The pursuit route could not be unlocked.'
+        message: __dialogueText("managers/TicketAnalysisService.js", "t_a9948c369b7dec635fa3")
       };
     }
 
@@ -395,7 +396,7 @@ export function analyseEscapeEvidence(
 
       return {
         ok: false,
-        message: 'The case clock could not be started. No extra time has been granted.'
+        message: __dialogueText("managers/TicketAnalysisService.js", "t_9a8ea57324404ccd2834")
       };
     }
   }
@@ -498,7 +499,7 @@ export function analyseCaseTicket(
   ) {
     return {
       ok: false,
-      message: 'Bring the damaged ticket from the suspect apartment to the lab first.'
+      message: __dialogueText("managers/TicketAnalysisService.js", "t_4234890ed1cfa43c2960")
     };
   }
 

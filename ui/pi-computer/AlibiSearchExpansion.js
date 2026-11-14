@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { ALIBI_SEARCH_CASE } from './AlibiCaseData.js';
 import { ALIBI_INTERVIEW_CONTACTS } from './AlibiInterviewData.js';
 import { ALIBI_CONTACTS } from './AlibiContactBook.js';
@@ -7,7 +8,7 @@ import { ComputerSearch } from './ComputerSearch.js';
 const definition = ALIBI_SEARCH_CASE;
 
 const EMAIL_TAG_STYLE = Symbol.for(
-    'lostArtifacts.owlEmailTagStyle'
+    __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_d76a2db078f103cd0a70")
 );
 
 /*
@@ -190,8 +191,8 @@ const article = (
 ) => ({
     id,
     title,
-    brand: 'CITY INDEX',
-    address: `www.cityindex.local/${id}`,
+    brand: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_048429a968ef2110b807"),
+    address: `${__dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_62d7394087e45b77213b")}${id}`,
     snippet: body[0],
     blocks: body.map(text => [text]),
     links: []
@@ -201,73 +202,73 @@ const article = (
 
 addPage(article(
     'search_context',
-    "City Index | Around town",
+    __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_14f288663256d07034dd"),
     [
-        "Local businesses, community notices and public listings.",
-        "Our editor was once listed under Garden Buildings. He remains available for editorial enquiries, but not winter storage."
+        __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_fb0d9bac730597e67cba"),
+        __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_046c4083530925a1552f")
     ]
 ));
 
 addPage(article(
     'search_noise',
-    'Classifieds | Yesterday’s ordinary problems',
+    __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_73eff52e294d09638f65"),
     [
-        'Lost umbrella. Found umbrella. Neither party willing to negotiate.',
-        "Wanted: dining table. Must tolerate elbows. Seller of the previous table need not apply."
+        __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_1e8f18eda411a5a7ce30"),
+        __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_33ea9d1d1e96bf4de3b3")
     ]
 ));
 
 addPage(article(
     'cooker_repair',
-    'Local appliance repairs | We repair what chefs threaten',
+    __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_f8e3d67d2f749cf83ac5"),
     [
-        'Kitchen failure? Our engineers specialise in dramatic cookers.',
-        "Domestic and commercial cooker repairs. Please have the make and model ready. “The angry one” is insufficiently specific."
+        __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_c4a320af4a6e4ecaf228"),
+        __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_32d3493785f41781facc")
     ]
 ));
 
 addPage(article(
     'arthur_directory',
-    'Arthur Finch | Public directory',
+    __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_d02e3b51bcf18166b2bb"),
     [
-        'Arthur Finch has no public telephone listing in this directory.',
-        "Members choose which contact details appear in the public directory."
+        __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_5ae64afc339a9159d5c4"),
+        __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_8f1617bd46b0db2b92f6")
     ]
 ));
 
 addPage(article(
     'arthur_namesake',
-    'Arthur Finch | Antique spoon collection',
+    __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_48d5bfdb0e96fe4efa44"),
     [
-        'An archive entry names an Arthur Finch as a spoon collector.',
-        "The collection notes cover silver marks, decorative handles and a surprisingly heated dispute about a soup ladle."
+        __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_bf66d6f4b644e43c5497"),
+        __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_fd72f37c1103e3bbd082")
     ]
 ));
 
 const people = [
     [
         'arthur_finch',
-        'Arthur Finch',
-        'Quiet evenings enthusiast.',
-        "Books, quiet lunches and plans which involve being asked first."
+        __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_513833eba3a4389aeb86"),
+        __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_9433bb820a668caa5a86"),
+        __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_fbe5cba9f29a415ea64c")
     ],
     [
         'nora_bell',
-        'Nora Bell',
-        'Community events and optimistic portions.',
-        "Local volunteering, community events and food worth leaving the house for."
+        __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_4cca0264ed42816c466a"),
+        __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_5966e1e767f256d59045"),
+        __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_e4c66e16f22158e68845")
     ],
     [
         'simon_pike',
-        'Simon Pike',
-        'Board games. Serious business. Tiny wooden sheep.',
-        "Member of the local tabletop circle. Still waiting for an opponent to appreciate his opening strategy."
+        __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_95df72b5037a3593588e"),
+        __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_525363b053581412a33e"),
+        __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_200b7325e0291b908593")
     ],
     [
         'evelyn_shaw',
-        'Evelyn Shaw',
-        'Accounts assistant. No unsolicited networking.',
-        "Work enquiries through the Morrow Records staff directory. Personal networking requests will be admired from a distance."
+        __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_f693eba06ad2594e170c"),
+        __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_23ed75047ed66b0d5d73"),
+        __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_2a7e2f98ec438abf07fb")
     ]
 ];
 
@@ -490,16 +491,16 @@ for (const [person] of people) {
 const extraPages = [
     {
         id: 'owl_copper_review_archive',
-        title: 'The Copper Spoon | An old review, freshly opinionated',
-        brand: 'THE EVENING FORK',
-        address: 'www.eveningfork.local/archive/copper-spoon',
+        title: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_4cb6c45fd4f8ad72095d"),
+        brand: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_b13c90fc1b409461f3e9"),
+        address: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_435482795aba8c2a6ffe"),
         theme: 'magazine',
-        snippet: "From our review archive: a Saturday lunch, three years ago.",
+        snippet: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_e7c2984e0af8b0046a53"),
         body: [
-            'FROM THE REVIEW ARCHIVE — published three years ago.',
-            'The Copper Spoon serves a tomato soup with enough confidence to introduce itself before the waiter.',
-            'Our reviewer visited on a Saturday afternoon. He described the dining room as intimate and the bill as less intimate.',
-            "Originally published in the Saturday dining supplement. The reviewer still considers the bread basket a personal triumph."
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_bf5230f28c919dcac1d8"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_c01bb10c49d0119a9760"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_4cec648e0761c425b247"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_51e4f12707546bcebaa3")
         ],
         terms: [
             ['copper_spoon'],
@@ -508,23 +509,23 @@ const extraPages = [
         ],
         links: [
             {
-                label: 'Restaurant website',
+                label: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_fce4cdf17c37fe4b8747"),
                 pageId: 'copper_home'
             }
         ]
     },
     {
         id: 'owl_copper_cutlery',
-        title: 'Copper spoons | Polishing without panic',
-        brand: 'THE CUTLERY CABINET',
-        address: 'www.cutlerycabinet.local/guides/copper-spoons',
+        title: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_18e78f9643b6616ffd2b"),
+        brand: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_4491f229c1ba206cc0fc"),
+        address: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_eb1c1c2ec4085d3eb7b9"),
         theme: 'magazine',
-        snippet: 'A guide to decorative copper spoons. Dinner reservations not accepted.',
+        snippet: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_a8048703939c56bf636a"),
         body: [
-            'Copper spoons: display, cleaning and storage.',
-            "Decorative copper spoons reward careful cleaning. They do not reward being used to scrape burnt porridge.",
-            'Avoid abrasive cleaners on old finishes. If the spoon has survived a century, it can survive you reading the label first.',
-            'Our editorial office cannot reserve tables. We have one table and it is covered in spoons.'
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_12b98bcedf653a789cf4"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_0ef12c9f84a77c5ac0bb"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_68ca2c8c62c0e89a60a4"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_700e9ef55b0c77581ae1")
         ],
         terms: [
             ['copper_spoon']
@@ -532,42 +533,42 @@ const extraPages = [
     },
     {
         id: 'owl_copper_jobs',
-        title: 'The Copper Spoon | Weekend staff wanted',
-        brand: 'THE COPPER SPOON',
-        address: 'www.copperspoon.local/jobs',
-        snippet: 'Weekend waiting staff wanted. Experience carrying apologies preferred.',
+        title: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_353385e32ad45d7d405e"),
+        brand: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_b4783cdbda4aa272dec8"),
+        address: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_8035cca4964d31ab671a"),
+        snippet: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_941d9e5fd01dbf0b67f9"),
         body: [
-            'WEEKEND WAITING STAFF',
-            'We are accepting applications for future Friday and Saturday shifts.',
-            'Applicants should be comfortable carrying plates, explaining specials and recognising when a customer is about to review the lighting.',
-            "Please include relevant experience and availability in your application. Carrying six plates is impressive; returning with all six is preferred."
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_8137d7ff133ebd4ef839"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_082705dd4db652b2c242"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_15290f72975c9d18735c"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_fa83c8f23c0c56ab0c6f")
         ],
         terms: [
             ['copper_spoon']
         ],
         links: [
             {
-                label: 'Restaurant home',
+                label: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_a2b4faaed956c28e2494"),
                 pageId: 'copper_home'
             },
             {
-                label: 'Contact',
+                label: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_2b5c3d26721ae9c350cf"),
                 pageId: 'copper_contact'
             }
         ]
     },
     {
         id: 'owl_soup_recipe',
-        title: 'Tomato soup for people with one saucepan',
-        brand: 'MODEST SUPPER',
-        address: 'www.modestsupper.local/recipes/tomato-soup',
+        title: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_f0c81ccd43ed7439617a"),
+        brand: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_ac1191e8f4736d57c4f0"),
+        address: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_746abdff0e45a133d683"),
         theme: 'magazine',
-        snippet: 'Tomatoes, stock and a saucepan. Emotional support croutons optional.',
+        snippet: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_d5b59b2048eb046879e4"),
         body: [
-            'A simple tomato soup for two.',
-            'Cook chopped onion, add tomatoes and stock, then simmer until the vegetables have stopped resisting.',
-            'Blend carefully. A kitchen ceiling is not a serving suggestion.',
-            "Serve with bread or croutons. If serving directly from the saucepan, describe the presentation as rustic."
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_8e10195e2d98af1c0bbf"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_e69e3ed131dfcffb0b29"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_b4cf9a42938e9ec6685e"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_a2ae0b39a4417c88784b")
         ],
         terms: [
             ['tomato_soup']
@@ -575,16 +576,16 @@ const extraPages = [
     },
     {
         id: 'owl_wine_stains',
-        title: 'Red wine on a tablecloth? Start here',
-        brand: 'DOMESTIC NEGOTIATIONS',
-        address: 'www.domesticnegotiations.local/red-wine',
+        title: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_91d776a2bebb3914fe29"),
+        brand: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_ea1bfaae5926dad095be"),
+        address: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_b24172f5708db64c455c"),
         theme: 'magazine',
-        snippet: 'Blot, do not rub. Particularly if the tablecloth belongs to someone with opinions.',
+        snippet: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_8132814c4716b9420608"),
         body: [
-            'A practical guide to red-wine spills.',
-            'Check the fabric care label before treating a stain. Different materials require different approaches.',
-            'Our reader survey found that the most common first response is pointing at someone else.',
-            "Uncle Bernard recommends keeping the tablecloth in a cupboard. His dinner parties remain difficult to book."
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_69cc4759ce097327d38d"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_7ba1b387c4a1e2c51f50"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_b186c086c35031925c19"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_7b5a7c1aab4839267d2a")
         ],
         terms: [
             ['red_wine']
@@ -592,16 +593,16 @@ const extraPages = [
     },
     {
         id: 'owl_wine_merchants',
-        title: 'Tuesday red-wine offers | Bottles & Sons',
-        brand: 'BOTTLES & SONS',
-        address: 'www.bottlesandsons.local/offers/tuesday',
+        title: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_ceed8a924247719d77c6"),
+        brand: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_7d8468286c9ff6707843"),
+        address: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_cceae8cf83eb3a2fff1a"),
         theme: 'organisation',
-        snippet: 'A recurring Tuesday discount. Applies to bottles, not explanations.',
+        snippet: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_a0cbe593b3f81e64adfb"),
         body: [
-            'TUESDAY REDS — our weekly shop promotion.',
-            'Selected red wines are discounted every Tuesday while stocks last.',
-            "Offers apply to selected bottles in the shop. Ask at the counter for the current selection.",
-            'Please drink responsibly. Please also stop asking whether the delivery bicycle counts as a vineyard tour.'
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_ad1802e2b651b41848f9"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_04d7e511127cb583a486"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_0606d98d767e544ec154"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_ec683ec7e85a25786f6e")
         ],
         terms: [
             ['red_wine'],
@@ -610,16 +611,16 @@ const extraPages = [
     },
     {
         id: 'owl_kitchen_forum',
-        title: 'Kitchen failure halfway through service — any advice?',
-        brand: 'SERVICE INDUSTRY FORUM',
-        address: 'www.serviceforum.local/archive/cooker-trouble',
+        title: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_dc81a18f27e76ed7fff9"),
+        brand: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_34aec61df71af095b902"),
+        address: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_9c36accbe3ba974d6467"),
         theme: 'social',
-        snippet: "An archived winter discussion from Northbridge. Several replies recommend shouting.",
+        snippet: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_8b19fa6e1069ad7a84c4"),
         body: [
-            'ARCHIVED THREAD — posted last winter by user PanHandling.',
-            'Our cooker failed during lunch service in Northbridge. We switched to cold food and tried to look as though it was a concept.',
-            'Reply from GravyTrain: Call an engineer. The cooker will not respond to a strongly worded menu.',
-            "PanHandling: “Engineer booked. Cold lunch sold better than expected. The chef says this proves nothing.”"
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_7bcd5fa2fabfb7fc9270"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_f14e58b56ec46cfeabbf"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_de79935a1308b3ac2088"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_c5a3113cce4c4acb1c08")
         ],
         terms: [
             ['kitchen_failure']
@@ -627,16 +628,16 @@ const extraPages = [
     },
     {
         id: 'owl_receipt_stationery',
-        title: 'Duplicate receipt books | Paper Trail Supplies',
-        brand: 'PAPER TRAIL',
-        address: 'www.papertrail.local/shop/receipt-books',
+        title: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_cdb4a46fe6830563689b"),
+        brand: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_d5c03162c154a620cebb"),
+        address: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_3c60b8f128c9e9ec9bfa"),
         theme: 'organisation',
-        snippet: 'Numbered receipt books. Carbon copies for people who distrust their own handwriting.',
+        snippet: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_f7aa7fe7f7ea1285aab9"),
         body: [
-            'Duplicate receipt books for shops and small businesses.',
-            'Each book includes numbered pages and carbon-copy sheets. Available in packs of five.',
-            "Choose from pocket, counter and desk formats. Carbon paper included; legible handwriting remains your responsibility.",
-            'Customer review: “Excellent paper trail. Unfortunately, my accountant followed it.”'
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_fc6bea2a5dbbd1bdb6c8"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_a61c3783c2965e2295e1"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_f76a3fb16134cd526556"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_2a1e91c71848c27943e2")
         ],
         terms: [
             ['receipt']
@@ -644,16 +645,16 @@ const extraPages = [
     },
     {
         id: 'owl_arthur_birds',
-        title: 'Arthur Finch | Garden bird notes',
-        brand: 'BACK GARDEN NATURALIST',
-        address: 'www.backgardennaturalist.local/contributors/arthur-finch',
+        title: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_6f9a6da9a3da4f9742b8"),
+        brand: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_9c4acf3edf20171086fa"),
+        address: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_6be500e1c54ce9ea8381"),
         theme: 'magazine',
-        snippet: 'Arthur Finch of Northbridge writes about birds. His surname has attracted comments.',
+        snippet: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_309053773fe86301b072"),
         body: [
-            'Arthur Finch — contributor, Northbridge.',
-            'A retired railway engineer who writes a monthly column on garden birds.',
-            'His latest article concerns a robin which has taken possession of his shed.',
-            "Arthur has lived in Northbridge for forty years. The robin has occupied the shed for three months and already behaves like the landlord."
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_eb5fb292d346a35d6e64"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_618cd423fb3d469ffa08"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_89e32950e14f0aedb410"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_bdf5971bd91844c984fa")
         ],
         terms: [
             ['arthur_finch']
@@ -661,16 +662,16 @@ const extraPages = [
     },
     {
         id: 'owl_nora_namesake',
-        title: 'Nora Bell | Wedding cakes and emergency icing',
-        brand: 'BELL BAKES',
-        address: 'www.bellbakes.local/about',
+        title: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_d87a487e1fc743a04c95"),
+        brand: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_8fbc42207648927b49de"),
+        address: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_1eec07a6ac38460a89a1"),
         theme: 'magazine',
-        snippet: 'A baker in Eastmere. Wedding cakes, birthday cakes and diplomatic quantities of icing.',
+        snippet: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_dbb7d3809695df0fb85a"),
         body: [
-            'Nora Bell founded Bell Bakes in Eastmere.',
-            'The studio specialises in celebration cakes and edible flowers.',
-            "Nora has worked as a baker for twenty years. Her edible roses are considerably better behaved than the real ones outside the studio.",
-            'Please do not send seating-plan disputes. We make the cake, not the peace treaty.'
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_15bdc53898a733469119"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_b857f50a0707ea93247c"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_73d420617edbcb767d09"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_4e208c75dede4c176dde")
         ],
         terms: [
             ['nora_bell']
@@ -678,16 +679,16 @@ const extraPages = [
     },
     {
         id: 'owl_simon_namesake',
-        title: 'Simon Pike | Angling equipment',
-        brand: 'PIKE & LINE',
-        address: 'www.pikeandline.local/team/simon',
+        title: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_438fc902859e8abab75b"),
+        brand: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_e52acf2ac7edae2af990"),
+        address: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_8de239d3faf0ffe8e051"),
         theme: 'organisation',
-        snippet: 'A fishing-tackle retailer in Westhaven. The surname was apparently inevitable.',
+        snippet: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_9fc7c8e2f2ed868db088"),
         body: [
-            'Simon Pike — owner, Pike & Line, Westhaven.',
-            'Fishing rods, reels and patient advice for people who have bought the wrong bait.',
-            "Simon runs the Westhaven shop full-time. Repairs and equipment advice are available at the counter.",
-            'Our most successful lure remains the sign saying “SALE”.'
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_7f4e30b6059589c7bc9b"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_b9ab71a80628cf3fbb5b"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_dcc6b242148ce52f8721"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_1d379d0e52d514e50fc3")
         ],
         terms: [
             ['simon_pike']
@@ -695,16 +696,16 @@ const extraPages = [
     },
     {
         id: 'owl_evelyn_namesake',
-        title: 'Evelyn Shaw | Historical costume hire',
-        brand: 'SHAW COSTUMES',
-        address: 'www.shawcostumes.local/about-evelyn',
+        title: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_65b2fcdabba93c796b1a"),
+        brand: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_298e2cd4bca52076afce"),
+        address: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_c77f20be1060124a0db5"),
         theme: 'magazine',
-        snippet: "Historical costume hire in Millchester. Capes, crowns and inconveniently wide skirts.",
+        snippet: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_ededa1b090b2089a365c"),
         body: [
-            'Evelyn Shaw manages a theatrical costume workshop in Millchester.',
-            'The workshop supplies amateur theatre groups, museums and people who have misunderstood “casual Friday”.',
-            "Evelyn’s work includes costume design, alterations and convincing amateur kings that the crown is a rental.",
-            'All capes must be returned dry. All crowns must be returned without constitutional claims.'
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_1b46bfe064e8dab58dcc"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_f0024485ceaa857c0def"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_87e4e4641c565dcaa366"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_e8ced6d05746bc3724fa")
         ],
         terms: [
             ['evelyn_shaw']
@@ -712,16 +713,16 @@ const extraPages = [
     },
     {
         id: 'owl_tuesday_parcels',
-        title: 'Tuesday package collection | Parcel Pelican',
-        brand: 'PARCEL PELICAN',
-        address: 'www.parcelpelican.local/collections/tuesday-package',
+        title: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_f165c04504ec4bc6ab8b"),
+        brand: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_dcbd8933fe609aa849da"),
+        address: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_0a51c03e6f46e9ac7912"),
         theme: 'organisation',
-        snippet: 'Tuesday package collection times. Contents must exist.',
+        snippet: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_56954d28fa12757be05f"),
         body: [
-            'TUESDAY PACKAGE COLLECTION',
-            'Our Tuesday route collects prepaid parcels from participating shops.',
-            "Prepaid parcels should be labelled and ready before the collection window. Unlabelled boxes will be treated as an attempt at mystery.",
-            'If your package contains an excuse, please pack it securely. They tend to fall apart in transit.'
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_60b1aa4fe3efd9666be0"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_917b97d4d5d5efdd6274"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_91b76ddecfc85063e1e1"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_2ba823037fd3c53fad1c")
         ],
         terms: [
             ['tuesday_package'],
@@ -730,16 +731,16 @@ const extraPages = [
     },
     {
         id: 'owl_revision_guide',
-        title: 'Revision 2, final, final-final: a survival guide',
-        brand: 'OFFICE SURVIVAL WEEKLY',
-        address: 'www.officesurvival.local/documents/revision-two',
+        title: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_8fb81643e2b14a550737"),
+        brand: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_43b465f69cf0a67eaabe"),
+        address: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_0a4ff02da70f0f7377be"),
         theme: 'magazine',
-        snippet: 'Why every shared folder contains six final versions and one quiet cry for help.',
+        snippet: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_8f0bd3c1476e91d470f0"),
         body: [
-            'Revision numbers describe document versions.',
-            "Revision 2 usually follows revision 1. The emergency version found on a memory stick may follow no recognised system at all.",
-            "Choose a consistent naming system. Adding more exclamation marks is not version control.",
-            'Our own final draft is named final_REALLY_FINAL_7. We are not taking questions.'
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_13b5cf5b6790ab8374b5"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_408a36357475bd58bc49"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_899a53f631fb3763c57b"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_2e956eb5ec42708af36a")
         ],
         terms: [
             ['revision_two']
@@ -747,16 +748,16 @@ const extraPages = [
     },
     {
         id: 'owl_dinner_etiquette',
-        title: 'How to be a respectable dinner companion',
-        brand: 'THE POLITE DISASTER',
-        address: 'www.politedisaster.local/dinner-companion',
+        title: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_fdc7858ed2762c8ea3d1"),
+        brand: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_0e9c9ee39a2b6099becd"),
+        address: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_60ca3913024e68a8e42e"),
         theme: 'magazine',
-        snippet: 'Arrive on time. Learn their name. Do not become an incident.',
+        snippet: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_6013fed4a49453064962"),
         body: [
-            'A short guide to being invited back.',
-            'Listen, ask questions and avoid explaining the correct way to run the restaurant before the bread arrives.',
-            "Arrive when invited, learn your host’s name and allow someone else to finish a sentence before describing your investments.",
-            "If you drop a fork, ask for another. Crawling under the table is rarely the impression you intended to make."
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_6828a0d1b9dc33d6d030"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_1bf31b352f9e8860d7a7"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_e9f33731f4adf6d7025b"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_9a3ead52dfda9c0cec31")
         ],
         terms: [
             ['respectable_witness'],
@@ -765,16 +766,16 @@ const extraPages = [
     },
     {
         id: 'owl_free_samples',
-        title: 'Free samples | The subscription is in the small print',
-        brand: 'PENNYWISE POST',
-        address: 'www.pennywisepost.local/free-samples',
+        title: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_8f094f145529dc49639e"),
+        brand: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_db67f460ec67aa92644b"),
+        address: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_62f170c56e25abded70e"),
         theme: 'magazine',
-        snippet: 'Read the terms before accepting a free sample. Especially if it arrives with an invoice.',
+        snippet: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_b8db1889892b10b2fef4"),
         body: [
-            'A consumer column about promotional samples.',
-            'Check whether a sample requires payment details, a purchase or an ongoing subscription.',
-            "Keep the offer terms and check any cancellation instructions before handing over your payment details.",
-            'Our free newsletter costs nothing. Escaping our editor at parties is considerably harder.'
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_a9e6d383c4479f1a627e"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_b8ac022017820b2cc99e"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_859d590a0361229ded3d"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_d6a133abb40f99b8f6a2")
         ],
         terms: [
             ['sample']
@@ -782,16 +783,16 @@ const extraPages = [
     },
     {
         id: 'owl_tuesday_calendar',
-        title: 'Tuesday events | The town calendar',
-        brand: 'WHAT’S ON, PROBABLY',
-        address: 'www.whatsonprobably.local/weekly/tuesday',
+        title: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_382fae25cbc02de392a3"),
+        brand: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_729e24de90bd7790f16b"),
+        address: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_82223108fb5fc626489d"),
         theme: 'magazine',
-        snippet: "Bridge, pottery and choir practice in our weekly listings.",
+        snippet: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_3cf255be1ad079febb92"),
         body: [
-            "WEEKLY LISTINGS",
-            'Tuesday: beginners’ bridge, pottery practice and the municipal choir.',
-            'The choir has asked us to clarify that “beginners welcome” is an invitation, not an acoustic forecast.',
-            "Contact the organisers for booking details and schedule changes. The pottery group has asked us to stop printing “bring your own kiln”."
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_f71db8fbf5a9190f9653"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_8b63ec0fc368b51293bc"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_cc7bdbe77bd836985a16"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_0cbeb7c1222e4ba2e711")
         ],
         terms: [
             ['tuesday']
@@ -799,16 +800,16 @@ const extraPages = [
     },
     {
         id: 'owl_table_for_one',
-        title: 'A table for one is still a table',
-        brand: 'THE EVENING FORK',
-        address: 'www.eveningfork.local/features/table-for-one',
+        title: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_52ca54122010cc4f50ce"),
+        brand: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_b13c90fc1b409461f3e9"),
+        address: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_2f6d539ac8b066b553e6"),
         theme: 'magazine',
-        snippet: 'Solo dining, spare chairs and the waiter who keeps asking whether someone is coming.',
+        snippet: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_a18741ab29c5109c8237"),
         body: [
-            'Dining alone should not require an explanation.',
-            'Our columnist recommends a book, a comfortable chair and refusing to apologise to an empty place setting.',
-            "Order what you want. You are not obliged to choose something which looks convincing in the empty chair’s photograph.",
-            'The spare chair declined to comment. It was enjoying the evening.'
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_06aa256473287274b125"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_2e9fb7c61ad46c9d167e"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_d6a29913db1fa3130179"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_e11ec8c17e4e73cf6a14")
         ],
         terms: [
             ['one_guest'],
@@ -871,155 +872,155 @@ const configs = [
         id: 'alibi_nora_bell',
         stem: 'nora',
         person: 'nora_bell',
-        name: 'Nora Bell',
+        name: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_4cca0264ed42816c466a"),
 
         intro: [
             line(
-                'You',
-                'You asked Arthur Finch to confirm a Tuesday dinner. He says he ate alone.'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_08b041935798fbf6fd6f"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_259f8c48c373bf1af372")
             ),
             line(
-                'Nora Bell',
-                'I sent the message, yes. I was rather hoping this would end with him saying yes, not with a detective.'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_4cca0264ed42816c466a"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_761da7da799bd988456c")
             ),
             line(
-                'You',
-                'Three people sent him the same soup, the same wine and the same waiter. Did you write yours yourself?'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_08b041935798fbf6fd6f"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_f64298d88f40e618529f")
             ),
             line(
-                'Nora Bell',
-                'I am not discussing how I wrote it. Arthur has what I sent. Compare the original messages if you think something is wrong.'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_4cca0264ed42816c466a"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_5df60afe4fded4badd6a")
             )
         ],
 
         soup: [
             line(
-                'You',
-                'Your message describes tomato soup that Tuesday. Is that accurate?'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_08b041935798fbf6fd6f"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_03524d8fd8fd79a64a59")
             ),
             line(
-                'Nora Bell',
-                'That is what the message says. If you think the meal is impossible, ask the restaurant. I am not a menu archive.'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_4cca0264ed42816c466a"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_5d4fc9101ca667785ebe")
             )
         ],
 
         footer: [
             line(
-                'You',
-                'There is a document label in the material Arthur forwarded. Do you recognise it?'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_08b041935798fbf6fd6f"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_5d0f677928ec41bc7a16")
             ),
             line(
-                'Nora Bell',
-                'I am not going to explain somebody else’s attachment. Check the document itself.'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_4cca0264ed42816c466a"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_642fe333bf4611aa60a0")
             )
         ],
 
         fallback:
-            'I can discuss the dinner request I sent Arthur. Ask about Tuesday, the restaurant or a specific detail in my message.'
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_952d362160d0e98851d2")
     },
     {
         id: 'alibi_simon_pike',
         stem: 'simon',
         person: 'simon_pike',
-        name: 'Simon Pike',
+        name: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_95df72b5037a3593588e"),
 
         intro: [
             line(
-                'You',
-                'Arthur Finch says he never agreed to confirm your Tuesday dinner.'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_08b041935798fbf6fd6f"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_05347bae2fbc5df1a915")
             ),
             line(
-                'Simon Pike',
-                'That is an unfortunate development in what I had considered a complete plan.'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_95df72b5037a3593588e"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_8057bef7e8d330993f3a")
             ),
             line(
-                'You',
-                'Two other people sent him almost the same account. Same table, soup and spilled wine.'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_08b041935798fbf6fd6f"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_daa93bd41ad4d6a238fa")
             ),
             line(
-                'Simon Pike',
-                'Then compare what we sent. I am not adding a second version for you to compare with the first.'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_95df72b5037a3593588e"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_77142f93920a018bd79d")
             )
         ],
 
         soup: [
             line(
-                'You',
-                'You describe tomato soup. Can you confirm it was served that Tuesday?'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_08b041935798fbf6fd6f"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_80b00085b1adea62e8e6")
             ),
             line(
-                'Simon Pike',
-                'The restaurant can answer that better than I can. You have the venue and the evening in my message.'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_95df72b5037a3593588e"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_a287a99888860deb0f8b")
             )
         ],
 
         footer: [
             line(
-                'You',
-                'One of the forwarded documents has a product-like label at the bottom.'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_08b041935798fbf6fd6f"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_2a6215a909ff78b63b60")
             ),
             line(
-                'Simon Pike',
-                'Then start with the label. I would prefer not to provide commentary on other people’s paperwork.'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_95df72b5037a3593588e"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_5230a57cee8f9b1a99bb")
             )
         ],
 
         fallback:
-            'If this is about the request to Arthur, ask about that dinner or the details I included. I cannot answer for every name in your notebook.'
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_cfef116a0f93118463db")
     },
     {
         id: 'alibi_evelyn_shaw',
         stem: 'evelyn',
         person: 'evelyn_shaw',
-        name: 'Evelyn Shaw',
+        name: __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_f693eba06ad2594e170c"),
 
         intro: [
             line(
-                'You',
-                'You asked Arthur Finch to confirm dinner. He denies being with you.'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_08b041935798fbf6fd6f"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_e1e02e2f7b065f90be2d")
             ),
             line(
-                'Evelyn Shaw',
-                'My account is in the message. The restaurant, the time and the meal.'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_f693eba06ad2594e170c"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_ba8c4704c6d9ea98ffab")
             ),
             line(
-                'You',
-                'You also attached a document.'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_08b041935798fbf6fd6f"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_83a1b1907c31ee38d962")
             ),
             line(
-                'Evelyn Shaw',
-                'Arthur has the original. Ask him to forward the attachment, not just the email text.'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_f693eba06ad2594e170c"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_cb3a5b53d30c0d54aeef")
             ),
             line(
-                'You',
-                'He has sent it separately. I will compare both.'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_08b041935798fbf6fd6f"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_6ed3e5ff72fe2240fb66")
             )
         ],
 
         soup: [
             line(
-                'You',
-                'Your account specifically names tomato soup. Do you stand by that?'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_08b041935798fbf6fd6f"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_89b2dac0fa8882ca6b8e")
             ),
             line(
-                'Evelyn Shaw',
-                'I stand by the account I sent. If you dispute what the restaurant served, obtain its service record.'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_f693eba06ad2594e170c"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_64a2c272c8a452c9e364")
             )
         ],
 
         footer: [
             line(
-                'You',
-                'The attachment ends with “Tuesday package — revision 2. Remove before forwarding.” What is that?'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_08b041935798fbf6fd6f"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_ccb4092093c8c217672d")
             ),
             line(
-                'Evelyn Shaw',
-                'A document label. You can search the phrase yourself. It does not tell you where I spent the evening.'
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_f693eba06ad2594e170c"),
+                __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_c5b0d7592d7e63333ac7")
             )
         ],
 
         fallback:
-            'My dinner account is already in writing. Ask about a detail in it. If you want to contradict it, establish the facts first.'
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_76178166f39ecf68fce1")
     }
 ];
 
@@ -1031,20 +1032,20 @@ for (const config of configs) {
     if (!contact) continue;
 
     contact.choicePrompt =
-        'Ask about the dinner request: choose a name, Tuesday, the restaurant or a detail from the message.';
+        __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_95ee7e968b9998fc3420");
 
     contact.greeting = [
         line(
             config.name,
-            `${config.name} speaking.`
+            `${config.name}${__dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_ba2f76109f636f10bbbd")}`
         ),
         line(
-            'You',
-            'I am investigating the Tuesday dinner confirmation you sent Arthur Finch.'
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_08b041935798fbf6fd6f"),
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_5df05eaafcf881b39172")
         ),
         line(
             config.name,
-            'All right. What do you want to ask about the message?'
+            __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_1148d61767c13d8fc8da")
         )
     ];
 
@@ -1140,12 +1141,12 @@ for (const config of configs) {
             terms,
             [
                 line(
-                    'You',
-                    'Your message repeats the spilled wine and the waiter’s remark found in the other requests.'
+                    __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_08b041935798fbf6fd6f"),
+                    __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_c47b1a2ba02a7c9a381f")
                 ),
                 line(
                     config.name,
-                    'Then compare the original documents. Repeating the description to me will not establish whether the dinner happened.'
+                    __dialogueText("ui/pi-computer/AlibiSearchExpansion.js", "t_e1d2064607835051e02b")
                 )
             ]
         );

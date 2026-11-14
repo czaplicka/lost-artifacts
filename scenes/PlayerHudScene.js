@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
 import { BaseScene } from './BaseScene.js';
@@ -601,7 +602,7 @@ export class PlayerHudScene extends BaseScene {
       if (dialog) {
         this._observePanel(
           dialog,
-          'dialogManager.dialogUI'
+          __dialogueText("scenes/PlayerHudScene.js", "t_7b48a33f1964a1ebfa66")
         );
       }
 
@@ -635,7 +636,7 @@ export class PlayerHudScene extends BaseScene {
         if (manager?.dialogUI) {
           this._observePanel(
             manager.dialogUI,
-            'dialogManager.dialogUI'
+            __dialogueText("scenes/PlayerHudScene.js", "t_7b48a33f1964a1ebfa66")
           );
         }
 

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 import {
   requestAutosave
@@ -939,10 +940,10 @@ export class PIMailbox {
     if (!messages.length) {
       const emptyText =
         this.folder === 'archive'
-          ? 'Archive empty. The paperwork refuses to file itself.'
+          ? __dialogueText("ui/pi-computer/PIMailbox.js", "t_7bf5b7f44477b1d1617c")
           : this.folder === 'trash'
-            ? 'Trash empty. Even your bad decisions are well organized.'
-            : 'Inbox empty. Not even spam. Suspicious.';
+            ? __dialogueText("ui/pi-computer/PIMailbox.js", "t_4a034e2350c586279cae")
+            : __dialogueText("ui/pi-computer/PIMailbox.js", "t_5bfb2a21bb9695562a1e");
 
       d.text(
         box.x + 24,
@@ -984,7 +985,7 @@ export class PIMailbox {
       d.button(
         box.x + 14,
         actionY,
-        'MOVE TO INBOX',
+        __dialogueText("ui/pi-computer/PIMailbox.js", "t_09b964110d9f803d3331"),
         () => this.act(
           selected,
           'restore'
@@ -1046,7 +1047,7 @@ export class PIMailbox {
       );
 
       notice =
-        'Message archived. Case progress has not been changed.';
+        __dialogueText("ui/pi-computer/PIMailbox.js", "t_32cd39c91eeaddaede6b");
     } else if (
       operation === 'trash' &&
       this.folder !== 'trash'
@@ -1056,7 +1057,7 @@ export class PIMailbox {
       );
 
       notice =
-        'Message moved to Trash. Case progress has not been changed.';
+        __dialogueText("ui/pi-computer/PIMailbox.js", "t_45171d3d9320b1284f25");
     } else if (
       operation === 'restore' &&
       this.folder !== 'inbox'
@@ -1066,7 +1067,7 @@ export class PIMailbox {
       );
 
       notice =
-        'Message moved to Inbox.';
+        __dialogueText("ui/pi-computer/PIMailbox.js", "t_14a71c8a9d019da8f337");
     }
 
     if (!changed) return;

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 
 import {
@@ -49,7 +50,7 @@ function birdFor(index) {
     name:
       index === 0
         ? C.firstName
-        : `Pigeon ${index + 1}`,
+        : `${__dialogueText("managers/PigeonManager.js", "t_2b60ac66d5d909dc9c3b")}${index + 1}`,
     arrived: false,
     fed: false,
     departedAt: null,
@@ -151,7 +152,7 @@ function transaction(callback) {
   if (busy) {
     return {
       ok: false,
-      message: 'Please wait for the previous action.'
+      message: __dialogueText("managers/PigeonManager.js", "t_5bb5f0f89f84e9410564")
     };
   }
 
@@ -198,7 +199,7 @@ function transaction(callback) {
       ok: false,
       message:
         error.message ||
-        'The action failed. Nothing was consumed.'
+        __dialogueText("managers/PigeonManager.js", "t_e1ed61741b7922d0a590")
     };
   } finally {
     busy = false;
@@ -336,7 +337,7 @@ export function feedPigeon(slot) {
     ) {
       return {
         ok: false,
-        message: 'Buy this cage first.'
+        message: __dialogueText("managers/PigeonManager.js", "t_bd26ea61ff4b9482fae1")
       };
     }
 
@@ -347,21 +348,21 @@ export function feedPigeon(slot) {
     if (bird?.returnAt != null) {
       return {
         ok: false,
-        message: 'Wait for this pigeon and collect its find first.'
+        message: __dialogueText("managers/PigeonManager.js", "t_1dc447da802adef6ac8b")
       };
     }
 
     if (bird?.fed) {
       return {
         ok: false,
-        message: 'This pigeon already has grain for its next flight.'
+        message: __dialogueText("managers/PigeonManager.js", "t_b3b69dfb29403e1488f7")
       };
     }
 
     if (!inventoryManager.hasItem(C.feedId)) {
       return {
         ok: false,
-        message: 'Buy Pigeon Feed on the office computer: Office Shop, $2 per portion.'
+        message: __dialogueText("managers/PigeonManager.js", "t_224fca6c760e5d6ce12e")
       };
     }
 
@@ -392,8 +393,8 @@ export function feedPigeon(slot) {
       ok: true,
       message:
         newcomer
-          ? `${bird.name} arrived for the grain. One portion used. Ready for a flight.`
-          : `${bird.name} has been fed. Ready for a flight.`
+          ? `${bird.name}${__dialogueText("managers/PigeonManager.js", "t_c6230b52e0d5d490d110")}`
+          : `${bird.name}${__dialogueText("managers/PigeonManager.js", "t_f36129ca95b7d896e8cd")}`
     };
   });
 }
@@ -403,7 +404,7 @@ export function renamePigeon(id, value) {
     if (typeof value !== 'string') {
       return {
         ok: false,
-        message: 'Enter a name.'
+        message: __dialogueText("managers/PigeonManager.js", "t_099f9079ba79b8510abc")
       };
     }
 
@@ -415,7 +416,7 @@ export function renamePigeon(id, value) {
     if (!name) {
       return {
         ok: false,
-        message: 'A pigeon deserves a name.'
+        message: __dialogueText("managers/PigeonManager.js", "t_7621037826c509605be3")
       };
     }
 
@@ -427,7 +428,7 @@ export function renamePigeon(id, value) {
 
     return {
       ok: true,
-      message: `${name}. A perfectly respectable operative.`
+      message: `${name}${__dialogueText("managers/PigeonManager.js", "t_184d2a87c69afa682690")}`
     };
   });
 }
@@ -442,14 +443,14 @@ export function sendPigeon(id) {
     if (bird.returnAt != null) {
       return {
         ok: false,
-        message: 'Collect the previous find first.'
+        message: __dialogueText("managers/PigeonManager.js", "t_e01f860c320980164f21")
       };
     }
 
     if (!bird.fed) {
       return {
         ok: false,
-        message: 'Click the feeder to pour one portion of grain first.'
+        message: __dialogueText("managers/PigeonManager.js", "t_8fc8b21c3cdbc4ec696d")
       };
     }
 
@@ -460,7 +461,7 @@ export function sendPigeon(id) {
         ok: false,
         message:
           catalog.error ||
-          'Loading the item catalog. Try again in a moment. No grain was lost.'
+          __dialogueText("managers/PigeonManager.js", "t_5716df0f12260f7fe239")
       };
     }
 
@@ -478,8 +479,8 @@ export function sendPigeon(id) {
     return {
       ok: true,
       message:
-        `${bird.name} has departed for two hours. ` +
-        'No additional grain charged.'
+        `${bird.name}${__dialogueText("managers/PigeonManager.js", "t_23eb53af2a5c86d5dde1")}` +
+        __dialogueText("managers/PigeonManager.js", "t_e8e1069dd9789f94975c")
     };
   });
 }
@@ -497,7 +498,7 @@ export function collectPigeonFind(id) {
     ) {
       return {
         ok: false,
-        message: 'This pigeon is not back yet.'
+        message: __dialogueText("managers/PigeonManager.js", "t_bb9f5e0255bc9f21df62")
       };
     }
 
@@ -519,7 +520,7 @@ export function collectPigeonFind(id) {
           ok: false,
           message:
             getPigeonCatalogStatus().error ||
-            'Loading the item catalog. Your pigeon will keep the find safe.'
+            __dialogueText("managers/PigeonManager.js", "t_c97c9c7d001413440dca")
         };
       }
 
@@ -544,7 +545,7 @@ export function collectPigeonFind(id) {
       ) {
         return {
           ok: false,
-          message: 'Inventory full. Your pigeon will keep the find safe.'
+          message: __dialogueText("managers/PigeonManager.js", "t_b8be069865ef28a52b44")
         };
       }
 
@@ -588,13 +589,13 @@ export function collectPigeonFind(id) {
       ok: true,
       find: clone(find),
       message:
-        find.kind === 'junk'
-          ? `${find.name}: ${find.description} Discarded.`
-          : `${find.name} added to ${
-              find.kind === 'collection'
-                ? 'your collection'
-                : 'your inventory'
-            }.`
+        find.kind === __dialogueText("managers/PigeonManager.js", "t_ef875a1705a5fdac206b")
+          ? `${find.name}${__dialogueText("managers/PigeonManager.js", "t_45822f54a0d0e030f756")}${find.description}${__dialogueText("managers/PigeonManager.js", "t_3a10bf8281679f9343c0")}`
+          : `${find.name}${__dialogueText("managers/PigeonManager.js", "t_3f7634658a37e802376a")}${
+              find.kind === __dialogueText("managers/PigeonManager.js", "t_fa7496e4ae840306df41")
+                ? __dialogueText("managers/PigeonManager.js", "t_92140299973b6abcd241")
+                : __dialogueText("managers/PigeonManager.js", "t_4dccd757d0eca2f1f5e5")
+            }${__dialogueText("managers/PigeonManager.js", "t_cdb4ee2aea69cc6a8333")}`
     };
   });
 }
@@ -612,7 +613,7 @@ export function buyPigeonPerch() {
     ) {
       return {
         ok: false,
-        message: 'The loft is fully expanded.'
+        message: __dialogueText("managers/PigeonManager.js", "t_b3a68fb156733ae8dd8e")
       };
     }
 
@@ -624,7 +625,7 @@ export function buyPigeonPerch() {
     ) {
       return {
         ok: false,
-        message: 'Not enough personal cash.'
+        message: __dialogueText("managers/PigeonManager.js", "t_6150b8bb4551d17850e2")
       };
     }
 
@@ -633,7 +634,7 @@ export function buyPigeonPerch() {
       {
         source: MONEY_SOURCE.CASH,
         category: ECONOMY_CATEGORY.OFFICE_UPGRADE,
-        description: 'Pigeon loft: empty cage',
+        description: __dialogueText("managers/PigeonManager.js", "t_f71cf0468b33c076ccf4"),
         missionId: null,
         metadata: {
           pigeonLoft: true,
@@ -645,7 +646,7 @@ export function buyPigeonPerch() {
     if (!purchase.ok) {
       return {
         ok: false,
-        message: 'Not enough personal cash.'
+        message: __dialogueText("managers/PigeonManager.js", "t_6150b8bb4551d17850e2")
       };
     }
 
@@ -655,7 +656,7 @@ export function buyPigeonPerch() {
 
     return {
       ok: true,
-      message: 'Empty cage installed. Pour grain to attract its pigeon.'
+      message: __dialogueText("managers/PigeonManager.js", "t_b25d7cc769e7a22b73a6")
     };
   });
 }

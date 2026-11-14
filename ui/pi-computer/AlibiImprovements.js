@@ -1,10 +1,11 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { installAlibiImprovements as installExistingAlibiImprovements } from './AlibiImprovementsBase.js';
 import { installAlibiGuidance } from './AlibiGuidanceUI.js';
 import { installAlibiDinnerTimeKeyword } from './AlibiDinnerTime.js';
 import { installAlibiBreakInTimes } from './AlibiBreakInTimes.js';
 import { installAlibiSharedFaceSpace } from './AlibiSharedFaceSpace.js';
 
-const KEY = Symbol.for('lostArtifacts.alibiGuidanceBundleV3');
+const KEY = Symbol.for(__dialogueText("ui/pi-computer/AlibiImprovements.js", "t_f7accde0a37a73f99555"));
 
 export function installAlibiImprovements(ui, documents) {
   if (ui[KEY]) return ui[KEY];

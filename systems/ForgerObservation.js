@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../gameStatePersistence.js';
 import { getEnergyManager } from '../managers/EnergyManager.js';
@@ -18,18 +19,18 @@ export const FORGER_CONFIG = Object.freeze({
 });
 
 const IDENTITIES = [
-  { name: 'Robin Hale', occupation: 'Travel photographer' },
-  { name: 'Morgan Vale', occupation: 'Art consultant' },
-  { name: 'Alex Finch', occupation: 'Insurance inspector' },
-  { name: 'Jamie Bell', occupation: 'Antique dealer' },
-  { name: 'Taylor Reed', occupation: 'Museum researcher' },
-  { name: 'Casey Brooks', occupation: 'Exhibition designer' }
+  { name: __dialogueText("systems/ForgerObservation.js", "t_aa6b460725247c6c3b01"), occupation: __dialogueText("systems/ForgerObservation.js", "t_21effa367432d6ba497e") },
+  { name: __dialogueText("systems/ForgerObservation.js", "t_4ce92ce0b8b57ca2feeb"), occupation: __dialogueText("systems/ForgerObservation.js", "t_d2d65046960a509926fa") },
+  { name: __dialogueText("systems/ForgerObservation.js", "t_1eb590c1770d4d4ef22c"), occupation: __dialogueText("systems/ForgerObservation.js", "t_89a605f28f9fbe510b25") },
+  { name: __dialogueText("systems/ForgerObservation.js", "t_272d9d5a869fabbd53fe"), occupation: __dialogueText("systems/ForgerObservation.js", "t_2c535670e9fc9d6bddaa") },
+  { name: __dialogueText("systems/ForgerObservation.js", "t_66c16c0a015e20284d06"), occupation: __dialogueText("systems/ForgerObservation.js", "t_cc48a4735a10711c7768") },
+  { name: __dialogueText("systems/ForgerObservation.js", "t_199bd15290454f11a719"), occupation: __dialogueText("systems/ForgerObservation.js", "t_4ac7ac83c5fef5f4bbfe") }
 ];
 
 const FOLDERS = [
-  { id: 'umbrella', label: 'RED UMBRELLA', color: 0xa94c43 },
-  { id: 'fish', label: 'BLUE FISH', color: 0x477ba5 },
-  { id: 'moon', label: 'GOLD MOON', color: 0xb89b43 }
+  { id: 'umbrella', label: __dialogueText("systems/ForgerObservation.js", "t_16db7eb5bb8412708db1"), color: 0xa94c43 },
+  { id: 'fish', label: __dialogueText("systems/ForgerObservation.js", "t_76bf7e0b22a6952a042f"), color: 0x477ba5 },
+  { id: 'moon', label: __dialogueText("systems/ForgerObservation.js", "t_556328d89c2ea9bf58ac"), color: 0xb89b43 }
 ];
 
 function hash(value) {
@@ -174,7 +175,7 @@ export function getForgerAccess(cityId) {
   const city = normalizePursuitCityId(cityId);
 
   if (!context || !activeCase() || city !== context.cityId) {
-    return { available: false, reason: 'Not available here.' };
+    return { available: false, reason: __dialogueText("systems/ForgerObservation.js", "t_87b8ac7f7610e6dd69f5") };
   }
 
   const pursuit = getPursuitCityContext(gameState, city);
@@ -182,7 +183,7 @@ export function getForgerAccess(cityId) {
   if (!pursuit.isCorrectCity || pursuit.isCrimeCity) {
     return {
       available: false,
-      reason: 'Establish the verified route first.'
+      reason: __dialogueText("systems/ForgerObservation.js", "t_14d005a8f8aeb0f8d082")
     };
   }
 
@@ -194,7 +195,7 @@ export function getForgerAccess(cityId) {
   ) {
     return {
       available: false,
-      reason: 'Find the ID preparation envelope first.'
+      reason: __dialogueText("systems/ForgerObservation.js", "t_203599e5ee17f3290473")
     };
   }
 
@@ -240,7 +241,7 @@ export function startObservationRound(cityId) {
   if (record.submitted) {
     return {
       success: false,
-      message: 'An alias has already been recorded for this case.'
+      message: __dialogueText("systems/ForgerObservation.js", "t_bd0d90c2931912856cd7")
     };
   }
 
@@ -260,7 +261,7 @@ export function startObservationRound(cityId) {
 
   const result = energy.consumeCustom(
     cost,
-    `Forger observation: -${cost}`,
+    `${__dialogueText("systems/ForgerObservation.js", "t_648122d28f46b349997b")}${cost}`,
     {
       requireFullAmount: true,
       activityType: 'forger_observation'
@@ -270,7 +271,7 @@ export function startObservationRound(cityId) {
   if (!result.success) {
     return {
       success: false,
-      message: result.message || 'Rest before observing the workshop.'
+      message: result.message || __dialogueText("systems/ForgerObservation.js", "t_31e93a5d690460510219")
     };
   }
 
@@ -321,16 +322,16 @@ export function getObservationBeat(record = getForgerRecord()) {
       hotspot: 'desk',
       clientId: client.id,
       caption:
-        `The forger opens the ${client.label} folder ` +
-        'and checks a photograph on the desk.',
+        `${__dialogueText("systems/ForgerObservation.js", "t_8bd33a06256344c7555f")}${client.label}${__dialogueText("systems/ForgerObservation.js", "t_97c1a9e359fb6a2c2dd7")}` +
+        __dialogueText("systems/ForgerObservation.js", "t_b8f1de7c76937348f1f8"),
       detail: matches
-        ? `Order ${client.order} — ${client.label}.\n` +
-          'The photograph matches the person pictured in your ' +
-          'ID preparation envelope.\n\n' +
-          '"A new identity. Still the same terrible photograph."'
-        : `Order ${client.order} — ${client.label}.\n` +
-          'The photograph shows a different customer.\n\n' +
-          '"No, a passport photograph cannot include your horse."'
+        ? `${__dialogueText("systems/ForgerObservation.js", "t_d337d826db7e34d63bd9")}${client.order}${__dialogueText("systems/ForgerObservation.js", "t_3b2e8119b6fcc97df985")}${client.label}${__dialogueText("systems/ForgerObservation.js", "t_eb4bd64f7014f7d42e9d")}` +
+          __dialogueText("systems/ForgerObservation.js", "t_ec56b78e996161ba0c55") +
+          __dialogueText("systems/ForgerObservation.js", "t_9aae0c6b7fc7e7f7e6e3") +
+          __dialogueText("systems/ForgerObservation.js", "t_ee90203946a8ce558d48")
+        : `${__dialogueText("systems/ForgerObservation.js", "t_d337d826db7e34d63bd9")}${client.order}${__dialogueText("systems/ForgerObservation.js", "t_3b2e8119b6fcc97df985")}${client.label}${__dialogueText("systems/ForgerObservation.js", "t_eb4bd64f7014f7d42e9d")}` +
+          __dialogueText("systems/ForgerObservation.js", "t_2047f24958a9d92605ae") +
+          __dialogueText("systems/ForgerObservation.js", "t_5e8be4d3630ce2a75554")
     };
   }
 
@@ -339,13 +340,13 @@ export function getObservationBeat(record = getForgerRecord()) {
     hotspot: 'phone',
     clientId: client.id,
     caption:
-      `The telephone rings. The ${client.label} folder ` +
-      'is still open.',
+      `${__dialogueText("systems/ForgerObservation.js", "t_c6fc9faf31847dfc17ce")}${client.label}${__dialogueText("systems/ForgerObservation.js", "t_97c1a9e359fb6a2c2dd7")}` +
+      __dialogueText("systems/ForgerObservation.js", "t_5b1325648dbb11fe4c0c"),
     detail:
-      `"Yes, ${client.name}. Your documents list your occupation ` +
-      `as ${client.occupation.toLowerCase()}.\n\n` +
-      'Yes, you need to remember both.\n' +
-      'No, the passport does not come with actual qualifications."'
+      `${__dialogueText("systems/ForgerObservation.js", "t_328b3a2f23cc77762efc")}${client.name}${__dialogueText("systems/ForgerObservation.js", "t_895dc6d07ddab1fd420d")}` +
+      `${__dialogueText("systems/ForgerObservation.js", "t_12876f7c0660420d3257")}${client.occupation.toLowerCase()}${__dialogueText("systems/ForgerObservation.js", "t_0673d69ff78439adfb40")}` +
+      __dialogueText("systems/ForgerObservation.js", "t_36c3f70f485e641a824d") +
+      __dialogueText("systems/ForgerObservation.js", "t_e02fcca19bc07d972ffa")
   };
 }
 
@@ -366,7 +367,7 @@ export function inspectObservationBeat(cityId, hotspot) {
           id: beat.id,
           text: `${record.clients.find(
             client => client.id === beat.clientId
-          ).label}\n${beat.detail}`
+          ).label}${__dialogueText("systems/ForgerObservation.js", "t_01ba4719c80b6fe911b0")}${beat.detail}`
         }
       ]
     });
@@ -429,9 +430,9 @@ export function submitForgerIdentity(cityId, selectedId) {
       key: 'working_alias',
       value: selected.name,
       text:
-        `Working travel identity: ${selected.name}. ` +
-        `Occupation: ${selected.occupation}. ` +
-        'Linked by your observation of the document workshop.',
+        `${__dialogueText("systems/ForgerObservation.js", "t_2e2616e2e2d16e1aeddc")}${selected.name}${__dialogueText("systems/ForgerObservation.js", "t_8dccf256f6d5783e62bb")}` +
+        `${__dialogueText("systems/ForgerObservation.js", "t_e9cc97d8283ed7929e9f")}${selected.occupation}${__dialogueText("systems/ForgerObservation.js", "t_8dccf256f6d5783e62bb")}` +
+        __dialogueText("systems/ForgerObservation.js", "t_5836e1f5d79a55971ec5"),
       caseId: gameState.currentCaseId,
       cityId: record.cityId,
       source: 'forger_observation'

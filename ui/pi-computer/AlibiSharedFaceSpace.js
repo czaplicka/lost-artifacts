@@ -1,6 +1,7 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { ALIBI_SEARCH_CASE } from './AlibiCaseData.js';
 
-const MARKER = Symbol.for('lostArtifacts.alibiSharedFaceSpaceV1');
+const MARKER = Symbol.for(__dialogueText("ui/pi-computer/AlibiSharedFaceSpace.js", "t_308aa4de1054f3f6db67"));
 const linkedDefinitions = new WeakMap();
 const NORA_PAGE = 'nora_social';
 const OLD_NORA_PAGE = 'social_nora_bell';
@@ -94,7 +95,7 @@ export function syncAlibiSharedProfiles(search) {
   });
   const nora = copies.find(page => page.id === NORA_PAGE);
   delete nora.socialProfile;
-  nora.profile = { ...(nora.profile || {}), name: 'Nora Bell', ...ALIBI_FACE_AVATARS.nora_bell };
+  nora.profile = { ...(nora.profile || {}), name: __dialogueText("ui/pi-computer/AlibiSharedFaceSpace.js", "t_4cca0264ed42816c466a"), ...ALIBI_FACE_AVATARS.nora_bell };
 
   const replaced = new Set([OLD_NORA_PAGE, ...copies.map(page => page.id)]);
   definition.pages = [...definition.pages.filter(page => !replaced.has(page.id)), ...copies];

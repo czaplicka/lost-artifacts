@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import {
   PhoneInvestigation as PhoneInvestigationBase,
   eligiblePhoneRule as originalEligible,
@@ -50,15 +51,15 @@ export class PhoneInvestigation extends PhoneInvestigationBase {
     const definition=this.searchData?.cases.find(c=>c.id===this.active.caseId);
     const words=this.selected.map(id=>definition?.keywords.find(k=>k.id===id)?.label || id).join(' + ');
     const routes={
-      '427':'I can check Tuesday service, explain our receipt procedure or give you the receipts email. A customer record requires their written permission.',
-      '428':'I’m sorry, what are you asking about?',
-      '429':'If you dispute my dinner account, compare the original messages, the sample reference and the restaurant evidence. Which part have you established?',
-      '430':'Keep my account separate from the others. If you are matching it to a sample, use its actual reference and check the restaurant evidence.',
-      '431':'State the dinner evidence you have checked. The company incident is a separate question; my employer’s name is not itself a contradiction.',
-      '432':'I can confirm the Tuesday break-in statement or check a specific physical description volunteered by a witness. Restaurant orders belong with the restaurant.'
+      '427':__dialogueText("ui/pi-phone/PhoneInvestigation.js", "t_ebc2454fc91a43a6960a"),
+      '428':__dialogueText("ui/pi-phone/PhoneInvestigation.js", "t_fedae9eebdbc4754f87e"),
+      '429':__dialogueText("ui/pi-phone/PhoneInvestigation.js", "t_9e9c69a942b63c772b33"),
+      '430':__dialogueText("ui/pi-phone/PhoneInvestigation.js", "t_c3c19f9200d40f4ad882"),
+      '431':__dialogueText("ui/pi-phone/PhoneInvestigation.js", "t_815b8fa0e16cd052613c"),
+      '432':__dialogueText("ui/pi-phone/PhoneInvestigation.js", "t_15810d9448ea5256244e")
     };
-    const lines=[{speaker:'You',text:`I wanted to ask about ${words}.`},
-      {speaker:this.active.name,text:routes[this.active.number] || 'Please separate the person, source document and claim you want checked.'}];
+    const lines=[{speaker:__dialogueText("ui/pi-phone/PhoneInvestigation.js", "t_08b041935798fbf6fd6f"),text:`${__dialogueText("ui/pi-phone/PhoneInvestigation.js", "t_1287962b7f5c25b7feb2")}${words}${__dialogueText("ui/pi-phone/PhoneInvestigation.js", "t_cdb4ee2aea69cc6a8333")}`},
+      {speaker:this.active.name,text:routes[this.active.number] || __dialogueText("ui/pi-phone/PhoneInvestigation.js", "t_c080376201c055677053")}];
     this.pending={id:'general_enquiry',grantFlags:[],lines};this.play(lines,'response');return true;
   }
   phoneCaseFlags() {return readPhoneProgress(this.active.caseId).flags || [];}

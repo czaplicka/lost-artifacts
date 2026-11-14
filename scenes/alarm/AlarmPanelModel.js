@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 export function buildAlarmSolution({serial,firmware,sensorsTripped}){
   const odd=Number(String(serial).slice(-1))%2===1;
   const first=odd?'MEM':'TEST',second=odd?'TEST':'MEM';
@@ -6,7 +7,7 @@ export function buildAlarmSolution({serial,firmware,sensorsTripped}){
   return[{type:'button',id:first},...(sensorsTripped>3?[reset,dip]:[dip,reset]),{type:'button',id:second},{type:'button',id:'ENTER'}];
 }
 export function createAlarmState({serial,firmware,sensorsTripped}){
-  if(!/^\d{5}$/.test(serial)||!['v2.4','v3.1'].includes(firmware)||!Number.isInteger(sensorsTripped)||sensorsTripped<2||sensorsTripped>5)throw new Error('Invalid alarm puzzle parameters.');
+  if(!/^\d{5}$/.test(serial)||![__dialogueText("scenes/alarm/AlarmPanelModel.js", "t_83a484db31c2f3433f50"),__dialogueText("scenes/alarm/AlarmPanelModel.js", "t_53729ef595549a940654")].includes(firmware)||!Number.isInteger(sensorsTripped)||sensorsTripped<2||sensorsTripped>5)throw new Error('Invalid alarm puzzle parameters.');
   return{version:2,serial,firmware,sensorsTripped,progress:0,strikes:0,solved:false,
     dipStates:{1:false,2:false,3:false,4:false},removedScrews:[],coverOpen:false,rewardClaimed:false};
 }
@@ -49,6 +50,6 @@ export function applyAlarmAction(raw,action){
   return{state,accepted:false,mistake:true,reset};
 }
 export function describeAlarmAction(action){
-  if(!action)return'Operation complete.';
-  return action.type==='dip'?`Switch DIP ${action.id} ON.`:`Press ${action.id}.`;
+  if(!action)return__dialogueText("scenes/alarm/AlarmPanelModel.js", "t_6eda85550555a6b15507");
+  return action.type==='dip'?`${__dialogueText("scenes/alarm/AlarmPanelModel.js", "t_ad8e166bbe666728d3c4")}${action.id}${__dialogueText("scenes/alarm/AlarmPanelModel.js", "t_4aec908f0b15ff0eb5ed")}`:`${__dialogueText("scenes/alarm/AlarmPanelModel.js", "t_5b9f51465222a86cbbd9")}${action.id}${__dialogueText("scenes/alarm/AlarmPanelModel.js", "t_cdb4ee2aea69cc6a8333")}`;
 }

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 import { EscapeTimelineScene } from './scenes/EscapeTimelineScene.js';
 import { getEscapeTimelineStory } from './escapeTimelineService.js';
 import { getHollySurvivalState } from './hollySurvivalUpdateService.js';
@@ -16,7 +17,7 @@ export function openEscapeTimeline(game=window.game,{preview=true,onFinished=nul
             if(!game.scene.isActive(parent)||!getHollySurvivalState().canContact)return;
             openHollySurvivalUpdate(game,{preview:false,returnSceneKey:parent});
           }).catch(error=>{
-            console.error('[Holly survival update]',error);game.scene.keys[parent]?.showStatus?.('Call Holly from the telephone in your PI office to continue.');
+            console.error('[Holly survival update]',error);game.scene.keys[parent]?.showStatus?.(__dialogueText("escapeTimelineLauncher.js", "t_b01fcfc58a2e5c97586b"));
           });
         });
       }

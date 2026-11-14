@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { renderIdentityStep } from './AppearanceControls.js';
 import { renderProfileStep } from './ProfileCards.js';
 import { renderStatStep } from './StatControls.js';
@@ -5,95 +6,46 @@ import { renderDifficultyStep } from './DifficultyCards.js';
 import { renderDossierStep } from './DossierView.js';
 
 const STEPS = [
-  { label: 'Identity',      icon: '⊙' },
-  { label: 'Profile',       icon: '◈' },
-  { label: 'Instincts',     icon: '⬡' },
-  { label: 'Case Pressure', icon: '⚑' },
-  { label: 'Dossier',       icon: '▣' },
+  { label: __dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_999f23fcd7bec7075e54"),      icon: '⊙' },
+  { label: __dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_d696a35bdd1883da07a8"),       icon: '◈' },
+  { label: __dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_eb7ab1d269d88ce79ba3"),     icon: '⬡' },
+  { label: __dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_f3ba306d86066cb50bef"), icon: '⚑' },
+  { label: __dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_2cdf175d11ce2df3b55e"),       icon: '▣' },
 ];
 
 function renderStepNavigation(currentStep) {
-  return `
-    <nav
-      class="character-creation-steps"
-      aria-label="Character creation steps"
-    >
-      ${STEPS.map((step, index) => {
+  return `${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_5e00a5ef64e171a6480e")}${STEPS.map((step, index) => {
         const active = index === currentStep;
         const complete = index < currentStep;
 
-        return `
-          <button
-            class="character-step-marker${active ? ' is-active' : ''}${complete ? ' is-complete' : ''}"
-            type="button"
-            data-step="${index}"
-            data-step-marker
-            data-step-number="${index + 1}"
-            aria-current="${active ? 'step' : 'false'}"
-          >
-            <span class="character-step-icon" aria-hidden="true">${step.icon}</span>${step.label}
-          </button>
-        `;
-      }).join('')}
-    </nav>
-  `;
+        return `${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_b110373fbbda7cff9559")}${active ? __dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_08f12cfa45e5c91b34ca") : ''}${complete ? __dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_b92798465c5b9abda95e") : ''}${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_e2b2e4ecdebcac5a9f44")}${index}${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_33410b9aeec60f0f8776")}${index + 1}${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_0780dbc784655a107b28")}${active ? 'step' : 'false'}${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_2347314cecdf287ebbdf")}${step.icon}${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_411fdb22d8d9298e5d32")}${step.label}${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_0a00379b41df90cbfd34")}`;
+      }).join('')}${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_cf4e80b4f9b2534f2bbf")}`;
 }
 
 function getFooterHint(currentStep, remainingPoints) {
   if (currentStep === 0) {
-    return 'No pressure. Your identity will only follow you around all game.';
+    return __dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_bf176ca19ce9488e44b0");
   }
 
   if (currentStep === 1) {
-    return 'HR calls this a profile. Your old clients may disagree.';
+    return __dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_5d593ea2e52a52ec9500");
   }
 
   if (currentStep === 2) {
-    return `Instinct points remaining: ${remainingPoints}`;
+    return `${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_fdc8132ab0482f7e188d")}${remainingPoints}`;
   }
 
   if (currentStep === 3) {
-    return 'This changes assistance and pressure — not your dignity.';
+    return __dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_468fa2488adbaa75e25d");
   }
 
-  return 'Review your highly employable professional identity.';
+  return __dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_74445f140db83027f3f5");
 }
 
 function renderFooter({ currentStep, remainingPoints, isStartingGame }) {
   const isLastStep = currentStep === STEPS.length - 1;
 
-  return `
-    <footer class="character-creation-footer">
-      <button
-        class="character-button"
-        type="button"
-        data-action="back"
-        data-back-button
-        ${currentStep === 0 ? 'hidden' : ''}
-      >
-        ← Back
-      </button>
-
-      <p
-        class="character-footer-hint"
-        data-footer-hint
-      >
-        ${getFooterHint(currentStep, remainingPoints)}
-      </p>
-
-      <div class="character-footer-actions">
-        <button
-          class="character-button character-button--primary"
-          type="button"
-          data-action="next"
-          data-next-button
-          ${isStartingGame ? 'disabled' : ''}
-        >
-          ${isLastStep ? 'SIGN, STAMP & REGRET LATER' : 'CONTINUE →'}
-        </button>
-      </div>
-    </footer>
-  `;
+  return `${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_302c934584cf390052d7")}${currentStep === 0 ? 'hidden' : ''}${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_0cf3e78deea853259d53")}${getFooterHint(currentStep, remainingPoints)}${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_66b31b24043ce1b75155")}${isStartingGame ? 'disabled' : ''}${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_22f7be008aeabe25bd90")}${isLastStep ? __dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_0ee6d25a70ffefd83541") : __dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_6b7b806bd4d818b98a18")}${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_fb9f705ded75d14500c8")}`;
 }
 
 export function renderCharacterCreationTemplate({
@@ -103,49 +55,9 @@ export function renderCharacterCreationTemplate({
   isStartingGame = false,
   errorMessage = '',
 }) {
-  return `
-    <div id="character-creation-root">
-      <form
-        class="character-creation-shell"
-        id="character-creation-form"
-        novalidate
-      >
-        <header class="character-creation-header">
-          <div class="character-creation-brand">
-            <h1>MARK AGENCY</h1>
-            <p>Personnel Intake Form — Temporary / Probably Legal</p>
-          </div>
-
-          <div class="character-creation-stamp">
-            Pending<br>
-            Regret
-          </div>
-        </header>
-
-        ${renderStepNavigation(currentStep)}
-
-        <main class="character-creation-content">
-          <p
-            class="character-form-error${errorMessage ? ' is-visible' : ''}"
-            data-character-error
-            role="alert"
-          >
-            ${errorMessage}
-          </p>
-
-          ${renderIdentityStep(playerData)}
-          ${renderProfileStep(playerData)}
-          ${renderStatStep(playerData, remainingPoints)}
-          ${renderDifficultyStep(playerData)}
-          ${renderDossierStep(playerData)}
-        </main>
-
-        ${renderFooter({
+  return `${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_853b06e0aefb88945acd")}${renderStepNavigation(currentStep)}${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_cf9875b8b3698789b31e")}${errorMessage ? __dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_26326ed8a19277646b1a") : ''}${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_6bef9aa89483be1dec05")}${errorMessage}${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_5161485a66a57ff87d6d")}${renderIdentityStep(playerData)}${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_84fa99eaa1ae972aaeb1")}${renderProfileStep(playerData)}${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_84fa99eaa1ae972aaeb1")}${renderStatStep(playerData, remainingPoints)}${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_84fa99eaa1ae972aaeb1")}${renderDifficultyStep(playerData)}${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_84fa99eaa1ae972aaeb1")}${renderDossierStep(playerData)}${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_358145b7533fde5fe6fe")}${renderFooter({
           currentStep,
           remainingPoints,
           isStartingGame,
-        })}
-      </form>
-    </div>
-  `;
+        })}${__dialogueText("ui/characterCreation/CharacterCreationTemplate.js", "t_d19c024daf7ff436f290")}`;
 }

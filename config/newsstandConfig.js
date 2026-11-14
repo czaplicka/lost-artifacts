@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 export const NEWSSTAND_CONFIG = {
   designWidth: 1920,
   designHeight: 1080,
@@ -7,7 +8,7 @@ export const NEWSSTAND_CONFIG = {
   videoZoom: 1.25,
   dimAlpha: 0.42,
 
-  videoUrl: 'assets/video/newsstand.mp4',
+  videoUrl: __dialogueText("config/newsstandConfig.js", "t_ee82efff2c904a48625a"),
   videoDelayMs: 10000,
   videoCheckDelayMs: 5000,
 
@@ -23,7 +24,7 @@ export const NEWSSTAND_HOTSPOTS = [
   {
     id: 'daily',
     kind: 'newspaper',
-    label: 'DAILY PAPER',
+    label: __dialogueText("config/newsstandConfig.js", "t_ffd47871d94011eba52d"),
 
     x: 510,
     y: 710,
@@ -39,7 +40,7 @@ export const NEWSSTAND_HOTSPOTS = [
   {
     id: 'time',
     kind: 'newspaper',
-    label: 'TIME',
+    label: __dialogueText("config/newsstandConfig.js", "t_5888675d99b95617ba8c"),
 
     x: 1030,
     y: 710,
@@ -55,7 +56,7 @@ export const NEWSSTAND_HOTSPOTS = [
   {
     id: 'comix_1',
     kind: 'comix',
-    label: 'COMIX',
+    label: __dialogueText("config/newsstandConfig.js", "t_972570be0cb5152126cd"),
 
     x: 1500,
     y: 710,

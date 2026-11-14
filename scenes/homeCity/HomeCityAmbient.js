@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { HomeCityProps } from './HomeCityProps.js';
 import { FONT_PX, WALKERS } from './HomeCityConfig.js';
 import { pp, poly, rect, circle, ellipse, line, shadow } from './HomeCityDrawing.js';
@@ -7,7 +8,7 @@ export class HomeCityAmbient extends HomeCityProps {
   drawAmbient() {
     const s = this.scene, B = Phaser.BlendModes.ADD;
     const glow = this.bake('glow', 128, 128, ctx => {
-      const g = ctx.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, 'rgba(255,255,255,.95)'); g.addColorStop(0.35, 'rgba(255,255,255,.35)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+      const g = ctx.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, __dialogueText("scenes/homeCity/HomeCityAmbient.js", "t_54b4f5dda550cf285509")); g.addColorStop(0.35, __dialogueText("scenes/homeCity/HomeCityAmbient.js", "t_37897b04672c9570114e")); g.addColorStop(1, 'rgba(255,255,255,0)');
       ctx.fillStyle = g; ctx.fillRect(0, 0, 128, 128);
     });
     for (const L of this.lights) {
@@ -15,13 +16,13 @@ export class HomeCityAmbient extends HomeCityProps {
       if (L.flicker || L.blink) s.tweens.add({ targets: img, alpha: { from: L.a * (L.blink ? 0.2 : 0.8), to: L.a * 1.15 }, duration: L.blink ? 500 : 900 + Math.random() * 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut', delay: Math.random() * 800 });
     }
     const vk = this.bake('vignette', 480, 270, ctx => {
-      const g = ctx.createRadialGradient(240, 135, 40, 240, 135, 300); g.addColorStop(0, 'rgba(255,190,110,.06)'); g.addColorStop(0.5, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(8,10,8,.62)');
+      const g = ctx.createRadialGradient(240, 135, 40, 240, 135, 300); g.addColorStop(0, __dialogueText("scenes/homeCity/HomeCityAmbient.js", "t_13cfde5af9347d596b8b")); g.addColorStop(0.5, 'rgba(0,0,0,0)'); g.addColorStop(1, __dialogueText("scenes/homeCity/HomeCityAmbient.js", "t_02ce4fcd22d04e357116"));
       ctx.fillStyle = g; ctx.fillRect(0, 0, 480, 270);
     });
     s.add.image(s.scale.width / 2, s.scale.height / 2, vk).setScrollFactor(0).setDisplaySize(s.scale.width, s.scale.height).setDepth(15000);
     // smoke
     const smoke = this.bake('smoke', 64, 64, ctx => {
-      const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, 'rgba(225,225,220,.8)'); g.addColorStop(1, 'rgba(225,225,220,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, 64, 64);
+      const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, __dialogueText("scenes/homeCity/HomeCityAmbient.js", "t_cbd54f273ba3d3655be9")); g.addColorStop(1, 'rgba(225,225,220,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, 64, 64);
     });
     for (const sp of this.smokeSpots) s.add.particles(sp.x, sp.y, smoke, { lifespan: 2800, speedY: { min: -30, max: -18 }, speedX: { min: 5, max: 14 }, scale: { start: 0.3, end: 1.1 }, alpha: { start: 0.4, end: 0 }, frequency: 650, quantity: 1 }).setDepth(8900);
     // people, dog, pigeons
@@ -44,7 +45,7 @@ export class HomeCityAmbient extends HomeCityProps {
     for (const [cx, cy] of [[14.2, 9], [15.4, 10.6], [16.6, 9.2], [14.4, 11], [15.8, 8.4], [16.8, 10.8]]) this.makePigeon(cx, cy);
     const home = s.buildings.find(b => b.id === 'your-home');
     if (home) for (let i = 0; i < 2; i++) { const q = this.makePigeon(16.2 + i * 1.2, 17.3); }
-    this.prompt = s.add.text(0, 0, 'ENTER', { fontFamily: FONT_PX, fontSize: '12px', color: '#ffe19b', backgroundColor: '#2b312b', padding: { x: 8, y: 6 } }).setOrigin(0.5).setDepth(10001).setVisible(false);
+    this.prompt = s.add.text(0, 0, __dialogueText("scenes/homeCity/HomeCityAmbient.js", "t_d50187dd170f377fe06e"), { fontFamily: FONT_PX, fontSize: '12px', color: '#ffe19b', backgroundColor: '#2b312b', padding: { x: 8, y: 6 } }).setOrigin(0.5).setDepth(10001).setVisible(false);
   }
   makePigeon(cx, cy) {
     const home = this.pt(cx, cy), sp = this.scene.add.image(home.x, home.y, this.pigeonKey).setOrigin(...this.anchors.get(this.pigeonKey)).setDepth((cx + cy) * 100 + 1.2);

@@ -1,19 +1,20 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 const views = new WeakMap();
 
 export function createSocialPage({ id, keyword, name, bio, about, contact = [] }) {
     return {
         id: `social_${id}`,
-        title: `${name} | FaceSpace`,
-        brand: 'FaceSpace',
+        title: `${name}${__dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_938a130ba48c862285ab")}`,
+        brand: __dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_fe0a7f14f5b19f3460ab"),
         theme: 'social',
-        address: `www.facespace.local/people/${id.replaceAll('_', '-')}`,
-        snippet: `${name} on FaceSpace. Public profile preview. Log in to see more.`,
+        address: `${__dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_ce085ef18e6eaf19e592")}${id.replaceAll('_', '-')}`,
+        snippet: `${name}${__dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_5792ae7651f7b8ef22cc")}`,
         socialProfile: { name, bio, about },
         blocks: [
-            ['FaceSpace — familiar faces, unfamiliar privacy settings.'],
+            [__dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_839e21d85e709880e01a")],
             [{ keywordId: keyword }],
             [bio], [about], ...contact,
-            ['Log in to see more. Your password remains more interesting to us than your hobbies.']
+            [__dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_48939c78572b29de6273")]
         ],
         links: []
     };
@@ -60,7 +61,7 @@ export function renderSocialPage(ui, search, page) {
     d.rectangle(b.x + 5, b.y + 5, b.w, b.h, 0x000000, 0.3);
     d.bevel(b.x, b.y, b.w, b.h, 0xc4cad4);
     d.rectangle(b.x + 4, b.y + 4, b.w - 8, 28, 0x493e50);
-    fit(b.x + 13, b.y + 13, 'OWL NAVIGATOR / FaceSpace', b.w - 65, 8, '#f9e8bb', true);
+    fit(b.x + 13, b.y + 13, __dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_a7867f8a2ed78032aeb6"), b.w - 65, 8, '#f9e8bb', true);
     button(b.x + b.w - 32, b.y + 7, 23, 21, 'X', () => search.back());
     const ay = b.y + 38;
     button(b.x + 10, ay, 45, 27, '<', () => search.back());
@@ -74,7 +75,7 @@ export function renderSocialPage(ui, search, page) {
     d.rectangle(sx, hy, sw, hh, 0x365d91);
     d.rectangle(sx, hy + hh - 4, sw, 4, 0x88afd7);
     fit(sx + 15, hy + 15, 'FaceSpace', sw - 150, compact ? 16 : 20, '#ffffff', true);
-    button(sx + sw - 110, hy + 10, 98, 27, 'SIGN IN', () => changeMode('signin'), true);
+    button(sx + sw - 110, hy + 10, 98, 27, __dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_75606a00e297a7671e58"), () => changeMode('signin'), true);
 
     const py = hy + hh + gap, ph = compact ? 75 : 93;
     d.bevel(sx, py, sw, ph, 0xf6f8fc);
@@ -85,7 +86,7 @@ export function renderSocialPage(ui, search, page) {
     }
     const avatar = profile.avatarKey && search.art(profile.avatarKey,
         sx + 13, py + 13, avatarSize - 6, avatarSize - 6);
-    const name = profile.name || page.title || 'Public profile';
+    const name = profile.name || page.title || __dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_eaad68e1f8c082793545");
     if (!avatar) {
         const initials = String(name).trim().split(/\s+/).slice(0, 2).map(word => word[0] || '').join('');
         fit(sx + 19, py + 24, initials, avatarSize - 18, compact ? 19 : 25, '#ffffff', true);
@@ -93,7 +94,7 @@ export function renderSocialPage(ui, search, page) {
     const nameX = sx + avatarSize + 24;
     fit(nameX, py + 15, name, sw - avatarSize - 38, compact ? 13 : 17, '#294a75', true);
     fit(nameX, py + 40, profile.bio || '', sw - avatarSize - 38, compact ? 12 : 14, '#697c94');
-    if (!compact) fit(nameX, py + 65, 'PUBLIC PROFILE', sw - avatarSize - 38, 8, '#71879e', true);
+    if (!compact) fit(nameX, py + 65, __dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_4bbeab73efe379b8d1f2"), sw - avatarSize - 38, 8, '#71879e', true);
 
     const ny = py + ph + 7;
     button(sx, ny, 116, 27, 'PROFILE', () => changeMode('profile'), state.mode === 'profile');
@@ -101,28 +102,28 @@ export function renderSocialPage(ui, search, page) {
     const cy = ny + 27 + gap, fy = b.y + b.h - 35;
     const ch = fy - cy - gap;
     if (ch < 54) {
-        fit(sx + 8, cy, 'Enlarge the game window to read this profile.', sw - 16, 12);
+        fit(sx + 8, cy, __dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_7557679ecf9fd72a590e"), sw - 16, 12);
         return true;
     }
     const side = b.w >= 820 && ch >= 170;
     const railW = side ? 175 : 0;
     if (side) {
         d.bevel(sx, cy, railW, ch, 0xe3eaf4);
-        fit(sx + 12, cy + 15, 'PROFILE DIRECTORY', railW - 24, 8, '#365d91', true);
-        fit(sx + 12, cy + 45, 'Public information', railW - 24, 13, '#62758e');
+        fit(sx + 12, cy + 15, __dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_81a93458e240d0aca4af"), railW - 24, 8, '#365d91', true);
+        fit(sx + 12, cy + 45, __dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_20a7e854757cd0e5f2f3"), railW - 24, 13, '#62758e');
         button(sx + 10, cy + 80, railW - 20, 28, 'PROFILE', () => changeMode('profile'), state.mode === 'profile');
         button(sx + 10, cy + 116, railW - 20, 28, 'PHOTOS', () => changeMode('photos'), state.mode === 'photos');
     }
     const cx = sx + (side ? railW + gap : 0), cw = sw - (side ? railW + gap : 0);
     d.bevel(cx, cy, cw, ch, 0xffffff, true);
     d.rectangle(cx + 10, cy + 10, cw - 20, 27, 0xe7edf6);
-    fit(cx + 20, cy + 19, state.mode === 'profile' ? 'PUBLIC INFORMATION' : 'ACCESS RESTRICTED', cw - 40, 8, '#365d91', true);
+    fit(cx + 20, cy + 19, state.mode === 'profile' ? __dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_6976538c7eca068be16f") : __dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_519eb6c0255cdf1adb66"), cw - 40, 8, '#365d91', true);
 
     const restricted = state.mode !== 'profile';
     const content = restricted
-        ? { blocks: [[state.mode === 'photos' ? 'Private photographs' : 'Sign in to FaceSpace'],
-            ['This content is not available in the public preview.'],
-            ['Access requires an authorised account and permission from the profile owner.']], links: [] }
+        ? { blocks: [[state.mode === __dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_84a6dae49cf0481203aa") ? __dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_297355bbd0bd46a2ad1e") : __dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_97ba574d817810648d08")],
+            [__dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_448faf3ae39a9ccc6ff1")],
+            [__dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_7f018c9bbd297da746b6")]], links: [] }
         : { blocks: [[name], [profile.bio || ''], ...(page.blocks || [])], links: page.links || [] };
     const size = compact ? 14 : 16, lineH = compact ? 23 : 26;
     const lines = search.retroArticleLines(content, cw - 32, size);
@@ -153,6 +154,6 @@ export function renderSocialPage(ui, search, page) {
     button(sx, fy, 42, 26, '<', () => { search.bodyPage--; refresh(); }, false, search.bodyPage > 0);
     button(sx + 48, fy, 42, 26, '>', () => { search.bodyPage++; refresh(); }, false, search.bodyPage < pages - 1);
     fit(sx + 100, fy + 8, `${search.bodyPage + 1} / ${pages}`, 70, 11, '#71839c');
-    fit(sx + 180, fy + 8, 'FaceSpace / Public preview', sw - 188, 10, '#607591');
+    fit(sx + 180, fy + 8, __dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_077ac49de2a91d67a266"), sw - 188, 10, '#607591');
     return true;
 }

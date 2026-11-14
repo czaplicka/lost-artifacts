@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { isCorrectSuspectChoice } from '../suspects/suspectHelpers.js';
 
 export const COURT_CONFIG = Object.freeze({
@@ -18,39 +19,39 @@ const clamp = value => Math.max(0, Math.min(100, value));
  */
 const CASE_LABELS = Object.freeze({
   tower: {
-    location: 'The Tower of London',
-    city: 'London',
-    artifact: 'Crown Jewels',
+    location: __dialogueText("systems/courtLogic.js", "t_6b510a280521573f698d"),
+    city: __dialogueText("systems/courtLogic.js", "t_ecc0e7dc084f141b2947"),
+    artifact: __dialogueText("systems/courtLogic.js", "t_eafa889ed704698630f7"),
     artifactKey: 'artifact_crown_jewels'
   },
   louvre: {
-    location: 'The Louvre Museum',
-    city: 'Paris',
-    artifact: 'Mona Lisa Sketchbook',
+    location: __dialogueText("systems/courtLogic.js", "t_781124ea7a7a6ebce51d"),
+    city: __dialogueText("systems/courtLogic.js", "t_5dd272b4f316b776a7b8"),
+    artifact: __dialogueText("systems/courtLogic.js", "t_b9cf1cff4396995a4031"),
     artifactKey: 'artifact_mona_lisa'
   },
   auction_house: {
-    location: 'Kronenhaus Auction House, Museum Island',
-    city: 'Berlin',
-    artifact: 'Prussian Royal Seal',
+    location: __dialogueText("systems/courtLogic.js", "t_704d42accb8e80659f8f"),
+    city: __dialogueText("systems/courtLogic.js", "t_dad114b6ed7342bac65c"),
+    artifact: __dialogueText("systems/courtLogic.js", "t_02fa3961fb302afc0cd0"),
     artifactKey: 'artifact_royal_seal'
   },
   castle: {
-    location: 'The Royal Castle in Warsaw',
-    city: 'Warsaw',
-    artifact: 'Royal Amber Necklace',
+    location: __dialogueText("systems/courtLogic.js", "t_53e61e86b71ffc5640db"),
+    city: __dialogueText("systems/courtLogic.js", "t_2d59f8dd13aafd7bc427"),
+    artifact: __dialogueText("systems/courtLogic.js", "t_5f2ae373138fe7e59f40"),
     artifactKey: 'artifact_amber_necklace'
   },
   havela: {
-    location: 'Jade Peacock Haveli',
-    city: 'New Delhi',
-    artifact: 'Mughal Emerald Dagger',
+    location: __dialogueText("systems/courtLogic.js", "t_6037627bd9ed1055a675"),
+    city: __dialogueText("systems/courtLogic.js", "t_9ed6d0e61816a424d0e0"),
+    artifact: __dialogueText("systems/courtLogic.js", "t_7f7ff2f251a66787edc0"),
     artifactKey: 'artifact_mughal_dagger'
   },
   dockyard: {
-    location: 'Red Hook Maritime Warehouse',
-    city: 'New York City',
-    artifact: 'Liberty Torch Replica',
+    location: __dialogueText("systems/courtLogic.js", "t_c9145db4a30ee2cb656c"),
+    city: __dialogueText("systems/courtLogic.js", "t_5a59ef2e40c5f89adb8c"),
+    artifact: __dialogueText("systems/courtLogic.js", "t_d96a4f22f0d564f76616"),
     artifactKey: 'artifact_liberty_torch'
   }
 });
@@ -371,27 +372,27 @@ export function buildCourtQuestions(facts) {
     questions.push(question(
       'prosecution_artifact',
       'prosecutor',
-      `Prosecutor: The charge concerns the theft of ${facts.artifactName}. What must the investigation establish?`,
+      `${__dialogueText("systems/courtLogic.js", "t_dd9da998612e1a24aedb")}${facts.artifactName}${__dialogueText("systems/courtLogic.js", "t_0335a0db442f22848d6d")}`,
       [
         answer(
-          'That the evidence connects the defendant to the theft of that specific object.',
+          __dialogueText("systems/courtLogic.js", "t_5b01f4cac2f14545b1a9"),
           10,
-          'You distinguish identifying the stolen object from proving who stole it.'
+          __dialogueText("systems/courtLogic.js", "t_2abb3f355906c45be603")
         ),
         answer(
-          'That the defendant had an interest in valuable objects of this kind.',
+          __dialogueText("systems/courtLogic.js", "t_a34dcb75939fb19d99b4"),
           -6,
-          'An interest may suggest a line of inquiry. It does not establish participation.'
+          __dialogueText("systems/courtLogic.js", "t_fc91e90df2d41d66b3bf")
         ),
         answer(
-          'That the object was valuable enough to give the defendant a reason to steal it.',
+          __dialogueText("systems/courtLogic.js", "t_bbb6ccae1d7fdc369de8"),
           -8,
-          'Value alone does not establish this defendant’s motive or involvement.'
+          __dialogueText("systems/courtLogic.js", "t_3f414794efda98616b01")
         ),
         answer(
-          'That the defendant could have sold an object matching its description.',
+          __dialogueText("systems/courtLogic.js", "t_ab26a2c65b7fa8c4b4d0"),
           -6,
-          'A possible resale opportunity does not connect the defendant to this theft.'
+          __dialogueText("systems/courtLogic.js", "t_02da6aa6de8eae23e35c")
         )
       ]
     ));
@@ -403,27 +404,27 @@ export function buildCourtQuestions(facts) {
     questions.push(question(
       'prosecution_location',
       'prosecutor',
-      `Prosecutor: The theft took place at ${crimePlace}. What is the significance of establishing opportunity?`,
+      `${__dialogueText("systems/courtLogic.js", "t_971ea082b26ba6e42eaa")}${crimePlace}${__dialogueText("systems/courtLogic.js", "t_279c6c9fb8150eb793c8")}`,
       [
         answer(
-          'It tests whether the defendant could have accessed the crime scene during the relevant period.',
+          __dialogueText("systems/courtLogic.js", "t_fc6ac08d28a6c1ac55d5"),
           10,
-          'Opportunity concerns access at the relevant time, not mere familiarity with the location.'
+          __dialogueText("systems/courtLogic.js", "t_ae26b7e8cba035ac0791")
         ),
         answer(
-          'It establishes that anyone employed there should remain equally likely to be responsible.',
+          __dialogueText("systems/courtLogic.js", "t_38b0498a252ffbe48536"),
           -8,
-          'Employment creates possible access, not equal responsibility.'
+          __dialogueText("systems/courtLogic.js", "t_7edd4db0add24e44723b")
         ),
         answer(
-          'It allows the arrest location to stand in for the crime scene if the defendant travelled.',
+          __dialogueText("systems/courtLogic.js", "t_fc7e4460ba63233bfc71"),
           -10,
-          'The arrest location does not replace the location of the theft.'
+          __dialogueText("systems/courtLogic.js", "t_e0bdcc66f59da5f61169")
         ),
         answer(
-          'It makes a connection to the surrounding city sufficient to establish access.',
+          __dialogueText("systems/courtLogic.js", "t_7dbea6850ef6de6ba9bf"),
           -6,
-          'Being in the same city is not the same as having access to the crime scene.'
+          __dialogueText("systems/courtLogic.js", "t_852980f9dff9d0c66042")
         )
       ]
     ));
@@ -432,29 +433,29 @@ export function buildCourtQuestions(facts) {
   questions.push(question(
     'prosecution_warrant',
     'prosecutor',
-    'Prosecutor: What does the arrest warrant establish in this case?',
+    __dialogueText("systems/courtLogic.js", "t_ea6515b34585632a7fbf"),
     [
       answer(
-        'It authorised the arrest of the named defendant; guilt still depends on the evidence.',
+        __dialogueText("systems/courtLogic.js", "t_cfbcd1e46d9ff12fa3cf"),
         facts.warrantMatches ? 12 : -20,
         facts.warrantMatches
-          ? 'The warrant and the allegation of guilt remain properly distinguished.'
-          : 'The record does not support that account of the warrant.'
+          ? __dialogueText("systems/courtLogic.js", "t_c1b291153ed84a328b6c")
+          : __dialogueText("systems/courtLogic.js", "t_ca22da065d28a0918bf0")
       ),
       answer(
-        'It confirms that the evidence has already established guilt.',
+        __dialogueText("systems/courtLogic.js", "t_69a6e821481fd33f61b3"),
         -10,
-        'An arrest warrant is not a conviction.'
+        __dialogueText("systems/courtLogic.js", "t_a01db6681e54515a4b59")
       ),
       answer(
-        'It makes weaknesses in the identification evidence irrelevant.',
+        __dialogueText("systems/courtLogic.js", "t_f7b34af2d796b1f909c4"),
         -10,
-        'The defence may still challenge identification.'
+        __dialogueText("systems/courtLogic.js", "t_ff7411f58e0c7e64f395")
       ),
       answer(
-        'It transfers responsibility for proving the case to the defendant.',
+        __dialogueText("systems/courtLogic.js", "t_252be71300f1b180f30c"),
         -12,
-        'The warrant does not make the defendant responsible for proving the accusation.'
+        __dialogueText("systems/courtLogic.js", "t_e7a5ddd43ff62bf73c6b")
       )
     ]
   ));
@@ -463,51 +464,51 @@ export function buildCourtQuestions(facts) {
     'defense_identity',
     'defense',
     facts.correctDefendant
-      ? 'Defence: A suspect can resemble the offender without being the offender. How should the court assess identification?'
-      : 'Defence: The case record identifies someone else as the offender. Do you maintain this identification?',
+      ? __dialogueText("systems/courtLogic.js", "t_c24f80d4463678a4bd95")
+      : __dialogueText("systems/courtLogic.js", "t_dcc12d047720cc905364"),
     facts.correctDefendant
       ? [
           answer(
-            'Test identification against the case findings and consider whether another suspect fits them.',
+            __dialogueText("systems/courtLogic.js", "t_2366c80c1c1288eef3d1"),
             4,
-            'You address the possibility of mistaken identity rather than assuming it away.'
+            __dialogueText("systems/courtLogic.js", "t_6bc9386a610560ca6944")
           ),
           answer(
-            'Give priority to the arrest because it was the final investigative decision.',
+            __dialogueText("systems/courtLogic.js", "t_de9c20310fb6dc59c98e"),
             -10,
-            'An arrest does not independently validate the identification.'
+            __dialogueText("systems/courtLogic.js", "t_606d39c94917f8e6ac0d")
           ),
           answer(
-            'Treat a matching forensic profile as enough to exclude every alternative.',
+            __dialogueText("systems/courtLogic.js", "t_eb698f0f3e2e1cb40811"),
             -12,
-            'A shared profile cannot by itself distinguish suspects who match it.'
+            __dialogueText("systems/courtLogic.js", "t_c161a243b037d6fe4562")
           ),
           answer(
-            'Use the defendant’s flight to resolve any remaining identification uncertainty.',
+            __dialogueText("systems/courtLogic.js", "t_bb262554345b7fb63852"),
             -10,
-            'Flight does not resolve conflicting identification evidence.'
+            __dialogueText("systems/courtLogic.js", "t_56faf2af9fe35ab40129")
           )
         ]
       : [
           answer(
-            'No. I acknowledge the discrepancy and cannot support an identification contradicted by the record.',
+            __dialogueText("systems/courtLogic.js", "t_c7898c4a42aada44cf46"),
             0,
-            'The discrepancy is acknowledged. An honest answer cannot repair the mistaken arrest.'
+            __dialogueText("systems/courtLogic.js", "t_06fa472abd070940647d")
           ),
           answer(
-            'Yes. The warrant should take priority over conflicting case findings.',
+            __dialogueText("systems/courtLogic.js", "t_9dc4e439ca1d96c615bd"),
             -12,
-            'The warrant cannot repair a mistaken identification.'
+            __dialogueText("systems/courtLogic.js", "t_545a0bec96b681df2cd6")
           ),
           answer(
-            'Yes. A matching profile makes the difference between the two people immaterial.',
+            __dialogueText("systems/courtLogic.js", "t_5518cb8d2d2dd9469bc9"),
             -15,
-            'A shared profile does not make two people interchangeable.'
+            __dialogueText("systems/courtLogic.js", "t_4bb0e0b65ddbba8c5dd2")
           ),
           answer(
-            'Yes. The circumstances of the pursuit outweigh the conflicting identification.',
+            __dialogueText("systems/courtLogic.js", "t_15fc75616fd2e65e9b2c"),
             -12,
-            'The pursuit does not establish that this defendant committed the theft.'
+            __dialogueText("systems/courtLogic.js", "t_1643a81f7ede7ca7e2a6")
           )
         ],
     facts.correctDefendant ? -4 : -45,
@@ -517,27 +518,27 @@ export function buildCourtQuestions(facts) {
   questions.push(question(
     'defense_flight',
     'defense',
-    'Defence: My client fled. What can you reasonably infer from that behaviour?',
+    __dialogueText("systems/courtLogic.js", "t_58dba53dca5a66797b60"),
     [
       answer(
-        'It is relevant context, but it must be assessed separately from evidence establishing the theft.',
+        __dialogueText("systems/courtLogic.js", "t_1e6339685dbd98f817c4"),
         0,
-        'You acknowledge the behaviour without treating it as conclusive proof.'
+        __dialogueText("systems/courtLogic.js", "t_761b16daf8e75b82bee3")
       ),
       answer(
-        'It establishes involvement unless the defendant provides a convincing explanation.',
+        __dialogueText("systems/courtLogic.js", "t_0f3c4fc2a6eeead0bfc7"),
         -10,
-        'That inference places too much weight on flight and shifts the burden to the defendant.'
+        __dialogueText("systems/courtLogic.js", "t_dbc36ecaca9b04027a30")
       ),
       answer(
-        'It resolves uncertainty in the forensic evidence because the defendant avoided arrest.',
+        __dialogueText("systems/courtLogic.js", "t_9f5da146361314162f96"),
         -12,
-        'Behaviour during arrest cannot resolve an ambiguous forensic match.'
+        __dialogueText("systems/courtLogic.js", "t_25292c06392d61d342b8")
       ),
       answer(
-        'It confirms the motive already proposed by the investigation.',
+        __dialogueText("systems/courtLogic.js", "t_b30165cdb5314e3f462a"),
         -8,
-        'Flight does not establish why the theft was committed.'
+        __dialogueText("systems/courtLogic.js", "t_131d5301781a6a68bf89")
       )
     ],
     -2
@@ -545,12 +546,12 @@ export function buildCourtQuestions(facts) {
 
   for (const incident of facts.incidents) {
     const place = incident.locationName
-      ? ` at ${incident.locationName}`
+      ? `${__dialogueText("systems/courtLogic.js", "t_086a519fdeedb29a622b")}${incident.locationName}`
       : '';
 
     const description = incident.type === 'cut_corners'
-      ? 'a skipped evidence-handling checklist'
-      : 'a recorded procedural breach';
+      ? __dialogueText("systems/courtLogic.js", "t_e8e306c91b0cbf56ac1b")
+      : __dialogueText("systems/courtLogic.js", "t_b66d66166e88c5a6c1d2");
 
     const penalty = incident.type === 'cut_corners'
       ? 8
@@ -559,27 +560,27 @@ export function buildCourtQuestions(facts) {
     questions.push(question(
       `defense_incident_${incident.id}`,
       'defense',
-      `Defence: The file records ${description}${place}. How should the court assess the affected material?`,
+      `${__dialogueText("systems/courtLogic.js", "t_32729dca7769c6d1c18c")}${description}${place}${__dialogueText("systems/courtLogic.js", "t_c7b342c35eb1a40b86a5")}`,
       [
         answer(
-          'Acknowledge the breach, examine what it affects, and distinguish independently supported findings.',
+          __dialogueText("systems/courtLogic.js", "t_b04e0f992d37f0c0dd80"),
           2,
-          'A precise explanation limits the damage. It does not erase the recorded breach.'
+          __dialogueText("systems/courtLogic.js", "t_f366e56c0263d2ca3fa1")
         ),
         answer(
-          'Rely on the overall consistency of the investigation instead of examining that breach separately.',
+          __dialogueText("systems/courtLogic.js", "t_033630eb1b01363c48a5"),
           -8,
-          'General consistency does not answer a specific procedural challenge.'
+          __dialogueText("systems/courtLogic.js", "t_7ccf0123a3d907f25ca0")
         ),
         answer(
-          'Treat the material as reliable because it supports the existing case theory.',
+          __dialogueText("systems/courtLogic.js", "t_423d308778dd01cb8028"),
           -10,
-          'Supporting the theory is not an independent test of reliability.'
+          __dialogueText("systems/courtLogic.js", "t_14f9efb63e5db68685a3")
         ),
         answer(
-          'Ask the court to disregard the breach unless the defence proves that the material was altered.',
+          __dialogueText("systems/courtLogic.js", "t_06d923736108e33c414b"),
           -12,
-          'The recorded breach still requires a substantive explanation.'
+          __dialogueText("systems/courtLogic.js", "t_19ab5a7b995e52fde992")
         )
       ],
       -penalty
@@ -645,7 +646,7 @@ export function answerCourtQuestion(record, answerIndex) {
 
   record.feedback =
     `${selected.feedback}\n` +
-    `Judge's confidence: ${delta >= 0 ? '+' : ''}${delta}.`;
+    `${__dialogueText("systems/courtLogic.js", "t_aee4f9333029df1e21ac")}${delta >= 0 ? '+' : ''}${delta}${__dialogueText("systems/courtLogic.js", "t_cdb4ee2aea69cc6a8333")}`;
 
   record.phase = 'feedback';
 
@@ -814,11 +815,11 @@ export function courtResumeTarget(record) {
       data: {
         caseId: record.caseId,
         suspectId: record.suspectId,
-        title: convicted ? 'CONVICTED' : 'DEFENDANT RELEASED',
+        title: convicted ? __dialogueText("systems/courtLogic.js", "t_4fc3901171364d578013") : __dialogueText("systems/courtLogic.js", "t_92624f92e0a888fb966d"),
         reasonCode: convicted ? 'court_conviction' : 'court_release',
         message: convicted
           ? ''
-          : 'The court released the defendant. The prosecution failed to establish the case.'
+          : __dialogueText("systems/courtLogic.js", "t_e5b82991c30c36fdca1c")
       }
     };
   }

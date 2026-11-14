@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 export function normalizeFinale(data,raw){
  const s={version:1,reviewed:[],ready:false,line:0,candidate:null,outcome:null,completed:false};if(raw?.version!==1)return s;
  s.reviewed=[...new Set((Array.isArray(raw.reviewed)?raw.reviewed:[]).filter(id=>data.review.some(r=>r.id===id)))];
@@ -7,14 +8,14 @@ export function normalizeFinale(data,raw){
  return s;
 }
 export function finaleAction(data,raw,action,id=null){
- const s=normalizeFinale(data,raw);if(s.completed)return{ok:false,state:s,message:'This ending is already locked in this save.'};
- if(action==='read'){if(!data.review.some(r=>r.id===id))return{ok:false,state:s,message:'Unknown case-review page.'};if(!s.reviewed.includes(id))s.reviewed.push(id);return{ok:true,state:s,message:''};}
- if(action==='prepare'){if(!data.review.every(r=>s.reviewed.includes(r.id)))return{ok:false,state:s,message:'Read all three case-review pages first.'};s.ready=true;return{ok:true,state:s,message:''};}
- if(!s.ready)return{ok:false,state:s,message:'Complete the case review first.'};
- if(action==='next'){if(s.line>=data.dialogue.length)return{ok:false,state:s,message:'The conversation is already recorded.'};s.line++;return{ok:true,state:s,message:''};}
- if(s.line!==data.dialogue.length)return{ok:false,state:s,message:'Hear the conversation before making the decision.'};
- if(action==='choose'){if(!data.choices.some(c=>c.id===id))return{ok:false,state:s,message:'Invalid ending.'};s.candidate=id;return{ok:true,state:s,message:''};}
+ const s=normalizeFinale(data,raw);if(s.completed)return{ok:false,state:s,message:__dialogueText("scenes/pi-office/HollyFinaleModel.js", "t_97fee48641c4e013d314")};
+ if(action==='read'){if(!data.review.some(r=>r.id===id))return{ok:false,state:s,message:__dialogueText("scenes/pi-office/HollyFinaleModel.js", "t_0d15c9fa1e2c809504a1")};if(!s.reviewed.includes(id))s.reviewed.push(id);return{ok:true,state:s,message:''};}
+ if(action==='prepare'){if(!data.review.every(r=>s.reviewed.includes(r.id)))return{ok:false,state:s,message:__dialogueText("scenes/pi-office/HollyFinaleModel.js", "t_c258a674c192259408ae")};s.ready=true;return{ok:true,state:s,message:''};}
+ if(!s.ready)return{ok:false,state:s,message:__dialogueText("scenes/pi-office/HollyFinaleModel.js", "t_35bff57eb7e319046f9a")};
+ if(action==='next'){if(s.line>=data.dialogue.length)return{ok:false,state:s,message:__dialogueText("scenes/pi-office/HollyFinaleModel.js", "t_a72de062c573cc7e89ed")};s.line++;return{ok:true,state:s,message:''};}
+ if(s.line!==data.dialogue.length)return{ok:false,state:s,message:__dialogueText("scenes/pi-office/HollyFinaleModel.js", "t_ab2d15ad223c8923fbce")};
+ if(action==='choose'){if(!data.choices.some(c=>c.id===id))return{ok:false,state:s,message:__dialogueText("scenes/pi-office/HollyFinaleModel.js", "t_d522731d5dcd03e37133")};s.candidate=id;return{ok:true,state:s,message:''};}
  if(action==='cancel'){s.candidate=null;return{ok:true,state:s,message:''};}
- if(action==='confirm'){if(!s.candidate||id!==s.candidate)return{ok:false,state:s,message:'Confirm the exact ending currently selected.'};s.outcome=s.candidate;s.candidate=null;s.completed=true;return{ok:true,state:s,message:''};}
- return{ok:false,state:s,message:'Unknown action.'};
+ if(action==='confirm'){if(!s.candidate||id!==s.candidate)return{ok:false,state:s,message:__dialogueText("scenes/pi-office/HollyFinaleModel.js", "t_d20b0fac9afc8fb2fc44")};s.outcome=s.candidate;s.candidate=null;s.completed=true;return{ok:true,state:s,message:''};}
+ return{ok:false,state:s,message:__dialogueText("scenes/pi-office/HollyFinaleModel.js", "t_6fe9679f6dfe33fe7f39")};
 }

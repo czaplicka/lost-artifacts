@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 import { MainStoryManager } from './managers/MainStoryManager.js';
 import { saveGameState } from './gameStatePersistence.js';
 import { loadJson } from './config/loadJson.js';
@@ -8,7 +9,7 @@ function read(){
   const saved=MainStoryManager.getSideClue(KEY),valid=new Set(margeBirthdayData.clues.map(clue=>clue.id));
   // Preserve the old discarded-note clue when migrating from the earlier data file.
   const clues=[...new Set((Array.isArray(saved?.clues)?saved.clues:[]).map(id=>id==='bin'?'note':id).filter(id=>valid.has(id)))];
-  return{version:2,clues,answers:saved?.answers&&typeof saved.answers==='object'&&!Array.isArray(saved.answers)?{...saved.answers}:{},completed:MainStoryManager.hasFlag(F.deduced)};
+  return{version:2,clues,answers:saved?.answers&&typeof saved.answers===__dialogueText("margeBirthdayService.js", "t_2958d416d08aa5a472d7")&&!Array.isArray(saved.answers)?{...saved.answers}:{},completed:MainStoryManager.hasFlag(F.deduced)};
 }
 export function getMargeBirthdayState(){
   const state=read(),unlocked=MainStoryManager.hasFlag(margeBirthdayData.requiredFlag),refused=MainStoryManager.hasFlag(F.refusal);
@@ -30,7 +31,7 @@ export function saveMargeBirthdayAnswers(answers){
   const next=read();next.answers=clean;MainStoryManager.setSideClue(KEY,next);return{success:true,saved:saveGameState()};
 }
 export function submitMargeBirthdayDeduction(answers){
-  const state=getMargeBirthdayState();if(!state.canExamine)return{success:false,reason:'locked',message:'Speak to Marge first.'};
+  const state=getMargeBirthdayState();if(!state.canExamine)return{success:false,reason:'locked',message:__dialogueText("margeBirthdayService.js", "t_ca17cbd69b54e951ff0b")};
   if(state.completed)return{success:true,alreadyCompleted:true,message:margeBirthdayData.success};
   const result=evaluateMargeBirthday(margeBirthdayData,state.clues,answers),next=read();next.answers={};
   for(const question of margeBirthdayData.questions)if(question.options.some(option=>option.id===answers?.[question.id]))next.answers[question.id]=answers[question.id];

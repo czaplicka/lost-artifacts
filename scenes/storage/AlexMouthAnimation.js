@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 const CONFIG = {
   key: 'alex-storage',
   url: 'assets/spritesheet/office/alex-storage.png',
@@ -138,7 +139,7 @@ export class AlexMouthAnimation {
       scene._conversationOpen && scene.background?.visible &&
       scene.background.texture?.key === 'agency_storage_manager' &&
       dialog && !dialog.destroyed && dialog.isOpen && dialog.isTyping &&
-      speaker === 'Alex Murphy'
+      speaker === __dialogueText("scenes/storage/AlexMouthAnimation.js", "t_1a609d7d435a01c0384d")
     );
 
     this.sprite.setVisible(typing);

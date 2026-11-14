@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { COLORS } from './ComputerTheme.js';
 
 /*
@@ -53,7 +54,7 @@ export const SHELL_THEMES = {
   }
 };
 
-const FALLBACK_APP = { title: 'Application', color: 0x98b9ce, kind: null };
+const FALLBACK_APP = { title: __dialogueText("ui/pi-computer/ComputerShell.js", "t_e7ad522ea327e5ba9553"), color: 0x98b9ce, kind: null };
 
 export class ComputerShell {
   /*
@@ -540,7 +541,7 @@ export class ComputerShell {
   }
 
   iconKey(kind) {
-    return kind ? this.art(`computer_icon_${kind}`, `icons/${kind}.webp`) : null;
+    return kind ? this.art(`computer_icon_${kind}`, `${__dialogueText("ui/pi-computer/ComputerShell.js", "t_e60426ef7ba6aa7ec004")}${kind}${__dialogueText("ui/pi-computer/ComputerShell.js", "t_ed140d91e29553b83699")}`) : null;
   }
 
   queueRefresh() {
@@ -669,7 +670,7 @@ export class ComputerShell {
 
   drawStartIcon(kind, cx, cy) {
     const ui = this.ui;
-    const key = this.art(`start_${this.cfg.theme}`, `start_${this.cfg.theme}.webp`);
+    const key = this.art(`start_${this.cfg.theme}`, `${__dialogueText("ui/pi-computer/ComputerShell.js", "t_22a7be489a820ea6062f")}${this.cfg.theme}${__dialogueText("ui/pi-computer/ComputerShell.js", "t_ed140d91e29553b83699")}`);
 
     if (key) {
       ui.drawing.add(ui.scene.add.image(cx, cy, key).setDisplaySize(22, 22));
@@ -709,7 +710,7 @@ export class ComputerShell {
    * items: [{ app, label, color, kind } | { sep: true } | { action, label, color, kind }]
    * onSelect(item) is called after the menu has been closed.
    */
-  drawStartMenu(layout, items, onSelect, brand = 'NIGHT OWL OS') {
+  drawStartMenu(layout, items, onSelect, brand = __dialogueText("ui/pi-computer/ComputerShell.js", "t_d5bd2ff79b6dd03772bc")) {
     const ui = this.ui;
     const d = ui.drawing;
     const t = this.theme;

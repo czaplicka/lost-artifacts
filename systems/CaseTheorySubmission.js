@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import {
  THEORY_FIELDS,normalizeTheory,normalizeSkillId,theoryCaseKey,readTheory,
  getTheoryReadiness,getTheoryCards,getActualIdentityIds,getUsedSkillIds
@@ -18,7 +19,7 @@ export function addTrialEvidence(input,state){
  data.items=arr(data.items).filter(card=>card.createdByPlayer||!has(card,'trial-evidence'));
  let index=0;
  const put=(id,label,body,tags,extra={})=>{
-  const card={id,type:'evidence',label,body,tag:'Recorded investigation evidence',
+  const card={id,type:'evidence',label,body,tag:__dialogueText("systems/CaseTheorySubmission.js", "t_71a4dbb8919b90dd2187"),
    x:1100+(index%2)*230,y:580+Math.floor(index++/2)*210,z:7,rotation:-1.2,pinned:false,
    fields:[],tags:['trial-evidence',...tags],discovered:true,createdByPlayer:false,editableByPlayer:false,...extra};
   const prior=old.get(id);if(prior)for(const key of ['x','y','z','rotation','pinned'])if(prior[key]!==undefined)card[key]=prior[key];
@@ -27,27 +28,27 @@ export function addTrialEvidence(input,state){
  for(const clue of arr(state.cluesCollected)){
   if(clue?.type!=='motive'||!clue.id)continue;
   if(clue.caseId!=null&&!same(clue.caseId,state.currentCaseId))continue;
-  put(`agency-motive-${encodeURIComponent(clue.id)}`,clue.label||'Recorded motive lead',
-   clue.text||`A witness report was recorded: ${clue.label||'Motive lead'}.`,['motive-evidence'],
-   {clueId:clue.id,fields:[{key:'Source',value:clue.npcId||'Recorded investigation'}]});
+  put(`agency-motive-${encodeURIComponent(clue.id)}`,clue.label||__dialogueText("systems/CaseTheorySubmission.js", "t_eaec6ca7694d36fa9a99"),
+   clue.text||`${__dialogueText("systems/CaseTheorySubmission.js", "t_8c2a6fd4d74a881c93a6")}${clue.label||__dialogueText("systems/CaseTheorySubmission.js", "t_c2adf07842562a1966ba")}${__dialogueText("systems/CaseTheorySubmission.js", "t_cdb4ee2aea69cc6a8333")}`,['motive-evidence'],
+   {clueId:clue.id,fields:[{key:'Source',value:clue.npcId||__dialogueText("systems/CaseTheorySubmission.js", "t_06149ba4730bc7d4973b")}]});
  }
  const key=alibiKey(state),alibis=arr(state.caseData?.alibiCases?.[key]?.suspects);
  const people=[...arr(state.caseSuspects),...arr(state.suspects),...arr(state.suspectList)];
  const encounters=arr(state.crimeCityEncounterState?.[key]);
  for(const alibi of alibis){
   const person=people.find(p=>same(p?.id,alibi.suspectId));
-  const name=person?.publicProfile?.displayName||person?.name||alibi.suspectName||'Suspect';
+  const name=person?.publicProfile?.displayName||person?.name||alibi.suspectName||__dialogueText("systems/CaseTheorySubmission.js", "t_f5ebb28614ebb0ee63cb");
   for(const witness of arr(alibi.witnesses)){
    if(!encounters.some(e=>same(e.npcId,witness.npcId)&&e.interviewed===true&&e.dialogueCompleted===true))continue;
    if(typeof witness.statement!=='string'||!witness.statement.trim())continue;
    put(`agency-witness-${encodeURIComponent(key)}-${encodeURIComponent(witness.npcId)}`,
-    `${witness.role||'Witness'} — ${name}`,witness.statement,['alibi-evidence','witness-statement'],
+    `${witness.role||__dialogueText("systems/CaseTheorySubmission.js", "t_5464a8914419f3a1a237")} — ${name}`,witness.statement,['alibi-evidence','witness-statement'],
     {suspectId:alibi.suspectId,clueId:witness.npcId});
   }
   const filed=alibi.playerConclusion;
   if(filed?.locked===true&&['confirmed','contradicted'].includes(filed.status)){
    put(`agency-alibi-${encodeURIComponent(key)}-${encodeURIComponent(alibi.suspectId)}`,
-    `Alibi report — ${name}`,`Your filed assessment: alibi ${filed.status}. This is your assessment, not automatic confirmation of its correctness.`,
+    `${__dialogueText("systems/CaseTheorySubmission.js", "t_9595f25d96469fbfed58")}${name}`,`${__dialogueText("systems/CaseTheorySubmission.js", "t_2bb78b9a20efd50fd4bf")}${filed.status}${__dialogueText("systems/CaseTheorySubmission.js", "t_b3d24121d6b898783085")}`,
     ['alibi-evidence','filed-alibi'],{suspectId:alibi.suspectId,alibiStatus:filed.status,clueId:`filed-alibi-${alibi.suspectId}`});
   }
  }
@@ -86,7 +87,7 @@ export function assessSubmission(submission){
   if(attached.some(c=>c.isRedHerring===true))evidence=false;
   results.push({field,label,answerStatus:status(answer),evidenceStatus:status(evidence),
    answerLabel:submission.answerLabels?.[field]||label,
-   evidenceLabels:attached.map(c=>c.label||'Attached document')});
+   evidenceLabels:attached.map(c=>c.label||__dialogueText("systems/CaseTheorySubmission.js", "t_e1a5b05ffd1d4a86ab57"))});
  }
  return results;
 }
@@ -138,7 +139,7 @@ export function prepareTheorySubmission(state,suspectId){
    motiveEvidenceIds:arr(motive?.escapeInvestigation?.clueStages).map(s=>s.evidenceId),
    usedSkills,skillObjects,opportunity:getOpportunityFacts(state),
    securityObjectIds:claims.filter(c=>['beat_security','disable_system','create_blind_spot'].includes(c.questionId)).map(c=>String(c.solutionItemId))},
-  answerLabels:{identity:identityCard?.label||'Selected identity',
+  answerLabels:{identity:identityCard?.label||__dialogueText("systems/CaseTheorySubmission.js", "t_4bf8456b297fe93a1c10"),
    motive:theory.sections.motive.answerId===motive?.crimeBoard?.answerId?motive.crimeBoard.label:theory.sections.motive.answerId.replaceAll('_',' '),
    means:theory.sections.means.skillIds.join(', '),
    opportunity:theory.sections.opportunity.answerId.replaceAll('_',' ')},

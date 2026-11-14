@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { EventBus } from '../../EventBus.js';
 
 const STATION_TIME_COST_HOURS = {
@@ -8,55 +9,55 @@ const STATION_TIME_COST_HOURS = {
 
 const FLAVOR_BY_CATEGORY = {
   hair: [
-    'You squinted at one hair for an hour. It squinted back.',
-    'Hair analysis: 5% science, 95% staring at something thinner than your patience.',
-    'The hair has been analysed, catalogued, and quietly judged.'
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_19651a35d5009550a40a"),
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_d1e015c0610f9ddd77ef"),
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_1d9c271d4ab6997c4a6f")
   ],
   blood: [
-    'The centrifuge spun with unnecessary drama. The results, thankfully, did not.',
-    'You now know more about blood types than you ever wanted before lunch.',
-    'Blood work done. The lab fridge sends its regards.'
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_8d4ff1e06c0b623978bf"),
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_2425feab565b665cd62f"),
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_8e5ad4205c7b92386bb8")
   ],
   dna: [
-    'The thermocycler beeped for hours. Nobody knows why. It does it every time.',
-    'DNA amplified. Dignity not included.',
-    'You pipetted a very small amount of liquid into a very small tube. Science!'
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_04755d294a311364e76f"),
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_8ddcf08216b1cb2f1a13"),
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_e8ef7d46dff74e6adee0")
   ],
   fingerprint: [
-    'Ridges, loops and swirls. The fingerprint card is now more famous than you.',
-    'You dusted, lifted and sealed. The brush has asked for a day off.',
-    'Somewhere, a thumb is feeling very exposed.'
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_f0063fd94072835c2ea9"),
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_89ad85cc8f1c221d3ba8"),
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_32d5ca50c1baf7901276")
   ],
   shoe: [
-    'One boot print, measured to the millimetre. The boot remains unrepentant.',
-    'You spent an hour with a boot print. Somewhere, a boot is blushing.',
-    'Shoe size confirmed. The sole has been read. Sorry. Soul. Sole.'
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_e5677d41db4dfb38dc76"),
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_e761f652c76d9c7f3d34"),
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_18089531ed2027b32ccd")
   ],
   dust: [
-    'You analysed dust. Dust never lies; it just gets everywhere.',
-    'Microscopic residue catalogued. The dust bunnies are very nervous.',
-    'An hour of dust. You have never felt so thorough, or so sneezy.'
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_a6f5cd6d49633bec613f"),
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_473884dd2c529226be0b"),
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_2375cd420677491eb998")
   ],
   chemical: [
-    'Reagents mixed, fumes ignored. The fume hood did what it could.',
-    'Chemistry done. You have a new respect for goggles.'
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_40284f10589541900d9f"),
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_3bc66916bced99de446d")
   ],
   material: [
-    'A tiny fragment, closely examined. It told you everything except its name.',
-    'Material analysed. It was, regrettably, not a clue about the coffee machine.',
-    'You compared fragments for an hour. The fragments won on style.'
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_b286e90bd56029948b85"),
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_2ff13a49818e8d926bac"),
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_9b1ec33909e0bb52875f")
   ],
   handedness: [
-    'Left or right: such a short question, such a long afternoon.',
-    'You compared smudges for an hour. The smudges are not talking.',
-    'Handedness established. Somebody is about to be very predictable.'
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_205729302e3953f731af"),
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_73e9cedee6f2e79c9126"),
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_f9433a155094df8b23ec")
   ],
   generic: [
-    'The centrifuge hummed for hours. You are now an expert in staring at spinning tubes.',
-    'Somewhere, a lab tech is annoyed you touched their equipment. Time well spent.',
-    'You filled out three forms in triplicate just to look at a sample under glass.',
-    'The coffee in the break room went cold twice while you waited for results.',
-    'Science is slow. Also, it is later than when you started.'
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_b9df5fc280502ab8359f"),
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_7bfc0cad5796912dae7b"),
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_959ae70fe79125ebea33"),
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_3e5f90405336c8e2dbe5"),
+    __dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_b740147826b687450367")
   ]
 };
 
@@ -126,7 +127,7 @@ export class CrimeLabTimeController {
       return;
     }
 
-    const text = `+${hours}h — ${this.pickFlavor(stationId)}`;
+    const text = `${__dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_a318c24216defe206fee")}${hours}${__dialogueText("scenes/CSI/CrimeLabTimeController.js", "t_3766d128da968ce82644")}${this.pickFlavor(stationId)}`;
 
     // Dedicated toast: it is not wiped when the mouse leaves a hotspot.
     if (typeof this.scene.showToast === 'function') {

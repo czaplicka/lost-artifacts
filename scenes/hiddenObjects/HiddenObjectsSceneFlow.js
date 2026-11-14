@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 import { saveGameState } from '../../gameStatePersistence.js';
 import { EventBus } from '../../EventBus.js';
@@ -139,7 +140,7 @@ export class HiddenObjectsSceneFlow {
       .filter(id => !zoneIds.has(id));
 
     this.handleSceneSetupFailure(
-      'Missing clickable Tiled zones for: ' +
+      __dialogueText("scenes/hiddenObjects/HiddenObjectsSceneFlow.js", "t_872a2e076d00a5b43471") +
       `${missingZoneIds.join(', ')}.`
     );
   }
@@ -359,7 +360,7 @@ export class HiddenObjectsSceneFlow {
       return progressionManager.grantReward(
         'crime_scene_completed',
         caseId,
-        'Crime scene processed'
+        __dialogueText("scenes/hiddenObjects/HiddenObjectsSceneFlow.js", "t_ef112fa567df481c180b")
       );
     } catch (error) {
       console.error(
@@ -439,12 +440,12 @@ export class HiddenObjectsSceneFlow {
 
     const xpMessage =
       xpResult.success && xpResult.grantedXP > 0
-        ? ` | +${xpResult.grantedXP} XP`
+        ? `${__dialogueText("scenes/hiddenObjects/HiddenObjectsSceneFlow.js", "t_af0dea6180fbac8a482c")}${xpResult.grantedXP}${__dialogueText("scenes/hiddenObjects/HiddenObjectsSceneFlow.js", "t_42e2aa5470e71f56e5a5")}`
         : '';
 
     scene.ui.showMessage(
-      `Crime scene processed. Time bonus +${timeBonus}${xpMessage}`,
-      '#7CFC00'
+      `${__dialogueText("scenes/hiddenObjects/HiddenObjectsSceneFlow.js", "t_e4cbd3e5e942d37e6517")}${timeBonus}${xpMessage}`,
+      __dialogueText("scenes/hiddenObjects/HiddenObjectsSceneFlow.js", "t_1f23450b0aea40e253b6")
     );
 
     this.showTimeAdvanceToast();
@@ -466,8 +467,8 @@ export class HiddenObjectsSceneFlow {
     );
 
     scene.ui.showMessage(
-      'Time is up. The evidence trail went cold.',
-      '#ff6b6b'
+      __dialogueText("scenes/hiddenObjects/HiddenObjectsSceneFlow.js", "t_18660a82355c1e8adb01"),
+      __dialogueText("scenes/hiddenObjects/HiddenObjectsSceneFlow.js", "t_2701c435c516e9d3f3bd")
     );
 
     this.showTimeAdvanceToast();

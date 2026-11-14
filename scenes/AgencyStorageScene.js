@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { storageRoomDialogues as DIALOGUES } from '../storageRoomDialogueService.js';
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
@@ -34,7 +35,7 @@ if(!this.textures.exists(MANAGER_PORTRAIT_KEY))this.load.image(MANAGER_PORTRAIT_
     this.createInterface();this.layoutStorage();this.scale.on('resize',this.layoutStorage,this);
     this.events.on(Phaser.Scenes.Events.WAKE,this.onWakeOrResume,this);this.events.on(Phaser.Scenes.Events.RESUME,this.onWakeOrResume,this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN,this.cleanupStorage,this);this.events.once(Phaser.Scenes.Events.DESTROY,this.cleanupStorage,this);
-    this.statusText.setText('Alex is locating your paperwork...').setVisible(true);this.schedulePreparation();
+    this.statusText.setText(__dialogueText("scenes/AgencyStorageScene.js", "t_da6b55f59c4a102ab849")).setVisible(true);this.schedulePreparation();
   }
   schedulePreparation(){this._prepareTimer?.remove(false);this._prepareTimer=this.time.delayedCall(0,()=>{this._prepareTimer=null;void this.prepareVisit();});}
   isCurrent(token=this._storageRunToken){return Boolean(!this._storageDisposed&&this._storageRunToken===token&&!this._cleanupDone&&this.sys.isActive());}
@@ -72,7 +73,7 @@ if(!this.textures.exists(MANAGER_PORTRAIT_KEY))this.load.image(MANAGER_PORTRAIT_
     this.backButton.on('pointerout', () => {
       this.backButton?.clearTint();
     });
-this.retryButton=make('TALK TO ALEX',1,()=>{void this.prepareVisit(true);}).setVisible(false);
+this.retryButton=make(__dialogueText("scenes/AgencyStorageScene.js", "t_7fb9c96f07064e72471c"),1,()=>{void this.prepareVisit(true);}).setVisible(false);
     this.timelineButton=make(fourthMissionConfig.buttons.start,0.5,()=>{void this.openTimeline();}).setVisible(false);
     this.statusText=this.add.text(0,0,'',{...style,align:'center',padding:{x:16,y:12}}).setOrigin(0.5,0).setDepth(110).setVisible(false);
   }
@@ -114,7 +115,7 @@ this.retryButton=make('TALK TO ALEX',1,()=>{void this.prepareVisit(true);}).setV
   showStorageHud(){if(!this.storageHud?.isHudReady)return;this.storageHud.showHud();this.scene.setVisible(true,'PlayerHudScene');this.bringSceneToTopIfActive('PlayerHudScene');}
   async prepareVisit(explicitTalk=false){
     if(!this.isCurrent()||this.isLeaving||this._conversationOpen||this._preparing||this._finishing||this._timelineOpen)return;
-    const token=this._storageRunToken;let prepared=false;this._preparing=true;this.retryButton?.setVisible(false);this.refreshTimelineButton();this.showStatus('Alex is locating your paperwork...');
+    const token=this._storageRunToken;let prepared=false;this._preparing=true;this.retryButton?.setVisible(false);this.refreshTimelineButton();this.showStatus(__dialogueText("scenes/AgencyStorageScene.js", "t_da6b55f59c4a102ab849"));
     try{
       if(!this.showManagerBackground())throw new Error(`Missing image "${MANAGER_STORAGE_KEY}".`);
       await ItemsLoader.load();if(!this.isCurrent(token)||this.isLeaving)return;
@@ -126,7 +127,7 @@ this.retryButton=make('TALK TO ALEX',1,()=>{void this.prepareVisit(true);}).setV
       if(!manager?.dialogUI||manager.dialogUI.destroyed)throw new Error('DialogUI could not be created.');this.storageHud=hud;this.storageDialog=manager.dialogUI;
       const news=await this.ensureOverlayScene('NewsHud');if(!this.isCurrent(token)||this.isLeaving)return;
       news?.events?.emit('setNewspaperVisible',false);news?.events?.emit('setTvVisible',false);this.showStorageHud();this.statusText?.setVisible(false);prepared=true;
-    }catch(error){if(this.isCurrent(token)&&!this.isLeaving)this.showRecovery(`Storage error: ${error.message||String(error)}`,error);}finally{if(this._storageRunToken===token)this._preparing=false;}
+    }catch(error){if(this.isCurrent(token)&&!this.isLeaving)this.showRecovery(`${__dialogueText("scenes/AgencyStorageScene.js", "t_4ebb2b9b5bc69ce38cef")}${error.message||String(error)}`,error);}finally{if(this._storageRunToken===token)this._preparing=false;}
     if(prepared&&this.isCurrent(token)&&!this.isLeaving){
       const story=getFourthMissionStory(this.gameState),opening=getChapterTwoOpening();
       if(!explicitTalk&&this.hasInventoryItem(this.manualTemplate.id)&&!opening.needsAlex&&(opening.open||story.canReconstruct)){
@@ -136,7 +137,7 @@ this.retryButton=make('TALK TO ALEX',1,()=>{void this.prepareVisit(true);}).setV
   }
   startConversation(){
     if(!this.isCurrent()||this.isLeaving||this._preparing||this._conversationOpen||this._finishing||this._timelineOpen||!this.manualTemplate)return false;
-    const hud=this.storageHud,dialog=this.storageDialog;if(!hud?.isHudReady||!dialog||dialog.destroyed||dialog.isOpen){this.showRecovery('The conversation is not ready. Try TALK TO ALEX.');return false;}
+    const hud=this.storageHud,dialog=this.storageDialog;if(!hud?.isHudReady||!dialog||dialog.destroyed||dialog.isOpen){this.showRecovery(__dialogueText("scenes/AgencyStorageScene.js", "t_b82115ec6cdc97d71ee7"));return false;}
     const token=this._storageRunToken,hasManual=this.hasInventoryItem(this.manualTemplate.id),issueMode=getAgencyManualIssueMode();
     const fourth=getFourthMissionStory(this.gameState),opening=getChapterTwoOpening();
     const mode=!hasManual?(issueMode==='replacement'?'manualReplacement':'manual'):opening.needsAlex?'chapterTwo':opening.open?'chapterTwoReview':fourth.needsAccount?'crash':fourth.canReconstruct?'review':getThirdMissionStory(this.gameState).needsAlex?'refusal':'return';
@@ -148,14 +149,14 @@ this.retryButton=make('TALK TO ALEX',1,()=>{void this.prepareVisit(true);}).setV
         if(mode==='chapterTwo'||mode==='chapterTwoReview'){
           const result=mode==='chapterTwo'?markChapterTwoAlexFollowup():{success:true,saved:true};this.backButton?.setVisible(true);this.retryButton?.setVisible(true);this.refreshTimelineButton();this.showStatus(chapterTwoOpeningConfig.messages.afterAlex+(result.saved?'':` ${chapterTwoOpeningConfig.messages.saveFailed}`));
         }else if(mode==='crash'){
-          const result=markAlexCrashAccount(this.gameState);this.backButton?.setVisible(true);this.retryButton?.setVisible(true);this.refreshTimelineButton();this.showStatus(result.success?fourthMissionConfig.messages.ready+(result.saved?'':` ${fourthMissionConfig.messages.saveFailed}`):'The story requirements changed. Please talk to Alex again.');
+          const result=markAlexCrashAccount(this.gameState);this.backButton?.setVisible(true);this.retryButton?.setVisible(true);this.refreshTimelineButton();this.showStatus(result.success?fourthMissionConfig.messages.ready+(result.saved?'':` ${fourthMissionConfig.messages.saveFailed}`):__dialogueText("scenes/AgencyStorageScene.js", "t_9e5f0f428737d69a0406"));
         }else if(mode==='review'){
           this.backButton?.setVisible(true);this.retryButton?.setVisible(true);this.refreshTimelineButton();this.showStatus(fourthMissionConfig.messages.ready);
         }else if(mode==='refusal'){
           const saved=markAlexRefusal(this.gameState);this.backButton?.setVisible(true);this.retryButton?.setVisible(true);this.showStatus(thirdMissionConfig.messages.refused+(saved?'':` ${thirdMissionConfig.messages.saveFailed}`));
         }else void this.finishConversation();
       }});return true;
-    }catch(error){this._conversationOpen=false;this.showRecovery(`Conversation error: ${error.message||String(error)}`,error);return false;}
+    }catch(error){this._conversationOpen=false;this.showRecovery(`${__dialogueText("scenes/AgencyStorageScene.js", "t_b9474492c53e9766198b")}${error.message||String(error)}`,error);return false;}
   }
   async openTimeline(){
     if(!this.isCurrent()||this.isLeaving||this._conversationOpen||this._preparing||this._finishing||this._timelineOpen||!getFourthMissionStory(this.gameState).canReconstruct)return;
@@ -175,14 +176,14 @@ this.retryButton=make('TALK TO ALEX',1,()=>{void this.prepareVisit(true);}).setV
       if(!issue.ok){this.showRecovery(DIALOGUES.messages.pocketsFull);return;}
       if(!this.hasInventoryItem(this.manualTemplate.id))throw new Error('The manual was not added to inventory.');
       this.completeStorageTutorialVisit();if(!saveGameState())console.warn('[AgencyStorageScene] Manual received, but save failed.');received=true;
-    }catch(error){this.showRecovery(`Manual error: ${error.message||String(error)}`,error);}finally{if(this._storageRunToken===token)this._finishing=false;}
+    }catch(error){this.showRecovery(`${__dialogueText("scenes/AgencyStorageScene.js", "t_51040c74460a0d1485f5")}${error.message||String(error)}`,error);}finally{if(this._storageRunToken===token)this._finishing=false;}
     if(received&&this.isCurrent(token))await this.returnToOffice();
   }
   async returnToOffice(){
     if(!this.isCurrent()||this.isLeaving||this._conversationOpen||this._finishing||this._timelineOpen)return false;
     const token=this._storageRunToken;this.isLeaving=true;this._cancelHudWait?.();this.backButton?.setVisible(false);this.retryButton?.setVisible(false);this.timelineButton?.setVisible(false);let result=false;
     try{audioManager.playSfx('click_sound');this.storageHud?.closeAllUIPanels?.();result=await this.goto('OfficeScene',{gameState:this.gameState});}catch(error){console.error('[AgencyStorageScene] Return to office failed:',error);}
-    if(!this.isCurrent(token))return result!==false;this.isLeaving=false;if(result===false)this.showRecovery('The office could not be opened. Try BACK TO OFFICE.');return result!==false;
+    if(!this.isCurrent(token))return result!==false;this.isLeaving=false;if(result===false)this.showRecovery(__dialogueText("scenes/AgencyStorageScene.js", "t_f9cfade29406b1e01d2d"));return result!==false;
   }
   onWakeOrResume(){if(!this.isCurrent()||this.isLeaving)return;this.showManagerBackground();this.layoutStorage();if(this._timelineOpen)return;if(this._conversationOpen){this.showStorageHud();return;}if(!this._preparing&&!this._finishing)this.schedulePreparation();}
   cleanupStorage(){

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 
 
 export const WantedDatabaseLifecycle = {
@@ -129,7 +130,7 @@ export const WantedDatabaseLifecycle = {
         this.events.off(Phaser.Scenes.Events.DESTROY, this.cleanupScene, this);
         this.input.keyboard?.off('keydown', this.onKeyDown, this);
         if (this.captureKeys) {
-            clean('Keyboard', () => this.input.keyboard?.removeCapture(this.captureKeys));
+            clean(__dialogueText("scenes/wanted-database/WantedDatabaseLifecycle.js", "t_2316810a5de343dd59d1"), () => this.input.keyboard?.removeCapture(this.captureKeys));
         }
         if (this._fallbackComplete && this.fallbackJsonKey) {
             this.load.off(`filecomplete-json-${this.fallbackJsonKey}`, this._fallbackComplete);
@@ -137,20 +138,20 @@ export const WantedDatabaseLifecycle = {
         this._fallbackComplete = null;
 
         for (const pending of [...(this.pendingTextures?.values() || [])]) {
-            clean('Pending texture', () => pending.cancel());
+            clean(__dialogueText("scenes/wanted-database/WantedDatabaseLifecycle.js", "t_574878bd7413f322056b"), () => pending.cancel());
         }
         this.pendingTextures?.clear();
-        clean('Typing', () => this.stopTypeTweens());
-        clean('Tweens', () => this.tweens.killAll());
-        clean('Timers', () => this.time.removeAllEvents());
-        clean('Post FX', () => this.cameras.main.postFX?.clear());
+        clean(__dialogueText("scenes/wanted-database/WantedDatabaseLifecycle.js", "t_25dfb9b4b32f9ad69a77"), () => this.stopTypeTweens());
+        clean(__dialogueText("scenes/wanted-database/WantedDatabaseLifecycle.js", "t_929c2648b30c65e57497"), () => this.tweens.killAll());
+        clean(__dialogueText("scenes/wanted-database/WantedDatabaseLifecycle.js", "t_cca94c56deb8a8625aee"), () => this.time.removeAllEvents());
+        clean(__dialogueText("scenes/wanted-database/WantedDatabaseLifecycle.js", "t_f08308f4e46fb5baa12d"), () => this.cameras.main.postFX?.clear());
 
         for (const { g, mask } of this.masks || []) {
-            clean('Mask', () => mask?.destroy?.());
-            clean('Mask graphics', () => { if (g?.scene) g.destroy(); });
+            clean(__dialogueText("scenes/wanted-database/WantedDatabaseLifecycle.js", "t_e368929abd3614e92ad1"), () => mask?.destroy?.());
+            clean(__dialogueText("scenes/wanted-database/WantedDatabaseLifecycle.js", "t_b059675d2609ae83687c"), () => { if (g?.scene) g.destroy(); });
         }
         this.masks = [];
-        clean('Skill chips', () => this.clearSkillChips());
+        clean(__dialogueText("scenes/wanted-database/WantedDatabaseLifecycle.js", "t_e1f21d71c13e502cbcbe"), () => this.clearSkillChips());
         for (const key of ['bootLayer', 'helpPanel', 'detailPanel', 'cardContainer',
             'crtBeam', 'crtScanlines', 'crtNoise']) {
             const object = this[key];
@@ -158,13 +159,13 @@ export const WantedDatabaseLifecycle = {
             clean(key, () => { if (object?.scene) object.destroy(true); });
         }
         for (const key of this.ownedTextures || []) {
-            clean('Texture', () => {
+            clean(__dialogueText("scenes/wanted-database/WantedDatabaseLifecycle.js", "t_e28411a3404d21f9fc16"), () => {
                 if (this.textures.exists(key)) this.textures.remove(key);
             });
         }
         this.ownedTextures?.clear();
         if (this.fallbackJsonKey) {
-            clean('Fallback JSON', () => {
+            clean(__dialogueText("scenes/wanted-database/WantedDatabaseLifecycle.js", "t_b30306984159a591c081"), () => {
                 if (this.cache.json.exists(this.fallbackJsonKey)) {
                     this.cache.json.remove(this.fallbackJsonKey);
                 }

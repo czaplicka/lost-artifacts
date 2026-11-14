@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 const pendingHudRestores = new WeakMap();
 
 const HUD_KEY = 'PlayerHudScene';
@@ -16,8 +17,8 @@ export function ensureHud(
 
   if (!hud) {
     const message =
-      `[ensureHud] "${HUD_KEY}" is not registered. ` +
-      `Called from scene "${sceneKey}".`;
+      `${__dialogueText("hudHelpers.js", "t_7e05777d4886a481a374")}${HUD_KEY}${__dialogueText("hudHelpers.js", "t_198b226bb93a925f526b")}` +
+      `${__dialogueText("hudHelpers.js", "t_fdd759061a6551c66d9d")}${sceneKey}${__dialogueText("hudHelpers.js", "t_1e4a1452ad4db45827a1")}`;
 
     console.error(message);
 

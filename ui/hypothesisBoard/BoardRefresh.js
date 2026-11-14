@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { SLOT_COLORS } from './BoardConstants.js';
 
 export const BoardRefresh = {
@@ -87,8 +88,8 @@ export const BoardRefresh = {
       if (!card) {
         view.answerText.setText(
           isSelected
-            ? '[ now select a clue ]'
-            : '[ empty ]'
+            ? __dialogueText("ui/hypothesisBoard/BoardRefresh.js", "t_028c9dc7ab8e5ae1b6a0")
+            : __dialogueText("ui/hypothesisBoard/BoardRefresh.js", "t_41953e69788775d57264")
         );
 
         view.answerText.setColor(visual.text);
@@ -172,7 +173,7 @@ export const BoardRefresh = {
     this._maxAttempts = Math.max(this._maxAttempts, attempts);
 
     this.attemptsText.setText(
-      `ATTEMPTS LEFT: ${attempts}`
+      `${__dialogueText("ui/hypothesisBoard/BoardRefresh.js", "t_9aa6776d2a32753cfece")}${attempts}`
     );
 
     this.drawAttemptIcons(attempts);
@@ -282,7 +283,7 @@ export const BoardRefresh = {
 
   getSlotSentence(card, slotIndex) {
     if (!card) {
-      return '[ empty ]';
+      return __dialogueText("ui/hypothesisBoard/BoardRefresh.js", "t_41953e69788775d57264");
     }
 
     /*
@@ -297,7 +298,7 @@ export const BoardRefresh = {
     return (
       sentence ||
       card.item ||
-      '[ clue ]'
+      __dialogueText("ui/hypothesisBoard/BoardRefresh.js", "t_fc550bcc0aacb76e2101")
     );
   }
 };

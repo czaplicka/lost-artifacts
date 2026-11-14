@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { COLORS } from './gridConstants.js';
 import { formatCellValue } from './gridHelpers.js';
 import { THEME, AVATAR_COLORS, bevelBox, hatch, hashString, tapeStrip } from './gridTheme.js';
@@ -125,7 +126,7 @@ export const GridCellsMixin = {
       }
     };
     fixedLabel(g.y, headerH, 'SUSPECTS', 0x38291d, false);
-    fixedLabel(sceneY, sceneRowH, 'CRIME SCENE', COLORS.headerScene, true);
+    fixedLabel(sceneY, sceneRowH, __dialogueText("suspectsBoard/GridCells.mixin.js", "t_149dbafdfa19fa96352e"), COLORS.headerScene, true);
 
     /* ---- header + crime scene row ---- */
     columns.forEach(({ field, width, centerX }) => {
@@ -190,7 +191,7 @@ export const GridCellsMixin = {
     }
     if (scrollX || scrollY) {
       this.uiRoot.add(this.add.text(g.x + g.w - 16, g.y + g.h - 18,
-        'DRAG TABLE  /  SHIFT + WHEEL = SIDEWAYS', {
+        __dialogueText("suspectsBoard/GridCells.mixin.js", "t_bd2413479c75695b401f"), {
           fontFamily: 'SpecialElite', fontSize: '12px', color: '#d9c998',
           backgroundColor: '#171112', padding: { x: 6, y: 3 }
         }).setOrigin(1, 1).setDepth(5));
@@ -254,7 +255,7 @@ export const GridCellsMixin = {
       .setInteractive({ useHandCursor: true });
     const led = this.add.rectangle(bx - 46, cy, 8, 8,
       unlikely ? COLORS.noStroke : COLORS.okStroke, 1);
-    const label = this.add.text(bx + 6, cy, unlikely ? 'UNLIKELY' : 'POSSIBLE', {
+    const label = this.add.text(bx + 6, cy, unlikely ? __dialogueText("suspectsBoard/GridCells.mixin.js", "t_b389fa48055a366d973b") : __dialogueText("suspectsBoard/GridCells.mixin.js", "t_49ed77f8cd66eb4ca16f"), {
       fontFamily: 'PressStart2P', fontSize: '8px', color: unlikely ? '#ffd1c8' : '#d5ffd2'
     }).setOrigin(0.5);
     btn.on('pointerover', () => btn.setFillStyle(unlikely ? 0x823b31 : 0x35613a, 1));
@@ -310,7 +311,7 @@ export const GridCellsMixin = {
     }
 
     const showPlaceHint = waiting && !value;
-    const label = showPlaceHint ? 'PLACE\nCLUE HERE' : (value || (noData ? '—' : '?'));
+    const label = showPlaceHint ? __dialogueText("suspectsBoard/GridCells.mixin.js", "t_ba1431e78244ee016973") : (value || (noData ? '—' : '?'));
     const text = this.add.text(x, y, label, showPlaceHint ? {
       fontFamily: 'PressStart2P', fontSize: '8px', color: '#ffdc73', align: 'center', lineSpacing: 6
     } : {

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { FONTS } from './ComputerTheme.js';
 
 export const ROOM_STYLE={
@@ -54,7 +55,7 @@ export class ComputerThiefdokuArt {
  // Rubber stamp. Returns a container (rotated, translucent).
  stamp(x,y,label,size,color,angle=-12){
   const sc=this.ui.scene,c=sc.add.container(x,y);this.add(c);
-  const t=sc.add.text(0,0,label,{fontFamily:FONTS.body,fontSize:`${size}px`,color:hex(color),fontStyle:'bold'}).setOrigin(0.5);
+  const t=sc.add.text(0,0,label,{fontFamily:FONTS.body,fontSize:`${size}px`,color:hex(color),fontStyle:__dialogueText("ui/pi-computer/ComputerThiefdokuArt.js", "t_e0007a5bca8d91586274")}).setOrigin(0.5);
   const pw=t.width+size,ph=t.height+size*0.5,g=sc.add.graphics();
   g.fillStyle(0xf6efe3,0.82);g.fillRoundedRect(-pw/2,-ph/2,pw,ph,size*0.3);
   g.lineStyle(Math.max(2,size*0.16),color,1);g.strokeRoundedRect(-pw/2,-ph/2,pw,ph,size*0.3);

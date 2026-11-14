@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { HomeCityScene as OriginalHomeCityScene } from './HomeCityScene.js';
 import { PostOfficeScene } from './PostOfficeScene.js';
 import { HospitalScene } from './HospitalScene.js';
@@ -7,11 +8,11 @@ import { HomeCityRendererCore } from './homeCity/HomeCityRendererCore.js';
 
 const COLS = 36, ROWS = 22, WORLD_WIDTH = 4125, WORLD_HEIGHT = 2400;
 const EXTRA_BUILDINGS = [
-  { id: 'post-office', name: 'Post Office', x: 16, y: 3, w: 3, h: 3,
+  { id: 'post-office', name: __dialogueText("scenes/HomeCityPostOfficeScene.js", "t_bf90c07b7526b278c9c8"), x: 16, y: 3, w: 3, h: 3,
     color: 0xa06048, message: '', sceneKey: 'PostOfficeScene', SceneClass: PostOfficeScene },
-  { id: 'hospital', name: 'Hospital', x: 29, y: 13, w: 4, h: 3,
+  { id: 'hospital', name: __dialogueText("scenes/HomeCityPostOfficeScene.js", "t_97e9623661f2970acb41"), x: 29, y: 13, w: 4, h: 3,
     color: 0xaebdac, message: '', sceneKey: 'HospitalScene', SceneClass: HospitalScene },
-  { id: 'business-center', name: 'Business Center', x: 29, y: 3, w: 4, h: 3,
+  { id: 'business-center', name: __dialogueText("scenes/HomeCityPostOfficeScene.js", "t_a16572219d4cbc8fe62b"), x: 29, y: 3, w: 4, h: 3,
     color: 0x8e9b9b, message: '', sceneKey: 'BusinessCenterScene', SceneClass: BusinessCenterScene }
 ];
 const HOSPITAL_PROPS = [
@@ -25,14 +26,14 @@ PALETTES['post-office'] = {
   wall: 0xb98c62, shade: 0x88563f, roof: 0x493c35,
   trim: 0xe1c99e, glass: 0x35494c, accent: 0xd7b16b,
   height: 138, style: 'brick', door: 0x49382d,
-  lit: .3, blinds: true, blade: 'lens', sign: 'POST OFFICE',
+  lit: .3, blinds: true, blade: 'lens', sign: __dialogueText("scenes/HomeCityPostOfficeScene.js", "t_620a597cd8e1abb75463"),
   features: [{ t: [1, 1], k: 'vent' }]
 };
 PALETTES.hospital = {
   wall: 0xb6c3ae, shade: 0x788f83, roof: 0x455b56,
   trim: 0xe3dfc6, glass: 0x354f55, accent: 0xd6c89c,
   height: 180, style: 'stone', door: 0x3d5953,
-  lit: .55, blinds: true, blade: 'badge', sign: 'HOSPITAL / RECEPTION',
+  lit: .55, blinds: true, blade: 'badge', sign: __dialogueText("scenes/HomeCityPostOfficeScene.js", "t_6c7923d43c2290e41396"),
   features: [{ t: [0, 0], k: 'vent' }, { t: [3, 0], k: 'vent' }]
 };
 PALETTES['business-center'] = {
@@ -40,7 +41,7 @@ PALETTES['business-center'] = {
   trim: 0xd9d4b9, glass: 0x304b57, accent: 0xcbb57b,
   height: 230, style: 'stone', door: 0x324943,
   lit: .25, blinds: true, pilasters: true, blade: 'lens',
-  sign: 'BUSINESS CENTER',
+  sign: __dialogueText("scenes/HomeCityPostOfficeScene.js", "t_ea28bc91925091253ae9"),
   features: [{ t: [0, 0], k: 'vent' }, { t: [3, 0], k: 'antenna' }]
 };
 
@@ -167,7 +168,7 @@ export class HomeCityScene extends OriginalHomeCityScene {
         ground.lineStyle(1, 0x756c57, .6).strokePoints(points, true);
       }
     }
-    art.bakeBanner(b, 'UNDER CONSTRUCTION', 160, 3.0);
+    art.bakeBanner(b, __dialogueText("scenes/HomeCityPostOfficeScene.js", "t_86158a4d4f49d52f1db5"), 160, 3.0);
   }
   arrive() {
     const building = this.extraBuildings.find(item => item.id === this.destinationBuilding?.id);
@@ -177,6 +178,6 @@ export class HomeCityScene extends OriginalHomeCityScene {
     this.cityArt.clearRoute();
     this.remember();
     if (!this.hasScene(building.sceneKey)) this.scene.add(building.sceneKey, building.SceneClass, false);
-    void this.openCityInterior(building.sceneKey, `${building.name} could not be opened. Please try again.`);
+    void this.openCityInterior(building.sceneKey, `${building.name}${__dialogueText("scenes/HomeCityPostOfficeScene.js", "t_1cfcfe7c73e898681df4")}`);
   }
 }

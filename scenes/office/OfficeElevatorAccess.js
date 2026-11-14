@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { OfficeElevatorRide } from './OfficeElevatorRide.js';
 
 export function canAccessUpperOffice(state) {
@@ -34,8 +35,8 @@ export class OfficeElevatorAccess {
     this.meta = key => {
       const base = this.originalMeta?.call(scene, key) ?? {};
       if (key !== 'elevator') return base;
-      return { ...base, label: 'ELEVATOR', subtitle: canAccessUpperOffice(scene.gameState)
-        ? 'First floor' : 'Out of order' };
+      return { ...base, label: __dialogueText("scenes/office/OfficeElevatorAccess.js", "t_8ec78fd4e0c76ee47e25"), subtitle: canAccessUpperOffice(scene.gameState)
+        ? __dialogueText("scenes/office/OfficeElevatorAccess.js", "t_0aead6ee916721ac990b") : __dialogueText("scenes/office/OfficeElevatorAccess.js", "t_24d8f84a780c7168cc3f") };
     };
     scene.getOfficeRoomMeta = this.meta;
     scene.events.once('shutdown', this.destroy, this);
@@ -53,7 +54,7 @@ export class OfficeElevatorAccess {
       bg.setTexture(key).setDisplaySize(scene.rooms.elevator.width, scene.scale.height);
     }
     const data = this.zone?.hotspotData;
-    if (data) data.label = unlocked ? 'Elevator / first floor' : 'Elevator / out of order';
+    if (data) data.label = unlocked ? __dialogueText("scenes/office/OfficeElevatorAccess.js", "t_fe65a52b0310e4087609") : __dialogueText("scenes/office/OfficeElevatorAccess.js", "t_b4ec7e8514ad74d6ba30");
     scene.navigation?.refreshRoomMeta?.();
   }
 
@@ -63,13 +64,13 @@ export class OfficeElevatorAccess {
         scene.navigation?.isMoving || scene._officePanelRequest || scene.isOfficeTutorialBlocking?.()) return false;
     if (!canAccessUpperOffice(scene.gameState)) {
       this.refresh();
-      scene.showOfficeStatusMessage('OUT OF ORDER. Maintenance promises results after four solved cases.');
+      scene.showOfficeStatusMessage(__dialogueText("scenes/office/OfficeElevatorAccess.js", "t_05ccbaf37a88bf4f31a5"));
       return false;
     }
     for (const key of ['elevator_broken', 'elevator_close', 'elevator_open']) {
       if (!scene.textures.exists(key)) {
         console.error('[OfficeElevatorAccess] Missing texture:', key);
-        scene.showOfficeStatusMessage('The elevator graphics could not be loaded.');
+        scene.showOfficeStatusMessage(__dialogueText("scenes/office/OfficeElevatorAccess.js", "t_3aa79f910bc9ae35d9c4"));
         return false;
       }
     }
@@ -99,7 +100,7 @@ export class OfficeElevatorAccess {
     } catch (error) {
       console.error('[OfficeElevatorAccess]', error);
       if (!this.disposed && scene.isOfficeActive()) {
-        scene.showOfficeStatusMessage('The elevator refuses to cooperate. Please try again.');
+        scene.showOfficeStatusMessage(__dialogueText("scenes/office/OfficeElevatorAccess.js", "t_7b274d5845e0d38958ec"));
       }
       return false;
     } finally {

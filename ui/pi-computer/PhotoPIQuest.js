@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
 import { getPIQuest } from '../../managers/PIQuestManager.js';
@@ -271,7 +272,7 @@ export class PhotoPIQuest {
         ui.drawing.button(
           bounds.x + 312,
           bounds.y + bounds.h - 90,
-          'Open photo',
+          __dialogueText("ui/pi-computer/PhotoPIQuest.js", "t_a2cfb44c1a041665509a"),
           () => void this.openPhoto()
         );
       }
@@ -370,7 +371,7 @@ export class PhotoPIQuest {
           error.name !== 'AbortError'
         ) {
           this.error =
-            'The case file could not be loaded.';
+            __dialogueText("ui/pi-computer/PhotoPIQuest.js", "t_ba150429d84dbbd5aa3b");
 
           console.error(
             '[PhotoPIQuest]',
@@ -731,7 +732,7 @@ export class PhotoPIQuest {
 
       if (this.canCollectSeaView()) {
         this.ui.notice =
-          'The clue could not be saved. Please try again.';
+          __dialogueText("ui/pi-computer/PhotoPIQuest.js", "t_7422aa26ccbb2635d0ca");
 
         this.refresh();
       }
@@ -791,7 +792,7 @@ export class PhotoPIQuest {
     d.pixel(
       b.x + 14,
       b.y + 14,
-      'ATTACHMENT — terrace.webp',
+      __dialogueText("ui/pi-computer/PhotoPIQuest.js", "t_5fc2700091a72287d85c"),
       10,
       '#fff0cc'
     );
@@ -810,7 +811,7 @@ export class PhotoPIQuest {
       d.text(
         b.x + 20,
         b.y + 65,
-        'Attachment unavailable.',
+        __dialogueText("ui/pi-computer/PhotoPIQuest.js", "t_75bb92c29c1993a8cd69"),
         18,
         '#383c38'
       );
@@ -826,8 +827,8 @@ export class PhotoPIQuest {
         b.y + 65,
 
         this.imageFailed
-          ? 'The photograph could not be loaded.'
-          : 'Loading photograph...',
+          ? __dialogueText("ui/pi-computer/PhotoPIQuest.js", "t_4d9c22e5dab6e48fe09d")
+          : __dialogueText("ui/pi-computer/PhotoPIQuest.js", "t_db665435f05a71537e42"),
 
         18,
         '#383c38'
@@ -837,7 +838,7 @@ export class PhotoPIQuest {
         d.button(
           b.x + 20,
           b.y + 112,
-          'Retry',
+          __dialogueText("ui/pi-computer/PhotoPIQuest.js", "t_942087cc2d41e01304b7"),
           () => {
             this.image = null;
             this.loadImage();

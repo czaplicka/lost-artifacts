@@ -1,17 +1,18 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // Investigation history is case-scoped. Only explicit source metadata can confirm a claim.
 const arr=v=>Array.isArray(v)?v:[];
 const obj=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
 const copy=v=>JSON.parse(JSON.stringify(v));
 const same=(a,b)=>a!=null&&b!=null&&String(a)===String(b);
 const text=v=>typeof v==='string'?v.trim():'';
-const readable=(v,fallback='the recorded item')=>{const s=text(v);return s&&!s.includes('_')&&!s.includes('/')&&!/\.(png|webp|json)$/i.test(s)?s:fallback;};
+const readable=(v,fallback=__dialogueText("systems/InvestigationAudit.js", "t_78dac884c708b6ab3b78"))=>{const s=text(v);return s&&!s.includes('_')&&!s.includes('/')&&!/\.(png|webp|json)$/i.test(s)?s:fallback;};
 const short=v=>text(v).length>230?text(v).slice(0,227)+'…':text(v);
 const stable=v=>JSON.stringify(v);
 const norm=v=>text(v).toLowerCase().replace(/[_-]+/g,' ').replace(/\s+/g,' ').replace(/^pick ?pocketing$/,'pickpocket');
 const uniq=v=>[...new Set(arr(v).map(norm).filter(Boolean))].sort();
 const busy=new WeakSet();
-const FIELD_NAMES={identity:'Identity',motive:'Motive',means:'Means',opportunity:'Opportunity'};
-const OPPORTUNITY={work_access:'work duties provided access',unobserved_interval:'an unobserved interval',false_alibi:'a false alibi concealed presence',borrowed_access:'borrowed or stolen credentials',security_gap:'a security gap',public_access:'public opening hours'};
+const FIELD_NAMES={identity:__dialogueText("systems/InvestigationAudit.js", "t_999f23fcd7bec7075e54"),motive:__dialogueText("systems/InvestigationAudit.js", "t_3c304325a9d42f41663b"),means:__dialogueText("systems/InvestigationAudit.js", "t_f40aa59edb5c4a6061ff"),opportunity:__dialogueText("systems/InvestigationAudit.js", "t_e969f85c47caa12786cb")};
+const OPPORTUNITY={work_access:__dialogueText("systems/InvestigationAudit.js", "t_eebe01cc2fa2eb68b274"),unobserved_interval:__dialogueText("systems/InvestigationAudit.js", "t_e8346246d901524e0113"),false_alibi:__dialogueText("systems/InvestigationAudit.js", "t_5fa1438038b89dbd49bc"),borrowed_access:__dialogueText("systems/InvestigationAudit.js", "t_e96525634b7109bfdf22"),security_gap:__dialogueText("systems/InvestigationAudit.js", "t_1d968c086296e9fdc163"),public_access:__dialogueText("systems/InvestigationAudit.js", "t_23ee5e42cade819456d7")};
 export function investigationScope(s){return s?.currentCaseId==null||s?._createdAt==null?null:{caseId:s.currentCaseId,campaignId:s._createdAt};}
 export function theoryWorkspaceKey(s){const m=s.currentMission||{};return String(m.id??m.caseId??m.caseIndex??`${s.caseSuspectCityId??s.crimeCityId??s.crimeCity??m.city??'unknown'}_${m.artifactKey??m.artifact??'default'}`);}
 function trialExists(s){return s.courtState&&same(s.courtState.caseId,s.currentCaseId)&&s.courtState.campaignId===s._createdAt;}
@@ -49,7 +50,7 @@ function evidence(s,id){
  });
  if(clue?.type==='reconstruction'&&clue.confirmed===true&&r.hypothesisConfirmed===true&&!hypothesis)skills.push(...uniq(clue.skills));
  if(skills.length)supports.means=uniq([...(supports.means||[]),...skills]);
- return {id:String(id),label:readable(card?.label??clue?.title??clue?.label,'an unnamed evidence reference'),
+ return {id:String(id),label:readable(card?.label??clue?.title??clue?.label,__dialogueText("systems/InvestigationAudit.js", "t_b2787bc68315124f909a")),
   text:text(card?.body??card?.text??clue?.text),exists:Boolean(card||clue),independent,
   category:text(clue?.category??clue?.type??card?.category),tags:copy(tags),
   sourceId:clue?.id??card?.clueId??null,canonicalIds:clue?[clue.id,clue.evidenceId].filter(Boolean):[],supports};
@@ -78,12 +79,12 @@ function append(j,kind,sourceKey,payload,createdAt=null){
  j.events.push({id:`investigation-${sequence}`,sequence,kind,sourceKey:sourceKey??null,createdAt:stamp(createdAt)!=null?createdAt:now,
   capturedAt:now,sourceTimeKnown:stamp(createdAt)!=null||['theory','heist'].includes(kind),payload:copy(payload)});return true;
 }
-function caseName(s,id){const p=[...arr(s.caseSuspects),...arr(s.suspects),...arr(s.suspectList)].find(x=>same(x.id,id));return readable(p?.publicProfile?.displayName??p?.publicProfile?.name??p?.name,'the recorded suspect');}
-function sceneName(v){return ({tower:'the Tower of London',louvre:'the Louvre Museum',auction_house:'the auction house',action_house:'the auction house',castle:'the Royal Castle',havela:'the haveli',dockyard:'the dockyard',FingerprintScene:'the fingerprint analysis',ShoeprintScene:'the shoeprint comparison',BloodTypeScene:'the blood analysis',HandednessScene:'the handedness analysis'})[v]||'the recorded investigation step';}
-function itemName(s,id){const c=[...arr(s.reconstructedHeist?.allCards),...arr(s.cluesCollected)].find(x=>same(x.id,id));return readable(c?.item??c?.title??c?.label,'an item not named in the request');}
+function caseName(s,id){const p=[...arr(s.caseSuspects),...arr(s.suspects),...arr(s.suspectList)].find(x=>same(x.id,id));return readable(p?.publicProfile?.displayName??p?.publicProfile?.name??p?.name,__dialogueText("systems/InvestigationAudit.js", "t_d19064653f3ca971114c"));}
+function sceneName(v){return ({tower:__dialogueText("systems/InvestigationAudit.js", "t_4466fbb570179bdf6f12"),louvre:__dialogueText("systems/InvestigationAudit.js", "t_31aad697ea127f6c9852"),auction_house:__dialogueText("systems/InvestigationAudit.js", "t_b35e54c661e8054be3a5"),action_house:__dialogueText("systems/InvestigationAudit.js", "t_b35e54c661e8054be3a5"),castle:__dialogueText("systems/InvestigationAudit.js", "t_fa409d3a46a0c463a428"),havela:__dialogueText("systems/InvestigationAudit.js", "t_936a9c1028d79af2a47e"),dockyard:__dialogueText("systems/InvestigationAudit.js", "t_ccf5689c96c2194c2ba6"),FingerprintScene:__dialogueText("systems/InvestigationAudit.js", "t_a8fd2b4e2906c47dbba6"),ShoeprintScene:__dialogueText("systems/InvestigationAudit.js", "t_38a4e6a9e0d0f7129d66"),BloodTypeScene:__dialogueText("systems/InvestigationAudit.js", "t_3a150f611487e5433a95"),HandednessScene:__dialogueText("systems/InvestigationAudit.js", "t_e8d2c426848b24ff496f")})[v]||__dialogueText("systems/InvestigationAudit.js", "t_ac21b399843b98364cbb");}
+function itemName(s,id){const c=[...arr(s.reconstructedHeist?.allCards),...arr(s.cluesCollected)].find(x=>same(x.id,id));return readable(c?.item??c?.title??c?.label,__dialogueText("systems/InvestigationAudit.js", "t_dd69e584a6567d0442bc"));}
 function subjectSnapshot(s,v){return {suspectId:v.suspectId,suspectName:caseName(s,v.suspectId),
- witnesses:arr(v.witnesses).map(w=>({npcId:w.npcId,role:readable(w.role,'the witness'),statement:text(w.statement),isLiar:w.isLiar===true})),
- cards:arr(v.boardCards).map(c=>({id:c.id,role:readable(c.role,'the witness account'),label:text(c.label),minute:Number.isInteger(c.minute)?c.minute:null})),
+ witnesses:arr(v.witnesses).map(w=>({npcId:w.npcId,role:readable(w.role,__dialogueText("systems/InvestigationAudit.js", "t_27b4dd42fffed27eb8c3")),statement:text(w.statement),isLiar:w.isLiar===true})),
+ cards:arr(v.boardCards).map(c=>({id:c.id,role:readable(c.role,__dialogueText("systems/InvestigationAudit.js", "t_94b98e56b19302af2b51")),label:text(c.label),minute:Number.isInteger(c.minute)?c.minute:null})),
  trueTimeline:arr(v.trueTimeline).map(c=>c.id),alibiType:v.alibiType};}
 function collect(s,j){
  const pending=[];
@@ -91,7 +92,7 @@ function collect(s,j){
   if(!e||!same(e.caseId,j.caseId)||(e.campaignId!=null&&e.campaignId!==j.campaignId)||e.id==null)continue;
   if(e.method!=='cut_corners'&&!(Number(e.moralDelta)<0))continue;
   const receipt=Object.values(s.forensicHintReceipts||{}).find(r=>r?.historyEntryId===e.id),key=String(e.id);
-  const payload={method:e.method??e.type??'recorded breach',sceneId:e.sceneId??null,itemId:e.itemId??null,
+  const payload={method:e.method??e.type??__dialogueText("systems/InvestigationAudit.js", "t_6eae1c313719ceb0c859"),sceneId:e.sceneId??null,itemId:e.itemId??null,
    location:readable(e.locationName,sceneName(e.sceneId)),item:itemName(s,e.itemId),issue:text(e.proceduralIssue),assistanceText:text(receipt?.text),moralDelta:Number(e.moralDelta)||0};
   const existing=j.events.find(x=>x.kind==='procedure'&&x.sourceKey===key);
   if(existing){if(receipt&&!existing.payload.assistanceText)existing.payload.assistanceText=payload.assistanceText;continue;}
@@ -126,7 +127,7 @@ export function recordHeistAttempt(s,{cityId=null,sceneId=null,orderedCards=[],f
  captureInvestigationAudit(s);const j=journal(s);if(!j)return false;
  const attempt=j.events.filter(e=>e.kind==='heist'&&e.payload.sceneId===sceneId&&e.payload.cityId===cityId).length+1;
  const slots=orderedCards.map((card,index)=>{const claim=claims[index],use=arr(card.reconstructionUses).find(u=>u.questionId===claim?.questionId);
-  return {index,cardId:card.id??null,card:readable(card.item,'the selected evidence card'),question:readable(claim?.prompt,['How did they get in?','How did they do it?','How did they get away?'][index]),questionId:claim?.questionId??null,
+  return {index,cardId:card.id??null,card:readable(card.item,__dialogueText("systems/InvestigationAudit.js", "t_dc15ed84c0d59f2479db")),question:readable(claim?.prompt,[__dialogueText("systems/InvestigationAudit.js", "t_5c0914d61180407ab3c2"),__dialogueText("systems/InvestigationAudit.js", "t_722a503ab96d339ac3b1"),__dialogueText("systems/InvestigationAudit.js", "t_3eb9219b80a979ee72f5")][index]),questionId:claim?.questionId??null,
    answer:text(use?.slotSentence??use?.answer??card.slotSentence??card.answer??card.item),explanation:text(use?.heistExplanation??card.heistExplanation),feedback:feedback[index]};});
  return append(j,'heist',null,{cityId,sceneId,attempt,slots});
 }
@@ -174,24 +175,24 @@ export function buildInvestigationChallenges(s,{motiveAnswerId=null,motiveLabels
   }
   findings.set(key,{id:`challenge-${findings.size+1}`,caseId:scope.caseId,campaignId:scope.campaignId,sourceEventIds:[event.id],occurrences:1,...details});
  };
- const motiveLabel=id=>readable(motiveLabels[id],readable(text(id).replace(/_/g,' '),'the selected motive'));
- const answer=(field,v)=>field==='means'?uniq(v.skillIds).join(', '):field==='identity'?caseName(s,v.answerId):field==='motive'?motiveLabel(v.answerId):OPPORTUNITY[v.answerId]||'the selected opportunity';
+ const motiveLabel=id=>readable(motiveLabels[id],readable(text(id).replace(/_/g,' '),__dialogueText("systems/InvestigationAudit.js", "t_d784e554c660daf1619f")));
+ const answer=(field,v)=>field==='means'?uniq(v.skillIds).join(', '):field==='identity'?caseName(s,v.answerId):field==='motive'?motiveLabel(v.answerId):OPPORTUNITY[v.answerId]||__dialogueText("systems/InvestigationAudit.js", "t_1b5e22409f378008835e");
  const correct=(field,v)=>field==='identity'?(actualId(s)==null?null:same(v.answerId,actualId(s))):field==='motive'?(motiveAnswerId==null?null:v.answerId===motiveAnswerId):field==='means'?(skills.length?stable(uniq(v.skillIds))===stable(skills):null):null;
  for(const event of events){const p=obj(event.payload);
   if(event.kind==='procedure'){
-   const description=p.method==='cut_corners'?'a shortcut taken without the recorded checklist':'a recorded procedural breach';
-   add(`procedure:${event.sourceKey}`,event,{category:'procedure',claim:`${description} during ${p.location}, concerning ${p.item}`,
-    counter:p.assistanceText?`The assistance receipt says: “${p.assistanceText}”.`:'The log records a procedural breach, not proof of contamination or a false laboratory result.',
-    resolution:'breach',severity:3,reply:`I acknowledge ${description}. The omitted procedure cannot be claimed as completed; independently verified findings must be assessed separately.`});
+   const description=p.method==='cut_corners'?__dialogueText("systems/InvestigationAudit.js", "t_7e02af974774b041b9af"):__dialogueText("systems/InvestigationAudit.js", "t_b66d66166e88c5a6c1d2");
+   add(`procedure:${event.sourceKey}`,event,{category:'procedure',claim:`${description}${__dialogueText("systems/InvestigationAudit.js", "t_8072854c26bcc2f0f8a0")}${p.location}${__dialogueText("systems/InvestigationAudit.js", "t_4fcd8fb1302cd1f7263e")}${p.item}`,
+    counter:p.assistanceText?`${__dialogueText("systems/InvestigationAudit.js", "t_cc800d3a0db3ab7d5cec")}${p.assistanceText}${__dialogueText("systems/InvestigationAudit.js", "t_73a14fb1a3f05bf1fb8f")}`:__dialogueText("systems/InvestigationAudit.js", "t_98a82ff39863dad16490"),
+    resolution:'breach',severity:3,reply:`${__dialogueText("systems/InvestigationAudit.js", "t_d759215b14c939fa4f78")}${description}${__dialogueText("systems/InvestigationAudit.js", "t_a04d882a015cecd1fb33")}`});
   }
   if(event.kind==='heist')for(const slot of arr(p.slots)){
    if(slot.feedback==='green')continue;
    const later=events.filter(e=>e.kind==='heist'&&sourceAfter(e,event)&&e.payload.sceneId===p.sceneId&&e.payload.cityId===p.cityId)
     .flatMap(e=>arr(e.payload.slots)).find(v=>v.index===slot.index&&v.feedback==='green'&&(!slot.questionId||v.questionId===slot.questionId));
    add(`heist:${p.sceneId}:${p.cityId}:${slot.index}:${slot.questionId}:${slot.cardId}:${slot.feedback}`,event,{category:'heist',
-    claim:`in reconstruction attempt ${p.attempt}, you put “${slot.card}” under “${slot.question}”`,
-    counter:later?`The later confirmed placement is “${later.card}”. ${later.explanation||''}`:slot.feedback==='yellow'?'The recorded check found a relevant clue assigned to the wrong question.':'The recorded check rejected this clue for that question.',
-    resolution:later?'corrected':'unresolved',severity:later?2:6,reply:later?`That placement was wrong. The confirmed placement is “${later.card}”. ${later.explanation||''}`:`That placement was not confirmed. I cannot present “${slot.card}” as an established answer to “${slot.question}”.`});
+    claim:`${__dialogueText("systems/InvestigationAudit.js", "t_c2771410defa65d93198")}${p.attempt}${__dialogueText("systems/InvestigationAudit.js", "t_7c939e2848dd47274a7d")}${slot.card}${__dialogueText("systems/InvestigationAudit.js", "t_e68be884fa0fe72c2c67")}${slot.question}${__dialogueText("systems/InvestigationAudit.js", "t_4b6b1bf3818d4e6c9c43")}`,
+    counter:later?`${__dialogueText("systems/InvestigationAudit.js", "t_662a3e5af28b25204b27")}${later.card}${__dialogueText("systems/InvestigationAudit.js", "t_f4a026e4e7ea5c6fbe04")}${later.explanation||''}`:slot.feedback==='yellow'?__dialogueText("systems/InvestigationAudit.js", "t_4990befdd224e601538d"):__dialogueText("systems/InvestigationAudit.js", "t_728df91619396a4b2ccb"),
+    resolution:later?'corrected':'unresolved',severity:later?2:6,reply:later?`${__dialogueText("systems/InvestigationAudit.js", "t_654b422c3f6a8bacbe50")}${later.card}${__dialogueText("systems/InvestigationAudit.js", "t_f4a026e4e7ea5c6fbe04")}${later.explanation||''}`:`${__dialogueText("systems/InvestigationAudit.js", "t_00b7fd12e9ac148e78be")}${slot.card}${__dialogueText("systems/InvestigationAudit.js", "t_fd9d5427c6fcc1bccd27")}${slot.question}${__dialogueText("systems/InvestigationAudit.js", "t_73a14fb1a3f05bf1fb8f")}`});
   }
   if(event.kind==='theory')for(const [field,v]of Object.entries(p.sections||{})){
    if(!FIELD_NAMES[field]||!(field==='means'?arr(v.skillIds).length:v.answerId))continue;
@@ -199,39 +200,39 @@ export function buildInvestigationChallenges(s,{motiveAnswerId=null,motiveLabels
    const keyValue=field==='means'?uniq(v.skillIds).join('|'):v.answerId;
    if(wrong&&(field!=='means'||extraSkill)){
     const repaired=final&&correct(field,final)===true;
-    const counter=field==='means'?`The reconstruction records ${skills.join(', ')}.`:field==='motive'?`The motive findings support ${motiveLabel(motiveAnswerId)}.`:'The earlier identification must be tested against the case findings, not assumed from a selection.';
-    add(`theory:${field}:${keyValue}`,event,{category:'case_theory',claim:`your saved ${FIELD_NAMES[field]} conclusion was “${answer(field,v)}”`,counter,
+    const counter=field==='means'?`${__dialogueText("systems/InvestigationAudit.js", "t_8ccceeb477d21a967679")}${skills.join(', ')}${__dialogueText("systems/InvestigationAudit.js", "t_cdb4ee2aea69cc6a8333")}`:field==='motive'?`${__dialogueText("systems/InvestigationAudit.js", "t_8414e9e0a1d361f4fbbe")}${motiveLabel(motiveAnswerId)}${__dialogueText("systems/InvestigationAudit.js", "t_cdb4ee2aea69cc6a8333")}`:__dialogueText("systems/InvestigationAudit.js", "t_285daa74787344e5bd4d");
+    add(`theory:${field}:${keyValue}`,event,{category:'case_theory',claim:`${__dialogueText("systems/InvestigationAudit.js", "t_50667ab8cee255054169")}${FIELD_NAMES[field]}${__dialogueText("systems/InvestigationAudit.js", "t_8cdc07da288094d27737")}${answer(field,v)}${__dialogueText("systems/InvestigationAudit.js", "t_4b6b1bf3818d4e6c9c43")}`,counter,
      resolution:repaired?'corrected':'unresolved',severity:repaired?2:6,
-     reply:repaired?`I revised that conclusion to “${answer(field,final)}”. ${counter}`:`I cannot support that conclusion against the findings. ${counter}`});
+     reply:repaired?`${__dialogueText("systems/InvestigationAudit.js", "t_53af74a214575ce840dd")}${answer(field,final)}${__dialogueText("systems/InvestigationAudit.js", "t_f4a026e4e7ea5c6fbe04")}${counter}`:`${__dialogueText("systems/InvestigationAudit.js", "t_65aa6ca823f243669cac")}${counter}`});
    }
    const initial=assessTheoryEvidence(v,field,evidenceRules);
    if(initial.status!=='supported'){
     const current=final?assessTheoryEvidence(final,field,evidenceRules):{status:'missing',labels:[]};
     const repaired=current.status==='supported'&&correct(field,final)!==false;
     const uncertain=!repaired&&current.status==='unverified';
-    const reason=initial.status==='missing'?'no evidence attached':initial.status==='invalid'?'missing, unavailable or self-authored evidence':initial.status==='irrelevant'?'references that do not support that conclusion':'references whose relationship to that exact claim was not verified';
-    add(`support:${field}:${keyValue}`,event,{category:'support',claim:`your saved ${FIELD_NAMES[field]} conclusion “${answer(field,v)}” had ${reason}`,
-     counter:repaired?`The final version has claim-matched sources: ${current.labels.join(', ')}.`:
-      current.status==='irrelevant'?`The attached references are not evidence for this claim: ${current.labels.join(', ')}.`:
-      uncertain?'No exact source-to-claim relationship is recorded. This is an unverified link, not a finding that the claim is false.':'The file still lacks usable, claim-matched corroboration.',
+    const reason=initial.status==='missing'?__dialogueText("systems/InvestigationAudit.js", "t_c76db4327ef6ce7e1fb9"):initial.status==='invalid'?__dialogueText("systems/InvestigationAudit.js", "t_c752e07e2513161290f9"):initial.status==='irrelevant'?__dialogueText("systems/InvestigationAudit.js", "t_48cb0a6af65a8290acd8"):__dialogueText("systems/InvestigationAudit.js", "t_6247229986ae6629f437");
+    add(`support:${field}:${keyValue}`,event,{category:'support',claim:`${__dialogueText("systems/InvestigationAudit.js", "t_50667ab8cee255054169")}${FIELD_NAMES[field]}${__dialogueText("systems/InvestigationAudit.js", "t_8609143cdfc7cb8e0036")}${answer(field,v)}${__dialogueText("systems/InvestigationAudit.js", "t_266395af670265f0019c")}${reason}`,
+     counter:repaired?`${__dialogueText("systems/InvestigationAudit.js", "t_d879b441dfff750ea86f")}${current.labels.join(', ')}${__dialogueText("systems/InvestigationAudit.js", "t_cdb4ee2aea69cc6a8333")}`:
+      current.status==='irrelevant'?`${__dialogueText("systems/InvestigationAudit.js", "t_d7de805d32a356c79e28")}${current.labels.join(', ')}${__dialogueText("systems/InvestigationAudit.js", "t_cdb4ee2aea69cc6a8333")}`:
+      uncertain?__dialogueText("systems/InvestigationAudit.js", "t_772910c460a8ccc27508"):__dialogueText("systems/InvestigationAudit.js", "t_01361306828bdd75f888"),
      resolution:repaired?'documented':'unresolved',evidenceStatus:uncertain?'unverified':current.status,severity:repaired||uncertain?1:4,
-     reply:repaired?`The earlier references were incomplete. The later claim-matched sources are ${current.labels.join(', ')}.`:
-      uncertain?'I cannot present an unverified source-to-claim link as proof. The source and the exact inference require separate assessment.':'I cannot use an unrelated card, a missing reference or my own interpretation as independent corroboration.'});
+     reply:repaired?`${__dialogueText("systems/InvestigationAudit.js", "t_de5aaa3320376a392ceb")}${current.labels.join(__dialogueText("systems/InvestigationAudit.js", "t_0a07f659461970d8d8dc"))}${__dialogueText("systems/InvestigationAudit.js", "t_cdb4ee2aea69cc6a8333")}`:
+      uncertain?__dialogueText("systems/InvestigationAudit.js", "t_024119d57368806c5a36"):__dialogueText("systems/InvestigationAudit.js", "t_3185c273d5db564bd17d")});
    }
   }
   if(event.kind==='motive_check'&&p.status==='contradicted'&&p.selection?.guessId){
    const guess=p.selection.guessId,final=finalTheory?.sections?.motive,repaired=final&&correct('motive',final)===true;
-   add(`theory:motive:${guess}`,event,{category:'case_theory',claim:`your checked motive hypothesis was “${motiveLabel(guess)}”`,counter:text(p.message)||'The recorded check rejected that motive hypothesis.',
-    resolution:repaired?'corrected':'unresolved',severity:repaired?2:6,reply:repaired?`That hypothesis failed the check. The revised conclusion is “${answer('motive',final)}”.`:'That check contradicted my motive hypothesis. It cannot be cited as confirmation.'});
+   add(`theory:motive:${guess}`,event,{category:'case_theory',claim:`${__dialogueText("systems/InvestigationAudit.js", "t_4f6b8beaea9bd125c82e")}${motiveLabel(guess)}${__dialogueText("systems/InvestigationAudit.js", "t_4b6b1bf3818d4e6c9c43")}`,counter:text(p.message)||__dialogueText("systems/InvestigationAudit.js", "t_d454d8c12f6f74b500df"),
+    resolution:repaired?'corrected':'unresolved',severity:repaired?2:6,reply:repaired?`${__dialogueText("systems/InvestigationAudit.js", "t_7cf703edd568174062ce")}${answer(__dialogueText("systems/InvestigationAudit.js", "t_e17abe0e23f5e2330ad6"),final)}${__dialogueText("systems/InvestigationAudit.js", "t_73a14fb1a3f05bf1fb8f")}`:__dialogueText("systems/InvestigationAudit.js", "t_060e00ec0659de4ef259")});
   }
   if(event.kind==='alibi_check'||event.kind==='alibi_filed'){
    const filed=event.kind==='alibi_filed',choice=filed?p.choice:p.selection?.choice,timeline=arr(p.timelineIds);
    const bad=filed?p.evaluation?.conclusionCorrect===false:choice!=null&&p.status==='contradicted';
-   const label=id=>{const w=arr(p.witnesses).find(x=>x.npcId===id);return w?`${w.role} was lying`:'nobody was lying';};
+   const label=id=>{const w=arr(p.witnesses).find(x=>x.npcId===id);return w?`${w.role}${__dialogueText("systems/InvestigationAudit.js", "t_94e38d9effa9ef48156b")}`:__dialogueText("systems/InvestigationAudit.js", "t_030d647aaf563159f2ba");};
    if(bad){const later=correctedAlibi(events,event,'conclusionCorrect');
-    add(`alibi:${p.caseKey}:${p.suspectId}:choice:${choice}`,event,{category:'alibi',claim:`for ${p.suspectName}, your conclusion was that ${label(choice)}`,
-     counter:arr(p.witnesses).map(w=>`${w.role}: “${w.statement}”`).join('\n\n')||'The recorded check did not support that conclusion.',
-     resolution:later?'corrected':'unresolved',severity:later?2:7,reply:later?`I corrected that conclusion after comparing the accounts. The filed assessment is that ${label(later.payload.choice)}.`:'That assessment is not supported by these accounts. A disputed account is not by itself proof of theft.'});
+    add(`alibi:${p.caseKey}:${p.suspectId}:choice:${choice}`,event,{category:'alibi',claim:`${__dialogueText("systems/InvestigationAudit.js", "t_21f4c696f93fb96f5f71")}${p.suspectName}${__dialogueText("systems/InvestigationAudit.js", "t_1a077c28e2101d1947cd")}${label(choice)}`,
+     counter:arr(p.witnesses).map(w=>`${w.role}: “${w.statement}”`).join('\n\n')||__dialogueText("systems/InvestigationAudit.js", "t_e654d2852b7e28afe866"),
+     resolution:later?'corrected':'unresolved',severity:later?2:7,reply:later?`${__dialogueText("systems/InvestigationAudit.js", "t_a4be5370c55c3f43c7cd")}${label(later.payload.choice)}${__dialogueText("systems/InvestigationAudit.js", "t_cdb4ee2aea69cc6a8333")}`:__dialogueText("systems/InvestigationAudit.js", "t_e1f1c57a8904ba67eb11")});
    }
    const indices=filed&&p.evaluation?.timelineCorrect===false?[0,1,2].filter(i=>p.trueTimeline?.[i]!==timeline[i]):!filed&&p.target?.[2]==='timeline'&&p.status==='contradicted'?[p.selection?.index]:[];
    for(const index of indices){
@@ -239,17 +240,17 @@ export function buildInvestigationChallenges(s,{motiveAnswerId=null,motiveLabels
     const selected=filed?timeline[index]:p.selection.cardId,card=arr(p.cards).find(c=>c.id===selected),sorted=[...arr(p.cards)].filter(c=>Number.isInteger(c.minute)).sort((a,b)=>a.minute-b.minute),expected=sorted[index];
     if(!card||!Number.isInteger(card.minute)||!expected||card.minute===expected.minute)continue;
     const clock=n=>`${String(Math.floor(n/60)).padStart(2,'0')}:${String(n%60).padStart(2,'0')}`,later=correctedAlibi(events,event,'timelineCorrect');
-    add(`alibi:${p.caseKey}:${p.suspectId}:slot:${index}:${selected}`,event,{category:'alibi',claim:`for ${p.suspectName}, timeline position ${index+1} contained ${card.role} at ${clock(card.minute)}`,
-     counter:`Chronological position ${index+1} belongs to ${expected.role} at ${clock(expected.minute)}. Ordering accounts does not establish that an account is true.`,
-     resolution:later?'corrected':'unresolved',severity:later?2:5,reply:`The chronology was wrong: ${expected.role} at ${clock(expected.minute)} belongs in that position. That correction does not by itself validate the alibi.`});
+    add(`alibi:${p.caseKey}:${p.suspectId}:slot:${index}:${selected}`,event,{category:'alibi',claim:`${__dialogueText("systems/InvestigationAudit.js", "t_21f4c696f93fb96f5f71")}${p.suspectName}${__dialogueText("systems/InvestigationAudit.js", "t_5510f69776fdef5e6a13")}${index+1}${__dialogueText("systems/InvestigationAudit.js", "t_9a336391bcfa47a81de4")}${card.role}${__dialogueText("systems/InvestigationAudit.js", "t_086a519fdeedb29a622b")}${clock(card.minute)}`,
+     counter:`${__dialogueText("systems/InvestigationAudit.js", "t_e709366cc71ff35cbf83")}${index+1}${__dialogueText("systems/InvestigationAudit.js", "t_c79a29181111aeeef922")}${expected.role}${__dialogueText("systems/InvestigationAudit.js", "t_086a519fdeedb29a622b")}${clock(expected.minute)}${__dialogueText("systems/InvestigationAudit.js", "t_2dffa185c2d2de739a33")}`,
+     resolution:later?'corrected':'unresolved',severity:later?2:5,reply:`${__dialogueText("systems/InvestigationAudit.js", "t_83739e53701093a05eec")}${expected.role}${__dialogueText("systems/InvestigationAudit.js", "t_086a519fdeedb29a622b")}${clock(expected.minute)}${__dialogueText("systems/InvestigationAudit.js", "t_b309334dceee9bfad86f")}`});
    }
   }
  }
  for(const field of Object.keys(FIELD_NAMES)){
   const v=finalTheory?.sections[field],missing=field==='means'?!arr(v?.skillIds).length:!v?.answerId;
   const partial=field==='means'&&arr(v?.skillIds).length&&skills.length&&stable(uniq(v.skillIds))!==stable(skills)&&!uniq(v.skillIds).some(id=>!skills.includes(id));
-  if(missing||partial)add(`trial-missing:${field}`,{id:'trial-file'},{category:'case_theory',claim:`the court file has ${missing?'no selected':'an incomplete'} ${FIELD_NAMES[field]} conclusion`,
-   counter:'A warrant does not supply a missing conclusion or its evidential basis.',resolution:'unresolved',severity:4,reply:`The ${FIELD_NAMES[field]} section is incomplete. The arrest does not fill that gap.`});
+  if(missing||partial)add(`trial-missing:${field}`,{id:'trial-file'},{category:'case_theory',claim:`${__dialogueText("systems/InvestigationAudit.js", "t_931ae616c6f0694ebecb")}${missing?__dialogueText("systems/InvestigationAudit.js", "t_cf77981a94e678a2bbce"):__dialogueText("systems/InvestigationAudit.js", "t_e413c4794d352addeb06")}${__dialogueText("systems/InvestigationAudit.js", "t_36a9e7f1c95b82ffb997")}${FIELD_NAMES[field]}${__dialogueText("systems/InvestigationAudit.js", "t_36733bb4d69a439a0c31")}`,
+   counter:__dialogueText("systems/InvestigationAudit.js", "t_db8e422c9712af0b805a"),resolution:'unresolved',severity:4,reply:`${__dialogueText("systems/InvestigationAudit.js", "t_103c5169871d49be7a2e")}${FIELD_NAMES[field]}${__dialogueText("systems/InvestigationAudit.js", "t_637c30d1373dc05b6fa1")}`});
  }
  return [...findings.values()];
 }
@@ -258,14 +259,14 @@ function legacyQuestions(challenges){
  return challenges.map(c=>{
   const corrected=['corrected','documented'].includes(c.resolution),best=corrected?c.severity:c.resolution==='breach'?1:0;
   const answers=[
-   {text:c.reply,delta:best,feedback:corrected?'The correction is explained. The earlier error remains in the record; this answer prevents an additional confidence loss.':'Acknowledging the problem is appropriate, but it does not manufacture missing corroboration or undo the breach.'},
-   {text:`I maintain that ${c.claim}. The recorded objection does not require a correction.`,delta:-8,feedback:'You have repeated the challenged claim without answering the specific discrepancy.'},
-   {text:'The arrest warrant should take priority over this conflicting entry.',delta:-10,feedback:'The warrant does not reconcile conflicting findings or replace evidence.'},
-   {text:'That earlier entry should be disregarded because I later completed the investigation.',delta:-9,feedback:'Completion does not erase the specific entry challenged by the defendant.'}
+   {text:c.reply,delta:best,feedback:corrected?__dialogueText("systems/InvestigationAudit.js", "t_4e24cc5946e0d8bde3d9"):__dialogueText("systems/InvestigationAudit.js", "t_c104618b9d4fa996ebe8")},
+   {text:`${__dialogueText("systems/InvestigationAudit.js", "t_78c8497463748dedad7a")}${c.claim}${__dialogueText("systems/InvestigationAudit.js", "t_8d9b41fbb5199005ada3")}`,delta:-8,feedback:__dialogueText("systems/InvestigationAudit.js", "t_cdfa1dcd27ea5d2a124e")},
+   {text:__dialogueText("systems/InvestigationAudit.js", "t_068fdf5529ad54249c9d"),delta:-10,feedback:__dialogueText("systems/InvestigationAudit.js", "t_903e6ead8f83727559e1")},
+   {text:__dialogueText("systems/InvestigationAudit.js", "t_3f01d02d4b5da6c9ddb2"),delta:-9,feedback:__dialogueText("systems/InvestigationAudit.js", "t_ea8b406cefd3bdd43f6e")}
   ];
   shuffle(answers,c.id);
-  return {id:`defendant_${c.id}`,side:'defense',speaker:'defendant',challengeId:c.id,
-   text:`Prosecutor: Please address this point from the investigation record.\nDefendant: ${c.claim.charAt(0).toUpperCase()+c.claim.slice(1)}.${c.occurrences>1?` It appears in ${c.occurrences} recorded entries.`:''}\n${c.counter}`,
+  return {id:`defendant_${c.id}`,side:'defense',speaker:__dialogueText("systems/InvestigationAudit.js", "t_94cbd591bdfbeb1170ae"),challengeId:c.id,
+   text:`${__dialogueText("systems/InvestigationAudit.js", "t_ba33923a59a0cee597c3")}${c.claim.charAt(0).toUpperCase()+c.claim.slice(1)}${__dialogueText("systems/InvestigationAudit.js", "t_cdb4ee2aea69cc6a8333")}${c.occurrences>1?`${__dialogueText("systems/InvestigationAudit.js", "t_44fb4e043ed40e0367d2")}${c.occurrences}${__dialogueText("systems/InvestigationAudit.js", "t_cece737b4c254037edb5")}`:''}${__dialogueText("systems/InvestigationAudit.js", "t_01ba4719c80b6fe911b0")}${c.counter}`,
    answers,baseDelta:-c.severity,identityExposed:false};
  });
 }
@@ -276,13 +277,13 @@ export function investigationQuestions(challenges,version=1){
   const repaired=['corrected','documented'].includes(c.resolution),unverified=c.category==='support'&&c.evidenceStatus==='unverified';
   const best=repaired||unverified?c.severity:c.resolution==='breach'?1:0;
   const answers=shuffle([
-   {text:c.reply,delta:best,feedback:repaired?'The correction is explained. The original error remains in the record.':unverified?'You correctly limit the inference. An unverified link has not been promoted to proof, nor treated as a proven falsehood.':'Acknowledging the discrepancy does not supply the missing evidence or undo the breach.'},
-   {text:`I maintain that ${c.claim}; no further explanation is needed.`,delta:-8,feedback:'Repeating the challenged claim does not answer the discrepancy.'},
-   {text:'The warrant overrides this objection to the investigation record.',delta:-10,feedback:'A warrant cannot reconcile conflicting findings.'},
-   {text:'The earlier entry no longer matters because the investigation is complete.',delta:-9,feedback:'Completion does not erase an earlier recorded mistake.'}
+   {text:c.reply,delta:best,feedback:repaired?__dialogueText("systems/InvestigationAudit.js", "t_f23bed6b2fcca2ce08ae"):unverified?__dialogueText("systems/InvestigationAudit.js", "t_82679d3b83c4bd627c79"):__dialogueText("systems/InvestigationAudit.js", "t_1b6c5bc2a50a97afe89c")},
+   {text:`${__dialogueText("systems/InvestigationAudit.js", "t_78c8497463748dedad7a")}${c.claim}${__dialogueText("systems/InvestigationAudit.js", "t_f122def372ba88715c93")}`,delta:-8,feedback:__dialogueText("systems/InvestigationAudit.js", "t_6728b0ec54d4d5a731ac")},
+   {text:__dialogueText("systems/InvestigationAudit.js", "t_cf3c342787d76c80f654"),delta:-10,feedback:__dialogueText("systems/InvestigationAudit.js", "t_bae9fac520579011e0da")},
+   {text:__dialogueText("systems/InvestigationAudit.js", "t_07b1ef9c6b8c5980057e"),delta:-9,feedback:__dialogueText("systems/InvestigationAudit.js", "t_19ad6ed54678e36ebd82")}
   ],c.id);
-  return {id:`defendant_${c.id}`,side:'defense',speaker:'defendant',challengeId:c.id,
-   text:`Prosecutor: Explain this entry.\nDefendant: ${c.claim.charAt(0).toUpperCase()+c.claim.slice(1)}.${c.occurrences>1?` This appears in ${c.occurrences} records; it is one objection.`:''}\n\n${c.counter}`,
+  return {id:`defendant_${c.id}`,side:'defense',speaker:__dialogueText("systems/InvestigationAudit.js", "t_94cbd591bdfbeb1170ae"),challengeId:c.id,
+   text:`${__dialogueText("systems/InvestigationAudit.js", "t_bf42af3f3b84dfb50024")}${c.claim.charAt(0).toUpperCase()+c.claim.slice(1)}${__dialogueText("systems/InvestigationAudit.js", "t_cdb4ee2aea69cc6a8333")}${c.occurrences>1?`${__dialogueText("systems/InvestigationAudit.js", "t_588284413976f3e69222")}${c.occurrences}${__dialogueText("systems/InvestigationAudit.js", "t_cdf75ab917095eb9a655")}`:''}${__dialogueText("systems/InvestigationAudit.js", "t_75a11da44c802486bc6f")}${c.counter}`,
    answers,baseDelta:-c.severity,identityExposed:false};
  });
 }

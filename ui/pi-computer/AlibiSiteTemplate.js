@@ -1,15 +1,16 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 const SITES = Object.freeze({
   copper: {
-    brand: 'THE COPPER SPOON',
-    tagline: 'Sensible food. Unreasonable tablecloths.',
-    footer: 'Please do not review the cooker. It is sensitive.',
+    brand: __dialogueText("ui/pi-computer/AlibiSiteTemplate.js", "t_b4783cdbda4aa272dec8"),
+    tagline: __dialogueText("ui/pi-computer/AlibiSiteTemplate.js", "t_c0601e8367164641156e"),
+    footer: __dialogueText("ui/pi-computer/AlibiSiteTemplate.js", "t_e2e8c75ecef16f57a7a1"),
     background: 0xe7d5b5,
     paper: 0xfff7e7,
     header: 0x693727,
     trim: 0xb77743,
     navigation: 0xf3e4cc,
     photo: 0xd7c2a0,
-    title: '#693727',
+    title: __dialogueText("ui/pi-computer/AlibiSiteTemplate.js", "t_e84927ae2b5acd4cc41a"),
     ink: '#362c25',
     muted: '#74604e',
     headerText: '#fff0cf',
@@ -18,24 +19,24 @@ const SITES = Object.freeze({
     clue: '#852c52',
     known: '#35633f',
     links: [
-      { label: 'Welcome', pageId: 'copper_home' },
-      { label: 'Menu', pageId: 'copper_menu' },
-      { label: 'Service notice', pageId: 'copper_notice' },
-      { label: 'Contact', pageId: 'copper_contact' }
+      { label: __dialogueText("ui/pi-computer/AlibiSiteTemplate.js", "t_0e2226b5235f0ff94a27"), pageId: 'copper_home' },
+      { label: __dialogueText("ui/pi-computer/AlibiSiteTemplate.js", "t_99af6606ff9d6cd5154d"), pageId: 'copper_menu' },
+      { label: __dialogueText("ui/pi-computer/AlibiSiteTemplate.js", "t_1a8c5ee7fcda5ea75fbd"), pageId: 'copper_notice' },
+      { label: __dialogueText("ui/pi-computer/AlibiSiteTemplate.js", "t_2b5c3d26721ae9c350cf"), pageId: 'copper_contact' }
     ]
   },
 
   club: {
-    brand: 'TUESDAY ALIBI CLUB',
-    tagline: 'Yesterday, improved.',
-    footer: 'A convincing presentation is not a statement of fact.',
+    brand: __dialogueText("ui/pi-computer/AlibiSiteTemplate.js", "t_ff2a51dce7fff690bfa6"),
+    tagline: __dialogueText("ui/pi-computer/AlibiSiteTemplate.js", "t_4c5292751941a8155ca3"),
+    footer: __dialogueText("ui/pi-computer/AlibiSiteTemplate.js", "t_d836449bdcbad49b3563"),
     background: 0x152f29,
     paper: 0xf2ecd9,
     header: 0x183e32,
     trim: 0xb79b59,
     navigation: 0xe6dcc1,
     photo: 0xc9bea1,
-    title: '#234f3d',
+    title: __dialogueText("ui/pi-computer/AlibiSiteTemplate.js", "t_d509ca0a65871f4e3804"),
     ink: '#2c352d',
     muted: '#686653',
     headerText: '#ecd7a0',
@@ -44,9 +45,9 @@ const SITES = Object.freeze({
     clue: '#81355c',
     known: '#35633f',
     links: [
-      { label: 'The club', pageId: 'club_home' },
-      { label: 'Packages', pageId: 'club_packages' },
-      { label: 'Private enquiries', pageId: 'club_contact' }
+      { label: __dialogueText("ui/pi-computer/AlibiSiteTemplate.js", "t_b7141497fc92ac0dbbc2"), pageId: 'club_home' },
+      { label: __dialogueText("ui/pi-computer/AlibiSiteTemplate.js", "t_40a2085371b8effbae52"), pageId: 'club_packages' },
+      { label: __dialogueText("ui/pi-computer/AlibiSiteTemplate.js", "t_a3763557b6c7814e1c18"), pageId: 'club_contact' }
     ]
   }
 });
@@ -175,7 +176,7 @@ function renderPhoto(search, page, box, palette) {
       search,
       imageX + 8,
       imageY + 12,
-      'IMAGE UNAVAILABLE',
+      __dialogueText("ui/pi-computer/AlibiSiteTemplate.js", "t_415383a0c49f598c0dd9"),
       imageW - 16,
       10,
       palette.muted

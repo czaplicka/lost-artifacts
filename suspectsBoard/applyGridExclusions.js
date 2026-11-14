@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // suspectsBoard/applyGridExclusions.js
 
 import { manuallyClearSuspect } from '../ui/suspectUtils.js';
@@ -43,8 +44,8 @@ export function applyGridExclusions({
 
     const result = manuallyClearSuspect(id, {
       source: 'evidence_grid',
-      label: 'Evidence Grid exclusion',
-      note: 'Marked as unlikely on the Evidence Grid.',
+      label: __dialogueText("suspectsBoard/applyGridExclusions.js", "t_5d4bae213174c822c942"),
+      note: __dialogueText("suspectsBoard/applyGridExclusions.js", "t_606930a198d78a990b08"),
       type: 'manual_forensic_review'
     });
 

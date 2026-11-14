@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import {
   PENCIL_COLORS,
   FEATURE_TEXTURES,
@@ -213,7 +214,7 @@ export class WarrantSketch {
     // Długie włosy uzupełniają zwykłe włosy, nie zastępują ich.
     const overrideHair =
       featureAvailable &&
-      feature !== 'LONG HAIR' &&
+      feature !== __dialogueText("ui/warrant/WarrantSketch.js", "t_d4bf972585383546b102") &&
       HAIR_OVERRIDE_FEATURES.includes(feature);
 
     l.hair.setVisible(
@@ -276,7 +277,7 @@ export class WarrantSketch {
 
     // Długie pasma za twarzą; zwykłe włosy zostają z przodu.
     const target =
-      feature === 'LONG HAIR'
+      feature === __dialogueText("ui/warrant/WarrantSketch.js", "t_d4bf972585383546b102")
         ? l.featureBack
         : l.feature;
 

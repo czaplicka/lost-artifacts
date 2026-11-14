@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import {
   loadGameState
 } from '../gameStatePersistence.js';
@@ -16,8 +17,8 @@ import {
 const FONT_LOAD_TIMEOUT_MS = 3000;
 const STARTUP_FONTS = ['PressStart2P', 'SpecialElite'];
 
-const FONT_PIXEL = '"PressStart2P", monospace';
-const FONT_TYPE = '"SpecialElite", monospace';
+const FONT_PIXEL = __dialogueText("scenes/BootScene.js", "t_0336425eb481eb5cd669");
+const FONT_TYPE = __dialogueText("scenes/BootScene.js", "t_edfb958930e8bcd8562c");
 
 // Studio card timing (ms)
 const STUDIO_HOLD_MS = 1000;        // pause after the last element appears
@@ -33,10 +34,10 @@ const GOLD = 0xd4af37;
 const GOLD_DARK = 0x8c6f3d;
 
 const STUDIO_JOKES = [
-  'No herons were harmed in the making of this game.',
-  'Any resemblance to competent detectives is purely coincidental.',
-  'Please do not feed the suspects.',
-  'Now with 100% fewer unsolved crimes. Terms and conditions apply.'
+  __dialogueText("scenes/BootScene.js", "t_5a74433c8cd6e65fd1bf"),
+  __dialogueText("scenes/BootScene.js", "t_1fda969a76f99ba7fa95"),
+  __dialogueText("scenes/BootScene.js", "t_b575ee21237212c2bded"),
+  __dialogueText("scenes/BootScene.js", "t_b2cc9e11c173ae4ec5e7")
 ];
 
 export class BootScene extends BaseScene {
@@ -201,8 +202,8 @@ export class BootScene extends BaseScene {
       this.bootErrorText = this.add.text(
         this.scale.width / 2,
         this.scale.height / 2,
-        `CASE FILE ERROR\n\n${error.message}\n\n` +
-        'Check the manifests and reload.',
+        `${__dialogueText("scenes/BootScene.js", "t_017320f072d1a1955ffd")}${error.message}${__dialogueText("scenes/BootScene.js", "t_75a11da44c802486bc6f")}` +
+        __dialogueText("scenes/BootScene.js", "t_6b07f0a3cd8ab013aa0a"),
         {
           fontFamily: 'monospace',
           fontSize: '20px',
@@ -348,8 +349,8 @@ export class BootScene extends BaseScene {
     const requests = STARTUP_FONTS.map(
       async family => {
         const faces = await document.fonts.load(
-          `400 16px "${family}"`,
-          'Czaplicki Industries presents'
+          `${__dialogueText("scenes/BootScene.js", "t_343ac9247ca714b85b86")}${family}${__dialogueText("scenes/BootScene.js", "t_8a331fdde7032f33a71e")}`,
+          __dialogueText("scenes/BootScene.js", "t_92d69f57c1dcd092a22f")
         );
 
         if (
@@ -410,9 +411,9 @@ export class BootScene extends BaseScene {
       const ctx = tex.getContext();
       const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
 
-      g.addColorStop(0, 'rgba(255, 214, 120, 0.9)');
-      g.addColorStop(0.35, 'rgba(212, 175, 55, 0.35)');
-      g.addColorStop(1, 'rgba(212, 175, 55, 0)');
+      g.addColorStop(0, __dialogueText("scenes/BootScene.js", "t_b097240d4f916bde6763"));
+      g.addColorStop(0.35, __dialogueText("scenes/BootScene.js", "t_87ced990439a5bda151e"));
+      g.addColorStop(1, __dialogueText("scenes/BootScene.js", "t_d8bf155698e18c5c5eed"));
 
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, 256, 256);
@@ -424,9 +425,9 @@ export class BootScene extends BaseScene {
       const ctx = tex.getContext();
       const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
 
-      g.addColorStop(0, 'rgba(0, 0, 0, 0)');
-      g.addColorStop(0.6, 'rgba(0, 0, 0, 0)');
-      g.addColorStop(1, 'rgba(0, 0, 0, 0.85)');
+      g.addColorStop(0, __dialogueText("scenes/BootScene.js", "t_ec68b6486edac3f7ac96"));
+      g.addColorStop(0.6, __dialogueText("scenes/BootScene.js", "t_ec68b6486edac3f7ac96"));
+      g.addColorStop(1, __dialogueText("scenes/BootScene.js", "t_4c3e818dfb2a7f7820bd"));
 
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, 256, 256);
@@ -580,7 +581,7 @@ export class BootScene extends BaseScene {
       );
     }
 
-    const monogram = this.add.text(2, 3, 'C', {
+    const monogram = this.add.text(2, 3, __dialogueText("scenes/BootScene.js", "t_6b23c0d5f35d1b11f9b6"), {
       fontFamily: FONT_PIXEL,
       fontSize: '40px',
       color: '#e6c687'
@@ -606,7 +607,7 @@ export class BootScene extends BaseScene {
       { x: -5, y: 0 }
     ], true);
 
-    const presents = this.add.text(0, 112, 'P R E S E N T S', {
+    const presents = this.add.text(0, 112, __dialogueText("scenes/BootScene.js", "t_513b0d230cf60ed71986"), {
       fontFamily: FONT_TYPE,
       fontSize: '20px',
       color: '#c9aa70'

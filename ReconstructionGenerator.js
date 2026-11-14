@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 const DEFAULT_QUESTION_META = {
   beat_security: {
     phase: 'setup',
@@ -232,20 +233,20 @@ export class ReconstructionGenerator {
           ];
 
           return (
-            `${skill}: ${candidates.length} candidates` +
-            ` [groups: ${groups.join(', ') || 'none'}]`
+            `${skill}${__dialogueText("ReconstructionGenerator.js", "t_45822f54a0d0e030f756")}${candidates.length}${__dialogueText("ReconstructionGenerator.js", "t_c79fe890b00e8f1669db")}` +
+            `${__dialogueText("ReconstructionGenerator.js", "t_dda39513df2a8b1750ff")}${groups.join(', ') || 'none'}${__dialogueText("ReconstructionGenerator.js", "t_cfae0d4248f7142f7b17")}`
           );
         })
         .join('; ');
 
       const reason = completeClaimSetsChecked > 0
-        ? 'Distinct claims were found, but none allowed enough distinct alternatives with one alternative per question.'
-        : 'No valid combination of distinct skills, solution items, and question groups was found.';
+        ? __dialogueText("ReconstructionGenerator.js", "t_982cddf5c8c665839510")
+        : __dialogueText("ReconstructionGenerator.js", "t_75207d487d3c9953a84f");
 
       const message =
-        `ReconstructionGenerator: could not build reconstruction ` +
-        `for scene "${sceneId}", thief "${thiefId || 'unknown'}". ` +
-        `${reason} Candidate counts: ${candidateSummary}.`;
+        `${__dialogueText("ReconstructionGenerator.js", "t_a5e7907a344d6fb9b7bf")}` +
+        `${__dialogueText("ReconstructionGenerator.js", "t_d8bd50d902f763641408")}${sceneId}${__dialogueText("ReconstructionGenerator.js", "t_df199e314658d7e9b5c8")}${thiefId || 'unknown'}${__dialogueText("ReconstructionGenerator.js", "t_010ad9f394208d210b8c")}` +
+        `${reason}${__dialogueText("ReconstructionGenerator.js", "t_6082c9ff048b26dfbb12")}${candidateSummary}${__dialogueText("ReconstructionGenerator.js", "t_cdb4ee2aea69cc6a8333")}`;
 
       const error = new Error(message);
 

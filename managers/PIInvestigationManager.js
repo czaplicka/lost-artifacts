@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { buildReedBoardEvidence } from './ReedBoardEvidence.js';
@@ -62,10 +63,10 @@ export function syncAlibiBoardEvidence() {
     let changed = false;
     if (!state.cases[ALIBI]) {
         state.cases[ALIBI] = {
-            id: ALIBI, kind: 'side', title: 'The Borrowed Alibi',
+            id: ALIBI, kind: 'side', title: __dialogueText("managers/PIInvestigationManager.js", "t_6f6595b37ee8214d1067"),
             status: quest.status === 'completed' ? 'completed' : 'active',
             board: {
-                meta: { boardId: `pi-${ALIBI}`, caseId: ALIBI, title: 'The Borrowed Alibi', version: 1 },
+                meta: { boardId: `pi-${ALIBI}`, caseId: ALIBI, title: __dialogueText("managers/PIInvestigationManager.js", "t_6f6595b37ee8214d1067"), version: 1 },
                 items: [], links: []
             }
         };
@@ -104,9 +105,9 @@ export function registerPICase(definition) {
     if (state.cases[definition.id]) return getPICase(definition.id);
     state.cases[definition.id] = {
         id: definition.id, kind: definition.kind,
-        title: definition.title || 'Untitled investigation', status: 'active',
+        title: definition.title || __dialogueText("managers/PIInvestigationManager.js", "t_fd0147d039db6971e188"), status: 'active',
         board: {
-            meta: { boardId: `pi-${definition.id}`, caseId: definition.id, title: definition.title || 'PI Investigation', version: 1 },
+            meta: { boardId: `pi-${definition.id}`, caseId: definition.id, title: definition.title || __dialogueText("managers/PIInvestigationManager.js", "t_1d4f4d941ac31a03d5b1"), version: 1 },
             items: clone(definition.initialItems || []), links: clone(definition.initialLinks || [])
         }
     };

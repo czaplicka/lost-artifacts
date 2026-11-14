@@ -1,0 +1,42 @@
+import { gameState } from '../GameData.js';
+import { requestAutosave } from '../gameStatePersistence.js';
+import { getPursuitCityContext,normalizePursuitCityId } from '../managers/PursuitCityContext.js';
+import { cityNameGuard,findCityFacts,buildDestinationLines } from './DestinationClueText.js';
+import { motiveTopicMeta,getMotiveWitnessStatement,recordMotiveWitnessStatement } from './MotiveWitnessPolicy.js';
+const toSlug=value=>String(value??'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'')||'unknown';
+const validText=value=>typeof value==='string'&&value.trim().length>0;
+const TRAITS=new Set(['features','accent','hair','eyes','skills','habitus']);
+function hash(value){let result=2166136261;for(const ch of String(value))result=Math.imul(result^ch.charCodeAt(0),16777619);return result>>>0;}
+export class NPCController {
+ constructor(npcData,countryFacts,cityId,suspect,options={}){
+  this.cityId=normalizePursuitCityId(cityId);this.suspect=suspect||{};this.shownLines=new Set();
+  const context=getPursuitCityContext(gameState,this.cityId);
+  this.targetCityId=normalizePursuitCityId(context.targetCityId);if(this.targetCityId===this.cityId)this.targetCityId=null;
+  this.targetCountryData=findCityFacts(countryFacts,this.targetCityId);this.countryData=findCityFacts(countryFacts,this.cityId);
+  this.isCorrectCity=context.isCorrectCity;this.isFutureRouteCity=context.isFutureRouteCity;this.npcId=options.npcId||null;
+  this.guard=cityNameGuard(countryFacts,[...Object.keys(npcData||{}).filter(key=>key!=='default'),this.cityId,this.targetCityId]);
+  const matching=Object.entries(npcData||{}).find(([key])=>normalizePursuitCityId(key)===this.cityId),raw=matching?.[1]||npcData?.default;
+  if(!raw)throw new Error(`No NPC data or default fallback for city: ${cityId}`);this.usingDefault=!matching;
+  const sanitize=data=>({...data,banter:(Array.isArray(data?.banter)?data.banter:[]).filter(line=>validText(line)&&this.guard.safe(line)),repeatLines:(Array.isArray(data?.repeatLines)?data.repeatLines:[]).filter(pair=>Array.isArray(pair)&&pair.every(line=>validText(line)&&this.guard.safe(line))),falseLeadLines:(Array.isArray(data?.falseLeadLines)?data.falseLeadLines:[]).filter(pair=>Array.isArray(pair)&&pair.every(line=>validText(line)&&this.guard.safe(line)))});
+  this.cityData=sanitize(raw);this.defaultData=sanitize(npcData.default||{});
+ }
+ static resolvePath(path,data){return path.split('.').reduce((value,part)=>value?.[part],data);}
+ static canFillTemplate(template,context){return typeof template==='string'&&(template.match(/\{([\w.]+)\}/g)||[]).every(p=>NPCController.resolvePath(p.slice(1,-1),context)!=null);}
+ static fillTemplate(template,context){return template.replace(/\{([\w.]+)\}/g,(match,path)=>NPCController.resolvePath(path,context)??match);}
+ getTopicMeta(topicId){return topicId==='motive'?motiveTopicMeta(this.npcId):null;}
+ _getMotiveWitnessHit(){return getMotiveWitnessStatement(gameState,this.cityId,this.npcId);}
+ _destinationLines(topicId,templates=[]){if(!this.targetCityId||!this.targetCountryData)return [];const pool=templates.length?templates:(Array.isArray(this.cityData.topics?.[topicId])?this.cityData.topics[topicId]:[]);return buildDestinationLines({topicId,facts:this.targetCountryData,templates:pool,guard:this.guard});}
+ getAvailableTopics(){if(!this.isCorrectCity)return [];const topics=Object.keys(this.cityData.topics||{}).filter(id=>{if(id==='motive')return Boolean(this._getMotiveWitnessHit());if(id==='travel')return this._destinationLines('travel').length>0;if(TRAITS.has(id))return true;return this._destinationLines(id,Array.isArray(this.cityData.topics[id])?this.cityData.topics[id]:[]).length>0;});if(this._destinationLines('travel').length&&!topics.includes('travel'))topics.push('travel');if(this._getMotiveWitnessHit()&&!topics.includes('motive'))topics.push('motive');return topics;}
+ askTopic(topicId){if(!this.isCorrectCity)return this.getFalseLeadLine();if(topicId==='travel')return this._askTravelTopic();if(topicId==='motive')return this._askMotiveTopic();const pool=this.cityData.topics?.[topicId];if(!pool)throw new Error(`Unknown topic "${topicId}" for this NPC`);return TRAITS.has(topicId)?this._askTraitTopic(topicId,pool):this._askTemplateTopic(topicId,Array.isArray(pool)?pool:[]);}
+ _askTraitTopic(topicId,pool){const traitValue=this.suspect[topicId],raw=pool?.[traitValue];const lines=(Array.isArray(raw)?raw:typeof raw==='string'?[raw]:[]).filter(line=>validText(line)&&this.guard.safe(line));const fallback={features:'A distinctive feature',accent:'Their accent',hair:'Their hair',eyes:'Their eyes',skills:'Observed skills',habitus:'Observed habits'}[topicId];const text=lines[0]||(validText(traitValue)&&this.guard.safe(traitValue)?`${fallback}: ${traitValue}.`:null);if(!text)return {text:`Nothing memorable about their ${topicId}.`,isNew:false,topicId};const key=`trait:${topicId}:${traitValue}`,isNew=!this.shownLines.has(key);this.shownLines.add(key);return {text,isNew,topicId,traitValue};}
+ _chooseDestinationLine(topicId,lines){const safe=[...new Set(lines)].filter(line=>validText(line)&&this.guard.safe(line));if(!this.targetCityId||!safe.length)return {text:'I have no reliable onward-travel detail on that subject. Try another witness.',isNew:false,topicId,cityId:null};const unseen=safe.filter(line=>!this.shownLines.has(`destination:${topicId}:${this.targetCityId}:${line}`));const pool=unseen.length?unseen:safe,offset=hash(`${this.cityId}:${this.targetCityId}:${this.npcId||'witness'}:${topicId}`);const text=pool[offset%pool.length],key=`destination:${topicId}:${this.targetCityId}:${text}`,isNew=!this.shownLines.has(key);this.shownLines.add(key);const result={text,isNew,topicId,cityId:this.targetCityId,sourceCityId:this.cityId,destinationClue:true};const note=this.toNote(result);if(note&&typeof gameState.addClue==='function')gameState.addClue(note);return result;}
+ _askTemplateTopic(topicId,templates){return this._chooseDestinationLine(topicId,this._destinationLines(topicId,templates));}
+ _readTravelHints(){return this._destinationLines('travel');}
+ _buildTravelFallbacks(){return this._destinationLines('travel');}
+ _askTravelTopic(){return this._chooseDestinationLine('travel',this._destinationLines('travel'));}
+ _askMotiveTopic(){const hit=recordMotiveWitnessStatement(gameState,this.cityId,this.npcId,value=>this.guard.clean(value));if(!hit)return {text:'I can only tell you what I personally noticed here. I have no further statement on that subject.',isNew:false,topicId:'motive'};if(!hit.cached)requestAutosave();return {text:hit.text,isNew:!hit.cached,topicId:'motive',evidenceId:hit.stage.evidenceId,label:hit.stage.label,sourceCityId:hit.cityId,npcId:this.npcId,cached:hit.cached,boardAnswerUnlocked:Boolean(hit.stage.boardAnswerUnlocked)};}
+ getFalseLeadLine(){if(this.isFutureRouteCity)return {text:'You are ahead of the verified trail. Establish the missing stops first; this visit does not advance the case.',isNew:false,topicId:'falseLead'};const pool=this.cityData.falseLeadLines||[],pair=pool[Math.floor(Math.random()*pool.length)];return {text:pair?pair.join(' '):'Wrong lead, detective. No one matching that trail came through here.',isNew:false,topicId:'falseLead'};}
+ getRepeatLine(){const pool=this.cityData.repeatLines||[],pair=pool[Math.floor(Math.random()*pool.length)];return pair?pair.join(' '):'We already talked, detective.';}
+ getBanterLine(){const pool=this.cityData.banter||[];return pool.length?pool[Math.floor(Math.random()*pool.length)]:'Detective. What can I do for you?';}
+ toNote(result){if(!result?.isNew||['motive','falseLead'].includes(result.topicId))return null;if(result.destinationClue===true){if(!result.cityId)return null;return {id:`${toSlug(result.topicId)}_${toSlug(this.cityId)}_${toSlug(result.cityId)}_${toSlug(this.npcId)}_${hash(result.text).toString(36)}`,type:'travel',category:result.topicId,cityId:result.cityId,sourceCityId:this.cityId,targetCityId:result.cityId,tag:result.text,text:result.text,value:result.cityId,npcId:this.npcId,caseId:gameState.currentCaseId};}if(result.traitValue!==undefined)return {id:`suspect_${toSlug(result.topicId)}_${toSlug(result.traitValue)}`,type:'suspect',category:result.topicId,key:result.traitValue,value:result.traitValue,text:result.text,npcId:this.npcId,caseId:gameState.currentCaseId,sourceCityId:this.cityId};return null;}
+}

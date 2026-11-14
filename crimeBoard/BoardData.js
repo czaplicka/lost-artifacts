@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 export const BoardData = {
   clone(value) {
     if (typeof structuredClone === 'function') {
@@ -23,10 +24,10 @@ export const BoardData = {
     if (type === 'photo') {
       return {
         ...base,
-        label: 'New photo',
+        label: __dialogueText("crimeBoard/BoardData.js", "t_7a1cf2ca195a10173fea"),
         image: '/assets/ui/placeholder-suspect.png',
-        caption: 'Add your caption here.',
-        meta: ['Lead']
+        caption: __dialogueText("crimeBoard/BoardData.js", "t_a2fa12a43290d210779b"),
+        meta: [__dialogueText("crimeBoard/BoardData.js", "t_645978287991a6f40bca")]
       };
     }
 
@@ -34,12 +35,12 @@ export const BoardData = {
     if (type === 'evidence') {
       return {
         ...base,
-        label: 'New evidence',
-        tag: 'Evidence',
-        body: 'Describe the object here.',
+        label: __dialogueText("crimeBoard/BoardData.js", "t_fe9e2942ed2007b567ac"),
+        tag: __dialogueText("crimeBoard/BoardData.js", "t_03867aea70acaf4c5dce"),
+        body: __dialogueText("crimeBoard/BoardData.js", "t_aeac22722fd97fe69fce"),
         fields: [
-          { key: 'Case', value: 'Unknown' },
-          { key: 'Status', value: 'Unverified' }
+          { key: 'Case', value: __dialogueText("crimeBoard/BoardData.js", "t_b764cdc0eab713746721") },
+          { key: 'Status', value: __dialogueText("crimeBoard/BoardData.js", "t_33c8e8de41c3a3512425") }
         ]
       };
     }
@@ -47,9 +48,9 @@ export const BoardData = {
 
     return {
       ...base,
-      label: 'New note',
-      text: 'Write your note here.',
-      metaText: 'Witness statement',
+      label: __dialogueText("crimeBoard/BoardData.js", "t_76ea482f843e76e4f8f5"),
+      text: __dialogueText("crimeBoard/BoardData.js", "t_1a9c8e0d2ece48146d1e"),
+      metaText: __dialogueText("crimeBoard/BoardData.js", "t_9497cec63baa906f6e08"),
       color: 'yellow'
     };
   },
@@ -86,7 +87,7 @@ export const BoardData = {
       this.loadBoard(parsed);
       this.syncJsonOutput();
     } catch (error) {
-      alert('Invalid JSON. This evidence has been rejected by the board.');
+      alert(__dialogueText("crimeBoard/BoardData.js", "t_b888e576bafe3fb054f9"));
     }
   },
 
@@ -122,7 +123,7 @@ export const BoardData = {
       pinned: Boolean(safeItem.pinned),
 
 
-      label: safeItem.label || 'Untitled',
+      label: safeItem.label || __dialogueText("crimeBoard/BoardData.js", "t_f59ab8d1331b7b16952f"),
       image: safeItem.image || '',
       caption: safeItem.caption || '',
       meta: Array.isArray(safeItem.meta) ? safeItem.meta.filter(Boolean) : [],
@@ -133,7 +134,7 @@ export const BoardData = {
       color: ['yellow', 'blue', 'pink'].includes(safeItem.color) ? safeItem.color : 'yellow',
 
 
-      tag: safeItem.tag || 'Evidence',
+      tag: safeItem.tag || __dialogueText("crimeBoard/BoardData.js", "t_03867aea70acaf4c5dce"),
       body: safeItem.body || '',
       fields: Array.isArray(safeItem.fields)
         ? safeItem.fields.map(row => ({ key: row?.key || '', value: row?.value || '' }))

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { margeBirthdayData as DATA, getMargeBirthdayState, completeMargeRefusal,
   collectMargeBirthdayClue, saveMargeBirthdayAnswers, submitMargeBirthdayDeduction } from '../margeBirthdayService.js';
@@ -22,18 +23,18 @@ export class MargeHRScene extends BaseScene {
     super.create();this.cameras.main.setBackgroundColor('#080c08');this.root=this.add.container(0,0);
     const key=DATA.backgrounds.occupied.key;
     if(this.textures.exists(key))this.root.add(this.add.image(960,540,key).setDisplaySize(1920,1080));
-    else this.root.add(this.add.text(100,150,`Missing HR background: ${DATA.backgrounds.occupied.url}`,{fontFamily:'SpecialElite',fontSize:'28px',color:'#ffaaaa'}));
-    this.label(36,25,'MARK AGENCY / HUMAN RESOURCES',20,'#ffe3a3').setOrigin(0,0);
+    else this.root.add(this.add.text(100,150,`${__dialogueText("scenes/MargeHRScene.js", "t_23dfbd5bcc7a498b401f")}${DATA.backgrounds.occupied.url}`,{fontFamily:'SpecialElite',fontSize:'28px',color:'#ffaaaa'}));
+    this.label(36,25,__dialogueText("scenes/MargeHRScene.js", "t_4e9909f1a7a92f17ee23"),20,'#ffe3a3').setOrigin(0,0);
     this.hoverOutline=this.add.graphics();this.root.add(this.hoverOutline);
     this.tooltip=this.label(0,0,'',18,'#ffe4a1').setVisible(false);
     DATA.hotspots.forEach(def=>this.buildHotspot(def));
     this.status=this.label(960,62,'',23,'#fff0ce').setVisible(false);
     this.counter=this.label(960,979,'',18,'#fff0ce');
-    this.makeSceneButton(165,1024,'< BACK',()=>this.closeHR());
-    this.deductionButton=this.makeSceneButton(960,1024,'REVIEW OBSERVATIONS',()=>this.openDeduction());
+    this.makeSceneButton(165,1024,__dialogueText("scenes/MargeHRScene.js", "t_d325d6af9f47d2ef9d00"),()=>this.closeHR());
+    this.deductionButton=this.makeSceneButton(960,1024,__dialogueText("scenes/MargeHRScene.js", "t_37f4344493ac1f45baeb"),()=>this.openDeduction());
     this.help=new MargeHRHelpController(this);this.help.create();
     this.finished=this.state().completed;this.refreshScene();this.layout();
-    this.showStatus(this.state().unlocked?'Click Marge to discuss the insurance records.':'Speak to Frank about the insurance comparison first.');
+    this.showStatus(this.state().unlocked?__dialogueText("scenes/MargeHRScene.js", "t_5ecf7a219e04afeef7d5"):__dialogueText("scenes/MargeHRScene.js", "t_0e1b9ca493d575bf05c8"));
     this.trackInputEvent(this.scale,'resize',this.layout);
     if(this.input.keyboard){
       this.trackInputEvent(this.input.keyboard,'keydown-ESC',event=>{
@@ -78,14 +79,14 @@ export class MargeHRScene extends BaseScene {
     const state=this.state();this.finished=state.completed;
     for(const{zone}of this.hotspots)if(zone.input)zone.input.enabled=!this.modal&&!this.dialogue&&state.unlocked;
     this.deductionButton.setVisible(state.refused);
-    this.deductionButton.setText(state.completed?'REVIEW DEDUCTION':'REVIEW OBSERVATIONS');
-    this.counter.setText(this.preview?`PREVIEW / CLUES ${state.clues.length} / ${DATA.clues.length}`:`CLUES ${state.clues.length} / ${DATA.clues.length}`);
+    this.deductionButton.setText(state.completed?__dialogueText("scenes/MargeHRScene.js", "t_7d44aa4870466b8abc43"):__dialogueText("scenes/MargeHRScene.js", "t_37f4344493ac1f45baeb"));
+    this.counter.setText(this.preview?`${__dialogueText("scenes/MargeHRScene.js", "t_01284128f0deba03607c")}${state.clues.length}${__dialogueText("scenes/MargeHRScene.js", "t_005e1574a2b5c8163046")}${DATA.clues.length}`:`${__dialogueText("scenes/MargeHRScene.js", "t_cdbbe6cb6adbf314e0a9")}${state.clues.length}${__dialogueText("scenes/MargeHRScene.js", "t_005e1574a2b5c8163046")}${DATA.clues.length}`);
   }
   showStatus(text){
     this.statusTimer?.remove(false);this.status.setText(text).setVisible(true);this.root.bringToTop(this.status);
     this.statusTimer=this.time.delayedCall(8500,()=>this.status?.setVisible(false));
   }
-  setDialogue(text){this.showStatus(`HINT: ${text}`);}
+  setDialogue(text){this.showStatus(`${__dialogueText("scenes/MargeHRScene.js", "t_e0e94082545fdad681ba")}${text}`);}
   makeShield(parent){
     const shield=this.add.rectangle(960,540,1920,1080,0x000000,0.45).setInteractive();
     shield.on('pointerdown',(p,x,y,event)=>event?.stopPropagation());parent.add(shield);
@@ -100,7 +101,7 @@ export class MargeHRScene extends BaseScene {
   }
   talkToMarge(){
     if(!this.canExplore())return;
-    if(this.finished){this.showStatus('You have worked out what upset Marge. A birthday gesture is the next step; she has not released the files yet.');return;}
+    if(this.finished){this.showStatus(__dialogueText("scenes/MargeHRScene.js", "t_961b3307603d7efe42e2"));return;}
     const refusal=!this.state().refused;
     const lines=refusal?DATA.refusalLines:DATA.repeatLines;
     const container=this.add.container(0,0);this.root.add(container);this.root.bringToTop(container);
@@ -114,16 +115,16 @@ export class MargeHRScene extends BaseScene {
   }
   nextDialogue(){
     const current=this.dialogue;if(!current)return;
-    if(current.index<current.lines.length-1){current.index++;current.text.setText(current.lines[current.index]);current.next.setText(current.index===current.lines.length-1?'END CONVERSATION':'CONTINUE');return;}
+    if(current.index<current.lines.length-1){current.index++;current.text.setText(current.lines[current.index]);current.next.setText(current.index===current.lines.length-1?__dialogueText("scenes/MargeHRScene.js", "t_1cad2a01acc725060cad"):__dialogueText("scenes/MargeHRScene.js", "t_628db0c7598820b10176"));return;}
     if(current.refusal){
       if(this.preview)this.local.refused=true;
-      else{const result=completeMargeRefusal();if(!result.success){this.showStatus('The investigation is not unlocked.');return;}}
+      else{const result=completeMargeRefusal();if(!result.success){this.showStatus(__dialogueText("scenes/MargeHRScene.js", "t_121e42fbd286f8487658"));return;}}
     }
-    this.abortDialogue();this.showStatus('Marge will not help yet. Look around her desk: laptop, mug and monitor note.');
+    this.abortDialogue();this.showStatus(__dialogueText("scenes/MargeHRScene.js", "t_6f875760bcf99237c2ff"));
   }
   abortDialogue(){const old=this.dialogue;this.dialogue=null;old?.container.destroy(true);this.refreshScene();}
   inspect(id){
-    const state=this.state();if(!state.refused){this.showStatus('Talk to Marge before examining her desk.');return;}
+    const state=this.state();if(!state.refused){this.showStatus(__dialogueText("scenes/MargeHRScene.js", "t_e5a9a80e00ba29bb6c76"));return;}
     const clue=DATA.clues.find(item=>item.id===id);if(!clue)return;
     if(this.preview){if(!this.local.clues.includes(id))this.local.clues.push(id);}
     else{const result=collectMargeBirthdayClue(id);if(!result.success)return;}
@@ -132,7 +133,7 @@ export class MargeHRScene extends BaseScene {
     this.modalText(panel,960,300,clue.label.toUpperCase(),30,'#714f2e');
     this.modalText(panel,960,478,clue.text,31);
     this.modalText(panel,960,674,clue.note,24,'#71583c');
-    this.modalButton(panel,960,770,'BACK TO ROOM',()=>this.closeModal());
+    this.modalButton(panel,960,770,__dialogueText("scenes/MargeHRScene.js", "t_f6a58363856de930519a"),()=>this.closeModal());
     this.tooltip.setVisible(false);this.refreshScene();
   }
   closeModal(){const old=this.modal;this.modal=null;old?.destroy(true);this.refreshScene();}
@@ -140,10 +141,10 @@ export class MargeHRScene extends BaseScene {
     const state=this.state();if(!state.refused)return;
     const panel=this.add.container(0,0);this.modal=panel;this.root.add(panel);this.makeShield(panel);
     panel.add(this.add.rectangle(960,530,1500,830,0xe9daba).setStrokeStyle(4,0x8b6842));
-    this.modalText(panel,960,165,'PERSONAL OBSERVATIONS / MARGE',32,'#714f2e');
+    this.modalText(panel,960,165,__dialogueText("scenes/MargeHRScene.js", "t_d59503252a174c6f9576"),32,'#714f2e');
     if(state.completed){
       this.modalText(panel,960,480,DATA.success,32,'#3c3026',1200);
-      this.modalText(panel,960,650,'A gift and the sixth-mission conversation are the next step. No item has been given automatically.',25,'#71583c',1200);
+      this.modalText(panel,960,650,__dialogueText("scenes/MargeHRScene.js", "t_f22b7e9b838275e2c842"),25,'#71583c',1200);
       this.modalButton(panel,960,840,'BACK',()=>this.closeModal());this.refreshScene();return;
     }
     const answers={...state.answers};const options=[];
@@ -159,8 +160,8 @@ export class MargeHRScene extends BaseScene {
         options.push({questionId:question.id,id:option.id,button});
       });
     });
-    const resultText=this.modalText(panel,960,777,`Inspected clues: ${state.clues.length} / ${DATA.clues.length}`,22,'#71583c',1320);
-    this.modalButton(panel,720,866,'CHECK DEDUCTION',()=>{
+    const resultText=this.modalText(panel,960,777,`${__dialogueText("scenes/MargeHRScene.js", "t_087e7ee00d984c14d414")}${state.clues.length}${__dialogueText("scenes/MargeHRScene.js", "t_005e1574a2b5c8163046")}${DATA.clues.length}`,22,'#71583c',1320);
+    this.modalButton(panel,720,866,__dialogueText("scenes/MargeHRScene.js", "t_3e5380953dd3ebd0ca3d"),()=>{
       const current=this.state();
       const result=this.preview?evaluateMargeBirthday(DATA,current.clues,answers):submitMargeBirthdayDeduction(answers);
       const ok=result.ok===true||result.success===true;
@@ -168,16 +169,16 @@ export class MargeHRScene extends BaseScene {
         if(this.preview){this.local.completed=true;this.local.answers={...answers};}
         this.finished=true;this.closeModal();this.openDeduction();
         if(!this.preview)this.emitBus('mainStory:margeBirthdayDiscovered',{npcId:DATA.npcId});
-      }else resultText.setText(result.message||'Inspect all three clues first.');
+      }else resultText.setText(result.message||__dialogueText("scenes/MargeHRScene.js", "t_b46b8c710c2238d170f3"));
     });
     this.modalButton(panel,1240,866,'BACK',()=>this.closeModal());
     redraw();this.refreshScene();
   }
   getForensicHelp(){
-    const state=this.state(),instructions='Talk to Marge, inspect the laptop calendar, mug and monitor note, then REVIEW OBSERVATIONS. Select the occasion and the explanation supported by those clues.';
+    const state=this.state(),instructions=__dialogueText("scenes/MargeHRScene.js", "t_8f6e83b347a7ab115024");
     if(!state.refused)return{id:'speak_to_marge',instructions,text:DATA.hints[0],targets:[this.hotspots.find(item=>item.def.id==='marge')?.zone].filter(Boolean)};
     const next=DATA.clues.find(clue=>!state.clues.includes(clue.id));
-    if(next)return{id:`inspect_${next.id}`,instructions,text:`Inspect ${next.label}. ${DATA.hints[1]}`,targets:[this.hotspots.find(item=>item.def.id===next.id)?.zone].filter(Boolean)};
+    if(next)return{id:`inspect_${next.id}`,instructions,text:`${__dialogueText("scenes/MargeHRScene.js", "t_137aaa51a676ee7ed407")}${next.label}${__dialogueText("scenes/MargeHRScene.js", "t_8dccf256f6d5783e62bb")}${DATA.hints[1]}`,targets:[this.hotspots.find(item=>item.def.id===next.id)?.zone].filter(Boolean)};
     return{id:'birthday_deduction',instructions,text:DATA.hints[2],targets:[this.deductionButton]};
   }
   layout(){if(!this.root)return;const{width,height}=this.scale;const s=Math.min(width/1920,height/1080);this.root.setScale(s).setPosition((width-1920*s)/2,(height-1080*s)/2);}

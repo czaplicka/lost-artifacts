@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 const LOCAL_DEBUG_ALLOWED = [
   'localhost',
   '127.0.0.1'
@@ -6,38 +7,38 @@ const LOCAL_DEBUG_ALLOWED = [
 const HOTSPOT_ACTIONS = {
   bed: {
     action: 'sleep',
-    label: 'Bed',
-    hoverText: 'Bed — sleep and restore energy',
-    monologueKey: 'inspect.hotelBed',
+    label: __dialogueText("scenes/hotel/HotelHotspots.js", "t_f816a74c2310179d8785"),
+    hoverText: __dialogueText("scenes/hotel/HotelHotspots.js", "t_8950add138ad4436c36b"),
+    monologueKey: __dialogueText("scenes/hotel/HotelHotspots.js", "t_6eee7c7d6fb25c4ddf7c"),
     fallbackMonologue:
-      'A bed. A promising development in any investigation.'
+      __dialogueText("scenes/hotel/HotelHotspots.js", "t_b53687cb2eb7b33ad5c1")
   },
 
   'hotel-tv': {
     action: 'tv',
-    label: 'Television',
-    hoverText: 'Television — local news',
-    monologueKey: 'inspect.hotelTv',
+    label: __dialogueText("scenes/hotel/HotelHotspots.js", "t_7e7536a95dcfb769ac5b"),
+    hoverText: __dialogueText("scenes/hotel/HotelHotspots.js", "t_74fc4a7a24cb02043714"),
+    monologueKey: __dialogueText("scenes/hotel/HotelHotspots.js", "t_45ecdde4c7f36af957c8"),
     fallbackMonologue:
-      'The television is on. Somewhere, a reporter is overreacting.'
+      __dialogueText("scenes/hotel/HotelHotspots.js", "t_f5419848f9cc982da81b")
   },
 
   'hotel-desk': {
     action: 'crimeBoard',
-    label: 'Desk',
-    hoverText: 'Desk — review the crime board',
-    monologueKey: 'inspect.hotelDesk',
+    label: __dialogueText("scenes/hotel/HotelHotspots.js", "t_210e51e019366706681f"),
+    hoverText: __dialogueText("scenes/hotel/HotelHotspots.js", "t_3c8222d9cd2d91b7019e"),
+    monologueKey: __dialogueText("scenes/hotel/HotelHotspots.js", "t_e6b3d6e0426bd802a17c"),
     fallbackMonologue:
-      'A desk. Finally, a horizontal surface for evidence and regret.'
+      __dialogueText("scenes/hotel/HotelHotspots.js", "t_f0d1cfc96e14d78682f8")
   },
 
   'hotel-window-exit': {
     action: 'leave',
-    label: 'Window / exit',
-    hoverText: 'Window — return to the city',
-    monologueKey: 'inspect.hotelWindow',
+    label: __dialogueText("scenes/hotel/HotelHotspots.js", "t_43e363fcc2aa82043399"),
+    hoverText: __dialogueText("scenes/hotel/HotelHotspots.js", "t_cc3438bea08c23f36e2f"),
+    monologueKey: __dialogueText("scenes/hotel/HotelHotspots.js", "t_500863462a5b84d945fb"),
     fallbackMonologue:
-      'The city is out there, full of clues and people pretending not to be suspicious.'
+      __dialogueText("scenes/hotel/HotelHotspots.js", "t_a8768259345f6ac5f56d")
   }
 };
 
@@ -290,7 +291,7 @@ export class HotelHotspots {
 
     if (
       this.debugMode &&
-      event.code === 'Escape'
+      event.code === __dialogueText("scenes/hotel/HotelHotspots.js", "t_037c968467aa3fd7c059")
     ) {
       event.preventDefault();
       this.setDebug(false);
@@ -314,7 +315,7 @@ export class HotelHotspots {
 
     if (!this.debugMode || !this.zones.length) return;
 
-    if (event.code === 'Tab') {
+    if (event.code === __dialogueText("scenes/hotel/HotelHotspots.js", "t_90ddf1963abb36c9921c")) {
       event.preventDefault();
 
       const delta = event.shiftKey ? -1 : 1;
@@ -423,18 +424,18 @@ export class HotelHotspots {
     const cfg = this.zones[this.selectedIndex]?.cfg;
 
     const lines = [
-      `LOCAL DEBUG HOTEL: ${this.hotelId} | ${cfg?.id || 'none'}`,
-      `x:${cfg?.x} y:${cfg?.y} w:${cfg?.w} h:${cfg?.h}`,
-      'Drag / arrows: move | Shift + arrows: resize | Alt: 1px',
-      'Tab / Shift+Tab: select',
-      'Ctrl+C / Cmd+C: copy config | D / Esc: close',
-      'Actions disabled.',
+      `${__dialogueText("scenes/hotel/HotelHotspots.js", "t_d5b933190f7552e4d82d")}${this.hotelId}${__dialogueText("scenes/hotel/HotelHotspots.js", "t_ffa9044b934017b2aed8")}${cfg?.id || 'none'}`,
+      `${__dialogueText("scenes/hotel/HotelHotspots.js", "t_51e33c7c7efbc350d26f")}${cfg?.x}${__dialogueText("scenes/hotel/HotelHotspots.js", "t_8278a5c11d3d9380f821")}${cfg?.y}${__dialogueText("scenes/hotel/HotelHotspots.js", "t_1b89a9604b178452218e")}${cfg?.w}${__dialogueText("scenes/hotel/HotelHotspots.js", "t_3f4674b8e35cc249a199")}${cfg?.h}`,
+      __dialogueText("scenes/hotel/HotelHotspots.js", "t_f7371edff8b7159ace9e"),
+      __dialogueText("scenes/hotel/HotelHotspots.js", "t_9d17c0754f4ec7faaf2c"),
+      __dialogueText("scenes/hotel/HotelHotspots.js", "t_ecff859f51f1d0ea4cfa"),
+      __dialogueText("scenes/hotel/HotelHotspots.js", "t_1b833152ecb7c9ce800f"),
       this._statusText
     ].filter(Boolean);
 
     this.debugText
       ?.setVisible(this.debugMode)
-      .setText(this.debugMode ? lines.join('\n') : '');
+      .setText(this.debugMode ? lines.join(__dialogueText("scenes/hotel/HotelHotspots.js", "t_01ba4719c80b6fe911b0")) : '');
   }
 
   getConfigText() {
@@ -503,8 +504,8 @@ export class HotelHotspots {
       }
 
       this._statusText = copied
-        ? 'Hotel config copied to clipboard.'
-        : 'Copy failed. Config is available in the console.';
+        ? __dialogueText("scenes/hotel/HotelHotspots.js", "t_59f96c59651c06626017")
+        : __dialogueText("scenes/hotel/HotelHotspots.js", "t_77a6ec3ece8339ac25f9");
 
       this.updateDebug();
 
@@ -587,7 +588,7 @@ export class HotelHotspots {
     if (scene.monologue?.say && data.fallbackMonologue) {
       scene.monologue.say(data.fallbackMonologue, {
         cooldownKey:
-          `hotel-hover-fallback:${this.hotelId}:${data.id}`,
+          `${__dialogueText("scenes/hotel/HotelHotspots.js", "t_e80b3c9a545b055a98e7")}${this.hotelId}${__dialogueText("scenes/hotel/HotelHotspots.js", "t_e7ac0786668e0ff0f02b")}${data.id}`,
         cooldownMs: 2500,
         queue: false
       });

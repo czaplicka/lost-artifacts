@@ -1,141 +1,142 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 export const EXAMINATION_PROFILES = {
   security_system_blueprint: {
-    title: 'DOCUMENT EXAMINATION',
-    question: 'Which procedure preserves the original document?',
+    title: __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_bf7fdbd192f3a366e73d"),
+    question: __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_82a21a7475f047d9a6be"),
 
     methods: [
       {
-        label: 'Scan and inspect the printed layout',
+        label: __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_9d9fde2aafe2cb1cce8d"),
         correct: true
       },
       {
-        label: 'Draw the suspected escape route on the original',
+        label: __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_c2cf0fcc10b3e61a6ace"),
         correct: false
       },
       {
-        label: 'Test the paper with the office coffee',
+        label: __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_7e65f3f27fd375188d74"),
         correct: false
       }
     ],
 
     observation:
-      'The printed layout includes a guard-dog kennel and a smoking room.',
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_b09cbe8ce1c77d758aab"),
 
     limitation:
-      'The drawing alone does not establish the current security layout.',
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_754dc88917e28bc43e6b"),
 
     joke:
-      'The smoking room has outlived at least three security consultants.',
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_d3ba8b245b40708590f4"),
 
     interpretations: [
-      'The document may describe an older version of the site.',
-      'Every camera shown here must still be operational.',
-      'The thief definitely followed this exact drawing.'
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_f6c64143de7d58b595c3"),
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_fbd4728f1c14e1cab518"),
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_952b74c1a777a4313991")
     ]
   },
 
   broken_glass: {
-    title: 'SURFACE EXAMINATION',
-    question: 'How should the visible surface mark be examined?',
+    title: __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_0c53296d83283a9c1460"),
+    question: __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_abc45deeab72031182d6"),
 
     methods: [
       {
-        label: 'Photograph and magnify the marked shard',
+        label: __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_c1ff211539fdead47be0"),
         correct: true
       },
       {
-        label: 'Wipe the shard clean before looking at it',
+        label: __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_9bb8a2a836fed8450403"),
         correct: false
       },
       {
-        label: 'Fit the shard into the nearest window by force',
+        label: __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_d1df69ca4eaeb9ac9fea"),
         correct: false
       }
     ],
 
     observation:
-      'One of the glass fragments has a visible lipstick mark.',
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_c01c3a9702e7e5010d19"),
 
     limitation:
-      'This examination does not identify the person or date the mark.',
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_8184bef40f08724068be"),
 
     joke:
-      'The glass has declined to discuss its personal life.',
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_99b3d6198d5239f1c927"),
 
     interpretations: [
-      'The mark provides a detail to compare with other evidence.',
-      'The lipstick proves that the thief is a woman.',
-      'The fragment must come from the artifact display case.'
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_3a30929250404024d657"),
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_0f8b6e210ff8e6b1db79"),
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_25af4a5218ef67e39e92")
     ]
   },
 
   art_history_book: {
-    title: 'PAGE AND INSERT EXAMINATION',
-    question: 'How should the loose inserts be documented?',
+    title: __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_caac6a8004acc8154e52"),
+    question: __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_ef26378b973193ace91a"),
 
     methods: [
       {
-        label: 'Photograph their positions before moving them',
+        label: __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_b55c77d8d3fab7996aef"),
         correct: true
       },
       {
-        label: 'Shake everything out and sort it later',
+        label: __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_b548bde8e9c054af426b"),
         correct: false
       },
       {
-        label: 'Remove all bookmarks to make the book look tidy',
+        label: __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_28d03bf5fddc61e90924"),
         correct: false
       }
     ],
 
     observation:
-      'Ticket stubs mark several pages. A bored smiley face is also visible.',
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_8524865396ccfa902767"),
 
     limitation:
-      'The bookmarks alone do not identify the reader or their purpose.',
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_5df9ea4e6bebe41f66c1"),
 
     joke:
-      'Someone studied art history. Enthusiasm remains unconfirmed.',
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_8b45fd1960154c8e025f"),
 
     interpretations: [
-      'The marked pages could be compared with the stolen artifact.',
-      'The owner of this book must be the thief.',
-      'The smiley face is a confirmed criminal signature.'
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_2907144dd1c591b2fe9d"),
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_21c76a6926c340bb9f70"),
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_e24c63daacf6822c3015")
     ]
   },
 
   origami_crane_note: {
-    title: 'FOLDED DOCUMENT EXAMINATION',
-    question: 'How should the concealed writing be accessed?',
+    title: __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_f1836631095d6e9b72cb"),
+    question: __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_e6a40a38a813b10f1cb1"),
 
     methods: [
       {
-        label: 'Document the folds, then carefully unfold the paper',
+        label: __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_5dcfe4f4c1591cabd4d1"),
         correct: true
       },
       {
-        label: 'Tear through the centre to save time',
+        label: __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_751257f6146626315539"),
         correct: false
       },
       {
-        label: 'Soak the paper until the folds disappear',
+        label: __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_bf75d0f3b40f078faeee"),
         correct: false
       }
     ],
 
     observation:
-      'The unfolded note reads: "We need to talk."',
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_bf4f1b2599c4b1cd5a15"),
 
     limitation:
-      'No sender, recipient or meeting time is established by those words.',
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_2c4c1245b62a82bd605e"),
 
     joke:
-      'Folding it into a bird has not made the conversation less alarming.',
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_a938a885297fb131ff9a"),
 
     interpretations: [
-      'The note may concern a meeting, but its participants are unknown.',
-      'The note proves that a guard helped the thief.',
-      'The message identifies the exact time of the theft.'
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_394af978d5fbcbb8ea03"),
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_6e907c18e27f0521aa90"),
+      __dialogueText("scenes/evidenceAnalysis/ExaminationProfiles.js", "t_254bc5c1aa6e232ac0a6")
     ]
   }
 };

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import {
   NOTEBOOK_CONFIG, SCREEN_W, SCREEN_H, RESULT_X, RESULT_START_Y,
   RESULT_STEP, MAX_RESULTS, NO_MATCH_JOKES, WARRANT_JOKES
@@ -87,7 +88,7 @@ export class WarrantResults {
     if (matches.length > MAX_RESULTS) {
       const more = this.scene.add.text(RESULT_X,
         RESULT_START_Y + MAX_RESULTS * RESULT_STEP,
-        `+${matches.length - MAX_RESULTS} more fit this sketch. Add a trait to narrow it down.`, {
+        `${__dialogueText("ui/warrant/WarrantResults.js", "t_a318c24216defe206fee")}${matches.length - MAX_RESULTS}${__dialogueText("ui/warrant/WarrantResults.js", "t_1e9c70e043bbd3a4dd3e")}`, {
           fontFamily: FONT, fontSize: '20px', color: NOTEBOOK_CONFIG.PENCIL_FAINT
         });
       this._add(more);
@@ -97,7 +98,7 @@ export class WarrantResults {
   _showNoMatch() {
     this.sfx('wrong', 0.35);
     const noMatch = this.scene.add.text(RESULT_X, RESULT_START_Y + 20,
-      '✖ NO MATCHES FOUND IN DATABASE', {
+      __dialogueText("ui/warrant/WarrantResults.js", "t_68513dcb05f01920a52b"), {
         fontFamily: FONT, fontSize: '28px', color: NOTEBOOK_CONFIG.INK_RED
       });
     const joke = this.scene.add.text(RESULT_X, RESULT_START_Y + 66,
@@ -129,19 +130,19 @@ export class WarrantResults {
       .setStrokeStyle(1, 0xcccccc).setAngle(-3);
     const portrait = portraitKey
       ? s.add.image(RESULT_X + 35, y + 22, portraitKey).setDisplaySize(56, 56).setAngle(-3)
-      : s.add.text(RESULT_X + 10, y + 10, '[PHOTO]', {
+      : s.add.text(RESULT_X + 10, y + 10, __dialogueText("ui/warrant/WarrantResults.js", "t_c7e4bf1553fa0b714557"), {
           fontFamily: FONT, fontSize: '20px', color: '#888888'
         });
     const tape = s.add.rectangle(RESULT_X + 35, y - 10, 34, 12, 0xe8dca0, 0.8).setAngle(4);
-    const name = s.add.text(RESULT_X + 90, y, suspect?.name || 'UNKNOWN SUSPECT', {
+    const name = s.add.text(RESULT_X + 90, y, suspect?.name || __dialogueText("ui/warrant/WarrantResults.js", "t_6e46b61f7f12708f981c"), {
       fontFamily: FONT, fontSize: '26px', color: NOTEBOOK_CONFIG.PENCIL_DARK
     });
-    const details = [suspect?.gender || 'Unknown gender', `${suspect?.hair || 'Unknown'} hair`,
-      suspect?.features || null, `${suspect?.accent || 'Unknown'} accent`].filter(Boolean).join(', ');
+    const details = [suspect?.gender || __dialogueText("ui/warrant/WarrantResults.js", "t_9bf12e6819704f24c5ba"), `${suspect?.hair || __dialogueText("ui/warrant/WarrantResults.js", "t_b764cdc0eab713746721")}${__dialogueText("ui/warrant/WarrantResults.js", "t_4d1719606ba0803eb04f")}`,
+      suspect?.features || null, `${suspect?.accent || __dialogueText("ui/warrant/WarrantResults.js", "t_b764cdc0eab713746721")}${__dialogueText("ui/warrant/WarrantResults.js", "t_afcf069284e4e0ed3c90")}`].filter(Boolean).join(', ');
     const detailsText = s.add.text(RESULT_X + 90, y + 30, details, {
       fontFamily: FONT, fontSize: '19px', color: '#666666', wordWrap: { width: 340 }, lineSpacing: 2
     });
-    const action = s.add.text(RESULT_X + 440, y + 12, '[ ISSUE ]', {
+    const action = s.add.text(RESULT_X + 440, y + 12, __dialogueText("ui/warrant/WarrantResults.js", "t_9ec6b41d49977640a06f"), {
       fontFamily: FONT, fontSize: '22px', color: NOTEBOOK_CONFIG.INK_RED
     }).setInteractive({ useHandCursor: true });
     action.on('pointerover', () => {
@@ -169,9 +170,9 @@ export class WarrantResults {
       fontFamily: FONT, fontSize: `${size}px`, color, ...extra
     }).setOrigin(0.5);
 
-    const title = line(392, '★ ARREST WARRANT ★', 46, NOTEBOOK_CONFIG.INK_RED);
-    const sub = line(442, `BY ORDER OF THE COURT  ·  No. ${caseNo}`, 20, NOTEBOOK_CONFIG.PENCIL_FAINT);
-    const label = line(484, 'THE BEARER IS AUTHORISED TO ARREST', 22, NOTEBOOK_CONFIG.PENCIL_DARK);
+    const title = line(392, __dialogueText("ui/warrant/WarrantResults.js", "t_f753fd821ccb98d48518"), 46, NOTEBOOK_CONFIG.INK_RED);
+    const sub = line(442, `${__dialogueText("ui/warrant/WarrantResults.js", "t_34868af30f4278fc868e")}${caseNo}`, 20, NOTEBOOK_CONFIG.PENCIL_FAINT);
+    const label = line(484, __dialogueText("ui/warrant/WarrantResults.js", "t_e161308721593a900089"), 22, NOTEBOOK_CONFIG.PENCIL_DARK);
     const nameText = line(540, String(suspect.name || 'UNKNOWN').toUpperCase(), 42, NOTEBOOK_CONFIG.PENCIL_DARK);
     if (nameText.width > 520) nameText.setScale(520 / nameText.width);
 
@@ -240,7 +241,7 @@ export class WarrantResults {
     g.strokeRect(-135, -44, 270, 88);
     g.lineStyle(2, 0xa92a2a, 1);
     g.strokeRect(-127, -36, 254, 72);
-    const text = s.add.text(0, 0, 'ISSUED', {
+    const text = s.add.text(0, 0, __dialogueText("ui/warrant/WarrantResults.js", "t_82a09b27dbadc43df54a"), {
       fontFamily: FONT, fontSize: '60px', color: NOTEBOOK_CONFIG.INK_RED
     }).setOrigin(0.5);
     stamp.add([g, text]);

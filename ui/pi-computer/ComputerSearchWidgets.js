@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { FONTS, THEMES, DEFAULT_THEME, BRAND, lerpColor } from './ComputerSearchShared.js';
 import { computerUiCanInteract, playComputerUiClick } from './ComputerUiAudio.js';
 
@@ -73,7 +74,7 @@ export class ComputerSearchWidgets {
         const theme = THEMES[page.theme] || DEFAULT_THEME, d = this.ui.drawing;
         d.rectangle(x + 1, y + 1, size, size, 0x000000, 0.18); d.rectangle(x, y, size, size, 0xfaf9f3);
         d.frame(x, y, size, size, theme.accent, 0.7, 1);
-        const icon = this.ui.scene.add.text(x + size / 2, y + size / 2, icons[page.theme] || '🌐', {
+        const icon = this.ui.scene.add.text(x + size / 2, y + size / 2, icons[page.theme] || __dialogueText("ui/pi-computer/ComputerSearchWidgets.js", "t_63dc3c77838e57dd6f4b"), {
             fontFamily: '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif',
             fontSize: `${Math.max(10, Math.floor(size * 0.75))}px`, color: '#1b2530', padding: { x: 0, y: 0 }
         }).setOrigin(0.5);

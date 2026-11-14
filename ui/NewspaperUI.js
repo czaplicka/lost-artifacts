@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { NewspaperLayoutConfig } from '../NewspaperLayoutConfig.js';
 import {
   ensureDailyPaperTexture,
@@ -164,14 +165,14 @@ export class NewspaperLayout {
       container,
       x + 2,
       slot.y + 4,
-      isMission ? 'SPECIAL REPORT' : 'TOP STORY',
+      isMission ? __dialogueText("ui/NewspaperUI.js", "t_696678be514df84082f6") : __dialogueText("ui/NewspaperUI.js", "t_2b1b45ca481c01b0e9c3"),
       isMission ? RED : INK,
       isMission ? RED_HEX : INK_HEX,
       -1.5
     );
 
     if (isMission) {
-      container.add(this.makeText(x + w, slot.y + 12, 'MARK AGENCY IS ON THE CASE', {
+      container.add(this.makeText(x + w, slot.y + 12, __dialogueText("ui/NewspaperUI.js", "t_b55c8a0a590e6f211211"), {
         fontFamily: PIXEL, fontSize: '9px', color: RED
       }, 1, 0));
     }
@@ -366,7 +367,7 @@ export class NewspaperLayout {
     const entries = [
       { head: 'TODAY', text: WEATHER_TODAY[kind] },
       { head: 'TOMORROW', text: pickOne(WEATHER_TOMORROW, rng) },
-      { head: 'TOP NEWS', text: pickOne(WEATHER_TOP_NEWS, rng) }
+      { head: __dialogueText("ui/NewspaperUI.js", "t_d6abf11bd201a421cd90"), text: pickOne(WEATHER_TOP_NEWS, rng) }
     ];
 
     entries.forEach((entry, index) => {
@@ -522,8 +523,8 @@ export class NewspaperLayout {
 
     // clue numbers
     [
-      { text: '1', r: 0, c: 2 },
-      { text: '2', r: 2, c: 0 }
+      { text: __dialogueText("ui/NewspaperUI.js", "t_6b86b273ff34fce19d6b"), r: 0, c: 2 },
+      { text: __dialogueText("ui/NewspaperUI.js", "t_d4735e3a265e16eee03f"), r: 2, c: 0 }
     ].forEach(n => {
       container.add(this.makeText(gx + n.c * cell + 3, gy + n.r * cell + 2, n.text, {
         fontFamily: SERIF, fontSize: '11px', color: INK
@@ -540,7 +541,7 @@ export class NewspaperLayout {
     });
 
     this.fitBlock(container,
-      '1 DOWN: Who did it (5)\n2 ACROSS: Excuse that rarely holds up (5)',
+      __dialogueText("ui/NewspaperUI.js", "t_6a9caccf68d82acc7a05"),
       {
         x: m.x + 12,
         y: gy + gridSize + 16,
@@ -552,7 +553,7 @@ export class NewspaperLayout {
       }
     );
 
-    this.fitBlock(container, 'Solved in pen by a previous reader. Suspicious.', {
+    this.fitBlock(container, __dialogueText("ui/NewspaperUI.js", "t_acd5081b845720262542"), {
       x: m.x + 12,
       y: m.y + m.height - 40,
       width: m.width - 24,
@@ -910,7 +911,7 @@ export class NewspaperLayout {
       }
     } else {
       group.add(scene.add.rectangle(0, 0, w, h, 0xcdbb94, 1));
-      group.add(this.makeText(0, 0, 'PHOTO CENSORED\n(BY THE EDITOR)', {
+      group.add(this.makeText(0, 0, __dialogueText("ui/NewspaperUI.js", "t_9226eca2ee357fa76930"), {
         fontFamily: PIXEL, fontSize: '10px', color: MUTED, align: 'center', lineSpacing: 8
       }, 0.5, 0.5));
     }
@@ -971,7 +972,7 @@ export class NewspaperLayout {
 
       if (lines.length > maxLines) {
         const kept = lines.slice(0, maxLines).join(' ').replace(/[\s.,;:!?-]+$/, '');
-        t.setText(`${kept.slice(0, Math.max(0, kept.length - 3))}...`);
+        t.setText(`${kept.slice(0, Math.max(0, kept.length - 3))}${__dialogueText("ui/NewspaperUI.js", "t_ab5df625bc76dbd4e163")}`);
       }
     }
 
@@ -1132,11 +1133,11 @@ export class NewspaperLayout {
       fontFamily: SERIF, fontSize: '14px', color: NAVY
     }, 0, 0.5));
 
-    container.add(this.makeText(innerRight, layout.stripY, '15 CENTS', {
+    container.add(this.makeText(innerRight, layout.stripY, __dialogueText("ui/NewspaperUI.js", "t_83a3125adfef2ebb4b59"), {
       fontFamily: SERIF, fontSize: '14px', color: TIME_RED, stroke: TIME_RED, strokeThickness: 1
     }, 1, 0.5));
 
-    container.add(this.makeText(cx, layout.taglineY, 'THE WEEKLY NEWSMAGAZINE', {
+    container.add(this.makeText(cx, layout.taglineY, __dialogueText("ui/NewspaperUI.js", "t_4ecc21ab325ea3e3e4fe"), {
       fontFamily: PIXEL, fontSize: '9px', color: TIME_RED
     }, 0.5, 0));
 
@@ -1144,7 +1145,7 @@ export class NewspaperLayout {
     const badge = layout.badge;
     if (badge) {
       container.add(
-        this.makeText(badge.x, badge.y, 'THE\nCASE\nINSIDE', {
+        this.makeText(badge.x, badge.y, __dialogueText("ui/NewspaperUI.js", "t_03c26b5280dcff93558b"), {
           fontFamily: PIXEL, fontSize: '8px', color: CREAM, align: 'center', lineSpacing: 6
         }, 0.5, 0.5).setAngle(-12)
       );

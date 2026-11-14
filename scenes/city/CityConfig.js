@@ -1,12 +1,13 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { SCORE_CONFIG } from '../../config/ScoreConfig.js';
 
-export const ALL_DAY = ['Morning', 'Afternoon', 'Evening', 'Night'];
+export const ALL_DAY = [__dialogueText("scenes/city/CityConfig.js", "t_e9376a281aac57bb78e2"), __dialogueText("scenes/city/CityConfig.js", "t_fb847b43637eee429168"), __dialogueText("scenes/city/CityConfig.js", "t_458c1fed574354042397"), __dialogueText("scenes/city/CityConfig.js", "t_4e9f8db8242b57e72e00")];
 export const LOCATION_HOURS = {
-  bank: ['Morning', 'Afternoon'],
-  policehq: ['Morning', 'Afternoon', 'Evening'],
+  bank: [__dialogueText("scenes/city/CityConfig.js", "t_e9376a281aac57bb78e2"), __dialogueText("scenes/city/CityConfig.js", "t_fb847b43637eee429168")],
+  policehq: [__dialogueText("scenes/city/CityConfig.js", "t_e9376a281aac57bb78e2"), __dialogueText("scenes/city/CityConfig.js", "t_fb847b43637eee429168"), __dialogueText("scenes/city/CityConfig.js", "t_458c1fed574354042397")],
   hotel: ALL_DAY, airport: ALL_DAY, harbor: ALL_DAY, alley: ALL_DAY,
-  parking: ALL_DAY, restaurant: ['Afternoon', 'Evening'], garbage: ALL_DAY,
-  shop: ['Morning', 'Afternoon', 'Evening']
+  parking: ALL_DAY, restaurant: [__dialogueText("scenes/city/CityConfig.js", "t_fb847b43637eee429168"), __dialogueText("scenes/city/CityConfig.js", "t_458c1fed574354042397")], garbage: ALL_DAY,
+  shop: [__dialogueText("scenes/city/CityConfig.js", "t_e9376a281aac57bb78e2"), __dialogueText("scenes/city/CityConfig.js", "t_fb847b43637eee429168"), __dialogueText("scenes/city/CityConfig.js", "t_458c1fed574354042397")]
 };
 export const CITY_BACKGROUND_KEYS = {
   london:'london', paris:'paris', new_delhi:'newdelhi', newdelhi:'newdelhi',

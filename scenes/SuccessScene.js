@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { EventBus } from '../EventBus.js';
 import { gameState } from '../GameData.js';
 import { requestAutosave, flushAutosave } from '../gameStatePersistence.js';
@@ -12,8 +13,8 @@ const WIDTH = 1920;
 const HEIGHT = 1080;
 const CORRECT_ARREST_BONUS = 500;
 const SUCCESS_SFX_KEY = 'sfx_result_success';
-const MISSION_LABEL = 'MISSION COMPLETE';
-const JUSTICE_LABEL = 'JUSTICE SERVED.';
+const MISSION_LABEL = __dialogueText("scenes/SuccessScene.js", "t_769817202f01df1eb863");
+const JUSTICE_LABEL = __dialogueText("scenes/SuccessScene.js", "t_d45f9973c429f508ec75");
 const ASSETS = [
   ['Success__background', 'background'], ['banner', 'banner'],
   ['medalion_officer', 'medalion_officer'], ['medalion', 'medalion'],
@@ -39,7 +40,7 @@ export class SuccessScene extends BaseScene {
   preload() {
     if (!this.cache.audio.exists(SUCCESS_SFX_KEY)) this.load.audio(SUCCESS_SFX_KEY, 'assets/audio/success.mp3');
     for (const [key, filename] of ASSETS) {
-      if (!this.textures.exists(key)) this.load.image(key, `assets/Success/${filename}.webp`);
+      if (!this.textures.exists(key)) this.load.image(key, `${__dialogueText("scenes/SuccessScene.js", "t_80a8ddfed068875abd4c")}${filename}${__dialogueText("scenes/SuccessScene.js", "t_ed140d91e29553b83699")}`);
     }
   }
   create() {
@@ -52,14 +53,14 @@ export class SuccessScene extends BaseScene {
     if (currentCaseId !== null) gameState.currentCaseId = currentCaseId;
     const report = ensureMissionReport();
     if (!gameState.scoreSaved) {
-      this.scoreManager.saveScore(gameState.playerName || gameState.agentName || 'Agent', Number.isFinite(gameState.score) ? gameState.score : 0);
+      this.scoreManager.saveScore(gameState.playerName || gameState.agentName || __dialogueText("scenes/SuccessScene.js", "t_11b39c93777e8f1f3983"), Number.isFinite(gameState.score) ? gameState.score : 0);
       gameState.scoreSaved = true;
     }
     requestAutosave(); flushAutosave(); this.scene.manager.keys.PlayerHudScene?.refreshUI?.();
     this.cameras.main.setBackgroundColor('#101216'); this.stage = this.add.container(0, 0);
     this.buildStreet(); this.buildMedallion(); this.buildBanner(); this.buildResults(report);
-    this.skipHint = this.add.text(960, 1017, 'CLICK TO SKIP INTRO', {
-      fontFamily: 'SpecialElite', fontSize: '20px', color: '#e4d0a6', stroke: '#171819', strokeThickness: 4
+    this.skipHint = this.add.text(960, 1017, __dialogueText("scenes/SuccessScene.js", "t_ad378c8c442bccfda0e9"), {
+      fontFamily: 'SpecialElite', fontSize: '20px', color: '#e4d0a6', stroke: __dialogueText("scenes/SuccessScene.js", "t_b8d3b814ad9cb35524e0"), strokeThickness: 4
     }).setOrigin(0.5);
     this.stage.add(this.skipHint); this.layoutStage();
     this.onSuccessResize = () => this.layoutStage();
@@ -116,7 +117,7 @@ export class SuccessScene extends BaseScene {
     this.justiceText = this.add.text(0, 0, JUSTICE_LABEL, justiceStyle).setOrigin(0.5);
     this.justiceText.setShadow(5, 7, '#080b10', 0, true, true);
     this.justiceBaseScale = Math.min(1, 850 / this.justiceText.width); this.justiceText.setScale(this.justiceBaseScale);
-    this.justiceFlash = this.add.text(0, 0, JUSTICE_LABEL, { ...justiceStyle, color: '#ffffff', stroke: '#ffffff' })
+    this.justiceFlash = this.add.text(0, 0, JUSTICE_LABEL, { ...justiceStyle, color: '#ffffff', stroke: __dialogueText("scenes/SuccessScene.js", "t_f2074b6cef37b6733112") })
       .setOrigin(0.5).setScale(this.justiceBaseScale).setAlpha(0);
     this.justiceGroup.add([this.justiceText, this.justiceFlash]);
   }
@@ -124,28 +125,28 @@ export class SuccessScene extends BaseScene {
     this.bannerGroup = this.add.container(0, -20).setAlpha(0); this.stage.add(this.bannerGroup);
     this.addLayer('banner', this.bannerGroup);
     this.bannerText = this.add.text(321, 185, '', { fontFamily: 'SpecialElite', fontSize: '30px', color: '#2c1d11',
-      stroke: '#8a653a', strokeThickness: 1, align: 'center', padding: { x: 4, y: 5 } }).setOrigin(0.5);
+      stroke: __dialogueText("scenes/SuccessScene.js", "t_728e11068df8b3d3a125"), strokeThickness: 1, align: 'center', padding: { x: 4, y: 5 } }).setOrigin(0.5);
     this.bannerGroup.add(this.bannerText); this.bannerText.setText(MISSION_LABEL);
     this.bannerTextScale = Math.min(1, 395 / this.bannerText.width);
     this.bannerText.setScale(this.bannerTextScale); this.bannerText.setText('');
   }
   getReportMessage(report) {
-    if (report.status === 'draft') return 'Use the agency COMPUTER to complete and print your Mission Report.';
-    if (report.status === 'full') return 'Inventory full. Your printed report will wait until you free a slot.';
-    if (report.status === 'unavailable') return 'Report unavailable: missing case identity.';
-    return 'Deliver your Mission Report to Frank Drebin in the archive.';
+    if (report.status === 'draft') return __dialogueText("scenes/SuccessScene.js", "t_01b9d37698c4cae5f3ca");
+    if (report.status === 'full') return __dialogueText("scenes/SuccessScene.js", "t_0f64121ad0b30dbb7d39");
+    if (report.status === 'unavailable') return __dialogueText("scenes/SuccessScene.js", "t_85b0d3cecff827f02b55");
+    return __dialogueText("scenes/SuccessScene.js", "t_47704fadc4ac8f697b02");
   }
   buildResults(report) {
     this.resultPanel = this.add.container(0, 0).setAlpha(0).setVisible(false); this.stage.add(this.resultPanel);
     const panel = this.add.rectangle(1585, 355, 490, 520, 0x141d2b, 0.95).setStrokeStyle(2, 0xb79a61, 0.95);
-    const heading = this.add.text(1585, 125, 'CASE SOLVED', {
+    const heading = this.add.text(1585, 125, __dialogueText("scenes/SuccessScene.js", "t_2282d5f2696d4e236999"), {
       fontFamily: 'PressStart2P', fontSize: '22px', color: '#eaca83', align: 'center'
     }).setOrigin(0.5, 0);
-    const captured = this.add.text(1585, 177, `You captured:\n${gameState.currentThief?.name || 'Unknown suspect'}`, {
+    const captured = this.add.text(1585, 177, `${__dialogueText("scenes/SuccessScene.js", "t_3a9cac6a878dcf851e1f")}${gameState.currentThief?.name || __dialogueText("scenes/SuccessScene.js", "t_a7c73daa1bc6f58f7897")}`, {
       fontFamily: 'SpecialElite', fontSize: '27px', color: '#f5ead4', align: 'center', lineSpacing: 6, wordWrap: { width: 425 }
     }).setOrigin(0.5, 0);
     const summaryY = Math.max(275, captured.y + captured.height + 20);
-    const summary = this.add.text(1585, summaryY, 'The artefact is safe.\nThe paperwork is just beginning.', {
+    const summary = this.add.text(1585, summaryY, __dialogueText("scenes/SuccessScene.js", "t_9ec65ca87af723d57627"), {
       fontFamily: 'SpecialElite', fontSize: '23px', color: '#d4dbe6', align: 'center', lineSpacing: 7, wordWrap: { width: 425 }
     }).setOrigin(0.5, 0);
     this.scoreLabel = this.add.text(1585, summary.y + summary.height + 22, '', {
@@ -160,7 +161,7 @@ export class SuccessScene extends BaseScene {
     if (this.statusText.height > availableHeight) this.statusText.setScale(availableHeight / this.statusText.height);
     this.resultPanel.add([panel, heading, captured, summary, this.scoreLabel, this.statusText]);
     const buttonBg = this.add.rectangle(1585, 565, 425, 60, 0x303c4b, 1).setStrokeStyle(2, 0xb79a61, 1);
-    const buttonLabel = this.add.text(1585, 565, 'RETURN TO OFFICE', {
+    const buttonLabel = this.add.text(1585, 565, __dialogueText("scenes/SuccessScene.js", "t_e0609774861512f24b9c"), {
       fontFamily: 'PressStart2P', fontSize: '16px', color: '#f8e7c4'
     }).setOrigin(0.5);
     this.nextBtn = buttonBg; this.resultPanel.add([buttonBg, buttonLabel]);
@@ -170,7 +171,7 @@ export class SuccessScene extends BaseScene {
       event?.stopPropagation(); if (this.introComplete) void this.returnToOffice(buttonBg);
     });
   }
-  updateScoreLabel(value) { this.scoreLabel?.setText(`Final score: ${Math.max(0, Math.floor(value))}`); }
+  updateScoreLabel(value) { this.scoreLabel?.setText(`${__dialogueText("scenes/SuccessScene.js", "t_7b583c4a16427458fe73")}${Math.max(0, Math.floor(value))}`); }
   introAfter(delay, callback) {
     const timer = this.time.delayedCall(delay, () => { if (!this.introComplete) callback(); });
     this.introTimers.push(timer); return timer;
@@ -280,7 +281,7 @@ export class SuccessScene extends BaseScene {
       console.error('[SuccessScene] Return to office failed:', error);
       if (this._cleanupDone) return;
       this.isLeaving = false; button.setInteractive({ useHandCursor: true });
-      this.statusText?.setText('The office could not be opened. Please try again.');
+      this.statusText?.setText(__dialogueText("scenes/SuccessScene.js", "t_ce48c0204acfad02e624"));
     }
   }
   registerSuccessRewards() {

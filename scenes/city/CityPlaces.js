@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { getEnergyManager } from '../../managers/EnergyManager.js';
 import { saveGameState } from '../../gameStatePersistence.js';
 import { SHOP_TAXI_ENERGY, SHOP_ICON_SIZE, SHOP_LABEL_OFFSET } from './CityConfig.js';
@@ -38,7 +39,7 @@ export class CityPlaces {
     const label = this.add.text(
       x,
       y + 66,
-      'HOTEL',
+      __dialogueText("scenes/city/CityPlaces.js", "t_ab5470ec3214b1f3afbd"),
       {
         fontFamily: 'SpecialElite',
         fontSize: '22px',
@@ -54,7 +55,7 @@ export class CityPlaces {
     const objects = [icon, label];
 
     if (!this.textures.exists('hotel_icon')) {
-      const symbol = this.add.text(x, y, 'HOTEL', {
+      const symbol = this.add.text(x, y, __dialogueText("scenes/city/CityPlaces.js", "t_ab5470ec3214b1f3afbd"), {
         fontFamily: 'PressStart2P',
         fontSize: '13px',
         color: '#f6dc8c'
@@ -160,7 +161,7 @@ export class CityPlaces {
     const label = this.add.text(
       position.x,
       position.y + SHOP_LABEL_OFFSET,
-      `Shop (-${SHOP_TAXI_ENERGY} Energy)`,
+      `${__dialogueText("scenes/city/CityPlaces.js", "t_b3785a04e242f06452e1")}${SHOP_TAXI_ENERGY}${__dialogueText("scenes/city/CityPlaces.js", "t_91aac9d5eebf6cfbc424")}`,
       {
         fontFamily: 'SpecialElite',
         fontSize: '18px',
@@ -287,9 +288,9 @@ export class CityPlaces {
 
       if (!opened) {
         this.showMessage(
-          'The shop could not be opened.\nPlease try again.',
+          __dialogueText("scenes/city/CityPlaces.js", "t_d353443b02f69822ebb5"),
           2800,
-          '#8b0000'
+          __dialogueText("scenes/city/CityPlaces.js", "t_f27f7bc32875ed02b2fc")
         );
 
         return false;
@@ -304,7 +305,7 @@ export class CityPlaces {
 
       energy.consumeCustom(
         SHOP_TAXI_ENERGY,
-        'Taxi to shop: -3'
+        __dialogueText("scenes/city/CityPlaces.js", "t_75c02d2cc7f1977fe289")
       );
 
       saveGameState();
@@ -320,9 +321,9 @@ export class CityPlaces {
         this.scene.stop('ShopScene');
 
         this.showMessage(
-          'The shop could not be opened.\nCheck the console for details.',
+          __dialogueText("scenes/city/CityPlaces.js", "t_604876cf3a540f124474"),
           3200,
-          '#8b0000'
+          __dialogueText("scenes/city/CityPlaces.js", "t_f27f7bc32875ed02b2fc")
         );
 
         void this.setupCityUi();

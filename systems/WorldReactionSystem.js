@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { installPIWorldReactionMail } from '../ui/PIWorldReactionMail.js';
@@ -66,7 +67,7 @@ function showOfficeBulletin(scene,event){
   const height=text.height+86;
   const background=scene.add.rectangle(0,0,width,height,0x172532,0.97).setOrigin(0.5,0).setStrokeStyle(2,0xb69b64);
   text.setPosition(0,18);
-  const close=scene.add.text(0,height-42,'CLOSE',{
+  const close=scene.add.text(0,height-42,__dialogueText("systems/WorldReactionSystem.js", "t_f13a1ed0cf3c4197ec8f"),{
     fontFamily:'SpecialElite, monospace',fontSize:`${font}px`,color:'#ffe3a0'
   }).setOrigin(0.5,0).setInteractive({useHandCursor:true});
   root.add([background,text,close]);

@@ -1,16 +1,17 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { POST_OFFICE_ART } from '../config/postOfficeConfig.js';
 import { latestWorldNewspaperEvent, readWorldReactions } from '../systems/WorldReactionModel.js';
 
 const installed=new WeakMap();
-const TOPIC='Seen the latest case news?';
+const TOPIC=__dialogueText("ui/WorldPostOfficeReactionHooks.js", "t_1a34c8f172305020d364");
 const RESPONSES={
- agency_convicted:'The court reached a verdict. Good. One less public argument to overhear while I’m trying to count stamps.',
- agency_released:'The defendant was released, according to the bulletin. I don’t add “guilty” in the margin just because somebody at the counter prefers it.',
- agency_suspect_arrested:'Detained is not convicted. We prefer our labels precise. It saves a great deal of arguing at the counter.',
- agency_pursuit_escape:'The public report says the pursuit ended without a detention. Please don’t ask me to track a person with a postage receipt.',
- agency_time_expired:'An unresolved inquiry. I can’t post an enquiry back to yesterday. People keep asking.'
+ agency_convicted:__dialogueText("ui/WorldPostOfficeReactionHooks.js", "t_ce3fa80bd4ad82288b48"),
+ agency_released:__dialogueText("ui/WorldPostOfficeReactionHooks.js", "t_2077680384edeef17c0d"),
+ agency_suspect_arrested:__dialogueText("ui/WorldPostOfficeReactionHooks.js", "t_5c1c3ff8d9d9505a6b5c"),
+ agency_pursuit_escape:__dialogueText("ui/WorldPostOfficeReactionHooks.js", "t_3ebf0768647b485f19cb"),
+ agency_time_expired:__dialogueText("ui/WorldPostOfficeReactionHooks.js", "t_97e5f7be0b7995d4b1db")
 };
 const seenKey=id=>JSON.stringify(['post_office_postman',id]);
 function seenEntries(state){
@@ -23,7 +24,7 @@ export function getPostOfficeWorldReaction(state){
  const event=latestWorldNewspaperEvent(state,'hq');
  if(!event||event.visibility!=='public'||event.system!=='agency'||String(event.campaignId)!==String(state._createdAt)||
   !RESPONSES[event.kind]||seenEntries(state).includes(seenKey(event.id)))return null;
- return{eventId:event.id,text:`The bulletin mentioned the ${event.artifact||'artefact'} case in ${event.cityName||'the city'}.\n\n“${RESPONSES[event.kind]}”`};
+ return{eventId:event.id,text:`${__dialogueText("ui/WorldPostOfficeReactionHooks.js", "t_8eaad1d5679904cf64c8")}${event.artifact||__dialogueText("ui/WorldPostOfficeReactionHooks.js", "t_4edfbd28d0483e702f24")}${__dialogueText("ui/WorldPostOfficeReactionHooks.js", "t_f42b9f039db44f945dae")}${event.cityName||__dialogueText("ui/WorldPostOfficeReactionHooks.js", "t_0f53fb3533eb343bc155")}${__dialogueText("ui/WorldPostOfficeReactionHooks.js", "t_b9acaceeb369ea8c5223")}${RESPONSES[event.kind]}${__dialogueText("ui/WorldPostOfficeReactionHooks.js", "t_4b6b1bf3818d4e6c9c43")}`};
 }
 export function markPostOfficeWorldReaction(state,eventId){
  const history=readWorldReactions(state);
@@ -63,7 +64,7 @@ export function installPostOfficeWorldReactions(scene){
    }
    scene.talk();
   };
-  scene.panel('POSTMAN',selected.text,[['Other matters',back]],true);
+  scene.panel('POSTMAN',selected.text,[[__dialogueText("ui/WorldPostOfficeReactionHooks.js", "t_64646486e814dc4b26d0"),back]],true);
   responseData=scene.dialogue?.data;
   if(responseData)responseData.worldPostalEventId=selected.eventId;
  }

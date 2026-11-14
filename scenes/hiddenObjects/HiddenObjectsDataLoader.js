@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 
 export class HiddenObjectsDataLoader {
@@ -10,7 +11,7 @@ export class HiddenObjectsDataLoader {
     }
     if (!scene.objectsDataPath || scene.objectsDataPath === 'assets/data/objects.json') {
       scene.objectsDataKey = 'objects-data:' + scene.sceneId;
-      scene.objectsDataPath = 'assets/data/objects/' + scene.sceneId + '.json';
+      scene.objectsDataPath = 'assets/data/objects/' + scene.sceneId + __dialogueText("scenes/hiddenObjects/HiddenObjectsDataLoader.js", "t_12157ab04ed2c6accc3d");
     }
     if (scene.backgroundPath && !scene.textures.exists(scene.backgroundKey)) {
       scene.load.image(scene.backgroundKey, scene.backgroundPath);
@@ -37,7 +38,7 @@ export class HiddenObjectsDataLoader {
       scene.itemsById[String(item.id)] = item;
     });
     scene.sceneItems = rawData.filter(item => item && Array.isArray(item.scene) && item.scene.includes(scene.sceneId));
-    this.debugLog('Objects loaded.', { sceneId: scene.sceneId, totalItems: scene.itemsData.length,
+    this.debugLog(__dialogueText("scenes/hiddenObjects/HiddenObjectsDataLoader.js", "t_db770272c5bc55868216"), { sceneId: scene.sceneId, totalItems: scene.itemsData.length,
       sceneItemsCount: scene.sceneItems.length });
     return true;
   }
@@ -59,14 +60,14 @@ export class HiddenObjectsDataLoader {
     const sceneItemMap = new Map(scene.sceneItems.map(item => [String(item.id), item]));
     const missingIds = generatedIds.filter(id => !sceneItemMap.has(id));
     if (missingIds.length > 0) {
-      this.handleSetupFailure(`Generated reconstruction contains IDs unavailable in scene "${scene.sceneId}": ${missingIds.join(', ')}.`);
+      this.handleSetupFailure(`${__dialogueText("scenes/hiddenObjects/HiddenObjectsDataLoader.js", "t_9b901330698c2c4f2e17")}${scene.sceneId}${__dialogueText("scenes/hiddenObjects/HiddenObjectsDataLoader.js", "t_7260049b8f6eaeb65416")}${missingIds.join(', ')}${__dialogueText("scenes/hiddenObjects/HiddenObjectsDataLoader.js", "t_cdb4ee2aea69cc6a8333")}`);
       return false;
     }
     scene.activeItems = generatedIds.map(id => sceneItemMap.get(id));
     scene.activeCount = scene.activeItems.length;
     scene.activeItemIds = new Set(generatedIds);
     scene.missionRelevantItemIds = new Set((gameState.reconstructedHeist?.solutionCardIds || []).map(id => String(id)));
-    this.debugLog('Using generated reconstruction cards.', { sceneId: scene.sceneId, generatedIds,
+    this.debugLog(__dialogueText("scenes/hiddenObjects/HiddenObjectsDataLoader.js", "t_c99f42af0fe1da824564"), { sceneId: scene.sceneId, generatedIds,
       solutionCardIds: [...scene.missionRelevantItemIds] });
     return true;
   }
@@ -79,7 +80,7 @@ export class HiddenObjectsDataLoader {
     scene.activeItemIds = new Set(scene.activeItems.map(item => String(item.id)));
     scene.missionRelevantItemIds = new Set(scene.activeItems.filter(item => item.isCorrect).map(item => String(item.id)));
     if (!scene.activeItems.length) {
-      this.handleSetupFailure(`No active objects selected for scene "${scene.sceneId}".`);
+      this.handleSetupFailure(`${__dialogueText("scenes/hiddenObjects/HiddenObjectsDataLoader.js", "t_7dd0576c03dfbe08cf23")}${scene.sceneId}${__dialogueText("scenes/hiddenObjects/HiddenObjectsDataLoader.js", "t_1e4a1452ad4db45827a1")}`);
       return false;
     }
     return true;

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../gameStatePersistence.js';
 import { EventBus } from '../EventBus.js';
@@ -157,7 +158,7 @@ export class PhoneCallScene extends BaseScene {
       .setDepth(2002);
 
     const signalText = this.add.text(
-      cx - 135, cy - 245, 'Yll GSM',
+      cx - 135, cy - 245, __dialogueText("scenes/PhoneCallScene.js", "t_d13c8ecee55104d8936a"),
       {
         fontFamily: 'PressStart2P',
         fontSize: '12px',
@@ -166,7 +167,7 @@ export class PhoneCallScene extends BaseScene {
     ).setDepth(2003);
 
     const batteryText = this.add.text(
-      cx + 85, cy - 245, '[===]',
+      cx + 85, cy - 245, __dialogueText("scenes/PhoneCallScene.js", "t_c8c2b203b9eef66f484e"),
       {
         fontFamily: 'PressStart2P',
         fontSize: '12px',
@@ -175,7 +176,7 @@ export class PhoneCallScene extends BaseScene {
     ).setDepth(2003);
 
     const title = this.add.text(
-      cx, cy - 200, 'INCOMING CALL',
+      cx, cy - 200, __dialogueText("scenes/PhoneCallScene.js", "t_1f429f907feda571844d"),
       {
         fontFamily: 'PressStart2P',
         fontSize: '14px',
@@ -184,7 +185,7 @@ export class PhoneCallScene extends BaseScene {
     ).setOrigin(0.5).setDepth(2003);
 
     const phoneIcon = this.add.text(
-      cx, cy - 150, '☎',
+      cx, cy - 150, __dialogueText("scenes/PhoneCallScene.js", "t_1a1bad4a8593d279e3ab"),
       {
         fontSize: '42px',
         color: '#0f380f'
@@ -192,7 +193,7 @@ export class PhoneCallScene extends BaseScene {
     ).setOrigin(0.5).setDepth(2003);
 
     const caller = this.add.text(
-      cx, cy - 90, 'DETECTIVE BUREAU',
+      cx, cy - 90, __dialogueText("scenes/PhoneCallScene.js", "t_258648f8498aa3aecd7c"),
       {
         fontFamily: 'PressStart2P',
         fontSize: '13px',
@@ -203,7 +204,7 @@ export class PhoneCallScene extends BaseScene {
     ).setOrigin(0.5).setDepth(2003);
 
     const ringing = this.add.text(
-      cx, cy - 35, 'LINE ACTIVE...',
+      cx, cy - 35, __dialogueText("scenes/PhoneCallScene.js", "t_c5ae7a15b80d96573375"),
       {
         fontFamily: 'PressStart2P',
         fontSize: '10px',
@@ -213,7 +214,7 @@ export class PhoneCallScene extends BaseScene {
     ).setOrigin(0.5).setDepth(2003);
 
     const answerBtn = this.add.text(
-      cx - 70, cy + 18, '[ ANSWER ]',
+      cx - 70, cy + 18, __dialogueText("scenes/PhoneCallScene.js", "t_569571744c7853c81c52"),
       {
         fontFamily: 'PressStart2P',
         fontSize: '11px',
@@ -227,7 +228,7 @@ export class PhoneCallScene extends BaseScene {
       .setInteractive({ useHandCursor: true });
 
     const laterBtn = this.add.text(
-      cx + 70, cy + 18, '[ IGNORE ]',
+      cx + 70, cy + 18, __dialogueText("scenes/PhoneCallScene.js", "t_3d71a7b1b5f2153ff09e"),
       {
         fontFamily: 'PressStart2P',
         fontSize: '11px',

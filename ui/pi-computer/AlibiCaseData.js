@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { ALIBI_INTERVIEW_SEARCH, ALIBI_INTERVIEW_CONTACTS } from './AlibiInterviewData.js';
 export const ALIBI_SEARCH_ID = 'borrowed_alibi';
 export const ALIBI_CONTACT_ID = 'alibi_copper_spoon';
@@ -5,278 +6,278 @@ export const ALIBI_CLUB_CONTACT_ID = 'alibi_tuesday_club';
 export const ALIBI_DATA_REVISION = 4;
 const BASE_SEARCH = {
   "id": "borrowed_alibi",
-  "title": "The Borrowed Alibi",
+  "title": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_6f6595b37ee8214d1067"),
   "initialKeywords": [],
   "clouds": [
     {
       "id": "places",
-      "title": "PLACES / CONTACTS"
+      "title": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_3d456bb540a6c309513a")
     },
     {
       "id": "people",
-      "title": "PEOPLE"
+      "title": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_0ab25a59ac13f7da53bb")
     },
     {
       "id": "dinner",
-      "title": "TUESDAY DINNER"
+      "title": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_80e51a402bc10bc641a4")
     },
     {
       "id": "documents",
-      "title": "DOCUMENTS / PERMISSION"
+      "title": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_80ee197fe2eb5f9f52aa")
     },
     {
       "id": "club",
-      "title": "THE ALIBI BUSINESS"
+      "title": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_9f3916234ae0aa567e91")
     }
   ],
   "keywords": [
     {
       "id": "copper_spoon",
-      "label": "The Copper Spoon",
+      "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_0bd5ad37429856747de0"),
       "cloudId": "places"
     },
     {
       "id": "tuesday",
-      "label": "Tuesday",
+      "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_7d8af1de1262f150187d"),
       "cloudId": "dinner"
     },
     {
       "id": "tomato_soup",
-      "label": "tomato soup",
+      "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_e9884a554e94418adb3f"),
       "cloudId": "dinner"
     },
     {
       "id": "red_wine",
-      "label": "red wine",
+      "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_c0e5eb15b27d73702d8c"),
       "cloudId": "dinner"
     },
     {
       "id": "arthur_finch",
-      "label": "Arthur Finch",
+      "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_513833eba3a4389aeb86"),
       "cloudId": "people"
     },
     {
       "id": "nora_bell",
-      "label": "Nora Bell",
+      "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_4cca0264ed42816c466a"),
       "cloudId": "people"
     },
     {
       "id": "simon_pike",
-      "label": "Simon Pike",
+      "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_95df72b5037a3593588e"),
       "cloudId": "people"
     },
     {
       "id": "evelyn_shaw",
-      "label": "Evelyn Shaw",
+      "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_f693eba06ad2594e170c"),
       "cloudId": "people"
     },
     {
       "id": "consent",
-      "label": "permission to release my receipt",
+      "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_4187ebcc31e7792be677"),
       "cloudId": "documents"
     },
     {
       "id": "receipt",
-      "label": "receipt",
+      "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_6f32860910ca0fb2a20c"),
       "cloudId": "documents"
     },
     {
       "id": "copper_phone",
-      "label": "427",
+      "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_42f25adecf47629878e8"),
       "cloudId": "places"
     },
     {
       "id": "kitchen_failure",
-      "label": "kitchen failure",
+      "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_455521e9eb2beb0b3b70"),
       "cloudId": "dinner"
     },
     {
       "id": "one_guest",
-      "label": "one guest",
+      "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_ba1b925e6c673f4270b6"),
       "cloudId": "documents"
     },
     {
       "id": "tuesday_package",
-      "label": "Tuesday package",
+      "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_778bc47bac00f236180e"),
       "cloudId": "club"
     },
     {
       "id": "revision_two",
-      "label": "revision 2",
+      "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_c83f1c8c9f121fc5361d"),
       "cloudId": "club"
     },
     {
       "id": "alibi_club",
-      "label": "Tuesday Alibi Club",
+      "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_550b2fa8eec156e7f2e5"),
       "cloudId": "club"
     },
     {
       "id": "club_phone",
-      "label": "428",
+      "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_cbf2f7864f1c988391a9"),
       "cloudId": "club"
     },
     {
       "id": "dinner_package",
-      "label": "Dinner Companion package",
+      "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_b6c88235a57a8dd4c3e1"),
       "cloudId": "club"
     },
     {
       "id": "respectable_witness",
-      "label": "respectable companion",
+      "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_15e40dad60c34d938071"),
       "cloudId": "club"
     },
     {
       "id": "sample",
-      "label": "free sample",
+      "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_61059a5e4686e0bf046b"),
       "cloudId": "club"
     },
     {
       "id": "sample_code",
-      "label": "TUE-DC-02",
+      "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_9c4ad18fbc2b8a22228f"),
       "cloudId": "club"
     }
   ],
   "pages": [
     {
       "id": "copper_home",
-      "title": "The Copper Spoon | Dinner without drama",
-      "address": "www.copperspoon.local",
-      "brand": "THE COPPER SPOON",
+      "title": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_7f0e4d4ce148c19f160e"),
+      "address": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_43dd7a9e3871515ca634"),
+      "brand": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_b4783cdbda4aa272dec8"),
       "blocks": [
         [
           {
             "keywordId": "copper_spoon"
           },
-          " — sensible food, unreasonable tablecloths."
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_c83b4be8fde078d31d0c")
         ],
         [
-          "Open Monday to Saturday, 12:00–22:00. Cold sandwiches available even when our ambitions exceed our equipment."
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_0a5a5bcd3b16355f1686")
         ]
       ],
       "links": [
         {
-          "label": "Menu",
+          "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_99af6606ff9d6cd5154d"),
           "pageId": "copper_menu"
         },
         {
-          "label": "Service notice",
+          "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_1a8c5ee7fcda5ea75fbd"),
           "pageId": "copper_notice"
         },
         {
-          "label": "Contact",
+          "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_2b5c3d26721ae9c350cf"),
           "pageId": "copper_contact"
         }
       ],
-      "snippet": "Menus, opening hours and restaurant enquiries."
+      "snippet": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_e2cd82394bd3a5a19f48")
     },
     {
       "id": "copper_menu",
-      "title": "Menu | The Copper Spoon",
-      "address": "www.copperspoon.local/menu",
-      "brand": "THE COPPER SPOON",
+      "title": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_3be1433b2a2e7d83ec25"),
+      "address": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_1e477443dcf5a2ed59ee"),
+      "brand": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_b4783cdbda4aa272dec8"),
       "blocks": [
         [
-          "USUAL EVENING MENU"
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_dad4222d8ac2fe5daabd")
         ],
         [
           {
             "keywordId": "tomato_soup"
           },
-          " — $6. Cheese sandwich — $8. Sparkling water — $3."
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_7648ff225ccb1616f64a")
         ],
         [
-          "This is our standard menu, not a record of what was served on a particular evening."
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_e4bc485f199dba57ba63")
         ]
       ],
       "links": [
         {
-          "label": "Service notice",
+          "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_1a8c5ee7fcda5ea75fbd"),
           "pageId": "copper_notice"
         },
         {
-          "label": "Contact",
+          "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_2b5c3d26721ae9c350cf"),
           "pageId": "copper_contact"
         }
       ],
-      "snippet": "Our usual menu. Availability may vary."
+      "snippet": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_85f914f44f06a5a1520c")
     },
     {
       "id": "copper_notice",
-      "title": "Tuesday service notice | The Copper Spoon",
-      "address": "www.copperspoon.local/notices/tuesday",
-      "brand": "THE COPPER SPOON",
+      "title": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_71d9425a73693f9550ea"),
+      "address": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_09707054029eaeeacca8"),
+      "brand": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_b4783cdbda4aa272dec8"),
       "blocks": [
         [
-          "A NOTE ABOUT ",
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_442fe0d6be84f90ad929"),
           {
             "keywordId": "tuesday"
           },
-          " EVENING"
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_9edc67dd478f6626c07a")
         ],
         [
-          "Due to a ",
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_c4ae0f0193ce97a3b36d"),
           {
             "keywordId": "kitchen_failure"
           },
-          ", the hot kitchen was closed throughout Tuesday evening. Cold sandwiches and drinks remained available."
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_faf961877c8b2db69dc8")
         ],
         [
-          "For questions about a particular visit, please contact the manager. We apologise for the inconvenience. The cooker has declined to comment."
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_6c82dba298c62d967505")
         ]
       ],
       "links": [
         {
-          "label": "Contact",
+          "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_2b5c3d26721ae9c350cf"),
           "pageId": "copper_contact"
         },
         {
-          "label": "Menu",
+          "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_99af6606ff9d6cd5154d"),
           "pageId": "copper_menu"
         }
       ],
-      "snippet": "An apology from the kitchen."
+      "snippet": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_b64066d059622f7d7ae1")
     },
     {
       "id": "copper_contact",
-      "title": "Contact | The Copper Spoon",
-      "address": "www.copperspoon.local/contact",
-      "brand": "THE COPPER SPOON",
+      "title": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_6ac456f9b36201af9d2f"),
+      "address": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_dc2b9c910eecd2160a12"),
+      "brand": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_b4783cdbda4aa272dec8"),
       "blocks": [
         [
-          "Restaurant enquiries: ",
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_5625c4e840daff8ae4cd"),
           {
             "keywordId": "copper_phone"
           },
-          " (local)."
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_c29de8396ea1ed8cdd28")
         ],
         [
-          "Ask the manager about service on a particular evening."
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_1a67b20392ec502d04bc")
         ],
         [
-          "Copies of a customer’s ",
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_95638396cc234faebf7f"),
           {
             "keywordId": "receipt"
           },
-          " require that customer’s permission. We protect your privacy even when you order extra mayonnaise."
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_b96d125f3244394867ab")
         ]
       ],
       "links": [
         {
-          "label": "Home",
+          "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_3a78695388b38b5cceef"),
           "pageId": "copper_home"
         },
         {
-          "label": "Service notice",
+          "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_1a8c5ee7fcda5ea75fbd"),
           "pageId": "copper_notice"
         }
       ],
-      "snippet": "Speak to the manager about a visit or receipt."
+      "snippet": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_6b2c2a98ed76b9d42a0c")
     },
     {
       "id": "club_home",
-      "title": "Tuesday Alibi Club | A better yesterday",
-      "address": "www.tuesdayclub.local",
-      "brand": "TUESDAY ALIBI CLUB",
+      "title": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_d5ee02b7bb208431bf52"),
+      "address": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_d2708a6431faad4a0ccf"),
+      "brand": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_ff2a51dce7fff690bfa6"),
       "blocks": [
         [
           {
@@ -284,33 +285,33 @@ const BASE_SEARCH = {
           }
         ],
         [
-          "Our next meeting has been cancelled on legal advice. Telephone enquiries remain open. The lawyer did not specifically mention the telephone."
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_fa67f4a145df6068549c")
         ],
         [
-          "Looking for our ",
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_97e0cce0ca671eaffa2c"),
           {
             "keywordId": "tuesday_package"
           },
-          "? Browse our companionship services."
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_e5e3e499ef93ea4c5e79")
         ]
       ],
       "links": [
         {
-          "label": "Packages",
+          "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_40a2085371b8effbae52"),
           "pageId": "club_packages"
         },
         {
-          "label": "Contact",
+          "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_2b5c3d26721ae9c350cf"),
           "pageId": "club_contact"
         }
       ],
-      "snippet": "Were you somewhere last Tuesday? Would you like to have been somewhere else?"
+      "snippet": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_d275b28049b1978f2fca")
     },
     {
       "id": "club_packages",
-      "title": "Dinner Companion | Tuesday Alibi Club",
-      "address": "www.tuesdayclub.local/packages/tuesday",
-      "brand": "TUESDAY ALIBI CLUB",
+      "title": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_bc9f3e6082e16e1ad7c8"),
+      "address": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_708e2876df8381d44e98"),
+      "brand": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_ff2a51dce7fff690bfa6"),
       "blocks": [
         [
           {
@@ -318,70 +319,70 @@ const BASE_SEARCH = {
           }
         ],
         [
-          "A named dining companion, a restaurant and a memorable evening. Available as the ",
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_c37ebb9440481602fd8c"),
           {
             "keywordId": "tuesday_package"
           },
-          ", ",
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_0a07f659461970d8d8dc"),
           {
             "keywordId": "revision_two"
           },
-          "."
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_cdb4ee2aea69cc6a8333")
         ],
         [
-          "Includes venue details and a conversation outline. Optional embarrassment available at no extra charge."
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_eac112351d201fb9108e")
         ],
         [
-          "Prospective clients may telephone for a demonstration. Packages describe a story; they do not make that story true."
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_5647eecaba3f07897395")
         ]
       ],
       "links": [
         {
-          "label": "Home",
+          "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_3a78695388b38b5cceef"),
           "pageId": "club_home"
         },
         {
-          "label": "Contact",
+          "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_2b5c3d26721ae9c350cf"),
           "pageId": "club_contact"
         }
       ],
-      "snippet": "Dinner companions, conversational details and impressive consistency."
+      "snippet": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_83bb8fe5ca8c8bdb6693")
     },
     {
       "id": "club_contact",
-      "title": "Enquiries | Tuesday Alibi Club",
-      "address": "www.tuesdayclub.local/contact",
-      "brand": "TUESDAY ALIBI CLUB",
+      "title": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_09eb65e530f981cf6657"),
+      "address": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_da82d7aef655385fbfff"),
+      "brand": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_ff2a51dce7fff690bfa6"),
       "blocks": [
         [
-          "Enquiries: ",
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_e861abaf3cc0c5fbde40"),
           {
             "keywordId": "club_phone"
           },
-          " (local)."
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_c29de8396ea1ed8cdd28")
         ],
         [
-          "Ask about the ",
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_39705302d39dbbb17d14"),
           {
             "keywordId": "dinner_package"
           },
-          ". Demonstration material can be sent to a mailbox you nominate during the call."
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_1bb64a5426d0b3238124")
         ],
         [
-          "Do not ask where we were last Tuesday. That information is available in our premium package."
+          __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_ae7eeb619c262efe3003")
         ]
       ],
       "links": [
         {
-          "label": "Packages",
+          "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_40a2085371b8effbae52"),
           "pageId": "club_packages"
         },
         {
-          "label": "Home",
+          "label": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_3a78695388b38b5cceef"),
           "pageId": "club_home"
         }
       ],
-      "snippet": "Private enquiries. Public denials."
+      "snippet": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_08fa5f61dce1434d62d7")
     }
   ],
   "recipes": [
@@ -488,27 +489,27 @@ export const ALIBI_PHONE_CONTACT = {
   "id": "alibi_copper_spoon",
   "caseId": "borrowed_alibi",
   "number": "427",
-  "name": "The Copper Spoon — Manager",
+  "name": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_7568bf152928ba221688"),
   "requiresKeyword": "copper_phone",
-  "choicePrompt": "The manager is listening. Choose one or two details from your notes.",
+  "choicePrompt": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_b0f333ed611dd54b1d74"),
   "greeting": [
     {
-      "speaker": "Manager",
-      "text": "The Copper Spoon. If this is about Tuesday, the cooker is still refusing interviews."
+      "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_8b2085f74dfa9c78a23b"),
+      "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_656e9c63e025408e1aa7")
     },
     {
-      "speaker": "You",
-      "text": "I am investigating a dinner. May I ask a few questions?"
+      "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_08b041935798fbf6fd6f"),
+      "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_9f9e801e1776eeb98160")
     },
     {
-      "speaker": "Manager",
-      "text": "Certainly. Please be more specific than our last restaurant critic."
+      "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_8b2085f74dfa9c78a23b"),
+      "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_2d7aa88e073ca875197b")
     }
   ],
   "fallback": [
     {
-      "speaker": "Manager",
-      "text": "I cannot confirm a connection between those details. Ask about Tuesday service, or name the customer and the permission they gave you."
+      "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_8b2085f74dfa9c78a23b"),
+      "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_ed720f057815f84b4fe3")
     }
   ],
   "topics": [
@@ -524,12 +525,12 @@ export const ALIBI_PHONE_CONTACT = {
       ],
       "lines": [
         {
-          "speaker": "You",
-          "text": "What did you serve on Tuesday evening?"
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_08b041935798fbf6fd6f"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_5d4a85a7867b44cb564c")
         },
         {
-          "speaker": "Manager",
-          "text": "Cold sandwiches and drinks. The hot kitchen was out of action all evening. No soup. We served sandwiches and an apology."
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_8b2085f74dfa9c78a23b"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_6f71a47f71df20ef116c")
         }
       ]
     },
@@ -546,12 +547,12 @@ export const ALIBI_PHONE_CONTACT = {
       ],
       "lines": [
         {
-          "speaker": "You",
-          "text": "Could someone have ordered tomato soup on Tuesday evening?"
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_08b041935798fbf6fd6f"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_1b7217448428915424ea")
         },
         {
-          "speaker": "Manager",
-          "text": "No. The hot kitchen was closed throughout the evening. Tomato soup appears on our usual menu, but it was not served that Tuesday."
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_8b2085f74dfa9c78a23b"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_67ac4fa5dc574656cfee")
         }
       ]
     },
@@ -567,12 +568,12 @@ export const ALIBI_PHONE_CONTACT = {
       ],
       "lines": [
         {
-          "speaker": "You",
-          "text": "How long was the kitchen out of service?"
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_08b041935798fbf6fd6f"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_627a75a61d8a5f58d911")
         },
         {
-          "speaker": "Manager",
-          "text": "The whole of Tuesday evening. We kept the dining room open for cold food and drinks. The cooker had a better evening than we did."
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_8b2085f74dfa9c78a23b"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_ca44219f3647ba1ab625")
         }
       ]
     },
@@ -586,12 +587,12 @@ export const ALIBI_PHONE_CONTACT = {
       "grantFlags": [],
       "lines": [
         {
-          "speaker": "You",
-          "text": "Can you confirm Arthur Finch’s order and who was with him?"
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_08b041935798fbf6fd6f"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_d8a46908f3dab6c44c97")
         },
         {
-          "speaker": "Manager",
-          "text": "I cannot disclose a customer’s individual records without permission. If Mr Finch has authorised release of his receipt, tell me that."
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_8b2085f74dfa9c78a23b"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_b5e465126cdc4fa8600e")
         }
       ]
     },
@@ -605,12 +606,12 @@ export const ALIBI_PHONE_CONTACT = {
       "grantFlags": [],
       "lines": [
         {
-          "speaker": "You",
-          "text": "Can I obtain a customer’s receipt?"
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_08b041935798fbf6fd6f"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_0b56f470ab7689b50673")
         },
         {
-          "speaker": "Manager",
-          "text": "With their permission. I need the customer’s name and their authorisation. Being curious is not an authorisation."
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_8b2085f74dfa9c78a23b"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_878df334b86789350670")
         }
       ]
     },
@@ -624,12 +625,12 @@ export const ALIBI_PHONE_CONTACT = {
       "grantFlags": [],
       "lines": [
         {
-          "speaker": "You",
-          "text": "I have the customer’s permission to release a receipt."
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_08b041935798fbf6fd6f"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_90cd620d2696f01e59ea")
         },
         {
-          "speaker": "Manager",
-          "text": "Then please give me the customer’s name together with that permission."
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_8b2085f74dfa9c78a23b"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_0caeb4a6e5d630b200aa")
         }
       ]
     },
@@ -646,16 +647,16 @@ export const ALIBI_PHONE_CONTACT = {
       ],
       "lines": [
         {
-          "speaker": "You",
-          "text": "Arthur Finch gave me permission to obtain his Tuesday receipt. Please send a copy to my office."
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_08b041935798fbf6fd6f"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_243b01214122a1af546a")
         },
         {
-          "speaker": "Manager",
-          "text": "I have his written authorisation through the classifieds relay. Here is the relevant receipt: one diner, one cheese sandwich and one sparkling water."
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_8b2085f74dfa9c78a23b"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_2f546759df1bbca95d53")
         },
         {
-          "speaker": "Manager",
-          "text": "Opened at 19:04. Paid at 19:48. There is no soup or wine on that order. I have sent the copy to your office mailbox."
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_8b2085f74dfa9c78a23b"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_7c43507e2962a07b9ab4")
         }
       ]
     },
@@ -669,12 +670,12 @@ export const ALIBI_PHONE_CONTACT = {
       "grantFlags": [],
       "lines": [
         {
-          "speaker": "You",
-          "text": "Does a story about spilled red wine identify a particular diner?"
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_08b041935798fbf6fd6f"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_c655e79df22891059270")
         },
         {
-          "speaker": "Manager",
-          "text": "Not by itself. Stained tablecloths are not a guest register. I would need an authorised record for the customer you are asking about."
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_8b2085f74dfa9c78a23b"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_306a0e9e06c845c55d64")
         }
       ]
     }
@@ -684,27 +685,27 @@ export const ALIBI_CLUB_CONTACT = {
   "id": "alibi_tuesday_club",
   "caseId": "borrowed_alibi",
   "number": "428",
-  "name": "Tuesday Alibi Club — Membership",
+  "name": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_e3b7fbadff64acdaace3"),
   "requiresKeyword": "club_phone",
-  "choicePrompt": "You are posing as a prospective customer. What do you ask?",
+  "choicePrompt": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_45d2a4d6e02907eadb33"),
   "greeting": [
     {
-      "speaker": "Membership secretary",
-      "text": "Tuesday Alibi Club. Yesterday, improved."
+      "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_a03a465214aba97f9cc6"),
+      "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_ddf5ec39f34a832c7f58")
     },
     {
-      "speaker": "You",
-      "text": "I am enquiring as a prospective customer."
+      "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_08b041935798fbf6fd6f"),
+      "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_b77be4d1eec62b101bf8")
     },
     {
-      "speaker": "Membership secretary",
-      "text": "Wonderful. Discretion is our second-most important principle. We cannot disclose the first."
+      "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_a03a465214aba97f9cc6"),
+      "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_851910f82381b1e859c4")
     }
   ],
   "fallback": [
     {
-      "speaker": "Membership secretary",
-      "text": "Start with our Dinner Companion package. If we have discussed it, I can offer a free sample. We do not discuss existing clients."
+      "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_a03a465214aba97f9cc6"),
+      "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_8bf9f3a1636b8002624c")
     }
   ],
   "topics": [
@@ -718,12 +719,12 @@ export const ALIBI_CLUB_CONTACT = {
       "grantFlags": [],
       "lines": [
         {
-          "speaker": "You",
-          "text": "Your website says the meeting was cancelled. Are you still taking enquiries?"
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_08b041935798fbf6fd6f"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_bf5dc14db70deffbd6be")
         },
         {
-          "speaker": "Membership secretary",
-          "text": "The meeting was cancelled. Not the concept of having been somewhere else. Our Dinner Companion package is still available."
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_a03a465214aba97f9cc6"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_24e0c2c308c4d51bb936")
         }
       ]
     },
@@ -739,31 +740,31 @@ export const ALIBI_CLUB_CONTACT = {
       ],
       "lines": [
         {
-          "speaker": "You",
-          "text": "I saw your Dinner Companion package. I might need a more sociable Tuesday. What does it include?"
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_08b041935798fbf6fd6f"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_890e58317a2aa91b3d0b")
         },
         {
-          "speaker": "Membership secretary",
-          "text": "A restaurant, a timetable and a respectable companion. Our clients find consistency very reassuring.",
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_a03a465214aba97f9cc6"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_ffd965de3aacd61cfa1e"),
           "fragments": [
-            "A restaurant, a timetable and a ",
+            __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_204476320ac565be366e"),
             {
               "keywordId": "respectable_witness",
-              "text": "respectable companion"
+              "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_15e40dad60c34d938071")
             },
-            ". Our clients find consistency very reassuring."
+            __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_a1b2f90afb579ebdd4ba")
           ]
         },
         {
-          "speaker": "Membership secretary",
-          "text": "You may request a free sample before deciding. No payment or subscription is required.",
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_a03a465214aba97f9cc6"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_5bf220c701bcd4c3fb11"),
           "fragments": [
-            "You may request a ",
+            __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_eaa7022c46739359a3ac"),
             {
               "keywordId": "sample",
-              "text": "free sample"
+              "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_61059a5e4686e0bf046b")
             },
-            " before deciding. No payment or subscription is required."
+            __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_062e8d3770b4c85a9197")
           ]
         }
       ]
@@ -780,12 +781,12 @@ export const ALIBI_CLUB_CONTACT = {
       ],
       "lines": [
         {
-          "speaker": "You",
-          "text": "Does the respectable companion know they are my companion?"
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_08b041935798fbf6fd6f"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_896dc7e5b47c46ce0791")
         },
         {
-          "speaker": "Membership secretary",
-          "text": "Our companions are independent. Some are so independent they do not know they work for us."
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_a03a465214aba97f9cc6"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_a4c0d2e30ec98ae7dfcf")
         }
       ]
     },
@@ -803,16 +804,16 @@ export const ALIBI_CLUB_CONTACT = {
       ],
       "lines": [
         {
-          "speaker": "You",
-          "text": "Please send the free sample to my office mailbox through the same classifieds reply relay I am using for this enquiry."
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_08b041935798fbf6fd6f"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_d870340a78c40c40040e")
         },
         {
-          "speaker": "Membership secretary",
-          "text": "Certainly. A demonstration only — no purchase and no subscription."
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_a03a465214aba97f9cc6"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_3b2da7640c40b86af3a9")
         },
         {
-          "speaker": "Membership secretary",
-          "text": "I have sent the Dinner Companion example, TUE-DC-02. Please read the small print. It is where we keep most of the honesty."
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_a03a465214aba97f9cc6"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_5636cafd3786ad1cc22d")
         }
       ]
     },
@@ -831,12 +832,12 @@ export const ALIBI_CLUB_CONTACT = {
       ],
       "lines": [
         {
-          "speaker": "You",
-          "text": "May I see the free sample for the Dinner Companion package? Please send it to my office mailbox through my classifieds reply relay."
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_08b041935798fbf6fd6f"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_8a32f788a58f5bf242ad")
         },
         {
-          "speaker": "Membership secretary",
-          "text": "Sent. The demonstration is free. Please do not mistake sample companionship for an actual social life."
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_a03a465214aba97f9cc6"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_6d8936b448acfd3b14fe")
         }
       ]
     },
@@ -850,12 +851,12 @@ export const ALIBI_CLUB_CONTACT = {
       "grantFlags": [],
       "lines": [
         {
-          "speaker": "You",
-          "text": "Do your dinner packages use Arthur Finch?"
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_08b041935798fbf6fd6f"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_44dd7b4facef1f9fafaa")
         },
         {
-          "speaker": "Membership secretary",
-          "text": "We do not discuss names from our demonstration material over the telephone. Request the sample if you want to inspect what is on offer."
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_a03a465214aba97f9cc6"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_3ef96040062cfbca6cb6")
         }
       ]
     },
@@ -869,12 +870,12 @@ export const ALIBI_CLUB_CONTACT = {
       "grantFlags": [],
       "lines": [
         {
-          "speaker": "You",
-          "text": "Is Evelyn Shaw a customer?"
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_08b041935798fbf6fd6f"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_dd5896f82c72cfac6ab6")
         },
         {
-          "speaker": "Membership secretary",
-          "text": "We do not discuss existing clients. Not even the ones who ask us to remove the footer before sending the story."
+          "speaker": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_a03a465214aba97f9cc6"),
+          "text": __dialogueText("ui/pi-computer/AlibiCaseData.js", "t_e81832014ef5254eeade")
         }
       ]
     }

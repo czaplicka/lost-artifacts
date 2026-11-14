@@ -1,32 +1,33 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import * as TutorialContent from './ChaseTutorialContent.js';
 import { screenBounds } from './ChaseTutorialTargets.js';
 
 const OBJECTIVES = {
-  npc: 'Talk to a witness.',
-  dialogue: 'Ask about the suspect and the next destination.',
-  leave: 'Return to the city map.',
-  inventory: 'Open Inventory and select the ID Preparation Envelope.',
-  envelope: 'Read the eye colour in the ID Preparation Envelope.',
-  envelope_missing: 'Recover the ID Preparation Envelope from the apartment.',
-  envelope_done: 'Close Inventory and open Warrant.',
-  warrant: 'Open Warrant from the player menu.',
-  warrant_edit: 'Select three traits, including the recovered eye colour.',
-  warrant_search: 'Click SEARCH RECORDS.',
-  warrant_searching: 'Wait for the records search.',
-  warrant_issue: 'Click ISSUE beside your chosen suspect.',
-  warrant_no_match: 'Check the selected traits and search again.',
-  warrant_issued: 'Close the issued warrant.',
-  hotel: 'Visit the hotel.',
-  booking: 'Choose a hotel within your budget.',
-  board: 'Use the desk to open the Crime Board.',
-  board_edit: 'Review the evidence, then open Case Theory.',
-  theory_open: 'Open the Case Theory tab.',
-  theory_edit: 'Build four evidence-backed conclusions.',
-  return: 'Close the board and return to the city.',
-  travel: 'Open Travel and compare the destination clues.',
-  travel_choose: 'Choose the next city using the clues.',
-  arrest: 'Compare the dossiers and select your suspect.',
-  arrest_theory: 'Review how your Case Theory supports the case.'
+  npc: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_72a8c37e64fce72247ec"),
+  dialogue: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_949df7815407c61fffe9"),
+  leave: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_a5cc71c410f25e825a41"),
+  inventory: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_2bcc89a9f38d2d2a722b"),
+  envelope: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_a1a5725205ca80e4b0d2"),
+  envelope_missing: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_ad0b3d52feb4c086a78f"),
+  envelope_done: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_6063b4bb67920ca683ec"),
+  warrant: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_abd97d1824760175e6e5"),
+  warrant_edit: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_e9cb955607305572effc"),
+  warrant_search: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_4067810576ba0f056886"),
+  warrant_searching: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_93f2cc2aae7c370ee4f8"),
+  warrant_issue: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_7f3c06df69b784781990"),
+  warrant_no_match: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_92f733e6822275cb578d"),
+  warrant_issued: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_31dcfb9e795c3f18957d"),
+  hotel: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_af7ba6bae2b3f5604afd"),
+  booking: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_26612d7f7dc71356d380"),
+  board: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_8d3090531ff5006c585f"),
+  board_edit: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_5cf4b309a130102a56f9"),
+  theory_open: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_bbba7bd08fc1962a2325"),
+  theory_edit: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_8a08eb55b764b1020414"),
+  return: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_f744cc632676564152c7"),
+  travel: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_22e721f19db34bb9e962"),
+  travel_choose: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_4f81872482cbdbbf82e3"),
+  arrest: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_79ecdb8da067d822e114"),
+  arrest_theory: __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_25a1cf9042ac2cc1ca9b")
 };
 
 export class ChaseTutorialOverlay {
@@ -44,33 +45,7 @@ export class ChaseTutorialOverlay {
     this.root.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:2147483000;';
 
     const style = document.createElement('style');
-    style.textContent = `
-      @keyframes la-chase-pulse{from{opacity:.28}to{opacity:1}}
-      .la-chase-ring{position:fixed;box-sizing:border-box;border:4px solid #f2d477;background:#f2d47714;animation:la-chase-pulse .7s ease-in-out infinite alternate;pointer-events:none}
-      .la-chase-panel{position:fixed;box-sizing:border-box;min-height:0;border:3px solid #f2d477eb;background:#17110ef5;color:#fff4d0;padding:12px 16px;pointer-events:auto;transform-origin:top left;z-index:1;overflow:visible}
-      .la-chase-heading{min-height:28px;padding-right:184px;font:8px/1.8 PressStart2P,monospace;color:#f2d477;overflow-wrap:anywhere}
-      .la-chase-copy{margin-left:100px;min-height:116px}
-      .la-chase-title{margin:0 0 10px;font:9px/1.8 PressStart2P,monospace;color:#fff4d0;overflow-wrap:anywhere}
-      .la-chase-objective{margin:0 0 8px;font:20px/1.35 SpecialElite,serif;color:#fff4d0;overflow-wrap:anywhere}
-      .la-chase-text{font:14px/1.45 SpecialElite,serif;color:#d7c58f;overflow-wrap:anywhere}
-      .la-chase-portrait{position:absolute;left:16px;top:44px;width:84px;text-align:center;font:8px/1.8 PressStart2P,monospace;color:#f2d477}
-      .la-chase-portrait-frame{box-sizing:content-box;width:84px;height:84px;padding:2px;margin-bottom:7px;border:2px solid #f2d477d9;background:#d7c58f1f}
-      .la-chase-portrait img{display:block;width:84px;height:84px;object-fit:contain;image-rendering:pixelated}
-      .la-chase-controls{position:absolute;right:10px;top:8px;display:flex;gap:8px}
-      .la-chase-panel button{box-sizing:border-box;min-height:26px;border:1px solid #f2d477b8;background:#17110e59;color:#d7c58f;font:7px/1.5 PressStart2P,monospace;cursor:pointer;padding:5px 8px}
-      .la-chase-controls button:first-child{width:26px;padding:0;font-size:12px}
-      .la-chase-controls button:last-child{width:136px}
-      .la-chase-panel button:hover{color:#f2d477}
-      .la-chase-panel button:focus-visible{outline:2px solid #fff4d0;outline-offset:3px}
-      .la-chase-footer{display:flex;justify-content:flex-end;margin-top:10px}
-      .la-chase-panel .la-chase-next{background:#f2d477;color:#241d18}
-      .la-chase-panel [hidden]{display:none!important}
-      .la-chase-panel.is-collapsed .la-chase-copy{margin-left:0;min-height:0}
-      .la-chase-panel.is-collapsed .la-chase-objective{margin:0;font-size:18px}
-      .la-chase-panel.is-narrow .la-chase-copy{margin-left:0;min-height:0}
-      .la-chase-panel.is-narrow .la-chase-heading{padding-top:30px;padding-right:0}
-      @media(prefers-reduced-motion:reduce){.la-chase-ring{animation:none}}
-    `;
+    style.textContent = `${__dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_58236c5ba3fd948121af")}`;
 
     const element = (tag, className) => {
       const node = document.createElement(tag);
@@ -79,7 +54,7 @@ export class ChaseTutorialOverlay {
     };
 
     this.panel = element('section', 'la-chase-panel');
-    this.panel.setAttribute('aria-label', 'Investigation tutorial');
+    this.panel.setAttribute('aria-label', __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_6deaf40ea7a803c16e10"));
     this.portrait = element('div', 'la-chase-portrait');
     const frame = element('div', 'la-chase-portrait-frame');
     this.portraitImage = document.createElement('img');
@@ -107,7 +82,7 @@ export class ChaseTutorialOverlay {
     };
     const skip = document.createElement('button');
     skip.type = 'button';
-    skip.textContent = 'SKIP TUTORIAL >';
+    skip.textContent = __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_e8395936de2e1c809b3e");
     skip.onclick = () => onSkip();
     controls.append(this.collapseButton, skip);
     this.footer = element('div', 'la-chase-footer');
@@ -135,7 +110,7 @@ export class ChaseTutorialOverlay {
     this.footer.hidden = this.collapsed;
     this.portrait.hidden = this.collapsed || this.panel.classList.contains('is-narrow');
     this.collapseButton.textContent = this.collapsed ? '+' : '–';
-    this.collapseButton.setAttribute('aria-label', this.collapsed ? 'Expand tutorial' : 'Minimise tutorial');
+    this.collapseButton.setAttribute('aria-label', this.collapsed ? __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_5df71120277eb959617f") : __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_11e7003f1f92b4f1387e"));
     this.collapseButton.setAttribute('aria-expanded', String(!this.collapsed));
   }
 
@@ -203,14 +178,14 @@ export class ChaseTutorialOverlay {
     this.currentId = id;
     this.root.hidden = false;
     this.heading.textContent = Number.isFinite(count)
-      ? `HQ · CITY · WITNESSES ${count}/3` : 'HQ · FIELD GUIDE';
+      ? `${__dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_0eebe665b423b7b3e0d8")}${count}${__dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_8d2cedfe81c77aaa05d9")}` : __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_306b58f381ad18821674");
     const objective = options.objective || TutorialContent.COMPACT_OBJECTIVES?.[id] || OBJECTIVES[id] || content[1];
     this.title.textContent = content[0];
     this.objective.textContent = objective;
     this.text.textContent = content[1];
     this.nextAction = options.onNext || null;
     this.nextButton.hidden = !this.nextAction;
-    this.nextButton.textContent = options.nextLabel || 'Understood';
+    this.nextButton.textContent = options.nextLabel || __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_501721f0699ef8abe8d4");
     this.loadPortrait();
     if (!this.updateLayout()) { this.hide(); return; }
     let index = 0;

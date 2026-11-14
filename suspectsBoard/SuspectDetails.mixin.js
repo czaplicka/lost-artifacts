@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // Presentation only: never evaluate suspect/evidence compatibility.
 import {CrimeLabManager} from '../scenes/CSI/CrimeLabManager.js';
 import {DEDUCTION_EVIDENCE_REGISTRY} from '../scenes/CSI/DeductionEvidenceRegistry.js';
@@ -49,7 +50,7 @@ function pagedText(scene,{x,y,width,height,text,fontSize=17,color='#e2d1ad'}){
   const next=makeButton(scene,container,width-28,height-15,'>',()=>{if(page<pages.length-1){page++;render();}});
   function render(){
     body.setScale(1).setText(pages[page]);fitText(body,width,bodyHeight);
-    const multiple=pages.length>1;pageText.setText(`${page+1}/${pages.length}`).setVisible(multiple);
+    const multiple=pages.length>1;pageText.setText(`${page+1}${__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_8a5edab282632443219e")}${pages.length}`).setVisible(multiple);
     previous.setVisible(multiple);next.setVisible(multiple);previous.setAlpha(page>0?1:.35);next.setAlpha(page<pages.length-1?1:.35);
   }render();return{container,pages,body,height};
 }
@@ -77,7 +78,7 @@ export const SuspectDetailsMixin={
         id:raw.id||raw.evidenceId||`${caseKey}_${raw.stationId||field}`,caseKey,stationId:raw.stationId||null,field,
         label:raw.label||raw.title||entry?.label||fieldLabel(field),value:formatted(field,value),rawValue:value,
         description:raw.clueText||raw.description||raw.clue?.text||raw.text||config?.clueText||'',
-        source:raw.source||'Crime Lab',sourceConfirmed:raw.sourceConfirmed===true,
+        source:raw.source||__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_742e27a5828691c412bc"),sourceConfirmed:raw.sourceConfirmed===true,
         sourceText:raw.sourceText||raw.evidenceConfig?.sourceText||'',assistantProvided:raw.assistantProvided===true,isCompleted:true,priority
       });
     };
@@ -107,12 +108,12 @@ export const SuspectDetailsMixin={
     const unlocked=new Set((Array.isArray(restricted.unlockedFields)?restricted.unlockedFields:[])
       .map(f=>fieldKey(typeof f==='string'?f:f?.field||f?.id||f?.key||'')).filter(Boolean));
     const revealed=new Set([...unlocked,...this.getCompletedCrimeLabResults().map(r=>r.field)]);
-    const lines=[`Role: ${suspect?.publicProfile?.occupation||suspect?.occupation||'Unknown'}`];
+    const lines=[`${__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_b2df694edc9bddf1ab94")}${suspect?.publicProfile?.occupation||suspect?.occupation||__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_b764cdc0eab713746721")}`];
     const connection=suspect?.publicProfile?.caseConnection||suspect?.caseConnection;
-    if(connection)lines.push('\nConnection:',connection);
+    if(connection)lines.push(__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_cf633437a4ee47d1648d"),connection);
     const addSection=(title,values,empty)=>{lines.push(`\n${title}:`);if(values.length)for(const value of values)lines.push(`• ${value}`);else lines.push(`• ${empty}`);};
-    addSection('Visible notes',sections.visible,'No visible traits recorded');
-    addSection('Personal notes',sections.personal,'No personal notes recorded');addSection('Hobbies',sections.hobbies,'No hobbies recorded');
+    addSection(__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_0c90dc5ae9b9c36d4700"),sections.visible,__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_dd3c25ef1081233a6dcc"));
+    addSection(__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_210f34dd23f268d17d19"),sections.personal,__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_c87eb36922693518ad4d"));addSection(__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_2a6f4ac627084bc78857"),sections.hobbies,__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_65b242829082c7c00fa2"));
     const entries=new Map();
     Object.entries(forensic).forEach(([key,data])=>{
       const field=fieldKey(key);if(!(data?.unlocked||revealed.has(field)||revealed.has(key)))return;
@@ -120,19 +121,19 @@ export const SuspectDetailsMixin={
       const value=data?.value??data;if(!hasValue(value)||(typeof value==='object'&&!Array.isArray(value)))return;
       entries.set(field,`${fieldLabel(field)}: ${formatted(field,value)}`);
     });
-    addSection('Verified file data',[...entries].sort((a,b)=>fieldOrder(a[0])-fieldOrder(b[0])).map(([,text])=>text),'No verified forensic data yet');
+    addSection(__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_5fd29e2b0872388ca113"),[...entries].sort((a,b)=>fieldOrder(a[0])-fieldOrder(b[0])).map(([,text])=>text),__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_566d9b1222375d6be964"));
     if(Array.isArray(state.eliminationReasons)&&state.eliminationReasons.length){
-      lines.push('\nRecorded clearance:');for(const r of state.eliminationReasons){lines.push(`• ${r?.label||'Manual exclusion'}`);if(r?.note)lines.push(`  ${r.note}`);}
+      lines.push(__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_0b3e165f6f6c9daa3254"));for(const r of state.eliminationReasons){lines.push(`• ${r?.label||__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_ec1805af8b39c7f4dc8c")}`);if(r?.note)lines.push(`  ${r.note}`);}
     }
     if(Array.isArray(state.notesUnlocked)&&state.notesUnlocked.length){
-      const notes=unique(state.notesUnlocked.filter(n=>typeof n==='string'));if(notes.length)addSection('Investigator notes',notes,'');
+      const notes=unique(state.notesUnlocked.filter(n=>typeof n==='string'));if(notes.length)addSection(__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_96f3c6746cb90a1b955e"),notes,'');
     }return lines.join('\n');
   },
   buildCrimeLabReportsText(){
-    const results=this.getCompletedCrimeLabResults();if(!results.length)return'No completed analyses.\nCrime Lab reports will appear here.';
-    return results.map(r=>[r.label.toUpperCase(),`Result: ${r.value}`,r.description,
-      r.sourceText&&!r.description.includes(r.sourceText)?`Sample origin: ${r.sourceText}`:'',
-      r.assistantProvided?'Prepared by: Lab assistant.':'Prepared at: Crime Lab.'
+    const results=this.getCompletedCrimeLabResults();if(!results.length)return__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_0d58d60642718826c798");
+    return results.map(r=>[r.label.toUpperCase(),`${__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_0650c019e87c68c4d074")}${r.value}`,r.description,
+      r.sourceText&&!r.description.includes(r.sourceText)?`${__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_997d8ad6a73e20233513")}${r.sourceText}`:'',
+      r.assistantProvided?__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_a636314dcae2c8902374"):__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_f9c1eb52eeb1006d5a9a")
     ].filter(Boolean).join('\n')).join('\n\n--------------------\n\n');
   },
   openSuspectFileDocument({title,text}){
@@ -150,7 +151,7 @@ export const SuspectDetailsMixin={
     const heading=this.add.text(width/2,top+18,title,{fontFamily:'SpecialElite',fontSize:'24px',color:'#fff0cd',align:'center',wordWrap:{width:w-32,useAdvancedWrap:true}}).setOrigin(.5,0);
     fitText(heading,w-32,52);root.add([shade,panel,heading]);
     const body=pagedText(this,{x:left+18,y:top+78,width:w-36,height:Math.max(40,h-146),text,fontSize:width<=700?17:19});root.add(body.container);
-    makeButton(this,root,width/2,top+h-26,'[ CLOSE FILE ]',close,9);this._suspectFileDocument={root,close};
+    makeButton(this,root,width/2,top+h-26,__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_cc44be3af86181e3ce9a"),close,9);this._suspectFileDocument={root,close};
     this.events.once('shutdown',close);this.scale.on('resize',close);
     root.once('destroy',()=>{
       this.events.off('shutdown',close);this.scale.off('resize',close);
@@ -162,26 +163,26 @@ export const SuspectDetailsMixin={
     const results=this.getCompletedCrimeLabResults(),container=this.add.container(x,y);
     const height=Math.max(96,Math.min(maxHeight,results.length?196:118));
     container.add(this.add.rectangle(0,0,width,height,0x142022,.98).setOrigin(0,0).setStrokeStyle(2,0x668f91));
-    container.add(this.add.text(12,12,'CRIME LAB RESULTS',{fontFamily:'PressStart2P',fontSize:'8px',color:'#91d8d9'}));
+    container.add(this.add.text(12,12,__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_13a3657ed42bc8cc6cf9"),{fontFamily:'PressStart2P',fontSize:'8px',color:'#91d8d9'}));
     let page=0;const available=height-72,rows=Math.max(1,Math.floor(available/42));
     const rowRoot=this.add.container(0,34);container.add(rowRoot);
     const indicator=this.add.text(width/2,height-18,'',{fontFamily:'PressStart2P',fontSize:'6px',color:'#b7c8c6'}).setOrigin(.5);container.add(indicator);
     const previous=makeButton(this,container,22,height-18,'<',()=>{if(page>0){page--;render();}},7);
     const next=makeButton(this,container,width-22,height-18,'>',()=>{if((page+1)*rows<results.length){page++;render();}},7);
-    const open=makeButton(this,container,width/2,height-18,'[ REPORTS ]',()=>this.openSuspectFileDocument({title:'CRIME LAB REPORTS',text:this.buildCrimeLabReportsText()}),7);
+    const open=makeButton(this,container,width/2,height-18,__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_95e60d01d48058130939"),()=>this.openSuspectFileDocument({title:__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_9df5d5908d2429096337"),text:this.buildCrimeLabReportsText()}),7);
     const render=()=>{
       rowRoot.removeAll(true);const totalPages=Math.max(1,Math.ceil(results.length/rows));
       previous.setVisible(totalPages>1);next.setVisible(totalPages>1);previous.setAlpha(page>0?1:.35);next.setAlpha(page<totalPages-1?1:.35);
       indicator.setVisible(false);open.setVisible(results.length>0);
-      if(!results.length){rowRoot.add(this.add.text(12,0,'No completed analyses.',{fontFamily:'SpecialElite',fontSize:'16px',color:'#b7c8c6',wordWrap:{width:width-24,useAdvancedWrap:true}}));return;}
+      if(!results.length){rowRoot.add(this.add.text(12,0,__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_0757651f5ca60724a71b"),{fontFamily:'SpecialElite',fontSize:'16px',color:'#b7c8c6',wordWrap:{width:width-24,useAdvancedWrap:true}}));return;}
       results.slice(page*rows,(page+1)*rows).forEach((r,i)=>{
         const yy=i*42;
         const bg=this.add.rectangle(8,yy,width-16,40,0x233133,1).setOrigin(0,0).setInteractive({useHandCursor:true});
         const label=this.add.text(14,yy+3,r.label.toUpperCase(),{fontFamily:'PressStart2P',fontSize:'6px',color:'#a9d5d4'});fitText(label,width-28,12);
         const value=this.add.text(14,yy+17,r.value,{fontFamily:'SpecialElite',fontSize:'17px',color:'#f4e6b5'});fitText(value,width-28,21);
         bg.on('pointerdown',(p,x,y,event)=>{
-          event?.stopPropagation();this.openSuspectFileDocument({title:r.label,text:[`Result: ${r.value}`,r.description,
-            r.sourceText&&!r.description.includes(r.sourceText)?`Sample origin: ${r.sourceText}`:''].filter(Boolean).join('\n\n')});
+          event?.stopPropagation();this.openSuspectFileDocument({title:r.label,text:[`${__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_0650c019e87c68c4d074")}${r.value}`,r.description,
+            r.sourceText&&!r.description.includes(r.sourceText)?`${__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_997d8ad6a73e20233513")}${r.sourceText}`:''].filter(Boolean).join(__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_75a11da44c802486bc6f"))});
         });rowRoot.add([bg,label,value]);
       });
     };render();return{container,height};
@@ -193,19 +194,19 @@ export const SuspectDetailsMixin={
     const panel=this.add.container(left,top);this.detailsContainer.add(panel);
     panel.add(this.add.rectangle(0,0,panelWidth,panelHeight,0x211711,.98).setOrigin(0,0).setStrokeStyle(2,0x8b6c38,.9));
     const widget=this.createCrimeLabResultsWidget({x:12,y:12,width:panelWidth-24,maxHeight:Math.max(96,Math.min(172,panelHeight*.35))});panel.add(widget.container);
-    const notesY=widget.height+34,name=selected?.publicProfile?.displayName||selected?.name||'CASE NOTES';
+    const notesY=widget.height+34,name=selected?.publicProfile?.displayName||selected?.name||__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_025d3934970dd3975eb7");
     const heading=this.add.text(16,notesY,name,{fontFamily:'SpecialElite',fontSize:'24px',color:'#fff0cd'});fitText(heading,panelWidth-32,32);panel.add(heading);
-    const text=selected?this.buildDetailsText(selected):'Select a suspect file to review their notes.',available=panelHeight-notesY-48;
+    const text=selected?this.buildDetailsText(selected):__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_5b9c70654c915117c45a"),available=panelHeight-notesY-48;
     if(available>=85){panel.add(pagedText(this,{x:16,y:notesY+42,width:panelWidth-32,height:available,text,fontSize:width<=1100?16:18}).container);}
-    else makeButton(this,panel,panelWidth/2,Math.min(panelHeight-24,notesY+54),'[ OPEN FILE ]',()=>this.openSuspectFileDocument({title:name,text}),8);
+    else makeButton(this,panel,panelWidth/2,Math.min(panelHeight-24,notesY+54),__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_06f12f2eb2d889c513e1"),()=>this.openSuspectFileDocument({title:name,text}),8);
   },
   showMobileDetails(suspect){
-    const name=suspect?.publicProfile?.displayName||suspect?.name||'Unknown Suspect';
-    return this.openSuspectFileDocument({title:name,text:[this.buildDetailsText(suspect),'\n--------------------\nCRIME LAB REPORTS',this.buildCrimeLabReportsText()].join('\n\n')});
+    const name=suspect?.publicProfile?.displayName||suspect?.name||__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_0f8a2ae03744676a1421");
+    return this.openSuspectFileDocument({title:name,text:[this.buildDetailsText(suspect),__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_d0627f94da186fd79b90"),this.buildCrimeLabReportsText()].join(__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_75a11da44c802486bc6f"))});
   },
   formatEvidenceField(field){return fieldLabel(field);},
   formatStatus(status){
-    const labels={pending:'Pending',match:'Evidence recorded',mismatch:'Evidence recorded',eliminated:'Excluded',manually_cleared:'Cleared',locked:'Locked',unlocked:'Available',suspicious:'Questioned',confirmed:'Confirmed',not_applicable:'Not applicable',unverified:'Unverified',corroborated:'Corroborated',contradicted:'Contradicted'};
-    return labels[status]||'Pending';
+    const labels={pending:__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_331551b0de4157c9abc7"),match:__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_1ffe42a1c267e79a98ae"),mismatch:__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_1ffe42a1c267e79a98ae"),eliminated:__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_bef1fd9e5caea8b51aab"),manually_cleared:__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_15f3a2898addfc6c5c4c"),locked:__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_a424e33d90931d1ed22f"),unlocked:__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_e674447337e83c1346f6"),suspicious:__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_9d85f8ec480908ca2234"),confirmed:__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_fe00b67b6dd1143f3835"),not_applicable:__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_5237c96ac1a23b98eb13"),unverified:__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_33c8e8de41c3a3512425"),corroborated:__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_ac2b4981e6553d67ae79"),contradicted:__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_dd24906cc36e5519e2d3")};
+    return labels[status]||__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_331551b0de4157c9abc7");
   }
 };

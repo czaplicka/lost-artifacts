@@ -1,0 +1,3065 @@
+{
+  "version": 1,
+  "mode": "write",
+  "changedFiles": [
+    {
+      "file": "CaseTimeHelper.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "CaseTimeHelper.js"
+    },
+    {
+      "file": "CrimeBoard.js",
+      "extractedOccurrences": 3,
+      "catalogSection": "CrimeBoard.js"
+    },
+    {
+      "file": "CrimeBoardInit.js",
+      "extractedOccurrences": 12,
+      "catalogSection": "CrimeBoardInit.js"
+    },
+    {
+      "file": "CrimeBoardInitCore.js",
+      "extractedOccurrences": 51,
+      "catalogSection": "CrimeBoardInitCore.js"
+    },
+    {
+      "file": "DifficultySettings.js",
+      "extractedOccurrences": 6,
+      "catalogSection": "DifficultySettings.js"
+    },
+    {
+      "file": "HiddenObjectsResolver.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "HiddenObjectsResolver.js"
+    },
+    {
+      "file": "HiddenObjectsState.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "HiddenObjectsState.js"
+    },
+    {
+      "file": "HypothesisEvaluator.js",
+      "extractedOccurrences": 11,
+      "catalogSection": "HypothesisEvaluator.js"
+    },
+    {
+      "file": "HypothesisResultService.js",
+      "extractedOccurrences": 9,
+      "catalogSection": "HypothesisResultService.js"
+    },
+    {
+      "file": "MainStoryData.js",
+      "extractedOccurrences": 16,
+      "catalogSection": "MainStoryData.js"
+    },
+    {
+      "file": "NewspaperLayoutConfig.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "NewspaperLayoutConfig.js"
+    },
+    {
+      "file": "ReconstructionGenerator.js",
+      "extractedOccurrences": 12,
+      "catalogSection": "ReconstructionGenerator.js"
+    },
+    {
+      "file": "SceneLoader.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "SceneLoader.js"
+    },
+    {
+      "file": "TransportConfig.js",
+      "extractedOccurrences": 37,
+      "catalogSection": "TransportConfig.js"
+    },
+    {
+      "file": "alibi/AlibiConclusion.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "alibi/AlibiConclusion.js"
+    },
+    {
+      "file": "alibi/AlibiCooperation.js",
+      "extractedOccurrences": 220,
+      "catalogSection": "alibi/AlibiCooperation.js"
+    },
+    {
+      "file": "alibi/AlibiDeductionController.js",
+      "extractedOccurrences": 26,
+      "catalogSection": "alibi/AlibiDeductionController.js"
+    },
+    {
+      "file": "alibi/AlibiEncounterSetup.js",
+      "extractedOccurrences": 12,
+      "catalogSection": "alibi/AlibiEncounterSetup.js"
+    },
+    {
+      "file": "alibi/AlibiTimeNotes.js",
+      "extractedOccurrences": 57,
+      "catalogSection": "alibi/AlibiTimeNotes.js"
+    },
+    {
+      "file": "alibi/AlibiWitnessData.js",
+      "extractedOccurrences": 545,
+      "catalogSection": "alibi/AlibiWitnessData.js"
+    },
+    {
+      "file": "archiveReportService.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "archiveReportService.js"
+    },
+    {
+      "file": "assets/data/deadMailChapterTwo.js",
+      "extractedOccurrences": 75,
+      "catalogSection": "assets/data/deadMailChapterTwo.js"
+    },
+    {
+      "file": "assets/data/deadMailFinaleData.js",
+      "extractedOccurrences": 67,
+      "catalogSection": "assets/data/deadMailFinaleData.js"
+    },
+    {
+      "file": "assets/data/deadMailNightData.js",
+      "extractedOccurrences": 63,
+      "catalogSection": "assets/data/deadMailNightData.js"
+    },
+    {
+      "file": "assets/data/momsNotProudData.js",
+      "extractedOccurrences": 80,
+      "catalogSection": "assets/data/momsNotProudData.js"
+    },
+    {
+      "file": "config/ApartmentEscapeLeads.js",
+      "extractedOccurrences": 23,
+      "catalogSection": "config/ApartmentEscapeLeads.js"
+    },
+    {
+      "file": "config/InventoryShopModel.js",
+      "extractedOccurrences": 18,
+      "catalogSection": "config/InventoryShopModel.js"
+    },
+    {
+      "file": "config/TravelNetwork.js",
+      "extractedOccurrences": 90,
+      "catalogSection": "config/TravelNetwork.js"
+    },
+    {
+      "file": "config/businessCenterConfig.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "config/businessCenterConfig.js"
+    },
+    {
+      "file": "config/chaseConfig.js",
+      "extractedOccurrences": 3,
+      "catalogSection": "config/chaseConfig.js"
+    },
+    {
+      "file": "config/chaseEvents.js",
+      "extractedOccurrences": 224,
+      "catalogSection": "config/chaseEvents.js"
+    },
+    {
+      "file": "config/deadMailArtConfig.js",
+      "extractedOccurrences": 11,
+      "catalogSection": "config/deadMailArtConfig.js"
+    },
+    {
+      "file": "config/detectiveOfficeConfig.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "config/detectiveOfficeConfig.js"
+    },
+    {
+      "file": "config/hotelConfig.js",
+      "extractedOccurrences": 6,
+      "catalogSection": "config/hotelConfig.js"
+    },
+    {
+      "file": "config/loadJson.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "config/loadJson.js"
+    },
+    {
+      "file": "config/markAgencyComputerConfig.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "config/markAgencyComputerConfig.js"
+    },
+    {
+      "file": "config/mediumOfficeConfig.js",
+      "extractedOccurrences": 6,
+      "catalogSection": "config/mediumOfficeConfig.js"
+    },
+    {
+      "file": "config/newsstandConfig.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "config/newsstandConfig.js"
+    },
+    {
+      "file": "config/piComputerConfig.js",
+      "extractedOccurrences": 34,
+      "catalogSection": "config/piComputerConfig.js"
+    },
+    {
+      "file": "config/piOfficeUpgradeConfig.js",
+      "extractedOccurrences": 19,
+      "catalogSection": "config/piOfficeUpgradeConfig.js"
+    },
+    {
+      "file": "config/pigeonConfig.js",
+      "extractedOccurrences": 41,
+      "catalogSection": "config/pigeonConfig.js"
+    },
+    {
+      "file": "config/pigeonHotspots.js",
+      "extractedOccurrences": 12,
+      "catalogSection": "config/pigeonHotspots.js"
+    },
+    {
+      "file": "config/postOfficeConfig.js",
+      "extractedOccurrences": 11,
+      "catalogSection": "config/postOfficeConfig.js"
+    },
+    {
+      "file": "config/postOfficeEvidenceConfig.js",
+      "extractedOccurrences": 29,
+      "catalogSection": "config/postOfficeEvidenceConfig.js"
+    },
+    {
+      "file": "config/spyShopConfig.js",
+      "extractedOccurrences": 13,
+      "catalogSection": "config/spyShopConfig.js"
+    },
+    {
+      "file": "config/tavernConfig.js",
+      "extractedOccurrences": 5,
+      "catalogSection": "config/tavernConfig.js"
+    },
+    {
+      "file": "crimeBoard/BoardData.js",
+      "extractedOccurrences": 14,
+      "catalogSection": "crimeBoard/BoardData.js"
+    },
+    {
+      "file": "crimeBoard/BoardDeduction.js",
+      "extractedOccurrences": 29,
+      "catalogSection": "crimeBoard/BoardDeduction.js"
+    },
+    {
+      "file": "crimeBoard/BoardEditor.js",
+      "extractedOccurrences": 15,
+      "catalogSection": "crimeBoard/BoardEditor.js"
+    },
+    {
+      "file": "crimeBoard/BoardEvidenceModel.js",
+      "extractedOccurrences": 32,
+      "catalogSection": "crimeBoard/BoardEvidenceModel.js"
+    },
+    {
+      "file": "crimeBoard/BoardEvidenceRuntime.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "crimeBoard/BoardEvidenceRuntime.js"
+    },
+    {
+      "file": "crimeBoard/BoardInteraction.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "crimeBoard/BoardInteraction.js"
+    },
+    {
+      "file": "crimeBoard/BoardLinks.js",
+      "extractedOccurrences": 9,
+      "catalogSection": "crimeBoard/BoardLinks.js"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "extractedOccurrences": 35,
+      "catalogSection": "crimeBoard/BoardRendering.js"
+    },
+    {
+      "file": "crimeBoard/BoardSuspects.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "crimeBoard/BoardSuspects.js"
+    },
+    {
+      "file": "crimeBoard/BoardWorkspace.js",
+      "extractedOccurrences": 30,
+      "catalogSection": "crimeBoard/BoardWorkspace.js"
+    },
+    {
+      "file": "crimeBoard/CaseTheory.js",
+      "extractedOccurrences": 93,
+      "catalogSection": "crimeBoard/CaseTheory.js"
+    },
+    {
+      "file": "crimeBoard/CaseTheoryModel.js",
+      "extractedOccurrences": 25,
+      "catalogSection": "crimeBoard/CaseTheoryModel.js"
+    },
+    {
+      "file": "debugCaseRoute.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "debugCaseRoute.js"
+    },
+    {
+      "file": "dialogues/DestinationClueText.js",
+      "extractedOccurrences": 50,
+      "catalogSection": "dialogues/DestinationClueText.js"
+    },
+    {
+      "file": "dialogues/DialogManager.js",
+      "extractedOccurrences": 45,
+      "catalogSection": "dialogues/DialogManager.js"
+    },
+    {
+      "file": "dialogues/DialogManagerBase.js",
+      "extractedOccurrences": 12,
+      "catalogSection": "dialogues/DialogManagerBase.js"
+    },
+    {
+      "file": "dialogues/EditableTravelTemplates.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "dialogues/EditableTravelTemplates.js"
+    },
+    {
+      "file": "dialogues/HQAdvisor.js",
+      "extractedOccurrences": 90,
+      "catalogSection": "dialogues/HQAdvisor.js"
+    },
+    {
+      "file": "dialogues/MotiveWitnessPolicy.js",
+      "extractedOccurrences": 16,
+      "catalogSection": "dialogues/MotiveWitnessPolicy.js"
+    },
+    {
+      "file": "dialogues/NPCController.js",
+      "extractedOccurrences": 15,
+      "catalogSection": "dialogues/NPCController.js"
+    },
+    {
+      "file": "escapeTimelineLauncher.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "escapeTimelineLauncher.js"
+    },
+    {
+      "file": "gameSetup.js",
+      "extractedOccurrences": 3,
+      "catalogSection": "gameSetup.js"
+    },
+    {
+      "file": "gameState/GameStateManager.js",
+      "extractedOccurrences": 6,
+      "catalogSection": "gameState/GameStateManager.js"
+    },
+    {
+      "file": "gameState/defaultState.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "gameState/defaultState.js"
+    },
+    {
+      "file": "gameState/gameStateProxy.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "gameState/gameStateProxy.js"
+    },
+    {
+      "file": "gameState/indexedCollections.js",
+      "extractedOccurrences": 3,
+      "catalogSection": "gameState/indexedCollections.js"
+    },
+    {
+      "file": "gordonAccessPanelLauncher.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "gordonAccessPanelLauncher.js"
+    },
+    {
+      "file": "hollyCaseHubService.js",
+      "extractedOccurrences": 18,
+      "catalogSection": "hollyCaseHubService.js"
+    },
+    {
+      "file": "hollyFinaleService.js",
+      "extractedOccurrences": 3,
+      "catalogSection": "hollyFinaleService.js"
+    },
+    {
+      "file": "hollySurvivalUpdateService.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "hollySurvivalUpdateService.js"
+    },
+    {
+      "file": "hudHelpers.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "hudHelpers.js"
+    },
+    {
+      "file": "johnAccountReviewService.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "johnAccountReviewService.js"
+    },
+    {
+      "file": "johnConfrontationService.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "johnConfrontationService.js"
+    },
+    {
+      "file": "johnIncidentFilesService.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "johnIncidentFilesService.js"
+    },
+    {
+      "file": "johnMicrofilmService.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "johnMicrofilmService.js"
+    },
+    {
+      "file": "johnPrimaryRecordsService.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "johnPrimaryRecordsService.js"
+    },
+    {
+      "file": "johnWarsawMeetingService.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "johnWarsawMeetingService.js"
+    },
+    {
+      "file": "managers/AchievementManager.js",
+      "extractedOccurrences": 30,
+      "catalogSection": "managers/AchievementManager.js"
+    },
+    {
+      "file": "managers/AgencyManualService.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "managers/AgencyManualService.js"
+    },
+    {
+      "file": "managers/AlibiBoardEvidence.js",
+      "extractedOccurrences": 54,
+      "catalogSection": "managers/AlibiBoardEvidence.js"
+    },
+    {
+      "file": "managers/AlibiResolutionService.js",
+      "extractedOccurrences": 89,
+      "catalogSection": "managers/AlibiResolutionService.js"
+    },
+    {
+      "file": "managers/AssetManager.js",
+      "extractedOccurrences": 6,
+      "catalogSection": "managers/AssetManager.js"
+    },
+    {
+      "file": "managers/AudioManager.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "managers/AudioManager.js"
+    },
+    {
+      "file": "managers/DeadMailCorrespondence.js",
+      "extractedOccurrences": 31,
+      "catalogSection": "managers/DeadMailCorrespondence.js"
+    },
+    {
+      "file": "managers/DeadMailFinaleManager.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "managers/DeadMailFinaleManager.js"
+    },
+    {
+      "file": "managers/DeadMailFinaleManagerCore.js",
+      "extractedOccurrences": 29,
+      "catalogSection": "managers/DeadMailFinaleManagerCore.js"
+    },
+    {
+      "file": "managers/DeadMailManager.js",
+      "extractedOccurrences": 24,
+      "catalogSection": "managers/DeadMailManager.js"
+    },
+    {
+      "file": "managers/DeadMailNightManager.js",
+      "extractedOccurrences": 15,
+      "catalogSection": "managers/DeadMailNightManager.js"
+    },
+    {
+      "file": "managers/DeadMailOfficeIntegration.js",
+      "extractedOccurrences": 12,
+      "catalogSection": "managers/DeadMailOfficeIntegration.js"
+    },
+    {
+      "file": "managers/DeadMenArtwork.js",
+      "extractedOccurrences": 13,
+      "catalogSection": "managers/DeadMenArtwork.js"
+    },
+    {
+      "file": "managers/DeadMenCallingFinale.js",
+      "extractedOccurrences": 148,
+      "catalogSection": "managers/DeadMenCallingFinale.js"
+    },
+    {
+      "file": "managers/DeadMenCallingFollowup.js",
+      "extractedOccurrences": 104,
+      "catalogSection": "managers/DeadMenCallingFollowup.js"
+    },
+    {
+      "file": "managers/DeadMenCallingService.js",
+      "extractedOccurrences": 196,
+      "catalogSection": "managers/DeadMenCallingService.js"
+    },
+    {
+      "file": "managers/DeadMenPhoneTopics.js",
+      "extractedOccurrences": 19,
+      "catalogSection": "managers/DeadMenPhoneTopics.js"
+    },
+    {
+      "file": "managers/DeadMenWebIntegration.js",
+      "extractedOccurrences": 29,
+      "catalogSection": "managers/DeadMenWebIntegration.js"
+    },
+    {
+      "file": "managers/EnergyManager.js",
+      "extractedOccurrences": 45,
+      "catalogSection": "managers/EnergyManager.js"
+    },
+    {
+      "file": "managers/FinancialTracePhone.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "managers/FinancialTracePhone.js"
+    },
+    {
+      "file": "managers/GameTimeManager.js",
+      "extractedOccurrences": 5,
+      "catalogSection": "managers/GameTimeManager.js"
+    },
+    {
+      "file": "managers/HintManager.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "managers/HintManager.js"
+    },
+    {
+      "file": "managers/HolmesDailyHintService.js",
+      "extractedOccurrences": 3,
+      "catalogSection": "managers/HolmesDailyHintService.js"
+    },
+    {
+      "file": "managers/InventoryDiscardService.js",
+      "extractedOccurrences": 5,
+      "catalogSection": "managers/InventoryDiscardService.js"
+    },
+    {
+      "file": "managers/InvestigationManager.js",
+      "extractedOccurrences": 6,
+      "catalogSection": "managers/InvestigationManager.js"
+    },
+    {
+      "file": "managers/ItemUseService.js",
+      "extractedOccurrences": 13,
+      "catalogSection": "managers/ItemUseService.js"
+    },
+    {
+      "file": "managers/ManifestLoader.js",
+      "extractedOccurrences": 36,
+      "catalogSection": "managers/ManifestLoader.js"
+    },
+    {
+      "file": "managers/MoneyManager.js",
+      "extractedOccurrences": 20,
+      "catalogSection": "managers/MoneyManager.js"
+    },
+    {
+      "file": "managers/PIAdvertRequirements.js",
+      "extractedOccurrences": 6,
+      "catalogSection": "managers/PIAdvertRequirements.js"
+    },
+    {
+      "file": "managers/PICaseRewards.js",
+      "extractedOccurrences": 22,
+      "catalogSection": "managers/PICaseRewards.js"
+    },
+    {
+      "file": "managers/PICaseStanding.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "managers/PICaseStanding.js"
+    },
+    {
+      "file": "managers/PIDocumentJobsManager.js",
+      "extractedOccurrences": 21,
+      "catalogSection": "managers/PIDocumentJobsManager.js"
+    },
+    {
+      "file": "managers/PIInvestigationManager.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "managers/PIInvestigationManager.js"
+    },
+    {
+      "file": "managers/PIOfficeShopManager.js",
+      "extractedOccurrences": 20,
+      "catalogSection": "managers/PIOfficeShopManager.js"
+    },
+    {
+      "file": "managers/PIQuestManager.js",
+      "extractedOccurrences": 13,
+      "catalogSection": "managers/PIQuestManager.js"
+    },
+    {
+      "file": "managers/PassportManager.js",
+      "extractedOccurrences": 22,
+      "catalogSection": "managers/PassportManager.js"
+    },
+    {
+      "file": "managers/PigeonCatalog.js",
+      "extractedOccurrences": 6,
+      "catalogSection": "managers/PigeonCatalog.js"
+    },
+    {
+      "file": "managers/PigeonFeedShopManager.js",
+      "extractedOccurrences": 10,
+      "catalogSection": "managers/PigeonFeedShopManager.js"
+    },
+    {
+      "file": "managers/PigeonManager.js",
+      "extractedOccurrences": 33,
+      "catalogSection": "managers/PigeonManager.js"
+    },
+    {
+      "file": "managers/PostOfficeEvidence.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "managers/PostOfficeEvidence.js"
+    },
+    {
+      "file": "managers/PostOfficeManager.js",
+      "extractedOccurrences": 91,
+      "catalogSection": "managers/PostOfficeManager.js"
+    },
+    {
+      "file": "managers/PostOfficeNotebook.js",
+      "extractedOccurrences": 20,
+      "catalogSection": "managers/PostOfficeNotebook.js"
+    },
+    {
+      "file": "managers/PostalCaseSupport.js",
+      "extractedOccurrences": 27,
+      "catalogSection": "managers/PostalCaseSupport.js"
+    },
+    {
+      "file": "managers/ProgressionManager.js",
+      "extractedOccurrences": 3,
+      "catalogSection": "managers/ProgressionManager.js"
+    },
+    {
+      "file": "managers/ReedBoardEvidence.js",
+      "extractedOccurrences": 50,
+      "catalogSection": "managers/ReedBoardEvidence.js"
+    },
+    {
+      "file": "managers/ReedContactService.js",
+      "extractedOccurrences": 12,
+      "catalogSection": "managers/ReedContactService.js"
+    },
+    {
+      "file": "managers/ReedMailContent.js",
+      "extractedOccurrences": 9,
+      "catalogSection": "managers/ReedMailContent.js"
+    },
+    {
+      "file": "managers/ReedResolutionService.js",
+      "extractedOccurrences": 19,
+      "catalogSection": "managers/ReedResolutionService.js"
+    },
+    {
+      "file": "managers/ReputationManager.js",
+      "extractedOccurrences": 5,
+      "catalogSection": "managers/ReputationManager.js"
+    },
+    {
+      "file": "managers/ResourcefulnessManager.js",
+      "extractedOccurrences": 9,
+      "catalogSection": "managers/ResourcefulnessManager.js"
+    },
+    {
+      "file": "managers/SaveManager.js",
+      "extractedOccurrences": 3,
+      "catalogSection": "managers/SaveManager.js"
+    },
+    {
+      "file": "managers/ScoreManager.js",
+      "extractedOccurrences": 44,
+      "catalogSection": "managers/ScoreManager.js"
+    },
+    {
+      "file": "managers/SideQuestAssetScope.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "managers/SideQuestAssetScope.js"
+    },
+    {
+      "file": "managers/SpyShopPurchaseService.js",
+      "extractedOccurrences": 19,
+      "catalogSection": "managers/SpyShopPurchaseService.js"
+    },
+    {
+      "file": "managers/TicketAnalysisService.js",
+      "extractedOccurrences": 26,
+      "catalogSection": "managers/TicketAnalysisService.js"
+    },
+    {
+      "file": "managers/TravelManager.js",
+      "extractedOccurrences": 11,
+      "catalogSection": "managers/TravelManager.js"
+    },
+    {
+      "file": "margeBirthdayModel.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "margeBirthdayModel.js"
+    },
+    {
+      "file": "margeBirthdayService.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "margeBirthdayService.js"
+    },
+    {
+      "file": "margeDisclosureModel.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "margeDisclosureModel.js"
+    },
+    {
+      "file": "markAgencyComputerModel.js",
+      "extractedOccurrences": 14,
+      "catalogSection": "markAgencyComputerModel.js"
+    },
+    {
+      "file": "mobileFullscreen.js",
+      "extractedOccurrences": 23,
+      "catalogSection": "mobileFullscreen.js"
+    },
+    {
+      "file": "npcCatalogData.js",
+      "extractedOccurrences": 18,
+      "catalogSection": "npcCatalogData.js"
+    },
+    {
+      "file": "npcThemeHelper.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "npcThemeHelper.js"
+    },
+    {
+      "file": "reportDraftModel.js",
+      "extractedOccurrences": 9,
+      "catalogSection": "reportDraftModel.js"
+    },
+    {
+      "file": "scenes/AgainScene.js",
+      "extractedOccurrences": 13,
+      "catalogSection": "scenes/AgainScene.js"
+    },
+    {
+      "file": "scenes/AgencyStorageScene.js",
+      "extractedOccurrences": 9,
+      "catalogSection": "scenes/AgencyStorageScene.js"
+    },
+    {
+      "file": "scenes/AgencyStorageSceneWithAnimations.js",
+      "extractedOccurrences": 12,
+      "catalogSection": "scenes/AgencyStorageSceneWithAnimations.js"
+    },
+    {
+      "file": "scenes/AlarmPanelScene.js",
+      "extractedOccurrences": 85,
+      "catalogSection": "scenes/AlarmPanelScene.js"
+    },
+    {
+      "file": "scenes/AlexRecoveryInquiryScene.js",
+      "extractedOccurrences": 18,
+      "catalogSection": "scenes/AlexRecoveryInquiryScene.js"
+    },
+    {
+      "file": "scenes/AlibiScene.js",
+      "extractedOccurrences": 64,
+      "catalogSection": "scenes/AlibiScene.js"
+    },
+    {
+      "file": "scenes/AlibiTimelineScene.js",
+      "extractedOccurrences": 47,
+      "catalogSection": "scenes/AlibiTimelineScene.js"
+    },
+    {
+      "file": "scenes/ApartmentScene.js",
+      "extractedOccurrences": 46,
+      "catalogSection": "scenes/ApartmentScene.js"
+    },
+    {
+      "file": "scenes/ArchiveCrashFollowupScene.js",
+      "extractedOccurrences": 24,
+      "catalogSection": "scenes/ArchiveCrashFollowupScene.js"
+    },
+    {
+      "file": "scenes/ArchiveIndexPuzzleScene.js",
+      "extractedOccurrences": 64,
+      "catalogSection": "scenes/ArchiveIndexPuzzleScene.js"
+    },
+    {
+      "file": "scenes/ArchiveScene.js",
+      "extractedOccurrences": 6,
+      "catalogSection": "scenes/ArchiveScene.js"
+    },
+    {
+      "file": "scenes/ArchiveSceneWithAnimations.js",
+      "extractedOccurrences": 14,
+      "catalogSection": "scenes/ArchiveSceneWithAnimations.js"
+    },
+    {
+      "file": "scenes/ArrestChaseSelectionScene.js",
+      "extractedOccurrences": 5,
+      "catalogSection": "scenes/ArrestChaseSelectionScene.js"
+    },
+    {
+      "file": "scenes/ArrestSelectionScene.js",
+      "extractedOccurrences": 5,
+      "catalogSection": "scenes/ArrestSelectionScene.js"
+    },
+    {
+      "file": "scenes/BootScene.js",
+      "extractedOccurrences": 20,
+      "catalogSection": "scenes/BootScene.js"
+    },
+    {
+      "file": "scenes/BusinessCenterScene.js",
+      "extractedOccurrences": 32,
+      "catalogSection": "scenes/BusinessCenterScene.js"
+    },
+    {
+      "file": "scenes/CSI/BaseForensicMinigame.js",
+      "extractedOccurrences": 21,
+      "catalogSection": "scenes/CSI/BaseForensicMinigame.js"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "extractedOccurrences": 55,
+      "catalogSection": "scenes/CSI/BloodAnalysisScene.js"
+    },
+    {
+      "file": "scenes/CSI/ChemicalResidueScene.js",
+      "extractedOccurrences": 63,
+      "catalogSection": "scenes/CSI/ChemicalResidueScene.js"
+    },
+    {
+      "file": "scenes/CSI/CrimeLabAssistantDialog.js",
+      "extractedOccurrences": 36,
+      "catalogSection": "scenes/CSI/CrimeLabAssistantDialog.js"
+    },
+    {
+      "file": "scenes/CSI/CrimeLabConfig.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "scenes/CSI/CrimeLabConfig.js"
+    },
+    {
+      "file": "scenes/CSI/CrimeLabEvidenceService.js",
+      "extractedOccurrences": 5,
+      "catalogSection": "scenes/CSI/CrimeLabEvidenceService.js"
+    },
+    {
+      "file": "scenes/CSI/CrimeLabHUD.js",
+      "extractedOccurrences": 11,
+      "catalogSection": "scenes/CSI/CrimeLabHUD.js"
+    },
+    {
+      "file": "scenes/CSI/CrimeLabManager.js",
+      "extractedOccurrences": 29,
+      "catalogSection": "scenes/CSI/CrimeLabManager.js"
+    },
+    {
+      "file": "scenes/CSI/CrimeLabScene.js",
+      "extractedOccurrences": 62,
+      "catalogSection": "scenes/CSI/CrimeLabScene.js"
+    },
+    {
+      "file": "scenes/CSI/CrimeLabTimeController.js",
+      "extractedOccurrences": 33,
+      "catalogSection": "scenes/CSI/CrimeLabTimeController.js"
+    },
+    {
+      "file": "scenes/CSI/DeductionEvidenceRegistry.js",
+      "extractedOccurrences": 64,
+      "catalogSection": "scenes/CSI/DeductionEvidenceRegistry.js"
+    },
+    {
+      "file": "scenes/CSI/DnaGenderScene.js",
+      "extractedOccurrences": 45,
+      "catalogSection": "scenes/CSI/DnaGenderScene.js"
+    },
+    {
+      "file": "scenes/CSI/FiberAnalysisScene.js",
+      "extractedOccurrences": 30,
+      "catalogSection": "scenes/CSI/FiberAnalysisScene.js"
+    },
+    {
+      "file": "scenes/CSI/FingerprintPatternScene.js",
+      "extractedOccurrences": 24,
+      "catalogSection": "scenes/CSI/FingerprintPatternScene.js"
+    },
+    {
+      "file": "scenes/CSI/FingerprintScene.js",
+      "extractedOccurrences": 21,
+      "catalogSection": "scenes/CSI/FingerprintScene.js"
+    },
+    {
+      "file": "scenes/CSI/ForensicHelpController.js",
+      "extractedOccurrences": 28,
+      "catalogSection": "scenes/CSI/ForensicHelpController.js"
+    },
+    {
+      "file": "scenes/CSI/HairAnalysisScene.js",
+      "extractedOccurrences": 28,
+      "catalogSection": "scenes/CSI/HairAnalysisScene.js"
+    },
+    {
+      "file": "scenes/CSI/LabTerminal.js",
+      "extractedOccurrences": 7,
+      "catalogSection": "scenes/CSI/LabTerminal.js"
+    },
+    {
+      "file": "scenes/CSI/MaterialAnalysisScene.js",
+      "extractedOccurrences": 16,
+      "catalogSection": "scenes/CSI/MaterialAnalysisScene.js"
+    },
+    {
+      "file": "scenes/CSI/ShoeprintScene.js",
+      "extractedOccurrences": 54,
+      "catalogSection": "scenes/CSI/ShoeprintScene.js"
+    },
+    {
+      "file": "scenes/CSI/TicketAnalysisPanel.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "scenes/CSI/TicketAnalysisPanel.js"
+    },
+    {
+      "file": "scenes/CSI/TicketAnalysisPanelBase.js",
+      "extractedOccurrences": 18,
+      "catalogSection": "scenes/CSI/TicketAnalysisPanelBase.js"
+    },
+    {
+      "file": "scenes/CSI/ToolmarkAnalysisScene.js",
+      "extractedOccurrences": 31,
+      "catalogSection": "scenes/CSI/ToolmarkAnalysisScene.js"
+    },
+    {
+      "file": "scenes/CSI/labOnboardingConfig.js",
+      "extractedOccurrences": 15,
+      "catalogSection": "scenes/CSI/labOnboardingConfig.js"
+    },
+    {
+      "file": "scenes/CharacterCreationScene.js",
+      "extractedOccurrences": 10,
+      "catalogSection": "scenes/CharacterCreationScene.js"
+    },
+    {
+      "file": "scenes/ChaseScene.js",
+      "extractedOccurrences": 44,
+      "catalogSection": "scenes/ChaseScene.js"
+    },
+    {
+      "file": "scenes/CityPlaceScene.js",
+      "extractedOccurrences": 16,
+      "catalogSection": "scenes/CityPlaceScene.js"
+    },
+    {
+      "file": "scenes/CityScene.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "scenes/CityScene.js"
+    },
+    {
+      "file": "scenes/CitySceneWithAnimations.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "scenes/CitySceneWithAnimations.js"
+    },
+    {
+      "file": "scenes/CourtRecoveryScene.js",
+      "extractedOccurrences": 26,
+      "catalogSection": "scenes/CourtRecoveryScene.js"
+    },
+    {
+      "file": "scenes/CourtScene.js",
+      "extractedOccurrences": 51,
+      "catalogSection": "scenes/CourtScene.js"
+    },
+    {
+      "file": "scenes/CrashTimelineScene.js",
+      "extractedOccurrences": 24,
+      "catalogSection": "scenes/CrashTimelineScene.js"
+    },
+    {
+      "file": "scenes/DeadMailFinaleScene.js",
+      "extractedOccurrences": 51,
+      "catalogSection": "scenes/DeadMailFinaleScene.js"
+    },
+    {
+      "file": "scenes/DeadMailNightScene.js",
+      "extractedOccurrences": 58,
+      "catalogSection": "scenes/DeadMailNightScene.js"
+    },
+    {
+      "file": "scenes/DeadMailScene.js",
+      "extractedOccurrences": 77,
+      "catalogSection": "scenes/DeadMailScene.js"
+    },
+    {
+      "file": "scenes/DetectiveOfficeScene.js",
+      "extractedOccurrences": 29,
+      "catalogSection": "scenes/DetectiveOfficeScene.js"
+    },
+    {
+      "file": "scenes/DetectiveOfficeSceneWithAnimations.js",
+      "extractedOccurrences": 11,
+      "catalogSection": "scenes/DetectiveOfficeSceneWithAnimations.js"
+    },
+    {
+      "file": "scenes/DifficultyScene.js",
+      "extractedOccurrences": 10,
+      "catalogSection": "scenes/DifficultyScene.js"
+    },
+    {
+      "file": "scenes/EmptyApartmentArrestOverlayScene.js",
+      "extractedOccurrences": 20,
+      "catalogSection": "scenes/EmptyApartmentArrestOverlayScene.js"
+    },
+    {
+      "file": "scenes/EnterScene.js",
+      "extractedOccurrences": 40,
+      "catalogSection": "scenes/EnterScene.js"
+    },
+    {
+      "file": "scenes/EscapeTimelineScene.js",
+      "extractedOccurrences": 22,
+      "catalogSection": "scenes/EscapeTimelineScene.js"
+    },
+    {
+      "file": "scenes/ExpansionStoreScene.js",
+      "extractedOccurrences": 62,
+      "catalogSection": "scenes/ExpansionStoreScene.js"
+    },
+    {
+      "file": "scenes/FailedAlibiArrestOverlayScene.js",
+      "extractedOccurrences": 14,
+      "catalogSection": "scenes/FailedAlibiArrestOverlayScene.js"
+    },
+    {
+      "file": "scenes/FinancialTraceScene.js",
+      "extractedOccurrences": 30,
+      "catalogSection": "scenes/FinancialTraceScene.js"
+    },
+    {
+      "file": "scenes/GameOverScene.js",
+      "extractedOccurrences": 23,
+      "catalogSection": "scenes/GameOverScene.js"
+    },
+    {
+      "file": "scenes/GameScene.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "scenes/GameScene.js"
+    },
+    {
+      "file": "scenes/GordonInterviewScene.js",
+      "extractedOccurrences": 23,
+      "catalogSection": "scenes/GordonInterviewScene.js"
+    },
+    {
+      "file": "scenes/GordonSearchScene.js",
+      "extractedOccurrences": 10,
+      "catalogSection": "scenes/GordonSearchScene.js"
+    },
+    {
+      "file": "scenes/GrandConspiracyScene.js",
+      "extractedOccurrences": 98,
+      "catalogSection": "scenes/GrandConspiracyScene.js"
+    },
+    {
+      "file": "scenes/HiddenObjectsScene.js",
+      "extractedOccurrences": 19,
+      "catalogSection": "scenes/HiddenObjectsScene.js"
+    },
+    {
+      "file": "scenes/HighscoreScene.js",
+      "extractedOccurrences": 13,
+      "catalogSection": "scenes/HighscoreScene.js"
+    },
+    {
+      "file": "scenes/HollyCaseCallScene.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "scenes/HollyCaseCallScene.js"
+    },
+    {
+      "file": "scenes/HollyChapterOneFinaleScene.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "scenes/HollyChapterOneFinaleScene.js"
+    },
+    {
+      "file": "scenes/HollyFinaleScene.js",
+      "extractedOccurrences": 25,
+      "catalogSection": "scenes/HollyFinaleScene.js"
+    },
+    {
+      "file": "scenes/HollyIntroScene.js",
+      "extractedOccurrences": 69,
+      "catalogSection": "scenes/HollyIntroScene.js"
+    },
+    {
+      "file": "scenes/HomeCityPostOfficeScene.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "scenes/HomeCityPostOfficeScene.js"
+    },
+    {
+      "file": "scenes/HomeCityScene.js",
+      "extractedOccurrences": 56,
+      "catalogSection": "scenes/HomeCityScene.js"
+    },
+    {
+      "file": "scenes/HospitalScene.js",
+      "extractedOccurrences": 23,
+      "catalogSection": "scenes/HospitalScene.js"
+    },
+    {
+      "file": "scenes/HotelScene.js",
+      "extractedOccurrences": 25,
+      "catalogSection": "scenes/HotelScene.js"
+    },
+    {
+      "file": "scenes/HypothesisScene.js",
+      "extractedOccurrences": 33,
+      "catalogSection": "scenes/HypothesisScene.js"
+    },
+    {
+      "file": "scenes/IntroScene.js",
+      "extractedOccurrences": 22,
+      "catalogSection": "scenes/IntroScene.js"
+    },
+    {
+      "file": "scenes/JohnAccountReviewScene.js",
+      "extractedOccurrences": 17,
+      "catalogSection": "scenes/JohnAccountReviewScene.js"
+    },
+    {
+      "file": "scenes/JohnConfrontationScene.js",
+      "extractedOccurrences": 21,
+      "catalogSection": "scenes/JohnConfrontationScene.js"
+    },
+    {
+      "file": "scenes/JohnIncidentFilesScene.js",
+      "extractedOccurrences": 26,
+      "catalogSection": "scenes/JohnIncidentFilesScene.js"
+    },
+    {
+      "file": "scenes/JohnPrimaryRecordsScene.js",
+      "extractedOccurrences": 29,
+      "catalogSection": "scenes/JohnPrimaryRecordsScene.js"
+    },
+    {
+      "file": "scenes/JukeboxScene.js",
+      "extractedOccurrences": 19,
+      "catalogSection": "scenes/JukeboxScene.js"
+    },
+    {
+      "file": "scenes/LoadingOverlayScene.js",
+      "extractedOccurrences": 52,
+      "catalogSection": "scenes/LoadingOverlayScene.js"
+    },
+    {
+      "file": "scenes/LocationScene.js",
+      "extractedOccurrences": 31,
+      "catalogSection": "scenes/LocationScene.js"
+    },
+    {
+      "file": "scenes/MargeHRFloorScene.js",
+      "extractedOccurrences": 25,
+      "catalogSection": "scenes/MargeHRFloorScene.js"
+    },
+    {
+      "file": "scenes/MargeHRScene.js",
+      "extractedOccurrences": 29,
+      "catalogSection": "scenes/MargeHRScene.js"
+    },
+    {
+      "file": "scenes/MedicalReviewScene.js",
+      "extractedOccurrences": 19,
+      "catalogSection": "scenes/MedicalReviewScene.js"
+    },
+    {
+      "file": "scenes/MediumOfficeFloorScene.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "scenes/MediumOfficeFloorScene.js"
+    },
+    {
+      "file": "scenes/MediumOfficeScene.js",
+      "extractedOccurrences": 26,
+      "catalogSection": "scenes/MediumOfficeScene.js"
+    },
+    {
+      "file": "scenes/MicrofilmScene.js",
+      "extractedOccurrences": 30,
+      "catalogSection": "scenes/MicrofilmScene.js"
+    },
+    {
+      "file": "scenes/NewspaperOverlayScene.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "scenes/NewspaperOverlayScene.js"
+    },
+    {
+      "file": "scenes/NewsstandScene.js",
+      "extractedOccurrences": 25,
+      "catalogSection": "scenes/NewsstandScene.js"
+    },
+    {
+      "file": "scenes/OfficeDeductionScene.js",
+      "extractedOccurrences": 39,
+      "catalogSection": "scenes/OfficeDeductionScene.js"
+    },
+    {
+      "file": "scenes/OfficeDustScene.js",
+      "extractedOccurrences": 31,
+      "catalogSection": "scenes/OfficeDustScene.js"
+    },
+    {
+      "file": "scenes/OfficeScene.js",
+      "extractedOccurrences": 38,
+      "catalogSection": "scenes/OfficeScene.js"
+    },
+    {
+      "file": "scenes/PhoneCallScene.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "scenes/PhoneCallScene.js"
+    },
+    {
+      "file": "scenes/PigeonLoftScene.js",
+      "extractedOccurrences": 57,
+      "catalogSection": "scenes/PigeonLoftScene.js"
+    },
+    {
+      "file": "scenes/PlayerHudScene.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "scenes/PlayerHudScene.js"
+    },
+    {
+      "file": "scenes/PoliceStationBaseScene.js",
+      "extractedOccurrences": 86,
+      "catalogSection": "scenes/PoliceStationBaseScene.js"
+    },
+    {
+      "file": "scenes/PoliceStationScene.js",
+      "extractedOccurrences": 10,
+      "catalogSection": "scenes/PoliceStationScene.js"
+    },
+    {
+      "file": "scenes/PostOfficeScene.js",
+      "extractedOccurrences": 71,
+      "catalogSection": "scenes/PostOfficeScene.js"
+    },
+    {
+      "file": "scenes/PreloaderScene.js",
+      "extractedOccurrences": 23,
+      "catalogSection": "scenes/PreloaderScene.js"
+    },
+    {
+      "file": "scenes/PreloaderSceneWithKitchenAnimations.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "scenes/PreloaderSceneWithKitchenAnimations.js"
+    },
+    {
+      "file": "scenes/RadioSpliceScene.js",
+      "extractedOccurrences": 34,
+      "catalogSection": "scenes/RadioSpliceScene.js"
+    },
+    {
+      "file": "scenes/RandomEventScene.js",
+      "extractedOccurrences": 23,
+      "catalogSection": "scenes/RandomEventScene.js"
+    },
+    {
+      "file": "scenes/RecoveredArtifactsScene.js",
+      "extractedOccurrences": 21,
+      "catalogSection": "scenes/RecoveredArtifactsScene.js"
+    },
+    {
+      "file": "scenes/RedactedReportScene.js",
+      "extractedOccurrences": 22,
+      "catalogSection": "scenes/RedactedReportScene.js"
+    },
+    {
+      "file": "scenes/SettingsScene.js",
+      "extractedOccurrences": 6,
+      "catalogSection": "scenes/SettingsScene.js"
+    },
+    {
+      "file": "scenes/ShopScene.js",
+      "extractedOccurrences": 109,
+      "catalogSection": "scenes/ShopScene.js"
+    },
+    {
+      "file": "scenes/ShopSceneWithAnimations.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "scenes/ShopSceneWithAnimations.js"
+    },
+    {
+      "file": "scenes/ShreddedReportScene.js",
+      "extractedOccurrences": 46,
+      "catalogSection": "scenes/ShreddedReportScene.js"
+    },
+    {
+      "file": "scenes/SpyShopScene.js",
+      "extractedOccurrences": 73,
+      "catalogSection": "scenes/SpyShopScene.js"
+    },
+    {
+      "file": "scenes/SpyShopSceneWithAnimations.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "scenes/SpyShopSceneWithAnimations.js"
+    },
+    {
+      "file": "scenes/SuccessScene.js",
+      "extractedOccurrences": 20,
+      "catalogSection": "scenes/SuccessScene.js"
+    },
+    {
+      "file": "scenes/SuspectGridScene.js",
+      "extractedOccurrences": 14,
+      "catalogSection": "scenes/SuspectGridScene.js"
+    },
+    {
+      "file": "scenes/SuspectsScene.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "scenes/SuspectsScene.js"
+    },
+    {
+      "file": "scenes/TavernScene.js",
+      "extractedOccurrences": 9,
+      "catalogSection": "scenes/TavernScene.js"
+    },
+    {
+      "file": "scenes/TheoryResultCallScene.js",
+      "extractedOccurrences": 28,
+      "catalogSection": "scenes/TheoryResultCallScene.js"
+    },
+    {
+      "file": "scenes/TravelTransitionScene.js",
+      "extractedOccurrences": 28,
+      "catalogSection": "scenes/TravelTransitionScene.js"
+    },
+    {
+      "file": "scenes/TvBroadcastScene.js",
+      "extractedOccurrences": 27,
+      "catalogSection": "scenes/TvBroadcastScene.js"
+    },
+    {
+      "file": "scenes/TypewriterComparisonScene.js",
+      "extractedOccurrences": 27,
+      "catalogSection": "scenes/TypewriterComparisonScene.js"
+    },
+    {
+      "file": "scenes/WarsawMeetingScene.js",
+      "extractedOccurrences": 24,
+      "catalogSection": "scenes/WarsawMeetingScene.js"
+    },
+    {
+      "file": "scenes/alarm/AlarmPanelHelpController.js",
+      "extractedOccurrences": 16,
+      "catalogSection": "scenes/alarm/AlarmPanelHelpController.js"
+    },
+    {
+      "file": "scenes/alarm/AlarmPanelModel.js",
+      "extractedOccurrences": 7,
+      "catalogSection": "scenes/alarm/AlarmPanelModel.js"
+    },
+    {
+      "file": "scenes/apartament/ApartmentGenerator.js",
+      "extractedOccurrences": 57,
+      "catalogSection": "scenes/apartament/ApartmentGenerator.js"
+    },
+    {
+      "file": "scenes/apartament/ApartmentHintUI.js",
+      "extractedOccurrences": 5,
+      "catalogSection": "scenes/apartament/ApartmentHintUI.js"
+    },
+    {
+      "file": "scenes/apartament/ApartmentHotspotDebug.js",
+      "extractedOccurrences": 15,
+      "catalogSection": "scenes/apartament/ApartmentHotspotDebug.js"
+    },
+    {
+      "file": "scenes/apartament/ApartmentIdentityEvidence.js",
+      "extractedOccurrences": 38,
+      "catalogSection": "scenes/apartament/ApartmentIdentityEvidence.js"
+    },
+    {
+      "file": "scenes/apartament/ApartmentInventoryUI.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "scenes/apartament/ApartmentInventoryUI.js"
+    },
+    {
+      "file": "scenes/apartament/ApartmentObject.js",
+      "extractedOccurrences": 66,
+      "catalogSection": "scenes/apartament/ApartmentObject.js"
+    },
+    {
+      "file": "scenes/apartament/ApartmentObjectsPool.js",
+      "extractedOccurrences": 276,
+      "catalogSection": "scenes/apartament/ApartmentObjectsPool.js"
+    },
+    {
+      "file": "scenes/apartament/ApartmentOccupantController.js",
+      "extractedOccurrences": 24,
+      "catalogSection": "scenes/apartament/ApartmentOccupantController.js"
+    },
+    {
+      "file": "scenes/apartament/ApartmentOccupantData.js",
+      "extractedOccurrences": 67,
+      "catalogSection": "scenes/apartament/ApartmentOccupantData.js"
+    },
+    {
+      "file": "scenes/apartament/ApartmentResearchLayout.js",
+      "extractedOccurrences": 62,
+      "catalogSection": "scenes/apartament/ApartmentResearchLayout.js"
+    },
+    {
+      "file": "scenes/apartament/ApartmentRoomLayouts.js",
+      "extractedOccurrences": 113,
+      "catalogSection": "scenes/apartament/ApartmentRoomLayouts.js"
+    },
+    {
+      "file": "scenes/apartament/ApartmentRoomPacks.js",
+      "extractedOccurrences": 6,
+      "catalogSection": "scenes/apartament/ApartmentRoomPacks.js"
+    },
+    {
+      "file": "scenes/apartament/ApartmentRoomSystem.js",
+      "extractedOccurrences": 5,
+      "catalogSection": "scenes/apartament/ApartmentRoomSystem.js"
+    },
+    {
+      "file": "scenes/archive/CrashTimelineHelp.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "scenes/archive/CrashTimelineHelp.js"
+    },
+    {
+      "file": "scenes/archive/CrashTimelineModel.js",
+      "extractedOccurrences": 7,
+      "catalogSection": "scenes/archive/CrashTimelineModel.js"
+    },
+    {
+      "file": "scenes/archive/MicrofilmModel.js",
+      "extractedOccurrences": 7,
+      "catalogSection": "scenes/archive/MicrofilmModel.js"
+    },
+    {
+      "file": "scenes/archive/OfficeDustHelpController.js",
+      "extractedOccurrences": 16,
+      "catalogSection": "scenes/archive/OfficeDustHelpController.js"
+    },
+    {
+      "file": "scenes/archive/OfficeDustModel.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "scenes/archive/OfficeDustModel.js"
+    },
+    {
+      "file": "scenes/archive/RadioSpliceModel.js",
+      "extractedOccurrences": 11,
+      "catalogSection": "scenes/archive/RadioSpliceModel.js"
+    },
+    {
+      "file": "scenes/archive/TimelineHelpController.js",
+      "extractedOccurrences": 15,
+      "catalogSection": "scenes/archive/TimelineHelpController.js"
+    },
+    {
+      "file": "scenes/archive/TypewriterComparisonModel.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "scenes/archive/TypewriterComparisonModel.js"
+    },
+    {
+      "file": "scenes/archive/TypewriterHelpController.js",
+      "extractedOccurrences": 16,
+      "catalogSection": "scenes/archive/TypewriterHelpController.js"
+    },
+    {
+      "file": "scenes/arrestSelection/arrestFlow.js",
+      "extractedOccurrences": 11,
+      "catalogSection": "scenes/arrestSelection/arrestFlow.js"
+    },
+    {
+      "file": "scenes/arrestSelection/backdrop.js",
+      "extractedOccurrences": 9,
+      "catalogSection": "scenes/arrestSelection/backdrop.js"
+    },
+    {
+      "file": "scenes/arrestSelection/config.js",
+      "extractedOccurrences": 23,
+      "catalogSection": "scenes/arrestSelection/config.js"
+    },
+    {
+      "file": "scenes/arrestSelection/confirmation.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "scenes/arrestSelection/confirmation.js"
+    },
+    {
+      "file": "scenes/arrestSelection/controls.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "scenes/arrestSelection/controls.js"
+    },
+    {
+      "file": "scenes/arrestSelection/dossier.js",
+      "extractedOccurrences": 5,
+      "catalogSection": "scenes/arrestSelection/dossier.js"
+    },
+    {
+      "file": "scenes/arrestSelection/folder.js",
+      "extractedOccurrences": 13,
+      "catalogSection": "scenes/arrestSelection/folder.js"
+    },
+    {
+      "file": "scenes/arrestSelection/helpers.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "scenes/arrestSelection/helpers.js"
+    },
+    {
+      "file": "scenes/arrestSelection/navigation.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "scenes/arrestSelection/navigation.js"
+    },
+    {
+      "file": "scenes/arrestSelection/results.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "scenes/arrestSelection/results.js"
+    },
+    {
+      "file": "scenes/arrestSelection/zoom.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "scenes/arrestSelection/zoom.js"
+    },
+    {
+      "file": "scenes/city/CityClock.js",
+      "extractedOccurrences": 6,
+      "catalogSection": "scenes/city/CityClock.js"
+    },
+    {
+      "file": "scenes/city/CityConfig.js",
+      "extractedOccurrences": 14,
+      "catalogSection": "scenes/city/CityConfig.js"
+    },
+    {
+      "file": "scenes/city/CityEncounters.js",
+      "extractedOccurrences": 11,
+      "catalogSection": "scenes/city/CityEncounters.js"
+    },
+    {
+      "file": "scenes/city/CityLifecycle.js",
+      "extractedOccurrences": 3,
+      "catalogSection": "scenes/city/CityLifecycle.js"
+    },
+    {
+      "file": "scenes/city/CityMapDebug.js",
+      "extractedOccurrences": 18,
+      "catalogSection": "scenes/city/CityMapDebug.js"
+    },
+    {
+      "file": "scenes/city/CityPlaces.js",
+      "extractedOccurrences": 9,
+      "catalogSection": "scenes/city/CityPlaces.js"
+    },
+    {
+      "file": "scenes/city/CityPresentation.js",
+      "extractedOccurrences": 19,
+      "catalogSection": "scenes/city/CityPresentation.js"
+    },
+    {
+      "file": "scenes/city/CityUi.js",
+      "extractedOccurrences": 6,
+      "catalogSection": "scenes/city/CityUi.js"
+    },
+    {
+      "file": "scenes/crimeCity/CrimeCityApartmentMethods.js",
+      "extractedOccurrences": 14,
+      "catalogSection": "scenes/crimeCity/CrimeCityApartmentMethods.js"
+    },
+    {
+      "file": "scenes/crimeCity/CrimeCityContentMethods.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "scenes/crimeCity/CrimeCityContentMethods.js"
+    },
+    {
+      "file": "scenes/crimeCity/CrimeCityHudMethods.js",
+      "extractedOccurrences": 3,
+      "catalogSection": "scenes/crimeCity/CrimeCityHudMethods.js"
+    },
+    {
+      "file": "scenes/crimeCity/CrimeCityMapUI.js",
+      "extractedOccurrences": 45,
+      "catalogSection": "scenes/crimeCity/CrimeCityMapUI.js"
+    },
+    {
+      "file": "scenes/crimeCity/CrimeCityNpcManager.js",
+      "extractedOccurrences": 25,
+      "catalogSection": "scenes/crimeCity/CrimeCityNpcManager.js"
+    },
+    {
+      "file": "scenes/crimeCity/CrimeCityProgressService.js",
+      "extractedOccurrences": 5,
+      "catalogSection": "scenes/crimeCity/CrimeCityProgressService.js"
+    },
+    {
+      "file": "scenes/crimeCity/CrimeCityTravelMethods.js",
+      "extractedOccurrences": 17,
+      "catalogSection": "scenes/crimeCity/CrimeCityTravelMethods.js"
+    },
+    {
+      "file": "scenes/crimeCity/CrimeCityTutorialController.js",
+      "extractedOccurrences": 15,
+      "catalogSection": "scenes/crimeCity/CrimeCityTutorialController.js"
+    },
+    {
+      "file": "scenes/evidenceAnalysis/ExaminationProfiles.js",
+      "extractedOccurrences": 44,
+      "catalogSection": "scenes/evidenceAnalysis/ExaminationProfiles.js"
+    },
+    {
+      "file": "scenes/gordon/GordonConfrontationController.js",
+      "extractedOccurrences": 10,
+      "catalogSection": "scenes/gordon/GordonConfrontationController.js"
+    },
+    {
+      "file": "scenes/gordon/GordonEthicsUI.js",
+      "extractedOccurrences": 21,
+      "catalogSection": "scenes/gordon/GordonEthicsUI.js"
+    },
+    {
+      "file": "scenes/gordon/GordonHotspotDebug.js",
+      "extractedOccurrences": 14,
+      "catalogSection": "scenes/gordon/GordonHotspotDebug.js"
+    },
+    {
+      "file": "scenes/gordon/GordonSafeController.js",
+      "extractedOccurrences": 28,
+      "catalogSection": "scenes/gordon/GordonSafeController.js"
+    },
+    {
+      "file": "scenes/hiddenObjects/HiddenObjectsDataLoader.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "scenes/hiddenObjects/HiddenObjectsDataLoader.js"
+    },
+    {
+      "file": "scenes/hiddenObjects/HiddenObjectsInteractionController.js",
+      "extractedOccurrences": 13,
+      "catalogSection": "scenes/hiddenObjects/HiddenObjectsInteractionController.js"
+    },
+    {
+      "file": "scenes/hiddenObjects/HiddenObjectsPresentation.js",
+      "extractedOccurrences": 7,
+      "catalogSection": "scenes/hiddenObjects/HiddenObjectsPresentation.js"
+    },
+    {
+      "file": "scenes/hiddenObjects/HiddenObjectsSceneFlow.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "scenes/hiddenObjects/HiddenObjectsSceneFlow.js"
+    },
+    {
+      "file": "scenes/hiddenObjects/HiddenObjectsTimer.js",
+      "extractedOccurrences": 7,
+      "catalogSection": "scenes/hiddenObjects/HiddenObjectsTimer.js"
+    },
+    {
+      "file": "scenes/homeCity/CemeteryMapAccess.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "scenes/homeCity/CemeteryMapAccess.js"
+    },
+    {
+      "file": "scenes/homeCity/HomeCityAmbient.js",
+      "extractedOccurrences": 6,
+      "catalogSection": "scenes/homeCity/HomeCityAmbient.js"
+    },
+    {
+      "file": "scenes/homeCity/HomeCityBuildings.js",
+      "extractedOccurrences": 25,
+      "catalogSection": "scenes/homeCity/HomeCityBuildings.js"
+    },
+    {
+      "file": "scenes/homeCity/HomeCityCemetery.js",
+      "extractedOccurrences": 7,
+      "catalogSection": "scenes/homeCity/HomeCityCemetery.js"
+    },
+    {
+      "file": "scenes/homeCity/HomeCityConfig.js",
+      "extractedOccurrences": 11,
+      "catalogSection": "scenes/homeCity/HomeCityConfig.js"
+    },
+    {
+      "file": "scenes/homeCity/HomeCityExtras.js",
+      "extractedOccurrences": 26,
+      "catalogSection": "scenes/homeCity/HomeCityExtras.js"
+    },
+    {
+      "file": "scenes/homeCity/HomeCityGround.js",
+      "extractedOccurrences": 18,
+      "catalogSection": "scenes/homeCity/HomeCityGround.js"
+    },
+    {
+      "file": "scenes/homeCity/HomeCityRendererCore.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "scenes/homeCity/HomeCityRendererCore.js"
+    },
+    {
+      "file": "scenes/hotel/HotelHotspots.js",
+      "extractedOccurrences": 33,
+      "catalogSection": "scenes/hotel/HotelHotspots.js"
+    },
+    {
+      "file": "scenes/hotel/HotelHud.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "scenes/hotel/HotelHud.js"
+    },
+    {
+      "file": "scenes/hotel/HotelSleep.js",
+      "extractedOccurrences": 17,
+      "catalogSection": "scenes/hotel/HotelSleep.js"
+    },
+    {
+      "file": "scenes/hr/MargeHRHelpController.js",
+      "extractedOccurrences": 16,
+      "catalogSection": "scenes/hr/MargeHRHelpController.js"
+    },
+    {
+      "file": "scenes/hr/MargeTrustController.js",
+      "extractedOccurrences": 16,
+      "catalogSection": "scenes/hr/MargeTrustController.js"
+    },
+    {
+      "file": "scenes/medical/JohnPrimaryRecordsModel.js",
+      "extractedOccurrences": 10,
+      "catalogSection": "scenes/medical/JohnPrimaryRecordsModel.js"
+    },
+    {
+      "file": "scenes/medical/MedicalTestsController.js",
+      "extractedOccurrences": 23,
+      "catalogSection": "scenes/medical/MedicalTestsController.js"
+    },
+    {
+      "file": "scenes/office/ChapterTwoDeskEntry.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "scenes/office/ChapterTwoDeskEntry.js"
+    },
+    {
+      "file": "scenes/office/OfficeDoorsigns.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "scenes/office/OfficeDoorsigns.js"
+    },
+    {
+      "file": "scenes/office/OfficeElevatorAccess.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "scenes/office/OfficeElevatorAccess.js"
+    },
+    {
+      "file": "scenes/office/OfficeElevatorAnimations.js",
+      "extractedOccurrences": 7,
+      "catalogSection": "scenes/office/OfficeElevatorAnimations.js"
+    },
+    {
+      "file": "scenes/office/OfficeElevatorRide.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "scenes/office/OfficeElevatorRide.js"
+    },
+    {
+      "file": "scenes/office/OfficeHotspotManager.js",
+      "extractedOccurrences": 26,
+      "catalogSection": "scenes/office/OfficeHotspotManager.js"
+    },
+    {
+      "file": "scenes/office/OfficeNavigation.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "scenes/office/OfficeNavigation.js"
+    },
+    {
+      "file": "scenes/office/OfficeNavigationBase.js",
+      "extractedOccurrences": 17,
+      "catalogSection": "scenes/office/OfficeNavigationBase.js"
+    },
+    {
+      "file": "scenes/office/OfficePanelActions.js",
+      "extractedOccurrences": 6,
+      "catalogSection": "scenes/office/OfficePanelActions.js"
+    },
+    {
+      "file": "scenes/office/OfficeScreenAnimations.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "scenes/office/OfficeScreenAnimations.js"
+    },
+    {
+      "file": "scenes/office/officeHotspots.js",
+      "extractedOccurrences": 21,
+      "catalogSection": "scenes/office/officeHotspots.js"
+    },
+    {
+      "file": "scenes/pi-office/HollyCaseResumeModel.js",
+      "extractedOccurrences": 13,
+      "catalogSection": "scenes/pi-office/HollyCaseResumeModel.js"
+    },
+    {
+      "file": "scenes/pi-office/HollyFinaleModel.js",
+      "extractedOccurrences": 9,
+      "catalogSection": "scenes/pi-office/HollyFinaleModel.js"
+    },
+    {
+      "file": "scenes/pi-office/JohnAccountReviewModel.js",
+      "extractedOccurrences": 3,
+      "catalogSection": "scenes/pi-office/JohnAccountReviewModel.js"
+    },
+    {
+      "file": "scenes/pi-office/JohnConfrontationModel.js",
+      "extractedOccurrences": 9,
+      "catalogSection": "scenes/pi-office/JohnConfrontationModel.js"
+    },
+    {
+      "file": "scenes/pi-office/JohnIncidentFilesModel.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "scenes/pi-office/JohnIncidentFilesModel.js"
+    },
+    {
+      "file": "scenes/pi-office/OfficeMoveIn.js",
+      "extractedOccurrences": 3,
+      "catalogSection": "scenes/pi-office/OfficeMoveIn.js"
+    },
+    {
+      "file": "scenes/pi-office/WarsawMeetingModel.js",
+      "extractedOccurrences": 3,
+      "catalogSection": "scenes/pi-office/WarsawMeetingModel.js"
+    },
+    {
+      "file": "scenes/storage/AlexMouthAnimation.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "scenes/storage/AlexMouthAnimation.js"
+    },
+    {
+      "file": "scenes/storage/EscapeTimelineModel.js",
+      "extractedOccurrences": 14,
+      "catalogSection": "scenes/storage/EscapeTimelineModel.js"
+    },
+    {
+      "file": "scenes/storage/StorageManagerAnimations.js",
+      "extractedOccurrences": 6,
+      "catalogSection": "scenes/storage/StorageManagerAnimations.js"
+    },
+    {
+      "file": "scenes/travel/TransportVisuals.js",
+      "extractedOccurrences": 70,
+      "catalogSection": "scenes/travel/TransportVisuals.js"
+    },
+    {
+      "file": "scenes/travel/TravelSeaLife.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "scenes/travel/TravelSeaLife.js"
+    },
+    {
+      "file": "scenes/travel/TravelTextures.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "scenes/travel/TravelTextures.js"
+    },
+    {
+      "file": "scenes/travel/TravelTicketUI.js",
+      "extractedOccurrences": 14,
+      "catalogSection": "scenes/travel/TravelTicketUI.js"
+    },
+    {
+      "file": "scenes/travel/TravelTransitionEffects.js",
+      "extractedOccurrences": 23,
+      "catalogSection": "scenes/travel/TravelTransitionEffects.js"
+    },
+    {
+      "file": "scenes/travel/TravelTransitionHelpers.js",
+      "extractedOccurrences": 6,
+      "catalogSection": "scenes/travel/TravelTransitionHelpers.js"
+    },
+    {
+      "file": "scenes/tv/TvBroadcastControls.js",
+      "extractedOccurrences": 12,
+      "catalogSection": "scenes/tv/TvBroadcastControls.js"
+    },
+    {
+      "file": "scenes/tv/TvBroadcastTextures.js",
+      "extractedOccurrences": 3,
+      "catalogSection": "scenes/tv/TvBroadcastTextures.js"
+    },
+    {
+      "file": "scenes/tv/TvBroadcastView.js",
+      "extractedOccurrences": 36,
+      "catalogSection": "scenes/tv/TvBroadcastView.js"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseCards.js",
+      "extractedOccurrences": 7,
+      "catalogSection": "scenes/wanted-database/WantedDatabaseCards.js"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseChrome.js",
+      "extractedOccurrences": 12,
+      "catalogSection": "scenes/wanted-database/WantedDatabaseChrome.js"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseConfig.js",
+      "extractedOccurrences": 35,
+      "catalogSection": "scenes/wanted-database/WantedDatabaseConfig.js"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseDetails.js",
+      "extractedOccurrences": 15,
+      "catalogSection": "scenes/wanted-database/WantedDatabaseDetails.js"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseDetailsView.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "scenes/wanted-database/WantedDatabaseDetailsView.js"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseFilters.js",
+      "extractedOccurrences": 16,
+      "catalogSection": "scenes/wanted-database/WantedDatabaseFilters.js"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseLifecycle.js",
+      "extractedOccurrences": 11,
+      "catalogSection": "scenes/wanted-database/WantedDatabaseLifecycle.js"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseNavigation.js",
+      "extractedOccurrences": 11,
+      "catalogSection": "scenes/wanted-database/WantedDatabaseNavigation.js"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseUi.js",
+      "extractedOccurrences": 24,
+      "catalogSection": "scenes/wanted-database/WantedDatabaseUi.js"
+    },
+    {
+      "file": "storageRoomDialogueService.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "storageRoomDialogueService.js"
+    },
+    {
+      "file": "supabase-client.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "supabase-client.js"
+    },
+    {
+      "file": "suspects/DustEvidence.js",
+      "extractedOccurrences": 53,
+      "catalogSection": "suspects/DustEvidence.js"
+    },
+    {
+      "file": "suspects/MaterialEvidence.js",
+      "extractedOccurrences": 113,
+      "catalogSection": "suspects/MaterialEvidence.js"
+    },
+    {
+      "file": "suspects/PersonnelCollections.js",
+      "extractedOccurrences": 223,
+      "catalogSection": "suspects/PersonnelCollections.js"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "extractedOccurrences": 29,
+      "catalogSection": "suspects/PersonnelRoster.js"
+    },
+    {
+      "file": "suspects/PersonnelRosterFlow.js",
+      "extractedOccurrences": 16,
+      "catalogSection": "suspects/PersonnelRosterFlow.js"
+    },
+    {
+      "file": "suspects/suspectFactory.js",
+      "extractedOccurrences": 3,
+      "catalogSection": "suspects/suspectFactory.js"
+    },
+    {
+      "file": "suspects/suspectHelpers.js",
+      "extractedOccurrences": 9,
+      "catalogSection": "suspects/suspectHelpers.js"
+    },
+    {
+      "file": "suspectsBoard/GridCells.mixin.js",
+      "extractedOccurrences": 5,
+      "catalogSection": "suspectsBoard/GridCells.mixin.js"
+    },
+    {
+      "file": "suspectsBoard/GridData.mixin.js",
+      "extractedOccurrences": 24,
+      "catalogSection": "suspectsBoard/GridData.mixin.js"
+    },
+    {
+      "file": "suspectsBoard/GridDraw.mixin.js",
+      "extractedOccurrences": 24,
+      "catalogSection": "suspectsBoard/GridDraw.mixin.js"
+    },
+    {
+      "file": "suspectsBoard/GridLogic.mixin.js",
+      "extractedOccurrences": 15,
+      "catalogSection": "suspectsBoard/GridLogic.mixin.js"
+    },
+    {
+      "file": "suspectsBoard/SuspectBoardData.mixin.js",
+      "extractedOccurrences": 19,
+      "catalogSection": "suspectsBoard/SuspectBoardData.mixin.js"
+    },
+    {
+      "file": "suspectsBoard/SuspectBoardUI.mixin.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "suspectsBoard/SuspectBoardUI.mixin.js"
+    },
+    {
+      "file": "suspectsBoard/SuspectCards.mixin.js",
+      "extractedOccurrences": 29,
+      "catalogSection": "suspectsBoard/SuspectCards.mixin.js"
+    },
+    {
+      "file": "suspectsBoard/SuspectDetails.mixin.js",
+      "extractedOccurrences": 49,
+      "catalogSection": "suspectsBoard/SuspectDetails.mixin.js"
+    },
+    {
+      "file": "suspectsBoard/SuspectExclusion.mixin.js",
+      "extractedOccurrences": 17,
+      "catalogSection": "suspectsBoard/SuspectExclusion.mixin.js"
+    },
+    {
+      "file": "suspectsBoard/applyGridExclusions.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "suspectsBoard/applyGridExclusions.js"
+    },
+    {
+      "file": "suspectsBoard/gridConstants.js",
+      "extractedOccurrences": 16,
+      "catalogSection": "suspectsBoard/gridConstants.js"
+    },
+    {
+      "file": "systems/AgencyOperationReactions.js",
+      "extractedOccurrences": 28,
+      "catalogSection": "systems/AgencyOperationReactions.js"
+    },
+    {
+      "file": "systems/ArtifactTrailPanel.js",
+      "extractedOccurrences": 9,
+      "catalogSection": "systems/ArtifactTrailPanel.js"
+    },
+    {
+      "file": "systems/ArtifactTrailService.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "systems/ArtifactTrailService.js"
+    },
+    {
+      "file": "systems/CaseTheorySubmission.js",
+      "extractedOccurrences": 13,
+      "catalogSection": "systems/CaseTheorySubmission.js"
+    },
+    {
+      "file": "systems/CityWeatherManager.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "systems/CityWeatherManager.js"
+    },
+    {
+      "file": "systems/DeadCasesWorldOutcomes.js",
+      "extractedOccurrences": 9,
+      "catalogSection": "systems/DeadCasesWorldOutcomes.js"
+    },
+    {
+      "file": "systems/FinalCaseCourt.js",
+      "extractedOccurrences": 117,
+      "catalogSection": "systems/FinalCaseCourt.js"
+    },
+    {
+      "file": "systems/ForgerObservation.js",
+      "extractedOccurrences": 50,
+      "catalogSection": "systems/ForgerObservation.js"
+    },
+    {
+      "file": "systems/InvestigationAudit.js",
+      "extractedOccurrences": 151,
+      "catalogSection": "systems/InvestigationAudit.js"
+    },
+    {
+      "file": "systems/PostalWorldOutcome.js",
+      "extractedOccurrences": 5,
+      "catalogSection": "systems/PostalWorldOutcome.js"
+    },
+    {
+      "file": "systems/RandomEventSystem.js",
+      "extractedOccurrences": 10,
+      "catalogSection": "systems/RandomEventSystem.js"
+    },
+    {
+      "file": "systems/TVEditorialModel.js",
+      "extractedOccurrences": 68,
+      "catalogSection": "systems/TVEditorialModel.js"
+    },
+    {
+      "file": "systems/WorldNpcReactionModel.js",
+      "extractedOccurrences": 27,
+      "catalogSection": "systems/WorldNpcReactionModel.js"
+    },
+    {
+      "file": "systems/WorldReactionInspectorModel.js",
+      "extractedOccurrences": 11,
+      "catalogSection": "systems/WorldReactionInspectorModel.js"
+    },
+    {
+      "file": "systems/WorldReactionModel.js",
+      "extractedOccurrences": 42,
+      "catalogSection": "systems/WorldReactionModel.js"
+    },
+    {
+      "file": "systems/WorldReactionSystem.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "systems/WorldReactionSystem.js"
+    },
+    {
+      "file": "systems/WorldTVReactions.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "systems/WorldTVReactions.js"
+    },
+    {
+      "file": "systems/WorldTownReactionModel.js",
+      "extractedOccurrences": 20,
+      "catalogSection": "systems/WorldTownReactionModel.js"
+    },
+    {
+      "file": "systems/artifactFinaleLogic.js",
+      "extractedOccurrences": 15,
+      "catalogSection": "systems/artifactFinaleLogic.js"
+    },
+    {
+      "file": "systems/artifactTrailModel.js",
+      "extractedOccurrences": 21,
+      "catalogSection": "systems/artifactTrailModel.js"
+    },
+    {
+      "file": "systems/chaseLogic.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "systems/chaseLogic.js"
+    },
+    {
+      "file": "systems/chasePersistence.js",
+      "extractedOccurrences": 16,
+      "catalogSection": "systems/chasePersistence.js"
+    },
+    {
+      "file": "systems/courtLogic.js",
+      "extractedOccurrences": 93,
+      "catalogSection": "systems/courtLogic.js"
+    },
+    {
+      "file": "systems/newsstand/NewspaperEditionManager.js",
+      "extractedOccurrences": 88,
+      "catalogSection": "systems/newsstand/NewspaperEditionManager.js"
+    },
+    {
+      "file": "systems/newsstand/NewsstandBackground.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "systems/newsstand/NewsstandBackground.js"
+    },
+    {
+      "file": "systems/newsstand/NewsstandComix.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "systems/newsstand/NewsstandComix.js"
+    },
+    {
+      "file": "systems/newsstand/NewsstandHotspots.js",
+      "extractedOccurrences": 18,
+      "catalogSection": "systems/newsstand/NewsstandHotspots.js"
+    },
+    {
+      "file": "systems/newsstand/SharedNewspaperArticles.js",
+      "extractedOccurrences": 120,
+      "catalogSection": "systems/newsstand/SharedNewspaperArticles.js"
+    },
+    {
+      "file": "systems/thiefdoku/ThiefdokuPuzzle.js",
+      "extractedOccurrences": 182,
+      "catalogSection": "systems/thiefdoku/ThiefdokuPuzzle.js"
+    },
+    {
+      "file": "systems/thiefdoku/ThiefdokuService.js",
+      "extractedOccurrences": 18,
+      "catalogSection": "systems/thiefdoku/ThiefdokuService.js"
+    },
+    {
+      "file": "tutorials/CrimeCityTutorial.js",
+      "extractedOccurrences": 61,
+      "catalogSection": "tutorials/CrimeCityTutorial.js"
+    },
+    {
+      "file": "tutorials/FirstCaseTutorial.js",
+      "extractedOccurrences": 23,
+      "catalogSection": "tutorials/FirstCaseTutorial.js"
+    },
+    {
+      "file": "tutorials/chase/ChaseTutorial.js",
+      "extractedOccurrences": 9,
+      "catalogSection": "tutorials/chase/ChaseTutorial.js"
+    },
+    {
+      "file": "tutorials/chase/ChaseTutorialContent.js",
+      "extractedOccurrences": 74,
+      "catalogSection": "tutorials/chase/ChaseTutorialContent.js"
+    },
+    {
+      "file": "tutorials/chase/ChaseTutorialOverlay.js",
+      "extractedOccurrences": 34,
+      "catalogSection": "tutorials/chase/ChaseTutorialOverlay.js"
+    },
+    {
+      "file": "ui/AgencyLedgerUI.js",
+      "extractedOccurrences": 37,
+      "catalogSection": "ui/AgencyLedgerUI.js"
+    },
+    {
+      "file": "ui/AgencyManualReader.js",
+      "extractedOccurrences": 12,
+      "catalogSection": "ui/AgencyManualReader.js"
+    },
+    {
+      "file": "ui/AlibiCloudModel.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "ui/AlibiCloudModel.js"
+    },
+    {
+      "file": "ui/AtlasUI.js",
+      "extractedOccurrences": 83,
+      "catalogSection": "ui/AtlasUI.js"
+    },
+    {
+      "file": "ui/CaseCloudNotebook.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "ui/CaseCloudNotebook.js"
+    },
+    {
+      "file": "ui/CaseFileUI.js",
+      "extractedOccurrences": 10,
+      "catalogSection": "ui/CaseFileUI.js"
+    },
+    {
+      "file": "ui/ColdCaseUI.js",
+      "extractedOccurrences": 44,
+      "catalogSection": "ui/ColdCaseUI.js"
+    },
+    {
+      "file": "ui/CrimeBoardUI.js",
+      "extractedOccurrences": 11,
+      "catalogSection": "ui/CrimeBoardUI.js"
+    },
+    {
+      "file": "ui/DeadMenCloudModel.js",
+      "extractedOccurrences": 12,
+      "catalogSection": "ui/DeadMenCloudModel.js"
+    },
+    {
+      "file": "ui/DestinationMapPainter.js",
+      "extractedOccurrences": 97,
+      "catalogSection": "ui/DestinationMapPainter.js"
+    },
+    {
+      "file": "ui/DestinationMeta.js",
+      "extractedOccurrences": 44,
+      "catalogSection": "ui/DestinationMeta.js"
+    },
+    {
+      "file": "ui/DestinationNavigation.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "ui/DestinationNavigation.js"
+    },
+    {
+      "file": "ui/DestinationPanel.js",
+      "extractedOccurrences": 25,
+      "catalogSection": "ui/DestinationPanel.js"
+    },
+    {
+      "file": "ui/DestinationTravel.js",
+      "extractedOccurrences": 11,
+      "catalogSection": "ui/DestinationTravel.js"
+    },
+    {
+      "file": "ui/DestinationWorldMap.js",
+      "extractedOccurrences": 23,
+      "catalogSection": "ui/DestinationWorldMap.js"
+    },
+    {
+      "file": "ui/DestinationsUI.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "ui/DestinationsUI.js"
+    },
+    {
+      "file": "ui/DialogUI.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "ui/DialogUI.js"
+    },
+    {
+      "file": "ui/EscapeTimeCallUI.js",
+      "extractedOccurrences": 18,
+      "catalogSection": "ui/EscapeTimeCallUI.js"
+    },
+    {
+      "file": "ui/ForgerObservationUI.js",
+      "extractedOccurrences": 46,
+      "catalogSection": "ui/ForgerObservationUI.js"
+    },
+    {
+      "file": "ui/HQExhaustionCallUI.js",
+      "extractedOccurrences": 17,
+      "catalogSection": "ui/HQExhaustionCallUI.js"
+    },
+    {
+      "file": "ui/HiddenObjectsResultOverlay.js",
+      "extractedOccurrences": 31,
+      "catalogSection": "ui/HiddenObjectsResultOverlay.js"
+    },
+    {
+      "file": "ui/HiddenObjectsTheme.js",
+      "extractedOccurrences": 11,
+      "catalogSection": "ui/HiddenObjectsTheme.js"
+    },
+    {
+      "file": "ui/HiddenObjectsUI.js",
+      "extractedOccurrences": 49,
+      "catalogSection": "ui/HiddenObjectsUI.js"
+    },
+    {
+      "file": "ui/HollyChapterOneCallUI.js",
+      "extractedOccurrences": 27,
+      "catalogSection": "ui/HollyChapterOneCallUI.js"
+    },
+    {
+      "file": "ui/HollySurvivalCallUI.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "ui/HollySurvivalCallUI.js"
+    },
+    {
+      "file": "ui/HomeTownDialogue.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "ui/HomeTownDialogue.js"
+    },
+    {
+      "file": "ui/HudStanding.js",
+      "extractedOccurrences": 24,
+      "catalogSection": "ui/HudStanding.js"
+    },
+    {
+      "file": "ui/HypothesisBoardUI.js",
+      "extractedOccurrences": 6,
+      "catalogSection": "ui/HypothesisBoardUI.js"
+    },
+    {
+      "file": "ui/InventoryUI.js",
+      "extractedOccurrences": 5,
+      "catalogSection": "ui/InventoryUI.js"
+    },
+    {
+      "file": "ui/LegacyCaseCloudNotebook.js",
+      "extractedOccurrences": 31,
+      "catalogSection": "ui/LegacyCaseCloudNotebook.js"
+    },
+    {
+      "file": "ui/LocationUI.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "ui/LocationUI.js"
+    },
+    {
+      "file": "ui/MarkAgencyComputerUI.js",
+      "extractedOccurrences": 64,
+      "catalogSection": "ui/MarkAgencyComputerUI.js"
+    },
+    {
+      "file": "ui/MissionReportComputer.js",
+      "extractedOccurrences": 33,
+      "catalogSection": "ui/MissionReportComputer.js"
+    },
+    {
+      "file": "ui/NewsHud.js",
+      "extractedOccurrences": 10,
+      "catalogSection": "ui/NewsHud.js"
+    },
+    {
+      "file": "ui/NewspaperContent.js",
+      "extractedOccurrences": 131,
+      "catalogSection": "ui/NewspaperContent.js"
+    },
+    {
+      "file": "ui/NewspaperPaper.js",
+      "extractedOccurrences": 29,
+      "catalogSection": "ui/NewspaperPaper.js"
+    },
+    {
+      "file": "ui/NewspaperPublicationLayout.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "ui/NewspaperPublicationLayout.js"
+    },
+    {
+      "file": "ui/NewspaperTimeCover.js",
+      "extractedOccurrences": 34,
+      "catalogSection": "ui/NewspaperTimeCover.js"
+    },
+    {
+      "file": "ui/NewspaperUI.js",
+      "extractedOccurrences": 13,
+      "catalogSection": "ui/NewspaperUI.js"
+    },
+    {
+      "file": "ui/NotebookDeductionRules.js",
+      "extractedOccurrences": 22,
+      "catalogSection": "ui/NotebookDeductionRules.js"
+    },
+    {
+      "file": "ui/NotebookWordBankToggle.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "ui/NotebookWordBankToggle.js"
+    },
+    {
+      "file": "ui/NotesUI.js",
+      "extractedOccurrences": 36,
+      "catalogSection": "ui/NotesUI.js"
+    },
+    {
+      "file": "ui/OfficeSaveUI.js",
+      "extractedOccurrences": 30,
+      "catalogSection": "ui/OfficeSaveUI.js"
+    },
+    {
+      "file": "ui/PICrimeBoardUI.js",
+      "extractedOccurrences": 26,
+      "catalogSection": "ui/PICrimeBoardUI.js"
+    },
+    {
+      "file": "ui/PIInventoryUI.js",
+      "extractedOccurrences": 10,
+      "catalogSection": "ui/PIInventoryUI.js"
+    },
+    {
+      "file": "ui/PIOfficeComputerUI.js",
+      "extractedOccurrences": 10,
+      "catalogSection": "ui/PIOfficeComputerUI.js"
+    },
+    {
+      "file": "ui/PIOfficeDestinationsUI.js",
+      "extractedOccurrences": 5,
+      "catalogSection": "ui/PIOfficeDestinationsUI.js"
+    },
+    {
+      "file": "ui/PIOfficeNotebookIntegration.js",
+      "extractedOccurrences": 29,
+      "catalogSection": "ui/PIOfficeNotebookIntegration.js"
+    },
+    {
+      "file": "ui/PIOfficePhoneUI.js",
+      "extractedOccurrences": 3,
+      "catalogSection": "ui/PIOfficePhoneUI.js"
+    },
+    {
+      "file": "ui/PassportUI.js",
+      "extractedOccurrences": 31,
+      "catalogSection": "ui/PassportUI.js"
+    },
+    {
+      "file": "ui/PayPalSandboxCheckout.js",
+      "extractedOccurrences": 19,
+      "catalogSection": "ui/PayPalSandboxCheckout.js"
+    },
+    {
+      "file": "ui/PhonebookUI.js",
+      "extractedOccurrences": 16,
+      "catalogSection": "ui/PhonebookUI.js"
+    },
+    {
+      "file": "ui/PlayerCloudContacts.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "ui/PlayerCloudContacts.js"
+    },
+    {
+      "file": "ui/PlayerCloudModel.js",
+      "extractedOccurrences": 27,
+      "catalogSection": "ui/PlayerCloudModel.js"
+    },
+    {
+      "file": "ui/PlayerCloudNotebook.js",
+      "extractedOccurrences": 81,
+      "catalogSection": "ui/PlayerCloudNotebook.js"
+    },
+    {
+      "file": "ui/PlayerMenuUI.js",
+      "extractedOccurrences": 21,
+      "catalogSection": "ui/PlayerMenuUI.js"
+    },
+    {
+      "file": "ui/RoomHotspotDebug.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "ui/RoomHotspotDebug.js"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "extractedOccurrences": 113,
+      "catalogSection": "ui/UIScene.js"
+    },
+    {
+      "file": "ui/UISlider.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "ui/UISlider.js"
+    },
+    {
+      "file": "ui/WarrantUI.js",
+      "extractedOccurrences": 24,
+      "catalogSection": "ui/WarrantUI.js"
+    },
+    {
+      "file": "ui/WorldHospitalReactionHooks.js",
+      "extractedOccurrences": 12,
+      "catalogSection": "ui/WorldHospitalReactionHooks.js"
+    },
+    {
+      "file": "ui/WorldPoliceReactionHooks.js",
+      "extractedOccurrences": 17,
+      "catalogSection": "ui/WorldPoliceReactionHooks.js"
+    },
+    {
+      "file": "ui/WorldPostOfficeReactionHooks.js",
+      "extractedOccurrences": 13,
+      "catalogSection": "ui/WorldPostOfficeReactionHooks.js"
+    },
+    {
+      "file": "ui/WorldReactionInspector.js",
+      "extractedOccurrences": 28,
+      "catalogSection": "ui/WorldReactionInspector.js"
+    },
+    {
+      "file": "ui/WorldReceptionReactionHooks.js",
+      "extractedOccurrences": 14,
+      "catalogSection": "ui/WorldReceptionReactionHooks.js"
+    },
+    {
+      "file": "ui/WorldSpyShopReactionHooks.js",
+      "extractedOccurrences": 14,
+      "catalogSection": "ui/WorldSpyShopReactionHooks.js"
+    },
+    {
+      "file": "ui/WorldTownReactionHooks.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "ui/WorldTownReactionHooks.js"
+    },
+    {
+      "file": "ui/characterCreation/AppearanceControls.js",
+      "extractedOccurrences": 120,
+      "catalogSection": "ui/characterCreation/AppearanceControls.js"
+    },
+    {
+      "file": "ui/characterCreation/CharacterCreationData.js",
+      "extractedOccurrences": 89,
+      "catalogSection": "ui/characterCreation/CharacterCreationData.js"
+    },
+    {
+      "file": "ui/characterCreation/CharacterCreationTemplate.js",
+      "extractedOccurrences": 39,
+      "catalogSection": "ui/characterCreation/CharacterCreationTemplate.js"
+    },
+    {
+      "file": "ui/characterCreation/DifficultyCards.js",
+      "extractedOccurrences": 17,
+      "catalogSection": "ui/characterCreation/DifficultyCards.js"
+    },
+    {
+      "file": "ui/characterCreation/DossierView.js",
+      "extractedOccurrences": 25,
+      "catalogSection": "ui/characterCreation/DossierView.js"
+    },
+    {
+      "file": "ui/characterCreation/ProfileCards.js",
+      "extractedOccurrences": 17,
+      "catalogSection": "ui/characterCreation/ProfileCards.js"
+    },
+    {
+      "file": "ui/characterCreation/StatControls.js",
+      "extractedOccurrences": 18,
+      "catalogSection": "ui/characterCreation/StatControls.js"
+    },
+    {
+      "file": "ui/hypothesisBoard/BoardConstants.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "ui/hypothesisBoard/BoardConstants.js"
+    },
+    {
+      "file": "ui/hypothesisBoard/BoardDeduction.js",
+      "extractedOccurrences": 19,
+      "catalogSection": "ui/hypothesisBoard/BoardDeduction.js"
+    },
+    {
+      "file": "ui/hypothesisBoard/BoardElements.js",
+      "extractedOccurrences": 13,
+      "catalogSection": "ui/hypothesisBoard/BoardElements.js"
+    },
+    {
+      "file": "ui/hypothesisBoard/BoardRefresh.js",
+      "extractedOccurrences": 5,
+      "catalogSection": "ui/hypothesisBoard/BoardRefresh.js"
+    },
+    {
+      "file": "ui/inventory/InventoryDiscardDialog.js",
+      "extractedOccurrences": 10,
+      "catalogSection": "ui/inventory/InventoryDiscardDialog.js"
+    },
+    {
+      "file": "ui/inventory/InventoryDragController.js",
+      "extractedOccurrences": 7,
+      "catalogSection": "ui/inventory/InventoryDragController.js"
+    },
+    {
+      "file": "ui/inventory/InventoryGraphics.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "ui/inventory/InventoryGraphics.js"
+    },
+    {
+      "file": "ui/inventory/InventoryView.js",
+      "extractedOccurrences": 32,
+      "catalogSection": "ui/inventory/InventoryView.js"
+    },
+    {
+      "file": "ui/mark-agency/AgencyMailApp.js",
+      "extractedOccurrences": 46,
+      "catalogSection": "ui/mark-agency/AgencyMailApp.js"
+    },
+    {
+      "file": "ui/mark-agency/ReportIncidentUI.js",
+      "extractedOccurrences": 18,
+      "catalogSection": "ui/mark-agency/ReportIncidentUI.js"
+    },
+    {
+      "file": "ui/markAgencyComputerInstaller.js",
+      "extractedOccurrences": 5,
+      "catalogSection": "ui/markAgencyComputerInstaller.js"
+    },
+    {
+      "file": "ui/pi-computer/AlibiAdvertEmailFlow.js",
+      "extractedOccurrences": 21,
+      "catalogSection": "ui/pi-computer/AlibiAdvertEmailFlow.js"
+    },
+    {
+      "file": "ui/pi-computer/AlibiBreakInTimes.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "ui/pi-computer/AlibiBreakInTimes.js"
+    },
+    {
+      "file": "ui/pi-computer/AlibiCaseData.js",
+      "extractedOccurrences": 190,
+      "catalogSection": "ui/pi-computer/AlibiCaseData.js"
+    },
+    {
+      "file": "ui/pi-computer/AlibiClubDialogue.js",
+      "extractedOccurrences": 88,
+      "catalogSection": "ui/pi-computer/AlibiClubDialogue.js"
+    },
+    {
+      "file": "ui/pi-computer/AlibiContactBook.js",
+      "extractedOccurrences": 9,
+      "catalogSection": "ui/pi-computer/AlibiContactBook.js"
+    },
+    {
+      "file": "ui/pi-computer/AlibiDialogueData.js",
+      "extractedOccurrences": 445,
+      "catalogSection": "ui/pi-computer/AlibiDialogueData.js"
+    },
+    {
+      "file": "ui/pi-computer/AlibiDialogueUI.js",
+      "extractedOccurrences": 14,
+      "catalogSection": "ui/pi-computer/AlibiDialogueUI.js"
+    },
+    {
+      "file": "ui/pi-computer/AlibiDinnerTime.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "ui/pi-computer/AlibiDinnerTime.js"
+    },
+    {
+      "file": "ui/pi-computer/AlibiGuidanceRules.js",
+      "extractedOccurrences": 221,
+      "catalogSection": "ui/pi-computer/AlibiGuidanceRules.js"
+    },
+    {
+      "file": "ui/pi-computer/AlibiGuidanceUI.js",
+      "extractedOccurrences": 13,
+      "catalogSection": "ui/pi-computer/AlibiGuidanceUI.js"
+    },
+    {
+      "file": "ui/pi-computer/AlibiImprovements.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "ui/pi-computer/AlibiImprovements.js"
+    },
+    {
+      "file": "ui/pi-computer/AlibiImprovementsBase.js",
+      "extractedOccurrences": 29,
+      "catalogSection": "ui/pi-computer/AlibiImprovementsBase.js"
+    },
+    {
+      "file": "ui/pi-computer/AlibiInterviewData.js",
+      "extractedOccurrences": 189,
+      "catalogSection": "ui/pi-computer/AlibiInterviewData.js"
+    },
+    {
+      "file": "ui/pi-computer/AlibiReceiptService.js",
+      "extractedOccurrences": 33,
+      "catalogSection": "ui/pi-computer/AlibiReceiptService.js"
+    },
+    {
+      "file": "ui/pi-computer/AlibiReportUI.js",
+      "extractedOccurrences": 50,
+      "catalogSection": "ui/pi-computer/AlibiReportUI.js"
+    },
+    {
+      "file": "ui/pi-computer/AlibiSearchExpansion.js",
+      "extractedOccurrences": 241,
+      "catalogSection": "ui/pi-computer/AlibiSearchExpansion.js"
+    },
+    {
+      "file": "ui/pi-computer/AlibiSharedFaceSpace.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "ui/pi-computer/AlibiSharedFaceSpace.js"
+    },
+    {
+      "file": "ui/pi-computer/AlibiSiteTemplate.js",
+      "extractedOccurrences": 16,
+      "catalogSection": "ui/pi-computer/AlibiSiteTemplate.js"
+    },
+    {
+      "file": "ui/pi-computer/AlibiWebArt.js",
+      "extractedOccurrences": 18,
+      "catalogSection": "ui/pi-computer/AlibiWebArt.js"
+    },
+    {
+      "file": "ui/pi-computer/BorrowedAlibiMail.js",
+      "extractedOccurrences": 44,
+      "catalogSection": "ui/pi-computer/BorrowedAlibiMail.js"
+    },
+    {
+      "file": "ui/pi-computer/BusinessPageTemplate.js",
+      "extractedOccurrences": 43,
+      "catalogSection": "ui/pi-computer/BusinessPageTemplate.js"
+    },
+    {
+      "file": "ui/pi-computer/CommonRoomTemplate.js",
+      "extractedOccurrences": 29,
+      "catalogSection": "ui/pi-computer/CommonRoomTemplate.js"
+    },
+    {
+      "file": "ui/pi-computer/ComputerAudio.js",
+      "extractedOccurrences": 23,
+      "catalogSection": "ui/pi-computer/ComputerAudio.js"
+    },
+    {
+      "file": "ui/pi-computer/ComputerChat.js",
+      "extractedOccurrences": 24,
+      "catalogSection": "ui/pi-computer/ComputerChat.js"
+    },
+    {
+      "file": "ui/pi-computer/ComputerChatContent.js",
+      "extractedOccurrences": 87,
+      "catalogSection": "ui/pi-computer/ComputerChatContent.js"
+    },
+    {
+      "file": "ui/pi-computer/ComputerDesktop.js",
+      "extractedOccurrences": 23,
+      "catalogSection": "ui/pi-computer/ComputerDesktop.js"
+    },
+    {
+      "file": "ui/pi-computer/ComputerDocumentJobs.js",
+      "extractedOccurrences": 24,
+      "catalogSection": "ui/pi-computer/ComputerDocumentJobs.js"
+    },
+    {
+      "file": "ui/pi-computer/ComputerDocumentsBase.js",
+      "extractedOccurrences": 26,
+      "catalogSection": "ui/pi-computer/ComputerDocumentsBase.js"
+    },
+    {
+      "file": "ui/pi-computer/ComputerDocumentsCore.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "ui/pi-computer/ComputerDocumentsCore.js"
+    },
+    {
+      "file": "ui/pi-computer/ComputerDrawing.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "ui/pi-computer/ComputerDrawing.js"
+    },
+    {
+      "file": "ui/pi-computer/ComputerLedger.js",
+      "extractedOccurrences": 10,
+      "catalogSection": "ui/pi-computer/ComputerLedger.js"
+    },
+    {
+      "file": "ui/pi-computer/ComputerMonitor.js",
+      "extractedOccurrences": 50,
+      "catalogSection": "ui/pi-computer/ComputerMonitor.js"
+    },
+    {
+      "file": "ui/pi-computer/ComputerOfficeShop.js",
+      "extractedOccurrences": 124,
+      "catalogSection": "ui/pi-computer/ComputerOfficeShop.js"
+    },
+    {
+      "file": "ui/pi-computer/ComputerSearch.js",
+      "extractedOccurrences": 14,
+      "catalogSection": "ui/pi-computer/ComputerSearch.js"
+    },
+    {
+      "file": "ui/pi-computer/ComputerSearchCore.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "ui/pi-computer/ComputerSearchCore.js"
+    },
+    {
+      "file": "ui/pi-computer/ComputerSearchHome.js",
+      "extractedOccurrences": 12,
+      "catalogSection": "ui/pi-computer/ComputerSearchHome.js"
+    },
+    {
+      "file": "ui/pi-computer/ComputerSearchNotebook.js",
+      "extractedOccurrences": 3,
+      "catalogSection": "ui/pi-computer/ComputerSearchNotebook.js"
+    },
+    {
+      "file": "ui/pi-computer/ComputerSearchResults.js",
+      "extractedOccurrences": 11,
+      "catalogSection": "ui/pi-computer/ComputerSearchResults.js"
+    },
+    {
+      "file": "ui/pi-computer/ComputerSearchShared.js",
+      "extractedOccurrences": 29,
+      "catalogSection": "ui/pi-computer/ComputerSearchShared.js"
+    },
+    {
+      "file": "ui/pi-computer/ComputerSearchWidgets.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "ui/pi-computer/ComputerSearchWidgets.js"
+    },
+    {
+      "file": "ui/pi-computer/ComputerShell.js",
+      "extractedOccurrences": 6,
+      "catalogSection": "ui/pi-computer/ComputerShell.js"
+    },
+    {
+      "file": "ui/pi-computer/ComputerTheme.js",
+      "extractedOccurrences": 3,
+      "catalogSection": "ui/pi-computer/ComputerTheme.js"
+    },
+    {
+      "file": "ui/pi-computer/ComputerThiefdoku.js",
+      "extractedOccurrences": 100,
+      "catalogSection": "ui/pi-computer/ComputerThiefdoku.js"
+    },
+    {
+      "file": "ui/pi-computer/ComputerThiefdokuArt.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "ui/pi-computer/ComputerThiefdokuArt.js"
+    },
+    {
+      "file": "ui/pi-computer/DeadMailAttachment.js",
+      "extractedOccurrences": 9,
+      "catalogSection": "ui/pi-computer/DeadMailAttachment.js"
+    },
+    {
+      "file": "ui/pi-computer/DeadMenArtworkUI.js",
+      "extractedOccurrences": 7,
+      "catalogSection": "ui/pi-computer/DeadMenArtworkUI.js"
+    },
+    {
+      "file": "ui/pi-computer/DeadMenDialogueUI.js",
+      "extractedOccurrences": 80,
+      "catalogSection": "ui/pi-computer/DeadMenDialogueUI.js"
+    },
+    {
+      "file": "ui/pi-computer/DeadMenEvidenceUIBase.js",
+      "extractedOccurrences": 61,
+      "catalogSection": "ui/pi-computer/DeadMenEvidenceUIBase.js"
+    },
+    {
+      "file": "ui/pi-computer/EditorialPageTemplate.js",
+      "extractedOccurrences": 11,
+      "catalogSection": "ui/pi-computer/EditorialPageTemplate.js"
+    },
+    {
+      "file": "ui/pi-computer/ForumPageTemplate.js",
+      "extractedOccurrences": 23,
+      "catalogSection": "ui/pi-computer/ForumPageTemplate.js"
+    },
+    {
+      "file": "ui/pi-computer/GrandConspiracyComputer.js",
+      "extractedOccurrences": 49,
+      "catalogSection": "ui/pi-computer/GrandConspiracyComputer.js"
+    },
+    {
+      "file": "ui/pi-computer/KeywordStyle.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "ui/pi-computer/KeywordStyle.js"
+    },
+    {
+      "file": "ui/pi-computer/NotebookContactActions.js",
+      "extractedOccurrences": 11,
+      "catalogSection": "ui/pi-computer/NotebookContactActions.js"
+    },
+    {
+      "file": "ui/pi-computer/OrganisationPageTemplate.js",
+      "extractedOccurrences": 13,
+      "catalogSection": "ui/pi-computer/OrganisationPageTemplate.js"
+    },
+    {
+      "file": "ui/pi-computer/OwlAudioAvailability.js",
+      "extractedOccurrences": 4,
+      "catalogSection": "ui/pi-computer/OwlAudioAvailability.js"
+    },
+    {
+      "file": "ui/pi-computer/PIComputerApps.js",
+      "extractedOccurrences": 10,
+      "catalogSection": "ui/pi-computer/PIComputerApps.js"
+    },
+    {
+      "file": "ui/pi-computer/PIInventoryOfficeShop.js",
+      "extractedOccurrences": 9,
+      "catalogSection": "ui/pi-computer/PIInventoryOfficeShop.js"
+    },
+    {
+      "file": "ui/pi-computer/PIMailbox.js",
+      "extractedOccurrences": 7,
+      "catalogSection": "ui/pi-computer/PIMailbox.js"
+    },
+    {
+      "file": "ui/pi-computer/PhotoHotspotEditor.js",
+      "extractedOccurrences": 11,
+      "catalogSection": "ui/pi-computer/PhotoHotspotEditor.js"
+    },
+    {
+      "file": "ui/pi-computer/PhotoPIQuest.js",
+      "extractedOccurrences": 8,
+      "catalogSection": "ui/pi-computer/PhotoPIQuest.js"
+    },
+    {
+      "file": "ui/pi-computer/PublicDirectoryTemplate.js",
+      "extractedOccurrences": 21,
+      "catalogSection": "ui/pi-computer/PublicDirectoryTemplate.js"
+    },
+    {
+      "file": "ui/pi-computer/QuestHintPurchase.js",
+      "extractedOccurrences": 10,
+      "catalogSection": "ui/pi-computer/QuestHintPurchase.js"
+    },
+    {
+      "file": "ui/pi-computer/QuestHintSystem.js",
+      "extractedOccurrences": 102,
+      "catalogSection": "ui/pi-computer/QuestHintSystem.js"
+    },
+    {
+      "file": "ui/pi-computer/ReedContactMail.js",
+      "extractedOccurrences": 26,
+      "catalogSection": "ui/pi-computer/ReedContactMail.js"
+    },
+    {
+      "file": "ui/pi-computer/ReedGalleryViewer.js",
+      "extractedOccurrences": 21,
+      "catalogSection": "ui/pi-computer/ReedGalleryViewer.js"
+    },
+    {
+      "file": "ui/pi-computer/ReedReportUI.js",
+      "extractedOccurrences": 15,
+      "catalogSection": "ui/pi-computer/ReedReportUI.js"
+    },
+    {
+      "file": "ui/pi-computer/SeaViewClue.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "ui/pi-computer/SeaViewClue.js"
+    },
+    {
+      "file": "ui/pi-computer/SocialProfileTemplate.js",
+      "extractedOccurrences": 21,
+      "catalogSection": "ui/pi-computer/SocialProfileTemplate.js"
+    },
+    {
+      "file": "ui/pi-phone/AlibiCloudPhoneNotes.js",
+      "extractedOccurrences": 10,
+      "catalogSection": "ui/pi-phone/AlibiCloudPhoneNotes.js"
+    },
+    {
+      "file": "ui/pi-phone/DeadMenCloudPhoneNotes.js",
+      "extractedOccurrences": 10,
+      "catalogSection": "ui/pi-phone/DeadMenCloudPhoneNotes.js"
+    },
+    {
+      "file": "ui/pi-phone/LegacyPhoneFieldNotes.js",
+      "extractedOccurrences": 9,
+      "catalogSection": "ui/pi-phone/LegacyPhoneFieldNotes.js"
+    },
+    {
+      "file": "ui/pi-phone/PhoneCalls.js",
+      "extractedOccurrences": 13,
+      "catalogSection": "ui/pi-phone/PhoneCalls.js"
+    },
+    {
+      "file": "ui/pi-phone/PhoneConfig.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "ui/pi-phone/PhoneConfig.js"
+    },
+    {
+      "file": "ui/pi-phone/PhoneDirectory.js",
+      "extractedOccurrences": 11,
+      "catalogSection": "ui/pi-phone/PhoneDirectory.js"
+    },
+    {
+      "file": "ui/pi-phone/PhoneDisplay.js",
+      "extractedOccurrences": 16,
+      "catalogSection": "ui/pi-phone/PhoneDisplay.js"
+    },
+    {
+      "file": "ui/pi-phone/PhoneInvestigation.js",
+      "extractedOccurrences": 10,
+      "catalogSection": "ui/pi-phone/PhoneInvestigation.js"
+    },
+    {
+      "file": "ui/pi-phone/PhoneInvestigationBase.js",
+      "extractedOccurrences": 17,
+      "catalogSection": "ui/pi-phone/PhoneInvestigationBase.js"
+    },
+    {
+      "file": "ui/pi-phone/PhoneTranscript.js",
+      "extractedOccurrences": 1,
+      "catalogSection": "ui/pi-phone/PhoneTranscript.js"
+    },
+    {
+      "file": "ui/pi-phone/PlayerCloudPhoneNotes.js",
+      "extractedOccurrences": 10,
+      "catalogSection": "ui/pi-phone/PlayerCloudPhoneNotes.js"
+    },
+    {
+      "file": "ui/suspectUtils.js",
+      "extractedOccurrences": 15,
+      "catalogSection": "ui/suspectUtils.js"
+    },
+    {
+      "file": "ui/warrant/WarrantResults.js",
+      "extractedOccurrences": 15,
+      "catalogSection": "ui/warrant/WarrantResults.js"
+    },
+    {
+      "file": "ui/warrant/WarrantSketch.js",
+      "extractedOccurrences": 2,
+      "catalogSection": "ui/warrant/WarrantSketch.js"
+    },
+    {
+      "file": "ui/warrant/warrantConfig.js",
+      "extractedOccurrences": 19,
+      "catalogSection": "ui/warrant/warrantConfig.js"
+    }
+  ],
+  "review": [
+    {
+      "file": "assets/js/landing.js",
+      "reason": "Classic script without import/export; left unchanged."
+    },
+    {
+      "file": "assets/vendor/phaser/phaser-3.90.0.min.js",
+      "reason": "Classic script without import/export; left unchanged."
+    },
+    {
+      "file": "config/debugConsole.js",
+      "reason": "Classic script without import/export; left unchanged."
+    },
+    {
+      "file": "landing-page/landing.js",
+      "reason": "Classic script without import/export; left unchanged."
+    }
+  ],
+  "totals": {
+    "scannedModules": 846,
+    "changedModules": 607,
+    "extractedOccurrences": 16581,
+    "newCatalogEntries": 14940
+  }
+}

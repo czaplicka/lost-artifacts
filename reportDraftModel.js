@@ -1,19 +1,20 @@
+import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 const text = value => typeof value === 'string' ? value.trim() : '';
 export function buildReportForm(state, locations = []) {
   const artifact = text(typeof state.currentMission?.artifact === 'object'
     ? state.currentMission.artifact?.name : state.currentMission?.artifact);
   const suspect = text(state.currentThief?.name);
   if (!artifact || !suspect || !Array.isArray(state.escapeRoute)) {
-    return { ok: false, error: 'Case data is incomplete. The report cannot be prepared.' };
+    return { ok: false, error: __dialogueText("reportDraftModel.js", "t_a559e5b2b10512ddbda9") };
   }
-  const fields = [{ id: 'artifact', hint: 'ARTIFACT', answer: 'artifact:main', label: artifact }];
+  const fields = [{ id: 'artifact', hint: __dialogueText("reportDraftModel.js", "t_7fbd7ef36fdd97293aa5"), answer: __dialogueText("reportDraftModel.js", "t_468edda7e41b513916df"), label: artifact }];
   for (let index = 0; index < state.escapeRoute.length; index += 1) {
     const cityId = state.escapeRoute[index];
     const city = locations.find(location => location.id === cityId);
-    if (!text(city?.city)) return { ok: false, error: `City data is missing for route stop ${index + 1}.` };
-    fields.push({ id: `route:${index}`, hint: `CITY ${index + 1}`, answer: `city:${index}`, label: city.city });
+    if (!text(city?.city)) return { ok: false, error: `${__dialogueText("reportDraftModel.js", "t_a93cdc417ade19261584")}${index + 1}${__dialogueText("reportDraftModel.js", "t_cdb4ee2aea69cc6a8333")}` };
+    fields.push({ id: `route:${index}`, hint: `${__dialogueText("reportDraftModel.js", "t_36c352d9329d3447af0f")}${index + 1}`, answer: `${__dialogueText("reportDraftModel.js", "t_c8aefa6c96fc3b0ba3be")}${index}`, label: city.city });
   }
-  fields.push({ id: 'suspect', hint: 'SUSPECT', answer: 'suspect:main', label: suspect });
+  fields.push({ id: 'suspect', hint: __dialogueText("reportDraftModel.js", "t_edfa2c31b6de69133e64"), answer: __dialogueText("reportDraftModel.js", "t_758b9d51e159b04146f1"), label: suspect });
   return {
     ok: true, fields,
     signature: JSON.stringify(fields.map(field => [field.id, field.answer, field.label])),

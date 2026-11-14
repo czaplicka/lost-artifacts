@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { EventBus } from '../EventBus.js';
@@ -45,7 +46,7 @@ export class DestinationTravel {
     );
 
     if (!destination) {
-      this.showTravelError('Destination data is missing.');
+      this.showTravelError(__dialogueText("ui/DestinationTravel.js", "t_411bc7df8685488e00c6"));
       return false;
     }
 
@@ -53,7 +54,7 @@ export class DestinationTravel {
 
     if (!source) {
       this.showTravelError(
-        'Could not determine the current location.'
+        __dialogueText("ui/DestinationTravel.js", "t_9ac14acb1c077fbca660")
       );
       return false;
     }
@@ -108,8 +109,8 @@ export class DestinationTravel {
 
         this.showTravelError(
           result.blockReason === 'insufficient_energy'
-            ? 'Too exhausted to travel. Get some sleep first.'
-            : 'Travel is currently blocked.'
+            ? __dialogueText("ui/DestinationTravel.js", "t_56d458c5b40c9f4a918c")
+            : __dialogueText("ui/DestinationTravel.js", "t_3fccb5b765139002e604")
         );
 
         return false;
@@ -120,7 +121,7 @@ export class DestinationTravel {
         this.refreshInfoPanel(this.selectedCity);
 
         this.showTravelError(
-          'You are already in this city.'
+          __dialogueText("ui/DestinationTravel.js", "t_85ecf9145a53563de211")
         );
 
         return false;
@@ -281,8 +282,8 @@ export class DestinationTravel {
 
         this.showTravelError(
           committed
-            ? 'Travel was processed, but its transition data could not be prepared. Check the console before trying again.'
-            : 'Travel failed. Check the console for details.'
+            ? __dialogueText("ui/DestinationTravel.js", "t_f35e62bc0385df2f12d8")
+            : __dialogueText("ui/DestinationTravel.js", "t_987c5c30e08dbdb1f873")
         );
 
         if (committed) {
@@ -328,12 +329,12 @@ export class DestinationTravel {
     this.setConfirmEnabled(false);
 
     this.transportPrompt
-      .setColor('#ff9d6b')
+      .setColor(__dialogueText("ui/DestinationTravel.js", "t_e5ce4dbdca8ab29e7605"))
       .setText(
-        'Travel was processed. Retry opening the travel screen without paying again.'
+        __dialogueText("ui/DestinationTravel.js", "t_0d6d05af1cdfc1b5ca47")
       );
 
-    this.confirmLabel.setText('Retry travel screen');
+    this.confirmLabel.setText(__dialogueText("ui/DestinationTravel.js", "t_bdcb4e18897d4795bb1b"));
     this.confirmButton.setFillStyle(0xb57928, 1);
     this.confirmButton.setAlpha(1);
     this.confirmLabel.setAlpha(1);
@@ -355,7 +356,7 @@ export class DestinationTravel {
 
     if (!source) {
       this.showTravelError(
-        'Could not determine the current location.'
+        __dialogueText("ui/DestinationTravel.js", "t_9ac14acb1c077fbca660")
       );
       return false;
     }

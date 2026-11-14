@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
@@ -257,7 +258,7 @@ export class ArchiveScene extends BaseScene {
     this.openConversation(dialogue.reportConversation, () => {
       const result = submitMissionReport(id, addedAt, this.gameState);
       this.refreshArchive();
-      if (!result.ok) return this.showStatus('Nothing was filed. Check that you still have the correct report.');
+      if (!result.ok) return this.showStatus(__dialogueText("scenes/ArchiveScene.js", "t_9607b9960dba60686b62"));
       this.showStatus(result.saved ? dialogue.submittedMessage : dialogue.saveWarning);
     });
   }
@@ -266,7 +267,7 @@ export class ArchiveScene extends BaseScene {
     if (!this.canInteract()) return false;
     const dialog = this.getPlayerHudScene()?.dialogManager?.dialogUI;
     if (!dialog || dialog.destroyed || dialog.isOpen || !Array.isArray(entry?.lines)) {
-      this.showStatus('The conversation could not be opened. Please try again.');
+      this.showStatus(__dialogueText("scenes/ArchiveScene.js", "t_8ed1eb49297a6392d200"));
       return false;
     }
     const token = this._archiveRunToken;
@@ -285,7 +286,7 @@ export class ArchiveScene extends BaseScene {
     } catch (error) {
       this._conversationOpen = false;
       console.error('[ArchiveScene] Conversation failed:', error);
-      this.showStatus('The conversation could not be opened. Please try again.');
+      this.showStatus(__dialogueText("scenes/ArchiveScene.js", "t_8ed1eb49297a6392d200"));
       return false;
     }
   }
@@ -319,8 +320,8 @@ export class ArchiveScene extends BaseScene {
       this.backButton?.clearTint();
     });
 
-    this.nextMissionButton = button('NEXT MISSION >', () => { void this.openNextMission(); }).setOrigin(1, 1).setVisible(false);
-    this.puzzleButton = button('SORT INDEX CARDS', () => { void this.openIndexPuzzle(); }).setOrigin(0.5, 1).setVisible(false);
+    this.nextMissionButton = button(__dialogueText("scenes/ArchiveScene.js", "t_a93851375c3a3646296a"), () => { void this.openNextMission(); }).setOrigin(1, 1).setVisible(false);
+    this.puzzleButton = button(__dialogueText("scenes/ArchiveScene.js", "t_d3f3c4809a994fc829a5"), () => { void this.openIndexPuzzle(); }).setOrigin(0.5, 1).setVisible(false);
     this.statusText = this.add.text(0, 0, '', { ...style, align: 'center' }).setOrigin(0.5, 0).setDepth(110).setVisible(false);
   }
 
@@ -376,7 +377,7 @@ export class ArchiveScene extends BaseScene {
       const result = await this.goto(key, data);
       if (!this._archiveDisposed && token === this._archiveRunToken && this.sys.isActive()) {
         this.isLeaving = false;
-        if (result === false) this.showStatus('This screen could not be opened. Please try again.');
+        if (result === false) this.showStatus(__dialogueText("scenes/ArchiveScene.js", "t_a475e66491996ef650aa"));
       }
       return result !== false;
     } catch (error) {

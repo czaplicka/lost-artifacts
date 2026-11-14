@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 
 import {
@@ -262,7 +263,7 @@ function settleReedXP() {
     result = progressionManager.grantReward(
       XP_REWARD_ID,
       QUEST_ID,
-      'PI case completed: Two Glasses'
+      __dialogueText("managers/ReedResolutionService.js", "t_d5af9717b1a7d6383ca3")
     );
   } catch (error) {
     // Powiadomienie lub autosave może zawieść
@@ -321,7 +322,7 @@ export function finishReedReport(config, endingId) {
   if (busy) {
     return {
       ok: false,
-      message: 'The report is being processed.'
+      message: __dialogueText("managers/ReedResolutionService.js", "t_121c46bd29ff094cffa5")
     };
   }
 
@@ -343,7 +344,7 @@ export function finishReedReport(config, endingId) {
 
     return {
       ok: false,
-      message: 'This case has already been closed.'
+      message: __dialogueText("managers/ReedResolutionService.js", "t_bfdb83da449f6c1b3fb4")
     };
   }
 
@@ -351,7 +352,7 @@ export function finishReedReport(config, endingId) {
     return {
       ok: false,
       message:
-        'The investigation is not ready to close.'
+        __dialogueText("managers/ReedResolutionService.js", "t_d983af49304d4b1d1535")
     };
   }
 
@@ -362,7 +363,7 @@ export function finishReedReport(config, endingId) {
   if (!ending) {
     return {
       ok: false,
-      message: 'Choose a valid report.'
+      message: __dialogueText("managers/ReedResolutionService.js", "t_53dc81cd850bca7484a3")
     };
   }
 
@@ -373,7 +374,7 @@ export function finishReedReport(config, endingId) {
     return {
       ok: false,
       message:
-        'The selected report is already being settled.'
+        __dialogueText("managers/ReedResolutionService.js", "t_6ac377eb0efd283e5863")
     };
   }
 
@@ -385,7 +386,7 @@ export function finishReedReport(config, endingId) {
   if (!Number.isInteger(reward) || reward < 0) {
     return {
       ok: false,
-      message: 'The contract fee is invalid.'
+      message: __dialogueText("managers/ReedResolutionService.js", "t_59bd296b850e42ca9b63")
     };
   }
 
@@ -438,7 +439,7 @@ export function finishReedReport(config, endingId) {
         moneyManager.addCash(reward, {
           category: ECONOMY_CATEGORY.SIDE_CASE,
           description:
-            'PI case completed: Two Glasses',
+            __dialogueText("managers/ReedResolutionService.js", "t_d5af9717b1a7d6383ca3"),
 
           missionId: config.questId,
 
@@ -461,7 +462,7 @@ export function finishReedReport(config, endingId) {
           gameState[KEY] = {
             ...pending,
             lastError:
-              'Payment could not be completed.'
+              __dialogueText("managers/ReedResolutionService.js", "t_f677abd706c78b2e9cd1")
           };
 
           requestAutosave();
@@ -474,7 +475,7 @@ export function finishReedReport(config, endingId) {
           return {
             ok: false,
             message:
-              'Payment failed. The report can be processed again.'
+              __dialogueText("managers/ReedResolutionService.js", "t_278e5161586fc87a0e15")
           };
         }
 
@@ -504,7 +505,7 @@ export function finishReedReport(config, endingId) {
       return {
         ok: false,
         message:
-          'Payment recorded. Finish settlement again to record integrity; payment will not repeat.'
+          __dialogueText("managers/ReedResolutionService.js", "t_facd781d0073fe95b201")
       };
     }
 
@@ -525,7 +526,7 @@ export function finishReedReport(config, endingId) {
       return {
         ok: false,
         message:
-          'Payment and integrity recorded. Retry settlement to finish XP; recorded rewards will not repeat.'
+          __dialogueText("managers/ReedResolutionService.js", "t_909191a77fcc6d05f2af")
       };
     }
 
@@ -588,9 +589,9 @@ export function finishReedReport(config, endingId) {
       const note = {
         id: 'reed_final_report',
         type: 'note',
-        label: 'Final report',
+        label: __dialogueText("managers/ReedResolutionService.js", "t_62c72903a99092392c42"),
         text: paid.report,
-        metaText: `Case closed — ${ending.title}`,
+        metaText: `${__dialogueText("managers/ReedResolutionService.js", "t_d24edd53fc51d85fe3b8")}${ending.title}`,
         color: 'yellow',
         x: 120,
         y: 380,
@@ -667,14 +668,14 @@ export function finishReedReport(config, endingId) {
 
       message: saved
         ? (
-            `Case closed. Contract fee: $${reward}.` +
+            `${__dialogueText("managers/ReedResolutionService.js", "t_379defa0f6ca4777be93")}${reward}${__dialogueText("managers/ReedResolutionService.js", "t_cdb4ee2aea69cc6a8333")}` +
             (
               xpGranted > 0
-                ? ` +${xpGranted} XP.`
+                ? `${__dialogueText("managers/ReedResolutionService.js", "t_c13f23cc27f966a4eadf")}${xpGranted}${__dialogueText("managers/ReedResolutionService.js", "t_a73feda6e2f76a6b740b")}`
                 : ''
             )
           )
-        : 'Case closed, but saving failed. Save your game before leaving.'
+        : __dialogueText("managers/ReedResolutionService.js", "t_5116e294bbed1f5b6c9b")
     };
   } finally {
     busy = false;

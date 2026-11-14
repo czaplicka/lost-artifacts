@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 // ---------------------------------------------------------------------------
 // NewspaperLayoutConfig.js
 //
@@ -32,13 +33,13 @@ const BAR_H = 22;
 
 const dailyModules = {
   weather: {
-    x: colX(0), y: BOTTOM_Y, width: COL_W, height: BOTTOM_H, label: 'WEATHER'
+    x: colX(0), y: BOTTOM_Y, width: COL_W, height: BOTTOM_H, label: __dialogueText("NewspaperLayoutConfig.js", "t_0a244108837bc27421ac")
   },
   classifieds: {
-    x: colX(1), y: BOTTOM_Y, width: COL_W, height: BOTTOM_H, label: 'CLASSIFIEDS'
+    x: colX(1), y: BOTTOM_Y, width: COL_W, height: BOTTOM_H, label: __dialogueText("NewspaperLayoutConfig.js", "t_7c38821aea8aca6dea61")
   },
   crossword: {
-    x: colX(2), y: BOTTOM_Y, width: COL_W, height: BOTTOM_H, label: 'CROSSWORD'
+    x: colX(2), y: BOTTOM_Y, width: COL_W, height: BOTTOM_H, label: __dialogueText("NewspaperLayoutConfig.js", "t_b683bca717fec1800b46")
   },
   ticker: {
     x: RIGHT_X, y: 580, width: PAGE_W, height: 48
@@ -47,7 +48,7 @@ const dailyModules = {
     x: SIDE_X, y: TOP_Y, width: SIDE_W, heights: [158, 170, 160], gap: 14
   },
   comic: {
-    x: SIDE_X, y: BOTTOM_Y, width: SIDE_W, height: BOTTOM_H, label: 'PRIVATE EYE PETE'
+    x: SIDE_X, y: BOTTOM_Y, width: SIDE_W, height: BOTTOM_H, label: __dialogueText("NewspaperLayoutConfig.js", "t_ed467ef60f6882e6ceae")
   }
 };
 

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 import { gameState } from './GameData.js';
 import { inventoryManager } from './managers/InventoryManager.js';
 import { MainStoryManager } from './managers/MainStoryManager.js';
@@ -29,7 +30,7 @@ export function isReportSubmitted(state = gameState) {
 }
 export function canRequestNextMission(state = gameState) { return isArchivistPresent(state) && isReportSubmitted(state); }
 export function getMissionReportForm(locations = [], state = gameState) {
-  if (!isArchivistPresent(state)) return {ok:false,error:'Complete a mission successfully before writing its report.'};
+  if (!isArchivistPresent(state)) return {ok:false,error:__dialogueText("archiveReportService.js", "t_86273f9de28a2d16b3c5")};
   const form=buildReportForm(state,locations);
   if(!form.ok)return form;
   const caseId=getArchiveCaseId(state),key=`report:${caseId}`,draft=read(DRAFTS_KEY)[key];
@@ -59,7 +60,7 @@ export function printMissionReport(answers,locations=[],state=gameState) {
   if(!validation.ok)return {ok:false,reason:'incorrect',errors:validation.errors};
   const key=`report:${form.caseId}`,drafts=read(DRAFTS_KEY),existing=inventoryManager.getItem(REPORT_ITEM_ID);
   if(existing && String(existing.metadata?.caseId)!==form.caseId)return {ok:false,reason:'conflict'};
-  if(!approveReportIncident(form.caseId))return {ok:false,reason:'incident_required',error:'Read ADDITIONAL OBSERVATIONS and choose a recommendation before printing.'};
+  if(!approveReportIncident(form.caseId))return {ok:false,reason:'incident_required',error:__dialogueText("archiveReportService.js", "t_ccdcdaf7f396874a50b7")};
   MainStoryManager.setSideClue(DRAFTS_KEY,{...drafts,[key]:{signature:form.signature,answers:validation.answers,printed:true,printedAt:drafts[key]?.printedAt??Date.now()}});
   const result=ensureMissionReport(state);
   return {ok:result.status==='ready',reason:result.status,saved:saveGameState()};

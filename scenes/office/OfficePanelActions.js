@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 const PANEL_TIMEOUT_MS = 12000;
 
 export const OfficePanelActions = {
@@ -62,7 +63,7 @@ export const OfficePanelActions = {
       if (!current()) return false;
       if (result === false || !panel.isOpen) {
         console.warn(`[OfficeScene] Panel "${name}" did not open.`);
-        this.showOfficeStatusMessage('This panel could not be opened. Please try again.');
+        this.showOfficeStatusMessage(__dialogueText("scenes/office/OfficePanelActions.js", "t_0292010f04685ea6f589"));
         return false;
       }
       onOpened?.();
@@ -70,7 +71,7 @@ export const OfficePanelActions = {
     } catch (error) {
       if (current()) {
         console.error(`[OfficeScene] Failed to open "${name}":`, error);
-        this.showOfficeStatusMessage('This panel could not be opened. Please try again.');
+        this.showOfficeStatusMessage(__dialogueText("scenes/office/OfficePanelActions.js", "t_0292010f04685ea6f589"));
       }
       return false;
     } finally {
@@ -87,10 +88,10 @@ export const OfficePanelActions = {
     return this._openReadyOfficePanel('caseFileUI', () => {
       const mission = this.gameState.currentMission || {};
       return {
-        artifact: mission.artifact || 'UNKNOWN ARTIFACT',
-        city: mission.city || 'UNKNOWN CITY',
-        country: mission.country || 'UNKNOWN COUNTRY',
-        description: mission.description || 'No case description available.',
+        artifact: mission.artifact || __dialogueText("scenes/office/OfficePanelActions.js", "t_51b01e8422efd81865f3"),
+        city: mission.city || __dialogueText("scenes/office/OfficePanelActions.js", "t_031708f5a6c18e0a6279"),
+        country: mission.country || __dialogueText("scenes/office/OfficePanelActions.js", "t_e282dbbdd7a0fe3f46f5"),
+        description: mission.description || __dialogueText("scenes/office/OfficePanelActions.js", "t_5b90bad5ea1caf117c4e"),
         significance: mission.significance || '',
         clue: mission.clue || '',
         artifactKey: mission.artifactKey || ''

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 
 export function formatNoteTime(minute) {
@@ -16,7 +17,7 @@ function interval(
   start,
   end,
   label,
-  dayLabel = 'Theft day'
+  dayLabel = __dialogueText("alibi/AlibiTimeNotes.js", "t_5f22ffd4da4641b47760")
 ) {
   return {
     startMinute: start,
@@ -70,7 +71,7 @@ function toMinute(value) {
 
 function getExplicitIntervals(statement) {
   const text = String(statement || '')
-    .split('Separately, the case file records:')[0];
+    .split(__dialogueText("alibi/AlibiTimeNotes.js", "t_4799730304ff7214bd28"))[0];
 
   const result = [];
 
@@ -103,8 +104,8 @@ function getExplicitIntervals(statement) {
       interval(
         start,
         end,
-        'Interval stated in the original account',
-        'Account day — check the statement'
+        __dialogueText("alibi/AlibiTimeNotes.js", "t_e5f42e286ef50b560071"),
+        __dialogueText("alibi/AlibiTimeNotes.js", "t_5a7affbdef6467fdfef2")
       )
     );
   }
@@ -145,17 +146,17 @@ function getScenarioIntervals(subject) {
           range(
             a - 20,
             b + 5,
-            'Face-to-face observation after the ID check'
+            __dialogueText("alibi/AlibiTimeNotes.js", "t_69335e25aa4ccded68b6")
           ),
           range(
             a - 5,
             b + 5,
-            'Continuous direct observation'
+            __dialogueText("alibi/AlibiTimeNotes.js", "t_41a21480878be1f257c0")
           ),
           range(
             a - 5,
             b + 15,
-            'Observation until the recorded departure'
+            __dialogueText("alibi/AlibiTimeNotes.js", "t_658d0c9dae790b6f40a6")
           )
         ];
 
@@ -164,17 +165,17 @@ function getScenarioIntervals(subject) {
           range(
             a - 20,
             a + 1,
-            'First observer before the handover'
+            __dialogueText("alibi/AlibiTimeNotes.js", "t_55cb1775e3dfaac910f0")
           ),
           range(
             a - 5,
             b + 15,
-            'Second observer after joining the meeting'
+            __dialogueText("alibi/AlibiTimeNotes.js", "t_c57d473232f08b6c7189")
           ),
           range(
             a - 5,
             b + 15,
-            'Independent observation of the handover'
+            __dialogueText("alibi/AlibiTimeNotes.js", "t_e556fa386b3178259b0e")
           )
         ];
 
@@ -183,17 +184,17 @@ function getScenarioIntervals(subject) {
           range(
             a - 15,
             b + 10,
-            'Continuous supervision after the ID check'
+            __dialogueText("alibi/AlibiTimeNotes.js", "t_088f3418d00a23b0fe76")
           ),
           range(
             a - 5,
             b + 5,
-            'Face-to-face interaction'
+            __dialogueText("alibi/AlibiTimeNotes.js", "t_a13c239b1a54119af6a8")
           ),
           range(
             a - 5,
             b + 5,
-            'Direct observation corroborated by video'
+            __dialogueText("alibi/AlibiTimeNotes.js", "t_64117c7d86410912e55d")
           )
         ];
 
@@ -202,17 +203,17 @@ function getScenarioIntervals(subject) {
           range(
             a - 15,
             b + 10,
-            'Time spent together after arrival'
+            __dialogueText("alibi/AlibiTimeNotes.js", "t_a569a4e95ee4af258a1a")
           ),
           range(
             a - 5,
             b + 5,
-            'Continuous observation'
+            __dialogueText("alibi/AlibiTimeNotes.js", "t_8ea5b16717aefe0ec207")
           ),
           range(
             a - 5,
             b + 10,
-            'Observation before signing the record'
+            __dialogueText("alibi/AlibiTimeNotes.js", "t_f86ca45204c86d38b9b9")
           )
         ];
 
@@ -221,17 +222,17 @@ function getScenarioIntervals(subject) {
           range(
             a - 20,
             b + 10,
-            'Continuous presence after the ID check'
+            __dialogueText("alibi/AlibiTimeNotes.js", "t_a7efc6d340952978761d")
           ),
           range(
             a - 5,
             b + 5,
-            'Observation using the corrected arrival time'
+            __dialogueText("alibi/AlibiTimeNotes.js", "t_c1d1f518a0092882e06f")
           ),
           range(
             a,
             b,
-            'Observation throughout the theft window'
+            __dialogueText("alibi/AlibiTimeNotes.js", "t_6a2f1adaa46d0b431ec0")
           )
         ];
 
@@ -240,17 +241,17 @@ function getScenarioIntervals(subject) {
           range(
             a - 15,
             b + 10,
-            'Continuous direct supervision'
+            __dialogueText("alibi/AlibiTimeNotes.js", "t_b821bdec118de5a3b3c0")
           ),
           range(
             a - 5,
             b + 5,
-            'Direct observation despite reader failure'
+            __dialogueText("alibi/AlibiTimeNotes.js", "t_42fd587280040e633fb6")
           ),
           range(
             a - 5,
             b + 10,
-            'Independent direct observation'
+            __dialogueText("alibi/AlibiTimeNotes.js", "t_6c30c16e58f0cae9410e")
           )
         ];
 
@@ -265,17 +266,17 @@ function getScenarioIntervals(subject) {
         range(
           a - 5,
           b + 5,
-          'Claimed private meeting'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_544c8a56097f3c02b525")
         ),
         range(
           a - 15,
           b + 15,
-          'Observation of the claimed host elsewhere'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_14659bed5e363ebf4d41")
         ),
         range(
           a - 10,
           b + 10,
-          'Independent observation of the claimed host'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_267eb722ef7d6061040f")
         )
       ];
 
@@ -284,17 +285,17 @@ function getScenarioIntervals(subject) {
         range(
           a - 5,
           b + 5,
-          'Claimed meeting inside the room'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_7630e32e16e28293aa97")
         ),
         range(
           a - 20,
           b + 20,
-          'Empty room locked; only key retained'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_ace52d23c8634b1df579")
         ),
         range(
           a - 10,
           b + 10,
-          'Continuous observation of the sealed entrance'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_e0cc1c50530d53f2cdfb")
         )
       ];
 
@@ -303,17 +304,17 @@ function getScenarioIntervals(subject) {
         range(
           a - 20,
           b + 10,
-          'Claimed uninterrupted attendance'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_c79f59bc53173c7761c0")
         ),
         range(
           a - 15,
           b + 15,
-          'Entrance watched after departure'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_7c7dc860ca49099ded8c")
         ),
         range(
           a - 10,
           b + 10,
-          'Entrance watched; no return reported'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_ae55e7c69f2a6cc90c2d")
         )
       ];
 
@@ -322,13 +323,13 @@ function getScenarioIntervals(subject) {
         range(
           a - 10,
           b + 20,
-          'Claimed attendance before and after the theft'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_9d50c76756b41cecda4b")
         ),
         [],
         range(
           a - 10,
           b + 5,
-          'Entrance watched from before this start time'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_95a716a9f832851a9b30")
         )
       ];
 
@@ -337,7 +338,7 @@ function getScenarioIntervals(subject) {
         range(
           a - 15,
           b + 15,
-          'Meeting claimed for the theft day'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_573d740ea35366a76837")
         ),
         [],
         []
@@ -348,17 +349,17 @@ function getScenarioIntervals(subject) {
         range(
           a - 25,
           b + 10,
-          'Claimed length of the visit'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_355a06b74fc4e1e4874c")
         ),
         range(
           a - 10,
           b + 15,
-          'Entrance watched after sign-out'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_1fc826915d88171136ce")
         ),
         range(
           a - 10,
           b + 10,
-          'Entrance watched after the witnessed departure'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_8d521688225a318954a5")
         )
       ];
 
@@ -367,7 +368,7 @@ function getScenarioIntervals(subject) {
         range(
           a - 15,
           b + 10,
-          'Claimed attendance linked to a booking'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_21c415026d7085c5ecb7")
         ),
         [],
         []
@@ -378,7 +379,7 @@ function getScenarioIntervals(subject) {
         range(
           a - 10,
           b + 10,
-          'Claimed personal attendance'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_15c815f68ff5b9ad638f")
         ),
         [],
         []
@@ -389,7 +390,7 @@ function getScenarioIntervals(subject) {
         range(
           a - 10,
           b + 10,
-          'Claimed live attendance'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_4f17835442c830c2d235")
         ),
         [],
         []
@@ -400,17 +401,17 @@ function getScenarioIntervals(subject) {
         range(
           a - 5,
           b + 5,
-          'Claimed face-to-face presence'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_c8dac6af1f5b0c965984")
         ),
         range(
           a - 10,
           b + 10,
-          'Observation of the witness making an audio call'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_d8bea5d8e382e497d485")
         ),
         range(
           a,
           b,
-          'Independent observation of the audio call'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_e2eefa18a63cda9cd80d")
         )
       ];
 
@@ -419,7 +420,7 @@ function getScenarioIntervals(subject) {
         range(
           a - 10,
           b + 10,
-          'Claimed attendance linked to a receipt'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_9860fe49dec8888fbe93")
         ),
         [],
         []
@@ -430,12 +431,12 @@ function getScenarioIntervals(subject) {
         range(
           a - 20,
           b + 15,
-          'Claimed attendance on the disputed copy'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_031f9ae180c32d6badfa")
         ),
         range(
           a - 5,
           b + 15,
-          'Entrance watched after the recorded departure'
+          __dialogueText("alibi/AlibiTimeNotes.js", "t_1eb9494603b63c4ec890")
         ),
         []
       ];
@@ -484,8 +485,8 @@ export function getAlibiTimeNote(
 
     eventLabel:
       eventTime === null
-        ? 'Event time not recorded'
-        : `Event: ${formatNoteTime(eventTime)}`,
+        ? __dialogueText("alibi/AlibiTimeNotes.js", "t_924384f1d63acdc6797f")
+        : `${__dialogueText("alibi/AlibiTimeNotes.js", "t_06d915c5cd08042cb3f3")}${formatNoteTime(eventTime)}`,
 
     rangeLabel:
       ranges.length
@@ -493,7 +494,7 @@ export function getAlibiTimeNote(
             `${formatNoteTime(item.startMinute)}–` +
             `${formatNoteTime(item.endMinute)}`
           ).join(' / ')
-        : 'No complete start–end interval identified'
+        : __dialogueText("alibi/AlibiTimeNotes.js", "t_554241e3f42a86e6ab48")
   };
 }
 
@@ -525,8 +526,8 @@ export function getAlibiTimeDetail(
     });
   } else {
     lines.push(
-      'No complete start–end interval identified. ' +
-      'Read the original account for individual times.'
+      __dialogueText("alibi/AlibiTimeNotes.js", "t_40efe53c94a36c4427fd") +
+      __dialogueText("alibi/AlibiTimeNotes.js", "t_f2e73348a7d6bd60087e")
     );
   }
 
@@ -536,14 +537,14 @@ export function getAlibiTimeDetail(
     )
   ) {
     lines.push(
-      'Check the date as well as the time: ' +
-      'these accounts discuss an attendance slip.'
+      __dialogueText("alibi/AlibiTimeNotes.js", "t_b342232db725fae1b09e") +
+      __dialogueText("alibi/AlibiTimeNotes.js", "t_a8a31a4e56cdc90784a3")
     );
   }
 
   lines.push(
-    'Times describe the account being given; ' +
-    'they do not verify that it is true.'
+    __dialogueText("alibi/AlibiTimeNotes.js", "t_82a5f83990dd07ff4eea") +
+    __dialogueText("alibi/AlibiTimeNotes.js", "t_3fb50fba9cb7b4d2e53f")
   );
 
   return lines.join('\n');
@@ -566,8 +567,8 @@ export function getAlibiCardBody(
   return [
     note.eventLabel,
     note.ranges.length
-      ? `Interval: ${note.rangeLabel}`
-      : 'Interval: no complete range identified',
+      ? `${__dialogueText("alibi/AlibiTimeNotes.js", "t_3058de197cc86546e4f6")}${note.rangeLabel}`
+      : __dialogueText("alibi/AlibiTimeNotes.js", "t_0e7a4f3f05fd2b625715"),
     summary
   ].join('\n');
 }

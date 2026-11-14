@@ -1,24 +1,10 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { PROFILES } from './CharacterCreationData.js';
 
 function renderProfileCard(profile, selectedProfileId) {
   const selected = profile.id === selectedProfileId;
 
-  return `
-    <button
-      class="character-profile-card${selected ? ' is-selected' : ''}"
-      type="button"
-      role="radio"
-      aria-checked="${selected}"
-      data-profile="${profile.id}"
-    >
-      <span class="character-profile-icon">${getProfileIcon(profile.id)}</span>
-      <span class="character-profile-name">${toTitleCase(profile.name)}</span>
-      <span class="character-profile-bonus">${profile.bonus}</span>
-      <span class="character-profile-description">
-        ${getProfileDescription(profile.id)}
-      </span>
-    </button>
-  `;
+  return `${__dialogueText("ui/characterCreation/ProfileCards.js", "t_b78a7d54f68511275a52")}${selected ? __dialogueText("ui/characterCreation/ProfileCards.js", "t_dad1545efbcffe484e06") : ''}${__dialogueText("ui/characterCreation/ProfileCards.js", "t_05ee7f75041f2a3070c9")}${selected}${__dialogueText("ui/characterCreation/ProfileCards.js", "t_03bae2c802c967e58136")}${profile.id}${__dialogueText("ui/characterCreation/ProfileCards.js", "t_b713d7c8cab3a1178fd6")}${getProfileIcon(profile.id)}${__dialogueText("ui/characterCreation/ProfileCards.js", "t_cfe62977a84cedfd5701")}${toTitleCase(profile.name)}${__dialogueText("ui/characterCreation/ProfileCards.js", "t_e0b3169ed0623065dbd3")}${profile.bonus}${__dialogueText("ui/characterCreation/ProfileCards.js", "t_2645f877fba265325edd")}${getProfileDescription(profile.id)}${__dialogueText("ui/characterCreation/ProfileCards.js", "t_9dff15038d7c67ad7ca8")}`;
 }
 
 function getProfileIcon(profileId) {
@@ -35,14 +21,14 @@ function getProfileIcon(profileId) {
 
 function getProfileDescription(profileId) {
   const descriptions = {
-    analyst: 'You notice patterns, contradictions, and coffee stains shaped like motives.',
-    charmer: 'People keep telling you secrets. Often by accident. Sometimes while crying.',
-    streetwise: 'You know which alley to avoid and which bartender to bribe.',
-    archivist: 'If it was catalogued, cursed, forged, or misfiled, you probably read about it.',
-    improviser: 'Planning is nice. Surviving the consequences is nicer.',
+    analyst: __dialogueText("ui/characterCreation/ProfileCards.js", "t_90872dd7dece7f05ec8b"),
+    charmer: __dialogueText("ui/characterCreation/ProfileCards.js", "t_1deea7a0aa2c705c818d"),
+    streetwise: __dialogueText("ui/characterCreation/ProfileCards.js", "t_da12674fde038416c7b2"),
+    archivist: __dialogueText("ui/characterCreation/ProfileCards.js", "t_85737a453d44cb398db4"),
+    improviser: __dialogueText("ui/characterCreation/ProfileCards.js", "t_ea6dcfd389d1770b62e6"),
   };
 
-  return descriptions[profileId] ?? 'Professionally suspicious.';
+  return descriptions[profileId] ?? __dialogueText("ui/characterCreation/ProfileCards.js", "t_5620df37496149371a3d");
 }
 
 function toTitleCase(value) {
@@ -52,27 +38,7 @@ function toTitleCase(value) {
 }
 
 export function renderProfileStep(playerData) {
-  return `
-    <section
-      class="character-step-panel"
-      data-step-panel="1"
-    >
-      <h2 class="character-section-title">HOW DO YOU WORK?</h2>
-
-      <p class="character-section-intro">
-        Pick a professional tendency. HR calls it a profile.
-        Your old clients may disagree.
-      </p>
-
-      <div
-        class="character-profile-grid"
-        role="radiogroup"
-        aria-label="Detective profile"
-      >
-        ${PROFILES.map((profile) => (
+  return `${__dialogueText("ui/characterCreation/ProfileCards.js", "t_6f89861e64d5d3c190fa")}${PROFILES.map((profile) => (
           renderProfileCard(profile, playerData.profile)
-        )).join('')}
-      </div>
-    </section>
-  `;
+        )).join('')}${__dialogueText("ui/characterCreation/ProfileCards.js", "t_dc209e3df250d373f0a4")}`;
 }

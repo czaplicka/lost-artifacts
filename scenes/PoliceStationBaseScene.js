@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { getAcceptedPIQuests } from '../managers/PIQuestManager.js';
@@ -6,71 +7,53 @@ const KEY='PoliceStationScene';
 const BACKGROUND_KEY='home-police';
 const BACKGROUND_URL='assets/pi/police/home-police.webp';
 const HOTSPOTS=[
- {id:'officer',label:'Desk officer',x:0.698,y:0.401,w:0.094,h:0.190},
- {id:'exit',label:'Return to the street',x:0.024,y:0.198,w:0.091,h:0.680},
- {id:'bench',label:'Waiting bench',x:0.177,y:0.537,w:0.220,h:0.224},
- {id:'board',label:'Noticeboard',x:0.220,y:0.286,w:0.161,h:0.202},
- {id:'machine',label:'Ticket machine',x:0.405,y:0.449,w:0.073,h:0.306},
- {id:'staff-door',label:'Staff only',x:0.906,y:0.191,w:0.089,h:0.688},
- {id:'back-door',label:'Door behind the desk',x:0.542,y:0.265,w:0.134,h:0.282},
- {id:'clock',label:'Wall clock',x:0.710,y:0.239,w:0.065,h:0.117}
+ {id:'officer',label:__dialogueText("scenes/PoliceStationBaseScene.js", "t_832bb16aeb9f95e761e9"),x:0.698,y:0.401,w:0.094,h:0.190},
+ {id:'exit',label:__dialogueText("scenes/PoliceStationBaseScene.js", "t_6398180d50773dcd79cc"),x:0.024,y:0.198,w:0.091,h:0.680},
+ {id:'bench',label:__dialogueText("scenes/PoliceStationBaseScene.js", "t_0177bc386e844ed17a27"),x:0.177,y:0.537,w:0.220,h:0.224},
+ {id:'board',label:__dialogueText("scenes/PoliceStationBaseScene.js", "t_7e265a9a797b49d67957"),x:0.220,y:0.286,w:0.161,h:0.202},
+ {id:'machine',label:__dialogueText("scenes/PoliceStationBaseScene.js", "t_13360a46a65d2ec65fec"),x:0.405,y:0.449,w:0.073,h:0.306},
+ {id:'staff-door',label:__dialogueText("scenes/PoliceStationBaseScene.js", "t_b3a64b77c8a70675d232"),x:0.906,y:0.191,w:0.089,h:0.688},
+ {id:'back-door',label:__dialogueText("scenes/PoliceStationBaseScene.js", "t_5e43b73e106f7a10f03d"),x:0.542,y:0.265,w:0.134,h:0.282},
+ {id:'clock',label:__dialogueText("scenes/PoliceStationBaseScene.js", "t_fb3e44006b3e2089b94f"),x:0.710,y:0.239,w:0.065,h:0.117}
 ];
 const OBSERVATIONS={
- bench:['Waiting bench','A bench designed to make standing feel like a privilege.'],
- board:['Noticeboard','Parking notices, public warnings, and a strongly worded reminder not to microwave fish.\n\nThe fish notice has been underlined twice.'],
- machine:['Ticket machine','OUT OF ORDER.\n\nFor once, everyone is first in line.'],
- 'staff-door':['Staff only','The door is closed.\n\nThe sign seems unusually confident about your employment status.'],
- 'back-door':['Behind the desk','A closed door behind the reception counter.\n\nWalking around the officer would probably count as making an entrance.'],
- clock:['Wall clock','Time passes normally here.\n\nIt just feels like it has submitted a request to stop.']
+ bench:[__dialogueText("scenes/PoliceStationBaseScene.js", "t_0177bc386e844ed17a27"),__dialogueText("scenes/PoliceStationBaseScene.js", "t_090a06e693a0b85dc976")],
+ board:[__dialogueText("scenes/PoliceStationBaseScene.js", "t_7e265a9a797b49d67957"),__dialogueText("scenes/PoliceStationBaseScene.js", "t_831d25822a85f127aded")],
+ machine:[__dialogueText("scenes/PoliceStationBaseScene.js", "t_13360a46a65d2ec65fec"),__dialogueText("scenes/PoliceStationBaseScene.js", "t_7d60f8c1e042d4d62b32")],
+ 'staff-door':[__dialogueText("scenes/PoliceStationBaseScene.js", "t_b3a64b77c8a70675d232"),__dialogueText("scenes/PoliceStationBaseScene.js", "t_51f72594808bc5a5e891")],
+ 'back-door':[__dialogueText("scenes/PoliceStationBaseScene.js", "t_09d416b260dfdc3731b3"),__dialogueText("scenes/PoliceStationBaseScene.js", "t_5217d3f9f4dc1ca91762")],
+ clock:[__dialogueText("scenes/PoliceStationBaseScene.js", "t_fb3e44006b3e2089b94f"),__dialogueText("scenes/PoliceStationBaseScene.js", "t_077ce5c72f46452f4c5b")]
 };
 const TOPICS=[
- ["I'm a private investigator.",'investigator'],
- ['Anything I should know about the neighborhood?','neighborhood'],
- ["What's behind the staff door?",'staff'],
- ["What's wrong with the ticket machine?",'machine'],
- ['Goodbye.','goodbye']
+ [__dialogueText("scenes/PoliceStationBaseScene.js", "t_db20a920fba909cdf86e"),'investigator'],
+ [__dialogueText("scenes/PoliceStationBaseScene.js", "t_d01cbbd4e85c316601ec"),'neighborhood'],
+ [__dialogueText("scenes/PoliceStationBaseScene.js", "t_5efb402f94f0b50d7764"),'staff'],
+ [__dialogueText("scenes/PoliceStationBaseScene.js", "t_347010c414033e6a0369"),'machine'],
+ [__dialogueText("scenes/PoliceStationBaseScene.js", "t_2b687db6298b629d3bcb"),__dialogueText("scenes/PoliceStationBaseScene.js", "t_82e35a63ceba37e96464")]
 ];
-const END=[['Ask something else.','topics'],['Goodbye.','goodbye']];
+const END=[[__dialogueText("scenes/PoliceStationBaseScene.js", "t_da0776b59d8c85cdba79"),'topics'],[__dialogueText("scenes/PoliceStationBaseScene.js", "t_2b687db6298b629d3bcb"),__dialogueText("scenes/PoliceStationBaseScene.js", "t_82e35a63ceba37e96464")]];
 const DIALOGUE={
- start:{text:"Word is you've actually helped someone around here. Makes a nice change from business cards.\n\nAll right. What do you need?",choices:TOPICS},
- topics:{text:'Anything else?',choices:TOPICS},
- investigator:{player:"I'm a private investigator.",text:"Then you'll appreciate a good mystery. Someone keeps taking my stapler.",choices:[['Do you have any suspects?','stapler'],["I'll try not to interfere with police business.",'professional'],...END]},
- stapler:{player:'Do you have any suspects?',text:"Three officers, a civilian clerk, and me.\n\nI'm keeping an open mind. I have found it in my own drawer before.",choices:[['A classic inside job.','inside-job'],...END]},
- 'inside-job':{player:'A classic inside job.',text:"Exactly. That's why I haven't ruled out the drawer.",choices:END},
- professional:{player:"I'll try not to interfere with police business.",text:'Much appreciated. Please extend the same courtesy to my coffee.',choices:END},
- neighborhood:{player:'Anything I should know about the neighborhood?',text:'Keep your valuables close and your expectations modest.',choices:[['Is it dangerous around here?','danger'],['Any advice for a newcomer?','advice'],...END]},
- danger:{player:'Is it dangerous around here?',text:"Use common sense. Watch your belongings.\n\nAnd don't mistake a quiet street for a personal invitation to leave your wallet on a bench.",choices:END},
- advice:{player:'Any advice for a newcomer?',text:"Read signs before opening doors.\n\nYou'd be amazed how much of my job that advice could prevent.",choices:END},
- staff:{player:"What's behind the staff door?",text:'Authorized personnel. And a printer that considers itself above the law.',choices:[['Can I take a look?','staff-access'],['Have you tried arresting the printer?','printer'],...END]},
- 'staff-access':{player:'Can I take a look?',text:'No. But I admire your confidence in the face of a very clear sign.',choices:END},
- printer:{player:'Have you tried arresting the printer?',text:"We tried to issue a warrant.\n\nIt wouldn't print.",choices:END},
- machine:{player:"What's wrong with the ticket machine?",text:"It stopped at number thirteen. We're not superstitious. We're waiting for maintenance.",choices:[['How long have you been waiting?','maintenance'],['Do I still need a ticket?','ticket'],...END]},
- maintenance:{player:'How long have you been waiting?',text:'Long enough for the repair request to qualify as a historical document.',choices:END},
- ticket:{player:'Do I still need a ticket?',text:"No. You're the entire queue.\n\nCongratulations on your promotion.",choices:END},
- goodbye:{text:'Stay out of trouble. The paperwork is considerable.',choices:[['End conversation.',null]]}
+ start:{text:__dialogueText("scenes/PoliceStationBaseScene.js", "t_be5a2b8755c9f319c4b8"),choices:TOPICS},
+ topics:{text:__dialogueText("scenes/PoliceStationBaseScene.js", "t_554e6ec0bec97ecc209b"),choices:TOPICS},
+ investigator:{player:__dialogueText("scenes/PoliceStationBaseScene.js", "t_db20a920fba909cdf86e"),text:__dialogueText("scenes/PoliceStationBaseScene.js", "t_b5cfc462a952b9e59d6e"),choices:[[__dialogueText("scenes/PoliceStationBaseScene.js", "t_31110d2df95ef53efb9f"),'stapler'],[__dialogueText("scenes/PoliceStationBaseScene.js", "t_a825c4507a307d685e0a"),'professional'],...END]},
+ stapler:{player:__dialogueText("scenes/PoliceStationBaseScene.js", "t_31110d2df95ef53efb9f"),text:__dialogueText("scenes/PoliceStationBaseScene.js", "t_84cb4b210446c773c82e"),choices:[[__dialogueText("scenes/PoliceStationBaseScene.js", "t_a7e9c2c9c7c5dc37bac8"),'inside-job'],...END]},
+ 'inside-job':{player:__dialogueText("scenes/PoliceStationBaseScene.js", "t_a7e9c2c9c7c5dc37bac8"),text:__dialogueText("scenes/PoliceStationBaseScene.js", "t_1ce5f6cf7d7a3b99ad61"),choices:END},
+ professional:{player:__dialogueText("scenes/PoliceStationBaseScene.js", "t_a825c4507a307d685e0a"),text:__dialogueText("scenes/PoliceStationBaseScene.js", "t_7be2c01fd350efcda407"),choices:END},
+ neighborhood:{player:__dialogueText("scenes/PoliceStationBaseScene.js", "t_d01cbbd4e85c316601ec"),text:__dialogueText("scenes/PoliceStationBaseScene.js", "t_64e62b7ddd10b3128cd7"),choices:[[__dialogueText("scenes/PoliceStationBaseScene.js", "t_6cec002353a715511b40"),'danger'],[__dialogueText("scenes/PoliceStationBaseScene.js", "t_2102bff3a5c94da88b5b"),'advice'],...END]},
+ danger:{player:__dialogueText("scenes/PoliceStationBaseScene.js", "t_6cec002353a715511b40"),text:__dialogueText("scenes/PoliceStationBaseScene.js", "t_db9f69a71938106ea9c9"),choices:END},
+ advice:{player:__dialogueText("scenes/PoliceStationBaseScene.js", "t_2102bff3a5c94da88b5b"),text:__dialogueText("scenes/PoliceStationBaseScene.js", "t_973729b6be58e2212cc0"),choices:END},
+ staff:{player:__dialogueText("scenes/PoliceStationBaseScene.js", "t_5efb402f94f0b50d7764"),text:__dialogueText("scenes/PoliceStationBaseScene.js", "t_0d0d3604c77a5c4f49bc"),choices:[[__dialogueText("scenes/PoliceStationBaseScene.js", "t_d79fae60b558cbf2cc0a"),'staff-access'],[__dialogueText("scenes/PoliceStationBaseScene.js", "t_99d3d2a8612b2259ee00"),'printer'],...END]},
+ 'staff-access':{player:__dialogueText("scenes/PoliceStationBaseScene.js", "t_d79fae60b558cbf2cc0a"),text:__dialogueText("scenes/PoliceStationBaseScene.js", "t_771e9bfa3353279c86f6"),choices:END},
+ printer:{player:__dialogueText("scenes/PoliceStationBaseScene.js", "t_99d3d2a8612b2259ee00"),text:__dialogueText("scenes/PoliceStationBaseScene.js", "t_5aec79392ffb0ba26e86"),choices:END},
+ machine:{player:__dialogueText("scenes/PoliceStationBaseScene.js", "t_347010c414033e6a0369"),text:__dialogueText("scenes/PoliceStationBaseScene.js", "t_e3523f54ff55c79c7ead"),choices:[[__dialogueText("scenes/PoliceStationBaseScene.js", "t_77ab9f99aa5039739619"),'maintenance'],[__dialogueText("scenes/PoliceStationBaseScene.js", "t_f4e0ba901bd3ae073e30"),'ticket'],...END]},
+ maintenance:{player:__dialogueText("scenes/PoliceStationBaseScene.js", "t_77ab9f99aa5039739619"),text:__dialogueText("scenes/PoliceStationBaseScene.js", "t_df8c02a4f72642451840"),choices:END},
+ ticket:{player:__dialogueText("scenes/PoliceStationBaseScene.js", "t_f4e0ba901bd3ae073e30"),text:__dialogueText("scenes/PoliceStationBaseScene.js", "t_0cde13f037fd5a1a772b"),choices:END},
+ goodbye:{text:__dialogueText("scenes/PoliceStationBaseScene.js", "t_d67267305d3cf240847a"),choices:[[__dialogueText("scenes/PoliceStationBaseScene.js", "t_9262fa57013ce584df7a"),null]]}
 };
 export function hasCompletedPolicePIQuest(quests=getAcceptedPIQuests()){
  return Array.isArray(quests)&&quests.some(quest=>quest!==null&&typeof quest==='object'&&quest.status==='completed');
 }
-const CSS=`
-html.la-police-active #hud-container{display:none!important;pointer-events:none!important;}
-.la-police-ui{position:fixed;z-index:10000;overflow:hidden;pointer-events:none;color:#f5e5bf;font-family:SpecialElite,monospace;}
-.la-police-ui,.la-police-ui *{box-sizing:border-box;}
-.la-police-ui button{display:block;min-height:44px;padding:10px 14px;border:1px solid #927950;border-radius:2px;background:#242a24;color:#f5e5bf;font:inherit;line-height:1.35;text-align:left;cursor:pointer;touch-action:manipulation;}
-.la-police-ui button:hover,.la-police-ui button:focus-visible{background:#414b38;outline:2px solid #e7c47d;outline-offset:-2px;}
-.la-police-ui button:disabled{opacity:.55;cursor:default;}
-.la-police-ui .police-top{position:absolute;top:2%;left:2%;right:2%;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
-.la-police-ui .police-title{padding:12px;background:#18201ce8;color:#edcf91;font-family:PressStart2P,monospace;font-size:.65em;line-height:1.7;}
-.la-police-ui .police-controls{display:flex;gap:8px;pointer-events:auto;}
-.la-police-ui .police-hint{position:absolute;bottom:2%;left:2%;max-width:94%;padding:8px 12px;background:#18201cdd;white-space:pre-wrap;line-height:1.35;}
-.la-police-ui .police-panel{position:absolute;left:2%;right:2%;bottom:2%;max-height:65%;overflow:auto;overscroll-behavior:contain;pointer-events:auto;padding:15px;border:2px solid #a48958;background:#151d18f7;box-shadow:0 8px 28px #0008;}
-.la-police-ui h2{margin:0 0 10px;font-family:PressStart2P,monospace;font-size:.67em;line-height:1.8;color:#edcf91;}
-.la-police-ui .police-player{margin:0 0 10px;color:#c8b58f;font-style:italic;line-height:1.4;}
-.la-police-ui .police-response{margin:0 0 14px;line-height:1.45;white-space:pre-wrap;}
-.la-police-ui .police-choices{display:grid;grid-template-columns:1fr;gap:7px;}
-.la-police-ui .police-choice-used{color:#b5baaa;}
-@media(max-width:600px){.la-police-ui .police-panel{left:1%;right:1%;bottom:1%;max-height:78%;padding:10px;}.la-police-ui .police-title{padding:8px;}.la-police-ui button{padding:8px 10px;}}
-`;
+const CSS=`${__dialogueText("scenes/PoliceStationBaseScene.js", "t_594d44405f8a01b59f21")}`;
 
 export class PoliceStationScene extends BaseScene{
  constructor(){super({key:KEY});}
@@ -94,7 +77,7 @@ export class PoliceStationScene extends BaseScene{
    this.background=this.add.image(0,0,BACKGROUND_KEY).setOrigin(0);
    this.hoverLabel=this.add.text(0,0,'',{fontFamily:'SpecialElite, monospace',fontSize:'20px',color:'#ffe3a4',backgroundColor:'#18201c',padding:{x:9,y:6}}).setDepth(100).setVisible(false);
    this.createHotspots();
-  }else this.showPanel('Background unavailable','The police station image could not be loaded.',[['Try returning to town.',()=>void this.leave()]]);
+  }else this.showPanel(__dialogueText("scenes/PoliceStationBaseScene.js", "t_e81364417db7d7841fcb"),__dialogueText("scenes/PoliceStationBaseScene.js", "t_e0a196e7ce126abbf3fa"),[[__dialogueText("scenes/PoliceStationBaseScene.js", "t_8213a39963ca25c0184d"),()=>void this.leave()]]);
   this.trackInputEvent(this.scale,'resize',this.layout);
   if(this.input.keyboard)this.trackInputEvent(this.input.keyboard,'keydown',this.onKey);
   this.handledKeys=new WeakSet();this.domKeyHandler=event=>this.onKey(event);
@@ -105,9 +88,9 @@ export class PoliceStationScene extends BaseScene{
   document.documentElement.classList.add('la-police-active');
   this.root=document.createElement('div');this.root.className='la-police-ui';
   const top=document.createElement('div');top.className='police-top';
-  const title=document.createElement('div');title.className='police-title';title.textContent='POLICE STATION';
+  const title=document.createElement('div');title.className='police-title';title.textContent=__dialogueText("scenes/PoliceStationBaseScene.js", "t_c47f6a6696545b1f04b9");
   const controls=document.createElement('div');controls.className='police-controls';
-  this.exitButton=this.makeButton('Back to town',()=>void this.leave());controls.append(this.exitButton);top.append(title,controls);
+  this.exitButton=this.makeButton(__dialogueText("scenes/PoliceStationBaseScene.js", "t_c4002f3643a1871c17e6"),()=>void this.leave());controls.append(this.exitButton);top.append(title,controls);
   this.hint=document.createElement('div');this.hint.className='police-hint';
   this.root.append(top,this.hint);document.body.appendChild(this.root);this.refreshInteraction();
  }
@@ -154,7 +137,7 @@ export class PoliceStationScene extends BaseScene{
  setHotspotsEnabled(enabled){for(const spot of this.spots)if(spot.zone.input)spot.zone.input.enabled=enabled;}
  refreshInteraction(){
   if(this.disposed)return;this.setHotspotsEnabled(this.canInteract());
-  if(this.hint){this.hint.hidden=Boolean(this.panel)||Boolean(this.coldCaseUI);this.hint.textContent='Speak to the officer or look around.';}
+  if(this.hint){this.hint.hidden=Boolean(this.panel)||Boolean(this.coldCaseUI);this.hint.textContent=__dialogueText("scenes/PoliceStationBaseScene.js", "t_d22eb3a60f7d8db58eb1");}
  }
  // Compatibility with the existing cold-case subclass; no editor is created.
  refreshDebug(){this.refreshInteraction();}
@@ -163,7 +146,7 @@ export class PoliceStationScene extends BaseScene{
   const target=event.target;
   if(target?.isContentEditable||['INPUT','TEXTAREA','SELECT'].includes(target?.tagName)||event.ctrlKey||event.metaKey)return;
   this.handledKeys?.add(event);
-  if(event.code!=='Escape')return;
+  if(event.code!==__dialogueText("scenes/PoliceStationBaseScene.js", "t_037c968467aa3fd7c059"))return;
   event.preventDefault();if(event.repeat)return;
   if(this.panel)this.closePanel();else void this.leave();
  }
@@ -180,7 +163,7 @@ export class PoliceStationScene extends BaseScene{
   this.panel?.remove();this.hoverLabel?.setVisible(false);const version=++this.dialogueVersion;
   this.panel=document.createElement('section');this.panel.className='police-panel';this.panel.setAttribute('role','dialog');this.panel.setAttribute('aria-label',title);
   const heading=document.createElement('h2');heading.textContent=title;this.panel.appendChild(heading);
-  if(playerLine){const player=document.createElement('p');player.className='police-player';player.textContent=`You: ${playerLine}`;this.panel.appendChild(player);}
+  if(playerLine){const player=document.createElement('p');player.className='police-player';player.textContent=`${__dialogueText("scenes/PoliceStationBaseScene.js", "t_7b1aab937ca83cd9c085")}${playerLine}`;this.panel.appendChild(player);}
   const response=document.createElement('p');response.className='police-response';response.textContent=text;
   const options=document.createElement('div');options.className='police-choices';
   for(const [label,action,used=false] of choices){const button=this.makeButton(label,action,version);if(used)button.classList.add('police-choice-used');options.appendChild(button);}
@@ -188,7 +171,7 @@ export class PoliceStationScene extends BaseScene{
  }
  showOfficerRefusal(){
   if(this.disposed||this.navigating)return;
-  this.showPanel('Desk officer',"A private investigator? Around here, a business card isn't a track record.\n\nFinish a job for someone in the neighborhood. Then we'll talk.",[['Leave him to his paperwork.',()=>this.closePanel()]]);
+  this.showPanel(__dialogueText("scenes/PoliceStationBaseScene.js", "t_832bb16aeb9f95e761e9"),__dialogueText("scenes/PoliceStationBaseScene.js", "t_476c4bf2f943c2d6c470"),[[__dialogueText("scenes/PoliceStationBaseScene.js", "t_20e85dbfa211ba2eabf0"),()=>this.closePanel()]]);
  }
  openConversation(){
   if(!this.canInteract())return;
@@ -198,9 +181,9 @@ export class PoliceStationScene extends BaseScene{
   if(this.disposed||this.navigating)return;
   if(!hasCompletedPolicePIQuest()){this.showOfficerRefusal();return;}
   const node=DIALOGUE[id];if(!node)return;this.visitedNodes.add(id);
-  this.showPanel('Desk officer',node.text,node.choices.map(([label,target])=>[label,()=>target===null?this.closePanel():this.showDialogue(target),target!==null&&this.visitedNodes.has(target)]),node.player||'');
+  this.showPanel(__dialogueText("scenes/PoliceStationBaseScene.js", "t_832bb16aeb9f95e761e9"),node.text,node.choices.map(([label,target])=>[label,()=>target===null?this.closePanel():this.showDialogue(target),target!==null&&this.visitedNodes.has(target)]),node.player||'');
  }
- inspect(id){const observation=OBSERVATIONS[id];if(observation)this.showPanel(observation[0],observation[1],[['Step away.',()=>this.closePanel()]]);}
+ inspect(id){const observation=OBSERVATIONS[id];if(observation)this.showPanel(observation[0],observation[1],[[__dialogueText("scenes/PoliceStationBaseScene.js", "t_5ecec84ab0093dde81c8"),()=>this.closePanel()]]);}
  closePanel(){
   ++this.dialogueVersion;this.panel?.remove();this.panel=null;this.refreshInteraction();
   const focus=this.returnFocus;this.returnFocus=null;
@@ -215,7 +198,7 @@ export class PoliceStationScene extends BaseScene{
   catch(error){console.error('[PoliceStationScene] Navigation failed:',error);}
   if(this.disposed||this.runToken!==token)return result!==false;
   this.navigating=false;if(this.exitButton)this.exitButton.disabled=false;
-  if(result===false)this.showPanel('Unable to leave','The street could not be opened. Please try again.',[['Try again.',()=>void this.leave()],['Stay here.',()=>this.closePanel()]]);
+  if(result===false)this.showPanel(__dialogueText("scenes/PoliceStationBaseScene.js", "t_05164cc51845950a84e4"),__dialogueText("scenes/PoliceStationBaseScene.js", "t_cd113bd0b51d4c8d24f3"),[[__dialogueText("scenes/PoliceStationBaseScene.js", "t_a0c2cc1374d949943e01"),()=>void this.leave()],[__dialogueText("scenes/PoliceStationBaseScene.js", "t_28186fe612051fb5a150"),()=>this.closePanel()]]);
   this.refreshInteraction();return result!==false;
  }
  disposePolice(){

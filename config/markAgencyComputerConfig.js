@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { loadJson } from './loadJson.js';
 import { gameState } from '../GameData.js';
 import { getArchiveCaseId, isSuccessfulCase, canRequestNextMission } from '../archiveReportService.js';
@@ -42,7 +43,7 @@ export function getAgencyMail(state = gameState) {
   const caseId = getArchiveCaseId(state);
   const successful = caseId !== null && isSuccessfulCase(state);
   const ready = canOpenNextAssignment(state);
-  const values = { agentName: state.playerName || state.agentName || 'Agent', caseId: caseId ?? 'unassigned' };
+  const values = { agentName: state.playerName || state.agentName || __dialogueText("config/markAgencyComputerConfig.js", "t_11b39c93777e8f1f3983"), caseId: caseId ?? 'unassigned' };
   const fill = text => text.replace(/\{\{(agentName|caseId)\}\}/g, (_, key) => String(values[key]));
   return AGENCY_MAIL_DATA.messages.filter(item => {
     const availability = item.availability;

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { HomeCityGround } from './HomeCityGround.js';
 import { HW, HH, FONT_UI, BUILDING_SPRITE_TWEAKS, PALETTES } from './HomeCityConfig.js';
 import { css, mix, light, dark, hash, pp, pathOf, poly, rect, circle, ellipse, line, vgrad, yRange, S, isoBox, blob } from './HomeCityDrawing.js';
@@ -32,7 +33,7 @@ export class HomeCityBuildings extends HomeCityGround {
     const right = b.x + b.w - 1, front = b.y + b.h - 1;
     const pts = [this.pt(b.x - 0.3, b.y - 0.2), this.pt(right + 1.4, b.y - 0.05), this.pt(right + 1.4, front + 1.0), this.pt(b.x - 0.3, front + 1.0)];
     const xs = pts.map(q => q.x), ys = pts.map(q => q.y), left = Math.min(...xs) - 4, top = Math.min(...ys) - 4;
-    const key = this.bake(`shadow_${b.id}`, Math.max(...xs) - left + 4, Math.max(...ys) - top + 4, ctx => poly(ctx, pts, 'rgba(14,20,12,.34)', null), left, top);
+    const key = this.bake(`shadow_${b.id}`, Math.max(...xs) - left + 4, Math.max(...ys) - top + 4, ctx => poly(ctx, pts, __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_9b5ff363cca973f18ba2"), null), left, top);
     if (key) this.scene.add.image(left, top, key).setOrigin(0, 0).setDepth(-700);
   }
   drawHouse(b, art) {
@@ -76,29 +77,29 @@ export class HomeCityBuildings extends HomeCityGround {
     if (style === 'brick' || style === 'stone') {
       const rowH = style === 'brick' ? 8 : 15, step = style === 'brick' ? 0.22 : 0.5; let r = 0;
       for (let z = rowH; z < H; z += rowH, r++) {
-        const a = Pz(u1, z), c = Pz(u2, z); line(ctx, a.x, a.y, c.x, c.y, 'rgba(40,28,18,.16)');
+        const a = Pz(u1, z), c = Pz(u2, z); line(ctx, a.x, a.y, c.x, c.y, __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_72f258962abffbdcc517"));
         for (let k = 0; ; k++) {
           const u = u1 + step * (k + (r % 2) * 0.5); if (u >= u2 - 0.01) break; if (u <= u1 + 0.01) continue;
-          const a2 = Pz(u, z), b2 = Pz(u, z - rowH); line(ctx, a2.x, a2.y, b2.x, b2.y, 'rgba(40,28,18,.1)');
+          const a2 = Pz(u, z), b2 = Pz(u, z - rowH); line(ctx, a2.x, a2.y, b2.x, b2.y, __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_ba0610c7eabce7933177"));
         }
-        if (style === 'stone' && hash(r, seed, 3) > 0.6) { const q = this.faceP(axis, fixed, u1 + 0.1, u1 + 0.1 + step, z - rowH, z); poly(ctx, q, 'rgba(255,255,255,.06)', null); }
+        if (style === 'stone' && hash(r, seed, 3) > 0.6) { const q = this.faceP(axis, fixed, u1 + 0.1, u1 + 0.1 + step, z - rowH, z); poly(ctx, q, __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_5704ef9ed39c9a05a9fc"), null); }
       }
     } else if (style === 'boards') {
-      for (let z = 6; z < H; z += 7) { const a = Pz(u1, z), c = Pz(u2, z); line(ctx, a.x, a.y, c.x, c.y, 'rgba(0,0,0,.2)'); line(ctx, a.x, a.y + 1, c.x, c.y + 1, 'rgba(255,255,255,.07)'); }
+      for (let z = 6; z < H; z += 7) { const a = Pz(u1, z), c = Pz(u2, z); line(ctx, a.x, a.y, c.x, c.y, __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_18a22573f70f00ec829e")); line(ctx, a.x, a.y + 1, c.x, c.y + 1, __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_0d923d38199dd90d27e8")); }
     } else {
-      for (let i = 0; i < 30; i++) { const a = Pz(u1 + hash(seed, i, 1) * (u2 - u1), hash(i, seed, 2) * H); rect(ctx, a.x, a.y, 2, 2, hash(i, seed, 3) > 0.5 ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)'); }
-      const st = this.faceP(axis, fixed, u1 + 0.3, u1 + 0.38, H - 30, H - 14); poly(ctx, st, 'rgba(0,0,0,.06)', null);
+      for (let i = 0; i < 30; i++) { const a = Pz(u1 + hash(seed, i, 1) * (u2 - u1), hash(i, seed, 2) * H); rect(ctx, a.x, a.y, 2, 2, hash(i, seed, 3) > 0.5 ? __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_c201d2dab2c4e2b059b2") : __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_990c3b7dbbd07278e753")); }
+      const st = this.faceP(axis, fixed, u1 + 0.3, u1 + 0.38, H - 30, H - 14); poly(ctx, st, __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_bae00db0cd2abbf352cd"), null);
     }
   }
   wall(ctx, axis, fixed, u1, u2, H, base, p, seed) {
     const pts = this.faceP(axis, fixed, u1, u2, 0, H); poly(ctx, pts, base);
     ctx.save(); pathOf(ctx, pts); ctx.clip(); this.wallTexture(ctx, axis, fixed, u1, u2, H, p.style, seed);
     const [y0, y1] = yRange(pts), x0 = Math.min(...pts.map(q => q.x));
-    ctx.fillStyle = vgrad(ctx, y0, y1, [[0, 'rgba(255,255,255,.07)'], [0.6, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,.22)']]); ctx.fillRect(x0 - 2, y0 - 2, 140, y1 - y0 + 4);
+    ctx.fillStyle = vgrad(ctx, y0, y1, [[0, __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_0d923d38199dd90d27e8")], [0.6, 'rgba(0,0,0,0)'], [1, __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_51112248272bba36b1eb")]]); ctx.fillRect(x0 - 2, y0 - 2, 140, y1 - y0 + 4);
     ctx.restore();
   }
   cornice(ctx, axis, fixed, u1, u2, H, p) {
-    this.face(ctx, axis, fixed, u1, u2, H - 26, H - 14, 'rgba(0,0,0,.16)', null);
+    this.face(ctx, axis, fixed, u1, u2, H - 26, H - 14, __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_819b024f9d1d0b2ce5ec"), null);
     this.face(ctx, axis, fixed + 0.07, u1 - 0.03, u2 + 0.03, H - 14, H - 3, p.trim); this.face(ctx, axis, fixed + 0.07, u1 - 0.03, u2 + 0.03, H - 3, H, light(p.trim, 0.3));
   }
   window(ctx, axis, fixed, u, low, w, h, p, o = {}) {
@@ -106,10 +107,10 @@ export class HomeCityBuildings extends HomeCityGround {
     F(u - hw - 0.04, u + hw + 0.04, low - 4, low + h + 4, p.trim);
     const pts = this.faceP(axis, fixed, u - hw, u + hw, low, low + h), [y0, y1] = yRange(pts);
     poly(ctx, pts, o.lit ? vgrad(ctx, y0, y1, [[0, 0xf6dc9a], [1, 0xc58f4b]]) : vgrad(ctx, y0, y1, [[0, light(p.glass, 0.28)], [1, dark(p.glass, 0.25)]]), null);
-    if (o.blinds) for (let z = low + h - 5; z > low + 4; z -= 6) F(u - hw, u + hw, z, z + 2.5, 'rgba(235,225,200,.5)');
-    poly(ctx, [this.P(axis, u - hw * 0.2, fixed, low + h), this.P(axis, u + hw * 0.15, fixed, low + h), this.P(axis, u - hw * 0.35, fixed, low), this.P(axis, u - hw * 0.7, fixed, low)], 'rgba(255,255,255,.12)', null);
+    if (o.blinds) for (let z = low + h - 5; z > low + 4; z -= 6) F(u - hw, u + hw, z, z + 2.5, __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_5c8fbab7172bea4b3a00"));
+    poly(ctx, [this.P(axis, u - hw * 0.2, fixed, low + h), this.P(axis, u + hw * 0.15, fixed, low + h), this.P(axis, u - hw * 0.35, fixed, low), this.P(axis, u - hw * 0.7, fixed, low)], __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_b34d3e791125aeebc60a"), null);
     F(u - 0.017, u + 0.017, low, low + h, p.trim); F(u - hw, u + hw, low + h * 0.48, low + h * 0.48 + 3, p.trim);
-    F(u - hw - 0.07, u + hw + 0.07, low - 7, low - 3, light(p.trim, 0.2)); F(u - hw - 0.07, u + hw + 0.07, low - 12, low - 7, 'rgba(0,0,0,.16)');
+    F(u - hw - 0.07, u + hw + 0.07, low - 7, low - 3, light(p.trim, 0.2)); F(u - hw - 0.07, u + hw + 0.07, low - 12, low - 7, __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_819b024f9d1d0b2ce5ec"));
     if (o.shutters) { F(u - hw - 0.2, u - hw - 0.05, low - 2, low + h + 2, o.shutters); F(u + hw + 0.05, u + hw + 0.2, low - 2, low + h + 2, o.shutters); }
     if (o.box) {
       this.face(ctx, axis, fixed + 0.04, u - hw - 0.04, u + hw + 0.04, low - 14, low - 6, 0x6d4f35);
@@ -119,7 +120,7 @@ export class HomeCityBuildings extends HomeCityGround {
   }
   awning(ctx, axis, fixed, u1, u2, zTop, p) {
     const n = 6, out = 0.34, [c1, c2] = p.awning, A = (u, f, z) => this.P(axis, u, f, z);
-    this.face(ctx, axis, fixed, u1, u2, zTop - 32, zTop - 15, 'rgba(0,0,0,.14)', null);
+    this.face(ctx, axis, fixed, u1, u2, zTop - 32, zTop - 15, __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_8e71d5d639eb26975bf6"), null);
     for (let i = 0; i < n; i++) {
       const a = u1 + ((u2 - u1) * i) / n, c = u1 + ((u2 - u1) * (i + 1)) / n, color = i % 2 ? c2 : c1;
       poly(ctx, [A(a, fixed, zTop), A(c, fixed, zTop), A(c, fixed + out, zTop - 15), A(a, fixed + out, zTop - 15)], color);
@@ -162,7 +163,7 @@ export class HomeCityBuildings extends HomeCityGround {
   roofTile(ctx, b, p, x, y, front, right, H) {
     const roof = this.scene.diamond(x, y, H);
     poly(ctx, roof, p.roof);
-    for (let i = 0; i < 14; i++) { const q = this.pt(x - 0.45 + hash(x, i, 1) * 0.9, y - 0.45 + hash(i, y, 2) * 0.9, H); rect(ctx, q.x, q.y, 2, 1.5, hash(i, x, 3) > 0.5 ? 'rgba(255,255,255,.16)' : 'rgba(0,0,0,.22)'); }
+    for (let i = 0; i < 14; i++) { const q = this.pt(x - 0.45 + hash(x, i, 1) * 0.9, y - 0.45 + hash(i, y, 2) * 0.9, H); rect(ctx, q.x, q.y, 2, 1.5, hash(i, x, 3) > 0.5 ? __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_57c94231f5cb903f903e") : __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_51112248272bba36b1eb")); }
     if (y === b.y) this.face(ctx, 'x', b.y - 0.5, x - 0.5, x + 0.5, H, H + 9, dark(p.trim, 0.3));
     if (x === b.x) this.face(ctx, 'y', b.x - 0.5, y - 0.5, y + 0.5, H, H + 9, dark(p.trim, 0.45));
     if (y === front) { this.face(ctx, 'x', front + 0.5, x - 0.5, x + 0.5, H, H + 9, p.trim); this.face(ctx, 'x', front + 0.53, x - 0.5, x + 0.5, H + 9, H + 11, light(p.trim, 0.3)); }
@@ -173,7 +174,7 @@ export class HomeCityBuildings extends HomeCityGround {
     switch (f.k) {
       case 'chimney':
         isoBox(ctx, cx, cy, 0.2, 0.2, 0, 44, 0x3a2d28, 0x9a5b45, 0x764536, 0x2d231f);
-        for (let z = 8; z < 44; z += 8) { const a = S(cx, cy, -0.2, 0.2, z), b = S(cx, cy, 0.2, 0.2, z); line(ctx, a.x, a.y, b.x, b.y, 'rgba(0,0,0,.18)'); }
+        for (let z = 8; z < 44; z += 8) { const a = S(cx, cy, -0.2, 0.2, z), b = S(cx, cy, 0.2, 0.2, z); line(ctx, a.x, a.y, b.x, b.y, __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_22ba49161c00126178a4")); }
         isoBox(ctx, cx, cy, 0.25, 0.25, 44, 50, 0x4a3b34, 0x6d5648, 0x544036);
         if (f.smoke) this.smokeSpots.push({ x: cx, y: cy - 56 });
         break;
@@ -181,7 +182,7 @@ export class HomeCityBuildings extends HomeCityGround {
       case 'antenna':
         line(ctx, cx, cy, cx, cy - 92, 0x2d3430, 2);
         for (const [z, w] of [[88, 14], [76, 18], [64, 12]]) line(ctx, cx - w, cy - z, cx + w, cy - z, 0x2d3430, 2);
-        line(ctx, cx, cy - 70, cx - 30, cy + 8, 'rgba(40,46,42,.6)'); line(ctx, cx, cy - 70, cx + 30, cy + 8, 'rgba(40,46,42,.6)'); circle(ctx, cx, cy - 94, 2.5, 0xe0463c);
+        line(ctx, cx, cy - 70, cx - 30, cy + 8, __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_64a6e02b61649594768d")); line(ctx, cx, cy - 70, cx + 30, cy + 8, __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_64a6e02b61649594768d")); circle(ctx, cx, cy - 94, 2.5, 0xe0463c);
         break;
       case 'dish':
         line(ctx, cx, cy, cx, cy - 30, 0x59615c, 4);
@@ -197,7 +198,7 @@ export class HomeCityBuildings extends HomeCityGround {
         break;
       case 'loft': {
         isoBox(ctx, cx, cy, 0.42, 0.34, 0, 36, 0x9c7a55, 0x8a6a49, 0x6b5039, 0x3d2d20);
-        for (let z = 7; z < 36; z += 7) { const a = S(cx, cy, -0.42, 0.34, z), b = S(cx, cy, 0.42, 0.34, z); line(ctx, a.x, a.y, b.x, b.y, 'rgba(0,0,0,.18)'); }
+        for (let z = 7; z < 36; z += 7) { const a = S(cx, cy, -0.42, 0.34, z), b = S(cx, cy, 0.42, 0.34, z); line(ctx, a.x, a.y, b.x, b.y, __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_22ba49161c00126178a4")); }
         for (const u of [-0.24, 0, 0.24]) { const q = S(cx, cy, u, 0.34, 14); rect(ctx, q.x - 4, q.y - 10, 8, 11, 0x201710); }
         const r0 = S(cx, cy, -0.36, 0.44, 8), r1 = S(cx, cy, 0.36, 0.44, 8); line(ctx, r0.x, r0.y, r1.x, r1.y, 0x4a3828, 3);
         const apex = S(cx, cy, 0, 0, 64), A = (u, v) => S(cx, cy, u, v, 36);
@@ -240,9 +241,9 @@ export class HomeCityBuildings extends HomeCityGround {
     const wpx = widthCells * HW, w = Math.ceil(wpx + 30), h = Math.ceil(wpx * 0.5 + 52), left = A.x - 12, top = A.y - 12;
     const key = this.bake(`banner_${b.id}`, w, h, ctx => {
       ctx.save(); ctx.translate(A.x, A.y); ctx.transform(1, 0.5, 0, 1, 0, 0);
-      rect(ctx, 1, 3, wpx, 20, 'rgba(0,0,0,.25)'); rect(ctx, 0, 0, wpx, 20, 0x2e231b); ctx.strokeStyle = css(0xd7b16b); ctx.lineWidth = 1.5; ctx.strokeRect(1.5, 1.5, wpx - 3, 17);
-      let size = 13; ctx.font = `${size}px ${FONT_UI}`;
-      while (ctx.measureText(text).width > wpx - 16 && size > 8) { size -= 1; ctx.font = `${size}px ${FONT_UI}`; }
+      rect(ctx, 1, 3, wpx, 20, __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_78eab87e6186882af78f")); rect(ctx, 0, 0, wpx, 20, 0x2e231b); ctx.strokeStyle = css(0xd7b16b); ctx.lineWidth = 1.5; ctx.strokeRect(1.5, 1.5, wpx - 3, 17);
+      let size = 13; ctx.font = `${size}${__dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_2e0dd9220c0e7b7f0e34")}${FONT_UI}`;
+      while (ctx.measureText(text).width > wpx - 16 && size > 8) { size -= 1; ctx.font = `${size}${__dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_2e0dd9220c0e7b7f0e34")}${FONT_UI}`; }
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = css(0xf1e2b6); ctx.fillText(text, wpx / 2, 11); ctx.restore();
     }, left, top);
     if (key) s.add.image(left, top, key).setOrigin(0, 0).setDepth((b.door.x + front) * 100 + 100.5);

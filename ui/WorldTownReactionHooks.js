@@ -1,9 +1,10 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { getTownNpcReaction, markTownNpcReaction } from '../systems/WorldTownReactionModel.js';
 
 const installed=new WeakMap();
-const TOPIC='Seen the latest case news?';
+const TOPIC=__dialogueText("ui/WorldTownReactionHooks.js", "t_1a34c8f172305020d364");
 const active=scene=>Boolean(scene&&!scene.disposed&&!scene._cleanupDone&&scene.ready&&!scene.navigating&&!scene.debugMode&&scene.sys?.isActive?.());
 
 function reactionFor(npcId){

@@ -1,256 +1,128 @@
-/* assets/css/hud-mobile.css
-   Mobile overrides for the Lost Artifacts DOM HUD.
-   Loaded AFTER assets/css/hud.css.
-*/
+/*
+ * Górny HUD skaluje się proporcjonalnie do obszaru gry.
+ *
+ * Baza gry: 1920 × 1080.
+ * main.js: Phaser.Scale.FIT + CENTER_BOTH.
+ *
+ * Ten plik jest ładowany po hud.css.
+ * Zastępuje poprzednie reguły mobilne — nie dopisuj ich ponownie.
+ */
 
-@media (max-width: 600px) {
-  #hud-container {
-    top: 8px;
-    right: 8px;
-    width: calc(100% - 16px);
-    max-width: none;
-    padding: 8px;
-    border-radius: 3px;
-    box-shadow:
-      0 0 0 2px var(--hud-wood-0),
-      0 0 0 3px var(--hud-brass-dim),
-      0 0 0 4px var(--hud-wood-0),
-      0 8px 20px rgba(0, 0, 0, 0.7);
-  }
+#hud-container {
+  /*
+   * Wymiary widocznej gry, bez czarnych pasów.
+   * Odpowiadają proporcjom 16:9 i trybowi FIT.
+   */
+  --hud-game-width: min(
+    100vw,
+    calc(100vh * 16 / 9)
+  );
 
-  .hud-paper-bg {
-    grid-template-columns: minmax(78px, 1.25fr) minmax(50px, 0.8fr) minmax(66px, 1fr) minmax(48px, 0.75fr);
-    gap: 0;
-    min-height: 64px;
-    padding: 5px 2px;
-  }
+  --hud-game-height: min(
+    100vh,
+    calc(100vw * 9 / 16)
+  );
 
-  .hud-cell {
-    min-height: 52px;
-    padding: 0 3px;
-  }
+  /*
+   * Wspólny współczynnik skali.
+   * Skaluje cały panel, także tekst, ikony i tooltipy.
+   */
+  --hud-screen-scale: tan(
+    atan2(var(--hud-game-width), 1920px)
+  );
 
-  .digital-clock-display {
-    min-width: 72px;
-    padding: 7px 5px 6px;
-  }
+  /*
+   * Margines liczony w bazowej rozdzielczości gry.
+   */
+  --hud-edge-gap: calc(
+    12px * var(--hud-screen-scale)
+  );
 
-  .clock-digital {
-    font-size: 12px;
-  }
+  position: fixed;
 
-  .clock-period {
-    margin-top: 6px;
-    font-size: 7px;
-    letter-spacing: 0;
-  }
+  /*
+   * Panel pozostaje przy prawym górnym rogu gry,
+   * a nie przy krawędzi czarnego pasa.
+   */
+  top: calc(
+    (100vh - var(--hud-game-height)) / 2
+    + var(--hud-edge-gap)
+  );
 
-  .calendar-card {
-    width: 46px;
-  }
+  right: calc(
+    (100vw - var(--hud-game-width)) / 2
+    + var(--hud-edge-gap)
+  );
 
-  .calendar-rings {
-    padding: 0 6px;
-  }
+  left: auto;
+  bottom: auto;
 
-  .date-header {
-    padding: 6px 0 4px;
-    font-size: 7px;
-  }
+  /*
+   * Stały rozmiar projektowy.
+   * Rozmiar widoczny na ekranie ustala transform.
+   */
+  width: 540px;
+  min-width: 0;
+  max-width: none;
 
-  .date-body {
-    padding: 6px 0 4px;
-    font-size: 13px;
-  }
+  padding: 10px;
 
-  .hourglass-wrapper {
-    gap: 4px;
-  }
-
-  .hourglass-icon {
-    width: 20px;
-    height: 20px;
-  }
-
-  .deadline-info {
-    gap: 5px;
-    min-width: 34px;
-  }
-
-  .deadline-value {
-    font-size: 14px;
-  }
-
-  .deadline-progress-bg {
-    min-width: 34px;
-    height: 6px;
-  }
-
-  .energy-wrapper {
-    flex-basis: 44px;
-    width: 44px;
-    height: 44px;
-  }
-
-  .energy-circle {
-    width: 44px;
-    height: 44px;
-  }
-
-  .energy-bolt-svg {
-    width: 20px;
-    height: 20px;
-  }
-
-  .hud-bottom-bar {
-    min-height: 44px;
-    margin-top: 6px;
-    padding: 6px;
-    gap: 6px;
-  }
-
-  .stat-group {
-    gap: 7px;
-  }
-
-  .stat-icon {
-    display: none;
-  }
-
-  .stat-text {
-    gap: 4px;
-  }
-
-  .stat-item .label {
-    font-size: 6px;
-  }
-
-  .stat-item .value {
-    font-size: 14px;
-  }
-
-  .stat-divider {
-    min-height: 20px;
-  }
-
-  .hud-buttons {
-    gap: 4px;
-  }
-
-  .hud-icon-btn,
-  .hud-collapse-btn {
-    width: 31px;
-    height: 31px;
-    padding: 3px;
-  }
-
-  .hud-tooltip,
-  .hud-energy-log {
-    top: calc(100% + 10px);
-    right: 0;
-    width: calc(100vw - 16px);
-    max-width: calc(100vw - 16px);
-    padding: 10px 12px 12px;
-    font-size: 13px;
-    line-height: 1.45;
-  }
-
-  .hud-tooltip-title {
-    font-size: 9px;
-  }
-
-  .hud-expand-btn {
-    width: 44px;
-    height: 44px;
-  }
+  transform-origin: top right;
+  transform: scale(var(--hud-screen-scale));
 }
 
-/* Small phones: iPhone SE / narrow Androids */
-@media (max-width: 390px) {
-  #hud-container {
-    padding: 6px;
-  }
+/*
+ * Zachowujemy projektowy rozmiar okrągłych przycisków.
+ * Zapobiega to podwójnemu zmniejszaniu:
+ * przez media queries w hud.css oraz skalowanie całego HUD-u.
+ */
+#hud-container .hud-buttons {
+  --hud-action-size: 48px;
 
-  .hud-paper-bg {
-    grid-template-columns: minmax(70px, 1.2fr) 44px minmax(56px, 0.9fr) 42px;
-  }
+  gap: 8px;
+  margin-left: auto;
+}
 
-  .hud-cell {
-    padding: 0 2px;
-  }
+/*
+ * Tooltipy pozostają częścią skalowanego panelu.
+ * Ich szerokość nie zależy już od fizycznej szerokości telefonu.
+ */
+#hud-container .hud-tooltip,
+#hud-container .hud-energy-log {
+  top: calc(100% + 14px);
+  right: 0;
+  left: auto;
 
-  .digital-clock-display {
-    min-width: 66px;
-    padding: 6px 4px 5px;
-  }
+  width: 430px;
+  max-width: 430px;
+}
 
-  .clock-digital {
-    font-size: 11px;
-  }
+/*
+ * Zwijanie panelu nadal działa.
+ * Przycisk rozwijania otrzymuje tę samą skalę co cały HUD.
+ */
+#hud-container.collapsed {
+  width: auto !important;
+  min-width: 0;
+  max-width: none;
 
-  .clock-period {
-    font-size: 6px;
-  }
+  padding: 0 !important;
 
-  .calendar-card {
-    width: 40px;
-  }
+  background: transparent !important;
+  box-shadow: none !important;
+}
 
-  .date-header {
-    font-size: 6px;
-  }
+#hud-container.collapsed .hud-content {
+  display: none !important;
+}
 
-  .date-body {
-    font-size: 11px;
-  }
+#hud-container.collapsed .hud-expand-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  .hourglass-icon {
-    width: 17px;
-    height: 17px;
-  }
-
-  .deadline-value {
-    font-size: 12px;
-  }
-
-  .deadline-progress-bg {
-    min-width: 28px;
-  }
-
-  .energy-wrapper,
-  .energy-circle {
-    width: 40px;
-    height: 40px;
-  }
-
-  .energy-wrapper {
-    flex-basis: 40px;
-  }
-
-  .energy-bolt-svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  .hud-bottom-bar {
-    padding: 5px;
-  }
-
-  .stat-group {
-    gap: 5px;
-  }
-
-  .stat-item .value {
-    font-size: 12px;
-  }
-
-  .hud-buttons {
-    gap: 3px;
-  }
-
-  .hud-icon-btn,
-  .hud-collapse-btn {
-    width: 28px;
-    height: 28px;
-  }
+#hud-container.collapsed .hud-tooltip,
+#hud-container.collapsed .hud-energy-log {
+  display: none !important;
 }

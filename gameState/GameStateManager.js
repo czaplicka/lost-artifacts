@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import {
   createDefaultReconstructedHeist
 } from './defaultState.js';
@@ -423,7 +424,7 @@ export class GameStateManager {
     const recoveredLocation =
       recoveryData.recoveredLocation ||
       artifact.recoveredLocation ||
-      'Suspect Apartment';
+      __dialogueText("gameState/GameStateManager.js", "t_02c9e55c29cb6cb663ef");
 
     const recoveredArtifact = {
       ...cloneGameData(artifact),
@@ -446,25 +447,25 @@ export class GameStateManager {
       artifact:
         recoveredArtifact.label ||
         recoveredArtifact.name ||
-        'Recovered Artefact',
+        __dialogueText("gameState/GameStateManager.js", "t_c80fe8f99c19b2f38fb1"),
 
       city:
         recoveredArtifact.city ||
         this.state.crimeCityId ||
         this.state.currentCityId ||
-        'Unknown City',
+        __dialogueText("gameState/GameStateManager.js", "t_d17ede01fdcbb432de5d"),
 
       country:
         recoveredArtifact.country ||
-        'Unknown Country',
+        __dialogueText("gameState/GameStateManager.js", "t_2ee34ccaadf588da063b"),
 
       description:
         recoveredArtifact.description ||
-        'A stolen artefact recovered during the investigation.',
+        __dialogueText("gameState/GameStateManager.js", "t_f686401abb4ea517b728"),
 
       significance:
         recoveredArtifact.significance ||
-        'Recovered from the suspect apartment.',
+        __dialogueText("gameState/GameStateManager.js", "t_a2543b32d3fdcbf0d403"),
 
       artifactKey:
         recoveredArtifact.artifactKey ||

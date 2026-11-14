@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { EventBus } from '../EventBus.js';
 import { gameState } from '../GameData.js';
 import { resourcefulnessManager } from './ResourcefulnessManager.js';
@@ -74,10 +75,10 @@ class EnergyManager {
     const total = positive(before.fatigueRemainder) + minutes * 3 / 60 * this.getEffectiveEnergyMultiplier();
     const cost = Math.floor(total);
     this._saveBalance({ awakeMinutes, fatigueRemainder: total - cost });
-    if (cost) this._consumeEnergy(cost, `Time fatigue: -${cost}`, { activityType: 'time_fatigue' });
+    if (cost) this._consumeEnergy(cost, `${__dialogueText("managers/EnergyManager.js", "t_7170e28511adddffcd72")}${cost}`, { activityType: 'time_fatigue' });
     if (positive(before.awakeMinutes) < 16 * 60 && awakeMinutes >= 16 * 60) {
       EventBus.emit('energyWarning', { energy: this.currentEnergy, status: 'Time to sleep',
-        message: 'Sixteen hours awake. Your next breakthrough should involve a pillow.' });
+        message: __dialogueText("managers/EnergyManager.js", "t_96ac6996ab86f6d762fe") });
     }
   }
   _onSleepFinished({ sleepHours = 0 } = {}) {
@@ -91,7 +92,7 @@ class EnergyManager {
   getTemporaryEnergyMultiplier() { return this.energyModifiers.reduce((v, m) => v * m.multiplier, 1); }
   getEffectiveEnergyMultiplier() { return this.getDifficultyMultiplier() * this.getTemporaryEnergyMultiplier(); }
   scaleCost(cost) { return Math.ceil(positive(cost) * this.getEffectiveEnergyMultiplier()); }
-  addEnergyModifier({ id, label = 'Temporary energy effect', multiplier, durationHours, group = null } = {}) {
+  addEnergyModifier({ id, label = __dialogueText("managers/EnergyManager.js", "t_8bbfd56be5584eeccf62"), multiplier, durationHours, group = null } = {}) {
     if (typeof id !== 'string' || !id.trim() || !Number.isFinite(Number(multiplier)) || Number(multiplier) <= 0 ||
         !Number.isFinite(Number(durationHours)) || Number(durationHours) <= 0) return { success: false, reason: 'invalid_energy_modifier' };
     id = id.trim();
@@ -122,12 +123,12 @@ class EnergyManager {
   }
   applyIllness() {
     const s = getDifficultyConfig(this.difficulty).randomEvents.illness;
-    return this.addEnergyModifier({ id: 'illness', label: 'Working while sick', multiplier: s.workEnergyMultiplier,
+    return this.addEnergyModifier({ id: 'illness', label: __dialogueText("managers/EnergyManager.js", "t_efb378b41adcefe0baf1"), multiplier: s.workEnergyMultiplier,
       durationHours: s.workDurationHours, group: 'illness' });
   }
   applyIllnessRecovery() {
     const s = getDifficultyConfig(this.difficulty).randomEvents.illness;
-    return this.addEnergyModifier({ id: 'illness_recovery', label: 'Recovered and rested', multiplier: s.recoveryEnergyMultiplier,
+    return this.addEnergyModifier({ id: 'illness_recovery', label: __dialogueText("managers/EnergyManager.js", "t_38628658593e5d90df7f"), multiplier: s.recoveryEnergyMultiplier,
       durationHours: s.recoveryDurationHours, group: 'illness' });
   }
   _notifyModifiersChanged() {
@@ -137,7 +138,7 @@ class EnergyManager {
   getTravelCost(type = 'plane') {
     return this.scaleCost(({ plane: 3, train: 5, bus: 8, ship: 6, taxi: 2, cheap_flight: 4, expensive_flight: 2 })[type] ?? 3);
   }
-  consumeTravel(type = 'plane') { const cost = this.getTravelCost(type); return this._consumeEnergy(cost, `Travel (${type}): -${cost}`, { activityType: `travel_${type}` }); }
+  consumeTravel(type = 'plane') { const cost = this.getTravelCost(type); return this._consumeEnergy(cost, `${__dialogueText("managers/EnergyManager.js", "t_592efc34d9485f9ae821")}${type}${__dialogueText("managers/EnergyManager.js", "t_24e778466d407e0a9e47")}${cost}`, { activityType: `travel_${type}` }); }
   getActivityCostDetails(type = 'minigame_forensic') {
     const baseCost = COSTS[type] ?? COSTS.minigame_forensic, scaledCost = this.scaleCost(baseCost);
     return { ...resourcefulnessManager.getSearchEnergyQuote(type, scaledCost), baseCost, scaledCost };
@@ -166,16 +167,16 @@ class EnergyManager {
   }
   canPerformInterview(duration = 'medium') { const cost = this.getInterviewCost(duration); return { ...this.canAfford(cost), duration, cost }; }
   getInsufficientEnergyMessage(requiredEnergy) {
-    if (this.isSleepingForced || this.isSleepingManual) return 'You are currently asleep. Even brilliant deductions can wait.';
-    if (this.hqExhaustionCallPending) return 'HQ is calling. Answer the phone first.';
-    if (this._needsSleep()) return 'Twenty hours awake. Food is not a substitute for sleep. Book a hotel.';
+    if (this.isSleepingForced || this.isSleepingManual) return __dialogueText("managers/EnergyManager.js", "t_22df3f8db80a505b276e");
+    if (this.hqExhaustionCallPending) return __dialogueText("managers/EnergyManager.js", "t_348f2d3582f6bbee97d8");
+    if (this._needsSleep()) return __dialogueText("managers/EnergyManager.js", "t_ef3a81d24e02ac1223f5");
     const required = Math.round(positive(requiredEnergy));
-    return required <= this.currentEnergy ? 'You have enough energy for this activity.'
-      : `You need ${required} energy. You have ${this.currentEnergy}. Book a hotel before your body does it for you.`;
+    return required <= this.currentEnergy ? __dialogueText("managers/EnergyManager.js", "t_110c490f35f1c1a9992e")
+      : `${__dialogueText("managers/EnergyManager.js", "t_98ac13ef339b53a527fd")}${required}${__dialogueText("managers/EnergyManager.js", "t_2a66717619a9c838cbcb")}${this.currentEnergy}${__dialogueText("managers/EnergyManager.js", "t_fb9237199c8cf1259fe0")}`;
   }
-  getEnergyStatus() { return this.currentEnergy >= 61 ? 'Fresh' : this.currentEnergy >= 31 ? 'Tired' : 'Exhausted'; }
+  getEnergyStatus() { return this.currentEnergy >= 61 ? __dialogueText("managers/EnergyManager.js", "t_f810b66877419ce9b801") : this.currentEnergy >= 31 ? __dialogueText("managers/EnergyManager.js", "t_3c4ce44c14d1e177cbe3") : __dialogueText("managers/EnergyManager.js", "t_a51ee30495b32b9124d1"); }
   getEnergyColor() { return this.currentEnergy >= 61 ? 0x4CAF50 : this.currentEnergy >= 31 ? 0xFF9800 : 0xF44336; }
-  getEnergyTooltip() { return this.currentEnergy >= 80 ? 'Functioning adult.' : this.currentEnergy >= 50 ? 'Running on coffee and denial.' : this.currentEnergy >= 20 ? 'Questionable detective choices ahead.' : 'Legally too tired to solve crimes.'; }
+  getEnergyTooltip() { return this.currentEnergy >= 80 ? __dialogueText("managers/EnergyManager.js", "t_acb77bb6ffbbc367f2ad") : this.currentEnergy >= 50 ? __dialogueText("managers/EnergyManager.js", "t_ab5dc21e9c010e696638") : this.currentEnergy >= 20 ? __dialogueText("managers/EnergyManager.js", "t_c48b83ecdbef77f900ee") : __dialogueText("managers/EnergyManager.js", "t_71dd8e79e1b629a84189"); }
   _failedConsumption(cost, type, extra = {}) {
     const check = this.canAfford(cost);
     if (check.ok) return null;
@@ -186,14 +187,14 @@ class EnergyManager {
   }
   consumeInterview(duration = 'medium') {
     const cost = this.getInterviewCost(duration), activityType = `interview_${duration}`;
-    return this._failedConsumption(cost, activityType, { duration }) || this._consumeEnergy(cost, `Interview: -${cost}`, { requireFullAmount: true, activityType });
+    return this._failedConsumption(cost, activityType, { duration }) || this._consumeEnergy(cost, `${__dialogueText("managers/EnergyManager.js", "t_b172161f84bb105ad30b")}${cost}`, { requireFullAmount: true, activityType });
   }
   consumeActivity(type = 'minigame_forensic') {
     const costDetails = this.getActivityCostDetails(type), cost = costDetails.finalCost;
     return this._failedConsumption(cost, type, { costDetails }) || {
-      ...this._consumeEnergy(cost, `Activity (${type}): -${cost}`, { requireFullAmount: true, activityType: type }), cost, costDetails };
+      ...this._consumeEnergy(cost, `${__dialogueText("managers/EnergyManager.js", "t_bb3f4a885d70875ca1ef")}${type}${__dialogueText("managers/EnergyManager.js", "t_24e778466d407e0a9e47")}${cost}`, { requireFullAmount: true, activityType: type }), cost, costDetails };
   }
-  consumeCustom(cost, label = 'Energy changed.', options = {}) {
+  consumeCustom(cost, label = __dialogueText("managers/EnergyManager.js", "t_be987d3c4a19256ef8b1"), options = {}) {
     return this._consumeEnergy(Math.round(positive(cost)), label, { requireFullAmount: Boolean(options.requireFullAmount), activityType: options.activityType || 'custom' });
   }
   startManualSleep(hours = 8) {
@@ -210,16 +211,16 @@ class EnergyManager {
     const type = hours <= 2 ? 'short' : hours <= 4 ? 'medium' : 'full';
     const amount = Math.ceil(RECOVERY[`sleep_${type}`] * getDifficultyConfig(this.difficulty).sleepRecoveryMultiplier);
     EventBus.emit('advanceTime', hours, 0);
-    const result = this._recoverEnergy(amount, `Sleep (${hours}h): +${amount}`, 'sleep', type);
+    const result = this._recoverEnergy(amount, `${__dialogueText("managers/EnergyManager.js", "t_dbebd86508d7008777d3")}${hours}${__dialogueText("managers/EnergyManager.js", "t_50a8dbfd0ac693918647")}${amount}`, 'sleep', type);
     this.isSleepingManual = false;
     EventBus.emit('manualSleepFinished', { sleepHours: hours, recovered: result.amount, energy: this.currentEnergy });
     return result;
   }
   sleep(hours = 8) { const result = this.startManualSleep(hours); return result.success ? this.completeManualSleep(hours) : result; }
   cancelManualSleep() { this.isSleepingManual = false; this.restClockPending = false; }
-  eat(quality = 'normal') { const amount = RECOVERY[`food_${quality}`] || RECOVERY.food_normal; return this._recoverEnergy(amount, `Food (${quality}): +${amount}`, 'food', quality); }
-  drink(quality = 'normal') { const amount = RECOVERY[`drink_${quality}`] || RECOVERY.drink_normal; return this._recoverEnergy(amount, `Drink (${quality}): +${amount}`, 'drink', quality); }
-  recoverCustom(amount, label = 'Energy restored.', options = {}) {
+  eat(quality = 'normal') { const amount = RECOVERY[`food_${quality}`] || RECOVERY.food_normal; return this._recoverEnergy(amount, `${__dialogueText("managers/EnergyManager.js", "t_e33b22d735a971a3768f")}${quality}${__dialogueText("managers/EnergyManager.js", "t_d493c91e60f3456a26a0")}${amount}`, 'food', quality); }
+  drink(quality = 'normal') { const amount = RECOVERY[`drink_${quality}`] || RECOVERY.drink_normal; return this._recoverEnergy(amount, `${__dialogueText("managers/EnergyManager.js", "t_0ec17a9bd703aa2e4975")}${quality}${__dialogueText("managers/EnergyManager.js", "t_d493c91e60f3456a26a0")}${amount}`, 'drink', quality); }
+  recoverCustom(amount, label = __dialogueText("managers/EnergyManager.js", "t_abb65df236c300aea224"), options = {}) {
     const value = Math.round(positive(amount));
     if (!value) return { success: false, reason: 'invalid_amount' };
     if (this._blockReason()) return { success: false, reason: this._blockReason(), message: this.getInsufficientEnergyMessage(0) };
@@ -232,7 +233,7 @@ class EnergyManager {
     const cost = Math.round(positive(amount));
     if (this._needsSleep() && options.activityType !== 'time_fatigue' && options.activityType !== 'travel_taxi') {
       return { success: false, reason: 'sleep_required', amount: cost, currentEnergy: this.currentEnergy,
-        message: 'Twenty hours awake. Sleep before continuing the investigation.' };
+        message: __dialogueText("managers/EnergyManager.js", "t_e1c0e90b0da7f6b3d976") };
     }
     if (!cost) return { success: false, reason: 'invalid_amount' };
     if (this._blockReason()) return { success: false, reason: this._blockReason(), amount: cost, currentEnergy: this.currentEnergy, message: this.getInsufficientEnergyMessage(cost) };
@@ -244,7 +245,7 @@ class EnergyManager {
     const forcedSleepTriggered = this.isCriticalEnergy();
     this._recordAndEmit();
     if (forcedSleepTriggered) this._triggerForcedSleep();
-    else if (before > 25 && this.currentEnergy <= 25) EventBus.emit('energyWarning', { energy: this.currentEnergy, status: this.getEnergyStatus(), message: 'Book a hotel. The pavement has terrible reviews.' });
+    else if (before > 25 && this.currentEnergy <= 25) EventBus.emit('energyWarning', { energy: this.currentEnergy, status: this.getEnergyStatus(), message: __dialogueText("managers/EnergyManager.js", "t_1cec0f15d8e36ad746ee") });
     return { success: true, amount: cost, label, activityType: options.activityType || null,
       energyReachedZero: this.currentEnergy === 0, forcedSleepTriggered,
       status: this.exhaustionGameOverPending ? 'Game over' : forcedSleepTriggered ? 'Sleeping at Agency Motel' : this.getEnergyStatus() };
@@ -266,7 +267,7 @@ class EnergyManager {
   }
   _beginForcedSleep() {
     if (this.forcedSleepSession) return;
-    this.forcedSleepSession = { hotelId: 'agency', hotelLabel: 'Agency Motel', cityId: gameState.currentCityId || gameState.crimeCityId || null,
+    this.forcedSleepSession = { hotelId: 'agency', hotelLabel: __dialogueText("managers/EnergyManager.js", "t_c4c28e65f9cb467fb8c0"), cityId: gameState.currentCityId || gameState.crimeCityId || null,
       sleepHours: FORCED_SLEEP_HOURS, cost: 0, timeCharged: false };
     this._showForcedSleepOverlay();
     const first = gameState.hollyFirstSleepSeen !== true;
@@ -275,7 +276,7 @@ class EnergyManager {
       EventBus.emit('firstForcedSleepStory', { sceneKey: 'HollyIntroScene', sleepHours: FORCED_SLEEP_HOURS, energy: this.currentEnergy });
     }
     EventBus.emit('energyZero', { energy: this.currentEnergy, status: 'Exhausted', sleepHours: FORCED_SLEEP_HOURS,
-      hotelId: 'agency', hotelLabel: 'Agency Motel', cost: 0, message: 'Emergency check-in. One warning. Next time, you are off the case.', firstSleepStory: first });
+      hotelId: 'agency', hotelLabel: __dialogueText("managers/EnergyManager.js", "t_c4c28e65f9cb467fb8c0"), cost: 0, message: __dialogueText("managers/EnergyManager.js", "t_66dae48af5bfa314b2b2"), firstSleepStory: first });
     this.forcedSleepSession.timeCharged = true; this._syncToGameState();
     EventBus.emit('advanceTime', FORCED_SLEEP_HOURS, 0);
     this._startForcedSleepTimer(2000);
@@ -294,8 +295,8 @@ class EnergyManager {
       if (!this.exhaustionGameOverPending || gameState.currentMission !== mission || gameState.gameOverReason !== 'exhaustion_repeat') return;
       const game = typeof window !== 'undefined' ? window.game : null;
       if (!game?.scene) { console.error('[EnergyManager] Game over recorded, but Phaser game is unavailable.'); return; }
-      const data = { reasonCode: 'exhaustion_repeat', title: 'OFF THE CASE',
-        message: 'Two collapses. One official warning ignored. Mark Agency has reassigned the case. Your next assignment is a pillow.',
+      const data = { reasonCode: 'exhaustion_repeat', title: __dialogueText("managers/EnergyManager.js", "t_9ba34a109b0280daa2c3"),
+        message: __dialogueText("managers/EnergyManager.js", "t_d04d0f60a36164ba9b13"),
         caseId: gameState.currentCaseId };
       const ignored = new Set(['UIScene', 'NewsHud', 'PlayerHudScene', 'GameOverScene', '__LostArtifactsAudioHost']);
       const scene = game.scene.getScenes(true).find(s => !ignored.has(s.sys.settings.key) && typeof s.goto === 'function');
@@ -314,12 +315,12 @@ class EnergyManager {
     if (typeof document === 'undefined' || !document.body) return;
     const root = document.createElement('div');
     root.setAttribute('role', 'status'); root.setAttribute('aria-live', 'polite');
-    Object.assign(root.style, { position: 'fixed', inset: '0', zIndex: '2147483647', background: 'rgba(9,7,6,.97)', display: 'flex',
+    Object.assign(root.style, { position: 'fixed', inset: '0', zIndex: '2147483647', background: __dialogueText("managers/EnergyManager.js", "t_dce3ee4484a0dbaa5793"), display: 'flex',
       alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box', color: '#f1e6b8', pointerEvents: 'auto' });
     const card = document.createElement('div');
-    Object.assign(card.style, { maxWidth: '620px', textAlign: 'center', border: '3px solid #d4af37', padding: '32px 22px',
+    Object.assign(card.style, { maxWidth: '620px', textAlign: 'center', border: __dialogueText("managers/EnergyManager.js", "t_118e22550bbdf5311a15"), padding: __dialogueText("managers/EnergyManager.js", "t_c9babe61ea14bd1f903b"),
       background: '#17110e', fontFamily: 'SpecialElite, serif', fontSize: '22px', lineHeight: '1.7', whiteSpace: 'pre-line' });
-    card.textContent = 'AGENCY MOTEL\n\nYour body has closed the case for the evening. The mattress denies all allegations.\n\n6 HOURS | $0 | FIRST AND FINAL WARNING';
+    card.textContent = __dialogueText("managers/EnergyManager.js", "t_a4c1604c45e6f2d96655");
     root.append(card); document.body.append(root); this.forcedSleepOverlay = root;
   }
   _removeForcedSleepOverlay() { this.forcedSleepOverlay?.remove(); this.forcedSleepOverlay = null; }
@@ -344,12 +345,12 @@ class EnergyManager {
     this._clearForcedSleepTimer();
     const before = this.currentEnergy, stay = { ...this.forcedSleepSession, completed: true };
     this.currentEnergy = this.maxEnergy;
-    this.lastEnergyChange = { type: 'recover', amount: this.maxEnergy - before, label: 'Agency Motel (6h, emergency)',
+    this.lastEnergyChange = { type: 'recover', amount: this.maxEnergy - before, label: __dialogueText("managers/EnergyManager.js", "t_14ef2ba2e78cbe627c39"),
       recoveryType: 'forced_sleep', recoverySubtype: 'agency_motel', beforeEnergy: before, afterEnergy: this.currentEnergy, timestamp: Date.now() };
     this.forcedSleepSession = null; this.isSleepingForced = false; this.hqExhaustionCallPending = true;
     this._saveBalance({ awakeMinutes: 0, fatigueRemainder: 0, lastSleepMinutes: 360 });
     this._removeForcedSleepOverlay(); this._recordAndEmit();
-    EventBus.emit('energyRecovered', { energy: this.currentEnergy, sleepHours: 6, reason: 'forced_sleep', hotelId: 'agency', hotelLabel: 'Agency Motel', cost: 0, stay });
+    EventBus.emit('energyRecovered', { energy: this.currentEnergy, sleepHours: 6, reason: 'forced_sleep', hotelId: 'agency', hotelLabel: __dialogueText("managers/EnergyManager.js", "t_c4c28e65f9cb467fb8c0"), cost: 0, stay });
     this._openHQCall(); this._requestAutosave();
   }
   _openHQCall() {

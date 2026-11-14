@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import {
   inventoryManager
 } from '../../managers/InventoryManager.js';
@@ -17,32 +18,32 @@ const MOVABLE = new Set([
 
 const HINTS = {
   painting:
-    'The loose frame could conceal something against the wall.',
+    __dialogueText("scenes/apartament/ApartmentObject.js", "t_5a4af68441c7d8b1104e"),
   framed_photo:
-    'Turn the frame over and check its backing.',
+    __dialogueText("scenes/apartament/ApartmentObject.js", "t_7cde17de7e8a47d09491"),
   sofa:
-    'Lift the cushions and check the gaps.',
+    __dialogueText("scenes/apartament/ApartmentObject.js", "t_d6de14244aff303c4200"),
   lamp:
-    'The base looks hollow. Check underneath it.'
+    __dialogueText("scenes/apartament/ApartmentObject.js", "t_cd52a89fc4690f2b01ef")
 };
 
 const WRONG_MOVE = [
-  'Moving the entire thing would be a career change. Try inspecting it.',
-  'You push. It does not care. Furniture has a very strong union.',
-  'Nothing shifts, except your dignity. Inspect first, lift later.'
+  __dialogueText("scenes/apartament/ApartmentObject.js", "t_f9d7b066ec3242abe8cc"),
+  __dialogueText("scenes/apartament/ApartmentObject.js", "t_64260f9bc63d921a8d3d"),
+  __dialogueText("scenes/apartament/ApartmentObject.js", "t_3e73835a27deedd53c16")
 ];
 
 const WRONG_SEARCH = [
-  'Nothing on the visible surface. Check underneath or behind it.',
-  "You search thoroughly and find lint, regret and a stranger's crumb. Try moving it.",
-  'Zero results. The object looks smug. Perhaps it is hiding something underneath?'
+  __dialogueText("scenes/apartament/ApartmentObject.js", "t_2648bde7aa3f6ee50b7a"),
+  __dialogueText("scenes/apartament/ApartmentObject.js", "t_8e3315a6756a3524efc5"),
+  __dialogueText("scenes/apartament/ApartmentObject.js", "t_e60fccd284f33b4ec134")
 ];
 
 const ACTION_SUBS = {
-  INSPECT: 'Look closer',
-  SEARCH: 'Rummage inside or on top',
-  MOVE: 'Shift it, lift it, peek behind',
-  'USE ITEM': 'Try something from your pockets'
+  INSPECT: __dialogueText("scenes/apartament/ApartmentObject.js", "t_507f60cea7e3a182fa20"),
+  SEARCH: __dialogueText("scenes/apartament/ApartmentObject.js", "t_6ba9161fcbaa6cfa6ebc"),
+  MOVE: __dialogueText("scenes/apartament/ApartmentObject.js", "t_95de088b53da21e051cc"),
+  'USE ITEM': __dialogueText("scenes/apartament/ApartmentObject.js", "t_db889d7bbd6b3de73dfa")
 };
 
 const MENU = {
@@ -62,28 +63,28 @@ const STYLE = {
     fill: 0x493c2e,
     hover: 0x665039,
     stroke: 0x8f7955,
-    text: '#fff0d2',
+    text: __dialogueText("scenes/apartament/ApartmentObject.js", "t_79a316f2e36850e77e99"),
     sub: '#c9b78f'
   },
   primary: {
     fill: 0x6b5324,
     hover: 0x8a6c30,
     stroke: 0xd4af37,
-    text: '#ffe9a8',
+    text: __dialogueText("scenes/apartament/ApartmentObject.js", "t_9481007a293d1738bdd6"),
     sub: '#e6d08f'
   },
   tried: {
     fill: 0x2f2822,
     hover: 0x3d342b,
     stroke: 0x5f5240,
-    text: '#a89a80',
+    text: __dialogueText("scenes/apartament/ApartmentObject.js", "t_d0a32d5590ae6a2cbdbc"),
     sub: '#8c806a'
   },
   dim: {
     fill: 0x3a3129,
     hover: 0x4f4338,
     stroke: 0x6f6350,
-    text: '#d9ccb2',
+    text: __dialogueText("scenes/apartament/ApartmentObject.js", "t_4245999837d6079091c3"),
     sub: '#a89a80'
   }
 };
@@ -318,8 +319,8 @@ export class ApartmentObject {
 
   getHoverDescription() {
     return (
-      `${this.config.label || 'Object'} — ` +
-      'choose an action'
+      `${this.config.label || __dialogueText("scenes/apartament/ApartmentObject.js", "t_62a6da8735c18e2d66fe")} — ` +
+      __dialogueText("scenes/apartament/ApartmentObject.js", "t_5c2be417a4d15c2fc28c")
     );
   }
 
@@ -347,12 +348,12 @@ export class ApartmentObject {
     const text =
       this.config.inspectText ||
       this.config.description ||
-      'Worth a closer look.';
+      __dialogueText("scenes/apartament/ApartmentObject.js", "t_8cd1a58b9d5197f17933");
 
     if (this.state === 'locked') {
       return (
         `${text}\n\n` +
-        'Locked. A matching item may help.'
+        __dialogueText("scenes/apartament/ApartmentObject.js", "t_d4a4763a87b531bf7c83")
       );
     }
 
@@ -480,13 +481,13 @@ export class ApartmentObject {
       if (pending.length) {
         this.showContents(
           0,
-          'That item has already been collected.'
+          __dialogueText("scenes/apartament/ApartmentObject.js", "t_b1a9d9d2fcdd4f8785ba")
         );
       } else {
         this.scene.showMessage?.(
-          'Already collected. Nothing else to take here.',
+          __dialogueText("scenes/apartament/ApartmentObject.js", "t_4a36525ac1253b02284c"),
           1800,
-          '#3e683d'
+          __dialogueText("scenes/apartament/ApartmentObject.js", "t_8050ca049b2e4bda19f0")
         );
       }
 
@@ -542,10 +543,10 @@ export class ApartmentObject {
         this.saveProgress();
 
         this.scene.showMessage?.(
-          'Item added to your inventory. ' +
-          'A follow-up update failed; check the console.',
+          __dialogueText("scenes/apartament/ApartmentObject.js", "t_f1c63fbecd6081b5dd44") +
+          __dialogueText("scenes/apartament/ApartmentObject.js", "t_6a970da834bdd2b47c34"),
           4000,
-          '#795548'
+          __dialogueText("scenes/apartament/ApartmentObject.js", "t_0fa2e0046576e38dd099")
         );
       }
     } finally {
@@ -577,7 +578,7 @@ export class ApartmentObject {
       if (pending.length) {
         this.showContents(
           0,
-          `Added to inventory: ${name}.`
+          `${__dialogueText("scenes/apartament/ApartmentObject.js", "t_73d937cad6f734550b61")}${name}${__dialogueText("scenes/apartament/ApartmentObject.js", "t_cdb4ee2aea69cc6a8333")}`
         );
       } else {
         this.closeMenu();
@@ -591,7 +592,7 @@ export class ApartmentObject {
     ) {
       this.showContents(
         this.findingIndex,
-        'Could not take that. It is still here.'
+        __dialogueText("scenes/apartament/ApartmentObject.js", "t_32a6c7b27652c6b7b3c7")
       );
     }
   }
@@ -647,8 +648,8 @@ export class ApartmentObject {
     this.saveProgress();
 
     this.openActions(
-      'The lock clicks open. ' +
-      'You can examine the contents now.'
+      __dialogueText("scenes/apartament/ApartmentObject.js", "t_3a4dcae5b9f3a542e413") +
+      __dialogueText("scenes/apartament/ApartmentObject.js", "t_4995e52403185c55a1dc")
     );
 
     return true;
@@ -656,7 +657,7 @@ export class ApartmentObject {
 
   handleLockedObject() {
     this.openActions(
-      'Locked. Choose USE ITEM and select the matching item.'
+      __dialogueText("scenes/apartament/ApartmentObject.js", "t_357ebc5a3b0395f2eda5")
     );
   }
 
@@ -671,7 +672,7 @@ export class ApartmentObject {
   showAlreadySearchedMessage() {
     this.openActions(
       this.config.afterSearchText ||
-      'Already searched.'
+      __dialogueText("scenes/apartament/ApartmentObject.js", "t_506b275eb68b9265629e")
     );
   }
 
@@ -682,7 +683,7 @@ export class ApartmentObject {
   openActions(note = '') {
     this.syncCollectedItems();
 
-    const title = this.config.label || 'Object';
+    const title = this.config.label || __dialogueText("scenes/apartament/ApartmentObject.js", "t_62a6da8735c18e2d66fe");
     const locked = this.state === 'locked';
     const actions = [];
 
@@ -700,7 +701,7 @@ export class ApartmentObject {
         title,
         note ||
         this.config.afterSearchText ||
-        'Already searched.',
+        __dialogueText("scenes/apartament/ApartmentObject.js", "t_506b275eb68b9265629e"),
         actions
       );
     }
@@ -710,22 +711,22 @@ export class ApartmentObject {
       this.getPendingItems().length
     ) {
       actions.push([
-        'VIEW FINDINGS',
+        __dialogueText("scenes/apartament/ApartmentObject.js", "t_f4861adecd9430a88025"),
         () => this.showContents(),
         {
           primary: true,
-          sub: 'Something is waiting for you'
+          sub: __dialogueText("scenes/apartament/ApartmentObject.js", "t_e5aa4d94d7160b895cd6")
         }
       ]);
     }
 
     if (locked) {
       actions.push([
-        'USE ITEM',
+        __dialogueText("scenes/apartament/ApartmentObject.js", "t_266b6fd0dd4dc28a9405"),
         () => this.openItemPicker(),
         {
           primary: true,
-          sub: 'The lock needs the right item'
+          sub: __dialogueText("scenes/apartament/ApartmentObject.js", "t_97b75d6d9b5c0c7f6068")
         }
       ]);
     }
@@ -763,17 +764,17 @@ export class ApartmentObject {
       ]);
 
       actions.push([
-        'USE ITEM',
+        __dialogueText("scenes/apartament/ApartmentObject.js", "t_266b6fd0dd4dc28a9405"),
         () => this.openItemPicker(),
         {
-          sub: ACTION_SUBS['USE ITEM']
+          sub: ACTION_SUBS[__dialogueText("scenes/apartament/ApartmentObject.js", "t_266b6fd0dd4dc28a9405")]
         }
       ]);
     }
 
     this.renderMenu(
       title,
-      note || 'What do you want to do?',
+      note || __dialogueText("scenes/apartament/ApartmentObject.js", "t_68f2a0c9acf0e43b0482"),
       actions
     );
   }
@@ -784,7 +785,7 @@ export class ApartmentObject {
   ) {
     if (!this.revealed) {
       return this.openActions(
-        'Choose how to examine this object first.'
+        __dialogueText("scenes/apartament/ApartmentObject.js", "t_3bea672879bdeeb13a7c")
       );
     }
 
@@ -799,16 +800,16 @@ export class ApartmentObject {
       this.saveProgress();
 
       this.renderMenu(
-        this.config.label || 'Search results',
+        this.config.label || __dialogueText("scenes/apartament/ApartmentObject.js", "t_e978b00de465a271a13b"),
         already
           ? (
               this.config.afterSearchText ||
-              'Nothing else to collect.'
+              __dialogueText("scenes/apartament/ApartmentObject.js", "t_e3122299ee32b3c8c6cb")
             )
           : (
               this.config.emptySearchText ||
               this.config.onInteract?.text ||
-              'Nothing useful. A remarkably thorough collection of nothing.'
+              __dialogueText("scenes/apartament/ApartmentObject.js", "t_7fa09db20449762a2ba8")
             ),
         []
       );
@@ -837,7 +838,7 @@ export class ApartmentObject {
     if (pending.length > 1) {
       if (this.findingIndex > 0) {
         actions.push([
-          '< PREVIOUS',
+          __dialogueText("scenes/apartament/ApartmentObject.js", "t_2b8c035d931a36d1e669"),
           () => this.showContents(
             this.findingIndex - 1
           ),
@@ -850,7 +851,7 @@ export class ApartmentObject {
         pending.length - 1
       ) {
         actions.push([
-          'NEXT >',
+          __dialogueText("scenes/apartament/ApartmentObject.js", "t_58b85f2ea88bf1a9ba16"),
           () => this.showContents(
             this.findingIndex + 1
           ),
@@ -860,18 +861,18 @@ export class ApartmentObject {
     }
 
     actions.push([
-      'LEAVE HERE',
+      __dialogueText("scenes/apartament/ApartmentObject.js", "t_f319e9b64fae81db8e10"),
       () => this.closeMenu(),
       {}
     ]);
 
     const body =
-      `${item.label || item.name || 'Unknown item'}` +
+      `${item.label || item.name || __dialogueText("scenes/apartament/ApartmentObject.js", "t_e6b8f377328b3d42997c")}` +
       '\n\n' +
       `${item.description || item.hint || ''}`;
 
     this.renderMenu(
-      `DISCOVERED — ${this.findingIndex + 1}/${pending.length}`,
+      `${__dialogueText("scenes/apartament/ApartmentObject.js", "t_d1cfa59b872c0d745132")}${this.findingIndex + 1}${__dialogueText("scenes/apartament/ApartmentObject.js", "t_8a5edab282632443219e")}${pending.length}`,
       note ? `${note}\n\n${body}` : body,
       actions
     );
@@ -901,9 +902,9 @@ export class ApartmentObject {
         () => {
           if (!this.useItemOn(item.id)) {
             this.openActions(
-              'Nothing happens. ' +
-              'The object is unimpressed. ' +
-              'Nothing was used up.'
+              __dialogueText("scenes/apartament/ApartmentObject.js", "t_93b749faf9c050993323") +
+              __dialogueText("scenes/apartament/ApartmentObject.js", "t_9f1af1c627b84e06f47e") +
+              __dialogueText("scenes/apartament/ApartmentObject.js", "t_a4a23a0a66306b0970ab")
             );
           }
         },
@@ -912,7 +913,7 @@ export class ApartmentObject {
 
     if (page > 0) {
       actions.push([
-        '< PREVIOUS',
+        __dialogueText("scenes/apartament/ApartmentObject.js", "t_2b8c035d931a36d1e669"),
         () => this.openItemPicker(page - 1),
         { half: true }
       ]);
@@ -920,7 +921,7 @@ export class ApartmentObject {
 
     if (page < pages - 1) {
       actions.push([
-        'NEXT >',
+        __dialogueText("scenes/apartament/ApartmentObject.js", "t_58b85f2ea88bf1a9ba16"),
         () => this.openItemPicker(page + 1),
         { half: true }
       ]);
@@ -933,12 +934,12 @@ export class ApartmentObject {
     ]);
 
     this.renderMenu(
-      'USE ITEM',
+      __dialogueText("scenes/apartament/ApartmentObject.js", "t_266b6fd0dd4dc28a9405"),
       items.length
-        ? `Choose an item. Page ${page + 1}/${pages}`
+        ? `${__dialogueText("scenes/apartament/ApartmentObject.js", "t_57c86b1c5692c427a21a")}${page + 1}${__dialogueText("scenes/apartament/ApartmentObject.js", "t_8a5edab282632443219e")}${pages}`
         : (
-            'Nothing available to use here. ' +
-            'Your pockets contain only ambition.'
+            __dialogueText("scenes/apartament/ApartmentObject.js", "t_1f5274403d52625f5fd2") +
+            __dialogueText("scenes/apartament/ApartmentObject.js", "t_6173506b41228bb4ef0a")
           ),
       actions
     );
@@ -1196,7 +1197,7 @@ export class ApartmentObject {
             : ''
         ) +
         label +
-        (options.tried ? ' (tried)' : '');
+        (options.tried ? __dialogueText("scenes/apartament/ApartmentObject.js", "t_9648fcc2f52dfb912ed4") : '');
 
       const background = host.add
         .rectangle(
@@ -1309,7 +1310,7 @@ export class ApartmentObject {
     this.keyHandler = event => {
       if (this.menu !== root) return;
 
-      if (event.key === 'Escape') {
+      if (event.key === __dialogueText("scenes/apartament/ApartmentObject.js", "t_037c968467aa3fd7c059")) {
         return this.closeMenu();
       }
 

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { InventoryView } from './inventory/InventoryView.js';
 import { piInventoryManager } from '../managers/PIInventoryManager.js';
 import { EventBus } from '../EventBus.js';
@@ -13,76 +14,7 @@ const PI_SCENES = new Set([
   'PigeonLoftScene'
 ]);
 
-const BUTTON_CSS = `
-.la-pi-inventory-button {
-  --inv-edge:#ad8651;
-  position:fixed; z-index:10010; display:none;
-  align-items:center; justify-content:flex-start; gap:10px;
-  box-sizing:border-box; margin:0; padding:7px 10px;
-  min-width:0; min-height:0;
-  border:2px solid var(--inv-edge); border-radius:3px;
-  background:linear-gradient(180deg,#513827 0%,#37251b 52%,#291b15 100%);
-  color:#f2e0b7;
-  box-shadow:0 4px 0 #17110d,0 6px 12px #0007,inset 0 1px 0 #ffffff1c;
-  font-family:SpecialElite,monospace; font-weight:normal;
-  line-height:1; letter-spacing:0; white-space:nowrap;
-  cursor:pointer; pointer-events:auto; touch-action:manipulation;
-  user-select:none; -webkit-user-select:none;
-  -webkit-tap-highlight-color:transparent;
-  isolation:isolate;
-}
-.la-pi-inventory-button::before {
-  content:''; position:absolute; inset:4px; z-index:-1;
-  border:1px dashed #bc986348; border-radius:1px; pointer-events:none;
-}
-.la-pi-inventory-button .pi-inv-icon {
-  display:flex; align-items:center; justify-content:center;
-  width:29px; height:29px; flex:0 0 29px;
-  color:#dcb87b; filter:drop-shadow(0 2px 0 #100b08);
-}
-.la-pi-inventory-button .pi-inv-icon svg {
-  display:block;width:100%;height:100%;
-}
-.la-pi-inventory-button .pi-inv-label {
-  flex:1; min-width:0; text-align:left;
-  font-size:1em; letter-spacing:.055em;
-  text-shadow:0 2px 0 #130d09;
-}
-.la-pi-inventory-button .pi-inv-key {
-  display:flex; align-items:center; justify-content:center;
-  box-sizing:border-box; width:25px; height:25px; flex:0 0 25px;
-  background:#e7d4aa; color:#3c2a1c; border:1px solid #aa8755;
-  border-bottom:3px solid #9b7949; border-radius:2px;
-  font-family:SpecialElite,monospace;font-size:15px;line-height:1;
-  text-shadow:none; box-shadow:0 1px 0 #130d0980;
-}
-@media (hover:hover) {
-  .la-pi-inventory-button:hover:not(:disabled) {
-    --inv-edge:#e0bc7d;
-    background:linear-gradient(180deg,#62462e 0%,#463020 52%,#352319 100%);
-    color:#fff0cb;
-  }
-}
-.la-pi-inventory-button:focus-visible {
-  outline:2px solid #f4dba3; outline-offset:4px;
-}
-.la-pi-inventory-button:active:not(:disabled) {
-  transform:translateY(2px);
-  box-shadow:0 2px 0 #17110d,0 3px 6px #0007,inset 0 1px 0 #ffffff14;
-}
-.la-pi-inventory-button:disabled {
-  cursor:default;
-}
-@media (max-width:600px) {
-  .la-pi-inventory-button {gap:7px;padding:6px 9px}
-  .la-pi-inventory-button .pi-inv-icon {
-    width:24px;height:24px;flex-basis:24px;
-  }
-  .la-pi-inventory-button .pi-inv-key {
-    width:21px;height:23px;flex-basis:21px;font-size:13px;
-  }
-}
-`;
+const BUTTON_CSS = `${__dialogueText("ui/PIInventoryUI.js", "t_89c7cd2883193d08a327")}`;
 
 export function isPIInventoryScene(scene) {
   return PI_SCENES.has(scene?.sys?.settings?.key);
@@ -246,13 +178,13 @@ export class PIInventoryScene extends Phaser.Scene {
       });
 
       this.view.create();
-      this.view.titleText.setText('PI INVENTORY');
+      this.view.titleText.setText(__dialogueText("ui/PIInventoryUI.js", "t_a10818afe097782490bc"));
 
       this.renderInventory();
       this.view.show(true);
 
       this.view.subtitleText?.setText(
-        'Private pockets. Private business.'
+        __dialogueText("ui/PIInventoryUI.js", "t_af3d83f0c266eb1f049d")
       );
 
       this.onUpdated = () => this.renderInventory();
@@ -286,7 +218,7 @@ export class PIInventoryScene extends Phaser.Scene {
         }
 
         if (
-          event.code === 'Escape' ||
+          event.code === __dialogueText("ui/PIInventoryUI.js", "t_037c968467aa3fd7c059") ||
           event.code === 'KeyI'
         ) {
           event.preventDefault();
@@ -432,13 +364,13 @@ export function installPIInventory(scene) {
 
   button.setAttribute(
     'aria-label',
-    'Open PI inventory'
+    __dialogueText("ui/PIInventoryUI.js", "t_82f25bfbfc1c3f232079")
   );
 
   button.setAttribute('aria-keyshortcuts', 'I');
 
   button.title =
-    'Inventory — private pockets, questionable contents. [I]';
+    __dialogueText("ui/PIInventoryUI.js", "t_aef47fa5c76ffa475729");
 
   const icon = document.createElement('span');
   icon.className = 'pi-inv-icon';
@@ -458,7 +390,7 @@ export function installPIInventory(scene) {
     [
       'path',
       {
-        d: 'M11 9V5h10v4',
+        d: __dialogueText("ui/PIInventoryUI.js", "t_6e6be2fa8e35320500c6"),
         fill: 'none',
         stroke: 'currentColor',
         'stroke-width': '2'
@@ -467,7 +399,7 @@ export function installPIInventory(scene) {
     [
       'path',
       {
-        d: 'M3 10h26v17H3z',
+        d: __dialogueText("ui/PIInventoryUI.js", "t_40a4671d1fb3011b2fd0"),
         fill: '#422b1c',
         stroke: 'currentColor',
         'stroke-width': '2'
@@ -476,7 +408,7 @@ export function installPIInventory(scene) {
     [
       'path',
       {
-        d: 'M3 11v7l13 3 13-3v-7',
+        d: __dialogueText("ui/PIInventoryUI.js", "t_c70d90a47feb5fdae871"),
         fill: '#765137',
         stroke: 'currentColor',
         'stroke-width': '2'
@@ -497,7 +429,7 @@ export function installPIInventory(scene) {
     [
       'path',
       {
-        d: 'M6 24h4M22 24h4',
+        d: __dialogueText("ui/PIInventoryUI.js", "t_b6eba25d3812cfe8b913"),
         fill: 'none',
         stroke: '#ad8651',
         'stroke-width': '1'

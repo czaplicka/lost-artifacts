@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // ---------------------------------------------------------------------------
 // ui/NewspaperContent.js
 //
@@ -57,28 +58,28 @@ export function pickMany(pool, count, rng) {
 }
 
 const WEEKDAYS = [
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday'
+  __dialogueText("ui/NewspaperContent.js", "t_873fef760e5d001ba0a8"),
+  __dialogueText("ui/NewspaperContent.js", "t_6a00dfc1dc867e8454c2"),
+  __dialogueText("ui/NewspaperContent.js", "t_7d8af1de1262f150187d"),
+  __dialogueText("ui/NewspaperContent.js", "t_c0a6cc829cd087352947"),
+  __dialogueText("ui/NewspaperContent.js", "t_fc2662062ffdef961002"),
+  __dialogueText("ui/NewspaperContent.js", "t_e21f3f372a46d4be7b49"),
+  __dialogueText("ui/NewspaperContent.js", "t_dbe35c7363c2f7ec747b")
 ];
 
 const MONTHS = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December'
+  __dialogueText("ui/NewspaperContent.js", "t_37082e68df858e0ba764"),
+  __dialogueText("ui/NewspaperContent.js", "t_c877c6ff405ec29ca3d0"),
+  __dialogueText("ui/NewspaperContent.js", "t_9d95a2cf0d7180b50896"),
+  __dialogueText("ui/NewspaperContent.js", "t_4afe6ea150d532c17693"),
+  __dialogueText("ui/NewspaperContent.js", "t_8c78fe5b9936488c1117"),
+  __dialogueText("ui/NewspaperContent.js", "t_d5808c0e0a479813fafc"),
+  __dialogueText("ui/NewspaperContent.js", "t_e9cf7a1ca4a760843ff3"),
+  __dialogueText("ui/NewspaperContent.js", "t_a66d8970e569a944234c"),
+  __dialogueText("ui/NewspaperContent.js", "t_cd559ea0abca085ef144"),
+  __dialogueText("ui/NewspaperContent.js", "t_fdd791787b64d22386b9"),
+  __dialogueText("ui/NewspaperContent.js", "t_9de6fe1d72659daec67e"),
+  __dialogueText("ui/NewspaperContent.js", "t_8fb204ca460968479407")
 ];
 
 // Matches UIScene.startDate.
@@ -124,239 +125,239 @@ export function formatEdition(day) {
       date.getUTCFullYear()
     ].join(' '),
 
-    volume: `Vol. 67, No. ${40 + safeDay}`
+    volume: `${__dialogueText("ui/NewspaperContent.js", "t_b624f40c5c0556e4d39a")}${40 + safeDay}`
   };
 }
 
 export const EARS_LEFT = [
-  'ALL THE NEWS THAT FITS',
-  'NOW WITH 20% MORE NEWS',
-  'ESTD. 1871 (APPROX.)',
-  'NOTHING TO SEE HERE',
-  'FACT-CHECKED BY A PIGEON'
+  __dialogueText("ui/NewspaperContent.js", "t_8eb894eb4c996c7f41f6"),
+  __dialogueText("ui/NewspaperContent.js", "t_0dd541411b548d7e6401"),
+  __dialogueText("ui/NewspaperContent.js", "t_f4ceb8f3c254c0345e25"),
+  __dialogueText("ui/NewspaperContent.js", "t_bf21523dbcf1007d4c73"),
+  __dialogueText("ui/NewspaperContent.js", "t_117821e31c97bd479d4d")
 ];
 
 export const EARS_RIGHT = [
-  'PRICE: 2 COINS',
-  'PRICE: 2 COINS OR 1 PIGEON',
-  'FREE WITH SUBSCRIPTION',
-  'PRICE: NEGOTIABLE',
-  'PRICE: STILL 2 COINS'
+  __dialogueText("ui/NewspaperContent.js", "t_bb5f4cd2c702ee301d7e"),
+  __dialogueText("ui/NewspaperContent.js", "t_c03ec2c29ecaf902d836"),
+  __dialogueText("ui/NewspaperContent.js", "t_1a73905ba2158277ba2b"),
+  __dialogueText("ui/NewspaperContent.js", "t_64c0c8476c1b97d20e2b"),
+  __dialogueText("ui/NewspaperContent.js", "t_ad6c70b614553bf95812")
 ];
 
 export const SECTION_LABELS_TOP = [
-  'LOCAL COLOR',
-  'CITY DESK',
-  'OVERHEARD IN TOWN',
+  __dialogueText("ui/NewspaperContent.js", "t_ae2eec31840861e56445"),
+  __dialogueText("ui/NewspaperContent.js", "t_309c9082b12eb59db821"),
+  __dialogueText("ui/NewspaperContent.js", "t_2d8df74f9a44a32adc81"),
   'NEWS-ISH',
-  'DEVELOPING (SLOWLY)'
+  __dialogueText("ui/NewspaperContent.js", "t_6eae73c01cd1e8848854")
 ];
 
 export const SECTION_LABELS_BOTTOM = [
   'ELSEWHERE',
   'MEANWHILE',
-  'ALSO HAPPENING',
-  'FILED UNDER: ODD',
+  __dialogueText("ui/NewspaperContent.js", "t_f4983d6f0603dbf10fc5"),
+  __dialogueText("ui/NewspaperContent.js", "t_4d3858e8bdc300b08f91"),
   'BRIEFLY'
 ];
 
 export const PULL_QUOTE_SOURCES = [
-  'a witness',
-  'an expert',
-  'a pigeon (unconfirmed)',
-  'an anonymous source',
-  'a very tired official'
+  __dialogueText("ui/NewspaperContent.js", "t_c672e82d920a7f4561b2"),
+  __dialogueText("ui/NewspaperContent.js", "t_f09e30851ec8f696902a"),
+  __dialogueText("ui/NewspaperContent.js", "t_f62dda566c4222ca3373"),
+  __dialogueText("ui/NewspaperContent.js", "t_9579b3242d294b086653"),
+  __dialogueText("ui/NewspaperContent.js", "t_1d92ed1a2ad35d38d98a")
 ];
 
 export const WEATHER_TODAY = {
-  sun: 'Sunny. Perfect weather for crime.',
-  cloud: 'Overcast, with a chance of suspicion.',
-  rain: 'Light drizzle, heavy alibis.',
-  storm: 'Thunder. Dramatic music likely.'
+  sun: __dialogueText("ui/NewspaperContent.js", "t_7ca8030e34e80b6c8183"),
+  cloud: __dialogueText("ui/NewspaperContent.js", "t_d95fb6b9aae44a0b36dd"),
+  rain: __dialogueText("ui/NewspaperContent.js", "t_369405e43fad88dbf320"),
+  storm: __dialogueText("ui/NewspaperContent.js", "t_56d544fa22ed2d1963c9")
 };
 
 export const WEATHER_TOMORROW = [
-  'More of the same, but louder.',
-  'Clear skies, murky motives.',
-  'Fog. Visibility: two clues.',
-  'Rain. Bring an umbrella and a lawyer.',
-  'Scattered pigeons.',
-  'Windy. Evidence may blow away.'
+  __dialogueText("ui/NewspaperContent.js", "t_2242e906c96545cf6974"),
+  __dialogueText("ui/NewspaperContent.js", "t_784d4ef99fa4b2d6c3c8"),
+  __dialogueText("ui/NewspaperContent.js", "t_fb9769c8cde7dc47b5da"),
+  __dialogueText("ui/NewspaperContent.js", "t_f6e9b8ad5bd58009013c"),
+  __dialogueText("ui/NewspaperContent.js", "t_ac5dc59d27d7859ef584"),
+  __dialogueText("ui/NewspaperContent.js", "t_ab42050d47ec92e8a941")
 ];
 
 export const WEATHER_TOP_NEWS = [
-  'Everyone is lying (mildly).',
-  'Pigeon seen near the scene.',
-  'Tea shortage worsens.',
-  'Local man correct for once.',
-  'Museum café out of cake.',
-  'Hat prices on the rise.'
+  __dialogueText("ui/NewspaperContent.js", "t_b4f51ea72562a4a61c20"),
+  __dialogueText("ui/NewspaperContent.js", "t_1fc5251dcaa9c1eb0238"),
+  __dialogueText("ui/NewspaperContent.js", "t_e33ae180b992cd9e8aec"),
+  __dialogueText("ui/NewspaperContent.js", "t_474134e402f2c5cb6ed6"),
+  __dialogueText("ui/NewspaperContent.js", "t_38f18e6e8c3fb27f279b"),
+  __dialogueText("ui/NewspaperContent.js", "t_410a534c15de5f093ab1")
 ];
 
 export const CLASSIFIEDS = [
   {
     head: 'WANTED',
-    text: 'Night guard who stays awake. Perks: none. Must like pigeons.'
+    text: __dialogueText("ui/NewspaperContent.js", "t_49b4c929e2a63b322c41")
   },
   {
-    head: 'FOR SALE',
-    text: 'Slightly used alibi. One careful owner. Never been questioned.'
+    head: __dialogueText("ui/NewspaperContent.js", "t_7a92c1282184517a763a"),
+    text: __dialogueText("ui/NewspaperContent.js", "t_c533feaeb7b01ac4a92d")
   },
   {
     head: 'LOST',
-    text: 'Hat. Trench coat attached. Answers to "Hey, you!"'
+    text: __dialogueText("ui/NewspaperContent.js", "t_6bcce70b6b4850ff5265")
   },
   {
     head: 'WANTED',
-    text: 'Roommate. Must not be the thief. References required.'
+    text: __dialogueText("ui/NewspaperContent.js", "t_7b6f44114c7ec013061c")
   },
   {
-    head: 'FOR SALE',
-    text: 'Magnifying glass. Great for small print and ants.'
+    head: __dialogueText("ui/NewspaperContent.js", "t_7a92c1282184517a763a"),
+    text: __dialogueText("ui/NewspaperContent.js", "t_672f90627ca4174381c1")
   },
   {
     head: 'FOUND',
-    text: 'One mysterious footprint. Owner unknown. Shoe size: dramatic.'
+    text: __dialogueText("ui/NewspaperContent.js", "t_9829c9f478d2352d56e2")
   },
   {
     head: 'LESSONS',
-    text: 'Learn to whistle suspiciously. Beginners welcome. Loiterers tolerated.'
+    text: __dialogueText("ui/NewspaperContent.js", "t_abb89c01e708c66dc936")
   },
   {
-    head: 'FOR RENT',
-    text: 'Cozy hideout. Secret door included. Landlord asks no questions.'
+    head: __dialogueText("ui/NewspaperContent.js", "t_7bfbb59b8fed5b44fd5b"),
+    text: __dialogueText("ui/NewspaperContent.js", "t_3940682b53b2136d1c37")
   },
   {
     head: 'LOST',
-    text: 'Parrot. Knows too much. Reward: your continued safety.'
+    text: __dialogueText("ui/NewspaperContent.js", "t_b04ef72e997ad8bab4bc")
   },
   {
     head: 'NOTICE',
-    text: 'The museum café has run out of cake. This is not a clue. Probably.'
+    text: __dialogueText("ui/NewspaperContent.js", "t_fcd32954bc7564d08087")
   },
   {
     head: 'WANTED',
-    text: 'Getaway driver. Must obey traffic laws. We have standards.'
+    text: __dialogueText("ui/NewspaperContent.js", "t_dba7a0fb2f723b37bbc6")
   },
   {
     head: 'FOUND',
-    text: 'A rope, a lockpick and a disguise. Please stop asking.'
+    text: __dialogueText("ui/NewspaperContent.js", "t_c85aacf7f4562df4546e")
   },
   {
-    head: 'FOR SALE',
-    text: 'Wedding ring, never worn. Long story. Do not ask.'
+    head: __dialogueText("ui/NewspaperContent.js", "t_7a92c1282184517a763a"),
+    text: __dialogueText("ui/NewspaperContent.js", "t_a7782fc7c7ad25177f17")
   },
   {
     head: 'PERSONAL',
-    text: 'Dave, the pigeon is NOT yours. Stop feeding him your lunch.'
+    text: __dialogueText("ui/NewspaperContent.js", "t_78189d39c95f89687e20")
   }
 ];
 
 export const TICKER = [
-  'PIGEON FUTURES +4.2%',
-  'COFFEE +3% (AGAIN)',
-  'ALIBIS -2% (SUSPICIOUSLY)',
-  'TRENCH COATS +12%',
-  'LOCKPICKS: NO COMMENT',
-  'ARTIFACT INSURANCE: UNAVAILABLE',
-  'CAKE: 0 REMAINING',
-  'MUSTACHES (FAKE) +7%'
+  __dialogueText("ui/NewspaperContent.js", "t_dc0e7a0cbbd186d7e17b"),
+  __dialogueText("ui/NewspaperContent.js", "t_dbd77bb13637d15d603a"),
+  __dialogueText("ui/NewspaperContent.js", "t_740ea641916c976bb6a5"),
+  __dialogueText("ui/NewspaperContent.js", "t_5ff1d0f6d47a5132b48f"),
+  __dialogueText("ui/NewspaperContent.js", "t_5738a50b50c5cc13f868"),
+  __dialogueText("ui/NewspaperContent.js", "t_38a7e3c212ea84d99337"),
+  __dialogueText("ui/NewspaperContent.js", "t_19d18c2dc6060cd64cdf"),
+  __dialogueText("ui/NewspaperContent.js", "t_cf6e33e903c6ca29ebba")
 ];
 
 // kinds: boxed | burst | banner
 export const ADS = [
   {
     kind: 'boxed',
-    head: 'MARK AGENCY',
-    sub: 'NOW HIRING DETECTIVES',
-    fine: 'No experience necessary. Evidently.'
+    head: __dialogueText("ui/NewspaperContent.js", "t_9246fca97ffafae56410"),
+    sub: __dialogueText("ui/NewspaperContent.js", "t_2cabdb223f9f8c2ed05e"),
+    fine: __dialogueText("ui/NewspaperContent.js", "t_19f8dbe68a91bee745f8")
   },
   {
     kind: 'burst',
-    head: '50% OFF',
-    sub: 'ALL ALIBIS',
-    fine: 'While supplies last. They will not.'
+    head: __dialogueText("ui/NewspaperContent.js", "t_defc1859d10683740e97"),
+    sub: __dialogueText("ui/NewspaperContent.js", "t_1d6e48941d96b367d2eb"),
+    fine: __dialogueText("ui/NewspaperContent.js", "t_75e32d12af38b1935266")
   },
   {
     kind: 'boxed',
-    head: 'TRENCH COATS',
-    sub: 'ONE SIZE FITS ALL SUSPECTS',
-    fine: 'Collar sold separately.'
+    head: __dialogueText("ui/NewspaperContent.js", "t_50a11a59f1b9b6b70016"),
+    sub: __dialogueText("ui/NewspaperContent.js", "t_1323a4b6eaf5ddd8e401"),
+    fine: __dialogueText("ui/NewspaperContent.js", "t_a676677226d0e3f3ec78")
   },
   {
     kind: 'banner',
-    head: 'MAGNIFYING GLASSES',
-    sub: 'See the bigger picture. Literally.',
-    fine: 'Not responsible for burnt ants.'
+    head: __dialogueText("ui/NewspaperContent.js", "t_b3a372fa5cf56521426b"),
+    sub: __dialogueText("ui/NewspaperContent.js", "t_63645b4c91c49bd236ee"),
+    fine: __dialogueText("ui/NewspaperContent.js", "t_cf90c4804b3359f92f38")
   },
   {
     kind: 'burst',
-    head: 'NEW!',
-    sub: 'DISGUISE KIT',
-    fine: 'Fake mustache now 30% less obvious.'
+    head: __dialogueText("ui/NewspaperContent.js", "t_775653072817f6d0c39d"),
+    sub: __dialogueText("ui/NewspaperContent.js", "t_fb825b59a84a400a3d49"),
+    fine: __dialogueText("ui/NewspaperContent.js", "t_d8e1c18612f1b7fb4328")
   },
   {
     kind: 'boxed',
-    head: 'PIGEON INSURANCE',
-    sub: 'COVERAGE AGAINST WITNESSES',
-    fine: 'Terms apply. Terms also coo.'
+    head: __dialogueText("ui/NewspaperContent.js", "t_9c2148a6a13032ab5dc1"),
+    sub: __dialogueText("ui/NewspaperContent.js", "t_4cf8e0f3425e10a782e2"),
+    fine: __dialogueText("ui/NewspaperContent.js", "t_ff834283d5a7fae08b7d")
   },
   {
     kind: 'banner',
-    head: "DR. WATSOFF'S TONIC",
-    sub: 'Cures 4 out of 5 deductions.',
-    fine: 'The fifth is a hunch.'
+    head: __dialogueText("ui/NewspaperContent.js", "t_9c0a20976c29fc4206a4"),
+    sub: __dialogueText("ui/NewspaperContent.js", "t_79a4946652f15fa36ee8"),
+    fine: __dialogueText("ui/NewspaperContent.js", "t_eb310c5b4b4db2759225")
   },
   {
     kind: 'boxed',
-    head: 'LOCKPICKS & CO.',
-    sub: 'FOR EMERGENCIES ONLY',
-    fine: 'We have never heard of "burglary".'
+    head: __dialogueText("ui/NewspaperContent.js", "t_a2ac4c1ce00bbf2e80b2"),
+    sub: __dialogueText("ui/NewspaperContent.js", "t_23afc16d22a23159bc15"),
+    fine: __dialogueText("ui/NewspaperContent.js", "t_22343a19e5f77ae38850")
   },
   {
     kind: 'burst',
-    head: 'FREE!',
-    sub: 'ADVICE ON ALIBIS',
-    fine: 'Worth every penny.'
+    head: __dialogueText("ui/NewspaperContent.js", "t_31077e6f3da3fce97974"),
+    sub: __dialogueText("ui/NewspaperContent.js", "t_ead393b466838225cf00"),
+    fine: __dialogueText("ui/NewspaperContent.js", "t_efa05e80b8f98f9c58e2")
   },
   {
     kind: 'banner',
-    head: 'SLEEP SOUNDLY',
-    sub: 'Our guards are mostly awake.',
-    fine: 'Ask about our pigeon patrol.'
+    head: __dialogueText("ui/NewspaperContent.js", "t_38d7899e06b50be8c8e4"),
+    sub: __dialogueText("ui/NewspaperContent.js", "t_2c846435af5e3c044a0c"),
+    fine: __dialogueText("ui/NewspaperContent.js", "t_99c5e634b81711f4434b")
   }
 ];
 
 // Three panels each: who = 'pete' (the detective) or 'pigeon'.
 export const COMICS = [
   [
-    { who: 'pete', say: 'The thief left no clues.' },
-    { who: 'pigeon', say: 'Coo.' },
-    { who: 'pete', say: '...He left a witness.' }
+    { who: 'pete', say: __dialogueText("ui/NewspaperContent.js", "t_8442eea3857af80c46b8") },
+    { who: 'pigeon', say: __dialogueText("ui/NewspaperContent.js", "t_b2fbe4010b5b7b8c6f7e") },
+    { who: 'pete', say: __dialogueText("ui/NewspaperContent.js", "t_79a42343687df7c9f2ae") }
   ],
   [
-    { who: 'pete', say: 'Elementary: the thief is tall.' },
-    { who: 'pete', say: 'And left-handed.' },
-    { who: 'pigeon', say: 'That is a coat rack, Pete.' }
+    { who: 'pete', say: __dialogueText("ui/NewspaperContent.js", "t_9691eb2820ae468d9383") },
+    { who: 'pete', say: __dialogueText("ui/NewspaperContent.js", "t_ada64e951babd8089614") },
+    { who: 'pigeon', say: __dialogueText("ui/NewspaperContent.js", "t_71f44be3ee8e03c8aa8d") }
   ],
   [
-    { who: 'pete', say: 'Where were you at 9 PM?' },
-    { who: 'pigeon', say: 'Pigeon things.' },
-    { who: 'pete', say: 'Alibi accepted.' }
+    { who: 'pete', say: __dialogueText("ui/NewspaperContent.js", "t_d0233cf044161dab5517") },
+    { who: 'pigeon', say: __dialogueText("ui/NewspaperContent.js", "t_e99ab09264c652d77051") },
+    { who: 'pete', say: __dialogueText("ui/NewspaperContent.js", "t_4c5ea8c6cbfd9552cdbb") }
   ],
   [
-    { who: 'pete', say: 'I never lose a case.' },
-    { who: 'pete', say: 'I just misplace them.' },
-    { who: 'pigeon', say: 'Behind the sofa.' }
+    { who: 'pete', say: __dialogueText("ui/NewspaperContent.js", "t_dfb856a83bb021ff8691") },
+    { who: 'pete', say: __dialogueText("ui/NewspaperContent.js", "t_ab6407273ed5746c9168") },
+    { who: 'pigeon', say: __dialogueText("ui/NewspaperContent.js", "t_25e7e5cc09fbf52886bf") }
   ],
   [
-    { who: 'pete', say: 'Crumbs. The thief is hungry.' },
-    { who: 'pigeon', say: 'Coo?' },
-    { who: 'pete', say: 'Case closed. Mostly.' }
+    { who: 'pete', say: __dialogueText("ui/NewspaperContent.js", "t_9f7836ef1dabbeade770") },
+    { who: 'pigeon', say: __dialogueText("ui/NewspaperContent.js", "t_318c660c5ba27f5d5886") },
+    { who: 'pete', say: __dialogueText("ui/NewspaperContent.js", "t_65e8a992e61d0a7bf395") }
   ],
   [
-    { who: 'pete', say: 'My hat is my best lead.' },
-    { who: 'pigeon', say: 'Your hat is on fire.' },
-    { who: 'pete', say: 'See? Hot lead.' }
+    { who: 'pete', say: __dialogueText("ui/NewspaperContent.js", "t_3f14581b5f5fd6aac330") },
+    { who: 'pigeon', say: __dialogueText("ui/NewspaperContent.js", "t_2d044fd49830ad1b65b1") },
+    { who: 'pete', say: __dialogueText("ui/NewspaperContent.js", "t_42ebae1c3edaea89fbe8") }
   ]
 ];

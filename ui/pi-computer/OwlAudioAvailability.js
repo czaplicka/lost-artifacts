@@ -1,7 +1,8 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { getDeadMenMail } from '../../managers/DeadMenCallingService.js';
 import { ComputerAudio } from './ComputerAudio.js';
 
-const INSTALLED = Symbol.for('lostArtifacts.owlAudioAvailability.v1');
+const INSTALLED = Symbol.for(__dialogueText("ui/pi-computer/OwlAudioAvailability.js", "t_8632b0dad0d035f33342"));
 const TRANSCRIPTS = new Set([
   'dead_men_recording_1',
   'dead_men_recording_2',
@@ -26,7 +27,7 @@ export function installOwlAudioAvailability(ui) {
   ui.desktop.createIcon = function (...args) {
     const label = args[3];
     const kind = args[4];
-    if ((label === 'Owl Audio' || kind === 'audio') && !canUseOwlAudio()) {
+    if ((label === __dialogueText("ui/pi-computer/OwlAudioAvailability.js", "t_5ddde5a18bc919b6ce35") || kind === 'audio') && !canUseOwlAudio()) {
       return;
     }
     return createIcon.apply(this, args);
@@ -45,7 +46,7 @@ export function installOwlAudioAvailability(ui) {
       if (this.destroyed || !this.isOpen || this.suspended || this.booting) return;
       if (!ensureApp()) {
         this.menuOpen = false;
-        this.notice = 'Owl Audio will be available when the case transcripts arrive.';
+        this.notice = __dialogueText("ui/pi-computer/OwlAudioAvailability.js", "t_51bffa61cf9bf77b8f60");
         this.render();
         return;
       }
@@ -67,7 +68,7 @@ export function installOwlAudioAvailability(ui) {
         ui.drawing.text(
           box.x + 20,
           box.y + 54,
-          'Owl Audio will be available when the case transcripts arrive.',
+          __dialogueText("ui/pi-computer/OwlAudioAvailability.js", "t_51bffa61cf9bf77b8f60"),
           16,
           '#e4dfc2',
           Math.max(100, box.w - 40)

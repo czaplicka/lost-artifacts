@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 import { gameState } from './GameData.js';
 import { EventBus } from './EventBus.js';
 
@@ -98,7 +99,7 @@ export function getTimeChangedPayload(state = gameState) {
   const clock = minutesToClock(status.now);
   return {
     ...clock,
-    partOfDay: state.currentPartOfDay ?? state.partOfDay ?? 'Morning',
+    partOfDay: state.currentPartOfDay ?? state.partOfDay ?? __dialogueText("CaseTimeHelper.js", "t_e9376a281aac57bb78e2"),
     caseTimeRemaining: status.remainingSeconds,
     caseExpired: status.remainingSeconds !== null && status.remainingSeconds <= 0,
     caseClockValid: status.valid,

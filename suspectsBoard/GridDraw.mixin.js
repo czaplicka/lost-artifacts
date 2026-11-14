@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { COLORS } from './gridConstants.js';
 import { prettify } from './gridHelpers.js';
 import {
@@ -5,14 +6,14 @@ import {
 } from './gridTheme.js';
 
 const QUIPS = [
-  'Fingerprints never lie. Suspects, on the other hand...',
-  'Every empty cell is a thief with a good lawyer.',
-  'Elementary, my dear spreadsheet.',
-  'Trust no one. Especially the curator.',
-  'Coffee: 3. Leads: 2. Progress: pending.',
-  'The butler did not do it. Probably.',
-  'If in doubt, blame the intern.',
-  'Somewhere, a thief is sneezing at your detective work.'
+  __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_d5b98be4acba60789932"),
+  __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_ec949aad36b156126757"),
+  __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_83ea70ea71dbe68b428a"),
+  __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_788e1ab8b8708ccbdc1f"),
+  __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_06033eae2c2842ab3ce2"),
+  __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_7da5b570b9b32671b7fc"),
+  __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_ce9bce66ea9aebff5a4a"),
+  __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_f6257310557693330731")
 ];
 
 export const GridDrawMixin = {
@@ -143,7 +144,7 @@ export const GridDrawMixin = {
     this.uiRoot.add(cornerBrackets(this, 8, 6, width - 16, 72, { len: 14, alpha: 0.45 }));
 
     const title = this.add
-      .text(width / 2, 8, 'EVIDENCE GRID', {
+      .text(width / 2, 8, __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_a90fb599d8cf71821729"), {
         fontFamily: 'SpecialElite',
         fontSize: '28px',
         color: '#f5e7c6'
@@ -155,7 +156,7 @@ export const GridDrawMixin = {
       .text(
         width / 2,
         44,
-        'Pick a clue card, then click the glowing cell. Compare the crime scene row with each suspect.',
+        __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_f9987d68584a73ffec28"),
         { fontFamily: 'SpecialElite', fontSize: '13px', color: '#d9c998' }
       )
       .setOrigin(0.5, 0);
@@ -170,7 +171,7 @@ export const GridDrawMixin = {
       ];
 
       this.uiRoot.add([
-        this.add.text(18, 12, 'CASE FILE', {
+        this.add.text(18, 12, __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_c95495641200bd4f90b7"), {
           fontFamily: 'PressStart2P', fontSize: '7px', color: '#a8946a'
         }),
         this.add.text(18, 26, city, {
@@ -187,13 +188,13 @@ export const GridDrawMixin = {
     }
 
     const pills = [
-      pill(this, 0, 74, `CLUES ${placedCount}/${this.clueCards.length}`, {
+      pill(this, 0, 74, `${__dialogueText("suspectsBoard/GridDraw.mixin.js", "t_cdbbe6cb6adbf314e0a9")}${placedCount}${__dialogueText("suspectsBoard/GridDraw.mixin.js", "t_8a5edab282632443219e")}${this.clueCards.length}`, {
         dot: THEME.gold, color: '#ffdc73'
       }),
-      pill(this, 0, 74, `POSSIBLE ${possibleCount}`, {
+      pill(this, 0, 74, `${__dialogueText("suspectsBoard/GridDraw.mixin.js", "t_bd6ddbd206bce11de29c")}${possibleCount}`, {
         dot: COLORS.okStroke, color: '#d5ffd2', stroke: COLORS.okStroke
       }),
-      pill(this, 0, 74, `UNLIKELY ${unlikelyCount}`, {
+      pill(this, 0, 74, `${__dialogueText("suspectsBoard/GridDraw.mixin.js", "t_3cdfbeae113647882fd0")}${unlikelyCount}`, {
         dot: COLORS.noStroke, color: '#ffd1c8', stroke: COLORS.noStroke
       })
     ];
@@ -220,7 +221,7 @@ export const GridDrawMixin = {
       this.add.rectangle(s.x + 2, s.y + 2, s.w - 4, 28, 0x2b2018, 1).setOrigin(0),
       this.add.rectangle(s.x + 2, s.y + 30, s.w - 4, 2, THEME.gold, 0.7).setOrigin(0),
       this.add
-        .text(s.x + 12, s.y + 11, `CLUE CARDS (${clues.length})`, {
+        .text(s.x + 12, s.y + 11, `${__dialogueText("suspectsBoard/GridDraw.mixin.js", "t_4827219e37f419978d97")}${clues.length}${__dialogueText("suspectsBoard/GridDraw.mixin.js", "t_ba5ec51d07a4ac0e9516")}`, {
           fontFamily: 'PressStart2P',
           fontSize: '9px',
           color: '#ffdc73'
@@ -241,7 +242,7 @@ export const GridDrawMixin = {
 
     if (!clues.length) {
       const done = this.add
-        .text(listW / 2, 30, 'All clue cards are on the board.', {
+        .text(listW / 2, 30, __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_099807993ab11a49f0db"), {
           fontFamily: 'SpecialElite',
           fontSize: '16px',
           color: '#c6b58d',
@@ -250,7 +251,7 @@ export const GridDrawMixin = {
         })
         .setOrigin(0.5, 0);
       const joke = this.add
-        .text(listW / 2, done.y + done.height + 12, 'Not bad, detective. Not bad at all.', {
+        .text(listW / 2, done.y + done.height + 12, __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_2cf84d0fb9da1322790c"), {
           fontFamily: 'SpecialElite',
           fontSize: '13px',
           color: '#8f7f60',
@@ -280,7 +281,7 @@ export const GridDrawMixin = {
     if (this.minClueScroll < 0) {
       this.uiRoot.add(
         this.add
-          .text(s.x + s.w - 12, s.y + 12, 'SCROLL', {
+          .text(s.x + s.w - 12, s.y + 12, __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_8fdbadc3bcfa716f8e86"), {
             fontFamily: 'PressStart2P',
             fontSize: '6px',
             color: '#aa9263'
@@ -310,7 +311,7 @@ export const GridDrawMixin = {
     const container = this.add.container(6, y);
 
     const badgeText = this.add
-      .text(padL + 6, 11, isScene ? 'CRIME SCENE' : 'SUSPECT', {
+      .text(padL + 6, 11, isScene ? __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_149dbafdfa19fa96352e") : __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_edfa2c31b6de69133e64"), {
         fontFamily: 'PressStart2P',
         fontSize: '6px',
         color: '#15100a'
@@ -449,7 +450,7 @@ export const GridDrawMixin = {
         y: height - 31,
         width: 190,
         height: 38,
-        label: '[ CRIME CITY ]',
+        label: __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_48d75061c0347ba9ed22"),
         fill: 0x43241e,
         hoverFill: 0x67382d,
         onClick: () => this.closeScene()
@@ -462,7 +463,7 @@ export const GridDrawMixin = {
         y: height - 31,
         width: 250,
         height: 38,
-        label: '[ SEND TO ALIBIS ]',
+        label: __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_ea1952e820670cb86750"),
         fill: 0x24442a,
         hoverFill: 0x38673e,
         textColor: '#d6ffd5',

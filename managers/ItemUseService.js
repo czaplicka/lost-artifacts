@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // managers/ItemUseService.js
 import { inventoryManager } from './InventoryManager.js';
 import { getEnergyManager } from './EnergyManager.js';
@@ -32,21 +33,21 @@ function restoresEnergy(item){const amount=Number(item?.metadata?.effect?.energy
 export function canUseItem(item){return item?.id!==undefined&&item?.id!==null;}
 export function useItem(itemId){
   const item=inventoryManager.getItem(itemId);
-  if(!item){clearPending();return{ok:false,message:'You do not have that item.'};}
+  if(!item){clearPending();return{ok:false,message:__dialogueText("managers/ItemUseService.js", "t_59a6634734decdf37cd3")};}
   if(isAgencyFieldManual(item)){clearPending();return openAgencyFieldManual('overview');}
   if(!restoresEnergy(item)){
-    clearPending();return{ok:true,commentOnly:true,consumed:false,message:getUseMessage(item)||'Better keep this for the right moment.'};
+    clearPending();return{ok:true,commentOnly:true,consumed:false,message:getUseMessage(item)||__dialogueText("managers/ItemUseService.js", "t_b1d92e4be293e453a705")};
   }
   const energy=getEnergyManager(),current=energy.getCurrentEnergy(),max=energy.getMaxEnergy();
-  if(current>=max){clearPending();return{ok:false,message:'You are already full of energy. Save it for later.'};}
+  if(current>=max){clearPending();return{ok:false,message:__dialogueText("managers/ItemUseService.js", "t_5698ae79ed0a927de2cf")};}
   const amount=Number(item.metadata.effect.energy),missing=max-current,wasted=Math.max(0,amount-missing);
   if(missing<amount*WASTE_WARNING_RATIO&&!isPendingFor(item.id)){
     pendingConfirm={itemId:item.id,timestamp:Date.now()};
-    return{ok:false,needsConfirm:true,message:`Are you sure? ${item.name} gives +${amount}, but you only miss ${missing}. ${wasted} would go to waste. Click USE again to confirm.`};
+    return{ok:false,needsConfirm:true,message:`${__dialogueText("managers/ItemUseService.js", "t_7c2da26ef6e0645bc44a")}${item.name}${__dialogueText("managers/ItemUseService.js", "t_f945d121b12cd6023f31")}${amount}${__dialogueText("managers/ItemUseService.js", "t_8ed2a60d6d192b7e05e3")}${missing}${__dialogueText("managers/ItemUseService.js", "t_8dccf256f6d5783e62bb")}${wasted}${__dialogueText("managers/ItemUseService.js", "t_5f154cd9c9f88c86d002")}`};
   }
   clearPending();
   const result=energy.recoverCustom(amount,`${item.name}: +${amount}`,{recoveryType:'item',recoverySubtype:item.id});
-  if(!result.success)return{ok:false,message:result.message||'Nothing happened.'};
+  if(!result.success)return{ok:false,message:result.message||__dialogueText("managers/ItemUseService.js", "t_12d359c2c0f9b59f7b52")};
   inventoryManager.removeQuantity(item.id,1);
-  return{ok:true,consumed:true,recovered:result.amount,message:`${getUseMessage(item)||`You use ${item.name}.`} (+${result.amount} energy)`};
+  return{ok:true,consumed:true,recovered:result.amount,message:`${getUseMessage(item)||`${__dialogueText("managers/ItemUseService.js", "t_ecfc418002201cc73aef")}${item.name}${__dialogueText("managers/ItemUseService.js", "t_cdb4ee2aea69cc6a8333")}`}${__dialogueText("managers/ItemUseService.js", "t_2df029fdd16bf06b092d")}${result.amount}${__dialogueText("managers/ItemUseService.js", "t_f8a3165a4e2294ccb509")}`};
 }

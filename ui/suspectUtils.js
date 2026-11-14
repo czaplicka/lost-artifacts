@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import {gameState} from '../GameData.js';
 import {requestAutosave} from '../gameStatePersistence.js';
 import {safeClone} from '../suspects/suspectGeneratorUtils.js';
@@ -34,20 +35,20 @@ function ensureSuspectShape(s){
   s.attributes??={};s.skills=uniqueStrings(s.skills);return s;
 }
 function ensureAllSuspectShapes(){getSuspects().forEach(ensureSuspectShape);}
-function getDisplayName(s){return s?.publicProfile?.displayName||s?.name||'Unknown Suspect';}
+function getDisplayName(s){return s?.publicProfile?.displayName||s?.name||__dialogueText("ui/suspectUtils.js", "t_0f8a2ae03744676a1421");}
 function isTrueThief(s){return s?.isRealThief===true||s?.hiddenCaseData?.isTrueThief===true||s?.hiddenProfile?.isThief===true||s?.is_thief===true;}
 function addUniqueNote(s,note){if(typeof note!=='string'||!note.trim())return;ensureSuspectShape(s);if(!s.deductionState.notesUnlocked.includes(note.trim()))s.deductionState.notesUnlocked.push(note.trim());}
 function addUniqueEvidenceMismatch(s,e={}){
   ensureSuspectShape(s);const id=String(e.id||`${e.type||'evidence'}_${e.source||'unknown'}_${e.field||'unknown'}`);
   if(s.deductionState.evidenceMismatches.some(item=>item?.id===id))return;
   s.deductionState.evidenceMismatches.push({id,type:e.type||'evidence',source:e.source||'unknown',field:e.field||null,
-    label:e.label||'Evidence recorded',note:e.note||'Evidence recorded for review.',timestamp:e.timestamp||getTimestamp()});
+    label:e.label||__dialogueText("ui/suspectUtils.js", "t_1ffe42a1c267e79a98ae"),note:e.note||__dialogueText("ui/suspectUtils.js", "t_ba5393d81266323c8979"),timestamp:e.timestamp||getTimestamp()});
 }
 function addEliminationReason(s,reason={}){
   ensureSuspectShape(s);const id=String(reason.id||`${reason.type||'manual'}_${reason.source||'suspect_file'}`);
   if(s.deductionState.eliminationReasons.some(r=>r?.id===id))return;
   s.deductionState.eliminationReasons.push({id,type:reason.type||'manual',source:reason.source||'suspect_file',
-    label:reason.label||'Manual exclusion',note:reason.note||'Cleared by the detective during file review.',timestamp:reason.timestamp||getTimestamp()});
+    label:reason.label||__dialogueText("ui/suspectUtils.js", "t_ec1805af8b39c7f4dc8c"),note:reason.note||__dialogueText("ui/suspectUtils.js", "t_7a2d59be7778c000ce69"),timestamp:reason.timestamp||getTimestamp()});
 }
 function syncExcludedSuspects(){
   ensureAllSuspectShapes();gameState.excludedSuspects=getSuspects().filter(s=>s.deductionState.eliminated).map(s=>({id:s.id,name:getDisplayName(s),reasons:safeClone(s.deductionState.eliminationReasons)}));return gameState.excludedSuspects;
@@ -80,7 +81,7 @@ function skillsMatch(available,required){const set=new Set(uniqueStrings(availab
 function skillListsMatch(a,b){const x=uniqueStrings(a).map(normalizeValue).sort(),y=uniqueStrings(b).map(normalizeValue).sort();return x.length===y.length&&x.every((v,i)=>v===y[i]);}
 function publicNote(note){return typeof note==='string'&&note.trim()&&!/consistent with the forensic result|does not match this suspect|lacks (?:the )?(?:skills|skills required)/i.test(note);}
 export function getActiveSuspects(){ensureAllSuspectShapes();return getSuspects().filter(s=>!s.deductionState.eliminated);}
-export function manuallyClearSuspect(suspectId,{source='suspect_file',label='Manual exclusion',note='Cleared by the detective during preliminary review.',type='manual'}={}){
+export function manuallyClearSuspect(suspectId,{source='suspect_file',label=__dialogueText("ui/suspectUtils.js", "t_ec1805af8b39c7f4dc8c"),note=__dialogueText("ui/suspectUtils.js", "t_0b98a906e8d6729b8574"),type='manual'}={}){
   const s=ensureSuspectShape(getSuspectById(suspectId));s.deductionState.eliminated=true;
   if(s.deductionState.labStatus===STATUS.PENDING)s.deductionState.labStatus=STATUS.MANUALLY_CLEARED;
   addEliminationReason(s,{id:`manual_${source}_${s.id}`,type,source,label,note});syncExcludedSuspects();
@@ -94,7 +95,7 @@ export function restoreManuallyClearedSuspect(suspectId){
 export function getPublicSuspectView(suspectId){
   const s=ensureSuspectShape(getSuspectById(suspectId));
   const notes=getSuspectFileNotes(s),visibleTraits=[...notes.visible],personalNotes=[...notes.personal],hobbies=[...notes.hobbies];
-  const name=getDisplayName(s),occupation=s.publicProfile.occupation||s.occupation||'Unknown occupation';
+  const name=getDisplayName(s),occupation=s.publicProfile.occupation||s.occupation||__dialogueText("ui/suspectUtils.js", "t_2e6176101206609a4907");
   const genderCode=s.publicProfile.genderCode||s.genderCode||s.gender_code||'nb';
   const caseConnection=s.publicProfile.caseConnection||s.caseConnection||'';
   return{
@@ -119,7 +120,7 @@ export function applyIdentityEvidence(options={}){
   const adapter={getCaseKey:()=>caseKey,ensureCaseForensics:()=>manager.ensureCaseForensics(),getIdentityEvidenceConfig:()=>({...assigned,evidenceType:type,correctValue:value,stationId:'identity'})};
   const service=new CrimeLabEvidenceService(gameState,adapter,gameState.crimeCityId||gameState.caseSuspectCityId||gameState.crimeCity);
   const result=service.saveMiniGameResult({completed:true,aborted:false,stationId:'identity',caseKey,value,source:options.source||'player'});
-  if(!result.saved)return{success:false,message:result.reason||'Unable to record the identity result.',excludedSuspectIds:[],remainingSuspects:getActiveSuspects().map(s=>s.id)};
+  if(!result.saved)return{success:false,message:result.reason||__dialogueText("ui/suspectUtils.js", "t_ae47784f3ce52fda3e0b"),excludedSuspectIds:[],remainingSuspects:getActiveSuspects().map(s=>s.id)};
   const record=result.forensicResult;gameState.identityEvidenceResult=safeClone(record);gameState.forensicResults??=[];
   const index=gameState.forensicResults.findIndex(r=>r.caseKey===caseKey&&r.stationId==='identity');
   if(index<0)gameState.forensicResults.push(safeClone(record));else gameState.forensicResults[index]=safeClone(record);
@@ -139,11 +140,11 @@ export function applyHypothesisSkills(selectedSkills=[]){
   ensureAllSuspectShapes();const required=uniqueStrings(gameState.hypothesisEvidence?.requiredSkills);
   if(!required.length)throw new Error('SuspectUtils: required hypothesis skills are missing.');
   const attempt=registerHypothesisAttempt(selectedSkills);
-  if(!attempt.isCorrect)return{success:false,isCorrect:false,attemptNumber:attempt.attemptNumber,message:'The reconstruction does not fit the evidence. No suspects were cleared.',remainingSuspects:getActiveSuspects().map(s=>s.id)};
+  if(!attempt.isCorrect)return{success:false,isCorrect:false,attemptNumber:attempt.attemptNumber,message:__dialogueText("ui/suspectUtils.js", "t_527b01410b9792aca06e"),remainingSuspects:getActiveSuspects().map(s=>s.id)};
   const matched=[],mismatched=[];
   getActiveSuspects().forEach(s=>{
     if(skillsMatch(s.skills,required)){s.deductionState.hypothesisStatus=STATUS.MATCH;matched.push(s.id);}
-    else{markEvidenceMismatch(s,{statusKey:'hypothesisStatus',reason:{id:`hypothesis_skills_${s.id}`,type:'method',source:'hypothesis_reconstruction',field:'skills',label:'Crime Reconstruction'}});mismatched.push(s.id);}
+    else{markEvidenceMismatch(s,{statusKey:'hypothesisStatus',reason:{id:`hypothesis_skills_${s.id}`,type:'method',source:'hypothesis_reconstruction',field:'skills',label:__dialogueText("ui/suspectUtils.js", "t_b8c82c19201f7c540fba")}});mismatched.push(s.id);}
   });
   getSuspects().filter(s=>s.deductionState.labStatus===STATUS.MISMATCH).forEach(s=>{if(s.deductionState.hypothesisStatus===STATUS.PENDING)s.deductionState.hypothesisStatus=STATUS.NOT_APPLICABLE;});
   gameState.hypothesisEvidenceResult={id:gameState.hypothesisEvidence.id||'hypothesis_skills',requiredSkills:required,completedAt:getTimestamp(),matchedSuspectIds:matched,mismatchedSuspectIds:mismatched};
@@ -151,7 +152,7 @@ export function applyHypothesisSkills(selectedSkills=[]){
   return{success:true,isCorrect:true,attemptNumber:attempt.attemptNumber,requiredSkills:required,excludedSuspectIds:[],matchedSuspectIds:matched,mismatchedSuspectIds:mismatched,remainingSuspects:getActiveSuspects().map(s=>s.id)};
 }
 export function unlockSuspectData(suspectId,field,value,source='police_database'){unlockRestrictedField(getSuspectById(suspectId),field,value,source);return getPublicSuspectView(suspectId);}
-export function applyInterviewElimination({suspectId,npcId='unknown_npc',evidenceId='npc_statement',reason='A witness statement supports this suspect’s alibi.',thread='alibi',label='Witness Statement'}={}){
+export function applyInterviewElimination({suspectId,npcId='unknown_npc',evidenceId='npc_statement',reason=__dialogueText("ui/suspectUtils.js", "t_503bb2406090f386dc3d"),thread='alibi',label=__dialogueText("ui/suspectUtils.js", "t_c7d014a23cf01a5f331a")}={}){
   const s=ensureSuspectShape(getSuspectById(suspectId));s.deductionState.interviewStatus=STATUS.CONFIRMED;
   if(thread==='alibi')s.deductionState.alibiStatus='corroborated';addUniqueNote(s,reason);
   addUniqueEvidenceMismatch(s,{id:`interview_${evidenceId}_${s.id}`,type:thread,source:npcId,field:'alibi',label,note:reason});
@@ -159,7 +160,7 @@ export function applyInterviewElimination({suspectId,npcId='unknown_npc',evidenc
   registerProgressUpdate('suspectInterviewsCompleted',true);syncExcludedSuspects();
   return{success:true,manuallyClearRequired:true,suspect:getPublicSuspectView(s.id),remainingSuspects:getActiveSuspects().map(s=>s.id)};
 }
-export function flagSuspectFromInterview({suspectId,npcId='unknown_npc',evidenceId='npc_statement',note='The witness statement raises further questions.',thread='alibi',label='Witness Statement'}={}){
+export function flagSuspectFromInterview({suspectId,npcId='unknown_npc',evidenceId='npc_statement',note=__dialogueText("ui/suspectUtils.js", "t_ef2c6b035ae1d57063cd"),thread='alibi',label=__dialogueText("ui/suspectUtils.js", "t_c7d014a23cf01a5f331a")}={}){
   const s=ensureSuspectShape(getSuspectById(suspectId));s.deductionState.interviewStatus=STATUS.SUSPICIOUS;if(thread==='alibi')s.deductionState.alibiStatus=STATUS.SUSPICIOUS;addUniqueNote(s,note);
   gameState.interviewEvidenceResults??=[];gameState.interviewEvidenceResults.push({suspectId:s.id,npcId,evidenceId,note,thread,label,outcome:'suspicious',completedAt:getTimestamp()});return{success:true,suspect:getPublicSuspectView(s.id)};
 }

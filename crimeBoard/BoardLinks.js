@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 export const BoardLinks = {
   isPlayerEditableLink(linkId) {
     const link = this.getLinkById(linkId);
@@ -57,7 +58,7 @@ export const BoardLinks = {
 
 
     if (this.options.confirmLinkDeletion) {
-      const ok = window.confirm('Delete this connection?');
+      const ok = window.confirm(__dialogueText("crimeBoard/BoardLinks.js", "t_0141c8733ee0e3e1f928"));
       if (!ok) return false;
     }
 
@@ -205,6 +206,6 @@ export const BoardLinks = {
     const curve = Math.max(40, dx * 0.35);
 
 
-    return `M ${from.x} ${from.y} C ${from.x + curve} ${from.y}, ${to.x - curve} ${to.y}, ${to.x} ${to.y}`;
+    return `${__dialogueText("crimeBoard/BoardLinks.js", "t_b10ac9cbb0309ec50efd")}${from.x}${__dialogueText("crimeBoard/BoardLinks.js", "t_36a9e7f1c95b82ffb997")}${from.y}${__dialogueText("crimeBoard/BoardLinks.js", "t_ca0764fcd7eb4ebe8795")}${from.x + curve}${__dialogueText("crimeBoard/BoardLinks.js", "t_36a9e7f1c95b82ffb997")}${from.y}${__dialogueText("crimeBoard/BoardLinks.js", "t_0a07f659461970d8d8dc")}${to.x - curve}${__dialogueText("crimeBoard/BoardLinks.js", "t_36a9e7f1c95b82ffb997")}${to.y}${__dialogueText("crimeBoard/BoardLinks.js", "t_0a07f659461970d8d8dc")}${to.x}${__dialogueText("crimeBoard/BoardLinks.js", "t_36a9e7f1c95b82ffb997")}${to.y}`;
   }
 };

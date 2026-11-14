@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 export const photoDebugAllowed = () => typeof window!=='undefined' && ['127.0.0.1','localhost'].includes(window.location.hostname);
 const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
 export function constrainPhotoHotspot(c){
@@ -44,10 +45,10 @@ export class PhotoHotspotEditor{
     }
     const c=this.views[this.index]?.cfg;
     this.text?.setText([
-      `LOCAL DEBUG: ${c?.id||'—'}  x:${c?.x.toFixed(4)} y:${c?.y.toFixed(4)} w:${c?.w.toFixed(4)} h:${c?.h.toFixed(4)}`,
-      'Drag / Arrows: move | Shift+Arrows: resize | Alt: 1px',
-      'Tab / Shift+Tab: select | C: export | D: close. Discoveries disabled.'
-    ].join('\n'));
+      `${__dialogueText("ui/pi-computer/PhotoHotspotEditor.js", "t_cb40a67f6cdee4b5ad52")}${c?.id||__dialogueText("ui/pi-computer/PhotoHotspotEditor.js", "t_bda050585a00f0f6cb50")}${__dialogueText("ui/pi-computer/PhotoHotspotEditor.js", "t_c568db1abab7d2315ff2")}${c?.x.toFixed(4)}${__dialogueText("ui/pi-computer/PhotoHotspotEditor.js", "t_8278a5c11d3d9380f821")}${c?.y.toFixed(4)}${__dialogueText("ui/pi-computer/PhotoHotspotEditor.js", "t_1b89a9604b178452218e")}${c?.w.toFixed(4)}${__dialogueText("ui/pi-computer/PhotoHotspotEditor.js", "t_3f4674b8e35cc249a199")}${c?.h.toFixed(4)}`,
+      __dialogueText("ui/pi-computer/PhotoHotspotEditor.js", "t_ab723c339f7fee296c8c"),
+      __dialogueText("ui/pi-computer/PhotoHotspotEditor.js", "t_d22091491c49db41a6e0")
+    ].join(__dialogueText("ui/pi-computer/PhotoHotspotEditor.js", "t_01ba4719c80b6fe911b0")));
   }
   handleKey(event){
     if(!this.available||event.ctrlKey||event.metaKey)return false;
@@ -57,11 +58,11 @@ export class PhotoHotspotEditor{
       event.preventDefault();if(!event.repeat){this.enabled=!this.enabled;this.owner.refresh();}return true;
     }
     if(!this.enabled)return false;
-    if(event.code==='Escape'){event.preventDefault();this.enabled=false;this.owner.refresh();return true;}
+    if(event.code===__dialogueText("ui/pi-computer/PhotoHotspotEditor.js", "t_037c968467aa3fd7c059")){event.preventDefault();this.enabled=false;this.owner.refresh();return true;}
     if(event.code==='KeyC'){
       event.preventDefault();if(!event.repeat){console.log('COPY INTO assets/data/piPhotoQuest.json -> photo.hotspots:');console.log(JSON.stringify(this.owner.data.photo.hotspots,null,2));}return true;
     }
-    if(event.code==='Tab'){
+    if(event.code===__dialogueText("ui/pi-computer/PhotoHotspotEditor.js", "t_90ddf1963abb36c9921c")){
       event.preventDefault();this.index=(this.index+(event.shiftKey?-1:1)+this.views.length)%Math.max(1,this.views.length);this.sync();return true;
     }
     if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.code))return false;

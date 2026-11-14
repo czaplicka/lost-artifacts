@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import {
   getCaseClockStatus,
   minutesToClock
@@ -56,15 +57,15 @@ class EscapeTimeIncomingCallScene extends PhoneCallScene {
     super.create();
 
     const answerButton = this.ui.find(
-      object => object?.text === '[ ANSWER ]'
+      object => object?.text === __dialogueText("ui/EscapeTimeCallUI.js", "t_569571744c7853c81c52")
     );
 
     const ignoreButton = this.ui.find(
-      object => object?.text === '[ IGNORE ]'
+      object => object?.text === __dialogueText("ui/EscapeTimeCallUI.js", "t_3d71a7b1b5f2153ff09e")
     );
 
     const caller = this.ui.find(
-      object => object?.text === 'DETECTIVE BUREAU'
+      object => object?.text === __dialogueText("ui/EscapeTimeCallUI.js", "t_258648f8498aa3aecd7c")
     );
 
     if (!answerButton || !ignoreButton) {
@@ -80,7 +81,7 @@ class EscapeTimeIncomingCallScene extends PhoneCallScene {
     answerButton.removeAllListeners('pointerdown');
     ignoreButton.removeAllListeners('pointerdown');
 
-    caller?.setText('MARK AGENCY\nHQ');
+    caller?.setText(__dialogueText("ui/EscapeTimeCallUI.js", "t_fdafaf020afdd4e9ae3c"));
 
     answerButton.on(
       'pointerdown',
@@ -327,14 +328,14 @@ export class EscapeTimeCallUI {
       !clock.valid ||
       clock.escapeDeadline == null
     ) {
-      return 'The case clock is unavailable.';
+      return __dialogueText("ui/EscapeTimeCallUI.js", "t_634f8ad9974dbcbe839e");
     }
 
     if (clock.totalExpired) {
       return [
-        'The deadline has expired.',
-        'Headquarters would like a word.',
-        'Preferably several very convincing words.'
+        __dialogueText("ui/EscapeTimeCallUI.js", "t_a411edb22239dd0e6760"),
+        __dialogueText("ui/EscapeTimeCallUI.js", "t_08b0b7b8778da42baeaf"),
+        __dialogueText("ui/EscapeTimeCallUI.js", "t_c5b6cf9b8d4cd9c73326")
       ].join('\n\n');
     }
 
@@ -371,20 +372,20 @@ export class EscapeTimeCallUI {
     const minute = String(deadline.minute).padStart(2, '0');
 
     return [
-      'The ticket analysis is complete. Your suspect is on the move.',
+      __dialogueText("ui/EscapeTimeCallUI.js", "t_670edc634b27f2c19488"),
       (
-        `Time remaining: ${remaining.join(' ')}.\n` +
-        `Deadline: Day ${deadline.day}, ${hour}:${minute}.`
+        `${__dialogueText("ui/EscapeTimeCallUI.js", "t_c428a9cdd1576027b680")}${remaining.join(' ')}${__dialogueText("ui/EscapeTimeCallUI.js", "t_eb4bd64f7014f7d42e9d")}` +
+        `${__dialogueText("ui/EscapeTimeCallUI.js", "t_b284773d915dfd7473bb")}${deadline.day}${__dialogueText("ui/EscapeTimeCallUI.js", "t_0a07f659461970d8d8dc")}${hour}${__dialogueText("ui/EscapeTimeCallUI.js", "t_e7ac0786668e0ff0f02b")}${minute}${__dialogueText("ui/EscapeTimeCallUI.js", "t_cdb4ee2aea69cc6a8333")}`
       ),
-      'This is your existing case deadline. The paperwork does not come with bonus days.'
+      __dialogueText("ui/EscapeTimeCallUI.js", "t_f6594563f2f163a2bd4d")
     ].join('\n\n');
   }
 
   getDialogue() {
     return {
-      speaker: 'Headquarters',
+      speaker: __dialogueText("ui/EscapeTimeCallUI.js", "t_ade0f7975671c1a0abbf"),
       portraitKey: 'portrait_hq',
-      lines: this.getMessage().split('\n\n')
+      lines: this.getMessage().split(__dialogueText("ui/EscapeTimeCallUI.js", "t_75a11da44c802486bc6f"))
     };
   }
 

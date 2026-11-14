@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { DialogUI } from './DialogUI.js';
 import { EventBus } from '../EventBus.js';
 import { PhoneCallScene } from '../scenes/PhoneCallScene.js';
@@ -30,9 +31,9 @@ class HQExhaustionIncomingCall extends PhoneCallScene {
   create() {
     if (!this.callOwner?.pending) { this.scene.stop(); return; }
     super.create();
-    const answer = this.ui.find(object => object?.text === '[ ANSWER ]');
-    const ignore = this.ui.find(object => object?.text === '[ IGNORE ]');
-    const caller = this.ui.find(object => object?.text === 'DETECTIVE BUREAU');
+    const answer = this.ui.find(object => object?.text === __dialogueText("ui/HQExhaustionCallUI.js", "t_569571744c7853c81c52"));
+    const ignore = this.ui.find(object => object?.text === __dialogueText("ui/HQExhaustionCallUI.js", "t_3d71a7b1b5f2153ff09e"));
+    const caller = this.ui.find(object => object?.text === __dialogueText("ui/HQExhaustionCallUI.js", "t_258648f8498aa3aecd7c"));
     if (!answer || !ignore) {
       console.error('[HQExhaustionCallUI] Incoming phone controls are missing.');
       this.scene.stop();
@@ -40,7 +41,7 @@ class HQExhaustionIncomingCall extends PhoneCallScene {
     }
     answer.removeAllListeners('pointerdown');
     ignore.removeAllListeners('pointerdown');
-    caller?.setText('MARK AGENCY\nHQ');
+    caller?.setText(__dialogueText("ui/HQExhaustionCallUI.js", "t_fdafaf020afdd4e9ae3c"));
     // The existing exhaustion warning requires acknowledgement.
     // Do not inherit IGNORE, suspect-file unlocks or hypothesis navigation.
     ignore.disableInteractive().setVisible(false);
@@ -151,8 +152,8 @@ export class HQExhaustionCallUI {
       const target = event.target;
       if (target?.isContentEditable || ['INPUT','TEXTAREA','SELECT'].includes(target?.tagName)) return;
       event.stopImmediatePropagation();
-      if (['Enter',' ','Spacebar','Tab','Escape'].includes(event.key)) event.preventDefault();
-      if (event.type !== 'keydown' || event.repeat || !['Enter',' ','Spacebar'].includes(event.key)) return;
+      if ([__dialogueText("ui/HQExhaustionCallUI.js", "t_dc8659db6d416dc32fca"),' ',__dialogueText("ui/HQExhaustionCallUI.js", "t_a751a211880ebc526765"),__dialogueText("ui/HQExhaustionCallUI.js", "t_90ddf1963abb36c9921c"),__dialogueText("ui/HQExhaustionCallUI.js", "t_037c968467aa3fd7c059")].includes(event.key)) event.preventDefault();
+      if (event.type !== 'keydown' || event.repeat || ![__dialogueText("ui/HQExhaustionCallUI.js", "t_dc8659db6d416dc32fca"),' ',__dialogueText("ui/HQExhaustionCallUI.js", "t_a751a211880ebc526765")].includes(event.key)) return;
       if (this.dialog?.isOpen) this.dialog.advance();
       else this.phoneScene?.answerCall();
     };
@@ -232,15 +233,15 @@ export class HQExhaustionCallUI {
 
   getDialogue() {
     return {
-      speaker: 'Headquarters', portraitKey: 'portrait_hq',
+      speaker: __dialogueText("ui/HQExhaustionCallUI.js", "t_ade0f7975671c1a0abbf"), portraitKey: 'portrait_hq',
       lines: [
         this.pending?.incidentCount > 1
-          ? 'Agent, we have already discussed this. This is another exhaustion incident on your record.'
-          : 'Agent, we recover lost artefacts. We do not want to add you to the inventory.',
-        'Sleeping under a bridge is not undercover work. That is simply being under a bridge.',
-        'We have arranged a free bed at the Agency Motel. Use it. Eat regularly. Get some sleep before your body files a formal complaint.',
-        'Consider this an official warning. Another incident like this could cost you your job.',
-        'AGENT: Understood. No more accommodation with a river view.'
+          ? __dialogueText("ui/HQExhaustionCallUI.js", "t_bc69eccef479680c93d6")
+          : __dialogueText("ui/HQExhaustionCallUI.js", "t_b0d1abc8b78d730fcc9b"),
+        __dialogueText("ui/HQExhaustionCallUI.js", "t_18835d0037b63a1a655f"),
+        __dialogueText("ui/HQExhaustionCallUI.js", "t_474efce0b5dbb47ec5b9"),
+        __dialogueText("ui/HQExhaustionCallUI.js", "t_388ef9421c1d9d20d75f"),
+        __dialogueText("ui/HQExhaustionCallUI.js", "t_b7c87e1c04762f583cf3")
       ]
     };
   }

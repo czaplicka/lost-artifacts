@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 export class OfficeElevatorRide {
   constructor(scene, setPhase) {
     this.scene = scene;
@@ -23,10 +24,10 @@ export class OfficeElevatorRide {
   async play() {
     if (this.disposed) return false;
     this.setPhase('open');
-    this.scene.showOfficeStatusMessage('Going up. Please keep all limbs and suspicions inside.');
+    this.scene.showOfficeStatusMessage(__dialogueText("scenes/office/OfficeElevatorRide.js", "t_d57e1e2ae232bedfda2b"));
     if (!await this.wait(850)) return false;
     this.setPhase('closed');
-    this.scene.showOfficeStatusMessage('First floor. A promotion in altitude.');
+    this.scene.showOfficeStatusMessage(__dialogueText("scenes/office/OfficeElevatorRide.js", "t_aa5897efa58397490146"));
     return this.wait(650);
   }
 

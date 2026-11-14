@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { initCrimeBoard } from '../CrimeBoardInit.js';
 import { EventBus } from '../EventBus.js';
 import { syncCrimeBoardSuspects } from '../crimeBoard/BoardSuspects.js';
@@ -24,7 +25,7 @@ function sceneImagePath(value) {
 
   return value
     .trim()
-    .replace(/\.jpe?g(?=[?#]|$)/i, '.webp');
+    .replace(/\.jpe?g(?=[?#]|$)/i, __dialogueText("ui/CrimeBoardUI.js", "t_ed140d91e29553b83699"));
 }
 
 function photoKey(photo) {
@@ -125,8 +126,8 @@ function recoverPhotosFromBoard(saved) {
         meta.find(value => {
           return (
             typeof value === 'string' &&
-            value !== 'Processed' &&
-            value !== 'Incomplete'
+            value !== __dialogueText("ui/CrimeBoardUI.js", "t_6071b9b565c939cdfdd2") &&
+            value !== __dialogueText("ui/CrimeBoardUI.js", "t_75f33cdfc8e52098ea07")
           );
         }) ||
         '';
@@ -136,12 +137,12 @@ function recoverPhotosFromBoard(saved) {
           item.sceneId ||
           String(item.id).replace(/^scene-photo-/, ''),
         cityId,
-        displayName: item.label || 'Crime scene',
+        displayName: item.label || __dialogueText("ui/CrimeBoardUI.js", "t_7624a8b8c9d8d5d1ee22"),
         imagePath: sceneImagePath(item.image),
         missionId: item.missionId ?? null,
         success:
           item.tags?.includes('scene-failed') ||
-          meta.includes('Incomplete')
+          meta.includes(__dialogueText("ui/CrimeBoardUI.js", "t_75f33cdfc8e52098ea07"))
             ? false
             : true
       };
@@ -300,28 +301,20 @@ export class CrimeBoardUI {
     this.overlay = document.createElement('div');
     this.overlay.className = 'crime-board-ui-overlay';
 
-    this.overlay.innerHTML = `
-      <div class="crime-board-ui-modal">
-        <button
-          type="button"
-          class="crime-board-ui-close"
-        >Close</button>
-        <div class="crime-board-ui-root"></div>
-      </div>
-    `;
+    this.overlay.innerHTML = `${__dialogueText("ui/CrimeBoardUI.js", "t_e31eaee7c177a5e2c3c1")}`;
 
     document.body.appendChild(this.overlay);
 
     this.modal = this.overlay.querySelector(
-      '.crime-board-ui-modal'
+      __dialogueText("ui/CrimeBoardUI.js", "t_1e8ed6e0ad2bc816cb39")
     );
 
     this.root = this.overlay.querySelector(
-      '.crime-board-ui-root'
+      __dialogueText("ui/CrimeBoardUI.js", "t_701e2f3f9b383f199b2a")
     );
 
     this.closeBtn = this.overlay.querySelector(
-      '.crime-board-ui-close'
+      __dialogueText("ui/CrimeBoardUI.js", "t_224c015da68ef4cb5e85")
     );
 
     this.closeBtn.addEventListener(
@@ -366,7 +359,7 @@ export class CrimeBoardUI {
     if (this.templateHtml) return this.templateHtml;
 
     const url = new URL(
-      '../crime-board.html',
+      __dialogueText("ui/CrimeBoardUI.js", "t_805539fe0ca2eb338686"),
       import.meta.url
     ).toString();
 
@@ -565,7 +558,7 @@ export class CrimeBoardUI {
   onKeyDown(event) {
     if (
       event.defaultPrevented ||
-      event.key !== 'Escape' ||
+      event.key !== __dialogueText("ui/CrimeBoardUI.js", "t_037c968467aa3fd7c059") ||
       !this.isOpen ||
       this.isDestroyed
     ) {

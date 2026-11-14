@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { discoverSearchKeywords, getSearchProgress } from '../ui/pi-computer/ComputerSearchCore.js';
 import { drawEvidenceText } from '../ui/pi-computer/EvidenceText.js';
@@ -6,25 +7,25 @@ import { FONT_TEXT, AMBER, GREEN } from '../ui/pi-phone/PhoneConfig.js';
 export const DEAD_MEN_WEB_CASE='dead_men_calling';
 const QUEST='pi_dead_men_calling';
 const CONTACTS={
-  '619':{id:'dead_men_margaret',number:'619',name:'Margaret Vale',keyword:'dm_phone_margaret'},
-  '620':{id:'dead_men_leo',number:'620',name:'Leo Mercer',keyword:'dm_phone_leo'},
-  '621':{id:'dead_men_colin',number:'621',name:'Colin Ward',keyword:'dm_phone_colin'}
+  '619':{id:'dead_men_margaret',number:'619',name:__dialogueText("managers/DeadMenWebIntegration.js", "t_e3683593d8ba71a5c369"),keyword:'dm_phone_margaret'},
+  '620':{id:'dead_men_leo',number:'620',name:__dialogueText("managers/DeadMenWebIntegration.js", "t_9b91e7842e8557c83048"),keyword:'dm_phone_leo'},
+  '621':{id:'dead_men_colin',number:'621',name:__dialogueText("managers/DeadMenWebIntegration.js", "t_b7e5ae2ffc6f69bea5b4"),keyword:'dm_phone_colin'}
 };
-const UI_INSTALLED=Symbol.for('lostArtifacts.deadMenWebUI');
-const PHONE_INSTALLED=Symbol.for('lostArtifacts.deadMenWebPhone');
+const UI_INSTALLED=Symbol.for(__dialogueText("managers/DeadMenWebIntegration.js", "t_5cc7cd1dd530717053da"));
+const PHONE_INSTALLED=Symbol.for(__dialogueText("managers/DeadMenWebIntegration.js", "t_bd8dca4e8778d00f4a72"));
 const EXTRA_KEYWORDS=[
-  {id:'dm_hiss',label:'Low hiss',cloudId:'recordings',aliases:['low hiss','hiss']},
-  {id:'dm_tram_bell',label:'Two tram-bell rings',cloudId:'recordings',aliases:['tram bell: two short rings','two tram-bell rings','tram-bell rings','tram bell']},
-  {id:'dm_metallic_taps',label:'Three metallic taps',cloudId:'recordings',aliases:['three metallic taps','three microphone-stand taps','three taps']},
-  {id:'dm_archive_a',label:'Archive A',cloudId:'recordings',aliases:['Archive A']},
-  {id:'dm_archive_b',label:'Archive B',cloudId:'recordings',aliases:['Archive B']},
-  {id:'dm_archive_c',label:'Archive C',cloudId:'recordings',aliases:['Archive C']}
+  {id:'dm_hiss',label:__dialogueText("managers/DeadMenWebIntegration.js", "t_8f6c848dbd2c49fc24fb"),cloudId:'recordings',aliases:[__dialogueText("managers/DeadMenWebIntegration.js", "t_8747c3dba568177c1be8"),'hiss']},
+  {id:'dm_tram_bell',label:__dialogueText("managers/DeadMenWebIntegration.js", "t_97f6829421830ff15cd0"),cloudId:'recordings',aliases:[__dialogueText("managers/DeadMenWebIntegration.js", "t_7e3fc1a807434d697a9d"),__dialogueText("managers/DeadMenWebIntegration.js", "t_b2ca8bd89d8b6e961dff"),__dialogueText("managers/DeadMenWebIntegration.js", "t_5e14c6cc67686cb06363"),__dialogueText("managers/DeadMenWebIntegration.js", "t_9e4da66da8917aafdb93")]},
+  {id:'dm_metallic_taps',label:__dialogueText("managers/DeadMenWebIntegration.js", "t_41b7519a15347d8a68b9"),cloudId:'recordings',aliases:[__dialogueText("managers/DeadMenWebIntegration.js", "t_99c44a1c505e00864379"),__dialogueText("managers/DeadMenWebIntegration.js", "t_0ab5972850e6868bed63"),__dialogueText("managers/DeadMenWebIntegration.js", "t_d437bf3b1ab3e8c1a954")]},
+  {id:'dm_archive_a',label:__dialogueText("managers/DeadMenWebIntegration.js", "t_0119f78a405fde9a4a68"),cloudId:'recordings',aliases:[__dialogueText("managers/DeadMenWebIntegration.js", "t_0119f78a405fde9a4a68")]},
+  {id:'dm_archive_b',label:__dialogueText("managers/DeadMenWebIntegration.js", "t_8536ac2c518e5f80801d"),cloudId:'recordings',aliases:[__dialogueText("managers/DeadMenWebIntegration.js", "t_8536ac2c518e5f80801d")]},
+  {id:'dm_archive_c',label:__dialogueText("managers/DeadMenWebIntegration.js", "t_a6e13b5b3a4d7efaf739"),cloudId:'recordings',aliases:[__dialogueText("managers/DeadMenWebIntegration.js", "t_a6e13b5b3a4d7efaf739")]}
 ];
 const REPLAYS=new Set([
-  '[hiss] [two tram-bell rings] [three taps]',
-  '“Margaret. It is me. I need you to find the blue folder.”',
-  '“Margaret. Listen carefully. The blue folder. You know where to look.”',
-  '“Have you found it? Do not tell anyone. I will call again.”'
+  __dialogueText("managers/DeadMenWebIntegration.js", "t_4a3e06c03cff0b9abc78"),
+  __dialogueText("managers/DeadMenWebIntegration.js", "t_9116b3020c8b6fbc984a"),
+  __dialogueText("managers/DeadMenWebIntegration.js", "t_81e0dee31a3dcd8f653f"),
+  __dialogueText("managers/DeadMenWebIntegration.js", "t_7c5c6ce0b1111549317f")
 ]);
 const PLAYER_IDS=new Set(['dead_men_recording_1','dead_men_recording_2','dead_men_recording_3','dead_men_archive_a','dead_men_archive_b','dead_men_archive_c']);
 function accepted(){return ['active','completed'].includes(gameState.piQuests?.quests?.[QUEST]?.status);}
@@ -34,7 +35,7 @@ const normalize=value=>String(value||'').replace(/\s+/g,' ').trim().toLowerCase(
 export function ensureDeadMenNotebook(data){
   const definition=data?.cases?.find(item=>item.id===DEAD_MEN_WEB_CASE);
   if(!definition)return null;
-  if(!definition.clouds.some(item=>item.id==='recordings'))definition.clouds.push({id:'recordings',title:'VOICE & RECORDINGS'});
+  if(!definition.clouds.some(item=>item.id==='recordings'))definition.clouds.push({id:'recordings',title:__dialogueText("managers/DeadMenWebIntegration.js", "t_54b3d651c0236d64d703")});
   for(const spec of EXTRA_KEYWORDS){
     const old=definition.keywords.find(item=>item.id===spec.id);
     if(!old)definition.keywords.push({...spec,aliases:[...spec.aliases]});
@@ -188,7 +189,7 @@ export function installDeadMenWebPhone(phone){
   }
   wrap('startCall',original=>()=>{
     if(CONTACTS[phone.number]&&!isDeadMenWebContactVisible({number:phone.number})){
-      phone.finishCall('The number cannot be connected.');return;
+      phone.finishCall(__dialogueText("managers/DeadMenWebIntegration.js", "t_14cfdf7e2dbfa3bd5adb"));return;
     }
     return original();
   });
@@ -199,7 +200,7 @@ export function installDeadMenWebPhone(phone){
     const scene=phone.scene,root=scene.add.container(item.body.x,item.body.y);item.container.add(root);
     const normal=item.isYou?'#ffe6b8':'#d9f5e8';
     const surface=item.isYou?0x2a2010:0x14261d;
-    const probe=scene.add.text(0,0,'Ag',{fontFamily:FONT_TEXT,fontSize:'19px'}).setVisible(false);
+    const probe=scene.add.text(0,0,__dialogueText("managers/DeadMenWebIntegration.js", "t_468415f0e1128f85022b"),{fontFamily:FONT_TEXT,fontSize:'19px'}).setVisible(false);
     const lineHeight=Math.max(19,Math.ceil(probe.height));probe.destroy();
     const drawing={text(x,y,text,size){
       const label=scene.add.text(x,y,text,{fontFamily:FONT_TEXT,fontSize:`${size}px`,color:normal});root.add(label);return label;

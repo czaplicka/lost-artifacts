@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { getPIQuestStatus } from '../managers/PIQuestManager.js';
@@ -11,17 +12,7 @@ export function adjustTavernHotspot(cfg,code,shift,alt,width,height){
   const field=shift?(horizontal?'w':'h'):(horizontal?'x':'y'),size=Math.max(1,horizontal?width:height);
   cfg[field]=Math.max(shift?Math.min(1,20/size):0,Math.min(1,cfg[field]+direction*(alt?1:5)/size));
 }
-const CSS=`
-html.tavern-active #hud-container{display:none!important;pointer-events:none!important;}
-.la-tavern-ui{position:fixed;z-index:10000;pointer-events:none;color:#f6e6bc;font-family:SpecialElite,monospace;box-sizing:border-box;}
-.la-tavern-ui *{box-sizing:border-box;}
-.la-tavern-ui button{font:inherit;color:#f6e6bc;background:#292c24;border:1px solid #9d8457;padding:9px 12px;cursor:pointer;text-align:left;min-height:40px;}
-.la-tavern-ui button:hover,.la-tavern-ui button:focus-visible{background:#4b4932;outline:2px solid #e7c47d;outline-offset:-2px;}
-.la-tavern-ui .top{position:absolute;top:2%;left:2%;right:2%;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
-.la-tavern-ui .title{background:#171b18dc;padding:10px;}
-.la-tavern-ui .top .buttons{display:flex;gap:8px;pointer-events:auto;}
-.la-tavern-ui .hint{position:absolute;left:2%;bottom:3%;padding:8px;background:#171b18d9;max-width:94%;}
-.la-tavern-ui .debug{position:absolute;left:2%;bottom:13%;white-space:pre-wrap;background:#111b17e8;padding:10px;max-width:94%;}`;
+const CSS=`${__dialogueText("scenes/TavernScene.js", "t_da07df321d5a434b67b1")}`;
 export class TavernScene extends BaseScene {
   constructor(){super({key:KEY});}
   init(){
@@ -42,7 +33,7 @@ export class TavernScene extends BaseScene {
     this.cameras.main.setBackgroundColor('#171b18');this.hideGameplayHud();
     this.dialogue=new HomeTownDialogue(this,()=>this.closePanel());
     if(!this.textData?.ui||!this.textData?.npcs||!this.textData?.rumors||!this.extraData?.ui||!this.extraData?.comments||!this.textures.exists(this.config.backgroundKey)){
-      this.add.text(24,24,'Tavern assets could not be loaded.\nCheck config/tavernConfig.js and the JSON files.\nClick here to return to town.',{fontFamily:'monospace',fontSize:'20px',color:'#fff',wordWrap:{width:Math.max(100,this.scale.width-48)}}).setInteractive({useHandCursor:true}).on('pointerdown',()=>void this.leave());return;
+      this.add.text(24,24,__dialogueText("scenes/TavernScene.js", "t_6f9aac0ce41bd8fb840c"),{fontFamily:'monospace',fontSize:'20px',color:'#fff',wordWrap:{width:Math.max(100,this.scale.width-48)}}).setInteractive({useHandCursor:true}).on('pointerdown',()=>void this.leave());return;
     }
     this.background=this.add.image(0,0,this.config.backgroundKey).setOrigin(0).setDepth(0);
     for(const[id,def]of Object.entries(this.config.npcs)){
@@ -110,17 +101,17 @@ export class TavernScene extends BaseScene {
   }
   addHotspot(){
     if(!this.canInteract()||!this.debugMode)return;let number=1;while(this.hotspotDefs.some(h=>h.id===`extra_${number}`))number++;
-    const d={id:`extra_${number}`,label:`New hotspot ${number}`,action:'comment',textKey:'extraComment',x:.5,y:.5,w:.1,h:.1};this.hotspotDefs.push(d);this.createHotspot(d,this.hotspotDefs.length-1);this.selectedIndex=this.hotspotDefs.length-1;this.refreshHotspots();this.say(this.extra('added'));
+    const d={id:`extra_${number}`,label:`${__dialogueText("scenes/TavernScene.js", "t_ce94c871d50f0039f8e5")}${number}`,action:'comment',textKey:'extraComment',x:.5,y:.5,w:.1,h:.1};this.hotspotDefs.push(d);this.createHotspot(d,this.hotspotDefs.length-1);this.selectedIndex=this.hotspotDefs.length-1;this.refreshHotspots();this.say(this.extra(__dialogueText("scenes/TavernScene.js", "t_279b8a60f444fa8b6275")));
   }
-  exportConfig(){console.log('COPY TO config/tavernConfig.js:');console.log('export const TAVERN_CONFIG = '+JSON.stringify(this.config,null,2)+';');this.say(this.extra('exported'));}
+  exportConfig(){console.log('COPY TO config/tavernConfig.js:');console.log('export const TAVERN_CONFIG = '+JSON.stringify(this.config,null,2)+';');this.say(this.extra(__dialogueText("scenes/TavernScene.js", "t_427da8ba22c9532ad803")));}
   onKey(event){
     if(this.disposed||!this.ready||!this.sys.isActive()||this.navigating||event.ctrlKey||event.metaKey)return;
     if(event.target?.isContentEditable||['INPUT','TEXTAREA','SELECT'].includes(event.target?.tagName))return;
-    const code=event.code,handled=code==='Escape'||(!this.panel&&code==='KeyD')||(!this.panel&&this.debugMode&&['Tab','KeyC','KeyN','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(code));
+    const code=event.code,handled=code===__dialogueText("scenes/TavernScene.js", "t_037c968467aa3fd7c059")||(!this.panel&&code==='KeyD')||(!this.panel&&this.debugMode&&[__dialogueText("scenes/TavernScene.js", "t_90ddf1963abb36c9921c"),'KeyC','KeyN','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(code));
     if(!handled)return;event.preventDefault();event.stopImmediatePropagation();
-    if(code==='Escape'){if(event.repeat)return;if(this.panel)this.closePanel();else if(this.debugMode)this.toggleDebug();else void this.leave();return;}
+    if(code===__dialogueText("scenes/TavernScene.js", "t_037c968467aa3fd7c059")){if(event.repeat)return;if(this.panel)this.closePanel();else if(this.debugMode)this.toggleDebug();else void this.leave();return;}
     if(this.panel)return;if(code==='KeyD'){if(!event.repeat)this.toggleDebug();return;}if(!this.debugMode)return;
-    if(code==='Tab'&&this.spots.length)this.selectedIndex=(this.selectedIndex+(event.shiftKey?-1:1)+this.spots.length)%this.spots.length;
+    if(code===__dialogueText("scenes/TavernScene.js", "t_90ddf1963abb36c9921c")&&this.spots.length)this.selectedIndex=(this.selectedIndex+(event.shiftKey?-1:1)+this.spots.length)%this.spots.length;
     else if(code==='KeyC'){if(!event.repeat)this.exportConfig();}else if(code==='KeyN'){if(!event.repeat)this.addHotspot();}
     else if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(code)){const hot=this.spots[this.selectedIndex];if(hot){adjustTavernHotspot(hot.cfg,code,event.shiftKey,event.altKey,this.scale.width,this.scale.height);this.syncHotspot(hot);}}this.refreshHotspots();
   }

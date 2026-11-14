@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 // ui/inventory/InventoryView.js
 
 const CATEGORIES = {
@@ -9,20 +10,20 @@ const CATEGORIES = {
 };
 
 const SUBTITLES = [
-  'Evidence. Snacks. Regrets.',
-  'Chain of custody: mostly you.',
-  'Please do not lick the evidence.',
-  'Contents may have settled in transit.',
-  'Pockets: now with extra pockets.',
-  'Everything in here is probably legal.',
-  'Property of the Agency. Allegedly.',
+  __dialogueText("ui/inventory/InventoryView.js", "t_b44eace2b7cddc9c7a1d"),
+  __dialogueText("ui/inventory/InventoryView.js", "t_8a1293495363b68f4012"),
+  __dialogueText("ui/inventory/InventoryView.js", "t_db6fa91db027edfb14db"),
+  __dialogueText("ui/inventory/InventoryView.js", "t_8250d439b31f92cfe5cd"),
+  __dialogueText("ui/inventory/InventoryView.js", "t_cef2f3cea9a8b0a39269"),
+  __dialogueText("ui/inventory/InventoryView.js", "t_f78b2c6b3fee55ffb127"),
+  __dialogueText("ui/inventory/InventoryView.js", "t_cee91d984b416a586b31"),
 ];
 
 const EMPTY_BODIES = [
-  'Your pockets. Slightly more organised than your life.',
-  'Nothing suspicious here. Yet.',
-  'A detective is only as good as their pockets. Yours are... fine.',
-  'Lint, hope and a receipt. The usual.',
+  __dialogueText("ui/inventory/InventoryView.js", "t_0049c324ef2edff52c9b"),
+  __dialogueText("ui/inventory/InventoryView.js", "t_73f597447800cdf54c9e"),
+  __dialogueText("ui/inventory/InventoryView.js", "t_0274da1d1162df0f7757"),
+  __dialogueText("ui/inventory/InventoryView.js", "t_c03da458f00c25527914"),
 ];
 
 function categoryOf(item) {
@@ -60,7 +61,7 @@ export class InventoryView {
     this.colors = {
       background: '#15111c',
       border: '#d4af37',
-      text: '#f2eadc',
+      text: __dialogueText("ui/inventory/InventoryView.js", "t_b90dac070a3829650376"),
       muted: '#bcaeaa',
       hover: '#f4b860',
       selected: '#ffd700',
@@ -222,7 +223,7 @@ export class InventoryView {
 
     // --- Karta ze szczegolami przedmiotu ---
     this.selectedLabel = text(
-      'SELECT AN ITEM',
+      __dialogueText("ui/inventory/InventoryView.js", "t_1918f428b8ad0f9eecbb"),
       22,
       this.colors.ink
     )
@@ -239,7 +240,7 @@ export class InventoryView {
       .setLineSpacing(3);
 
     this.detailsPrevious = text(
-      '< PREV',
+      __dialogueText("ui/inventory/InventoryView.js", "t_86af811671fe29fad1d2"),
       14,
       this.colors.border
     )
@@ -255,7 +256,7 @@ export class InventoryView {
       .setPosition(this.cardX + this.cardW / 2, 346);
 
     this.detailsNext = text(
-      'NEXT >',
+      __dialogueText("ui/inventory/InventoryView.js", "t_58b85f2ea88bf1a9ba16"),
       14,
       this.colors.border
     )
@@ -558,7 +559,7 @@ export class InventoryView {
     const barY = 46;
 
     this.counterText
-      .setText(`${current} / ${max}`)
+      .setText(`${current}${__dialogueText("ui/inventory/InventoryView.js", "t_005e1574a2b5c8163046")}${max}`)
       .setColor(style.css);
 
     this.capGfx.clear();
@@ -787,7 +788,7 @@ export class InventoryView {
     this.updateCapacity();
 
     this.pageText.setText(
-      `${this._page + 1} / ${pages}`
+      `${this._page + 1}${__dialogueText("ui/inventory/InventoryView.js", "t_005e1574a2b5c8163046")}${pages}`
     );
 
     this.previousButton.setAlpha(
@@ -893,7 +894,7 @@ export class InventoryView {
         .text(
           (this.cols * (S + this.slotPadding) - this.slotPadding) / 2,
           (this.rows * (S + this.slotPadding) - this.slotPadding) / 2,
-          'Nothing here.\nNot even a clue.',
+          __dialogueText("ui/inventory/InventoryView.js", "t_69639c105fb56dc0eb57"),
           {
             fontFamily: 'SpecialElite',
             fontSize: '22px',
@@ -1031,7 +1032,7 @@ export class InventoryView {
       .text(
         cx,
         y + 34,
-        item.icon || '📦',
+        item.icon || __dialogueText("ui/inventory/InventoryView.js", "t_e68ebc94437caf84f78c"),
         { fontSize: '32px' }
       )
       .setOrigin(0.5)
@@ -1040,7 +1041,7 @@ export class InventoryView {
     const fullName = String(
       item.name ||
       item.label ||
-      'Unknown item'
+      __dialogueText("ui/inventory/InventoryView.js", "t_e6b8f377328b3d42997c")
     );
 
     const label = this.scene.add
@@ -1145,7 +1146,7 @@ export class InventoryView {
     }
 
     this.useButton
-      .setText('USE')
+      .setText(__dialogueText("ui/inventory/InventoryView.js", "t_b3c2ed23b44e753d6bfc"))
       .setColor(
         this._usable
           ? this.colors.use
@@ -1193,7 +1194,7 @@ export class InventoryView {
       const candidate = [...currentLines, line];
 
       this.tooltip.setText(
-        candidate.join('\n')
+        candidate.join(__dialogueText("ui/inventory/InventoryView.js", "t_01ba4719c80b6fe911b0"))
       );
 
       if (
@@ -1229,9 +1230,9 @@ export class InventoryView {
       ? String(
           item.name ||
           item.label ||
-          'Unknown item'
+          __dialogueText("ui/inventory/InventoryView.js", "t_e6b8f377328b3d42997c")
         )
-      : 'SELECT AN ITEM';
+      : __dialogueText("ui/inventory/InventoryView.js", "t_1918f428b8ad0f9eecbb");
 
     const typeLabel = item
       ? String(item.type || 'misc').toUpperCase()
@@ -1246,16 +1247,16 @@ export class InventoryView {
       body = this._emptyBody;
 
       hint =
-        'Drag the header to move.\n' +
-        'Drag items onto scene targets.';
+        __dialogueText("ui/inventory/InventoryView.js", "t_d53abaec836bcb812269") +
+        __dialogueText("ui/inventory/InventoryView.js", "t_a582ebf1b19759d33889");
     } else {
       const description = String(
         item.description ||
-        'No description. Suspicious.'
+        __dialogueText("ui/inventory/InventoryView.js", "t_e7ce3caa8807249ee38d")
       );
 
       body = usable && energy != null
-        ? `+${energy} ENERGY\n\n${description}`
+        ? `${__dialogueText("ui/inventory/InventoryView.js", "t_a318c24216defe206fee")}${energy}${__dialogueText("ui/inventory/InventoryView.js", "t_5e7904907fc498b5defc")}${description}`
         : description;
 
       const consumable = Boolean(
@@ -1264,8 +1265,8 @@ export class InventoryView {
       );
 
       hint = consumable
-        ? 'Click USE to consume this item.'
-        : 'USE: inspect.\nDrag onto a target to hand over.';
+        ? __dialogueText("ui/inventory/InventoryView.js", "t_3ecec55959a10de27555")
+        : __dialogueText("ui/inventory/InventoryView.js", "t_0a9115387dbb6648595c");
     }
 
     const key = JSON.stringify([
@@ -1383,7 +1384,7 @@ export class InventoryView {
     this.detailsPageText
       .setVisible(multiple)
       .setText(
-        `${this._detailPage + 1} / ${count}`
+        `${this._detailPage + 1}${__dialogueText("ui/inventory/InventoryView.js", "t_005e1574a2b5c8163046")}${count}`
       );
 
     if (this.detailsPrevious.input) {

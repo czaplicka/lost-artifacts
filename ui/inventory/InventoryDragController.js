@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 // ui/inventory/InventoryDragController.js
 import { EventBus } from '../../EventBus.js';
 import { inventoryManager } from '../../managers/InventoryManager.js';
@@ -83,7 +84,7 @@ export class InventoryDragController {
     this.drag = { ...request, pointerId: pointer.id };
     inventoryManager.selectItem(item.id);
     this.ghost = this.scene.add.text(pointer.x + 18, pointer.y + 18,
-      `${item.icon || '📦'} ${item.name || item.label || 'Evidence'}`, {
+      `${item.icon || __dialogueText("ui/inventory/InventoryDragController.js", "t_e68ebc94437caf84f78c")}${__dialogueText("ui/inventory/InventoryDragController.js", "t_36a9e7f1c95b82ffb997")}${item.name || item.label || __dialogueText("ui/inventory/InventoryDragController.js", "t_03867aea70acaf4c5dce")}`, {
         fontFamily: 'SpecialElite', fontSize: '24px', color: '#ffe29a',
         backgroundColor: '#17110e', padding: { x: 10, y: 8 }
       }).setScrollFactor(0).setDepth(20000);
@@ -102,8 +103,8 @@ export class InventoryDragController {
         if (item) this.callbacks.clicked(item);
       } else {
         EventBus.emit('showDialogue', {
-          speaker: 'Detective',
-          text: 'No available target. Close any conversation before handing over evidence.'
+          speaker: __dialogueText("ui/inventory/InventoryDragController.js", "t_2653ceeec1fd951707a3"),
+          text: __dialogueText("ui/inventory/InventoryDragController.js", "t_b77c73e5a429f52bdd87")
         });
       }
       this.callbacks.finished();
@@ -126,8 +127,8 @@ export class InventoryDragController {
     if (!drop.accepted) {
       this.callbacks.cancelled(true);
       EventBus.emit('showDialogue', {
-        speaker: 'Detective',
-        text: 'Not handed over. Drop the evidence inside the highlighted target.'
+        speaker: __dialogueText("ui/inventory/InventoryDragController.js", "t_2653ceeec1fd951707a3"),
+        text: __dialogueText("ui/inventory/InventoryDragController.js", "t_35c62aac1988162ba3eb")
       });
     }
     this.callbacks.finished();

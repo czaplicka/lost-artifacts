@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { advanceCrimeTutorial } from '../tutorials/CrimeCityTutorial.js';
@@ -40,7 +41,7 @@ export class AlibiScene extends BaseScene {
       this.loadWitness();
       const history = this.view.state.transcript;
       this.entry = history.at(-1) || {
-        detective: "I'm investigating the theft. I'd like to ask a few questions.",
+        detective: __dialogueText("scenes/AlibiScene.js", "t_f58404dc8b9c3f08a0fb"),
         witness: this.view.personality.opening
       };
       this.render();
@@ -140,7 +141,7 @@ export class AlibiScene extends BaseScene {
     this.rect(8, 8, w - 28, h - 32, C.cover, C.edge);
     this.rect(20, 70, w - 40, h - 92, C.paper);
     for (let y = 78; y < h - 30; y += 11) this.rect(22, y, w - 44, 1, 0x7f735a, null, 0.035);
-    this.label(32, 29, 'MARK AGENCY / WITNESS INTERVIEW', w - 80, '#f1ddb2');
+    this.label(32, 29, __dialogueText("scenes/AlibiScene.js", "t_e0ef9e3c529e88bf8897"), w - 80, '#f1ddb2');
     const scale = Math.min(this.scale.width / w, this.scale.height / h);
     this.root.setScale(scale).setPosition((this.scale.width - w * scale) / 2, (this.scale.height - h * scale) / 2);
   }
@@ -161,37 +162,37 @@ export class AlibiScene extends BaseScene {
       const image = this.add.image(px + pw / 2, py + (ph - 24) / 2, key);
       image.setScale(Math.min((pw - 20) / image.width, (ph - 36) / image.height));
       this.root.add(image);
-    } else this.label(px + 16, py + 50, 'NO PHOTO', pw - 32, '#eee0bd');
-    this.label(px + 10, py + ph - 20, 'WITNESS FILE', pw - 20);
+    } else this.label(px + 16, py + 50, __dialogueText("scenes/AlibiScene.js", "t_d075af86be969a027175"), pw - 32, '#eee0bd');
+    this.label(px + 10, py + ph - 20, __dialogueText("scenes/AlibiScene.js", "t_bc4ee45dc9c3196e1f15"), pw - 20);
     const tx = narrow ? px + pw + 22 : px, ty = narrow ? py + 12 : py + ph + 22;
     const tw = narrow ? s.w - pw - 62 : pw;
-    this.label(tx, ty, 'CONTACT FOR', tw);
-    this.fitText(this.text(tx, ty + 23, this.testimony.suspectName || 'Unknown suspect', tw, { fontSize: '27px' }), narrow ? 64 : 60, 19);
+    this.label(tx, ty, __dialogueText("scenes/AlibiScene.js", "t_08df07b4edd4f8675e88"), tw);
+    this.fitText(this.text(tx, ty + 23, this.testimony.suspectName || __dialogueText("scenes/AlibiScene.js", "t_a7c73daa1bc6f58f7897"), tw, { fontSize: '27px' }), narrow ? 64 : 60, 19);
     const roleY = ty + (narrow ? 100 : 88);
-    this.fitText(this.text(tx, roleY, this.testimony.role || 'Witness', tw, { fontSize: '20px', color: C.muted }), 45, 17);
+    this.fitText(this.text(tx, roleY, this.testimony.role || __dialogueText("scenes/AlibiScene.js", "t_5464a8914419f3a1a237"), tw, { fontSize: '20px', color: C.muted }), 45, 17);
     const cy = roleY + 56, window = this.testimony.crimeWindow;
-    this.text(tx, cy, window ? `THEFT  ${clock(window.startMinute)} - ${clock(window.endMinute)}` : 'THEFT TIME UNAVAILABLE', tw, { fontSize: '19px', color: '#843e35' });
+    this.text(tx, cy, window ? `${__dialogueText("scenes/AlibiScene.js", "t_a5d130cbd54b48b30685")}${clock(window.startMinute)}${__dialogueText("scenes/AlibiScene.js", "t_d3150495ce4f5d1a27bf")}${clock(window.endMinute)}` : __dialogueText("scenes/AlibiScene.js", "t_a4646331313d7cd47bb5"), tw, { fontSize: '19px', color: '#843e35' });
     if (narrow) return;
     this.rect(px, cy + 40, pw, 2, C.edge); this.label(px, cy + 58, 'COOPERATION', pw);
-    this.text(px, cy + 82, COOPERATION_LABELS[this.view.state.level] || 'Cautious', pw, { fontSize: '25px' });
+    this.text(px, cy + 82, COOPERATION_LABELS[this.view.state.level] || __dialogueText("scenes/AlibiScene.js", "t_5fe257db86adbd23c86f"), pw, { fontSize: '25px' });
     for (let i = 0; i < 4; i++) this.rect(px + i * ((pw + 8) / 4), cy + 119, (pw - 24) / 4, 12, i <= this.view.state.level ? C.green : 0xbeb395);
-    this.fitText(this.text(px, cy + 147, 'Willing to talk does not mean telling the truth.', pw, { fontSize: '19px', color: C.muted }), 68, 17);
+    this.fitText(this.text(px, cy + 147, __dialogueText("scenes/AlibiScene.js", "t_0902bc9037abe9237dc3"), pw, { fontSize: '19px', color: C.muted }), 68, 17);
   }
   renderReply() {
     const { main: m, narrow } = this.L;
     const entry = this.entry || { detective: '', witness: this.view.personality.opening };
     this.rect(m.x + 4, m.y + 5, m.w, m.h, C.shadow, null, 0.12); this.rect(m.x, m.y, m.w, m.h, C.light, C.edge);
     this.rect(m.x, m.y, 6, m.h, this.view.state.pendingChallenge ? C.red : C.green);
-    this.label(m.x + 24, m.y + 18, this.historyIndex >= 0 ? 'INTERVIEW / ARCHIVE' : this.view.state.pendingChallenge ? 'INTERVIEW / FOLLOW-UP' : 'INTERVIEW / LIVE', m.w - 48);
-    const source = [entry.detective ? `DETECTIVE\n${entry.detective}` : '', `WITNESS\n${entry.witness || ''}`, entry.note ? `NOTE\n${entry.note}` : ''].filter(Boolean).join('\n\n');
+    this.label(m.x + 24, m.y + 18, this.historyIndex >= 0 ? __dialogueText("scenes/AlibiScene.js", "t_e18ad964e7200f422218") : this.view.state.pendingChallenge ? __dialogueText("scenes/AlibiScene.js", "t_ab6d141fb4ef51a10c86") : __dialogueText("scenes/AlibiScene.js", "t_96863b3d41f2925ee16b"), m.w - 48);
+    const source = [entry.detective ? `${__dialogueText("scenes/AlibiScene.js", "t_bc8300fcfd2272875960")}${entry.detective}` : '', `${__dialogueText("scenes/AlibiScene.js", "t_e7b04f0348bde0d4a103")}${entry.witness || ''}`, entry.note ? `${__dialogueText("scenes/AlibiScene.js", "t_f7895fad954084e58a6b")}${entry.note}` : ''].filter(Boolean).join('\n\n');
     const fontSize = narrow ? 23 : 25;
     const body = this.text(m.x + 24, m.y + 51, '', m.w - 48, { fontSize: `${fontSize}px`, lineSpacing: 6 });
     const pages = this.paginate(body, source, m.h - 120);
     this.replyPage = Math.max(0, Math.min(this.replyPage, pages.length - 1)); body.setText(pages[this.replyPage]);
     this.rect(m.x + 24, m.y + m.h - 60, m.w - 48, 1, C.edge);
-    this.button(m.x + 24, m.y + m.h - 47, 110, '< Back', () => { this.replyPage--; this.render(); }, this.replyPage > 0, 34);
+    this.button(m.x + 24, m.y + m.h - 47, 110, __dialogueText("scenes/AlibiScene.js", "t_881f146bb98f111f4d86"), () => { this.replyPage--; this.render(); }, this.replyPage > 0, 34);
     this.text(m.x + 150, m.y + m.h - 41, `${this.replyPage + 1} / ${pages.length}`, m.w - 300, { fontSize: '18px', align: 'center', color: C.muted });
-    this.button(m.x + m.w - 134, m.y + m.h - 47, 110, 'Next >', () => { this.replyPage++; this.render(); }, this.replyPage < pages.length - 1, 34);
+    this.button(m.x + m.w - 134, m.y + m.h - 47, 110, __dialogueText("scenes/AlibiScene.js", "t_0b533b7e234737d9be99"), () => { this.replyPage++; this.render(); }, this.replyPage < pages.length - 1, 34);
   }
   paginate(object, content, maxHeight) {
     const pages = []; let current = '';
@@ -199,11 +200,11 @@ export class AlibiScene extends BaseScene {
       const candidate = current ? `${current}\n${line}` : line; object.setText(candidate);
       if (object.height > maxHeight && current) { pages.push(current); current = line; } else current = candidate;
     }
-    pages.push(current || 'No statement recorded.'); return pages;
+    pages.push(current || __dialogueText("scenes/AlibiScene.js", "t_0e05f7bfd12da437d2eb")); return pages;
   }
   renderTabs() {
     const { main: m, tabsY } = this.L;
-    const tabs = [['questions', 'Questions'], ['approaches', 'Approach'], ['challenge', 'Challenge'], ['notes', 'Notes']];
+    const tabs = [['questions', __dialogueText("scenes/AlibiScene.js", "t_9a72221a27476f3e9077")], ['approaches', __dialogueText("scenes/AlibiScene.js", "t_b6b243caef1ef4d3b387")], ['challenge', __dialogueText("scenes/AlibiScene.js", "t_27cf1792f7bb4da95511")], ['notes', __dialogueText("scenes/AlibiScene.js", "t_8a7525b1492fb84833f5")]];
     const gap = 10, width = (m.w - gap * 3) / 4;
     tabs.forEach(([id, title], i) => this.button(m.x + i * (width + gap), tabsY, width, title, () => {
       this.tab = id; this.render();
@@ -214,7 +215,7 @@ export class AlibiScene extends BaseScene {
     try {
       const result = action();
       if (result) { this.entry = result; this.replyPage = 0; this.historyIndex = -1; } this.error = '';
-    } catch (error) { console.error('[AlibiScene] Action failed.', error); this.error = 'That action could not be completed.'; }
+    } catch (error) { console.error('[AlibiScene] Action failed.', error); this.error = __dialogueText("scenes/AlibiScene.js", "t_a74c00a461e7dbe9ec89"); }
     this.render();
   }
   choice(index, title, callback, enabled = true, tag = '') {
@@ -228,25 +229,25 @@ export class AlibiScene extends BaseScene {
   renderActions() {
     const state = this.view.state, call = (fn, id) => () => this.run(() => fn(this.caseKey, this.encounterId, id));
     if (state.pendingChallenge) {
-      [['space', 'Give them room'], ['press', 'Ask directly'], ['pause', 'Pause this topic']].forEach(([id, title], i) => this.choice(i, title, call(followUpChallenge, id)));
-      this.actionHint('Read the response. Choose how to continue — not who is guilty.'); return;
+      [['space', __dialogueText("scenes/AlibiScene.js", "t_3990ba176e10a2a4f9df")], ['press', __dialogueText("scenes/AlibiScene.js", "t_12f2999f6610ad33bb5c")], ['pause', __dialogueText("scenes/AlibiScene.js", "t_ff7d50c5ebc252a1d5c5")]].forEach(([id, title], i) => this.choice(i, title, call(followUpChallenge, id)));
+      this.actionHint(__dialogueText("scenes/AlibiScene.js", "t_248dee605e55e99459dd")); return;
     }
     if (this.tab === 'questions') {
       const asked = state.asked;
       [
-        ['statement', 'Ask about the alibi', true], ['person', 'What are they like?', true],
-        ['personal', 'Personal impression', state.level >= 2 && asked.includes('person')],
-        ['withheld', 'Anything left out?', state.level >= 3 && asked.includes('statement')],
-        ['summary', 'Clarify the account', state.level >= 2 && asked.includes('statement') && Boolean(this.testimony.timelineCard?.label)]
+        ['statement', __dialogueText("scenes/AlibiScene.js", "t_a0c09d1e236badef3391"), true], ['person', __dialogueText("scenes/AlibiScene.js", "t_1d52bf68fa927c2dd44c"), true],
+        ['personal', __dialogueText("scenes/AlibiScene.js", "t_7c4d424447488392e2e7"), state.level >= 2 && asked.includes('person')],
+        ['withheld', __dialogueText("scenes/AlibiScene.js", "t_f467d6ac69e59e4c9b4d"), state.level >= 3 && asked.includes('statement')],
+        ['summary', __dialogueText("scenes/AlibiScene.js", "t_20fa49715782f8c303a1"), state.level >= 2 && asked.includes('statement') && Boolean(this.testimony.timelineCard?.label)]
       ].forEach(([id, title, enabled], i) => this.choice(i, title, call(askWitness, id), enabled, asked.includes(id) ? 'review' : enabled ? '' : 'locked'));
     } else if (this.tab === 'approaches') {
       APPROACHES.forEach((item, i) => {
         const used = state.usedApproaches.includes(item.id); this.choice(i, item.label, call(applyApproach, item.id), !used, used ? 'used' : '');
       });
-      this.actionHint(getRapport() >= 5 ? this.view.personality.hint : 'Listen to the witness. An approach changes cooperation, not the evidence.');
+      this.actionHint(getRapport() >= 5 ? this.view.personality.hint : __dialogueText("scenes/AlibiScene.js", "t_ec99667eadede3fae3c4"));
     } else if (this.tab === 'challenge') {
-      if (this.view.revisedStatement) return this.info('A revised account has been recorded.\nCompare both versions in Notes.');
-      if (!this.view.canChallenge) return this.info('Hear this alibi and record the other witnesses for this suspect before confronting anyone.');
+      if (this.view.revisedStatement) return this.info(__dialogueText("scenes/AlibiScene.js", "t_d23f97ed8dd68a40aae2"));
+      if (!this.view.canChallenge) return this.info(__dialogueText("scenes/AlibiScene.js", "t_d5d089edacdfaed6e024"));
       CHALLENGES.forEach((item, i) => {
         const thread = state.confrontations?.[item.id];
         this.choice(i, item.label, call(challengeWitness, item.id), true, thread?.resolved ? 'review' : thread?.stage > 0 ? 'resume' : '');
@@ -259,31 +260,31 @@ export class AlibiScene extends BaseScene {
   }
   renderNotes() {
     const history = this.view.state.transcript;
-    this.choice(0, 'Original account', () => {
+    this.choice(0, __dialogueText("scenes/AlibiScene.js", "t_eff60c62a205b59d3770"), () => {
       this.historyIndex = -1; this.replyPage = 0;
-      this.entry = { detective: 'Review the original statement.', witness: this.view.originalStatement, note: this.view.revisedStatement ? 'Original account — subsequently withdrawn.' : 'Original account, not independent verification.' }; this.render();
+      this.entry = { detective: __dialogueText("scenes/AlibiScene.js", "t_0ffdad2ee1576c473a49"), witness: this.view.originalStatement, note: this.view.revisedStatement ? __dialogueText("scenes/AlibiScene.js", "t_58597cdcc94a3c9ebf5c") : __dialogueText("scenes/AlibiScene.js", "t_ff449b5f6a5deda743a0") }; this.render();
     });
-    this.choice(1, 'Revised account', () => {
+    this.choice(1, __dialogueText("scenes/AlibiScene.js", "t_e733d49e5e4198a38760"), () => {
       this.historyIndex = -1; this.replyPage = 0;
-      this.entry = { detective: 'Review the revised statement.', witness: this.view.revisedStatement, note: 'The original remains in the record.' }; this.render();
+      this.entry = { detective: __dialogueText("scenes/AlibiScene.js", "t_931db6096e9cb1e0c684"), witness: this.view.revisedStatement, note: __dialogueText("scenes/AlibiScene.js", "t_fc2856326c852df93cff") }; this.render();
     }, Boolean(this.view.revisedStatement));
     const browse = direction => {
       this.historyIndex = this.historyIndex < 0 ? (direction < 0 ? history.length - 1 : 0) : (this.historyIndex + direction + history.length) % history.length;
       this.entry = history[this.historyIndex]; this.replyPage = 0; this.render();
     };
-    this.choice(2, 'Previous reply', () => browse(-1), history.length > 0); this.choice(3, 'Next reply', () => browse(1), history.length > 0);
-    this.actionHint(this.historyIndex >= 0 ? `Archive entry ${this.historyIndex + 1} of ${history.length}. Viewing history does not change the interview.` : `${history.length} exchanges in the interview record.`);
+    this.choice(2, __dialogueText("scenes/AlibiScene.js", "t_aa49dbe82ea01733e400"), () => browse(-1), history.length > 0); this.choice(3, __dialogueText("scenes/AlibiScene.js", "t_e618cad64beb7f63dd5d"), () => browse(1), history.length > 0);
+    this.actionHint(this.historyIndex >= 0 ? `${__dialogueText("scenes/AlibiScene.js", "t_f2d72f6859ccf78c4b0b")}${this.historyIndex + 1}${__dialogueText("scenes/AlibiScene.js", "t_a4282e4b2298b90b56f7")}${history.length}${__dialogueText("scenes/AlibiScene.js", "t_670fc615f6c7d88d98fe")}` : `${history.length}${__dialogueText("scenes/AlibiScene.js", "t_f78c39ce5a92949a2171")}`);
   }
   renderFooter() {
     const { w, footerY: y, narrow } = this.L, state = this.view.state;
     this.rect(30, y - 10, w - 60, 2, C.edge);
-    const status = this.isSaving ? 'Saving interview...' : this.error || (state.pendingChallenge ? 'Follow-up in progress. You may leave and return.' : this.view.completed ? 'Interview recorded. Further questions are still available.' : 'Hear the alibi, then record this interview.');
+    const status = this.isSaving ? __dialogueText("scenes/AlibiScene.js", "t_9de7807c8b807ea3f6a2") : this.error || (state.pendingChallenge ? __dialogueText("scenes/AlibiScene.js", "t_f6f36b46991cc1a33911") : this.view.completed ? __dialogueText("scenes/AlibiScene.js", "t_1f58cfe416b411a7ea2c") : __dialogueText("scenes/AlibiScene.js", "t_dd24656623c8d0ad430d"));
     this.statusText = this.text(32, y + 2, status, w - 64, { fontSize: '19px', color: this.error ? '#843e35' : C.muted });
     this.fitText(this.statusText, narrow ? 43 : 30, 17);
     const gap = 14, width = (w - 64 - gap * 2) / 3, by = y + (narrow ? 53 : 40);
-    this.button(32, by, width, 'Return to city', () => this.returnToCity(), true, 52);
-    this.button(32 + width + gap, by, width, this.view.completed ? 'Recorded' : 'Record interview', () => this.finishInterview(), state.asked.includes('statement') && !this.view.completed && !state.pendingChallenge, 52, true);
-    this.button(32 + (width + gap) * 2, by, width, 'Alibi board', () => this.openBoard(), allWitnessesVisited(this.caseKey, this.suspectId), 52);
+    this.button(32, by, width, __dialogueText("scenes/AlibiScene.js", "t_ef5f430bcbebe3c2a89e"), () => this.returnToCity(), true, 52);
+    this.button(32 + width + gap, by, width, this.view.completed ? __dialogueText("scenes/AlibiScene.js", "t_c7175fa7a0db0d3ca4b2") : __dialogueText("scenes/AlibiScene.js", "t_ab07c64e4ef7e4f2c2e5"), () => this.finishInterview(), state.asked.includes('statement') && !this.view.completed && !state.pendingChallenge, 52, true);
+    this.button(32 + (width + gap) * 2, by, width, __dialogueText("scenes/AlibiScene.js", "t_836f0a3ef235d5f3eabf"), () => this.openBoard(), allWitnessesVisited(this.caseKey, this.suspectId), 52);
   }
   async finishInterview() {
     if (this.isSaving || this.isLeaving || this.view.completed || this.view.state.pendingChallenge || !this.view.state.asked.includes('statement')) return;
@@ -291,13 +292,13 @@ export class AlibiScene extends BaseScene {
     try {
       if (!markAlibiWitnessInterviewed(this.caseKey, this.encounterId)) throw new Error('Interview could not be recorded.');
       advanceCrimeTutorial(gameState, 'talk_to_npcs'); requestAutosave(); flushAutosave(); this.loadWitness(); this.error = '';
-    } catch (error) { console.error('[AlibiScene] Recording failed.', error); this.error = 'Could not record the interview. Please try again.'; }
+    } catch (error) { console.error('[AlibiScene] Recording failed.', error); this.error = __dialogueText("scenes/AlibiScene.js", "t_5e6c9f9ed80ad8c22d25"); }
     finally { this.isSaving = false; if (!this._cleanupDone) this.render(); }
   }
   renderError() {
     this.createRoot();
-    this.text(48, 180, 'The witness file could not be opened.\nEven paperwork needs an alibi.', this.L.w - 96, { fontSize: '29px' });
-    this.statusText = this.text(48, 360, '', this.L.w - 96); this.button(48, 440, 300, 'Return to city', () => this.returnToCity());
+    this.text(48, 180, __dialogueText("scenes/AlibiScene.js", "t_f8702225597698462a08"), this.L.w - 96, { fontSize: '29px' });
+    this.statusText = this.text(48, 360, '', this.L.w - 96); this.button(48, 440, 300, __dialogueText("scenes/AlibiScene.js", "t_ef5f430bcbebe3c2a89e"), () => this.returnToCity());
   }
   async openBoard() {
     if (!allWitnessesVisited(this.caseKey, this.suspectId)) return;
@@ -316,13 +317,13 @@ export class AlibiScene extends BaseScene {
         if (hud && !hud._cleanupDone && hud.currentGameplaySceneKey === 'AlibiScene') hud.setCurrentGameplayScene?.(sceneKey);
       } else if (!this._cleanupDone) {
         this.isLeaving = false; this.hideInterviewHud();
-        this.statusText?.setText('The next scene could not be opened. Please try again.');
+        this.statusText?.setText(__dialogueText("scenes/AlibiScene.js", "t_eeef1bf94539441eb5c6"));
       }
     } catch (error) {
       console.error('[AlibiScene] Navigation failed.', error);
       if (!this._cleanupDone) {
         this.isLeaving = false; this.hideInterviewHud();
-        this.statusText?.setText('The next scene could not be opened. Please try again.');
+        this.statusText?.setText(__dialogueText("scenes/AlibiScene.js", "t_eeef1bf94539441eb5c6"));
       }
     }
   }

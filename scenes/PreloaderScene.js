@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { audioManager } from '../managers/AudioManager.js';
 import { BaseScene } from './BaseScene.js';
 
@@ -121,7 +122,7 @@ export class PreloaderScene extends BaseScene {
       this._manifestMissing = true;
 
       this._showLoadingError(
-        'Case file missing. Please reload the game.'
+        __dialogueText("scenes/PreloaderScene.js", "t_df5719785e811ef521d3")
       );
 
       console.error(
@@ -156,7 +157,7 @@ export class PreloaderScene extends BaseScene {
     }
 
     if (this.loadErrors.length > 0) {
-      this._showLoadingError('Some files went missing. Please reload the game.');
+      this._showLoadingError(__dialogueText("scenes/PreloaderScene.js", "t_de43e1c8bcdc1bb41bdf"));
       return;
     }
 
@@ -203,7 +204,7 @@ export class PreloaderScene extends BaseScene {
       );
 
       this._showLoadingError(
-        'Suspect files could not be opened. Please reload.'
+        __dialogueText("scenes/PreloaderScene.js", "t_5900bfcf6e24f2d39985")
       );
     }
   }
@@ -374,7 +375,7 @@ export class PreloaderScene extends BaseScene {
       for (const cityId of config.cities) {
         this._queueJson(
           `newspaper_${type}_${cityId}`,
-          `assets/data/newspapers/${type}/${cityId}.json`
+          `${__dialogueText("scenes/PreloaderScene.js", "t_18dd30d370992894d75d")}${type}${__dialogueText("scenes/PreloaderScene.js", "t_8a5edab282632443219e")}${cityId}${__dialogueText("scenes/PreloaderScene.js", "t_12157ab04ed2c6accc3d")}`
         );
       }
     }
@@ -602,34 +603,34 @@ export class PreloaderScene extends BaseScene {
     const type = String(file?.type || '');
 
     if (key.startsWith('newspaper_')) {
-      return 'Reading tomorrow’s questionable headlines...';
+      return __dialogueText("scenes/PreloaderScene.js", "t_86a5c8851496e1c2b727");
     }
 
     if (type === 'audio') {
-      return 'Tuning the office radio to maximum melodrama...';
+      return __dialogueText("scenes/PreloaderScene.js", "t_a38acf50636681850624");
     }
 
     if (type === 'json') {
-      return 'Cross-examining confidential case files...';
+      return __dialogueText("scenes/PreloaderScene.js", "t_98845cf8ff16248a93a7");
     }
 
     if (type.toLowerCase().includes('tilemap')) {
-      return 'Drawing a map no detective will fold correctly...';
+      return __dialogueText("scenes/PreloaderScene.js", "t_a6ecc353ff5c1a93fb63");
     }
 
     if (type === 'video') {
-      return 'Developing surveillance footage in a dark room...';
+      return __dialogueText("scenes/PreloaderScene.js", "t_91856c5b75a292384b61");
     }
 
     if (type === 'image') {
-      return 'Developing suspicious photographs...';
+      return __dialogueText("scenes/PreloaderScene.js", "t_d3e0614f00433aae5005");
     }
 
     if (type === 'html' || type === 'css') {
-      return 'Straightening the office wallpaper...';
+      return __dialogueText("scenes/PreloaderScene.js", "t_19ed387564e060f570ea");
     }
 
-    return 'Opening the case file...';
+    return __dialogueText("scenes/PreloaderScene.js", "t_75459bafc792b7effe16");
   }
 
   _createPreloadBackground(width, height) {
@@ -728,7 +729,7 @@ export class PreloaderScene extends BaseScene {
     const titleText = this.add.text(
       centerX,
       centerY - 145,
-      'MAKING COFFEE 0%',
+      __dialogueText("scenes/PreloaderScene.js", "t_22a2ee1d3bc0d63d53ea"),
       {
         fontFamily: '"PressStart2P", monospace',
         fontSize: '28px',
@@ -751,7 +752,7 @@ export class PreloaderScene extends BaseScene {
     const statusLabel = this.add.text(
       centerX,
       centerY - 103,
-      'CASE FILE STATUS',
+      __dialogueText("scenes/PreloaderScene.js", "t_152e43fcde284e420543"),
       {
         fontFamily: '"PressStart2P", monospace',
         fontSize: '12px',
@@ -763,7 +764,7 @@ export class PreloaderScene extends BaseScene {
     this.loadingStatusText = this.add.text(
       centerX,
       centerY - 75,
-      'Opening the case file...',
+      __dialogueText("scenes/PreloaderScene.js", "t_75459bafc792b7effe16"),
       {
         fontFamily: '"SpecialElite", monospace',
         fontSize: '24px',
@@ -888,8 +889,8 @@ export class PreloaderScene extends BaseScene {
     }
 
     title.setText(
-      `MAKING COFFEE${this._dots} ` +
-      `${Math.round(this.fillingLevel * 100)}%`
+      `${__dialogueText("scenes/PreloaderScene.js", "t_fd4ca58cadd9f8f8a193")}${this._dots}${__dialogueText("scenes/PreloaderScene.js", "t_36a9e7f1c95b82ffb997")}` +
+      `${Math.round(this.fillingLevel * 100)}${__dialogueText("scenes/PreloaderScene.js", "t_bbf3f11cb5b43e700273")}`
     );
   }
 
@@ -938,7 +939,7 @@ export class PreloaderScene extends BaseScene {
 
     if (this.loadingStatusText?.active) {
       this.loadingStatusText.setText(
-        'Case file complete. Coffee approved for detective use.'
+        __dialogueText("scenes/PreloaderScene.js", "t_ec2576ffac36f09e7dd4")
       );
     }
 
@@ -1062,7 +1063,7 @@ export class PreloaderScene extends BaseScene {
       this.add.text(
         this.scale.width / 2,
         this.scale.height * 0.8,
-        'Start button could not be loaded. Please reload.',
+        __dialogueText("scenes/PreloaderScene.js", "t_787ad970ef58fcebd770"),
         {
           fontFamily: 'SpecialElite',
           fontSize: '24px',
@@ -1159,7 +1160,7 @@ export class PreloaderScene extends BaseScene {
     const tips = this._getTextList('tips', 'tips');
 
     if (!tips.length) {
-      return 'Following the evidence...';
+      return __dialogueText("scenes/PreloaderScene.js", "t_0b05e4064d34d14c06cb");
     }
 
     let index = Phaser.Math.Between(

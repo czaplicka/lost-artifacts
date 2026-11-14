@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // Hotspots calibrated by the game's author, in 1920 x 1080 design coordinates.
 export const MEDIUM_OFFICE_CONFIG = {
   sceneKey: 'MediumOfficeScene', backgroundKey: 'biuro_medium',
@@ -6,7 +7,7 @@ export const MEDIUM_OFFICE_CONFIG = {
   hotspots: [
   {
     "id": "computer",
-    "label": "Agency Computer",
+    "label": __dialogueText("config/mediumOfficeConfig.js", "t_5aa89e59cca235559ecd"),
     "action": "computer",
     "x": 744,
     "y": 606,
@@ -15,7 +16,7 @@ export const MEDIUM_OFFICE_CONFIG = {
   },
   {
     "id": "tv",
-    "label": "Television",
+    "label": __dialogueText("config/mediumOfficeConfig.js", "t_7e7536a95dcfb769ac5b"),
     "action": "tv",
     "x": 308,
     "y": 730,
@@ -24,7 +25,7 @@ export const MEDIUM_OFFICE_CONFIG = {
   },
   {
     "id": "crime-board",
-    "label": "Crime Board",
+    "label": __dialogueText("config/mediumOfficeConfig.js", "t_f4c2190c4738d459c48d"),
     "action": "crimeboard",
     "x": 339,
     "y": 368,
@@ -33,7 +34,7 @@ export const MEDIUM_OFFICE_CONFIG = {
   },
   {
     "id": "case-file",
-    "label": "Case File",
+    "label": __dialogueText("config/mediumOfficeConfig.js", "t_a27af7ddb3070a665659"),
     "action": "casefile",
     "x": 1763,
     "y": 844,
@@ -42,7 +43,7 @@ export const MEDIUM_OFFICE_CONFIG = {
   },
   {
     "id": "travel",
-    "label": "Travel",
+    "label": __dialogueText("config/mediumOfficeConfig.js", "t_d2b98fb53714f23cc0aa"),
     "action": "travel",
     "x": 815,
     "y": 900,
@@ -51,7 +52,7 @@ export const MEDIUM_OFFICE_CONFIG = {
   },
   {
     "id": "telephone",
-    "label": "Telephone",
+    "label": __dialogueText("config/mediumOfficeConfig.js", "t_84ecd6328b8064e6c537"),
     "action": "telephone",
     "x": 1320,
     "y": 705,

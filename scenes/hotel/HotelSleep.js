@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { getEnergyManager } from '../../managers/EnergyManager.js';
 import { gameState } from '../../GameData.js';
 import { EventBus } from '../../EventBus.js';
@@ -252,7 +253,7 @@ export class HotelSleep {
       content,
       panelW / 2,
       47,
-      'DO NOT DISTURB',
+      __dialogueText("scenes/hotel/HotelSleep.js", "t_3a64cea3f7312f3434be"),
       {
         pixel: true,
         size: portrait ? 14 : 17,
@@ -275,7 +276,7 @@ export class HotelSleep {
       content,
       panelW / 2,
       124,
-      'Room paid. Rest is on the house.',
+      __dialogueText("scenes/hotel/HotelSleep.js", "t_9fdd0edf7765e17164dd"),
       {
         size: 17,
         color: '#c6b28b',
@@ -287,7 +288,7 @@ export class HotelSleep {
       content,
       panelW / 2,
       161,
-      'CHOOSE YOUR REST',
+      __dialogueText("scenes/hotel/HotelSleep.js", "t_48c451b58fa61ac9ae24"),
       {
         pixel: true,
         size: 12,
@@ -381,7 +382,7 @@ export class HotelSleep {
       content,
       panelW / 2,
       previewY + 86,
-      'The thief does not take a nap.',
+      __dialogueText("scenes/hotel/HotelSleep.js", "t_10609c1bb39e8737a026"),
       {
         size: 17,
         color: '#c6b28b',
@@ -426,8 +427,8 @@ export class HotelSleep {
 
     this.previewText.setText(
       hours === null
-        ? `ENERGY: ${current} / ${maximum}`
-        : `${hours}h rest: ${current} -> ${after} / ${maximum}`
+        ? `${__dialogueText("scenes/hotel/HotelSleep.js", "t_be89bf96a7d4a637280e")}${current}${__dialogueText("scenes/hotel/HotelSleep.js", "t_005e1574a2b5c8163046")}${maximum}`
+        : `${hours}${__dialogueText("scenes/hotel/HotelSleep.js", "t_536040abd476531f9851")}${current}${__dialogueText("scenes/hotel/HotelSleep.js", "t_a404e8f0ffc8303837ac")}${after}${__dialogueText("scenes/hotel/HotelSleep.js", "t_005e1574a2b5c8163046")}${maximum}`
     );
 
     this.previewFill.setDisplaySize(
@@ -471,7 +472,7 @@ export class HotelSleep {
       container,
       x,
       y - 7,
-      `+${actual} ENERGY`,
+      `${__dialogueText("scenes/hotel/HotelSleep.js", "t_a318c24216defe206fee")}${actual}${__dialogueText("scenes/hotel/HotelSleep.js", "t_26a925a749ea7d097bd1")}`,
       {
         size: 23,
         color: actual > 0 ? '#355638' : COLORS.muted
@@ -483,8 +484,8 @@ export class HotelSleep {
       x,
       y + 24,
       actual < potential
-        ? `Up to +${potential}; energy cap`
-        : 'Click to sleep',
+        ? `${__dialogueText("scenes/hotel/HotelSleep.js", "t_4044184f0356ce4a09f7")}${potential}${__dialogueText("scenes/hotel/HotelSleep.js", "t_18bf411534e99900e15e")}`
+        : __dialogueText("scenes/hotel/HotelSleep.js", "t_7ae7ec18173fb0056acb"),
       {
         size: 14,
         color: COLORS.muted,
@@ -736,7 +737,7 @@ export class HotelSleep {
 
       const result = energy.recoverCustom(
         recovery,
-        `Hotel sleep (${sleepHours}h, ${scene.hotelId}): +${recovery}`,
+        `${__dialogueText("scenes/hotel/HotelSleep.js", "t_880a0ffa6431307caf22")}${sleepHours}${__dialogueText("scenes/hotel/HotelSleep.js", "t_3a6cb777a12f17df9ae5")}${scene.hotelId}${__dialogueText("scenes/hotel/HotelSleep.js", "t_d493c91e60f3456a26a0")}${recovery}`,
         {
           recoveryType: 'sleep',
           recoverySubtype: `hotel_${scene.hotelId}`

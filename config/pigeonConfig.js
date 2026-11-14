@@ -1,49 +1,50 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 export const PIGEON_CONFIG = Object.freeze({
   flightMs: 2 * 60 * 60 * 1000,
-  feedId: 'pigeon_feed', firstName: 'Watson', maxNameLength: 24,
+  feedId: 'pigeon_feed', firstName: __dialogueText("config/pigeonConfig.js", "t_4d7b2cc54157ab5d6d89"), maxNameLength: 24,
   maxPigeons: 3, extraPerchPrices: [40, 80]
 });
 
 // Weights total 100: 40 junk, 40 collection, 20 usable/inventory finds.
 // Existing find IDs are retained so saved flights remain readable.
 export const PIGEON_FINDS = [
-  { id: 'bent_paperclip', kind: 'junk', name: 'Bent Paperclip', weight: 18,
-    description: 'A promising career in stationery, cut tragically short.' },
-  { id: 'lonely_pasta', kind: 'junk', name: 'Single Macaroni', weight: 12,
-    description: 'Dinner for one. A very small one.' },
-  { id: 'olive_receipt', kind: 'junk', name: 'Receipt for One Olive', weight: 10,
-    description: 'Somebody is either very economical or very dramatic.' },
-  { id: 'cap_fizz', kind: 'collection', set: 'caps', name: 'Fizzical Evidence Cap', weight: 12,
-    description: 'The soft drink with a surprisingly hard alibi.' },
-  { id: 'cap_coo', kind: 'collection', set: 'caps', name: 'Coo-Cola Cap', weight: 8,
-    description: 'Officially not endorsed by the pigeon community.' },
-  { id: 'cap_noir', kind: 'collection', set: 'caps', name: 'Noir Orange Cap', weight: 7,
-    description: 'All the pulp. None of the witnesses.' },
-  { id: 'button_gold', kind: 'collection', set: 'buttons', name: 'Golden Button', weight: 5,
-    description: 'Someone important is now slightly less fastened.' },
-  { id: 'button_blue', kind: 'collection', set: 'buttons', name: 'Blue Button', weight: 4,
-    description: 'No fingerprints. Plenty of thread.' },
-  { id: 'button_anchor', kind: 'collection', set: 'buttons', name: 'Anchor Button', weight: 4,
-    description: 'A nautical mystery. Probably from a cardigan.' },
-  { id: 'cookie', kind: 'usable', name: 'Wrapped Cookie', weight: 6,
-    description: 'Still sealed. The pigeon has surprisingly high catering standards.',
-    item: { id: 'pigeon_cookie', name: 'Wrapped Cookie', icon: '🍪', type: 'item', stackable: true,
-      description: 'A sealed cookie delivered by a pigeon. Restores 5 energy.',
+  { id: 'bent_paperclip', kind: 'junk', name: __dialogueText("config/pigeonConfig.js", "t_cbf54d2a5b5fed15836e"), weight: 18,
+    description: __dialogueText("config/pigeonConfig.js", "t_5ba935700f539c49911a") },
+  { id: 'lonely_pasta', kind: 'junk', name: __dialogueText("config/pigeonConfig.js", "t_eeb19c9c47414dad1114"), weight: 12,
+    description: __dialogueText("config/pigeonConfig.js", "t_e6f74a3ff4beeb2dd58b") },
+  { id: 'olive_receipt', kind: 'junk', name: __dialogueText("config/pigeonConfig.js", "t_4680c0a5d4f3806a9f11"), weight: 10,
+    description: __dialogueText("config/pigeonConfig.js", "t_b4e966855ac7c3f586f9") },
+  { id: 'cap_fizz', kind: 'collection', set: 'caps', name: __dialogueText("config/pigeonConfig.js", "t_ad101aaf9008e6755441"), weight: 12,
+    description: __dialogueText("config/pigeonConfig.js", "t_d1d4892d467a1443a777") },
+  { id: 'cap_coo', kind: 'collection', set: 'caps', name: __dialogueText("config/pigeonConfig.js", "t_8bc88f9e9df4df8435bc"), weight: 8,
+    description: __dialogueText("config/pigeonConfig.js", "t_f3f1df1836cce6700022") },
+  { id: 'cap_noir', kind: 'collection', set: 'caps', name: __dialogueText("config/pigeonConfig.js", "t_f8730c8414609a5f1bdf"), weight: 7,
+    description: __dialogueText("config/pigeonConfig.js", "t_06003d1d83e65cb3b841") },
+  { id: 'button_gold', kind: 'collection', set: 'buttons', name: __dialogueText("config/pigeonConfig.js", "t_ccb02b5ccb3146742503"), weight: 5,
+    description: __dialogueText("config/pigeonConfig.js", "t_1c9e1eb0d26fc31104d8") },
+  { id: 'button_blue', kind: 'collection', set: 'buttons', name: __dialogueText("config/pigeonConfig.js", "t_754b572227ddd44a0e87"), weight: 4,
+    description: __dialogueText("config/pigeonConfig.js", "t_88e579ee70947657a76b") },
+  { id: 'button_anchor', kind: 'collection', set: 'buttons', name: __dialogueText("config/pigeonConfig.js", "t_2bf6912de89970886242"), weight: 4,
+    description: __dialogueText("config/pigeonConfig.js", "t_f399175b0467ae9ac909") },
+  { id: 'cookie', kind: 'usable', name: __dialogueText("config/pigeonConfig.js", "t_64e5cc5b7b76eaa4450c"), weight: 6,
+    description: __dialogueText("config/pigeonConfig.js", "t_13260689e1ddc0ad5182"),
+    item: { id: 'pigeon_cookie', name: __dialogueText("config/pigeonConfig.js", "t_64e5cc5b7b76eaa4450c"), icon: '🍪', type: 'item', stackable: true,
+      description: __dialogueText("config/pigeonConfig.js", "t_6ef80870e2e56820f08f"),
       metadata: { consumable: true, effect: { energy: 5 },
-        useMessage: 'Crunch. I choose not to ask where the pigeon shops.' } } },
-  { id: 'postcard', kind: 'usable', name: 'Postcard', weight: 5,
-    description: 'Wish you were here. The pigeon has already been.', catalogRef: 'souvenirs.postcard' },
-  { id: 'pigeon_energy_drink', kind: 'usable', name: 'Energy Drink', weight: 3,
-    description: 'A sealed can. The pigeon requests a lighter assignment next time.', catalogRef: 'consumables.energyDrink' },
-  { id: 'pigeon_sandwich', kind: 'usable', name: 'Sandwich', weight: 3,
-    description: 'Lunch delivered by air. The pigeon has declined to name the restaurant.', catalogRef: 'consumables.sandwich' },
-  { id: 'pigeon_lucky_cat', kind: 'usable', name: 'Lucky Cat', weight: 2,
-    description: 'A tiny souvenir. The pigeon refuses to discuss the irony.', catalogRef: 'souvenirs.tokyoLuckyCat' },
-  { id: 'pigeon_truck_keychain', kind: 'usable', name: 'Truck Art Keychain', weight: 1,
-    description: 'A tiny truck with an extremely unconventional delivery driver.', catalogRef: 'souvenirs.islamabadTruck' }
+        useMessage: __dialogueText("config/pigeonConfig.js", "t_a06615d130e852f89ac2") } } },
+  { id: 'postcard', kind: 'usable', name: __dialogueText("config/pigeonConfig.js", "t_01291723057c97f05859"), weight: 5,
+    description: __dialogueText("config/pigeonConfig.js", "t_d8fd65d78791bc0165fd"), catalogRef: __dialogueText("config/pigeonConfig.js", "t_77b137edca3b3f77daf1") },
+  { id: 'pigeon_energy_drink', kind: 'usable', name: __dialogueText("config/pigeonConfig.js", "t_31adc9243b8bc59d26ae"), weight: 3,
+    description: __dialogueText("config/pigeonConfig.js", "t_28c979e6242cd77b00a9"), catalogRef: __dialogueText("config/pigeonConfig.js", "t_118f7d5a299aac4fe4eb") },
+  { id: 'pigeon_sandwich', kind: 'usable', name: __dialogueText("config/pigeonConfig.js", "t_ba0d0a429396a6ca6fe2"), weight: 3,
+    description: __dialogueText("config/pigeonConfig.js", "t_542adbfc319e4cc54292"), catalogRef: __dialogueText("config/pigeonConfig.js", "t_600d11f87c435e5585c2") },
+  { id: 'pigeon_lucky_cat', kind: 'usable', name: __dialogueText("config/pigeonConfig.js", "t_b48e6afc7713cb9e6b2e"), weight: 2,
+    description: __dialogueText("config/pigeonConfig.js", "t_44c8962e80c5dc5861a4"), catalogRef: __dialogueText("config/pigeonConfig.js", "t_fb1d71ee5a712b63d6b3") },
+  { id: 'pigeon_truck_keychain', kind: 'usable', name: __dialogueText("config/pigeonConfig.js", "t_346f9aeebad0c128a809"), weight: 1,
+    description: __dialogueText("config/pigeonConfig.js", "t_08c88aa496c024365e05"), catalogRef: __dialogueText("config/pigeonConfig.js", "t_d6e969fbdb60835e2d1e") }
 ];
 
 export const PIGEON_COLLECTIONS = [
-  { id: 'caps', name: 'Questionable Refreshments', ids: ['cap_fizz', 'cap_coo', 'cap_noir'] },
-  { id: 'buttons', name: 'Loose Ends', ids: ['button_gold', 'button_blue', 'button_anchor'] }
+  { id: 'caps', name: __dialogueText("config/pigeonConfig.js", "t_1d19919f70c463a8b546"), ids: ['cap_fizz', 'cap_coo', 'cap_noir'] },
+  { id: 'buttons', name: __dialogueText("config/pigeonConfig.js", "t_577d5da57d6fb394deb6"), ids: ['button_gold', 'button_blue', 'button_anchor'] }
 ];

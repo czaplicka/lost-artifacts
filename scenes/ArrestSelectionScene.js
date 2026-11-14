@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../gameStatePersistence.js';
 import { ensureHud } from '../hudHelpers.js';
@@ -117,15 +118,15 @@ export class ArrestSelectionScene extends BaseScene {
       gameState.isGameActive = false;
 
       gameState.gameOverReason =
-        'Without a signed warrant, the agency could not act in time. ' +
-        'The thief escaped before the arrest team arrived.';
+        __dialogueText("scenes/ArrestSelectionScene.js", "t_08304ee57102f7ed1848") +
+        __dialogueText("scenes/ArrestSelectionScene.js", "t_5a91840746e019e7fdaf");
 
       saveGameState();
 
       this.scene.stop('CityScene');
 
       this.goto('GameOverScene', {
-        title: 'THIEF ESCAPED',
+        title: __dialogueText("scenes/ArrestSelectionScene.js", "t_2a282ac69abf6004b01e"),
         reasonCode: 'missing_warrant',
         caseId: gameState.currentCaseId,
         message: gameState.gameOverReason
@@ -171,8 +172,8 @@ export class ArrestSelectionScene extends BaseScene {
       this.goto('GameScene', {
         arrestSetupFailed: true,
         errorMessage:
-          'The suspect dossier could not be prepared. ' +
-          'Return to headquarters and review the case file.'
+          __dialogueText("scenes/ArrestSelectionScene.js", "t_68ada826c02bcdd954b3") +
+          __dialogueText("scenes/ArrestSelectionScene.js", "t_51acced82584105498b2")
       });
 
       return;

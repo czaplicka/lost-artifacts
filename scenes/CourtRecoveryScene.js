@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { CourtScene as OriginalCourtScene } from './CourtScene.js';
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
@@ -45,7 +46,7 @@ export class CourtScene extends OriginalCourtScene {
     this.onRecoveryResize=()=>this.renderRecovery();this.scale.on('resize',this.onRecoveryResize);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN,()=>{
       this.scale.off('resize',this.onRecoveryResize);this.recoveryRoot?.destroy(true);this.recoveryRoot=null;});
-    if(!this.recoveryError&&!this.saveRecovery())this.recoveryNotice='Save failed. Retry before closing this tab.';
+    if(!this.recoveryError&&!this.saveRecovery())this.recoveryNotice=__dialogueText("scenes/CourtRecoveryScene.js", "t_72652a996f873fcbc73d");
     this.renderRecovery();
   }
   decorateSource(){
@@ -75,7 +76,7 @@ export class CourtScene extends OriginalCourtScene {
       const result=advanceArtifactFinale(this.recoveryRecord,this.recoveryPlan,action,this.recoveryPlan.kind);
       if(result.record)this.recoveryRecord=result.record;
       this.recoveryNotice=result.message||'';
-      if(result.record&&!this.saveRecovery())this.recoveryNotice='Save failed. Please retry.';
+      if(result.record&&!this.saveRecovery())this.recoveryNotice=__dialogueText("scenes/CourtRecoveryScene.js", "t_8f5d6a8051cbfd402072");
     }catch(error){this.recoveryNotice=error.message;}
     this.renderRecovery();
   }
@@ -83,8 +84,8 @@ export class CourtScene extends OriginalCourtScene {
     if(this.recoveryBusy)return;
     try{
       const result=checkArtifactTrail(contactId,reference);this.trail=ensureArtifactTrail();
-      this.recoveryNotice=result.ok?'Transaction record confirmed.':result.message;
-      if(!this.saveRecovery())this.recoveryNotice='Save failed. Please retry before continuing.';
+      this.recoveryNotice=result.ok?__dialogueText("scenes/CourtRecoveryScene.js", "t_5299ae41078f943a47ca"):result.message;
+      if(!this.saveRecovery())this.recoveryNotice=__dialogueText("scenes/CourtRecoveryScene.js", "t_eb82c0988bba93614136");
     }catch(error){this.recoveryNotice=error.message;}
     this.renderRecovery();
   }
@@ -102,7 +103,7 @@ export class CourtScene extends OriginalCourtScene {
       if(!entry){recovered=gameState.recoverArtifact(data)===true;entry=gameState.getRecoveredArtifact(p.missionId);}
       if(!recoveryEntryMatches(entry,p))throw new Error('The artefact could not be registered. Nothing was marked as secured.');
       this.recoveryRecord={...this.recoveryRecord,phase:'secured',recoveredAt:entry.recoveredAt||data.recoveredAt};
-      this.recoveryNotice=this.saveRecovery()?'':'Artefact secured in memory, but saving failed. Retry before continuing.';
+      this.recoveryNotice=this.saveRecovery()?'':__dialogueText("scenes/CourtRecoveryScene.js", "t_4702b4be0419cd94a909");
       if(recovered)EventBus.emit('artifactRecovered',{missionId:p.missionId,artifact:data.artifact,
         sourceObject:{id:data.recoveredFrom,label:data.recoveredLocation}});
     }catch(error){console.error('[ArtefactFinale]',error);this.recoveryNotice=error.message;}
@@ -111,8 +112,8 @@ export class CourtScene extends OriginalCourtScene {
   continueToCourt(){
     if(this.recoveryBusy||this.recoveryRecord?.phase!=='secured')return;const p=this.recoveryPlan;
     if(getEvidenceCaseKey(gameState)!==p.caseKey||!recoveryEntryMatches(gameState.getRecoveredArtifact(p.missionId),p)){
-      this.recoveryNotice='No matching recovered artefact is registered.';this.renderRecovery();return;}
-    if(!this.saveRecovery()){this.recoveryNotice='Save failed. Please retry.';this.renderRecovery();return;}
+      this.recoveryNotice=__dialogueText("scenes/CourtRecoveryScene.js", "t_fed9b62a518aa035647e");this.renderRecovery();return;}
+    if(!this.saveRecovery()){this.recoveryNotice=__dialogueText("scenes/CourtRecoveryScene.js", "t_8f5d6a8051cbfd402072");this.renderRecovery();return;}
     this.recoveryBusy=true;this.scene.restart({suspectId:this.requestedSuspectId});
   }
   renderRecovery(){
@@ -131,7 +132,7 @@ export class CourtScene extends OriginalCourtScene {
           onClose:()=>{this.recoveryRecord={...this.recoveryRecord,phase:'briefing'};this.saveRecovery();this.renderRecovery();},
           onContinue:()=>{
             if(r.phase==='source')this.applyRecoveryAction('select');else this.renderRecovery();
-          },footer:'The recovery team will inspect the actual object before registering it.'
+          },footer:__dialogueText("scenes/CourtRecoveryScene.js", "t_30870d55edf3fe545c1b")
         });return;
       }
     }
@@ -143,27 +144,27 @@ export class CourtScene extends OriginalCourtScene {
     const button=(y,label,callback)=>{
       const bg=this.add.rectangle(500,y,850,54,0x4d3828).setStrokeStyle(2,0xcba564).setInteractive({useHandCursor:true});
       root.add(bg);text(y-14,label,22,'#ffdda1',40);bg.on('pointerdown',()=>{if(!this.recoveryBusy)callback();});};
-    root.add(this.add.rectangle(500,380,1000,760,0x1c1713));text(24,'ARTEFACT RECOVERY',30,'#ffcf78');
+    root.add(this.add.rectangle(500,380,1000,760,0x1c1713));text(24,__dialogueText("scenes/CourtRecoveryScene.js", "t_cee676097a33f5f89ef3"),30,'#ffcf78');
     if(this.recoveryError){text(150,this.recoveryError,24,'#ffb4a1',300);
-      text(490,'Recovery is blocked by inconsistent case data. No substitute artefact or destination was generated.',21);
+      text(490,__dialogueText("scenes/CourtRecoveryScene.js", "t_a3be2a1ee4ef2548560a"),21);
       button(650,'RETRY',()=>this.scene.restart({suspectId:this.requestedSuspectId}));return;}
     text(76,p.artifact.label,25,'#ffdda1',65);
     const city=gameState.currentCityData?.city||(typeof gameState.currentCity==='string'?gameState.currentCity:p.cityId);
-    text(146,`Recovery operation: ${city}`,20);
+    text(146,`${__dialogueText("scenes/CourtRecoveryScene.js", "t_53539c76d9bba3a999ba")}${city}`,20);
     if(r.phase==='briefing'){
-      text(205,p.witnessLead?'Your apartment interview established a contact and reference. Verify the transaction before dispatching the recovery team.':
-        'The thief is detained. Question the suspect to obtain the contact and transaction reference.',25,'#f4e6cd',150);
+      text(205,p.witnessLead?__dialogueText("scenes/CourtRecoveryScene.js", "t_c1fe6cc039b68de24311"):
+        __dialogueText("scenes/CourtRecoveryScene.js", "t_b414ad06d201d7d68e8e"),25,'#f4e6cd',150);
       if(this.trail?.status!=='hidden')text(380,trailSummary(this.trail.plan),21,'#ffdda1',125);
-      button(585,p.witnessLead?'CHECK THE CONTACT RECORD':'QUESTION THE DETAINED SUSPECT',()=>this.applyRecoveryAction('brief'));
+      button(585,p.witnessLead?__dialogueText("scenes/CourtRecoveryScene.js", "t_3fed9b22cd069fd99ff4"):__dialogueText("scenes/CourtRecoveryScene.js", "t_fdc6664ff1fd795d3aa6"),()=>this.applyRecoveryAction('brief'));
     }else if(r.phase==='inspect'){
       text(205,`${p.source.search}\n\n${trailSummary(this.trail.plan)}`,23,'#f4e6cd',185);
-      text(405,`CASE FILE: ${p.artifact.label}\n\n${p.artifact.description||'Compare the object with the stolen artefact in the case file.'}`,22,'#ffdda1',135);
-      button(610,'COMPARE WITH CASE FILE AND SECURE THE ARTEFACT',()=>this.secureArtifact());
+      text(405,`${__dialogueText("scenes/CourtRecoveryScene.js", "t_41d841bcbe6545c46bb2")}${p.artifact.label}${__dialogueText("scenes/CourtRecoveryScene.js", "t_75a11da44c802486bc6f")}${p.artifact.description||__dialogueText("scenes/CourtRecoveryScene.js", "t_80d73a7e37a0ed1c0aa3")}`,22,'#ffdda1',135);
+      button(610,__dialogueText("scenes/CourtRecoveryScene.js", "t_6ed32addcb09e5953d91"),()=>this.secureArtifact());
     }else{
-      text(215,'ARTEFACT SECURED',30,'#d9edb2');text(300,`${p.artifact.label}\n\nRecovered at: ${p.source.place}\n\nLogged in recovered artefacts.`,25,'#f4e6cd',230);
-      button(610,'CONTINUE TO COURT',()=>this.continueToCourt());
+      text(215,__dialogueText("scenes/CourtRecoveryScene.js", "t_91b6f65de72e3043e351"),30,'#d9edb2');text(300,`${p.artifact.label}${__dialogueText("scenes/CourtRecoveryScene.js", "t_cc9d200d27e0127e6a27")}${p.source.place}${__dialogueText("scenes/CourtRecoveryScene.js", "t_5ced6fa4c6ff014c43d6")}`,25,'#f4e6cd',230);
+      button(610,__dialogueText("scenes/CourtRecoveryScene.js", "t_6d31770d1a065487aaa2"),()=>this.continueToCourt());
     }
     if(this.recoveryNotice){text(660,this.recoveryNotice,19,'#ffb4a1',50);
-      button(730,'RETRY SAVE',()=>{this.recoveryNotice=this.saveRecovery()?'Saved.':'Save failed.';this.renderRecovery();});}
+      button(730,__dialogueText("scenes/CourtRecoveryScene.js", "t_4737fde6ff551c004b64"),()=>{this.recoveryNotice=this.saveRecovery()?__dialogueText("scenes/CourtRecoveryScene.js", "t_fca046ccd586c67f7fe0"):__dialogueText("scenes/CourtRecoveryScene.js", "t_19b9455ce71a631f52e7");this.renderRecovery();});}
   }
 }

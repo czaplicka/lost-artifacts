@@ -1,9 +1,10 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { piInventoryManager } from './PIInventoryManager.js';
 
 const ITEM_LABELS = {
-  camera: 'Camera',
-  videoCamera: 'Video camera',
-  mobilePhone: 'Mobile phone'
+  camera: __dialogueText("managers/PIAdvertRequirements.js", "t_03494b0d1f803522a349"),
+  videoCamera: __dialogueText("managers/PIAdvertRequirements.js", "t_e4cd434bc58704db7e46"),
+  mobilePhone: __dialogueText("managers/PIAdvertRequirements.js", "t_0e2906eb576b1fd83b54")
 };
 
 export function getAdvertRequiredItems(advert) {
@@ -44,7 +45,7 @@ export function checkAdvertRequirements(advert) {
     required,
     missing,
     message:
-      `This job requires equipment you do not carry: ${names}. ` +
-      'The Spy Shop stocks field gear.'
+      `${__dialogueText("managers/PIAdvertRequirements.js", "t_f24ad44cd067b677cdf8")}${names}${__dialogueText("managers/PIAdvertRequirements.js", "t_8dccf256f6d5783e62bb")}` +
+      __dialogueText("managers/PIAdvertRequirements.js", "t_af74dab92835ec4990e6")
   };
 }

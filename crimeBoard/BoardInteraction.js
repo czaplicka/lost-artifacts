@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 export const BoardInteraction = {
   bindSidebar() {
     if (this.sidebarToggleBtn) {
@@ -30,7 +31,7 @@ export const BoardInteraction = {
 
 
     if (this.sidebarToggleBtn) {
-      this.sidebarToggleBtn.textContent = 'Show';
+      this.sidebarToggleBtn.textContent = __dialogueText("crimeBoard/BoardInteraction.js", "t_0df6f1cad36c49da768a");
       this.sidebarToggleBtn.setAttribute('aria-expanded', 'false');
     }
 
@@ -48,7 +49,7 @@ export const BoardInteraction = {
 
 
     if (this.sidebarToggleBtn) {
-      this.sidebarToggleBtn.textContent = 'Hide';
+      this.sidebarToggleBtn.textContent = __dialogueText("crimeBoard/BoardInteraction.js", "t_ac20a57bfde0bbc40bfe");
       this.sidebarToggleBtn.setAttribute('aria-expanded', 'true');
     }
 

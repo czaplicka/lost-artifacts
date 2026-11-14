@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { APARTMENT_ROOM_LAYOUTS } from './ApartmentRoomLayouts.js';
 import { RESEARCH_APARTMENT_LAYOUT } from './ApartmentResearchLayout.js';
 
@@ -10,11 +11,11 @@ export const APARTMENT_ROOM_PACKS = [
     id: 'debt', weight: 1, layoutId: 'debt',
     rooms: {
       living_room: {
-        label: 'Living Room', key: 'apartment_debt_living_room',
+        label: __dialogueText("scenes/apartament/ApartmentRoomPacks.js", "t_e4a3c880ef7402c5a457"), key: 'apartment_debt_living_room',
         path: 'assets/apartments/apartment_debt_living_room.webp'
       },
       kitchen: {
-        label: 'Kitchen', key: 'apartment_debt_kitchen',
+        label: __dialogueText("scenes/apartament/ApartmentRoomPacks.js", "t_d98e82ae3ccb80a7cf9d"), key: 'apartment_debt_kitchen',
         path: 'assets/apartments/apartment_debt_kitchen.webp'
       }
     }
@@ -23,11 +24,11 @@ export const APARTMENT_ROOM_PACKS = [
     id: 'collector', weight: 1, layoutId: 'collector',
     rooms: {
       bedroom: {
-        label: 'Bedroom', key: 'apartment_collector_bedroom',
+        label: __dialogueText("scenes/apartament/ApartmentRoomPacks.js", "t_8534c527c8ce30470387"), key: 'apartment_collector_bedroom',
         path: 'assets/apartments/apartment_collector_bedroom.webp'
       },
       bathroom: {
-        label: 'Bathroom', key: 'apartment_collector_bathroom',
+        label: __dialogueText("scenes/apartament/ApartmentRoomPacks.js", "t_5834e3de253061c7c9de"), key: 'apartment_collector_bathroom',
         path: 'assets/apartments/apartment_collector_bathroom.webp'
       }
     }
@@ -36,11 +37,11 @@ export const APARTMENT_ROOM_PACKS = [
     id: 'research', weight: 1, layoutId: 'research',
     rooms: {
       living_room: {
-        label: 'Living Room', key: 'apartment_research_living_room',
+        label: __dialogueText("scenes/apartament/ApartmentRoomPacks.js", "t_e4a3c880ef7402c5a457"), key: 'apartment_research_living_room',
         path: 'assets/apartments/apartment_research_living_room.webp'
       },
       kitchen: {
-        label: 'Kitchen', key: 'apartment_research_kitchen',
+        label: __dialogueText("scenes/apartament/ApartmentRoomPacks.js", "t_d98e82ae3ccb80a7cf9d"), key: 'apartment_research_kitchen',
         path: 'assets/apartments/apartment_research_kitchen.webp'
       }
     }

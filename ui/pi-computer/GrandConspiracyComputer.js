@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 
 import {
@@ -49,27 +50,27 @@ function getMessage() {
   if (done) {
     return {
       id: MESSAGE_ID,
-      from: 'Elder Perkins',
-      subject: 'The Midnight Gardener — case closed',
-      date: 'Case correspondence',
+      from: __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_7e7175baf6d66a9479a7"),
+      subject: __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_10992ad944154c0e9f61"),
+      date: __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_9a264749f9d43669aac5"),
 
       body:
-        'Detective,\n\n' +
-        'Your report has arrived. The fee has been processed.\n\n' +
+        __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_22a705e57674f27a7c07") +
+        __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_e6f0ca8de7cece60c349") +
         (
-          saved.reportChoice === 'sensational'
-            ? 'I knew the wheelbarrow deserved closer scrutiny. ' +
-              'I shall continue watching it from the kitchen.\n\n'
-            : 'I accept your explanation, although I maintain that ' +
-              'midnight is an unnecessarily dramatic time to water vegetables.\n\n'
+          saved.reportChoice === __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_979c4b8a301d4b861f0e")
+            ? __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_4493e6d79fa28026813d") +
+              __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_6bf9427abeb6339928b3")
+            : __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_1141ef1e915913f3c02f") +
+              __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_b637cbc9d8d2df264d81")
         ) +
-        'Please ask Olga to return my newspaper. ' +
-        'The dog has already completed two crosswords incorrectly.\n\n' +
-        'Elder Perkins\n\n' +
-        'CASE CLOSED\n' +
-        'Reward package: $100, 50 XP, reputation reward +10 ' +
-        '(maximum 100), and Much Ado About Mulch.\n' +
-        'Integrity depends on the report you submitted.'
+        __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_96ec435ff96ffcb428eb") +
+        __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_cce6220558292e78a497") +
+        __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_224ffed80717c616344d") +
+        __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_384a65f7e2d20fbed47e") +
+        __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_d5a0ccfdb83a338fcc96") +
+        __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_c1bf1abc75c5f14ecee1") +
+        __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_474b6dd194b3434b9ee9")
     };
   }
 
@@ -80,29 +81,29 @@ function getMessage() {
 
   return {
     id: MESSAGE_ID,
-    from: 'Elder Perkins',
-    subject: 'The Midnight Gardener — observation instructions',
-    date: 'Case correspondence',
+    from: __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_7e7175baf6d66a9479a7"),
+    subject: __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_cb9dd88d4dadcbef23b8"),
+    date: __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_9a264749f9d43669aac5"),
 
     body:
-      'Detective,\n\n' +
-      'Thank you for accepting my advertisement.\n\n' +
-      'My neighbour Olga works in her garden at midnight. ' +
-      'There are sacks, digging tools and a wheelbarrow. ' +
-      'I trust you understand the gravity of this combination.\n\n' +
-      'You may observe the garden from my side of the fence. ' +
-      'Do not enter her property. Bring your own camera.\n\n' +
-      'Please establish what she is actually doing. ' +
-      'I would prefer something suspicious, but I suppose ' +
-      'I am paying for the facts.\n\n' +
-      'Also, my newspaper has disappeared. Again.\n\n' +
-      'Agreed fee: $100.\n\n' +
-      'Elder Perkins\n\n' +
+      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_22a705e57674f27a7c07") +
+      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_4794944719af86578651") +
+      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_7036eed943148ab6f536") +
+      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_8b71b5fecb450db43e3e") +
+      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_ea7a16f2b9f96f5cc56b") +
+      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_c46bf3fdbc458ae42d9c") +
+      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_67680d10b5e245524bf2") +
+      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_be9359fdd870b9df5044") +
+      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_2f341963a371c15308ac") +
+      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_d8f710e2ae1829651195") +
+      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_5f1aa7bfa6b83a7e0358") +
+      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_d42c70b072bad56b702f") +
+      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_224ffed80717c616344d") +
       (
         continuing
-          ? 'Your observations are saved. You can return to the garden ' +
-            'and continue from where you left off.'
-          : 'Use GO TO GARDEN below to begin the observation.'
+          ? __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_717b0a92c8ef38d4316e") +
+            __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_4f3a23c7a041095a7b8e")
+          : __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_874d9848c5eadfc97a9d")
       )
   };
 }
@@ -192,22 +193,22 @@ export function installGrandConspiracyComputer(ui, documents) {
     const quest = getQuest();
 
     if (!['active', 'settling'].includes(quest?.status)) {
-      ui.notice = 'This case is not available for observation.';
+      ui.notice = __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_fc7e9027839ed1168d90");
       refresh();
       return;
     }
 
     if (!piInventoryManager.hasItem('camera')) {
       ui.notice =
-        'Bring your camera. It must be in your PI inventory. ' +
-        'The Spy Shop sells field equipment.';
+        __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_4b83eeecb2de5fa8424f") +
+        __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_4fb74221ace618bce53c");
 
       refresh();
       return;
     }
 
     launching = true;
-    ui.notice = 'Preparing the observation point...';
+    ui.notice = __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_5eb532a3dbd492414819");
 
     const token = ui.viewToken;
 
@@ -234,7 +235,7 @@ export function installGrandConspiracyComputer(ui, documents) {
         !piInventoryManager.hasItem('camera')
       ) {
         ui.notice =
-          'The case or your equipment changed. Check your PI inventory.';
+          __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_f5a40efc30b53d6af9f1");
 
         return;
       }
@@ -242,7 +243,7 @@ export function installGrandConspiracyComputer(ui, documents) {
       const game = ui.scene.game;
 
       if (game.scene.isActive(SCENE_KEY)) {
-        ui.notice = 'The garden observation is already running.';
+        ui.notice = __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_2820f24f6109dfa7bafa");
         return;
       }
 
@@ -280,8 +281,8 @@ export function installGrandConspiracyComputer(ui, documents) {
           ui.resume();
 
           ui.notice = completed()
-            ? 'Case closed. Perkins’s correspondence has been updated.'
-            : 'Observation saved. Use the email to return to the garden.';
+            ? __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_3f693474e5fd082c9494")
+            : __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_4985b5af4eccbde03084");
 
           ui.render();
         }
@@ -327,8 +328,8 @@ export function installGrandConspiracyComputer(ui, documents) {
         if (ui.suspended) ui.resume();
 
         ui.notice =
-          'The garden could not be opened. ' +
-          'Check the console and try again.';
+          __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_152abc52996ef9695c09") +
+          __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_7d60682b3500b0323977");
       }
     } finally {
       launching = false;
@@ -360,10 +361,10 @@ export function installGrandConspiracyComputer(ui, documents) {
       saved.reportChoice;
 
     const label = launching
-      ? 'PLEASE WAIT...'
+      ? __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_9dafd8f8b8d7f70bc7f6")
       : continuing
-        ? 'RETURN TO GARDEN'
-        : 'GO TO GARDEN';
+        ? __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_47f77acdeca0a8aec820")
+        : __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_ca92ebd85203832c6bf3");
 
     const box = ui.window;
 

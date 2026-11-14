@@ -1,16 +1,17 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { SPY_SHOP_CONFIG } from '../config/spyShopConfig.js';
 import { latestWorldNewspaperEvent, readWorldReactions } from '../systems/WorldReactionModel.js';
 
 const installed=new WeakMap();
-const TOPIC='Seen the latest case news?';
+const TOPIC=__dialogueText("ui/WorldSpyShopReactionHooks.js", "t_1a34c8f172305020d364");
 const RESPONSES={
- agency_convicted:'A conviction, according to the bulletin. Good. The equipment still doesn’t come with a guarantee of courtroom success.',
- agency_released:'The court released the defendant. I sell accessories, not revised judgments. The ordinary receipt is still available.',
- agency_suspect_arrested:'Someone was detained. That is not a conviction. For the record, a badge from my display cabinet doesn’t change either fact.',
- agency_pursuit_escape:'The pursuit ended without a detention. That’s what was reported. No, I don’t have a gadget that supplies the missing part of the story.',
- agency_time_expired:'An unresolved inquiry. I can sell you a clock, but not yesterday. The return policy would be impossible.'
+ agency_convicted:__dialogueText("ui/WorldSpyShopReactionHooks.js", "t_49f02bd5591a69eee86e"),
+ agency_released:__dialogueText("ui/WorldSpyShopReactionHooks.js", "t_890f770734f95b1b2884"),
+ agency_suspect_arrested:__dialogueText("ui/WorldSpyShopReactionHooks.js", "t_70bdc1497b40a1c9146a"),
+ agency_pursuit_escape:__dialogueText("ui/WorldSpyShopReactionHooks.js", "t_9de31f28ca1e1a98a7ca"),
+ agency_time_expired:__dialogueText("ui/WorldSpyShopReactionHooks.js", "t_843539c2680e4a39fdff")
 };
 const key=id=>JSON.stringify(['discreet_electronics_shopkeeper',id]);
 function seenEntries(state){
@@ -23,7 +24,7 @@ export function getSpyShopWorldReaction(state){
  const event=latestWorldNewspaperEvent(state,'hq');
  if(!event||event.visibility!=='public'||event.system!=='agency'||String(event.campaignId)!==String(state._createdAt)||
    !RESPONSES[event.kind]||seenEntries(state).includes(key(event.id)))return null;
- return{eventId:event.id,text:`The bulletin mentioned the ${event.artifact||'artefact'} case in ${event.cityName||'the city'}.\n\n${RESPONSES[event.kind]}`};
+ return{eventId:event.id,text:`${__dialogueText("ui/WorldSpyShopReactionHooks.js", "t_8eaad1d5679904cf64c8")}${event.artifact||__dialogueText("ui/WorldSpyShopReactionHooks.js", "t_4edfbd28d0483e702f24")}${__dialogueText("ui/WorldSpyShopReactionHooks.js", "t_f42b9f039db44f945dae")}${event.cityName||__dialogueText("ui/WorldSpyShopReactionHooks.js", "t_0f53fb3533eb343bc155")}${__dialogueText("ui/WorldSpyShopReactionHooks.js", "t_0673d69ff78439adfb40")}${RESPONSES[event.kind]}`};
 }
 export function markSpyShopWorldReaction(state,eventId){
  const history=readWorldReactions(state);
@@ -56,7 +57,7 @@ export function installSpyShopWorldReactions(scene){
   if(dead||!available(scene)||scene.runToken!==token||scene.panel!==panel||scene.panelType!=='conversation')return;
   const selected=reaction();if(!selected)return;
   scene.closePanel();
-  if(scene.panel||!scene.openPanel('CASE NEWS','world-news'))return;
+  if(scene.panel||!scene.openPanel(__dialogueText("ui/WorldSpyShopReactionHooks.js", "t_fd95ed490d2e950165fa"),'world-news'))return;
   const state={token,panel:scene.panel,reaction:selected,page:0,pageCount:1,draw:null};
   reader=state;
   const back=()=>{
@@ -90,9 +91,9 @@ export function installSpyShopWorldReactions(scene){
    if(state.pageCount>1){
     scene.makeButton(body,w*0.11,h*0.71,'<',()=>turn(-1),size);
     scene.makeButton(body,w*0.24,h*0.71,'>',()=>turn(1),size);
-    body.add(scene.add.text(w*0.36,h*0.71,`${state.page+1}/${state.pageCount}`,scene.style(size)));
+    body.add(scene.add.text(w*0.36,h*0.71,`${state.page+1}${__dialogueText("ui/WorldSpyShopReactionHooks.js", "t_8a5edab282632443219e")}${state.pageCount}`,scene.style(size)));
    }
-   scene.makeButton(body,w*0.11,h*0.81,'Back to conversation',back,size);
+   scene.makeButton(body,w*0.11,h*0.81,__dialogueText("ui/WorldSpyShopReactionHooks.js", "t_74ad9c3261b448d4112b"),back,size);
   };
   scene.scale.on('resize',state.draw);state.draw();
  }

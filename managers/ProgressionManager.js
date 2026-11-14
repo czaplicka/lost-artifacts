@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
 
@@ -389,9 +390,9 @@ class ProgressionManager {
     if (gainedLevels > 0) {
       this.publish(LEVEL_UP, {
         ...result,
-        title: 'LEVEL UP',
+        title: __dialogueText("managers/ProgressionManager.js", "t_ec89a5737cd9d82fe273"),
         message:
-          'Your paperwork now suggests professional growth.'
+          __dialogueText("managers/ProgressionManager.js", "t_403a5c2f1f2be4cef9ba")
       });
     }
 
@@ -587,7 +588,7 @@ class ProgressionManager {
     const result = this.grantReward(
       'artifact_recovered',
       missionId,
-      'Stolen artefact recovered'
+      __dialogueText("managers/ProgressionManager.js", "t_56624f34f008c43571f4")
     );
 
     if (result.success) {

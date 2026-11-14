@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { getGameTimeInSeconds } from '../CaseTimeHelper.js';
 import { requestAutosave } from '../gameStatePersistence.js';
@@ -108,21 +109,21 @@ export function getOfficeShopAvailability(item) {
   if (!validItem(item)) {
     return {
       enabled: false,
-      reason: 'Invalid product data.'
+      reason: __dialogueText("managers/PIOfficeShopManager.js", "t_51a08627366fb173036a")
     };
   }
 
   if (ownsOfficeItem(item.id)) {
     return {
       enabled: false,
-      reason: 'Owned'
+      reason: __dialogueText("managers/PIOfficeShopManager.js", "t_17b760c41cd2093315bb")
     };
   }
 
   if (!SUPPORTED.has(item.id)) {
     return {
       enabled: false,
-      reason: 'Unavailable in this shop.'
+      reason: __dialogueText("managers/PIOfficeShopManager.js", "t_df0deffc8b279254aa6b")
     };
   }
 
@@ -133,8 +134,8 @@ export function getOfficeShopAvailability(item) {
     return {
       enabled: false,
       reason:
-        'Buy the New PI Office first. ' +
-        'Your current office is technically a cupboard.'
+        __dialogueText("managers/PIOfficeShopManager.js", "t_fb7a9aa0735ab400400b") +
+        __dialogueText("managers/PIOfficeShopManager.js", "t_50fdaf8c61c64bb6dd1c")
     };
   }
 
@@ -144,7 +145,7 @@ export function getOfficeShopAvailability(item) {
   ) {
     return {
       enabled: false,
-      reason: 'Finish moving into your new office first.'
+      reason: __dialogueText("managers/PIOfficeShopManager.js", "t_49998c37dc2746b6ef54")
     };
   }
 
@@ -154,7 +155,7 @@ export function getOfficeShopAvailability(item) {
   ) {
     return {
       enabled: false,
-      reason: 'Required upgrade missing.'
+      reason: __dialogueText("managers/PIOfficeShopManager.js", "t_a8ef6788d938c9cca98b")
     };
   }
 
@@ -166,7 +167,7 @@ export function getOfficeShopAvailability(item) {
   ) {
     return {
       enabled: false,
-      reason: 'Not enough personal cash.'
+      reason: __dialogueText("managers/PIOfficeShopManager.js", "t_6150b8bb4551d17850e2")
     };
   }
 
@@ -180,7 +181,7 @@ export function buyOfficeItem(catalog, id) {
   if (busy) {
     return {
       ok: false,
-      message: 'Another transaction is in progress.'
+      message: __dialogueText("managers/PIOfficeShopManager.js", "t_882d4fae9788ba4165d5")
     };
   }
 
@@ -219,7 +220,7 @@ export function buyOfficeItem(catalog, id) {
     const result = moneyManager.spend(item.price, {
       source: MONEY_SOURCE.CASH,
       category: ECONOMY_CATEGORY.OFFICE_UPGRADE,
-      description: `PI office: ${item.name}`,
+      description: `${__dialogueText("managers/PIOfficeShopManager.js", "t_9d3f4798a0ab9d436aeb")}${item.name}`,
       missionId: null,
       metadata: {
         officeItemId: id
@@ -231,7 +232,7 @@ export function buyOfficeItem(catalog, id) {
 
       return {
         ok: false,
-        message: 'Not enough personal cash.'
+        message: __dialogueText("managers/PIOfficeShopManager.js", "t_6150b8bb4551d17850e2")
       };
     }
 
@@ -242,7 +243,7 @@ export function buyOfficeItem(catalog, id) {
       itemId: id,
       message:
         item.purchaseMessage ||
-        'Purchase completed.'
+        __dialogueText("managers/PIOfficeShopManager.js", "t_b6282158152b94a2fa97")
     };
   } catch (error) {
     gameState.cash = balances.cash;
@@ -257,7 +258,7 @@ export function buyOfficeItem(catalog, id) {
 
     return {
       ok: false,
-      message: 'Purchase failed. Your cash was restored.'
+      message: __dialogueText("managers/PIOfficeShopManager.js", "t_6c9aaae91655b5495d21")
     };
   } finally {
     busy = false;
@@ -322,7 +323,7 @@ export function collectEmployeeIncome() {
   if (busy) {
     return {
       ok: false,
-      message: 'Another transaction is in progress.'
+      message: __dialogueText("managers/PIOfficeShopManager.js", "t_882d4fae9788ba4165d5")
     };
   }
 
@@ -331,7 +332,7 @@ export function collectEmployeeIncome() {
   if (!income.available) {
     return {
       ok: false,
-      message: 'No income to collect yet.'
+      message: __dialogueText("managers/PIOfficeShopManager.js", "t_1e7e2dbcd844a28ef2d1")
     };
   }
 
@@ -349,7 +350,7 @@ export function collectEmployeeIncome() {
     moneyManager.addCash(income.available, {
       category: ECONOMY_CATEGORY.SIDE_CASE,
       description:
-        'PI office: junior investigator earnings',
+        __dialogueText("managers/PIOfficeShopManager.js", "t_785f676e8f9eb1cdba5d"),
       missionId: null,
       metadata: {
         officeItemId: 'office_employee',
@@ -362,8 +363,8 @@ export function collectEmployeeIncome() {
     return {
       ok: true,
       message:
-        `$${income.available} collected. ` +
-        'Your employee requests a less suspicious chair.'
+        `${__dialogueText("managers/PIOfficeShopManager.js", "t_09fc96082d34c2dfc129")}${income.available}${__dialogueText("managers/PIOfficeShopManager.js", "t_51b8ae6abbabf07ef300")}` +
+        __dialogueText("managers/PIOfficeShopManager.js", "t_5f6dc731355a8a193a50")
     };
   } catch (error) {
     gameState.cash = balances.cash;
@@ -379,7 +380,7 @@ export function collectEmployeeIncome() {
     return {
       ok: false,
       message:
-        'Collection failed. Your earnings are still available.'
+        __dialogueText("managers/PIOfficeShopManager.js", "t_e22946c9f993d8687387")
     };
   } finally {
     busy = false;

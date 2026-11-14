@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 // scenes/travel/TravelTransitionEffects.js
 // 1) TravelRouteStage  - the painted world map (same one as the Destinations screen:
 //                        "agency" spy grid or "pi" expedition parchment), zoom-in,
@@ -266,7 +267,7 @@ export class TravelRouteStage {
   makeLabel(point, text, side) {
     const { scene, U, width } = this;
     const label = scene.add.text(
-      side === 'left' ? point.x - 12 * U : point.x + 12 * U,
+      side === __dialogueText("scenes/travel/TravelTransitionEffects.js", "t_360f84035942243c6a36") ? point.x - 12 * U : point.x + 12 * U,
       point.y + 14 * U,
       text,
       {
@@ -412,18 +413,18 @@ export class TravelRouteStage {
     };
 
     if (encounterAt === null) {
-      leg(1, travelMs, 'Sine.easeInOut', finish);
+      leg(1, travelMs, __dialogueText("scenes/travel/TravelTransitionEffects.js", "t_328184e4d904cb87572f"), finish);
       return;
     }
 
-    leg(encounterAt, travelMs * encounterAt, 'Quad.easeOut', () => {
+    leg(encounterAt, travelMs * encounterAt, __dialogueText("scenes/travel/TravelTransitionEffects.js", "t_78997ba7cc09c5888085"), () => {
       this.beginPause();
       onEncounter?.(this.getVehiclePosition());
       scene.time.delayedCall(holdMs, () => {
         if (this.destroyed || scene.isLeaving) return;
         this.endPause();
         onEncounterEnd?.();
-        leg(1, travelMs * (1 - encounterAt), 'Quad.easeIn', finish);
+        leg(1, travelMs * (1 - encounterAt), __dialogueText("scenes/travel/TravelTransitionEffects.js", "t_a5586dbfbfb96d59a7e8"), finish);
       });
     });
   }
@@ -502,11 +503,11 @@ export class TravelRouteStage {
   beginPause() {
     const { scene, U } = this;
     this.marker = this.track(
-      scene.add.text(this.position.x, this.position.y - 56 * U, '!', {
+      scene.add.text(this.position.x, this.position.y - 56 * U, __dialogueText("scenes/travel/TravelTransitionEffects.js", "t_bb7208bc9b5d7c04f123"), {
         fontFamily: 'PressStart2P',
         fontSize: fs(U, 30),
         color: '#ff5a4a',
-        stroke: '#1a0f08',
+        stroke: __dialogueText("scenes/travel/TravelTransitionEffects.js", "t_8f5ea20ab9f8b90f63a4"),
         strokeThickness: Math.round(6 * U)
       }).setOrigin(0.5),
       TRAVEL_DEPTH.vehicle + 1
@@ -705,7 +706,7 @@ const CONTENT = {
     tw({ targets: minute, angle: 360, duration: 1300, repeat: -1 });
     tw({ targets: hour, angle: 360, duration: 9000, repeat: -1 });
 
-    content.add(scene.add.text(40 * U, cy, penalty > 0 ? `Delay:\n+${penalty}h` : 'Please\nwait.', {
+    content.add(scene.add.text(40 * U, cy, penalty > 0 ? `${__dialogueText("scenes/travel/TravelTransitionEffects.js", "t_2f0308c71848e99d03c2")}${penalty}${__dialogueText("scenes/travel/TravelTransitionEffects.js", "t_aaa9402664f1a41f40eb")}` : __dialogueText("scenes/travel/TravelTransitionEffects.js", "t_d82a882728923b96e0a5"), {
       fontFamily: 'SpecialElite', fontSize: fs(U, 24), color: '#f4e7c1', align: 'left'
     }).setOrigin(0, 0.5));
   },
@@ -721,7 +722,7 @@ const CONTENT = {
       scene.add.circle(x, 14 * U, 9 * U, 0x35c759, 0.15)
     ]);
     tw({ targets: red, alpha: { from: 0.35, to: 1 }, duration: 420, yoyo: true, repeat: -1 });
-    content.add(scene.add.text(-30 * U, 4 * U, 'Signal: red.\nStill red.', {
+    content.add(scene.add.text(-30 * U, 4 * U, __dialogueText("scenes/travel/TravelTransitionEffects.js", "t_5b320c4f01d90efd32f7"), {
       fontFamily: 'SpecialElite', fontSize: fs(U, 24), color: '#f4e7c1'
     }).setOrigin(0, 0.5));
   },
@@ -737,7 +738,7 @@ const CONTENT = {
       content.add(car);
       tw({ targets: car, x: car.x + 4 * U, duration: 260 + i * 40, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     });
-    [['BEEP!', -70, -6, 0], ['HONK!', 60, -16, 300]].forEach(([label, x, y, delay]) => {
+    [[__dialogueText("scenes/travel/TravelTransitionEffects.js", "t_876df833d9eacf525804"), -70, -6, 0], [__dialogueText("scenes/travel/TravelTransitionEffects.js", "t_431b649bf45eedaa490b"), 60, -16, 300]].forEach(([label, x, y, delay]) => {
       const honk = scene.add.text(x * U, y * U, label, {
         fontFamily: 'PressStart2P', fontSize: fs(U, 11), color: '#ffd166'
       }).setOrigin(0.5).setAlpha(0);
@@ -756,7 +757,7 @@ const CONTENT = {
     for (let i = 0; i < 5; i++) {
       content.add(scene.add.rectangle(-120 * U + i * 24 * U, 56 * U, 24 * U, 12 * U, i % 2 ? 0xf1e4c3 : 0xff7a1a));
     }
-    content.add(scene.add.text(40 * U, 14 * U, 'Workers: 4\nWorking: 1', {
+    content.add(scene.add.text(40 * U, 14 * U, __dialogueText("scenes/travel/TravelTransitionEffects.js", "t_a4d82b261097e5b70f5b"), {
       fontFamily: 'SpecialElite', fontSize: fs(U, 22), color: '#f4e7c1'
     }).setOrigin(0, 0.5));
   },
@@ -768,7 +769,7 @@ const CONTENT = {
     content.add(scene.add.rectangle(x, -22 * U, 32 * U, 5 * U, 0x2b1d12));
     content.add(scene.add.rectangle(x, -29 * U, 18 * U, 10 * U, 0x2b1d12));
 
-    const question = scene.add.text(x + 36 * U, -26 * U, '?', {
+    const question = scene.add.text(x + 36 * U, -26 * U, __dialogueText("scenes/travel/TravelTransitionEffects.js", "t_8a8de823d5ed3e12746a"), {
       fontFamily: 'PressStart2P', fontSize: fs(U, 20), color: '#ffd166'
     }).setOrigin(0.5);
     const suitcase = scene.add.container(-36 * U, 40 * U, [
@@ -779,7 +780,7 @@ const CONTENT = {
     tw({ targets: question, alpha: { from: 0.3, to: 1 }, duration: 350, yoyo: true, repeat: -1 });
     tw({ targets: suitcase, angle: { from: -5, to: 5 }, duration: 160, yoyo: true, repeat: -1 });
 
-    content.add(scene.add.text(80 * U, 6 * U, 'Unattended\nsuitcase.\nNot mine.', {
+    content.add(scene.add.text(80 * U, 6 * U, __dialogueText("scenes/travel/TravelTransitionEffects.js", "t_2a8da878e6018624343c"), {
       fontFamily: 'SpecialElite', fontSize: fs(U, 20), color: '#f4e7c1', align: 'center'
     }).setOrigin(0.5));
   },
@@ -789,8 +790,8 @@ const CONTENT = {
       fontFamily: 'SpecialElite', fontSize: fs(U, 17), color: '#2b1d12',
       backgroundColor: '#f1e4c3', padding: { x: Math.round(8 * U), y: Math.round(5 * U) }
     };
-    const first = scene.add.text(-50 * U, -8 * U, 'blah blah blah', style).setOrigin(0.5);
-    const second = scene.add.text(30 * U, 40 * U, '...and another thing', style).setOrigin(0.5).setAlpha(0.35);
+    const first = scene.add.text(-50 * U, -8 * U, __dialogueText("scenes/travel/TravelTransitionEffects.js", "t_a74f733635a19aefb1f7"), style).setOrigin(0.5);
+    const second = scene.add.text(30 * U, 40 * U, __dialogueText("scenes/travel/TravelTransitionEffects.js", "t_3c71be9ba70b5adfb4bb"), style).setOrigin(0.5).setAlpha(0.35);
     content.add([first, second]);
     tw({ targets: first, alpha: { from: 1, to: 0.35 }, duration: 600, yoyo: true, repeat: -1 });
     tw({ targets: second, alpha: { from: 0.35, to: 1 }, duration: 600, yoyo: true, repeat: -1 });
@@ -811,7 +812,7 @@ const CONTENT = {
         delay: i * 380
       });
     }
-    content.add(scene.add.text(50 * U, 12 * U, 'Engine says:\n"Nope."', {
+    content.add(scene.add.text(50 * U, 12 * U, __dialogueText("scenes/travel/TravelTransitionEffects.js", "t_fca93fc8a8123c50b009"), {
       fontFamily: 'SpecialElite', fontSize: fs(U, 22), color: '#f4e7c1'
     }).setOrigin(0.5));
   },
@@ -820,7 +821,7 @@ const CONTENT = {
     const boat = scene.add.image(-80 * U, 16 * U, stage.vehicleKey).setScale(0.55 * U);
     content.add(boat);
     tw({ targets: boat, angle: { from: -8, to: 8 }, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-    content.add(scene.add.text(48 * U, 10 * U, 'Rough seas.\nBring a bucket.', {
+    content.add(scene.add.text(48 * U, 10 * U, __dialogueText("scenes/travel/TravelTransitionEffects.js", "t_041d476f69f55e1e758d"), {
       fontFamily: 'SpecialElite', fontSize: fs(U, 22), color: '#f4e7c1'
     }).setOrigin(0.5));
   },
@@ -831,13 +832,13 @@ const CONTENT = {
     ], 0xffd166);
     content.add(bolt);
     tw({ targets: bolt, alpha: { from: 0.25, to: 1 }, duration: 160, yoyo: true, repeat: -1, repeatDelay: 380 });
-    content.add(scene.add.text(40 * U, 10 * U, 'Storm ahead.\nSeatbelts: yes.', {
+    content.add(scene.add.text(40 * U, 10 * U, __dialogueText("scenes/travel/TravelTransitionEffects.js", "t_bf8996fa74a6a8d76868"), {
       fontFamily: 'SpecialElite', fontSize: fs(U, 22), color: '#f4e7c1'
     }).setOrigin(0.5));
   },
 
   reroute({ scene, content, U, tw }) {
-    const label = scene.add.text(0, 10 * U, 'Recalculating route', {
+    const label = scene.add.text(0, 10 * U, __dialogueText("scenes/travel/TravelTransitionEffects.js", "t_80783aadf40ad390820a"), {
       fontFamily: 'SpecialElite', fontSize: fs(U, 24), color: '#f4e7c1'
     }).setOrigin(0.5);
     content.add(label);
@@ -959,7 +960,7 @@ export function playEncounterEffect(scene, stage, encounter, { penalty = 0 } = {
   }).setOrigin(0.5));
 
   if (penalty > 0) {
-    popup.add(scene.add.text(popupW / 2 - 18 * U, -popupH / 2 + 30 * U, `+${penalty}h`, {
+    popup.add(scene.add.text(popupW / 2 - 18 * U, -popupH / 2 + 30 * U, `${__dialogueText("scenes/travel/TravelTransitionEffects.js", "t_a318c24216defe206fee")}${penalty}${__dialogueText("scenes/travel/TravelTransitionEffects.js", "t_aaa9402664f1a41f40eb")}`, {
       fontFamily: 'PressStart2P', fontSize: fs(U, 13), color: '#ff8a5c'
     }).setOrigin(1, 0.5));
   }

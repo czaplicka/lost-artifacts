@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import {
   GAME_VERSION
 } from '../config/gameVersion.js';
@@ -113,8 +114,8 @@ export const defaultGameState = {
   score: 0,
   scoreSaved: false,
 
-  playerName: 'Detective',
-  playerRank: 'Junior Agent',
+  playerName: __dialogueText("gameState/defaultState.js", "t_2653ceeec1fd951707a3"),
+  playerRank: __dialogueText("gameState/defaultState.js", "t_bf32e97cd768b3cc39be"),
   avatarUrl: 'assets/profiles.png',
 
   casesSolved: 0,

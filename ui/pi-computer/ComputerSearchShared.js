@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
 import { FONTS, lerpColor, seeded } from './ComputerTheme.js';
@@ -267,49 +268,49 @@ const BRAND = [
     ['O', '#3763aa'],
     ['w', '#a73b32'],
     ['l', '#bd8e25'],
-    ['Search', '#377254']
+    [__dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_49c266baaaa70981ea18"), '#377254']
 ];
 
 const ITEM_HEIGHT = 108;
 
 const TAGLINES = [
-    'Find the thing. Ignore the other things.',
-    'Now with 12% more owl.',
-    'Smarter than a pigeon. Slightly.',
-    'Search like nobody is watching. We are watching.',
-    'Results may contain owls.'
+    __dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_08c98ed21d0e62501d42"),
+    __dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_d7b30ea517aa71513b5f"),
+    __dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_4515f639af011b006168"),
+    __dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_98eb9ddec07a72ed01bb"),
+    __dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_2063551e0853a6cdd112")
 ];
 
 const HOOTY_LINES = [
-    'Owl Search is feeling lucky. Owl Search is usually wrong.',
-    'The lucky button was disabled by the legal department.',
-    'You are not lucky. You are a detective. Pick a clue.',
-    'The owl consulted the stars. The stars said: "Use your Field Notes."'
+    __dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_64a782e72f41b6ce52e7"),
+    __dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_be77aab692ccdf844e46"),
+    __dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_75937b962091b71cb894"),
+    __dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_e4d2b9b41a457854d7ee")
 ];
 
 const ADS = [
-    ['Binocular Barn: see further, judge harder.', 'www.binocularbarn.local'],
-    ['Quick-dry trench coats. Rain not included.', 'www.trenchco.local'],
-    ['Detective Donuts. Stakeout-approved since 1974.', 'www.detectivedonuts.local'],
-    ['Marker pens that actually work. We checked.', 'www.pensplus.local'],
-    ['Is your partner a spy? Probably not. Buy a nicer lamp.', 'www.lampsandlies.local']
+    [__dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_ff3255f33694f3649736"), __dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_ad42efe8b762a8901417")],
+    [__dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_f945f277d5b121c02274"), __dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_2ae564926f51405ceba1")],
+    [__dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_7a4efb5c1e6190b4a204"), __dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_7ec7c97a64d672dcc6bd")],
+    [__dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_1bf15436044ac8fd31e1"), __dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_40d4e6b8ef4bed95b45d")],
+    [__dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_55c749af09664ee05f94"), __dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_e0cf3acd049287c19fb3")]
 ];
 
 const AD_CLICKS = [
-    'You clicked an ad. Somewhere, a pigeon got paid.',
-    'Ad clicked. The owl thanks you. The owl has bills.',
-    'That was an ad. Focus, detective.'
+    __dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_f630b63ed5561cbab275"),
+    __dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_919591f05343fce27a5f"),
+    __dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_58f2832d3fff3ccd0131")
 ];
 
 const NO_RESULT_JOKES = [
-    'The owl is trying its best.',
-    'Even the owl looked behind the sofa.',
-    'The internet is big. Your clue is specific. It happens.',
-    'No results. Not even a suspicious pigeon.'
+    __dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_96c0b3235cacb65ccd1a"),
+    __dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_3b3d5817fb323dbb20c3"),
+    __dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_65442b51db709d37a660"),
+    __dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_8416aa1de8ac705b6235")
 ];
 
-const ABOUT_TIP = 'Owl Search was founded by an owl. This is not legal advice.';
-const PRIVACY_TIP = 'We never track you. The owl just happens to know where you are.';
+const ABOUT_TIP = __dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_3e0b931195f5f0f67bb4");
+const PRIVACY_TIP = __dialogueText("ui/pi-computer/ComputerSearchShared.js", "t_cd5d7b0ddea9af533af0");
 
 const slug = value =>
     String(value || '')

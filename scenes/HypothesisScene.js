@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { saveGameState,flushAutosave } from '../gameStatePersistence.js';
 import { getScoreManager } from '../managers/InvestigationManager.js';
@@ -23,7 +24,7 @@ export class HypothesisScene extends BaseScene {
   this.isReturning=false;this.isLaunchingResult=false;this.energyConsumed=false;this.ensureReconstructionState();
   this.claims=Array.isArray(gameState.reconstructedHeist.claims)?gameState.reconstructedHeist.claims:[];
   if(this.claims.length!==3)console.warn('[HypothesisScene] Expected exactly 3 reconstruction claims.',this.claims);
-  this.slotLabels=this.claims.length?this.claims.map(c=>c.prompt||c.questionId||'UNKNOWN QUESTION'):['HOW DID THEY GET IN?','HOW DID THEY DO IT?','HOW DID THEY GET AWAY?'];
+  this.slotLabels=this.claims.length?this.claims.map(c=>c.prompt||c.questionId||__dialogueText("scenes/HypothesisScene.js", "t_3d4821e17b5677673e55")):[__dialogueText("scenes/HypothesisScene.js", "t_fee8181d07a55905cd68"),__dialogueText("scenes/HypothesisScene.js", "t_810fa3b5d9418487cfa9"),__dialogueText("scenes/HypothesisScene.js", "t_aa53cb64f826209cc1ec")];
   this.slotQuestionIds=this.claims.length?this.claims.map(c=>c.questionId||null):[null,null,null];this.scoreManager=getScoreManager();
   this.hypothesisState=new HypothesisState({reconstruction:gameState.reconstructedHeist,activeSlotCount:3,attempts:3});
   this.resultService=new HypothesisResultService({cityId:this.cityId,sceneId:this.sceneId,scoreManager:this.scoreManager});
@@ -55,33 +56,33 @@ export class HypothesisScene extends BaseScene {
   if(card.questionId===questionId)return {questionId,slotSentence:card.slotSentence||card.answer||card.item||null,
    answer:card.answer||card.slotSentence||card.item||null,heistExplanation:card.heistExplanation||card.trueExplanation||''};return null;
  }
- buildSlotSentence(card,index){if(!card)return '[ empty ]';const u=this.getReconstructionUse(card,index);return u?.slotSentence||u?.answer||u?.text||u?.label||card.slotSentence||card.answer||card.item||'[ clue ]';}
+ buildSlotSentence(card,index){if(!card)return __dialogueText("scenes/HypothesisScene.js", "t_41953e69788775d57264");const u=this.getReconstructionUse(card,index);return u?.slotSentence||u?.answer||u?.text||u?.label||card.slotSentence||card.answer||card.item||__dialogueText("scenes/HypothesisScene.js", "t_fc550bcc0aacb76e2101");}
  handleCardTap(index){
   if(this.hypothesisState?.uiLocked)return;const result=this.hypothesisState.selectCard(index);if(!result.ok){this.handleMoveFailure(result);return;}
-  const card=this.availableCards[index];this.boardUI?.refresh();this.boardUI?.showFeedback(result.selected?`"${card?.item||'Clue'}" selected. Now click a question.`:'Clue selection cleared.',result.selected?'#ffd966':'#ccb98c');
+  const card=this.availableCards[index];this.boardUI?.refresh();this.boardUI?.showFeedback(result.selected?`${__dialogueText("scenes/HypothesisScene.js", "t_8a331fdde7032f33a71e")}${card?.item||__dialogueText("scenes/HypothesisScene.js", "t_4faf9cda1911b5d77cee")}${__dialogueText("scenes/HypothesisScene.js", "t_d1174dfaf3a4d15405ba")}`:__dialogueText("scenes/HypothesisScene.js", "t_0f27a5c97b23a680c024"),result.selected?'#ffd966':'#ccb98c');
  }
  handleSlotTap(index){
   if(this.hypothesisState?.uiLocked)return;
   if(this.hypothesisState.getPlacedCardIndex(index)!==null){this.handleSlotRemove(index);return;}
   const selected=this.hypothesisState.selectedCardIndex;
   if(selected!==null&&selected!==undefined){const result=this.hypothesisState.placeSelectedCard(index);if(!result.ok){this.handleMoveFailure(result);return;}
-   this.boardUI?.refresh();this.boardUI?.showFeedback(`"${this.slotLabels[index]}" answered.`,'#f0ddb0');return;}
+   this.boardUI?.refresh();this.boardUI?.showFeedback(`${__dialogueText("scenes/HypothesisScene.js", "t_8a331fdde7032f33a71e")}${this.slotLabels[index]}${__dialogueText("scenes/HypothesisScene.js", "t_2d05ba1c749040be03b8")}`,'#f0ddb0');return;}
   const result=this.hypothesisState.toggleSelectedSlot(index);if(!result.ok){this.handleMoveFailure(result);return;}
-  this.boardUI?.refresh();this.boardUI?.showFeedback(result.selected?`"${this.slotLabels[index]}" selected. Choose a clue below.`:'Question selection cleared.',result.selected?'#ffd966':'#ccb98c');
+  this.boardUI?.refresh();this.boardUI?.showFeedback(result.selected?`${__dialogueText("scenes/HypothesisScene.js", "t_8a331fdde7032f33a71e")}${this.slotLabels[index]}${__dialogueText("scenes/HypothesisScene.js", "t_1247a72bebb12f4944d9")}`:__dialogueText("scenes/HypothesisScene.js", "t_4128268b4fd04d62ee05"),result.selected?'#ffd966':'#ccb98c');
  }
  handleSlotRemove(index){
   if(this.hypothesisState?.uiLocked)return;const result=this.hypothesisState.removeCard(index);
-  if(!result.ok){if(result.reason==='slot_locked')this.boardUI?.showFeedback('That answer is confirmed and cannot be changed.','#7CFC00');
-   else if(result.reason==='slot_empty')this.boardUI?.showFeedback('Nothing to remove there.','#ffb347');return;}
-  this.boardUI?.flashSlot(index);this.boardUI?.refresh();this.boardUI?.showFeedback(`Answer removed from "${this.slotLabels[index]}".`,'#f0ddb0');
+  if(!result.ok){if(result.reason==='slot_locked')this.boardUI?.showFeedback(__dialogueText("scenes/HypothesisScene.js", "t_fcbf48f2a4419b240e37"),'#7CFC00');
+   else if(result.reason==='slot_empty')this.boardUI?.showFeedback(__dialogueText("scenes/HypothesisScene.js", "t_314db98846d962650a52"),'#ffb347');return;}
+  this.boardUI?.flashSlot(index);this.boardUI?.refresh();this.boardUI?.showFeedback(`${__dialogueText("scenes/HypothesisScene.js", "t_eddff93b68907f304232")}${this.slotLabels[index]}${__dialogueText("scenes/HypothesisScene.js", "t_1e4a1452ad4db45827a1")}`,'#f0ddb0');
  }
  handleMoveFailure(result={}){
-  const messages={ui_locked:'The reconstruction has already been submitted.',invalid_card:'That clue is unavailable.',
-   no_available_slot:'Every question already has an answer. Remove one first.',target_slot_locked:'That answer is confirmed. Choose another question.',
-   card_locked:'This clue is locked into a confirmed answer.',card_already_used:'That clue has already been assigned to a question.',
-   no_card_selected:'Select a clue from the evidence tray first.',slot_occupied:'That question already has an answer. Remove it first.',
-   slot_locked:'That answer is confirmed and cannot be changed.',invalid_slot:'That question is unavailable.',slot_unavailable:'That question is locked or already has an answer.'};
-  this.boardUI?.showFeedback(messages[result.reason]||'That move is not possible.','#ffb347');
+  const messages={ui_locked:__dialogueText("scenes/HypothesisScene.js", "t_45e5dc057742c591e23b"),invalid_card:__dialogueText("scenes/HypothesisScene.js", "t_e65022e757f394b5d378"),
+   no_available_slot:__dialogueText("scenes/HypothesisScene.js", "t_85e09551dfe0bb1d32d8"),target_slot_locked:__dialogueText("scenes/HypothesisScene.js", "t_720049dcf48f15a5a85f"),
+   card_locked:__dialogueText("scenes/HypothesisScene.js", "t_f4daee963fa0dd3cafc2"),card_already_used:__dialogueText("scenes/HypothesisScene.js", "t_79d6876e1c53e0fe5a17"),
+   no_card_selected:__dialogueText("scenes/HypothesisScene.js", "t_caf688e6b5146e4de198"),slot_occupied:__dialogueText("scenes/HypothesisScene.js", "t_27b3283f30d767e13a68"),
+   slot_locked:__dialogueText("scenes/HypothesisScene.js", "t_fcbf48f2a4419b240e37"),invalid_slot:__dialogueText("scenes/HypothesisScene.js", "t_da75dedab035ad2c9638"),slot_unavailable:__dialogueText("scenes/HypothesisScene.js", "t_3e09a0d43b927ad09dcf")};
+  this.boardUI?.showFeedback(messages[result.reason]||__dialogueText("scenes/HypothesisScene.js", "t_ea75bdc0365577055b9f"),'#ffb347');
  }
  confirmTheory(){
   if(this.hypothesisState?.uiLocked||!this.hypothesisState?.isTimelineComplete())return;
@@ -110,8 +111,8 @@ export class HypothesisScene extends BaseScene {
    attemptsLeft:this.hypothesisState.attemptsLeft,resultLabel:evaluation.resultLabel,score:evaluation.score});
   const delta=this.scoreManager.getSessionPoints()-before,energyResult=this.consumeMastermindEnergy();
   this.destroyCrimeTutorial();advanceCrimeTutorial(gameState,'hypothesis');this.boardUI?.refresh();
-  let message=evaluation.message+`\n\nScore: ${delta>0?'+':''}${delta}`;
-  if(energyResult?.energyReachedZero)message+='\n\nYou solved the theory, then promptly collapsed into a very convincing detective-shaped nap.';
+  let message=evaluation.message+`${__dialogueText("scenes/HypothesisScene.js", "t_c2d850d8e4c374db099f")}${delta>0?'+':''}${delta}`;
+  if(energyResult?.energyReachedZero)message+=__dialogueText("scenes/HypothesisScene.js", "t_ef7111e3eb0c650d97b8");
   this.boardUI?.showFeedback(message,evaluation.color);saveGameState();
   this.time.delayedCall(900,()=>{if(this.sys.isActive())void this.launchResultCommentScene();});return result;
  }

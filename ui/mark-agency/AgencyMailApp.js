@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { MainStoryManager } from '../../managers/MainStoryManager.js';
 import { saveGameState } from '../../gameStatePersistence.js';
 import { getAgencyMail } from '../../config/markAgencyComputerConfig.js';
@@ -15,29 +16,29 @@ const GOLD = 0xd4af37;
 
 // Category -> stripe/stamp colour, stamp label and the little gag in the letterhead.
 const CATEGORY = {
-  onboarding:    { label: 'ONBOARDING',    color: 0x2f8f7a, tag: 'Please remain employed' },
-  memo:          { label: 'MEMO',          color: 0x3d6a9e, tag: 'Filed under: whatever' },
-  instructions:  { label: 'INSTRUCTIONS',  color: 0x9a7424, tag: 'Read twice. Obey once.' },
-  newsletter:    { label: 'NEWSLETTER',    color: 0x9a4f86, tag: 'No unsubscribe button' },
-  lost_property: { label: 'LOST PROPERTY', color: 0x5f7d92, tag: 'Finders keepers: denied' },
-  mission:       { label: 'MISSION',       color: 0xa23232, tag: 'Paperwork imminent' }
+  onboarding:    { label: __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_3ff82112a59a0a3d0e2a"),    color: 0x2f8f7a, tag: __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_9d634815a6634a39f387") },
+  memo:          { label: __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_0859239b58d3f32972fc"),          color: 0x3d6a9e, tag: __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_4d85da098a96a8ff9528") },
+  instructions:  { label: __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_b52d125ce46a42c8b6f9"),  color: 0x9a7424, tag: __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_c7f5812a4493b0139d94") },
+  newsletter:    { label: __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_67700c278e588d0630cc"),    color: 0x9a4f86, tag: __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_ab95085578d8c79bc62d") },
+  lost_property: { label: __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_c641ab878f92db75123f"), color: 0x5f7d92, tag: __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_c26e7e9891f7c586de82") },
+  mission:       { label: __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_78532b626e71177e016f"),       color: 0xa23232, tag: __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_a619778b080e51376326") }
 };
 const categoryOf = key => CATEGORY[key] || {
-  label: String(key || 'MAIL').toUpperCase().replaceAll('_', ' '),
+  label: String(key || __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_619437b4201cde5b1993")).toUpperCase().replaceAll(__dialogueText("ui/mark-agency/AgencyMailApp.js", "t_d2e2adf7177b7a8afddb"), __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_36a9e7f1c95b82ffb997")),
   color: 0x6d695b,
-  tag: 'Internal circulation'
+  tag: __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_6bdb05004c2ea87209cb")
 };
 
 // Folder tabs. "test" decides which messages belong to the tab.
 const TABS = [
-  { id: 'all', label: 'INBOX', test: () => true,
-    empty: ['INBOX EMPTY', 'Not even spam. Suspicious.'] },
-  { id: 'mission', label: 'MISSION', test: m => m.category === 'mission' || Boolean(m.action),
-    empty: ['NO MISSION MAIL', 'The queue is empty. Enjoy it. Operations will notice.'] },
-  { id: 'admin', label: 'ADMIN', test: m => ['onboarding', 'memo', 'instructions'].includes(m.category) && !m.action,
-    empty: ['NO ADMIN MAIL', 'HR is currently between memos.'] },
-  { id: 'noise', label: 'NOISE', test: m => ['newsletter', 'lost_property'].includes(m.category),
-    empty: ['NO NOISE', 'The office is unnaturally quiet. Check for ceiling tiles.'] }
+  { id: 'all', label: __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_83ecb521bf320f677287"), test: () => true,
+    empty: [__dialogueText("ui/mark-agency/AgencyMailApp.js", "t_da92e0ddd0c90646a8eb"), __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_8096b5302d8ce2af5955")] },
+  { id: 'mission', label: __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_78532b626e71177e016f"), test: m => m.category === 'mission' || Boolean(m.action),
+    empty: [__dialogueText("ui/mark-agency/AgencyMailApp.js", "t_1b5c741eea660b0098c9"), __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_8c691e14a282e6ceb250")] },
+  { id: 'admin', label: __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_835d6dc88b708bc646d6"), test: m => ['onboarding', 'memo', 'instructions'].includes(m.category) && !m.action,
+    empty: [__dialogueText("ui/mark-agency/AgencyMailApp.js", "t_17c1680d548c80f7620a"), __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_fef9b5308dc41427f767")] },
+  { id: 'noise', label: __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_d331ebe20ee3073f359d"), test: m => ['newsletter', 'lost_property'].includes(m.category),
+    empty: [__dialogueText("ui/mark-agency/AgencyMailApp.js", "t_9c7a3edacc1bc80d1077"), __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_20eed772f7e440c79b91")] }
 ];
 
 // Layout (relative to the window rectangle ui.window)
@@ -67,7 +68,7 @@ export class AgencyMailApp {
   markRead(id) {
     if (!this.getMail().some(item => item.id === id) || this.isRead(id)) return;
     MainStoryManager.setSideClue(READ_KEY, { ...readState(), [id]: true });
-    if (!saveGameState()) this.ui.notice = 'Read status kept for this session; automatic saving is unavailable.';
+    if (!saveGameState()) this.ui.notice = __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_df0d14782230c0a289d1");
   }
 
   select(id) {
@@ -106,8 +107,8 @@ export class AgencyMailApp {
 
     if (!all.length) {
       d.bevel(b.x + 10, top, b.w - 20, bodyH, 0xe7e5dc, true);
-      d.pixel(b.x + 50, top + 50, 'INBOX EMPTY', 14, '#7c7049');
-      d.text(b.x + 50, top + 92, 'No messages at all. Suspicious.', 20, '#29454a', b.w - 100);
+      d.pixel(b.x + 50, top + 50, __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_da92e0ddd0c90646a8eb"), 14, '#7c7049');
+      d.text(b.x + 50, top + 92, __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_e9bfdbe4ff896bded67b"), 20, '#29454a', b.w - 100);
       return;
     }
 
@@ -159,8 +160,8 @@ export class AgencyMailApp {
 
     const unreadTotal = all.filter(item => !isRead(item.id)).length;
     const summary = unreadTotal
-      ? `${all.length} messages, ${unreadTotal} unread`
-      : 'Inbox zero. Frank is concerned.';
+      ? `${all.length}${__dialogueText("ui/mark-agency/AgencyMailApp.js", "t_7053bebfe5731da5ab0d")}${unreadTotal}${__dialogueText("ui/mark-agency/AgencyMailApp.js", "t_6048438c30656e161411")}`
+      : __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_2984f09f620a61726152");
     d.text(b.x + b.w - 22, b.y + TOOLBAR_Y + 7, summary, 13, '#29454a').setOrigin(1, 0);
   }
 
@@ -182,7 +183,7 @@ export class AgencyMailApp {
       item, i, listX + 6, top + 6 + i * ROW_STEP, LIST_W - 12, item.id === ui.selectedId, isRead(item.id)
     ));
 
-    if (!list.length) d.text(listX + 18, top + 22, 'Nothing in this folder.', 16, '#53685f', LIST_W - 36);
+    if (!list.length) d.text(listX + 18, top + 22, __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_d1261d425c12698f117d"), 16, '#53685f', LIST_W - 36);
 
     // Pager
     const py = top + bodyH - 38, current = ui.listPage;
@@ -194,7 +195,7 @@ export class AgencyMailApp {
     d.button(b.x + 12, py, '<', () => go(-1), pages > 1);
     d.pixel(b.x + 62, py + 10, `${ui.listPage + 1}/${pages}`, 9, '#2b2a26');
     d.button(b.x + 116, py, '>', () => go(1), pages > 1);
-    d.text(b.x + 184, py + 8, `${list.length} message${list.length === 1 ? '' : 's'}`, 13, '#29454a');
+    d.text(b.x + 184, py + 8, `${list.length}${__dialogueText("ui/mark-agency/AgencyMailApp.js", "t_eb56ab41212df7d52085")}${list.length === 1 ? '' : 's'}`, 13, '#29454a');
   }
 
   renderRow(item, index, x, y, w, active, read) {
@@ -215,9 +216,9 @@ export class AgencyMailApp {
 
     const flag = Boolean(item.action);
     const subject = d.text(x + 34, y + 6, '', 15, active ? '#fff0ba' : read ? '#5a6a63' : '#173b49');
-    d.fit(subject, item.subject || 'Untitled', w - 34 - (flag ? 30 : 10));
+    d.fit(subject, item.subject || __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_f59ab8d1331b7b16952f"), w - 34 - (flag ? 30 : 10));
 
-    const sender = String(item.from || 'Unknown sender').replace(' // ', ' / ');
+    const sender = String(item.from || __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_615f9907b88042a4f975")).replace(' // ', ' / ');
     const meta = d.text(x + 34, y + 32, '', 12, active ? '#cadcda' : '#53685f');
     d.fit(meta, sender, w - 44);
 
@@ -245,7 +246,7 @@ export class AgencyMailApp {
     d.rectangle(paper.x, paper.y, paper.w, 28, 0x204d5b);
     d.rectangle(paper.x, paper.y, paper.w, 10, 0x3b7686, 0.55);
     d.rectangle(paper.x, paper.y + 28, paper.w, 3, GOLD);
-    d.pixel(paper.x + 14, paper.y + 10, 'MARK AGENCY // INTERNAL MAIL', 8, '#fff0ba');
+    d.pixel(paper.x + 14, paper.y + 10, __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_ecec13901850b534048b"), 8, '#fff0ba');
     if (selected) d.text(paper.x + paper.w - 14, paper.y + 7, cat.tag, 12, '#a9c4c6').setOrigin(1, 0);
 
     if (!selected) {
@@ -259,14 +260,14 @@ export class AgencyMailApp {
 
     d.stamp(paper.x + paper.w - 18, paper.y + 42, cat.label, cat.color, -5, 9);
 
-    const title = d.pixel(x0, paper.y + 46, selected.subject || 'Untitled message', 12, '#173b49', innerW - 170).setLineSpacing(7);
+    const title = d.pixel(x0, paper.y + 46, selected.subject || __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_21ac0234c691bebd8b77"), 12, '#173b49', innerW - 170).setLineSpacing(7);
 
     const mY = title.y + title.height + 14;
-    const agent = ui.state?.playerName || ui.state?.agentName || 'Agent';
+    const agent = ui.state?.playerName || ui.state?.agentName || __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_11b39c93777e8f1f3983");
 
     d.pixel(x0, mY + 4, 'FROM', 8, '#7c7049');
     const from = d.text(x0 + 62, mY, '', 15, '#2f3d3b');
-    d.fit(from, selected.from || 'Unknown sender', innerW - 62 - 10);
+    d.fit(from, selected.from || __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_615f9907b88042a4f975"), innerW - 62 - 10);
 
     d.pixel(x0, mY + 28, 'TO', 8, '#7c7049');
     const to = d.text(x0 + 62, mY + 24, '', 15, '#2f3d3b');
@@ -274,7 +275,7 @@ export class AgencyMailApp {
 
     d.pixel(x0 + 290, mY + 28, 'DATE', 8, '#7c7049');
     const date = d.text(x0 + 350, mY + 24, '', 15, '#2f3d3b');
-    d.fit(date, selected.date || 'Unknown', innerW - 350);
+    d.fit(date, selected.date || __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_b764cdc0eab713746721"), innerW - 350);
 
     const dividerY = mY + 54;
     this.dashed(x0, dividerY, innerW);
@@ -304,9 +305,9 @@ export class AgencyMailApp {
     }
 
     const hint = !selected.action ? ''
-      : !selected.actionEnabled ? 'Complete the current mission first.'
-      : selected.action.type === 'next_mission' ? 'Opens the assignment review. Nothing is accepted yet.'
-      : 'Opens the report form.';
+      : !selected.actionEnabled ? __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_d11c3695913d2d1ef679")
+      : selected.action.type === 'next_mission' ? __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_76c70d8774c67633eafc")
+      : __dialogueText("ui/mark-agency/AgencyMailApp.js", "t_7202671a33dedfb773db");
 
     const message = ui.notice || hint;
     if (message) {

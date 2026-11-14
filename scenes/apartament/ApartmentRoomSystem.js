@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 import { markApartmentVisited } from '../../managers/ApartmentVisitRegistry.js';
 import {
@@ -313,7 +314,7 @@ export class ApartmentRoomSystem {
     }
 
     this.roomLabel.setText(
-      room.label || this.roomId.replaceAll('_', ' ')
+      room.label || this.roomId.replaceAll(__dialogueText("scenes/apartament/ApartmentRoomSystem.js", "t_d2e2adf7177b7a8afddb"), __dialogueText("scenes/apartament/ApartmentRoomSystem.js", "t_36a9e7f1c95b82ffb997"))
     );
 
     const nextId = this.nextRoomId();
@@ -322,8 +323,8 @@ export class ApartmentRoomSystem {
 
     this.navigationLabel.setText(
       this.navigationGoesLeft()
-        ? `< ${label}`
-        : `${label} >`
+        ? `${__dialogueText("scenes/apartament/ApartmentRoomSystem.js", "t_be6e0938681083fa4b6c")}${label}`
+        : `${label}${__dialogueText("scenes/apartament/ApartmentRoomSystem.js", "t_31db8c407f903ec137b8")}`
     );
 
     this.navigation.setVisible(this.roomIds.length > 1);
@@ -388,7 +389,7 @@ export class ApartmentRoomSystem {
 
     const { width, height } = this.scene.scale;
 
-    if (this.background?.type === 'Image') {
+    if (this.background?.type === __dialogueText("scenes/apartament/ApartmentRoomSystem.js", "t_1aa4cb0bcca76e92e306")) {
       this.background
         .setPosition(width / 2, height / 2)
         .setDisplaySize(width, height);

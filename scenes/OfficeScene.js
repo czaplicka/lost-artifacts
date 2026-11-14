@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { audioManager } from '../managers/AudioManager.js';
 import { OfficeSaveUI } from '../ui/OfficeSaveUI.js';
 import { gameState } from '../GameData.js';
@@ -281,7 +282,7 @@ export class OfficeScene extends BaseScene {
     this.createDoorSigns();
     this.createSaveControls();
 
-    this.monologue?.startIdle('idle.office');
+    this.monologue?.startIdle(__dialogueText("scenes/OfficeScene.js", "t_d6509e0b2500397e2bd5"));
     this.setupAudioUnlock();
 
     this.navigation.goTo('office', false);
@@ -467,22 +468,22 @@ export class OfficeScene extends BaseScene {
   getOfficeRoomMeta(roomKey) {
     const meta = {
       elevator: {
-        label: 'ELEVATOR',
+        label: __dialogueText("scenes/OfficeScene.js", "t_8ec78fd4e0c76ee47e25"),
         subtitle: this.hasCompletedFirstMission()
-          ? 'Back in service'
-          : 'Out of order'
+          ? __dialogueText("scenes/OfficeScene.js", "t_82d1f7cc09a97dc7b5be")
+          : __dialogueText("scenes/OfficeScene.js", "t_24d8f84a780c7168cc3f")
       },
       storage: {
-        label: 'CASE ROOM',
-        subtitle: 'Globe & cabinet'
+        label: __dialogueText("scenes/OfficeScene.js", "t_5b24b840a76014023657"),
+        subtitle: __dialogueText("scenes/OfficeScene.js", "t_6ac6b00357d9081fdc38")
       },
       office: {
-        label: 'OFFICE',
-        subtitle: 'Desk & denial'
+        label: __dialogueText("scenes/OfficeScene.js", "t_9af0ff0f58a463fe73ff"),
+        subtitle: __dialogueText("scenes/OfficeScene.js", "t_55483976a9e1caae2b56")
       },
       cabinet: {
-        label: 'RECORDS',
-        subtitle: 'Ledger & atlas'
+        label: __dialogueText("scenes/OfficeScene.js", "t_408d2e9270273051bb20"),
+        subtitle: __dialogueText("scenes/OfficeScene.js", "t_163bcef7b4a7b5a834c6")
       }
     };
 
@@ -499,15 +500,15 @@ export class OfficeScene extends BaseScene {
       doors: [
         {
           id: 'archive',
-          label: 'ARCHIVE',
-          subtitle: 'Paper. So much paper.',
+          label: __dialogueText("scenes/OfficeScene.js", "t_b22a9799327ae5c2ede9"),
+          subtitle: __dialogueText("scenes/OfficeScene.js", "t_4e7499010dd7e1ad7e0a"),
           glyph: 'archive',
           lockedLabel: 'LOCKED',
           isBlocked: () => this.isArchiveBlocked(),
           onBlockedClick: () => {
             if (!this.uiLocked && this.isOfficeTutorialBlocking()) {
               this.showOfficeStatusMessage(
-                'Finish your introduction before visiting other rooms.'
+                __dialogueText("scenes/OfficeScene.js", "t_fdb4e3e1e53a1750aaf2")
               );
             }
           },
@@ -515,8 +516,8 @@ export class OfficeScene extends BaseScene {
         },
         {
           id: 'storage',
-          label: 'STORAGE ROOM',
-          subtitle: 'Gadgets, manuals, Alex',
+          label: __dialogueText("scenes/OfficeScene.js", "t_599b626e7206a74d972a"),
+          subtitle: __dialogueText("scenes/OfficeScene.js", "t_0cb148a28ca68d58479d"),
           glyph: 'storage',
           isBlocked: () => this.isStorageBlocked(),
           onOpen: () => this.openStorage()
@@ -548,7 +549,7 @@ export class OfficeScene extends BaseScene {
 
     if (!isStorage && this.isOfficeTutorialBlocking()) {
       this.showOfficeStatusMessage(
-        'Finish your introduction before visiting other rooms.'
+        __dialogueText("scenes/OfficeScene.js", "t_fdb4e3e1e53a1750aaf2")
       );
       return false;
     }
@@ -580,7 +581,7 @@ export class OfficeScene extends BaseScene {
         this.sys.isActive()
       ) {
         this.showOfficeStatusMessage(
-          `The ${roomName} could not be opened.`
+          `${__dialogueText("scenes/OfficeScene.js", "t_103c5169871d49be7a2e")}${roomName}${__dialogueText("scenes/OfficeScene.js", "t_601ea6e3e0cdd6fbc311")}`
         );
       }
 
@@ -593,7 +594,7 @@ export class OfficeScene extends BaseScene {
         );
 
         this.showOfficeStatusMessage(
-          `The ${roomName} could not be opened.`
+          `${__dialogueText("scenes/OfficeScene.js", "t_103c5169871d49be7a2e")}${roomName}${__dialogueText("scenes/OfficeScene.js", "t_601ea6e3e0cdd6fbc311")}`
         );
       }
 
@@ -618,7 +619,7 @@ export class OfficeScene extends BaseScene {
     return this._openOfficeRoom(
       'AgencyStorageScene',
       'isOpeningStorage',
-      'storage room'
+      __dialogueText("scenes/OfficeScene.js", "t_81b1437735c9dc91dee1")
     );
   }
 
@@ -807,7 +808,7 @@ export class OfficeScene extends BaseScene {
 
       if (!isCurrent()) return false;
 
-      await restoreLayer('HUD visibility', async () => {
+      await restoreLayer(__dialogueText("scenes/OfficeScene.js", "t_f89b936161f25346de58"), async () => {
         this.releasePIOfficeHudLock();
 
         const visible = !this.agencyLedgerUI?.isOpen;
@@ -836,7 +837,7 @@ export class OfficeScene extends BaseScene {
         );
       }
 
-      await restoreLayer('Tutorial', async () => {
+      await restoreLayer(__dialogueText("scenes/OfficeScene.js", "t_c26982b1425da26a9637"), async () => {
         this.restoreFirstCaseTutorial();
       });
 
@@ -1178,7 +1179,7 @@ export class OfficeScene extends BaseScene {
 
     if (this.sys.isActive()) {
       this.showOfficeStatusMessage(
-        'The elevator opens. An unexpected victory for maintenance.'
+        __dialogueText("scenes/OfficeScene.js", "t_218af78fa4d07edacf36")
       );
     }
   }
@@ -1398,7 +1399,7 @@ export class OfficeScene extends BaseScene {
 
       if (!opened) {
         this.showOfficeStatusMessage(
-          'This screen could not be opened. Please try again.'
+          __dialogueText("scenes/OfficeScene.js", "t_a475e66491996ef650aa")
         );
         return false;
       }
@@ -1418,7 +1419,7 @@ export class OfficeScene extends BaseScene {
         );
 
         this.showOfficeStatusMessage(
-          'This screen could not be opened. Please try again.'
+          __dialogueText("scenes/OfficeScene.js", "t_a475e66491996ef650aa")
         );
       }
 
@@ -1468,11 +1469,11 @@ export class OfficeScene extends BaseScene {
     const mission = this.gameState.currentMission || {};
 
     panel.open({
-      artifact: mission.artifact || 'UNKNOWN ARTIFACT',
-      city: mission.city || 'UNKNOWN CITY',
-      country: mission.country || 'UNKNOWN COUNTRY',
+      artifact: mission.artifact || __dialogueText("scenes/OfficeScene.js", "t_51b01e8422efd81865f3"),
+      city: mission.city || __dialogueText("scenes/OfficeScene.js", "t_031708f5a6c18e0a6279"),
+      country: mission.country || __dialogueText("scenes/OfficeScene.js", "t_e282dbbdd7a0fe3f46f5"),
       description:
-        mission.description || 'No case description available.',
+        mission.description || __dialogueText("scenes/OfficeScene.js", "t_5b90bad5ea1caf117c4e"),
       significance: mission.significance || '',
       clue: mission.clue || '',
       artifactKey: mission.artifactKey || ''
@@ -1617,37 +1618,37 @@ export class OfficeScene extends BaseScene {
       this.events.off(event, callback, this);
     }
 
-    clean('Tutorial', () => {
+    clean(__dialogueText("scenes/OfficeScene.js", "t_c26982b1425da26a9637"), () => {
       this.suspendFirstCaseTutorial();
     });
 
-    clean('Ledger close', () => {
+    clean(__dialogueText("scenes/OfficeScene.js", "t_9481ee5252a0f469c224"), () => {
       this.agencyLedgerUI?.close({
         restoreHud: false
       });
     });
 
-    clean('Ledger', () => {
+    clean(__dialogueText("scenes/OfficeScene.js", "t_ee69eb4afc76aae085cd"), () => {
       this.agencyLedgerUI?.destroy?.();
     });
 
-    clean('Save UI', () => {
+    clean(__dialogueText("scenes/OfficeScene.js", "t_5df4278ace74baa7c8cb"), () => {
       this.saveUI?.destroy?.();
     });
 
-    clean('Navigation', () => {
+    clean(__dialogueText("scenes/OfficeScene.js", "t_3db65f8c2a7d1861b4bc"), () => {
       this.navigation?.destroy?.();
     });
 
-    clean('Hotspots', () => {
+    clean(__dialogueText("scenes/OfficeScene.js", "t_07d25c2b1b907fd071f7"), () => {
       this.hotspotManager?.destroy?.();
     });
 
-    clean('Ambient audio', () => {
+    clean(__dialogueText("scenes/OfficeScene.js", "t_a78a25792364c427f7ee"), () => {
       this._stopOfficeAmbient();
     });
 
-    clean('Door signs', () => {
+    clean(__dialogueText("scenes/OfficeScene.js", "t_7e1c5362ed106b31dac8"), () => {
       this.doorSigns?.destroy();
     });
 

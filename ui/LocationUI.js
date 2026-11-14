@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { planTravel, travelNodeId } from '../config/TravelNetwork.js';
 
 export function normalizeCityId(value) {
@@ -24,7 +25,7 @@ export function validateSetupData(suspects, missions, locations) {
   if (!Array.isArray(locations) || !locations.length) throw new Error('No locations data available.');
   const ids = new Set();
   locations.forEach(location => {
-    const id = resolveLocationId(location, 'setup validation');
+    const id = resolveLocationId(location, __dialogueText("ui/LocationUI.js", "t_019fdc716a6077dd42c0"));
     if (!id) throw new Error('A location is missing both id and city.');
     if (ids.has(id)) throw new Error(`Duplicate location id: ${id}`);
     ids.add(id);

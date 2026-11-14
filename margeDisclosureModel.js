@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 export const MARGE_DISCLOSURE_KEY='marge_hr_disclosure_v1';
 const copy=value=>structuredClone(value);
 const isRecord=value=>value!==null&&typeof value==='object'&&!Array.isArray(value);
@@ -6,7 +7,7 @@ export function validateMargeDisclosureData(raw){
   for(const field of ['title','choicePrompt','confirmLabel','cancelLabel'])if(typeof raw[field]!=='string'||!raw[field].trim())throw Error(`Missing ${field}.`);
   for(const line of raw.introLines)if(typeof line!=='string'||!line.trim())throw Error('Invalid introduction.');
   for(const field of ['choiceRequired','cancelled','unavailable','confirmed','reviewTitle'])if(typeof raw.messages?.[field]!=='string'||!raw.messages[field].trim())throw Error('Invalid disclosure messages.');
-  if(raw.commonClue?.name!=='Gordon'||raw.commonClue?.role!=='agency_supervisor'||typeof raw.commonClue?.source!=='string')throw Error('Invalid Gordon clue.');
+  if(raw.commonClue?.name!==__dialogueText("margeDisclosureModel.js", "t_456a845d1b0b1a1bd192")||raw.commonClue?.role!=='agency_supervisor'||typeof raw.commonClue?.source!=='string')throw Error('Invalid Gordon clue.');
   const ids=new Set();
   for(const choice of raw.choices){
     if(!['official_record','limited_confirmation','restricted_copy'].includes(choice.id)||ids.has(choice.id))throw Error('Invalid disclosure choice.');

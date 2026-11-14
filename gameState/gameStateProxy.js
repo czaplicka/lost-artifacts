@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { GameStateManager } from './GameStateManager.js';
 
 import {
@@ -266,7 +267,7 @@ export function resetReconstructedHeist() {
 if (typeof window !== 'undefined') {
   const debugApi = Object.freeze({
     _message:
-      'Read-only debug API. Use imported gameState in game code.',
+      __dialogueText("gameState/gameStateProxy.js", "t_ffb9402c6c15946951e3"),
 
 
     getState: () => manager.getState(),

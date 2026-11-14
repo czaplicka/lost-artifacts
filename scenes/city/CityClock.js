@@ -1,8 +1,9 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import {gameState} from '../../GameData.js';
 import {LOCATION_HOURS,MINUTES_PER_DAY} from './CityConfig.js';
 export class CityClock {
  getCityClock(){const rawHour=Number(gameState.currentHour??gameState.hour??8),rawMinute=Number(gameState.currentMinute??gameState.minute??0),hour=Number.isFinite(rawHour)?Math.max(0,Math.floor(rawHour)):8,minute=Number.isFinite(rawMinute)?Math.max(0,Math.floor(rawMinute)):0,total=(hour*60+minute)%MINUTES_PER_DAY;return {hour:Math.floor(total/60),minute:total%60,totalMinutes:total};}
- getPartOfDayForHour(hour){if(hour>=6&&hour<12)return 'Morning';if(hour>=12&&hour<18)return 'Afternoon';if(hour>=18&&hour<22)return 'Evening';return 'Night';}
+ getPartOfDayForHour(hour){if(hour>=6&&hour<12)return __dialogueText("scenes/city/CityClock.js", "t_e9376a281aac57bb78e2");if(hour>=12&&hour<18)return __dialogueText("scenes/city/CityClock.js", "t_fb847b43637eee429168");if(hour>=18&&hour<22)return __dialogueText("scenes/city/CityClock.js", "t_458c1fed574354042397");return __dialogueText("scenes/city/CityClock.js", "t_4e9f8db8242b57e72e00");}
  isLocationOpen(locationId,clock=this.getCityClock()){
   const city=this.city||this.cityData||(this.cache?.json?.get('locations')||[]).find(c=>c.id===this.cityId),place=city?.cityPlaces?.[locationId];
   if(place?.enabled===false)return false;
@@ -11,5 +12,5 @@ export class CityClock {
  }
  getMinutesUntilOpening(locationId){const clock=this.getCityClock();if(this.isLocationOpen(locationId,clock))return 0;for(let minutes=1;minutes<=MINUTES_PER_DAY;minutes++){const total=(clock.totalMinutes+minutes)%MINUTES_PER_DAY;if(this.isLocationOpen(locationId,{hour:Math.floor(total/60),minute:total%60}))return minutes;}return null;}
  formatCityClock(clock){return `${String(clock.hour).padStart(2,'0')}:${String(clock.minute).padStart(2,'0')}`;}
- formatWaitDuration(minutes){const hours=Math.floor(minutes/60),remaining=minutes%60;if(hours&&remaining)return `${hours}h ${remaining}m`;if(hours)return `${hours}h`;return `${remaining}m`;}
+ formatWaitDuration(minutes){const hours=Math.floor(minutes/60),remaining=minutes%60;if(hours&&remaining)return `${hours}${__dialogueText("scenes/city/CityClock.js", "t_17c76396f75dbc3aeb88")}${remaining}${__dialogueText("scenes/city/CityClock.js", "t_62c66a7a5dd70c314661")}`;if(hours)return `${hours}h`;return `${remaining}m`;}
 }

@@ -1,16 +1,17 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { audioManager } from '../../managers/AudioManager.js';
 
 const HIDDEN_OBJECT_FOUND_POINTS = 15;
 const HIDDEN_OBJECT_MISS_POINTS = -3;
 const HIDDEN_OBJECT_FOUND_COLOR = '#7CFC00';
-const FOUND_VERBS = ['Found:', 'Bagged:', 'Tagged:', 'Gotcha:', 'Evidence logged:'];
+const FOUND_VERBS = ['Found:', 'Bagged:', 'Tagged:', 'Gotcha:', __dialogueText("scenes/hiddenObjects/HiddenObjectsInteractionController.js", "t_1253bf759a5735259d9e")];
 const MISS_LINES = [
-  'Nothing there. Just a very confident wall.',
-  'Bold guess. Wrong, but bold.',
-  'You poked the scenery. It is unimpressed.',
-  'That is not evidence. That is decor.',
-  'The dust bunnies send their regards.',
-  'Close. Not that close.'
+  __dialogueText("scenes/hiddenObjects/HiddenObjectsInteractionController.js", "t_67aed5c5606652f59790"),
+  __dialogueText("scenes/hiddenObjects/HiddenObjectsInteractionController.js", "t_b62301f8718d6bb4eb77"),
+  __dialogueText("scenes/hiddenObjects/HiddenObjectsInteractionController.js", "t_4af8afde8ac5a999fbd8"),
+  __dialogueText("scenes/hiddenObjects/HiddenObjectsInteractionController.js", "t_87148da3f34a8554dbc7"),
+  __dialogueText("scenes/hiddenObjects/HiddenObjectsInteractionController.js", "t_92beebf9a6f8a26e1204"),
+  __dialogueText("scenes/hiddenObjects/HiddenObjectsInteractionController.js", "t_e4dc00a307a5c98c7d0a")
 ];
 
 export class HiddenObjectsInteractionController {
@@ -77,7 +78,7 @@ export class HiddenObjectsInteractionController {
       scene.stateManager.storeHiddenObjectClue(itemData, clueType);
     }
     const verb = FOUND_VERBS[Math.floor(Math.random() * FOUND_VERBS.length)];
-    scene.ui.showMessage(`${verb} ${itemData.item} (+${points})`, HIDDEN_OBJECT_FOUND_COLOR);
+    scene.ui.showMessage(`${verb}${__dialogueText("scenes/hiddenObjects/HiddenObjectsInteractionController.js", "t_36a9e7f1c95b82ffb997")}${itemData.item}${__dialogueText("scenes/hiddenObjects/HiddenObjectsInteractionController.js", "t_2df029fdd16bf06b092d")}${points}${__dialogueText("scenes/hiddenObjects/HiddenObjectsInteractionController.js", "t_ba5ec51d07a4ac0e9516")}`, HIDDEN_OBJECT_FOUND_COLOR);
     if (scene.activeItems.length > 0 && scene.foundItems.size >= scene.activeItems.length) this.finishScene(true);
     return true;
   }
@@ -96,7 +97,7 @@ export class HiddenObjectsInteractionController {
     this.bumpText(scene.ui.missesText);
     this.bumpText(scene.ui.scoreText);
     this.flashScreen(0xff4d4d, 0.12, 120);
-    scene.ui.showMessage(`${this.pickMissLine()} (${HIDDEN_OBJECT_MISS_POINTS})`, '#ff8a8a');
+    scene.ui.showMessage(`${this.pickMissLine()}${__dialogueText("scenes/hiddenObjects/HiddenObjectsInteractionController.js", "t_4f5a2ada1166172aa174")}${HIDDEN_OBJECT_MISS_POINTS}${__dialogueText("scenes/hiddenObjects/HiddenObjectsInteractionController.js", "t_ba5ec51d07a4ac0e9516")}`, __dialogueText("scenes/hiddenObjects/HiddenObjectsInteractionController.js", "t_c5c9363306629d4c4527"));
   }
 
   pickMissLine() {

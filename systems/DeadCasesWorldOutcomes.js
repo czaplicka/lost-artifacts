@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 export const DEAD_MEN_WORLD_CASE='pi_dead_men_calling';
 export const DEAD_MAIL_WORLD_CASE='pi_dead_mail_preview';
 export const DEAD_WORLD_CASES=new Set([DEAD_MEN_WORLD_CASE,DEAD_MAIL_WORLD_CASE]);
@@ -19,8 +20,8 @@ export function deadCasesWorldOutcomes(state,now=Date.now()){
  if(quest?.status==='completed'&&settlement?.phase==='completed'&&settlement.paid===true&&
    settlement.xp?.applied===true&&typeof settlement.id==='string'&&settlement.id&&
    quest.resolution?.settlementId===settlement.id){
-  events.push(candidate(state,DEAD_MEN_WORLD_CASE,safeTitle(quest.title,'Dead Men Calling'),settlement.completedAt,now,
-   'piDeadMenCallingFinale.settlement',{
+  events.push(candidate(state,DEAD_MEN_WORLD_CASE,safeTitle(quest.title,__dialogueText("systems/DeadCasesWorldOutcomes.js", "t_dac63505a911d97e2036")),settlement.completedAt,now,
+   __dialogueText("systems/DeadCasesWorldOutcomes.js", "t_221749c1d98b5e6902a9"),{
     settlementId:settlement.id,outcomeCode:'verified_calls_report'
    }));
  }
@@ -28,19 +29,19 @@ export function deadCasesWorldOutcomes(state,now=Date.now()){
  if(state.deadMailPreview?.version===1&&finale?.version===1&&finale.completed===true&&
    finale.stage==='epilogue'&&finale.xp?.applied===true){
   const contract=state.piQuests?.quests?.[DEAD_MAIL_WORLD_CASE];
-  events.push(candidate(state,DEAD_MAIL_WORLD_CASE,safeTitle(contract?.title,'Dead Mail'),finale.completedAt,now,
-   'deadMailPreview.finale',{
+  events.push(candidate(state,DEAD_MAIL_WORLD_CASE,safeTitle(contract?.title,__dialogueText("systems/DeadCasesWorldOutcomes.js", "t_16abdc3e0b396e03e229")),finale.completedAt,now,
+   __dialogueText("systems/DeadCasesWorldOutcomes.js", "t_bc2553071cb109d342d1"),{
     settlementId:null,outcomeCode:'available_finale_completed',contentScope:'development_preview'
    }));
  }
  return events;
 }
 export function deadCaseWorldText(event){
- if(event.caseId===DEAD_MEN_WORLD_CASE&&event.source==='piDeadMenCallingFinale.settlement'&&event.outcomeCode==='verified_calls_report'){
-  return 'The confirmed report explains the three calls using the recorded admission, original-file comparison and authorised dispatch records. The separate accounting question remains unresolved. This office notice records no arrest, conviction or finding of an accounting offence.';
+ if(event.caseId===DEAD_MEN_WORLD_CASE&&event.source===__dialogueText("systems/DeadCasesWorldOutcomes.js", "t_221749c1d98b5e6902a9")&&event.outcomeCode==='verified_calls_report'){
+  return __dialogueText("systems/DeadCasesWorldOutcomes.js", "t_fa716cf93182dde26241");
  }
- if(event.caseId===DEAD_MAIL_WORLD_CASE&&event.source==='deadMailPreview.finale'&&event.outcomeCode==='available_finale_completed'){
-  return 'The available Dead Mail finale has been completed and the final report submitted. This private notice records no court verdict and does not release client material. Any souvenir still waiting to be collected remains handled by the original reward screen.';
+ if(event.caseId===DEAD_MAIL_WORLD_CASE&&event.source===__dialogueText("systems/DeadCasesWorldOutcomes.js", "t_bc2553071cb109d342d1")&&event.outcomeCode==='available_finale_completed'){
+  return __dialogueText("systems/DeadCasesWorldOutcomes.js", "t_b5e3183439d060bf31aa");
  }
- return 'The case is marked completed in an older record. Detailed findings were not verified by this world-event entry. Consult the original report.';
+ return __dialogueText("systems/DeadCasesWorldOutcomes.js", "t_80ab6a4bdc00fda0b31b");
 }

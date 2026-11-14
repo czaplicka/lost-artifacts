@@ -1,58 +1,59 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 export const MOMS_CASE_ID = 'pi_moms_not_proud';
 export const MOMS_CONTENT_VERSION = 1;
 
 export const MOMS_BRIEFING = Object.freeze({
   id: 'moms_not_proud_client_briefing',
-  from: 'Vincenzo Moretti',
-  subject: "Mom's Not Proud — a wall-related emergency",
+  from: __dialogueText("assets/data/momsNotProudData.js", "t_01de6d6c4eda78bc6139"),
+  subject: __dialogueText("assets/data/momsNotProudData.js", "t_dd2efa4d4dcaaca0ccdd"),
 
   body:
-    'Detective,\n\n' +
-    'Someone is painting outside my pizzeria after closing.\n\n' +
-    'The artwork appears to depict a pigeon judging my pizza. ' +
-    'I will accept criticism from customers, but not birds.\n\n' +
-    'Please identify the person and establish exactly what they are doing. ' +
-    'Observe from the public pavement. Do not enter the premises.\n\n' +
-    'I have supplied a family photograph in case you need to speak to my daughter Raven. ' +
-    'She helps with the advertising. This does not make her a suspect. ' +
-    'I am saying this before you make that face.\n\n' +
-    'My wife restores historic buildings for the city. ' +
-    'If she hears the words “unauthorised mural”, I shall be sleeping next to the flour.\n\n' +
-    'Agreed fee: $150.\n\n' +
-    'Vincenzo Moretti'
+    __dialogueText("assets/data/momsNotProudData.js", "t_22a705e57674f27a7c07") +
+    __dialogueText("assets/data/momsNotProudData.js", "t_5a0ce8baf6426547cd74") +
+    __dialogueText("assets/data/momsNotProudData.js", "t_cd86072d69a16a43dfb2") +
+    __dialogueText("assets/data/momsNotProudData.js", "t_9f4e2bc558fea2e89848") +
+    __dialogueText("assets/data/momsNotProudData.js", "t_2d46bddd3f44f7ab2723") +
+    __dialogueText("assets/data/momsNotProudData.js", "t_9482daca577032b6dc91") +
+    __dialogueText("assets/data/momsNotProudData.js", "t_e3cf5ca0377a45431391") +
+    __dialogueText("assets/data/momsNotProudData.js", "t_ed47aca36fef4a3bbed6") +
+    __dialogueText("assets/data/momsNotProudData.js", "t_b112c4a90c52f320e867") +
+    __dialogueText("assets/data/momsNotProudData.js", "t_020eac64106b33e90dae") +
+    __dialogueText("assets/data/momsNotProudData.js", "t_66616aa7a6fde5b520e3") +
+    __dialogueText("assets/data/momsNotProudData.js", "t_55c1d841ab69b08657f1") +
+    __dialogueText("assets/data/momsNotProudData.js", "t_01de6d6c4eda78bc6139")
 });
 
 export const MOMS_OBJECTIVES = Object.freeze([
   Object.freeze({
     id: 'review_briefing',
-    text: 'Read Moretti’s instructions and inspect the family photograph.'
+    text: __dialogueText("assets/data/momsNotProudData.js", "t_e6fd108b7acaee71d995")
   }),
 
   Object.freeze({
     id: 'document_activity',
-    text: 'Photograph the artist working and obtain a clear identification photograph during the same observation.'
+    text: __dialogueText("assets/data/momsNotProudData.js", "t_82370c16c74a351d2bc3")
   }),
 
   Object.freeze({
     id: 'identify_artist',
-    text: 'Compare the identification photograph with the supplied family photograph.'
+    text: __dialogueText("assets/data/momsNotProudData.js", "t_89a3e9ccc676320d10c6")
   }),
 
   Object.freeze({
     id: 'verify_permission',
-    text: 'Speak to the artist and check the written permission.'
+    text: __dialogueText("assets/data/momsNotProudData.js", "t_3b0210ac401145fbd56a")
   }),
 
   Object.freeze({
     id: 'submit_report',
-    text: 'Submit your findings to the client.'
+    text: __dialogueText("assets/data/momsNotProudData.js", "t_0d7bb48e379f506e6ee7")
   })
 ]);
 
 export const MOMS_PHOTO_RULES = Object.freeze({
   activity: Object.freeze({
     id: 'activity',
-    label: 'The painting in progress',
+    label: __dialogueText("assets/data/momsNotProudData.js", "t_7970d82a26cb829d3f7f"),
 
     requiredSubjects: Object.freeze([
       'artist',
@@ -61,21 +62,21 @@ export const MOMS_PHOTO_RULES = Object.freeze({
     ]),
 
     description:
-      'The artist is applying paint to a panel mounted outside the pizzeria. ' +
-      'This documents the activity, not whether it was authorised.'
+      __dialogueText("assets/data/momsNotProudData.js", "t_6b2262932aa74d3f5e38") +
+      __dialogueText("assets/data/momsNotProudData.js", "t_1b680958ee7f93ca465b")
   }),
 
   identity: Object.freeze({
     id: 'identity',
-    label: 'The artist’s face',
+    label: __dialogueText("assets/data/momsNotProudData.js", "t_a125a54fa5db13f142e1"),
 
     requiredSubjects: Object.freeze([
       'artist_face'
     ]),
 
     description:
-      'A clear view of the artist’s face. ' +
-      'It must be compared with the client’s reference photograph.'
+      __dialogueText("assets/data/momsNotProudData.js", "t_f84bd9cfa5e08c800558") +
+      __dialogueText("assets/data/momsNotProudData.js", "t_da535b058d47c29509e2")
   }),
 
   requireSameObservation: true
@@ -84,19 +85,19 @@ export const MOMS_PHOTO_RULES = Object.freeze({
 export const MOMS_IDENTITY_OPTIONS = Object.freeze([
   Object.freeze({
     id: 'raven',
-    label: 'Raven Moretti',
+    label: __dialogueText("assets/data/momsNotProudData.js", "t_77efffcc1c7e20c4fe2b"),
     correct: true
   }),
 
   Object.freeze({
     id: 'vincenzo',
-    label: 'Vincenzo Moretti',
+    label: __dialogueText("assets/data/momsNotProudData.js", "t_01de6d6c4eda78bc6139"),
     correct: false
   }),
 
   Object.freeze({
     id: 'unidentified',
-    label: 'The photographs do not permit identification',
+    label: __dialogueText("assets/data/momsNotProudData.js", "t_945716aa1fd1978de4bc"),
     correct: false
   })
 ]);
@@ -104,61 +105,61 @@ export const MOMS_IDENTITY_OPTIONS = Object.freeze([
 export const MOMS_DIALOGUE = Object.freeze([
   Object.freeze({
     id: 'introduction',
-    speaker: 'Raven',
+    speaker: __dialogueText("assets/data/momsNotProudData.js", "t_9cccdbb77e00a04c314f"),
 
     text:
-      'Dad hired a detective? Excellent. ' +
-      'The marketing budget has finally overtaken the napkin budget.'
+      __dialogueText("assets/data/momsNotProudData.js", "t_04a2cc9aaae280b4d94f") +
+      __dialogueText("assets/data/momsNotProudData.js", "t_91ad3e6fc97bbb401f63")
   }),
 
   Object.freeze({
     id: 'surface',
-    speaker: 'Raven',
+    speaker: __dialogueText("assets/data/momsNotProudData.js", "t_9cccdbb77e00a04c314f"),
 
     text:
-      'It is a removable advertising panel. ' +
-      'The original wall is behind it. Untouched. ' +
-      'Mum made me explain that distinction three times.'
+      __dialogueText("assets/data/momsNotProudData.js", "t_48af38283ba3d0da1472") +
+      __dialogueText("assets/data/momsNotProudData.js", "t_3c55b608eeb32f393628") +
+      __dialogueText("assets/data/momsNotProudData.js", "t_1e02154746928fd37e74")
   }),
 
   Object.freeze({
     id: 'permission',
-    speaker: 'Raven',
+    speaker: __dialogueText("assets/data/momsNotProudData.js", "t_9cccdbb77e00a04c314f"),
 
     text:
-      'Dad signed the proposal. ' +
-      '“Refresh the exterior visual communication.” ' +
-      'I even attached a sketch. He used it to write down a mozzarella delivery.'
+      __dialogueText("assets/data/momsNotProudData.js", "t_a6f0c77b8105a4711bf8") +
+      __dialogueText("assets/data/momsNotProudData.js", "t_e21211eec122394f78ea") +
+      __dialogueText("assets/data/momsNotProudData.js", "t_ff451abb63f93f8d2555")
   }),
 
   Object.freeze({
     id: 'pigeon',
-    speaker: 'Raven',
+    speaker: __dialogueText("assets/data/momsNotProudData.js", "t_9cccdbb77e00a04c314f"),
 
     text:
-      'The pigeon is not judging the pizza. ' +
-      'It is experiencing authentic Italian emotion. ' +
-      'Dad makes the same face when someone orders pineapple.'
+      __dialogueText("assets/data/momsNotProudData.js", "t_0c19dc30390d8c47f79b") +
+      __dialogueText("assets/data/momsNotProudData.js", "t_2ed5309e3ca10cd55eef") +
+      __dialogueText("assets/data/momsNotProudData.js", "t_ee6376c0020b2b024aa7")
   })
 ]);
 
 export const MOMS_DOCUMENT = Object.freeze({
   id: 'moms_signed_proposal',
-  title: 'Exterior advertising proposal',
+  title: __dialogueText("assets/data/momsNotProudData.js", "t_76152909866e9164b633"),
 
   body:
-    'MORETTI PIZZERIA\n' +
-    'Exterior visual communication refresh\n\n' +
-    'Surface: existing removable advertising panel beside the entrance.\n' +
-    'Work: repaint the panel with the attached pigeon-and-pizza design.\n' +
-    'Original building wall: no paint or alterations.\n' +
-    'Artist: Raven Moretti.\n\n' +
-    'Approved: Vincenzo Moretti.\n\n' +
-    'Handwritten addition: “Ask supplier about mozzarella.”'
+    __dialogueText("assets/data/momsNotProudData.js", "t_f421a7f972b467608d9b") +
+    __dialogueText("assets/data/momsNotProudData.js", "t_38ad8b9765ac050fe57b") +
+    __dialogueText("assets/data/momsNotProudData.js", "t_406fe95a121640fdee97") +
+    __dialogueText("assets/data/momsNotProudData.js", "t_db77cb07519eded40652") +
+    __dialogueText("assets/data/momsNotProudData.js", "t_6cda7357dc0e4b1beb57") +
+    __dialogueText("assets/data/momsNotProudData.js", "t_fdb0914289cc844a2391") +
+    __dialogueText("assets/data/momsNotProudData.js", "t_8c303c6730d6f92c0768") +
+    __dialogueText("assets/data/momsNotProudData.js", "t_a461ce9e511ca6f64e6f")
 });
 
 export const MOMS_CONCLUSION = Object.freeze({
-  question: 'What do the collected records establish?',
+  question: __dialogueText("assets/data/momsNotProudData.js", "t_e0d94a674be4b2a6c64c"),
 
   options: Object.freeze([
     Object.freeze({
@@ -166,8 +167,8 @@ export const MOMS_CONCLUSION = Object.freeze({
       correct: true,
 
       text:
-        'Raven is repainting the removable advertising panel. ' +
-        'The written approval names her and describes that work.'
+        __dialogueText("assets/data/momsNotProudData.js", "t_55fe1166b08411c92447") +
+        __dialogueText("assets/data/momsNotProudData.js", "t_cb6216db75d9eafb3d06")
     }),
 
     Object.freeze({
@@ -175,7 +176,7 @@ export const MOMS_CONCLUSION = Object.freeze({
       correct: false,
 
       text:
-        'The photographs prove that Raven damaged the original wall without permission.'
+        __dialogueText("assets/data/momsNotProudData.js", "t_101321860e5c4843be30")
     }),
 
     Object.freeze({
@@ -183,53 +184,53 @@ export const MOMS_CONCLUSION = Object.freeze({
       correct: false,
 
       text:
-        'An unidentified vandal is responsible. ' +
-        'The family photograph and signed proposal can be ignored.'
+        __dialogueText("assets/data/momsNotProudData.js", "t_5b4eb469b44f0fc965e5") +
+        __dialogueText("assets/data/momsNotProudData.js", "t_64c24037b3583c593502")
     })
   ]),
 
   correction:
-    'Separate identity, activity, surface and permission. ' +
-    'The photographs document the person and painting. ' +
-    'The proposal documents what Moretti approved.'
+    __dialogueText("assets/data/momsNotProudData.js", "t_63929243cd43605b34ed") +
+    __dialogueText("assets/data/momsNotProudData.js", "t_e8e9a46dbd7b39d507f6") +
+    __dialogueText("assets/data/momsNotProudData.js", "t_f1c762c55aaf221401ca")
 });
 
 export const MOMS_ENDINGS = Object.freeze({
   honest: Object.freeze({
     id: 'honest',
-    label: 'SUBMIT THE COMPLETE FINDINGS',
+    label: __dialogueText("assets/data/momsNotProudData.js", "t_8575d4a05741e5b00506"),
     integrityEffect: 'honest_report',
     nominalIntegrity: 5,
 
     report:
-      'The observed artist was identified as Raven Moretti by comparison ' +
-      'with the client’s supplied family photograph.\n\n' +
-      'The photographs document painting on the exterior advertising panel. ' +
-      'Raven explained that the panel is removable and that the original wall is untouched.\n\n' +
-      'The signed proposal names Raven, identifies the removable panel, ' +
-      'and authorises the pigeon-and-pizza design. ' +
-      'The client should resolve any disagreement about the design directly with the artist.\n\n' +
-      'The collected material does not support the allegation of an unknown, unauthorised vandal.',
+      __dialogueText("assets/data/momsNotProudData.js", "t_264518380f9395425488") +
+      __dialogueText("assets/data/momsNotProudData.js", "t_1f9ed298282399bd7521") +
+      __dialogueText("assets/data/momsNotProudData.js", "t_9bc532ec47f73b375c52") +
+      __dialogueText("assets/data/momsNotProudData.js", "t_e1e63946e4fb52af38b6") +
+      __dialogueText("assets/data/momsNotProudData.js", "t_18ca1394c512c3916d8b") +
+      __dialogueText("assets/data/momsNotProudData.js", "t_cce605a24cf2364b26e5") +
+      __dialogueText("assets/data/momsNotProudData.js", "t_4b75b4ed3cbf5ee4836f") +
+      __dialogueText("assets/data/momsNotProudData.js", "t_adf37dda08c07359c04e"),
 
     reply:
-      'Moretti: “I thought exterior communication meant a bigger menu.”\n\n' +
-      'Raven: “The pigeon is holding one.”\n\n' +
-      'Moretti: “Fine. But the bird pays for its own toppings.”'
+      __dialogueText("assets/data/momsNotProudData.js", "t_dc5a7697422ecc2c524f") +
+      __dialogueText("assets/data/momsNotProudData.js", "t_423991d9ae9f105ef0a3") +
+      __dialogueText("assets/data/momsNotProudData.js", "t_3f4b8ba3a34af4cf9443")
   }),
 
   conceal: Object.freeze({
     id: 'conceal',
-    label: 'WITHHOLD THE IDENTIFICATION AND APPROVAL',
+    label: __dialogueText("assets/data/momsNotProudData.js", "t_d8fe5f27d09c3884cc82"),
     integrityEffect: 'concealed_findings',
     nominalIntegrity: -5,
 
     report:
-      'Painting was observed outside the pizzeria. ' +
-      'The report does not identify the artist or provide a conclusion about permission.\n\n' +
-      'The identification match and signed approval are deliberately withheld from the client.',
+      __dialogueText("assets/data/momsNotProudData.js", "t_c7642fa30cfb4f11ddfe") +
+      __dialogueText("assets/data/momsNotProudData.js", "t_bd6cecee555f97e9d04a") +
+      __dialogueText("assets/data/momsNotProudData.js", "t_5a989e8128878b6641db"),
 
     reply:
-      'Moretti: “An inconclusive report. For $150.”\n\n' +
-      'Raven: “Dad, shall I put that on the next advertising panel?”'
+      __dialogueText("assets/data/momsNotProudData.js", "t_942dd012fc46e9d4af3f") +
+      __dialogueText("assets/data/momsNotProudData.js", "t_23c8d78e827873508a97")
   })
 });

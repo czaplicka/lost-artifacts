@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 import { gameState, resetGameState, resetCaseOutcomeState, createDefaultReconstructedHeist } from './GameData.js';
 import { debugCaseRoute } from './debugCaseRoute.js';
 import { startCaseClock } from './CaseTimeHelper.js';
@@ -228,7 +229,7 @@ function selectCase(suspectsData, missionsData, locationsData, retry = false) {
     thief,
     mission,
     crimeCityData,
-    crimeCityId: resolveLocationId(crimeCityData, 'crime city')
+    crimeCityId: resolveLocationId(crimeCityData, __dialogueText("gameSetup.js", "t_3f29a33f70a5ac625a07"))
   };
 }
 
@@ -239,9 +240,9 @@ function createEscapeRoute(locationsData, crimeCityId, template, difficulty) {
   }
   const eligible = [...new Set(
     locationsData.filter(location => {
-      const id = resolveLocationId(location, 'escape route');
+      const id = resolveLocationId(location, __dialogueText("gameSetup.js", "t_7ecf4cb93b6a23b504f1"));
       return location?.city && id !== crimeCityId && id !== HQ_ID;
-    }).map(location => resolveLocationId(location, 'escape route'))
+    }).map(location => resolveLocationId(location, __dialogueText("gameSetup.js", "t_7ecf4cb93b6a23b504f1")))
   )];
   if (eligible.length < count + 1) {
     throw new Error(

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 
 import {
@@ -38,33 +39,33 @@ let busy = false;
 export const ALIBI_QUESTIONS = [
   {
     id: 'source',
-    question: 'Where did the repeated dinner account come from?',
+    question: __dialogueText("managers/AlibiResolutionService.js", "t_d8946679c834170918ac"),
     claims: [
       {
         id: 'arthur',
-        text: 'Arthur invented three companions to conceal his own evening.'
+        text: __dialogueText("managers/AlibiResolutionService.js", "t_8fda6b95eabdcdf3235d")
       },
       {
         id: 'club',
-        text: 'The club supplied a shared script using Arthur without his agreement.'
+        text: __dialogueText("managers/AlibiResolutionService.js", "t_ea36ca1b38c458d1553f")
       },
       {
         id: 'restaurant',
-        text: 'The restaurant sold three genuine reservations with Arthur.'
+        text: __dialogueText("managers/AlibiResolutionService.js", "t_cdb358e68096911508c9")
       }
     ],
     evidence: [
       {
         id: 'events',
-        text: 'Nora’s stage record and Simon’s match sheet.'
+        text: __dialogueText("managers/AlibiResolutionService.js", "t_110908fcf067cf72a394")
       },
       {
         id: 'receipt',
-        text: 'Arthur’s receipt by itself.'
+        text: __dialogueText("managers/AlibiResolutionService.js", "t_bb1f852b6af7ee088b12")
       },
       {
         id: 'sample_requests',
-        text: 'The club sample compared with all three forwarded dinner accounts.'
+        text: __dialogueText("managers/AlibiResolutionService.js", "t_9c7957091f3787815680")
       }
     ],
     correctClaim: 'club',
@@ -72,33 +73,33 @@ export const ALIBI_QUESTIONS = [
   },
   {
     id: 'dinner',
-    question: 'What can you establish about Arthur’s Tuesday dinner?',
+    question: __dialogueText("managers/AlibiResolutionService.js", "t_fca0d76a2d30c5297e59"),
     claims: [
       {
         id: 'alone',
-        text: 'Arthur’s recorded visit was for one guest; the claimed soup account is contradicted.'
+        text: __dialogueText("managers/AlibiResolutionService.js", "t_2813812a0f769a0f0868")
       },
       {
         id: 'four',
-        text: 'Four people shared the soup dinner described in the requests.'
+        text: __dialogueText("managers/AlibiResolutionService.js", "t_84e3a086301d70263749")
       },
       {
         id: 'unknown',
-        text: 'There is no usable information about his visit.'
+        text: __dialogueText("managers/AlibiResolutionService.js", "t_69a3fbf40785b9f49705")
       }
     ],
     evidence: [
       {
         id: 'three_claims',
-        text: 'The three people repeated the same confident story.'
+        text: __dialogueText("managers/AlibiResolutionService.js", "t_aac54be2ca47a1e82636")
       },
       {
         id: 'receipt_service',
-        text: 'The authorised receipt and the restaurant’s no-hot-food confirmation.'
+        text: __dialogueText("managers/AlibiResolutionService.js", "t_dcc07ab0c22d506f448a")
       },
       {
         id: 'club_ad',
-        text: 'The club’s advertisement promises convincing evenings.'
+        text: __dialogueText("managers/AlibiResolutionService.js", "t_2a20b535c612331b409a")
       }
     ],
     correctClaim: 'alone',
@@ -106,33 +107,33 @@ export const ALIBI_QUESTIONS = [
   },
   {
     id: 'distinction',
-    question: 'How do the three people differ after independent checks?',
+    question: __dialogueText("managers/AlibiResolutionService.js", "t_69307c6b7bdb26d9e828"),
     claims: [
       {
         id: 'all_guilty',
-        text: 'All three must have committed the break-in because all three used the script.'
+        text: __dialogueText("managers/AlibiResolutionService.js", "t_4901792aede9ff1d81ce")
       },
       {
         id: 'convicted',
-        text: 'Evelyn’s unsolicited detail proves theft and requires an immediate conviction.'
+        text: __dialogueText("managers/AlibiResolutionService.js", "t_5aff9bab5c2fe8b48707")
       },
       {
         id: 'checked',
-        text: 'Nora and Simon are independently placed elsewhere; Evelyn’s contradicted account and undisclosed knowledge require investigation, not a verdict.'
+        text: __dialogueText("managers/AlibiResolutionService.js", "t_30e7a1f5e781db8d29e5")
       }
     ],
     evidence: [
       {
         id: 'admissions',
-        text: 'Nora and Simon’s own explanations, with no independent checks.'
+        text: __dialogueText("managers/AlibiResolutionService.js", "t_a7873da6644e9b61ab3e")
       },
       {
         id: 'sample_only',
-        text: 'The sample alone identifies the burglar.'
+        text: __dialogueText("managers/AlibiResolutionService.js", "t_fb7c5d2c2f34a1a991de")
       },
       {
         id: 'independent_company',
-        text: 'The signed event records and the company’s check of Evelyn’s volunteered detail.'
+        text: __dialogueText("managers/AlibiResolutionService.js", "t_c8ecf204dd0d263f13e0")
       }
     ],
     correctClaim: 'checked',
@@ -143,24 +144,24 @@ export const ALIBI_QUESTIONS = [
 export const ALIBI_ENDINGS = [
   {
     id: 'discreet',
-    label: 'RELEVANT FACTS',
-    title: 'Report the findings. Protect irrelevant private details.',
+    label: __dialogueText("managers/AlibiResolutionService.js", "t_c4d9cfcbcfb575de0086"),
+    title: __dialogueText("managers/AlibiResolutionService.js", "t_d04721eb5f1acc7b8d04"),
     bonus: 0,
     event: 'honest_pi_report',
     nominalIntegrity: 5
   },
   {
     id: 'full',
-    label: 'FULL DISCLOSURE',
-    title: 'Report the findings and include the two personal explanations.',
+    label: __dialogueText("managers/AlibiResolutionService.js", "t_ec9c2e962f7abf937a94"),
+    title: __dialogueText("managers/AlibiResolutionService.js", "t_f8ab0ddc47385b799c80"),
     bonus: 0,
     event: 'honest_pi_report',
     nominalIntegrity: 5
   },
   {
     id: 'silence',
-    label: 'TAKE THE OFFER',
-    title: 'Accept $120 for silence and send an inconclusive report.',
+    label: __dialogueText("managers/AlibiResolutionService.js", "t_2fde7518981fb4bf2515"),
+    title: __dialogueText("managers/AlibiResolutionService.js", "t_1422594578da7bced689"),
     bonus: 120,
     event: 'bribe_accepted',
     nominalIntegrity: -50
@@ -170,39 +171,39 @@ export const ALIBI_ENDINGS = [
 const REQUIRED_FLAGS = [
   [
     'receipt_received',
-    'Obtain Arthur’s authorised restaurant receipt.'
+    __dialogueText("managers/AlibiResolutionService.js", "t_b0793aeb30ef9c565a99")
   ],
   [
     'no_hot_food',
-    'Finish the restaurant’s Tuesday service enquiry.'
+    __dialogueText("managers/AlibiResolutionService.js", "t_dc11c530deafbac3113a")
   ],
   [
     'club_sample_received',
-    'Obtain the club’s demonstration sample.'
+    __dialogueText("managers/AlibiResolutionService.js", "t_1a5a93b2c9e64c5bec1f")
   ],
   [
     'nora_admitted',
-    'Confront Nora with the sample and restaurant evidence.'
+    __dialogueText("managers/AlibiResolutionService.js", "t_39d01ee201c55ba3a10f")
   ],
   [
     'simon_admitted',
-    'Confront Simon with the sample and restaurant evidence.'
+    __dialogueText("managers/AlibiResolutionService.js", "t_29fa297822f20036f869")
   ],
   [
     'evelyn_confronted',
-    'Confront Evelyn with the sample and restaurant evidence.'
+    __dialogueText("managers/AlibiResolutionService.js", "t_3bf221c2adb0555815b1")
   ],
   [
     'evelyn_slip',
-    'Record Evelyn’s volunteered description.'
+    __dialogueText("managers/AlibiResolutionService.js", "t_6e4b02bd92268ee1a338")
   ],
   [
     'company_incident_verified',
-    'Confirm the public incident statement with the company.'
+    __dialogueText("managers/AlibiResolutionService.js", "t_5d6553e524922a46af17")
   ],
   [
     'folder_detail_verified',
-    'Have the company check Evelyn’s volunteered detail.'
+    __dialogueText("managers/AlibiResolutionService.js", "t_79dc674102ca42bbec3f")
   ]
 ];
 
@@ -241,7 +242,7 @@ export function getAlibiMissing() {
     gameState.piQuests?.quests?.[ALIBI_QUEST_ID];
 
   if (!quest) {
-    return ['Accept The Borrowed Alibi.'];
+    return [__dialogueText("managers/AlibiResolutionService.js", "t_ae1abc18b910bf52f832")];
   }
 
   const flags =
@@ -258,22 +259,22 @@ export function getAlibiMissing() {
 
   if (!known.includes('nora_verified')) {
     missing.push(
-      'Collect Nora’s independent stage-attendance confirmation.'
+      __dialogueText("managers/AlibiResolutionService.js", "t_c76bb3b847afffffbc0c")
     );
   }
 
   if (!known.includes('simon_verified')) {
     missing.push(
-      'Collect Simon’s independent match confirmation.'
+      __dialogueText("managers/AlibiResolutionService.js", "t_d7ed364b0c98d3bcf09b")
     );
   }
 
   if (!read.includes('alibi_copper_receipt')) {
-    missing.push('Open Arthur’s receipt in Mail.');
+    missing.push(__dialogueText("managers/AlibiResolutionService.js", "t_43bdeac43af6b59996a8"));
   }
 
   if (!read.includes('alibi_club_sample')) {
-    missing.push('Open the club’s sample in Mail.');
+    missing.push(__dialogueText("managers/AlibiResolutionService.js", "t_0999f88c5a20fddbd56b"));
   }
 
   return missing;
@@ -376,7 +377,7 @@ export function checkAlibiAnswer(questionId) {
   ) {
     return {
       ok: false,
-      message: 'The case is not ready for reconstruction.'
+      message: __dialogueText("managers/AlibiResolutionService.js", "t_019d1aee8ef68b0abcc0")
     };
   }
 
@@ -401,8 +402,8 @@ export function checkAlibiAnswer(questionId) {
   return {
     ok,
     message: ok
-      ? 'Conclusion supported.'
-      : 'That claim and evidence do not establish the conclusion. Review the records.'
+      ? __dialogueText("managers/AlibiResolutionService.js", "t_2ff49615f89053251be2")
+      : __dialogueText("managers/AlibiResolutionService.js", "t_574085ff3b06ab601075")
   };
 }
 
@@ -430,69 +431,69 @@ export function selectAlibiEnding(id) {
 
 function narrative(id) {
   const opening =
-    'Arthur Finch’s authorised receipt records one guest, a cheese sandwich and sparkling water. The restaurant served no hot food that Tuesday evening. The three dinner accounts repeat the club’s TUE-DC-02 demonstration, which names Arthur without his agreement.';
+    __dialogueText("managers/AlibiResolutionService.js", "t_c06727115a681a38d0f5");
 
   const distinction =
-    'Independent signed stage and referee records place Nora Bell and Simon Pike elsewhere during the company’s 20:10–20:25 crime interval. Evelyn Shaw maintained the contradicted account and volunteered a physical description of the missing item. The company confirmed the match and said that description was not in its public statement. That discrepancy warrants further investigation. It is not proof of theft, and I make no finding of guilt.';
+    __dialogueText("managers/AlibiResolutionService.js", "t_a7bdbc5b4e42ae73c283");
 
   if (id === 'silence') {
     return {
       report:
-        'Arthur,\n\nI am closing the enquiry as inconclusive. I am not submitting the recovered template or my interview findings for further action. Your contract fee is due.\n\nPrivate Investigator',
+        __dialogueText("managers/AlibiResolutionService.js", "t_0f0c3f280493a3ddd188"),
 
       dossier: null,
 
       reply:
-        'Detective,\n\n“Inconclusive” is not quite the explanation I hoped for. I have paid the contract fee. Please do not describe us as friends.\n\nArthur Finch',
+        __dialogueText("managers/AlibiResolutionService.js", "t_2bedc611620fdced29ae"),
 
       summary:
-        'The detective suppressed the findings in exchange for the club’s silence payment.',
+        __dialogueText("managers/AlibiResolutionService.js", "t_e82784d3aca3c2f113a7"),
 
       deliveries: [
-        'Client: inconclusive report only',
-        'Club: acceptance of silence offer'
+        __dialogueText("managers/AlibiResolutionService.js", "t_a5113981c689b111a0a6"),
+        __dialogueText("managers/AlibiResolutionService.js", "t_8d1549a4502a035c9908")
       ],
 
       privacy:
-        'Relevant findings withheld; previous company conversations are not erased.'
+        __dialogueText("managers/AlibiResolutionService.js", "t_2ee4f65dab352277d0df")
     };
   }
 
   const privatePart = id === 'full'
-    ? '\n\nPersonal explanations: Nora bought the account to avoid a family dinner while competing in the Civic Pie Challenge, where she won after seven slices. Simon used it to avoid a compulsory company dinner while playing in the Rook & Ruin Open. Their stories were checked against independent records.'
-    : '\n\nThe two corroborated personal explanations are omitted from the client copy because their embarrassing details are not needed to clear your name.';
+    ? __dialogueText("managers/AlibiResolutionService.js", "t_2aba496278e3f7445a8d")
+    : __dialogueText("managers/AlibiResolutionService.js", "t_8074a04b0706ab6dbc11");
 
   return {
     report:
-      'Arthur,\n\n' +
+      __dialogueText("managers/AlibiResolutionService.js", "t_f66bea223f945f7fcafc") +
       opening +
       '\n\n' +
       distinction +
       privatePart +
-      '\n\nI have forwarded a factual dossier to the company’s designated records liaison for the incident investigation. This is a referral, not an arrest or conviction.\n\nPrivate Investigator',
+      __dialogueText("managers/AlibiResolutionService.js", "t_86b2345f9df7568b757a"),
 
     dossier:
       opening +
       '\n\n' +
       distinction +
-      '\n\nSources: the three original requests; the club demonstration; Arthur’s authorised receipt; the restaurant’s service confirmation; the official continuous stage record and supervised match sheet; Evelyn’s recorded words and the company liaison’s response. Only necessary timed verification is included.',
+      __dialogueText("managers/AlibiResolutionService.js", "t_5a828098152804ffe02a"),
 
-    reply: id === 'full'
-      ? 'Detective,\n\nThank you for explaining the dinner and clearing my involvement. I did not need to know about the seven slices, but I now know about the seven slices.\n\nYour fee has been paid. In future I shall dine under a pseudonym.\n\nArthur Finch'
-      : 'Detective,\n\nThank you for explaining the dinner and clearing my involvement. I appreciate the discretion.\n\nYour fee has been paid. I am relieved to learn I was alone. For a moment, I thought I had made friends.\n\nArthur Finch',
+    reply: id === __dialogueText("managers/AlibiResolutionService.js", "t_a18b869b2e81c0c52955")
+      ? __dialogueText("managers/AlibiResolutionService.js", "t_b25c65a67690ecae1a4d")
+      : __dialogueText("managers/AlibiResolutionService.js", "t_dd1772b31f234506e79a"),
 
-    summary: id === 'full'
-      ? 'The template was exposed and the discrepancy referred, with personal explanations disclosed to the client.'
-      : 'The template was exposed and the discrepancy referred, without disclosing irrelevant personal details.',
+    summary: id === __dialogueText("managers/AlibiResolutionService.js", "t_a18b869b2e81c0c52955")
+      ? __dialogueText("managers/AlibiResolutionService.js", "t_79d150ca30b7e4e02ed6")
+      : __dialogueText("managers/AlibiResolutionService.js", "t_044a82be020e49e5667a"),
 
     deliveries: [
-      'Client: factual report',
-      'Company records liaison: factual dossier for further investigation'
+      __dialogueText("managers/AlibiResolutionService.js", "t_644f49a15362fa82f3dd"),
+      __dialogueText("managers/AlibiResolutionService.js", "t_7eeb8fc2c2ab69972601")
     ],
 
     privacy: id === 'full'
-      ? 'Personal explanations included in the client report.'
-      : 'Irrelevant personal explanations withheld from the client; relevant findings preserved.'
+      ? __dialogueText("managers/AlibiResolutionService.js", "t_5d69591a1f40aaf96ef6")
+      : __dialogueText("managers/AlibiResolutionService.js", "t_a168ee5787a34af82c68")
   };
 }
 
@@ -560,7 +561,7 @@ function pay(pending) {
   try {
     moneyManager.addCash(pending.preview.total, {
       category: ECONOMY_CATEGORY.SIDE_CASE,
-      description: 'PI case closed: The Borrowed Alibi',
+      description: __dialogueText("managers/AlibiResolutionService.js", "t_9b40090eba6d4da0fee4"),
       missionId: ALIBI_QUEST_ID,
 
       metadata: {
@@ -639,7 +640,7 @@ function settleAlibiXP(pending) {
     result = progressionManager.grantReward(
       XP_REWARD_ID,
       ALIBI_QUEST_ID,
-      'PI case completed: The Borrowed Alibi'
+      __dialogueText("managers/AlibiResolutionService.js", "t_44051a1409406ac82570")
     );
   } catch (error) {
     if (!progressionManager.hasReward(XP_EVENT_ID)) {
@@ -750,13 +751,13 @@ function closeCase(settled) {
       {
         id,
         type: 'note',
-        label: 'Final report — The Borrowed Alibi',
+        label: __dialogueText("managers/AlibiResolutionService.js", "t_f7bd620662e11f6983a4"),
 
         text:
           settled.preview.report +
           (
             settled.preview.dossier
-              ? '\n\nREFERRAL DOSSIER\n' + settled.preview.dossier
+              ? __dialogueText("managers/AlibiResolutionService.js", "t_7eec7739424792c110c9") + settled.preview.dossier
               : ''
           ),
 
@@ -791,7 +792,7 @@ export function finishAlibiReport(endingId, expectedToken) {
   if (busy) {
     return {
       ok: false,
-      message: 'The report is being processed.'
+      message: __dialogueText("managers/AlibiResolutionService.js", "t_121c46bd29ff094cffa5")
     };
   }
 
@@ -808,14 +809,14 @@ export function finishAlibiReport(endingId, expectedToken) {
   ) {
     return {
       ok: false,
-      message: 'This case has already been closed.'
+      message: __dialogueText("managers/AlibiResolutionService.js", "t_bfdb83da449f6c1b3fb4")
     };
   }
 
   if (!quest) {
     return {
       ok: false,
-      message: 'The contract is missing.'
+      message: __dialogueText("managers/AlibiResolutionService.js", "t_98841ecd1a26cddb2366")
     };
   }
 
@@ -826,7 +827,7 @@ export function finishAlibiReport(endingId, expectedToken) {
     return {
       ok: false,
       message:
-        'Complete the evidence checks and reconstruction first.'
+        __dialogueText("managers/AlibiResolutionService.js", "t_54b72815b76ba5e251f6")
     };
   }
 
@@ -842,7 +843,7 @@ export function finishAlibiReport(endingId, expectedToken) {
   ) {
     return {
       ok: false,
-      message: 'Choose a valid report.'
+      message: __dialogueText("managers/AlibiResolutionService.js", "t_53dc81cd850bca7484a3")
     };
   }
 
@@ -853,7 +854,7 @@ export function finishAlibiReport(endingId, expectedToken) {
     return {
       ok: false,
       message:
-        'The report or payment changed. Review and confirm it again.'
+        __dialogueText("managers/AlibiResolutionService.js", "t_86988b8c6db1add3363c")
     };
   }
 
@@ -883,14 +884,14 @@ export function finishAlibiReport(endingId, expectedToken) {
         settlement: {
           ...pending,
           lastError:
-            'Payment failed. Try finishing settlement again.'
+            __dialogueText("managers/AlibiResolutionService.js", "t_c64e704cd125fe6a6129")
         }
       });
 
       return {
         ok: false,
         message:
-          'Payment failed. You can retry the same settlement.'
+          __dialogueText("managers/AlibiResolutionService.js", "t_13a16b9a306c6508f16f")
       };
     }
 
@@ -913,14 +914,14 @@ export function finishAlibiReport(endingId, expectedToken) {
       write({
         settlement: {
           ...pending,
-          lastError: 'Integrity update failed.'
+          lastError: __dialogueText("managers/AlibiResolutionService.js", "t_849ba478c19d238c5acf")
         }
       });
 
       return {
         ok: false,
         message:
-          'Payment recorded. Retry settlement to finish integrity; payment will not repeat.'
+          __dialogueText("managers/AlibiResolutionService.js", "t_dfc68049c65d178c3e23")
       };
     }
 
@@ -945,14 +946,14 @@ export function finishAlibiReport(endingId, expectedToken) {
       write({
         settlement: {
           ...pending,
-          lastError: 'XP settlement failed.'
+          lastError: __dialogueText("managers/AlibiResolutionService.js", "t_0e2b19ae49054d281c3b")
         }
       });
 
       return {
         ok: false,
         message:
-          'Payment and integrity recorded. Retry settlement to finish XP; recorded rewards will not repeat.'
+          __dialogueText("managers/AlibiResolutionService.js", "t_909191a77fcc6d05f2af")
       };
     }
 
@@ -989,10 +990,10 @@ export function finishAlibiReport(endingId, expectedToken) {
 
       message: saveSucceeded
         ? (
-            `Case closed. Received $${completed.preview.total}.` +
-            (xpGranted > 0 ? ` +${xpGranted} XP.` : '')
+            `${__dialogueText("managers/AlibiResolutionService.js", "t_56e84f304751a9d98a80")}${completed.preview.total}${__dialogueText("managers/AlibiResolutionService.js", "t_cdb4ee2aea69cc6a8333")}` +
+            (xpGranted > 0 ? `${__dialogueText("managers/AlibiResolutionService.js", "t_c13f23cc27f966a4eadf")}${xpGranted}${__dialogueText("managers/AlibiResolutionService.js", "t_a73feda6e2f76a6b740b")}` : '')
           )
-        : 'Case closed, but saving failed. Save your game before leaving.'
+        : __dialogueText("managers/AlibiResolutionService.js", "t_5116e294bbed1f5b6c9b")
     };
   } catch (error) {
     console.error(
@@ -1005,7 +1006,7 @@ export function finishAlibiReport(endingId, expectedToken) {
     return {
       ok: false,
       message:
-        'Settlement interrupted. Retry the same report; recorded payment and XP will not repeat.'
+        __dialogueText("managers/AlibiResolutionService.js", "t_8e849dc8a42c88739b70")
     };
   } finally {
     busy = false;

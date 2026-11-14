@@ -1,23 +1,24 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { EventBus } from '../EventBus.js';
 import { moneyManager } from '../managers/MoneyManager.js';
 
 const PAGE_SIZE = 6;
 
 const CATEGORIES = {
-  travel: 'Travel',
-  hotel: 'Hotel',
-  food: 'Food',
-  drink: 'Drink',
-  newspaper: 'Newspaper',
-  phone: 'Phone',
-  taxi: 'Taxi',
-  informant: 'Informant',
-  side_case: 'Side case',
-  mission_reward: 'Mission reward',
-  office_upgrade: 'Office upgrade',
-  item: 'Item',
-  agency_advance: 'Agency advance',
-  refund: 'Refund'
+  travel: __dialogueText("ui/AgencyLedgerUI.js", "t_d2b98fb53714f23cc0aa"),
+  hotel: __dialogueText("ui/AgencyLedgerUI.js", "t_509b3c4e5dad347d7d5f"),
+  food: __dialogueText("ui/AgencyLedgerUI.js", "t_e4eb18069d65aaa901ce"),
+  drink: __dialogueText("ui/AgencyLedgerUI.js", "t_e4a060ef35b7525f217c"),
+  newspaper: __dialogueText("ui/AgencyLedgerUI.js", "t_15dd241d7efbd9d077c9"),
+  phone: __dialogueText("ui/AgencyLedgerUI.js", "t_63dceb8800b2dd4af956"),
+  taxi: __dialogueText("ui/AgencyLedgerUI.js", "t_7793c31446e339002451"),
+  informant: __dialogueText("ui/AgencyLedgerUI.js", "t_5bec08466556116094d1"),
+  side_case: __dialogueText("ui/AgencyLedgerUI.js", "t_f650c3481ebc10f8d9c7"),
+  mission_reward: __dialogueText("ui/AgencyLedgerUI.js", "t_8124a5006f733f2325c2"),
+  office_upgrade: __dialogueText("ui/AgencyLedgerUI.js", "t_578577a6a87a62b9c205"),
+  item: __dialogueText("ui/AgencyLedgerUI.js", "t_652bcc3a478428893cc5"),
+  agency_advance: __dialogueText("ui/AgencyLedgerUI.js", "t_bfbef62f454fc28c3e0e"),
+  refund: __dialogueText("ui/AgencyLedgerUI.js", "t_6b37bd35081fcbc6676d")
 };
 
 export class AgencyLedgerUI {
@@ -207,7 +208,7 @@ export class AgencyLedgerUI {
     const title = this.scene.add.text(
       24,
       23,
-      'MARK AGENCY - THE BOOKS',
+      __dialogueText("ui/AgencyLedgerUI.js", "t_b5766dd213b57f075d4e"),
       {
         fontFamily: 'PressStart2P',
         fontSize: '15px',
@@ -251,7 +252,7 @@ export class AgencyLedgerUI {
     const headings = this.text(
       24,
       205,
-      'DESCRIPTION / ACCOUNT                                      AMOUNT',
+      __dialogueText("ui/AgencyLedgerUI.js", "t_0b908e3b4884f1562fe8"),
       14,
       '#bca36c'
     );
@@ -262,7 +263,7 @@ export class AgencyLedgerUI {
     this.emptyText = this.text(
       0,
       30,
-      'No receipts. A suspiciously inexpensive investigation.',
+      __dialogueText("ui/AgencyLedgerUI.js", "t_5f4c60662c718c22b803"),
       18
     ).setWordWrapWidth(w - 48, true);
 
@@ -278,7 +279,7 @@ export class AgencyLedgerUI {
     this.prevBtn = this.text(
       24,
       h - 47,
-      '< PREV',
+      __dialogueText("ui/AgencyLedgerUI.js", "t_86af811671fe29fad1d2"),
       18,
       '#ffd166'
     ).setInteractive({
@@ -288,7 +289,7 @@ export class AgencyLedgerUI {
     this.nextBtn = this.text(
       w - 110,
       h - 47,
-      'NEXT >',
+      __dialogueText("ui/AgencyLedgerUI.js", "t_58b85f2ea88bf1a9ba16"),
       18,
       '#ffd166'
     ).setInteractive({
@@ -387,22 +388,22 @@ export class AgencyLedgerUI {
 
   getQuip(debt) {
     if (!debt) {
-      return 'The books are balanced. Finance has requested a second opinion.';
+      return __dialogueText("ui/AgencyLedgerUI.js", "t_9eb1a46b64e34f8cf0f2");
     }
 
     if (debt <= 150) {
-      return 'A little red ink. We prefer to call it a narrative choice.';
+      return __dialogueText("ui/AgencyLedgerUI.js", "t_6f7ea8c6498943d24fcf");
     }
 
     if (debt <= 400) {
-      return 'Finance has classified your receipts as experimental fiction.';
+      return __dialogueText("ui/AgencyLedgerUI.js", "t_a093f19e2e212db181e7");
     }
 
     if (debt <= 900) {
-      return 'Your expense report now requires its own detective.';
+      return __dialogueText("ui/AgencyLedgerUI.js", "t_d6d99f95b652ef7c2f18");
     }
 
-    return 'The accountant has added your portrait to the wanted database.';
+    return __dialogueText("ui/AgencyLedgerUI.js", "t_fc1aec7951e2aee49f9a");
   }
 
   clearRows() {
@@ -426,9 +427,9 @@ export class AgencyLedgerUI {
     const state = moneyManager.getState();
 
     this.summaryText.setText(
-      `Cash: ${this.formatMoney(state.cash)}    ` +
-      `Agency: ${this.formatMoney(state.agencyBudget)}\n` +
-      `Agency debt: ${this.formatMoney(state.agencyDebt)}`
+      `${__dialogueText("ui/AgencyLedgerUI.js", "t_71d0925e29999b762ab6")}${this.formatMoney(state.cash)}${__dialogueText("ui/AgencyLedgerUI.js", "t_1a0f564ddc6039457b2f")}` +
+      `${__dialogueText("ui/AgencyLedgerUI.js", "t_3b83bd97552e7b897191")}${this.formatMoney(state.agencyBudget)}${__dialogueText("ui/AgencyLedgerUI.js", "t_01ba4719c80b6fe911b0")}` +
+      `${__dialogueText("ui/AgencyLedgerUI.js", "t_4d52d687c3058176d290")}${this.formatMoney(state.agencyDebt)}`
     );
 
     this.quipText.setText(
@@ -479,7 +480,7 @@ export class AgencyLedgerUI {
       const category =
         CATEGORIES[entry.category] ||
         entry.category ||
-        'Administration';
+        __dialogueText("ui/AgencyLedgerUI.js", "t_4b42c6690ebeb867e967");
 
       const description = String(
         entry.description || category
@@ -498,14 +499,14 @@ export class AgencyLedgerUI {
 
       const time = Number.isFinite(date.getTime())
         ? this.dateFormatter.format(date)
-        : 'Undated';
+        : __dialogueText("ui/AgencyLedgerUI.js", "t_f332fef6195ab3d8d86a");
 
       const account =
         entry.source === 'agency'
-          ? 'Agency'
+          ? __dialogueText("ui/AgencyLedgerUI.js", "t_86f357cfb8c2c1002c12")
           : entry.source === 'cash'
-            ? 'Cash'
-            : 'Account';
+            ? __dialogueText("ui/AgencyLedgerUI.js", "t_e2da108f63008e441619")
+            : __dialogueText("ui/AgencyLedgerUI.js", "t_7e1b0d5641f2640ce9a9");
 
       const detail = this.text(
         0,
@@ -525,7 +526,7 @@ export class AgencyLedgerUI {
       const debt = entry.type === 'debt';
 
       const prefix = debt
-        ? 'DEBT +'
+        ? __dialogueText("ui/AgencyLedgerUI.js", "t_0aa8c9f301e65c4456f7")
         : income
           ? '+'
           : entry.type === 'reset'
@@ -555,7 +556,7 @@ export class AgencyLedgerUI {
     });
 
     this.pageLabel.setText(
-      `Page ${this.page + 1} / ${pages}`
+      `${__dialogueText("ui/AgencyLedgerUI.js", "t_6076934f99bd42435b95")}${this.page + 1}${__dialogueText("ui/AgencyLedgerUI.js", "t_005e1574a2b5c8163046")}${pages}`
     );
 
     this.prevBtn.setAlpha(

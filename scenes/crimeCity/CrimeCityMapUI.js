@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 import { getEnergyManager } from '../../managers/EnergyManager.js';
 import { EventBus } from '../../EventBus.js';
@@ -243,11 +244,11 @@ export class CrimeCityMapUI {
         nodeId === 'hotel' && cost.energy === 0;
 
       return (
-        `${title}\nTravel: ${cost.energy} energy\n` +
-        `Travel money: ${cost.money}` +
+        `${title}${__dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_336d89e033173225dce7")}${cost.energy}${__dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_324d0d3f8a5bbac97404")}` +
+        `${__dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_53f6f7a2fd111bfbfea4")}${cost.money}` +
         (
           emergency
-            ? '\nEmergency walk. No detective left behind.'
+            ? __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_0ca31857e88b1ee90884")
             : ''
         )
       );
@@ -272,20 +273,20 @@ export class CrimeCityMapUI {
       details.finalCost === costs.activityCost
     ) {
       lines.push(
-        `Activity: ${details.originalCost} -> ${costs.activityCost}`
+        `${__dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_4ead6cfb1a6f08ecf13a")}${details.originalCost}${__dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_a404e8f0ffc8303837ac")}${costs.activityCost}`
       );
 
-      lines.push(`Resourcefulness: -${details.saved}`);
+      lines.push(`${__dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_bc32d0d7c8ebe3474393")}${details.saved}`);
     } else {
       lines.push(
         costs.activityCost === 0 && nodeId === 'crime_lab'
-          ? 'Activity: 0 (entry already paid)'
-          : `Activity: ${costs.activityCost}`
+          ? __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_f18767da5c93260aa4f7")
+          : `${__dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_4ead6cfb1a6f08ecf13a")}${costs.activityCost}`
       );
     }
 
-    lines.push(`Travel: ${costs.travelCost}`);
-    lines.push(`Total: ${costs.totalCost} energy`);
+    lines.push(`${__dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_253275097ed3df73b02b")}${costs.travelCost}`);
+    lines.push(`${__dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_55cdce10001ef68e3111")}${costs.totalCost}${__dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_6e17fd780882359031cf")}`);
 
     return lines.join('\n');
   }
@@ -547,7 +548,7 @@ export class CrimeCityMapUI {
       scene.add.text(
         40,
         18,
-        `${scene.cityData.city}, ${scene.cityData.country}`,
+        `${scene.cityData.city}${__dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_0a07f659461970d8d8dc")}${scene.cityData.country}`,
         {
           fontFamily: 'SpecialElite',
           fontSize: '28px',
@@ -560,27 +561,27 @@ export class CrimeCityMapUI {
     const artifact = gameState.currentMission?.artifact;
 
     let subtitle =
-      'Theory logged. Question the people with alibis.';
+      __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_68251b3816503c089c5d");
 
     if (scene.hasVisitedApartment()) {
       subtitle =
-        'Apartment visited. Take the recovered clues to the Crime Lab.';
+        __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_6b737e4fdf59a0f8c250");
     } else if (this.isApartmentStageAvailable()) {
       subtitle =
-        'Alibi disproved. Visit the suspect apartment.';
+        __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_4787d2a3e98a54a3914c");
     } else if (!scene.isCrimeSceneCompleted()) {
       subtitle = artifact
-        ? `Case: ${artifact} — inspect the crime scene before opening suspect files.`
-        : 'Start with the crime scene. Suspect files remain sealed.';
+        ? `${__dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_4741b03bc25bc5a635a3")}${artifact}${__dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_359a7688760bd81209fb")}`
+        : __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_561c03d089415571ba36");
     } else if (!scene.isCrimeLabCompleted()) {
       subtitle =
-        'Evidence collected. Time to visit the Crime Lab.';
+        __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_e447b577413e7f777e23");
     } else if (!this.areSuspectFilesUnlocked()) {
       subtitle =
-        'Lab report ready. HQ is calling. Suspect files remain sealed.';
+        __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_0cc0f2d888c5e2d422ab");
     } else if (!scene.isGridCompleted()) {
       subtitle =
-        'Suspect files unlocked. Reconstruct the theft.';
+        __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_a2b3892a6129c2db46fe");
     }
 
     this.track(
@@ -681,7 +682,7 @@ export class CrimeCityMapUI {
   }
 
   getSuspectLabel(suspect) {
-    return suspect?.name || 'Unidentified suspect';
+    return suspect?.name || __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_109b4fc2ad1cec0485a8");
   }
 
   refreshApartmentLocation(availabilityHint) {
@@ -734,7 +735,7 @@ export class CrimeCityMapUI {
     return this.createMapIcon({
       ...position,
       textureKey: 'shop_icon',
-      label: 'Shop',
+      label: __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_d00aae6b7fbf77a4566d"),
       costNodeId: 'shop',
       fallbackColor: 0x806127,
       fallbackStroke: 0xffd166,
@@ -754,8 +755,8 @@ export class CrimeCityMapUI {
       textureKey: 'apt_icon',
       costNodeId: 'apartment',
       label: candidates.length > 1
-        ? `Suspect Apartments (${candidates.length})`
-        : 'Suspect Apartment',
+        ? `${__dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_4af6060d67757e9e9126")}${candidates.length}${__dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_ba5ec51d07a4ac0e9516")}`
+        : __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_02c9e55c29cb6cb663ef"),
       fallbackColor: 0x795548,
       fallbackStroke: 0xffd180,
       collection: this.apartmentObjects,
@@ -765,7 +766,7 @@ export class CrimeCityMapUI {
     this.createStatusBadge(
       position.x,
       position.y - BADGE_OFFSET,
-      'Alibi disproved',
+      __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_302577634f2ecdc1f8b3"),
       '#ffd180',
       this.apartmentObjects
     );
@@ -787,10 +788,10 @@ export class CrimeCityMapUI {
 
     if (!candidates.length) {
       scene.showMessage(
-        'An alibi has been disproved, but the suspect ID is missing.\n' +
-        'The paperwork has escaped before the suspect.',
+        __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_48cd385d1f808c0d94b0") +
+        __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_bafd113faa9aa7ae2905"),
         3000,
-        '#5d2a00'
+        __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_e09afad9b0dfcb2294f9")
       );
 
       return;
@@ -844,7 +845,7 @@ export class CrimeCityMapUI {
     this.track(
       scene.add.text(
         width / 2, top + 24,
-        'Choose an apartment',
+        __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_f414f6c433988044654d"),
         {
           fontFamily: 'SpecialElite',
           fontSize: '24px',
@@ -896,7 +897,7 @@ export class CrimeCityMapUI {
       scene.add.text(
         width / 2,
         top + panelHeight - 30,
-        'Cancel',
+        __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_19766ed6ccb2f4a32778"),
         {
           fontFamily: 'SpecialElite',
           fontSize: '18px',
@@ -963,7 +964,7 @@ export class CrimeCityMapUI {
     if (cost > 0) {
       energy.consumeCustom(
         cost,
-        `Travel to hotel: -${cost}`,
+        `${__dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_7b248e576420e4d2196f")}${cost}`,
         {
           requireFullAmount: true,
           activityType: 'travel_hotel'
@@ -986,7 +987,7 @@ export class CrimeCityMapUI {
       textureKey: 'hotel_icon',
       fallbackColor: 0x6a4c93,
       fallbackStroke: 0xd6b4ff,
-      label: 'Hotel',
+      label: __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_509b3c4e5dad347d7d5f"),
       costNodeId: 'hotel',
       onClick: () => this.visitHotel()
     });
@@ -1018,9 +1019,7 @@ export class CrimeCityMapUI {
       fallbackColor: 0x304c73,
       fallbackStroke: 0x9ac7ff,
       collection: this.suspectObjects,
-      label: suspects.length
-        ? `Suspect Files (${activeCount}/${suspects.length})`
-        : 'Suspect Files',
+      label: __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_4c07b76dd2a1eb0faf9e"),
       onClick: () => {
         if (!this.shouldShowSuspectFiles()) {
           this.syncSuspectFilesVisibility();
@@ -1034,10 +1033,10 @@ export class CrimeCityMapUI {
 
         if (!currentSuspects.length) {
           scene.showMessage(
-            'No suspect files available yet.\n' +
-            'This is either bureaucratic delay or a pigeon conspiracy.',
+            __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_588bf66630db33484dc8") +
+            __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_db26b87e2f73ae4d8c04"),
             3000,
-            '#5d2a00'
+            __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_e09afad9b0dfcb2294f9")
           );
 
           return;
@@ -1071,7 +1070,7 @@ export class CrimeCityMapUI {
     return this.createMapIcon({
       ...position,
       textureKey: 'search',
-      label: 'Crime Scene',
+      label: __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_deb2ecf56ab544bfcb8e"),
       costNodeId: 'crime_scene',
       fallbackColor: 0xd4af37,
       fallbackStroke: 0xfff1a8,
@@ -1090,10 +1089,10 @@ export class CrimeCityMapUI {
     const entryPaid = scene.hasPaidCrimeLabEntry();
 
     const label = apartmentEvidence
-      ? 'Crime Lab — Apartment Evidence'
+      ? __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_9e07f72c6c309358641a")
       : entryPaid
-        ? 'Crime Lab — Analysis in Progress'
-        : 'Crime Lab';
+        ? __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_1c82f517c7ba5d8c3557")
+        : __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_742e27a5828691c412bc");
 
     const result = this.createMapIcon({
       ...position,
@@ -1109,7 +1108,7 @@ export class CrimeCityMapUI {
       this.createStatusBadge(
         position.x,
         position.y - BADGE_OFFSET,
-        'Examine apartment clues',
+        __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_b1776ac23ac758aa36ac"),
         '#8ed1fc'
       );
     }
@@ -1187,7 +1186,7 @@ export class CrimeCityMapUI {
       this.createStatusBadge(
         x,
         y - BADGE_OFFSET,
-        'Completed',
+        __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_22a970d2e5b1cc233e46"),
         '#66bb6a',
         collection
       );

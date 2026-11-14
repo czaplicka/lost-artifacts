@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { MainStoryManager } from '../managers/MainStoryManager.js';
 import { saveGameState } from '../gameStatePersistence.js';
@@ -45,27 +46,27 @@ export class CrashTimelineScene extends BaseScene {
     this.cameras.main.setBackgroundColor('#171619'); this.root = this.add.container(0, 0);
     this.root.add(this.add.rectangle(720, 510, 1440, 1020, 0x302729));
     this.label(720, 42, DATA.title, 25, '#f0ce88', 'PressStart2P');
-    this.label(720, 88, "Reconstruct JOHN'S operation. Select an event, read its source, then choose a timeline position.", 21);
-    this.label(720, 120, 'Five events belong on the timeline. Stuck? Use HINT for assistance.', 20, '#c5b59a');
-    this.label(360, 159, 'EVENT CARDS', 19, '#cdbb9a');
-    this.label(1080, 159, 'LAST OPERATION / EARLIEST TO LATEST', 19, '#cdbb9a');
+    this.label(720, 88, __dialogueText("scenes/CrashTimelineScene.js", "t_6216b861883b5f4d5fb4"), 21);
+    this.label(720, 120, __dialogueText("scenes/CrashTimelineScene.js", "t_516897a5d066c0becc07"), 20, '#c5b59a');
+    this.label(360, 159, __dialogueText("scenes/CrashTimelineScene.js", "t_ae090581dd9ad5cc19b7"), 19, '#cdbb9a');
+    this.label(1080, 159, __dialogueText("scenes/CrashTimelineScene.js", "t_b520174a23b260a9fe9e"), 19, '#cdbb9a');
     this.buildCards(); this.buildSlots();
     this.root.add(this.add.rectangle(720, 736, 1360, 116, 0xe2d4b6).setStrokeStyle(2, 0x9b8662));
-    this.sourceTitle = this.label(720, 701, 'SOURCE FOR THE SELECTED EVENT — NOT A HINT', 18, '#74463a');
-    this.sourceBody = this.label(720, 750, 'Click an event card above. This panel shows the document or testimony linked to that card.', 21, '#3d332c');
+    this.sourceTitle = this.label(720, 701, __dialogueText("scenes/CrashTimelineScene.js", "t_eb969d714c2c5d8cccaa"), 18, '#74463a');
+    this.sourceBody = this.label(720, 750, __dialogueText("scenes/CrashTimelineScene.js", "t_35826cc76fb0a63a5436"), 21, '#3d332c');
     this.sourceBody.setWordWrapWidth(1300);
-    this.label(720, 819, 'WHAT CAN YOU CONCLUDE?', 19, '#cdbb9a');
+    this.label(720, 819, __dialogueText("scenes/CrashTimelineScene.js", "t_c7d6efbc946d5f119b37"), 19, '#cdbb9a');
     DATA.conclusions.forEach((item, index) => {
       const button = this.button(260 + index * 460, 864, item.label, () => {
         if (this.finished || this.checking) return;
         this.conclusion = item.id; this.update(); this.persist();
       }); this.conclusionButtons.push({ id: item.id, button });
     });
-    this.message = this.label(720, 918, 'Select two timeline positions to swap them. CLEAR SLOT removes the selected event.', 20);
-    this.checkButton = this.button(265, 972, 'CHECK TIMELINE', () => this.checkTimeline());
-    this.clearButton = this.button(600, 972, 'CLEAR SLOT', () => this.clearSlot());
+    this.message = this.label(720, 918, __dialogueText("scenes/CrashTimelineScene.js", "t_100ab99587818126f8e9"), 20);
+    this.checkButton = this.button(265, 972, __dialogueText("scenes/CrashTimelineScene.js", "t_b4493e0624ec05e17e42"), () => this.checkTimeline());
+    this.clearButton = this.button(600, 972, __dialogueText("scenes/CrashTimelineScene.js", "t_dfaa13932eb9b80ee382"), () => this.clearSlot());
     this.button(1235, 972, 'BACK', () => this.closeTimeline());
-    this.mode = this.label(720, 1006, this.preview ? 'PREVIEW / hints are free test displays' : 'STORY', 13, '#baa98e');
+    this.mode = this.label(720, 1006, this.preview ? __dialogueText("scenes/CrashTimelineScene.js", "t_53e8eb28320b3be08dae") : 'STORY', 13, '#baa98e');
     this.timelineHelp = new TimelineHelpController(this); this.timelineHelp.create();
     this.update(); this.layout(); if (this.finished) this.showSuccess();
     this.trackInputEvent(this.scale, 'resize', this.layout); this.suspendBackground();
@@ -111,7 +112,7 @@ export class CrashTimelineScene extends BaseScene {
   inspect(cardId) {
     const card = DATA.cards.find(item => item.id === cardId);
     const source = DATA.evidence.find(item => item.id === card?.evidence);
-    if (source) { this.sourceTitle.setText(`SOURCE FOR: ${card.title} / ${source.title}`); this.sourceBody.setText(source.text); }
+    if (source) { this.sourceTitle.setText(`${__dialogueText("scenes/CrashTimelineScene.js", "t_4eceb33c0891ba0d28cd")}${card.title}${__dialogueText("scenes/CrashTimelineScene.js", "t_005e1574a2b5c8163046")}${source.title}`); this.sourceBody.setText(source.text); }
   }
   getForensicHelp() {
     const definition = getCrashTimelineHelp(DATA, this.slots, this.conclusion), targets = [];
@@ -120,7 +121,7 @@ export class CrashTimelineScene extends BaseScene {
     if (definition.conclusionId) targets.push(this.conclusionButtons.find(item => item.id === definition.conclusionId)?.button);
     return { ...definition, targets: targets.filter(Boolean) };
   }
-  setDialogue(text) { this.message?.setText(`HINT: ${text}`).setFontSize(18); }
+  setDialogue(text) { this.message?.setText(`${__dialogueText("scenes/CrashTimelineScene.js", "t_e0e94082545fdad681ba")}${text}`).setFontSize(18); }
   chooseSlot(index) {
     if (this.closing || this.checking) return;
     if (this.slots[index]) this.inspect(this.slots[index]);
@@ -154,7 +155,7 @@ export class CrashTimelineScene extends BaseScene {
     });
     this.slotObjects.forEach(({ box, text }, index) => {
       const card = DATA.cards.find(item => item.id === this.slots[index]);
-      text.setText(`${index + 1}. ${card?.title ?? '[ select a card, then click here ]'}`);
+      text.setText(`${index + 1}${__dialogueText("scenes/CrashTimelineScene.js", "t_8dccf256f6d5783e62bb")}${card?.title ?? __dialogueText("scenes/CrashTimelineScene.js", "t_c86957f856ebb1f781bf")}`);
       const selected = this.selectedSlot === index;
       box.setStrokeStyle(selected ? 4 : 2, selected ? 0xe7ac48 : 0x957a58);
     });
@@ -170,7 +171,7 @@ export class CrashTimelineScene extends BaseScene {
   }
   grantCompletionXP() {
     let result;
-    try { result = progressionManager.grantReward(XP_REWARD_ID, STATE_KEY, 'Story puzzle solved: Crash reconstruction'); }
+    try { result = progressionManager.grantReward(XP_REWARD_ID, STATE_KEY, __dialogueText("scenes/CrashTimelineScene.js", "t_da8fdbd6a95ae72b30a5")); }
     catch (error) {
       if (!progressionManager.hasReward(XP_EVENT_ID)) throw error;
       console.error('[CrashTimeline] Reward recorded, but grantReward threw:', error);
@@ -194,7 +195,7 @@ export class CrashTimelineScene extends BaseScene {
         try { this.xpGranted = this.grantCompletionXP(); }
         catch (error) {
           console.error('[CrashTimeline] XP settlement failed:', error);
-          this.message.setText('Reconstruction correct, but XP could not be recorded. Click CHECK TIMELINE again to retry.').setFontSize(20);
+          this.message.setText(__dialogueText("scenes/CrashTimelineScene.js", "t_af7755ad2344af0d1363")).setFontSize(20);
           return;
         }
       }
@@ -205,13 +206,13 @@ export class CrashTimelineScene extends BaseScene {
   showSuccess() {
     this.checkButton.setVisible(false); this.clearButton.setVisible(false); this.timelineHelp?.hintButton?.setVisible(false);
     this.conclusionButtons.forEach(item => item.button.disableInteractive());
-    if (this.preview) this.message.setText('RECONSTRUCTION COMPLETE / preview only. Story progress was not changed.');
+    if (this.preview) this.message.setText(__dialogueText("scenes/CrashTimelineScene.js", "t_f446d85f1fa447aa4840"));
     else {
-      const xpText = this.xpGranted > 0 ? ` +${this.xpGranted} XP.` : '';
-      this.message.setText(this.savedOk === false ? 'Reconstruction complete. Saving failed; save manually.' + xpText :
-        'Reconstruction complete. The conversation with Holly is the next story step.' + xpText);
+      const xpText = this.xpGranted > 0 ? `${__dialogueText("scenes/CrashTimelineScene.js", "t_c13f23cc27f966a4eadf")}${this.xpGranted}${__dialogueText("scenes/CrashTimelineScene.js", "t_a73feda6e2f76a6b740b")}` : '';
+      this.message.setText(this.savedOk === false ? __dialogueText("scenes/CrashTimelineScene.js", "t_54d9fa716732e026f635") + xpText :
+        __dialogueText("scenes/CrashTimelineScene.js", "t_4bb10706eda3abd2e759") + xpText);
     }
-    this.message.setFontSize(20); this.sourceTitle.setText('SUPPORTED CONCLUSION: PRESUMED DEAD');
+    this.message.setFontSize(20); this.sourceTitle.setText(__dialogueText("scenes/CrashTimelineScene.js", "t_35967e122b8b310afb97"));
     this.sourceBody.setText(DATA.success); this.update();
   }
   layout() {

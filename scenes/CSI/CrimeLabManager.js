@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { saveGameState } from '../../gameStatePersistence.js';
 
 import {
@@ -69,10 +70,10 @@ function randomItem(items) {
 
 const ORIGINS = {
   dust:
-    'Microscopic residue recovered during the crime-scene examination and isolated from background contamination.',
+    __dialogueText("scenes/CSI/CrimeLabManager.js", "t_9d0f0235dd89cc5008fc"),
 
   material:
-    'Material fragment recovered during the crime-scene examination. This trace does not establish the method of entry.'
+    __dialogueText("scenes/CSI/CrimeLabManager.js", "t_29d6f1d6fde5186d16f5")
 };
 
 export class CrimeLabManager {
@@ -191,7 +192,7 @@ export class CrimeLabManager {
     evidence = {},
     {
       stationId = null,
-      fallbackLabel = 'Forensic Analysis',
+      fallbackLabel = __dialogueText("scenes/CSI/CrimeLabManager.js", "t_d2f42de4fcfd1fbdaa64"),
       fallbackClueType = 'trace'
     } = {}
   ) {
@@ -223,7 +224,7 @@ export class CrimeLabManager {
 
       clueText:
         evidence.clueText ||
-        `Laboratory analysis confirms: ${attribute} = ${value}.`,
+        `${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_c3a8aab15c7d72b57838")}${attribute}${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_7bacf9de79aa5b6a042a")}${value}${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_cdb4ee2aea69cc6a8333")}`,
 
       allowedValues: Array.isArray(evidence.allowedValues)
         ? [...evidence.allowedValues]
@@ -267,7 +268,7 @@ export class CrimeLabManager {
       this.ensureIdentityEvidence(),
       {
         stationId: 'identity',
-        fallbackLabel: 'Identity Evidence Analysis',
+        fallbackLabel: __dialogueText("scenes/CSI/CrimeLabManager.js", "t_9b0f1ff98f35c658af82"),
         fallbackClueType: 'identity'
       }
     );
@@ -287,12 +288,12 @@ export class CrimeLabManager {
           value = getForensicValue(suspect, 'hair_color', null);
 
           allowedValues = [
-            'Black', 'Brown', 'Blond', 'Red',
-            'Grey', 'White', 'Auburn'
+            __dialogueText("scenes/CSI/CrimeLabManager.js", "t_c6cfe6e4f129a34671d1"), __dialogueText("scenes/CSI/CrimeLabManager.js", "t_18f285592896ec8ead1b"), __dialogueText("scenes/CSI/CrimeLabManager.js", "t_7866f2fffdd6577c532e"), __dialogueText("scenes/CSI/CrimeLabManager.js", "t_ba19e9c3d5f49882ddaa"),
+            __dialogueText("scenes/CSI/CrimeLabManager.js", "t_d4ac58091b024645805d"), __dialogueText("scenes/CSI/CrimeLabManager.js", "t_3495e757855a5c678add"), __dialogueText("scenes/CSI/CrimeLabManager.js", "t_7261410fba2f27ee65c0")
           ];
 
           clueText = value
-            ? `Microscopic hair analysis indicates a ${String(value).toLowerCase()} hair strand.`
+            ? `${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_336ed092d2808e6bc5b6")}${String(value).toLowerCase()}${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_7599fa97f745a2391bd9")}`
             : null;
           break;
 
@@ -304,7 +305,7 @@ export class CrimeLabManager {
           ];
 
           clueText = value
-            ? `Serological testing confirms a blood type of ${value}.`
+            ? `${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_b3b88d81563b07f0069c")}${value}${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_cdb4ee2aea69cc6a8333")}`
             : null;
           break;
 
@@ -319,7 +320,7 @@ export class CrimeLabManager {
           allowedValues = ['XX', 'XY'];
 
           clueText = value
-            ? `DNA amplification reveals a ${value} profile.`
+            ? `${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_6b1cd59a72b0fe5c92aa")}${value}${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_1cf4cff8189c5f81c600")}`
             : null;
           break;
 
@@ -335,7 +336,7 @@ export class CrimeLabManager {
           allowedValues = ['LOOP', 'WHORL', 'ARCH'];
 
           clueText =
-            `Latent print analysis shows a ${value.toLowerCase()} ridge pattern.`;
+            `${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_1198cc8a2a11c773c8c2")}${value.toLowerCase()}${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_edc1830c9c0a4114af47")}`;
           break;
 
         default:
@@ -448,7 +449,7 @@ export class CrimeLabManager {
 
     const shoe = {
       id: 'trace_shoe_print',
-      label: 'Boot Print Analysis',
+      label: __dialogueText("scenes/CSI/CrimeLabManager.js", "t_c22cb3b58cdf9c10664b"),
       attribute: 'shoeSizeCategory',
       thief_value: shoeSize,
       allowedValues: ['small', 'medium', 'large'],
@@ -458,7 +459,7 @@ export class CrimeLabManager {
       source: 'crime_lab',
       isRedHerring: false,
       clueText:
-        `The partial boot print indicates ${shoeSize} footwear.`
+        `${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_452ae5aacd858365eda1")}${shoeSize}${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_16464d1966565750b44e")}`
     };
 
     let dust = getDustProfiles().map(profile => ({
@@ -532,7 +533,7 @@ export class CrimeLabManager {
     } else {
       second = {
         id: 'trace_hand_smudge',
-        label: 'Contact Pattern Analysis',
+        label: __dialogueText("scenes/CSI/CrimeLabManager.js", "t_d41caa779801fabac35a"),
         attribute: 'handedness',
         thief_value: hand,
         allowedValues: ['left', 'right'],
@@ -542,7 +543,7 @@ export class CrimeLabManager {
         source: 'crime_lab',
         isRedHerring: false,
         clueText:
-          `The recorded contact pattern indicates ${hand}-handed use.`
+          `${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_ce9318bad752d4924356")}${hand}${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_beffbd1acb69f6af9849")}`
       };
     }
 
@@ -560,7 +561,7 @@ export class CrimeLabManager {
 
     return this.normalizeEvidenceConfig(evidence, {
       stationId: `trace_${index}`,
-      fallbackLabel: `Trace Evidence ${index + 1}`,
+      fallbackLabel: `${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_243d41da86da7e021257")}${index + 1}`,
       fallbackClueType: 'trace'
     });
   }

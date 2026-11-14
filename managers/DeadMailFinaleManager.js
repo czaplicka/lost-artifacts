@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 export * from './DeadMailFinaleManagerCore.js';
 
 import {
@@ -29,7 +30,7 @@ export function claimDeadMailReward() {
   ) {
     return {
       ok: false,
-      message: 'Finish the report first.'
+      message: __dialogueText("managers/DeadMailFinaleManager.js", "t_5ce8746779abf9a02adc")
     };
   }
 
@@ -40,8 +41,8 @@ export function claimDeadMailReward() {
       ok: true,
       alreadyClaimed: true,
       message:
-        'The Last Ringtone has already been claimed. ' +
-        'No duplicate item was added.'
+        __dialogueText("managers/DeadMailFinaleManager.js", "t_46e0cfa6ca2818bee96c") +
+        __dialogueText("managers/DeadMailFinaleManager.js", "t_0f3da9f3ce3d5c189a71")
     };
   }
 
@@ -73,9 +74,9 @@ export function claimDeadMailReward() {
       ok: false,
       pending: true,
       message:
-        'PI inventory full or unavailable. ' +
-        'The phone remains waiting here. ' +
-        'Make room and claim it later.'
+        __dialogueText("managers/DeadMailFinaleManager.js", "t_799f9b32e66ad2d73147") +
+        __dialogueText("managers/DeadMailFinaleManager.js", "t_694d33981c073088229c") +
+        __dialogueText("managers/DeadMailFinaleManager.js", "t_81c14ca7e61ef54f97a5")
     };
   }
 
@@ -104,7 +105,7 @@ export function claimDeadMailReward() {
     ok: true,
     saved,
     message: saved
-      ? 'The Last Ringtone added to PI inventory. Its messages remain replayable here.'
-      : 'Phone added, but saving failed. Use SAVE AGAIN before leaving.'
+      ? __dialogueText("managers/DeadMailFinaleManager.js", "t_6eb9c7f43eb43a92d315")
+      : __dialogueText("managers/DeadMailFinaleManager.js", "t_c9dddc06a1ed1a0b4965")
   };
 }

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 // CrimeBoardInit.js
 import {CrimeBoard} from './CrimeBoard.js';
 import {DEDUCTION_EVIDENCE_REGISTRY} from './scenes/CSI/DeductionEvidenceRegistry.js';
@@ -31,7 +32,7 @@ function fieldKey(value){const key=String(value||'').trim();return FIELD_BY_ALIA
 
 function resolveCrimeSceneImage(imagePath){
   if(typeof imagePath!=='string')return imagePath;
-  return imagePath.trim().replace(/\.jpe?g(?=[?#]|$)/i,'.webp');
+  return imagePath.trim().replace(/\.jpe?g(?=[?#]|$)/i,__dialogueText("CrimeBoardInitCore.js", "t_ed140d91e29553b83699"));
 }
 
 function currentCaseKey(state){
@@ -43,22 +44,22 @@ function currentCaseKey(state){
 function resolveArtifactImage(mission={}){
   if(mission.image)return mission.image;if(mission.artifactImage)return mission.artifactImage;
   if(mission.artifactPhoto)return mission.artifactPhoto;if(mission.photo)return mission.photo;
-  if(mission.artifactKey)return`assets/artifacts/${mission.artifactKey.replace(/^artifact_/,'')}.webp`;
+  if(mission.artifactKey)return`${__dialogueText("CrimeBoardInitCore.js", "t_1163016ae1a48f72c015")}${mission.artifactKey.replace(/^artifact_/,'')}${__dialogueText("CrimeBoardInitCore.js", "t_ed140d91e29553b83699")}`;
   return DEFAULT_ARTIFACT_IMAGE;
 }
 
 function buildMissionArtifactItem(mission={}){
   const artifactId=mission.artifactKey||slugify(mission.artifact||'case');
   return{id:`mission-${artifactId}`,type:'photo',x:380,y:24,z:2,rotation:-.6,pinned:true,
-    label:mission.artifact||'Unknown Artifact',image:resolveArtifactImage(mission),
-    caption:[mission.clue||'',mission.description||''].filter(Boolean).join(' — ')||'Stolen artifact',
-    meta:[mission.city||'Unknown city',mission.country||'Unknown country'].filter(Boolean),
+    label:mission.artifact||__dialogueText("CrimeBoardInitCore.js", "t_172ff09667bbca32dc87"),image:resolveArtifactImage(mission),
+    caption:[mission.clue||'',mission.description||''].filter(Boolean).join(__dialogueText("CrimeBoardInitCore.js", "t_3b2e8119b6fcc97df985"))||__dialogueText("CrimeBoardInitCore.js", "t_2bdcb70b6868cb9b0a55"),
+    meta:[mission.city||__dialogueText("CrimeBoardInitCore.js", "t_2491fe94a7ba027ffff4"),mission.country||__dialogueText("CrimeBoardInitCore.js", "t_e2eb4ebb77b6e7aa2f07")].filter(Boolean),
     tags:['mission','artifact'],clueId:mission.artifactKey||null,discovered:true,createdByPlayer:false,editableByPlayer:false};
 }
 
 function buildUnknownSuspectItem(thiefId=null){
   return{id:`suspect-${thiefId||'unknown'}`,type:'photo',x:80,y:140,z:3,rotation:-1.8,pinned:false,
-    label:'Unknown suspect',image:UNKNOWN_SUSPECT_IMAGE,caption:'Identity not confirmed yet.',meta:['Suspect','Unknown'],
+    label:__dialogueText("CrimeBoardInitCore.js", "t_a7c73daa1bc6f58f7897"),image:UNKNOWN_SUSPECT_IMAGE,caption:__dialogueText("CrimeBoardInitCore.js", "t_0ccda28fd2a4c1d24441"),meta:[__dialogueText("CrimeBoardInitCore.js", "t_f5ebb28614ebb0ee63cb"),__dialogueText("CrimeBoardInitCore.js", "t_b764cdc0eab713746721")],
     suspectId:thiefId||null,tags:['suspect','unknown'],discovered:true,createdByPlayer:false,editableByPlayer:false};
 }
 
@@ -83,11 +84,11 @@ function buildFalseIdentityItems(state={}){
     asText(subject?.name);
 
   const text=[
-    'The name and occupation in the suspect file are false.',
-    alias?`Recorded alias: ${alias}.`:'',
-    'An order for forged identification recovered from the apartment matches those details.',
-    'The suspect’s real name is still unknown.',
-    'Use the recovered appearance detail to narrow the wanted records.'
+    __dialogueText("CrimeBoardInitCore.js", "t_5374af364880aa9b8d58"),
+    alias?`${__dialogueText("CrimeBoardInitCore.js", "t_9c0f5096e4a38f0c9759")}${alias}${__dialogueText("CrimeBoardInitCore.js", "t_cdb4ee2aea69cc6a8333")}`:'',
+    __dialogueText("CrimeBoardInitCore.js", "t_5e931c18b8545d5adbf0"),
+    __dialogueText("CrimeBoardInitCore.js", "t_bf87a2f06de395a96d1e"),
+    __dialogueText("CrimeBoardInitCore.js", "t_a23888d575217f55fc03")
   ].filter(Boolean).join('\n\n');
 
   return[{
@@ -98,9 +99,9 @@ function buildFalseIdentityItems(state={}){
     z:9,
     rotation:-1.2,
     pinned:true,
-    label:'False identity confirmed',
+    label:__dialogueText("CrimeBoardInitCore.js", "t_3c14a103a1f6bfa61903"),
     text,
-    metaText:'Apartment search — forged identification',
+    metaText:__dialogueText("CrimeBoardInitCore.js", "t_eb474d56959004438c38"),
     color:'pink',
     clueId:clues[0].id,
     caseKey:currentCaseKey(state),
@@ -114,8 +115,8 @@ function buildFalseIdentityItems(state={}){
 
 function buildPlayerNotesItem(notes){
   if(typeof notes!=='string'||!notes.trim())return null;
-  return{id:'player-note-main',type:'note',x:1020,y:675,z:4,rotation:1.4,pinned:false,label:'Detective notes',
-    text:notes.trim(),metaText:'Notebook',color:'blue',tags:['player-note'],discovered:true,createdByPlayer:false,editableByPlayer:false};
+  return{id:'player-note-main',type:'note',x:1020,y:675,z:4,rotation:1.4,pinned:false,label:__dialogueText("CrimeBoardInitCore.js", "t_802542ca071184d94f39"),
+    text:notes.trim(),metaText:__dialogueText("CrimeBoardInitCore.js", "t_0dec07abf92dbe7289d6"),color:'blue',tags:['player-note'],discovered:true,createdByPlayer:false,editableByPlayer:false};
 }
 
 function getHypothesisResult(state={}){
@@ -167,9 +168,9 @@ function buildHypothesisSkillItems(state={}){
     const confirmed=entry.feedback==='green';
 
     return{id:`hypothesis-skill-${slugify(entry.skill)}`,type:'note',x:520+(index%2)*250,y:140+Math.floor(index/2)*190,z:4,
-      rotation:getRotation(index+3),pinned:true,label:confirmed?entry.skill:`${entry.skill} ?`,
-      text:confirmed?'Skill identified from a correctly placed clue.':'Possible skill: the clue was relevant, but its place in the sequence was wrong.',
-      metaText:confirmed?'Reconstruction: correct answer':'Reconstruction: uncertain placement',color:confirmed?'blue':'yellow',
+      rotation:getRotation(index+3),pinned:true,label:confirmed?entry.skill:`${entry.skill}${__dialogueText("CrimeBoardInitCore.js", "t_81d6591c690c70c74282")}`,
+      text:confirmed?__dialogueText("CrimeBoardInitCore.js", "t_cf29321015202bbf911b"):__dialogueText("CrimeBoardInitCore.js", "t_8143283d4746a5e1cf8f"),
+      metaText:confirmed?__dialogueText("CrimeBoardInitCore.js", "t_d210579b7b41616836eb"):__dialogueText("CrimeBoardInitCore.js", "t_3aecc3ce9f134d2320d3"),color:confirmed?'blue':'yellow',
       clueId:`hypothesis-skill-${slugify(entry.skill)}`,tags:['hypothesis','hypothesis-skill',confirmed?'skill-confirmed':'skill-uncertain',`feedback-${entry.feedback}`],
       discovered:true,createdByPlayer:false,editableByPlayer:false};
   });
@@ -196,7 +197,7 @@ function reconstructionText(clue){
     .replace(/\n{3,}/g,'\n\n')
     .trim();
 
-  return cleaned||asText(clue.finalText,'Reconstruction recorded.');
+  return cleaned||asText(clue.finalText,__dialogueText("CrimeBoardInitCore.js", "t_a83e9fbfd4e2b8b60932"));
 }
 
 function buildReconstructionItems(state={}){
@@ -204,9 +205,9 @@ function buildReconstructionItems(state={}){
     const confirmed=clue.confirmed===true;
 
     return{id:`reconstruction-${normalizeId(clue.id)||index}`,type:'note',x:1040+(index%2)*40,y:110+index*40,z:5,
-      rotation:getRotation(index+5),pinned:true,label:asText(clue.title,'Heist reconstruction'),
+      rotation:getRotation(index+5),pinned:true,label:asText(clue.title,__dialogueText("CrimeBoardInitCore.js", "t_b6c38ee5a8729db5fb6c")),
       text:reconstructionText(clue),
-      metaText:confirmed?'Reconstruction confirmed':'Reconstruction: unconfirmed theory',color:confirmed?'blue':'yellow',clueId:clue.id||null,
+      metaText:confirmed?__dialogueText("CrimeBoardInitCore.js", "t_af99b96e0246fcc9fdfa"):__dialogueText("CrimeBoardInitCore.js", "t_940bf16c627cf77cd19b"),color:confirmed?'blue':'yellow',clueId:clue.id||null,
       tags:['reconstruction',confirmed?'reconstruction-confirmed':'reconstruction-uncertain'],discovered:true,createdByPlayer:false,editableByPlayer:false};
   });
 }
@@ -216,8 +217,8 @@ function buildCrimeScenePhotoItems(state){
     const success=scene.success!==false;
 
     return{id:`scene-photo-${scene.sceneId||index}`,type:'photo',x:80+(index%4)*150,y:320+Math.floor(index/4)*130,z:1,
-      rotation:getRotation(index),pinned:false,label:scene.displayName||scene.sceneId||'Crime scene',image:resolveCrimeSceneImage(scene.imagePath),
-      caption:success?'Scene processed.':'Investigation incomplete.',meta:[scene.cityId||'',success?'Processed':'Incomplete'].filter(Boolean),
+      rotation:getRotation(index),pinned:false,label:scene.displayName||scene.sceneId||__dialogueText("CrimeBoardInitCore.js", "t_7624a8b8c9d8d5d1ee22"),image:resolveCrimeSceneImage(scene.imagePath),
+      caption:success?__dialogueText("CrimeBoardInitCore.js", "t_0114253dfa3cc43f3924"):__dialogueText("CrimeBoardInitCore.js", "t_ab6c09167078ba5ddf36"),meta:[scene.cityId||'',success?__dialogueText("CrimeBoardInitCore.js", "t_6071b9b565c939cdfdd2"):__dialogueText("CrimeBoardInitCore.js", "t_75f33cdfc8e52098ea07")].filter(Boolean),
       sceneId:scene.sceneId||null,missionId:scene.missionId||null,tags:['scene-photo',success?'scene-success':'scene-failed'],discovered:true,createdByPlayer:false,editableByPlayer:false};
   });
 }
@@ -235,8 +236,8 @@ function buildEvidenceItemsFromFoundObjects(state){
     if(obj.cityId)fields.push({key:'City',value:obj.cityId});
 
     return{id:`found-object-${obj.id||index}`,type:'evidence',x:520+(index%2)*250,y:140+Math.floor(index/2)*210,z:2,
-      rotation:getRotation(index+3),pinned:false,label:obj.item||`Object ${index+1}`,tag:'Found at scene',
-      body:obj.description||obj.heistExplanation||'Recovered during the forensic sweep.',fields,clueId:obj.id||null,
+      rotation:getRotation(index+3),pinned:false,label:obj.item||`${__dialogueText("CrimeBoardInitCore.js", "t_f78600013762faeca31b")}${index+1}`,tag:__dialogueText("CrimeBoardInitCore.js", "t_ff7aab0df8dd5a2a347c"),
+      body:obj.description||obj.heistExplanation||__dialogueText("CrimeBoardInitCore.js", "t_0e139c673b0c731d55d8"),fields,clueId:obj.id||null,
       isRedHerring:Boolean(obj.isRedHerring),heistExplanation:obj.heistExplanation||'',trueExplanation:obj.trueExplanation||'',
       tags:['found-object','scene-evidence'],discovered:true,createdByPlayer:false,editableByPlayer:false};
   });
@@ -250,11 +251,11 @@ function buildEvidenceItemsFromClues(clues,objectsData=[]){
     if(clue.type)fields.push({key:'Type',value:clue.type});
     if(clue.cityId)fields.push({key:'City',value:clue.cityId});
     if(obj?.scene)fields.push({key:'Scene',value:obj.scene});
-    if(obj?.isRedHerring)fields.push({key:'Status',value:'Red herring'});
+    if(obj?.isRedHerring)fields.push({key:'Status',value:__dialogueText("CrimeBoardInitCore.js", "t_fbc4f60350426ce29d43")});
 
     return{id:`evidence-${clue.id||obj?.id||index}`,type:'evidence',x:520+(index%2)*250,y:140+Math.floor(index/2)*210,z:2,
-      rotation:getRotation(index+3),pinned:false,label:clue.label||clue.title||obj?.item||`Clue ${index+1}`,tag:clue.type||'Evidence',
-      body:clue.text||clue.description||clue.content||obj?.heistExplanation||obj?.trueExplanation||'Collected during investigation.',fields,clueId:clue.id||null,
+      rotation:getRotation(index+3),pinned:false,label:clue.label||clue.title||obj?.item||`${__dialogueText("CrimeBoardInitCore.js", "t_d60af32fbb35a3ff5c2d")}${index+1}`,tag:clue.type||__dialogueText("CrimeBoardInitCore.js", "t_03867aea70acaf4c5dce"),
+      body:clue.text||clue.description||clue.content||obj?.heistExplanation||obj?.trueExplanation||__dialogueText("CrimeBoardInitCore.js", "t_e641757102bce3b650cf"),fields,clueId:clue.id||null,
       isRedHerring:Boolean(obj?.isRedHerring),heistExplanation:obj?.heistExplanation||'',trueExplanation:obj?.trueExplanation||'',
       tags:['discovered-clue'],discovered:true,createdByPlayer:false,editableByPlayer:false};
   });
@@ -343,7 +344,7 @@ function buildLabResultItems(state){
     const field=result.field,entry=DEDUCTION_EVIDENCE_REGISTRY[field];
     const rawValue=result.value;
     const display=entry?.formatEvidence?entry.formatEvidence(rawValue):
-      asText(result.displayValue)||readable(entry?.normalizeEvidence?entry.normalizeEvidence(rawValue):rawValue)||'Analysis complete';
+      asText(result.displayValue)||readable(entry?.normalizeEvidence?entry.normalizeEvidence(rawValue):rawValue)||__dialogueText("CrimeBoardInitCore.js", "t_60ffb9b9006a07dfc1f4");
 
     // Preserve the common previous ID shape to keep player connections valid.
     const resultId=normalizeId(result.stationId?`lab-result-${result.stationId}`:
@@ -351,14 +352,14 @@ function buildLabResultItems(state){
 
     const description=asText(result.clueText||result.description||result.details||result.text||result.body,display);
     const origin=asText(result.sourceText||result.evidenceConfig?.sourceText);
-    const body=[description,origin&&!description.includes(origin)?`Sample origin: ${origin}`:''].filter(Boolean).join('\n\n');
+    const body=[description,origin&&!description.includes(origin)?`${__dialogueText("CrimeBoardInitCore.js", "t_997d8ad6a73e20233513")}${origin}`:''].filter(Boolean).join('\n\n');
     const assistant=result.assistantProvided===true||result.completedBy==='lab_assistant'||result.source==='lab_assistant';
-    const source=assistant?'Lab assistant':!result.source||['player','crime_lab'].includes(result.source)?'Crime Lab':readable(result.source);
+    const source=assistant?__dialogueText("CrimeBoardInitCore.js", "t_02e75724638497488106"):!result.source||['player','crime_lab'].includes(result.source)?__dialogueText("CrimeBoardInitCore.js", "t_742e27a5828691c412bc"):readable(result.source);
 
     return{id:`lab-result-${resultId}`,type:'evidence',x:1060+(index%2)*220,y:300+Math.floor(index/2)*185,z:4,
       rotation:getRotation(index+12),pinned:true,
-      label:asText(result.title||result.label||entry?.label||FIELD_BY_ALIAS.get(field)?.label,'LAB REPORT'),tag:'Lab result',body,
-      fields:[{key:'Result',value:display},{key:'Source',value:source},{key:'Status',value:'Analysis complete'}],
+      label:asText(result.title||result.label||entry?.label||FIELD_BY_ALIAS.get(field)?.label,__dialogueText("CrimeBoardInitCore.js", "t_bf70a856af6cba26e104")),tag:__dialogueText("CrimeBoardInitCore.js", "t_9884db60954865d7357b"),body,
+      fields:[{key:'Result',value:display},{key:'Source',value:source},{key:'Status',value:__dialogueText("CrimeBoardInitCore.js", "t_60ffb9b9006a07dfc1f4")}],
       clueId:resultId,caseKey:currentCaseKey(state),stationId:result.stationId||null,evidenceType:result.evidenceType||field,
       rawValue,sourceConfirmed:result.sourceConfirmed===true,sourceText:origin,
       tags:['lab-result','forensics',normalizeId(field)].filter(Boolean),discovered:true,createdByPlayer:false,editableByPlayer:false};
@@ -430,7 +431,7 @@ function buildBoardLayout(state,objectsData=[]){
   return{
     meta:{
       boardId:`board-${mission.artifactKey||slugify(mission.artifact||'case')}`,
-      title:mission.artifact||'Crime Board',
+      title:mission.artifact||__dialogueText("CrimeBoardInitCore.js", "t_f4c2190c4738d459c48d"),
       caseId:mission.artifactKey||'',
       caseKey:currentCaseKey(state),
       version:8,

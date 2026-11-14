@@ -1,16 +1,17 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import {gameState} from '../GameData.js';
 import {requestAutosave} from '../gameStatePersistence.js';
 export const POSTAL_NOTEBOOK_CASE='pi_return_to_sender';
 const words=[
-  ['assignment','Returning sealed letter'],['seal','Inspect the envelope, not its contents'],
-  ['envelope','A. Reed / Clock Repairs'],['trail','Three old addresses / PI office forwarding'],
-  ['card','Signed forwarding authorisation'],['clock','Small clock drawing'],
-  ['notice','Public clock-repair notice'],['ellis','Ellis Bell / formerly A. Reed'],
-  ['alias','CLOCKWORK / poste restante'],['identity','Recipient identified from authorised sources'],
-  ['message','Message deposited for CLOCKWORK'],['waiting','Leave the post office and return for a reply'],
-  ['reply','Ellis confirms his former trading name'],['privacy','Keep the new name private'],
-  ['delivery','Leave the sealed letter for CLOCKWORK'],['closed','Letter delivered / case closed'],
-  ['private','New name kept private'],['disclosed','New name disclosed to the sender']
+  ['assignment',__dialogueText("managers/PostOfficeNotebook.js", "t_1e0ef9766aae406056f4")],['seal',__dialogueText("managers/PostOfficeNotebook.js", "t_197adeba070406063ca7")],
+  ['envelope',__dialogueText("managers/PostOfficeNotebook.js", "t_c4503b12ceaf3f70f2c3")],['trail',__dialogueText("managers/PostOfficeNotebook.js", "t_d18f644292807615888f")],
+  ['card',__dialogueText("managers/PostOfficeNotebook.js", "t_7ae7dd025ce22626e2ca")],['clock',__dialogueText("managers/PostOfficeNotebook.js", "t_b14e972fa9a09f7aa7e3")],
+  ['notice',__dialogueText("managers/PostOfficeNotebook.js", "t_b6f842e216b27b850a44")],['ellis',__dialogueText("managers/PostOfficeNotebook.js", "t_839de913e279b15ef429")],
+  ['alias',__dialogueText("managers/PostOfficeNotebook.js", "t_6093894c1618710ce1d6")],['identity',__dialogueText("managers/PostOfficeNotebook.js", "t_4016cf89c61321d4e475")],
+  ['message',__dialogueText("managers/PostOfficeNotebook.js", "t_db66234b74bd83afcc92")],['waiting',__dialogueText("managers/PostOfficeNotebook.js", "t_a25bb5d1defad2938a7f")],
+  ['reply',__dialogueText("managers/PostOfficeNotebook.js", "t_909fa46b2bd0635b6f47")],['privacy',__dialogueText("managers/PostOfficeNotebook.js", "t_29c71b81c22db5f6c40b")],
+  ['delivery',__dialogueText("managers/PostOfficeNotebook.js", "t_385ddd91bf6cd14c0d61")],['closed',__dialogueText("managers/PostOfficeNotebook.js", "t_0057d83cb0fada88d37a")],
+  ['private',__dialogueText("managers/PostOfficeNotebook.js", "t_20b24bddfe4d3b679fbe")],['disclosed',__dialogueText("managers/PostOfficeNotebook.js", "t_9c828356d0400dbd3e73")]
 ].map(([id,label])=>({id,label,cloudId:'postal',aliases:[label]}));
 export function syncPostalNotebook(){
   const s=gameState.postOffice,record=s?.returnCase;
@@ -44,7 +45,7 @@ export function syncPostalNotebook(){
 export function ensurePostalNotebookDefinition(data){
   if(!Array.isArray(data?.cases))return data;
   const current=data.cases.find(entry=>entry.id===POSTAL_NOTEBOOK_CASE);
-  const definition={id:POSTAL_NOTEBOOK_CASE,title:'Return to Sender',clouds:[{id:'postal',title:'POST OFFICE'}],keywords:words.map(word=>({...word,aliases:[...word.aliases]})),initialKeywords:[],pages:[],recipes:[]};
+  const definition={id:POSTAL_NOTEBOOK_CASE,title:__dialogueText("managers/PostOfficeNotebook.js", "t_6e6e82ddd9c9f0af1dde"),clouds:[{id:'postal',title:__dialogueText("managers/PostOfficeNotebook.js", "t_620a597cd8e1abb75463")}],keywords:words.map(word=>({...word,aliases:[...word.aliases]})),initialKeywords:[],pages:[],recipes:[]};
   if(!current)data.cases.push(definition);
   else{
     current.title=definition.title;

@@ -1,8 +1,9 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { audioManager } from '../managers/AudioManager.js';
 import { EventBus } from '../EventBus.js';
 
 const MAP_SOURCES = [
-    'assets/data/atlas-boundaries.geojson',
+    __dialogueText("ui/AtlasUI.js", "t_34e83dc47f4f5e4dd789"),
     'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson'
 ];
 
@@ -53,23 +54,23 @@ const REGION_CODES = {
 const TAB_COLORS = [0x754b43, 0x58654b, 0x3e5661, 0x806943];
 
 const COUNTRY_STAMPS = [
-    'APPROVED*', 'EXPENSES DENIED', 'SEE FOOTNOTE 7', 'NOT A VACATION',
-    'INTERN CHECKED', 'RECEIPTS PLZ', 'TOP SECRET-ISH', 'COFFEE EXTRA',
-    'BRING UMBRELLA'
+    'APPROVED*', __dialogueText("ui/AtlasUI.js", "t_cbbbb48f9b9fbe57b0d6"), __dialogueText("ui/AtlasUI.js", "t_0b82a9df8d68dbc28f46"), __dialogueText("ui/AtlasUI.js", "t_0cda9d47d2bd3e26f66e"),
+    __dialogueText("ui/AtlasUI.js", "t_ac79e653b1d9d5bd8510"), __dialogueText("ui/AtlasUI.js", "t_a8c38e1c69c81d7cee3b"), __dialogueText("ui/AtlasUI.js", "t_8341777ae49f006e8eb1"), __dialogueText("ui/AtlasUI.js", "t_047797fe00f682f9a471"),
+    __dialogueText("ui/AtlasUI.js", "t_8b27de048762148475cd")
 ];
 const CITY_STAMPS = [
-    'VISIT PENDING', 'TICKET BOOKED?', 'NO REFUNDS', 'GUIDE: MAYBE',
-    'SUSPECT NEARBY', 'EAT LOCAL FOOD', 'KEEP RECEIPTS'
+    __dialogueText("ui/AtlasUI.js", "t_def390b8f38ee19c4f14"), __dialogueText("ui/AtlasUI.js", "t_31131adbd6f5a9c9d2c6"), __dialogueText("ui/AtlasUI.js", "t_776c328681bc624feead"), __dialogueText("ui/AtlasUI.js", "t_d02f547de20c04831f34"),
+    __dialogueText("ui/AtlasUI.js", "t_fb41681d4203ca2bbde4"), __dialogueText("ui/AtlasUI.js", "t_4f9410e22b87bdaaa96c"), __dialogueText("ui/AtlasUI.js", "t_d6405b500ce0605bfcb8")
 ];
 const AGENT_NOTES = [
-    'Borders shown. Escape routes sold separately.',
-    'Do not ask locals for directions. Ask for pastries.',
-    'Previous agent lost here. Possibly just lunch.',
-    'Pack light. Expenses are not that forgiving.',
-    'Suspect may be anywhere. Or at the buffet.',
-    'Maps may differ from reality. Reality is wrong.',
-    'If lost, look confident and nod at monuments.',
-    'Agency is not liable for bad coffee abroad.'
+    __dialogueText("ui/AtlasUI.js", "t_a72979c5656f06c382e1"),
+    __dialogueText("ui/AtlasUI.js", "t_35a4e2eaae85b46448fe"),
+    __dialogueText("ui/AtlasUI.js", "t_9f52ccf89e802e2230f9"),
+    __dialogueText("ui/AtlasUI.js", "t_2f5c7ef4a7d15bf8b918"),
+    __dialogueText("ui/AtlasUI.js", "t_816e7c50b12d7e27da09"),
+    __dialogueText("ui/AtlasUI.js", "t_0eb692a11cf3af69d821"),
+    __dialogueText("ui/AtlasUI.js", "t_89e2a1cbceaa6f346c48"),
+    __dialogueText("ui/AtlasUI.js", "t_01dea2f052547de16bd3")
 ];
 
 // ---------------------------------------------------------------- helpers
@@ -207,23 +208,23 @@ function paintCover(ctx) {
     const v = ctx.createRadialGradient(COVER_W / 2, COVER_H / 2, COVER_H * 0.35,
         COVER_W / 2, COVER_H / 2, COVER_W * 0.62);
     v.addColorStop(0, 'rgba(0,0,0,0)');
-    v.addColorStop(1, 'rgba(0,0,0,0.35)');
+    v.addColorStop(1, __dialogueText("ui/AtlasUI.js", "t_7be18e16198b94e74581"));
     ctx.fillStyle = v;
     ctx.fillRect(0, 0, COVER_W, COVER_H);
 
     ctx.lineWidth = 2;
-    ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+    ctx.strokeStyle = __dialogueText("ui/AtlasUI.js", "t_eabbb4eda5b34a41ca74");
     ctx.beginPath();
     ctx.moveTo(2, COVER_H - 2); ctx.lineTo(2, 2); ctx.lineTo(COVER_W - 2, 2);
     ctx.stroke();
-    ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+    ctx.strokeStyle = __dialogueText("ui/AtlasUI.js", "t_6190a6c871e7254ef3c9");
     ctx.beginPath();
     ctx.moveTo(COVER_W - 2, 2); ctx.lineTo(COVER_W - 2, COVER_H - 2); ctx.lineTo(2, COVER_H - 2);
     ctx.stroke();
 
     ctx.setLineDash([7, 5]);
     ctx.lineWidth = 2;
-    ctx.strokeStyle = 'rgba(206,178,104,0.8)';
+    ctx.strokeStyle = __dialogueText("ui/AtlasUI.js", "t_fb861e2570a5e03ebbe7");
     ctx.strokeRect(8, 8, COVER_W - 16, COVER_H - 16);
     ctx.setLineDash([]);
     ctx.restore();
@@ -241,7 +242,7 @@ function paintPage(ctx, side) {
         const x = rnd() * PAGE_W, y = rnd() * PAGE_H, r = 40 + rnd() * 140;
         const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
         const warm = rnd() > 0.5;
-        grad.addColorStop(0, warm ? 'rgba(168,132,78,0.05)' : 'rgba(255,252,238,0.10)');
+        grad.addColorStop(0, warm ? __dialogueText("ui/AtlasUI.js", "t_f9118c3abcea99f523b8") : __dialogueText("ui/AtlasUI.js", "t_ca4f9a17a92b29a6fcb2"));
         grad.addColorStop(1, 'rgba(168,132,78,0)');
         ctx.fillStyle = grad;
         ctx.fillRect(x - r, y - r, r * 2, r * 2);
@@ -270,7 +271,7 @@ function paintPage(ctx, side) {
     for (let i = 0; i < 14; i++) {
         const x = rnd() * PAGE_W, y = rnd() * PAGE_H, r = 3 + rnd() * 8;
         const halo = ctx.createRadialGradient(x, y, 0, x, y, r * 3);
-        halo.addColorStop(0, 'rgba(150,100,50,0.14)');
+        halo.addColorStop(0, __dialogueText("ui/AtlasUI.js", "t_42dc23214b33160a6356"));
         halo.addColorStop(1, 'rgba(150,100,50,0)');
         ctx.fillStyle = halo;
         ctx.fillRect(x - r * 3, y - r * 3, r * 6, r * 6);
@@ -282,12 +283,12 @@ function paintPage(ctx, side) {
 
     // one faded coffee ring
     const rx = left ? 470 : 150, ry = left ? 640 : 120;
-    ctx.strokeStyle = 'rgba(120,80,40,0.10)';
+    ctx.strokeStyle = __dialogueText("ui/AtlasUI.js", "t_0ebe00e2b8677124c026");
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.arc(rx, ry, 34, 0.2, Math.PI * 1.85);
     ctx.stroke();
-    ctx.strokeStyle = 'rgba(120,80,40,0.05)';
+    ctx.strokeStyle = __dialogueText("ui/AtlasUI.js", "t_4ad625e65eb85f5767f5");
     ctx.lineWidth = 8;
     ctx.beginPath();
     ctx.arc(rx, ry, 31, 0.2, Math.PI * 1.85);
@@ -310,8 +311,8 @@ function paintPage(ctx, side) {
     const spine = left
         ? ctx.createLinearGradient(PAGE_W, 0, PAGE_W - 84, 0)
         : ctx.createLinearGradient(0, 0, 84, 0);
-    spine.addColorStop(0, 'rgba(35,26,16,0.52)');
-    spine.addColorStop(0.35, 'rgba(35,26,16,0.16)');
+    spine.addColorStop(0, __dialogueText("ui/AtlasUI.js", "t_966be85ddc039e2f4b2f"));
+    spine.addColorStop(0.35, __dialogueText("ui/AtlasUI.js", "t_ca80b2b12a7c8fe1e509"));
     spine.addColorStop(1, 'rgba(35,26,16,0)');
     ctx.fillStyle = spine;
     ctx.fillRect(left ? PAGE_W - 84 : 0, 0, 84, PAGE_H);
@@ -441,14 +442,14 @@ export class AtlasUI {
         this.createTexts();
         this.createStamp();
 
-        this.prevBtn = this.button(-520, 355, '< PREV', () => this.previousPage());
-        this.nextBtn = this.button(520, 355, 'NEXT >', () => this.nextPage());
+        this.prevBtn = this.button(-520, 355, __dialogueText("ui/AtlasUI.js", "t_86af811671fe29fad1d2"), () => this.previousPage());
+        this.nextBtn = this.button(520, 355, __dialogueText("ui/AtlasUI.js", "t_58b85f2ea88bf1a9ba16"), () => this.nextPage());
         this.closeBtn = this.button(632, -414, 'X', () => this.close());
         this.countryBtn = this.button(155, 283, 'COUNTRY', () => {
             const page = this.getCurrentPage();
             if (page) this.openToCountry(page.country.id);
         });
-        this.cityBtn = this.button(430, 283, 'CITY FILES', () => {
+        this.cityBtn = this.button(430, 283, __dialogueText("ui/AtlasUI.js", "t_9595a23e5cfd160f91f7"), () => {
             const page = this.getCurrentPage();
             if (!page) return;
             const index = this.pages.findIndex(p =>
@@ -574,8 +575,8 @@ export class AtlasUI {
 
     createTexts() {
         // left page
-        this.text(-545, -383, 'MARK AGENCY', 13, { fontFamily: 'PressStart2P', color: '#52604b' });
-        this.text(65, -383, 'INTERNATIONAL FIELD ATLAS', 16, { color: '#69634f' });
+        this.text(-545, -383, __dialogueText("ui/AtlasUI.js", "t_9246fca97ffafae56410"), 13, { fontFamily: 'PressStart2P', color: '#52604b' });
+        this.text(65, -383, __dialogueText("ui/AtlasUI.js", "t_fc342ac83c90966d0cb8"), 16, { color: '#69634f' });
         this.mapTitle = this.text(-322, -301, '', 25, {
             color: '#3b3226',
             shadow: { offsetX: 1, offsetY: 1, color: '#fff8e0', blur: 0, fill: true }
@@ -585,7 +586,7 @@ export class AtlasUI {
         this.neighbourLabels = this.labelPool(8, 12, '#6d7258', 0.9);
         this.compassN = this.text(-98, -253, 'N', 13).setOrigin(0.5);
 
-        this.mapMessage = this.text(MAP_CX, -20, 'Loading map...', 18, {
+        this.mapMessage = this.text(MAP_CX, -20, __dialogueText("ui/AtlasUI.js", "t_31009eb54797f5306ede"), 18, {
             align: 'center', wordWrap: { width: 370 }, color: '#706b55'
         }).setOrigin(0.5);
         this.markerLabel = this.text(0, 0, '', 16, {
@@ -622,7 +623,7 @@ export class AtlasUI {
         this.descriptionText = this.text(65, -110, '', 21, {
             wordWrap: { width: 500 }, lineSpacing: 7
         });
-        this.knownLabel = this.text(65, 193, 'KNOWN FOR', 9, {
+        this.knownLabel = this.text(65, 193, __dialogueText("ui/AtlasUI.js", "t_3ad9269fb6790f6886c2"), 9, {
             fontFamily: 'PressStart2P', color: '#7c725b'
         });
         this.chips = Array.from({ length: 6 }, () => this.text(65, 214, '', 15, {
@@ -633,7 +634,7 @@ export class AtlasUI {
         this.pageLeftNumber = this.text(-322, 355, '', 15, { color: '#7c725b' }).setOrigin(0.5);
         this.pageRightLabel = this.text(320, 355, '', 15, { color: '#7c725b' }).setOrigin(0.5);
         this.hintText = this.text(0, 415,
-            'LEFT / RIGHT: TURN PAGE     A / ESC: CLOSE', 13, {
+            __dialogueText("ui/AtlasUI.js", "t_0c507a9063bde90769b0"), 13, {
                 color: '#dfd4b4'
             }).setOrigin(0.5);
     }
@@ -816,7 +817,7 @@ export class AtlasUI {
 
     polygonsOf(geometry) {
         if (!geometry) return [];
-        if (geometry.type === 'Polygon') return [geometry.coordinates];
+        if (geometry.type === __dialogueText("ui/AtlasUI.js", "t_0ef705dd99da0ae4b601")) return [geometry.coordinates];
         if (geometry.type === 'MultiPolygon') return geometry.coordinates;
         return [];
     }
@@ -874,16 +875,16 @@ export class AtlasUI {
 
         const page = this.getCurrentPage();
         if (!page || this.mapState !== 'ready') {
-            this.mapMessage.setVisible(true).setText(!page ? 'No country selected.' :
-                this.mapState === 'error' ?
-                    'Map unavailable.\nThe geography department blames the connection.' :
-                    'Retrieving cartographic intelligence...');
+            this.mapMessage.setVisible(true).setText(!page ? __dialogueText("ui/AtlasUI.js", "t_eec3780e3f31766310c2") :
+                this.mapState === __dialogueText("ui/AtlasUI.js", "t_ca00fccfb408989eddc4") ?
+                    __dialogueText("ui/AtlasUI.js", "t_021a555760554c4e20be") :
+                    __dialogueText("ui/AtlasUI.js", "t_985ed8633d43dd8eed88"));
             this.drawNeatline(top, [], []);
             return;
         }
         const polygons = this.getPolygons(page.country);
         if (!polygons.length) {
-            this.mapMessage.setVisible(true).setText('No boundary data for this entry.');
+            this.mapMessage.setVisible(true).setText(__dialogueText("ui/AtlasUI.js", "t_620d58aaabb7f6b63f5a"));
             this.drawNeatline(top, [], []);
             return;
         }
@@ -1028,7 +1029,7 @@ export class AtlasUI {
             if (label) {
                 const v = Math.round(lon * 100) / 100;
                 label.setOrigin(0, 1).setPosition(x + 3, FRAME.b - 8)
-                    .setText(`${formatDeg(Math.abs(v))}°${v >= 0 ? 'E' : 'W'}`).setVisible(true);
+                    .setText(`${formatDeg(Math.abs(v))}${__dialogueText("ui/AtlasUI.js", "t_1ee6c7edad9ee3b7ce8c")}${v >= 0 ? __dialogueText("ui/AtlasUI.js", "t_a9f51566bd6705f7ea6a") : __dialogueText("ui/AtlasUI.js", "t_fcb5f40df9be6bae66c1")}`).setVisible(true);
             }
         }
         for (let lat = Math.ceil(view.minLat / latStep) * latStep; lat <= view.maxLat; lat += latStep) {
@@ -1040,7 +1041,7 @@ export class AtlasUI {
             if (label) {
                 const v = Math.round(lat * 100) / 100;
                 label.setOrigin(0, 1).setPosition(FRAME.l + 9, y - 1)
-                    .setText(`${formatDeg(Math.abs(v))}°${v >= 0 ? 'N' : 'S'}`).setVisible(true);
+                    .setText(`${formatDeg(Math.abs(v))}${__dialogueText("ui/AtlasUI.js", "t_1ee6c7edad9ee3b7ce8c")}${v >= 0 ? __dialogueText("ui/AtlasUI.js", "t_8ce86a6ae65d3692e730") : __dialogueText("ui/AtlasUI.js", "t_8de0b3c47f112c59745f")}`).setVisible(true);
             }
         }
         return { xs, ys };
@@ -1100,7 +1101,7 @@ export class AtlasUI {
             g.fillStyle(i % 2 ? PAPER : INK, 1).fillRect(x0 + i * seg, y, seg, h);
         }
         g.lineStyle(1, INK, 0.9).strokeRect(x0, y, px, h);
-        this.scaleLabel.setText(`${km} km`).setPosition(x0 + px + 8, y + h / 2).setVisible(true);
+        this.scaleLabel.setText(`${km}${__dialogueText("ui/AtlasUI.js", "t_408b05c97145e3efe2b1")}`).setPosition(x0 + px + 8, y + h / 2).setVisible(true);
     }
 
     drawMarkers(g, page, project) {
@@ -1135,7 +1136,7 @@ export class AtlasUI {
         });
         this.pulse.setPosition(point.x, point.y).setVisible(true);
 
-        this.markerLabel.setText(page.type === 'city' ? page.entry.name : page.country.capital || '')
+        this.markerLabel.setText(page.type === __dialogueText("ui/AtlasUI.js", "t_11a62c23412b77477a71") ? page.entry.name : page.country.capital || '')
             .setVisible(true);
         this.markerLabel.setPosition(
             Math.max(FRAME.l + 10, Math.min(point.x + 14, FRAME.r - 10 - this.markerLabel.width)),
@@ -1164,26 +1165,26 @@ export class AtlasUI {
         const number = String(this.pageIndex + 1).padStart(2, '0');
 
         // left page
-        this.mapTitle.setText((country?.name || 'WORLD ATLAS').toUpperCase());
+        this.mapTitle.setText((country?.name || __dialogueText("ui/AtlasUI.js", "t_7381b44516d38d509bb0")).toUpperCase());
         this.fitText(this.mapTitle, 470, 40, 25, 13);
-        this.mapCaption.setText(city ? `CITY LOCATION: ${entry.name.toUpperCase()}` :
-            `${country?.mapLabel || 'COUNTRY OUTLINE'} / REFERENCE ${number}`);
+        this.mapCaption.setText(city ? `${__dialogueText("ui/AtlasUI.js", "t_4f0a64250062a85dc14c")}${entry.name.toUpperCase()}` :
+            `${country?.mapLabel || __dialogueText("ui/AtlasUI.js", "t_124123d449d3bc1483fb")}${__dialogueText("ui/AtlasUI.js", "t_446eb90118c00ead4f92")}${number}`);
         const note = entry?.agentNote ||
             AGENT_NOTES[hashString(`${page?.type}:${entry?.id || entry?.name}`) % AGENT_NOTES.length];
         this.mapNote.setText(page ? note : '');
         const coords = city ? entry?.coordinates : country?.capitalCoordinates;
         if (Array.isArray(coords) && coords.length === 2 && coords.every(Number.isFinite)) {
             const [lon, lat] = coords;
-            this.mapCoords.setText(`${Math.abs(lat).toFixed(2)}${lat >= 0 ? 'N' : 'S'} ` +
-                `${Math.abs(lon).toFixed(2)}${lon >= 0 ? 'E' : 'W'}`);
+            this.mapCoords.setText(`${Math.abs(lat).toFixed(2)}${lat >= 0 ? __dialogueText("ui/AtlasUI.js", "t_8ce86a6ae65d3692e730") : __dialogueText("ui/AtlasUI.js", "t_8de0b3c47f112c59745f")}${__dialogueText("ui/AtlasUI.js", "t_36a9e7f1c95b82ffb997")}` +
+                `${Math.abs(lon).toFixed(2)}${lon >= 0 ? __dialogueText("ui/AtlasUI.js", "t_a9f51566bd6705f7ea6a") : __dialogueText("ui/AtlasUI.js", "t_fcb5f40df9be6bae66c1")}`);
         } else {
             this.mapCoords.setText('');
         }
 
         // right page header
-        this.countryNameText.setText(entry?.name || 'Atlas');
+        this.countryNameText.setText(entry?.name || __dialogueText("ui/AtlasUI.js", "t_9dee1c0ed39ef4e2686f"));
         this.fitText(this.countryNameText, 510, 90, 36, 24);
-        this.caseStampText.setText(`${city ? 'CITY' : 'COUNTRY'} FILE / ${country?.iso3 || '--'}`);
+        this.caseStampText.setText(`${city ? __dialogueText("ui/AtlasUI.js", "t_31a5fbc075a79de045a6") : __dialogueText("ui/AtlasUI.js", "t_446dbca2a9768018cc09")}${__dialogueText("ui/AtlasUI.js", "t_74e8e90c64cac018c25d")}${country?.iso3 || __dialogueText("ui/AtlasUI.js", "t_d8156bae0c4243d3742f")}`);
         this.caseTagGfx.clear()
             .lineStyle(1, 0x7c4338, 0.8)
             .strokeRect(this.caseStampText.x, this.caseStampText.y,
@@ -1193,10 +1194,10 @@ export class AtlasUI {
                 this.caseStampText.width - 6, this.caseStampText.height - 6);
 
         const y = Math.max(-193, this.countryNameText.y + this.countryNameText.height + 14);
-        this.capitalText.setY(y).setText(city ? `Country: ${country.name}` :
-            `Capital: ${country?.capital || 'Unknown'}`);
+        this.capitalText.setY(y).setText(city ? `${__dialogueText("ui/AtlasUI.js", "t_bb1b735cf211e6b0481e")}${country.name}` :
+            `${__dialogueText("ui/AtlasUI.js", "t_642e0ad53ea0f8c21ad2")}${country?.capital || __dialogueText("ui/AtlasUI.js", "t_b764cdc0eab713746721")}`);
         this.regionText.setY(y + this.capitalText.height + 10)
-            .setText(`Region: ${country?.region || 'Unknown'}`);
+            .setText(`${__dialogueText("ui/AtlasUI.js", "t_82dd7dd1ce32d1e238bd")}${country?.region || __dialogueText("ui/AtlasUI.js", "t_b764cdc0eab713746721")}`);
 
         const dividerY = this.regionText.y + this.regionText.height + 11;
         this.dividerGfx.clear()
@@ -1205,7 +1206,7 @@ export class AtlasUI {
             .fillStyle(INK, 0.55).fillTriangle(315, dividerY - 5, 308, dividerY, 322, dividerY)
             .fillTriangle(315, dividerY + 5, 308, dividerY, 322, dividerY);
 
-        this.descriptionText.setY(dividerY + 13).setText(entry?.description || 'No entries loaded.');
+        this.descriptionText.setY(dividerY + 13).setText(entry?.description || __dialogueText("ui/AtlasUI.js", "t_f872ff72d5eabb394969"));
         this.fitText(this.descriptionText, 520, 180 - this.descriptionText.y, 21, 13);
 
         // known-for chips
@@ -1222,8 +1223,8 @@ export class AtlasUI {
             if (fits) cursor += chip.width + 8;
         });
 
-        this.pageLeftNumber.setText(page ? `${city ? 'CITY' : 'MAP'} ${number}` : 'MAP --');
-        this.pageRightLabel.setText(page ? `${this.pageIndex + 1} / ${this.pages.length}` : '--');
+        this.pageLeftNumber.setText(page ? `${city ? __dialogueText("ui/AtlasUI.js", "t_31a5fbc075a79de045a6") : __dialogueText("ui/AtlasUI.js", "t_4cf644d78bfc298f26ba")}${__dialogueText("ui/AtlasUI.js", "t_36a9e7f1c95b82ffb997")}${number}` : __dialogueText("ui/AtlasUI.js", "t_589ec232cddc22464241"));
+        this.pageRightLabel.setText(page ? `${this.pageIndex + 1}${__dialogueText("ui/AtlasUI.js", "t_005e1574a2b5c8163046")}${this.pages.length}` : __dialogueText("ui/AtlasUI.js", "t_d8156bae0c4243d3742f"));
         this.countryBtn.setVisible(!!page && city);
         this.cityBtn.setVisible(!!country?.cities?.length);
         this.updateStamp(page);

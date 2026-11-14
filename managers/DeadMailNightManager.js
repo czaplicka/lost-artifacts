@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { addPIEvidence, registerPICase } from './PIInvestigationManager.js';
@@ -27,7 +28,7 @@ function discover(ids){
 }
 export function beginDeadMailNight(){
   if(!canStartDeadMailNight())throw new Error('Complete the local day-shift preview first. No paid ownership is verified.');
-  registerPICase({id:DEAD_MAIL_PREVIEW_CASE,kind:'side',requiresBoard:true,title:'Dead Mail [DEVELOPMENT PREVIEW]',initialItems:[],initialLinks:[]});
+  registerPICase({id:DEAD_MAIL_PREVIEW_CASE,kind:'side',requiresBoard:true,title:__dialogueText("managers/DeadMailNightManager.js", "t_5ee92a6a27737a6acdc5"),initialItems:[],initialLinks:[]});
   return commit(getDeadMailNightProgress());
 }
 export function setDeadMailNightStage(stage){
@@ -46,14 +47,14 @@ export function placeDeadMailEquipment(slot,place){
 }
 export function checkDeadMailCoverage(){
   const s=getDeadMailNightProgress();
-  if(s.camera!=='gate')return {ok:false,message:'The camera needs a clear view of the parcel handover at gate B. A picture of the costume contest will not establish collection.'};
-  if(s.observer!=='chapel')return {ok:false,message:'The chapel is outside the gate camera’s view. Place yourself there so a second figure can be observed independently.'};
-  if(s.recorder!=='chapel')return {ok:false,message:'The reported bell is at the chapel. Place the recorder there. Recording the crowd only gives you expensive booing.'};
-  return {ok:true,message:'Gate camera, chapel recorder and chapel observation point. Clocks will be synchronised before the watch. Coverage rehearsal does not advance time.'};
+  if(s.camera!=='gate')return {ok:false,message:__dialogueText("managers/DeadMailNightManager.js", "t_758b753ea03cfe7e0835")};
+  if(s.observer!=='chapel')return {ok:false,message:__dialogueText("managers/DeadMailNightManager.js", "t_b655eaeb15f312980145")};
+  if(s.recorder!=='chapel')return {ok:false,message:__dialogueText("managers/DeadMailNightManager.js", "t_eda82625b741031dce2e")};
+  return {ok:true,message:__dialogueText("managers/DeadMailNightManager.js", "t_1266f60aa54038279def")};
 }
 export function startDeadMailWatch(){
   if(!canStartDeadMailNight())return {ok:false};
-  const s=getDeadMailNightProgress();if(s.started)return {ok:false,message:'The watch has already begun. Review the timeline; it cannot be rewound.'};
+  const s=getDeadMailNightProgress();if(s.started)return {ok:false,message:__dialogueText("managers/DeadMailNightManager.js", "t_71d19815fa10738aee25")};
   const coverage=checkDeadMailCoverage();if(!coverage.ok)return coverage;
   commit({...s,started:true,stage:'watch'});return {ok:true};
 }
@@ -74,20 +75,20 @@ export function askDeadMailCourier(id){
 }
 export function verifyDeadMailCourier(method){
   if(!metCourier()||!getDeadMailNightProgress().topics.includes('identity'))return {ok:false};
-  if(method!=='directory')return {ok:false,message:'A costume, badge or number supplied only by the witness is not independent verification. Use the duty-desk number from the courier directory.'};
+  if(method!=='directory')return {ok:false,message:__dialogueText("managers/DeadMailNightManager.js", "t_72927ceb477b9f4435ff")};
   commit({...getDeadMailNightProgress(),verified:true});discover(['courierVerified']);
-  return {ok:true,message:'SCRIPTED DUTY-DESK CALL: “Ward, PC-041. Assigned to Blackthorn consignments.” Employment and assignment confirmed, not every claim.'};
+  return {ok:true,message:__dialogueText("managers/DeadMailNightManager.js", "t_e89558fd6a0157be3062")};
 }
 export function compareDeadMailCourierSheet(answer){
   if(!metCourier())return {ok:false};
   const s=getDeadMailNightProgress();
-  if(!s.verified||!s.topics.includes('records'))return {ok:false,message:'Verify Tessa and ask to see her records first.'};
+  if(!s.verified||!s.topics.includes('records'))return {ok:false,message:__dialogueText("managers/DeadMailNightManager.js", "t_52ed55a52254e338b2d0")};
   if(answer!=='route'){
     commit({...s,attempts:s.attempts+1});
-    return {ok:false,message:'The sheets match recipient names, dates and plots. Neither sheet identifies the hooded collector or provides purchaser payment details.'};
+    return {ok:false,message:__dialogueText("managers/DeadMailNightManager.js", "t_96bf4436184cc64aeda9")};
   }
   commit({...s,compared:true});discover(['courierSheet']);
-  return {ok:true,message:'Names, dates and plots match the cemetery copy. The route is corroborated; the collector is still unidentified.'};
+  return {ok:true,message:__dialogueText("managers/DeadMailNightManager.js", "t_419a1a8846e7a76f789b")};
 }
 export function solveDeadMailNightDeduction(id,answer){
   if(!canStartDeadMailNight())return {ok:false};
@@ -96,7 +97,7 @@ export function solveDeadMailNightDeduction(id,answer){
   const d=NIGHT_DEDUCTIONS.find(x=>x.id===id);if(!d)return {ok:false};
   if(answer!==d.answer){commit({...s,attempts:s.attempts+1});return {ok:false,message:d.explanation};}
   if(!s.deductions.includes(id)){
-    note(`deduction-${id}`,d.question,d.options[d.answer],'Night investigation / deduction');
+    note(`deduction-${id}`,d.question,d.options[d.answer],__dialogueText("managers/DeadMailNightManager.js", "t_97cef8ec2d1132ce0fe8"));
     commit({...s,deductions:[...s.deductions,id]});
   }
   return {ok:true,message:d.explanation};
@@ -105,6 +106,6 @@ export function finishDeadMailNight(){
   if(!canStartDeadMailNight())return false;
   const s=getDeadMailNightProgress();
   if(!s.verified||!s.compared||!NIGHT_DEDUCTIONS.every(d=>s.deductions.includes(d.id)))return false;
-  note('operation-plan','A controlled delivery, not an accusation','Coordinate a marked parcel with the courier and police, document its collection and preserve evidence. The collector has not yet been identified.','Next operation / development preview');
+  note('operation-plan',__dialogueText("managers/DeadMailNightManager.js", "t_7c5f02df7ea3c49574c2"),__dialogueText("managers/DeadMailNightManager.js", "t_c2c0e6068d02ebd5c0a0"),__dialogueText("managers/DeadMailNightManager.js", "t_5ee826e13f2cc0981fa3"));
   commit({...s,complete:true,stage:'end'});return true;
 }

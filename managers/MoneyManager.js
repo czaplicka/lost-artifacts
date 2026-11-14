@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { resourcefulnessManager } from './ResourcefulnessManager.js';
@@ -14,16 +15,16 @@ export const ECONOMY_CATEGORY = Object.freeze({
   ITEM: 'item', AGENCY_ADVANCE: 'agency_advance', REFUND: 'refund'
 });
 export const HOTEL_OPTIONS = Object.freeze({
-  agency: { id: 'agency', label: 'Agency Motel', source: MONEY_SOURCE.AGENCY,
-    cost: 0, energyRestore: 40, description: 'A bed. Allegedly.' },
-  boardingHouse: { id: 'boardingHouse', label: 'Boarding House', source: MONEY_SOURCE.CASH,
-    cost: 25, energyRestore: 65, description: 'Decent sleep and alarming wallpaper.' },
-  business: { id: 'business', label: 'Business Hotel', source: MONEY_SOURCE.CASH,
+  agency: { id: 'agency', label: __dialogueText("managers/MoneyManager.js", "t_c4c28e65f9cb467fb8c0"), source: MONEY_SOURCE.AGENCY,
+    cost: 0, energyRestore: 40, description: __dialogueText("managers/MoneyManager.js", "t_9aabb86a0afee1960cd7") },
+  boardingHouse: { id: 'boardingHouse', label: __dialogueText("managers/MoneyManager.js", "t_849d78dbf7763d8d6779"), source: MONEY_SOURCE.CASH,
+    cost: 25, energyRestore: 65, description: __dialogueText("managers/MoneyManager.js", "t_b983b718375bd7a1cddc") },
+  business: { id: 'business', label: __dialogueText("managers/MoneyManager.js", "t_872980322d9d10eba400"), source: MONEY_SOURCE.CASH,
     cost: 60, energyRestore: 100, researchBonus: 1,
-    description: 'Reliable Wi-Fi, clean sheets, and one useful newspaper.' },
-  grand: { id: 'grand', label: 'Grand Hotel', source: MONEY_SOURCE.CASH,
+    description: __dialogueText("managers/MoneyManager.js", "t_4317f3ac7ee982cc16db") },
+  grand: { id: 'grand', label: __dialogueText("managers/MoneyManager.js", "t_5f61e4a8177ff6eb5e1f"), source: MONEY_SOURCE.CASH,
     cost: 110, energyRestore: 100, contactBonus: 1,
-    description: 'You are not rich. You are undercover.' }
+    description: __dialogueText("managers/MoneyManager.js", "t_49790323f0d974b83d82") }
 });
 function isPositiveInteger(value) { return Number.isInteger(value) && value > 0; }
 function normalizeAmount(value) { return Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0; }
@@ -81,13 +82,13 @@ export class MoneyManager {
     gameState.agencyBudget = normalizeAmount(agencyBudget);
     gameState.agencyDebt = normalizeAmount(agencyDebt);
     gameState.moneyLog = [];
-    const transaction = this.addLogEntry({ type: 'reset', description: 'New detective account opened.',
+    const transaction = this.addLogEntry({ type: 'reset', description: __dialogueText("managers/MoneyManager.js", "t_65c4f2f8a95540e9a141"),
       metadata: { cash: gameState.cash, agencyBudget: gameState.agencyBudget, agencyDebt: gameState.agencyDebt } });
     this.persist('reset', transaction);
     return this.getState();
   }
   beginMission({ missionId, agencyAdvance = MONEY_DEFAULTS.agencyBudget,
-    description = 'Mark Agency mission advance' } = {}) {
+    description = __dialogueText("managers/MoneyManager.js", "t_c726eaa822bbd7a7d800") } = {}) {
     if (!missionId) throw new Error('MoneyManager.beginMission requires missionId.');
     const normalizedAdvance = normalizeAmount(agencyAdvance);
     gameState.agencyBudget = normalizedAdvance;
@@ -97,7 +98,7 @@ export class MoneyManager {
     return this.getState();
   }
 
-  addCash(amount, { category = ECONOMY_CATEGORY.SIDE_CASE, description = 'Cash received',
+  addCash(amount, { category = ECONOMY_CATEGORY.SIDE_CASE, description = __dialogueText("managers/MoneyManager.js", "t_0c8c1eb08f4f72d651fb"),
     missionId = gameState.currentMission?.id ?? null, metadata = {} } = {}) {
     if (!isPositiveInteger(amount)) throw new Error('MoneyManager.addCash requires a positive integer amount.');
     const transactionMetadata = cloneMetadata(metadata);
@@ -113,7 +114,7 @@ export class MoneyManager {
     gameState.cash = this.getBalance(MONEY_SOURCE.CASH) + paidAmount;
     const transaction = this.addLogEntry({
       type: 'income', source: MONEY_SOURCE.CASH, amount: paidAmount, category,
-      description: quote.bonus > 0 ? `${description} (+$${quote.bonus} assistant bonus)` : description,
+      description: quote.bonus > 0 ? `${description}${__dialogueText("managers/MoneyManager.js", "t_5c59214bd68c226bded1")}${quote.bonus}${__dialogueText("managers/MoneyManager.js", "t_ef1bf6c4c1c2f71b2761")}` : description,
       missionId, metadata: transactionMetadata
     });
     // Base payment and bonus share one transaction and the existing settlement ID.
@@ -122,7 +123,7 @@ export class MoneyManager {
   }
 
   addAgencyBudget(amount, { category = ECONOMY_CATEGORY.AGENCY_ADVANCE,
-    description = 'Additional Mark Agency funds', missionId = gameState.currentMission?.id ?? null,
+    description = __dialogueText("managers/MoneyManager.js", "t_4f775fe576e18cfdebef"), missionId = gameState.currentMission?.id ?? null,
     metadata = {} } = {}) {
     if (!isPositiveInteger(amount)) throw new Error('MoneyManager.addAgencyBudget requires a positive integer amount.');
     gameState.agencyBudget = this.getBalance(MONEY_SOURCE.AGENCY) + amount;
@@ -132,7 +133,7 @@ export class MoneyManager {
     return this.getState();
   }
   spend(amount, { source = MONEY_SOURCE.CASH, category = ECONOMY_CATEGORY.ITEM,
-    description = 'Purchase', missionId = gameState.currentMission?.id ?? null, metadata = {} } = {}) {
+    description = __dialogueText("managers/MoneyManager.js", "t_5b5e9c65b400565c2cd8"), missionId = gameState.currentMission?.id ?? null, metadata = {} } = {}) {
     if (!isPositiveInteger(amount)) throw new Error('MoneyManager.spend requires a positive integer amount.');
     const quote = this.getExpenseQuote(amount, { category });
     const chargedAmount = quote.finalCost;
@@ -164,17 +165,17 @@ export class MoneyManager {
       researchBonus: normalizeAmount(hotelOption.researchBonus), contactBonus: normalizeAmount(hotelOption.contactBonus) };
     if (cost === 0) {
       const transaction = this.addLogEntry({ type: 'expense', source: hotelOption.source ?? MONEY_SOURCE.AGENCY,
-        amount: 0, category: ECONOMY_CATEGORY.HOTEL, description: description ?? `Hotel: ${hotelOption.label}`,
+        amount: 0, category: ECONOMY_CATEGORY.HOTEL, description: description ?? `${__dialogueText("managers/MoneyManager.js", "t_3582c73bb7b03dad841e")}${hotelOption.label}`,
         missionId: gameState.currentMission?.id ?? null, metadata });
       this.persist('free_hotel_used', transaction);
       return { ok: true, transaction, hotelOption, state: this.getState() };
     }
     const result = this.spend(cost, { source: hotelOption.source ?? MONEY_SOURCE.CASH,
-      category: ECONOMY_CATEGORY.HOTEL, description: description ?? `Hotel: ${hotelOption.label}`, metadata });
+      category: ECONOMY_CATEGORY.HOTEL, description: description ?? `${__dialogueText("managers/MoneyManager.js", "t_3582c73bb7b03dad841e")}${hotelOption.label}`, metadata });
     if (!result.ok) return result;
     return { ...result, hotelOption };
   }
-  takeAgencyAdvance(amount, { description = 'Emergency agency advance',
+  takeAgencyAdvance(amount, { description = __dialogueText("managers/MoneyManager.js", "t_ea297d74828bb2e9b47a"),
     missionId = gameState.currentMission?.id ?? null } = {}) {
     if (!isPositiveInteger(amount)) throw new Error('MoneyManager.takeAgencyAdvance requires a positive integer amount.');
     const balances = this.getBalances();
@@ -186,7 +187,7 @@ export class MoneyManager {
     return this.getState();
   }
   settleMission({ reward = 0, nextMissionAgencyBudget = MONEY_DEFAULTS.agencyBudget,
-    description = 'Mission completed', missionId = gameState.currentMission?.id ?? null } = {}) {
+    description = __dialogueText("managers/MoneyManager.js", "t_a89a519d50ecf810336d"), missionId = gameState.currentMission?.id ?? null } = {}) {
     const balances = this.getBalances();
     const normalizedReward = normalizeAmount(reward);
     const debtBeforeSettlement = balances.agencyDebt;
@@ -203,7 +204,7 @@ export class MoneyManager {
     return { cashPaid, debtPaid, remainingDebt: gameState.agencyDebt, state: this.getState() };
   }
   refund(amount, { source = MONEY_SOURCE.CASH, category = ECONOMY_CATEGORY.REFUND,
-    description = 'Refund received', missionId = gameState.currentMission?.id ?? null, metadata = {} } = {}) {
+    description = __dialogueText("managers/MoneyManager.js", "t_e1e8aaeab3dbf5897054"), missionId = gameState.currentMission?.id ?? null, metadata = {} } = {}) {
     if (!isPositiveInteger(amount)) throw new Error('MoneyManager.refund requires a positive integer amount.');
     const available = this.getBalance(source);
     if (source === MONEY_SOURCE.CASH) gameState.cash = available + amount;

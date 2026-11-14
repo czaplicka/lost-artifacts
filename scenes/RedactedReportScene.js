@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { MainStoryManager } from '../managers/MainStoryManager.js';
 import { saveGameState } from '../gameStatePersistence.js';
@@ -38,13 +39,13 @@ export class RedactedReportScene extends BaseScene {
     this.cameras.main.setBackgroundColor('#171619'); this.root = this.add.container(0, 0);
     this.root.add(this.add.rectangle(700, 470, 1400, 940, 0x302729));
     this.label(700, 42, DATA.title, 23, '#f0ce88', 'PressStart2P'); this.label(700, 84, DATA.intro, 21);
-    this.label(700, 119, '1. Select a field.  2. Choose its value.  3. Click an attachment to cite it.', 20, '#c7baa0');
+    this.label(700, 119, __dialogueText("scenes/RedactedReportScene.js", "t_e40f0f54208edd448ddc"), 20, '#c7baa0');
     this.root.add(this.add.rectangle(345, 455, 620, 620, 0xe2d4b6).setStrokeStyle(2, 0x9b8662));
-    this.label(345, 173, 'MARK AGENCY / JM-041', 24, '#42352a');
+    this.label(345, 173, __dialogueText("scenes/RedactedReportScene.js", "t_244cbaaf2f554daf39b4"), 24, '#42352a');
     DATA.fields.forEach((field, index) => this.buildField(field, index)); this.buildSources();
-    this.message = this.label(700, 805, 'No answer is complete without its supporting attachment.', 22);
-    this.mode = this.label(700, 894, this.preview ? 'PREVIEW / no story progress changed' : 'ARCHIVE / evidence reconstruction', 17, '#baaa94');
-    this.checkButton = this.button(365, 867, 'CHECK REPORT', () => this.checkReport());
+    this.message = this.label(700, 805, __dialogueText("scenes/RedactedReportScene.js", "t_9f10cbef76d3fecc3043"), 22);
+    this.mode = this.label(700, 894, this.preview ? __dialogueText("scenes/RedactedReportScene.js", "t_21bd18e1ba53b60a6a3d") : __dialogueText("scenes/RedactedReportScene.js", "t_0375302c3fbe5394f570"), 17, '#baaa94');
+    this.checkButton = this.button(365, 867, __dialogueText("scenes/RedactedReportScene.js", "t_6f7496196fa42ab33dd9"), () => this.checkReport());
     this.button(1120, 867, 'BACK', () => this.closeReport());
     this.updateRows(); this.layout(); if (this.finished) this.showSuccess();
     this.trackInputEvent(this.scale, 'resize', this.layout); this.suspendBackground();
@@ -95,7 +96,7 @@ export class RedactedReportScene extends BaseScene {
     const changed = this.evidence[this.focused] !== source.id;
     this.evidence[this.focused] = source.id;
     const field = DATA.fields.find(entry => entry.id === this.focused);
-    this.message.setText(`Attachment ${source.label.split(' / ')[0]} cited for ${field.label}.`);
+    this.message.setText(`${__dialogueText("scenes/RedactedReportScene.js", "t_9674af2e43792246e6bb")}${source.label.split(__dialogueText("scenes/RedactedReportScene.js", "t_005e1574a2b5c8163046"))[0]}${__dialogueText("scenes/RedactedReportScene.js", "t_124fbae0bee300b68f8f")}${field.label}${__dialogueText("scenes/RedactedReportScene.js", "t_cdb4ee2aea69cc6a8333")}`);
     if (changed) playDocumentSfx(this, 'page', 0.25);
     this.updateRows(); this.persist();
   }
@@ -113,9 +114,9 @@ export class RedactedReportScene extends BaseScene {
   updateRows() {
     this.rows.forEach(({ field, box, value, source }) => {
       const chosen = field.choices.find(choice => choice.id === this.answers[field.id]);
-      value.setText(chosen?.text ?? '[ REDACTED ]');
+      value.setText(chosen?.text ?? __dialogueText("scenes/RedactedReportScene.js", "t_4592a1a9b632ec586ca6"));
       const attachment = DATA.evidence.find(item => item.id === this.evidence[field.id]);
-      source.setText(attachment ? `Evidence: ${attachment.label}` : 'Evidence: select an attachment on the right');
+      source.setText(attachment ? `${__dialogueText("scenes/RedactedReportScene.js", "t_11f2b18f222e9965f885")}${attachment.label}` : __dialogueText("scenes/RedactedReportScene.js", "t_8a7bb1f1eea33ada6c10"));
       const focused = this.focused === field.id && !this.finished;
       box.setStrokeStyle(focused ? 4 : 2, focused ? 0xbb7837 : 0x9b8662);
     });
@@ -134,7 +135,7 @@ export class RedactedReportScene extends BaseScene {
   }
   grantCompletionXP() {
     let result;
-    try { result = progressionManager.grantReward(XP_REWARD_ID, STATE_KEY, "Story puzzle solved: Redacted report"); }
+    try { result = progressionManager.grantReward(XP_REWARD_ID, STATE_KEY, __dialogueText("scenes/RedactedReportScene.js", "t_0736a4a35a7b9d70a18d")); }
     catch (error) {
       if (!progressionManager.hasReward(XP_EVENT_ID)) throw error;
       console.error('[RedactedReport] XP notification failed after commit:', error);
@@ -150,13 +151,13 @@ export class RedactedReportScene extends BaseScene {
     const missing = DATA.fields.find(field => !this.answers[field.id] || !this.evidence[field.id]);
     if (missing) {
       this.focused = missing.id; this.updateRows();
-      this.message.setText(`Complete ${missing.label}: choose a value AND a supporting attachment.`); return;
+      this.message.setText(`${__dialogueText("scenes/RedactedReportScene.js", "t_b77de5b28228f7058f55")}${missing.label}${__dialogueText("scenes/RedactedReportScene.js", "t_b38bd69df27882382755")}`); return;
     }
     this.checks += 1;
     const wrong = DATA.fields.find(field => this.answers[field.id] !== field.answer || this.evidence[field.id] !== field.evidence);
     if (wrong) {
       this.focused = wrong.id; this.updateRows(); this.persist();
-      this.message.setText(`${wrong.label} is not supported by its attachment. Check cancellations, approval and what the log actually confirms.`); return;
+      this.message.setText(`${wrong.label}${__dialogueText("scenes/RedactedReportScene.js", "t_1b50b30f64e211070c4f")}`); return;
     }
     this.checking = true;
     try {
@@ -164,7 +165,7 @@ export class RedactedReportScene extends BaseScene {
         try { this.xpGranted = this.grantCompletionXP(); }
         catch (error) {
           console.error('[RedactedReport] XP settlement failed:', error);
-          this.message.setText('Report supported, but XP could not be recorded. Click CHECK REPORT again to retry.'); return;
+          this.message.setText(__dialogueText("scenes/RedactedReportScene.js", "t_453ddbfbea4b34be5a1b")); return;
         }
       }
       this.finished = true; this.persist(); this.showSuccess();
@@ -176,10 +177,10 @@ export class RedactedReportScene extends BaseScene {
     this.rows.forEach(row => { row.box.disableInteractive(); row.left.disableInteractive(); row.right.disableInteractive(); });
     this.sourceBoxes.forEach(item => item.box.disableInteractive());
     this.message.setText(DATA.success).setFontSize(20).setWordWrapWidth(1290);
-    if (this.preview) this.mode.setText('PREVIEW COMPLETE / no story changes');
+    if (this.preview) this.mode.setText(__dialogueText("scenes/RedactedReportScene.js", "t_305fb85cead616af7d7a"));
     else {
-      const xpText = this.xpGranted > 0 ? ` +${this.xpGranted} XP.` : '';
-      this.mode.setText(this.savedOk === false ? 'Progress updated; saving failed. Save manually.' + xpText : DATA.lead + xpText);
+      const xpText = this.xpGranted > 0 ? `${__dialogueText("scenes/RedactedReportScene.js", "t_c13f23cc27f966a4eadf")}${this.xpGranted}${__dialogueText("scenes/RedactedReportScene.js", "t_a73feda6e2f76a6b740b")}` : '';
+      this.mode.setText(this.savedOk === false ? __dialogueText("scenes/RedactedReportScene.js", "t_fca8f8ea448dc567fdd1") + xpText : DATA.lead + xpText);
     }
     this.updateRows();
   }

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { EventBus } from '../EventBus.js';
 import { gameState } from '../GameData.js';
 import { saveGameState, requestAutosave, flushAutosave } from '../gameStatePersistence.js';
@@ -30,27 +31,27 @@ function syncProgress(){
  return changed;
 }
 export const ACHIEVEMENTS={
- first_game:{id:'first_game',icon:'🪪',title:'First Game',description:'Start your first investigation. The paperwork starts here.',
+ first_game:{id:'first_game',icon:'🪪',title:__dialogueText("managers/AchievementManager.js", "t_43316bc0c65c3282fe11"),description:__dialogueText("managers/AchievementManager.js", "t_e9c19ccefd5005a3111a"),
   isUnlocked:()=>Boolean(gameState.currentMission)&&(gameState.isGameActive===true||gameState.caseResolved===true||gameState.caseFailed===true)},
- the_dream:{id:'the_dream',icon:'🌙',title:'The Dream',description:'Meet Holly. Some dreams come with a case file.',isUnlocked:()=>gameState.hollyIntroSeen===true},
- first_travel:{id:'first_travel',icon:'🧳',title:'First Travel',description:'Complete your first journey to another city.',
+ the_dream:{id:'the_dream',icon:'🌙',title:__dialogueText("managers/AchievementManager.js", "t_25336ba244f8655760ed"),description:__dialogueText("managers/AchievementManager.js", "t_f15ff299f03dd32dd845"),isUnlocked:()=>gameState.hollyIntroSeen===true},
+ first_travel:{id:'first_travel',icon:'🧳',title:__dialogueText("managers/AchievementManager.js", "t_58ed20063970e1da1cfa"),description:__dialogueText("managers/AchievementManager.js", "t_60c93886469a85d54547"),
   isUnlocked:()=>gameState.firstTravelCompleted===true||[...list(gameState.travelHistory),gameState.lastTravel].some(t=>{
    if(!record(t))return false;const destination=id(t.toCityId),origin=id(t.fromCityId);return destination!==null&&origin!==null&&destination!==origin;
   })},
- first_case:{id:'first_case',icon:'🔎',title:'Eagle Eye',description:'Close your first case.',isUnlocked:()=>gameState.casesSolved>=1},
- first_arrest:{id:'first_arrest',icon:'🚔',title:'Cuffed',description:'Make your first successful arrest.',isUnlocked:()=>gameState.arrests>=1},
- swift_detective:{id:'swift_detective',icon:'⏱',title:'Swift',description:'Close a case in under 30 minutes of real-world play time.',
+ first_case:{id:'first_case',icon:'🔎',title:__dialogueText("managers/AchievementManager.js", "t_7ccef26746c46ab0480e"),description:__dialogueText("managers/AchievementManager.js", "t_8fd9ccabdf9263004219"),isUnlocked:()=>gameState.casesSolved>=1},
+ first_arrest:{id:'first_arrest',icon:'🚔',title:__dialogueText("managers/AchievementManager.js", "t_476a995f824cee3b30cb"),description:__dialogueText("managers/AchievementManager.js", "t_9e36c4443943ae5e1c33"),isUnlocked:()=>gameState.arrests>=1},
+ swift_detective:{id:'swift_detective',icon:'⏱',title:__dialogueText("managers/AchievementManager.js", "t_ae8ed2743925477eafad"),description:__dialogueText("managers/AchievementManager.js", "t_4f610ba58903def3b059"),
   isUnlocked:()=>gameState.caseResolved===true&&gameState.achievementCase?.timingEligible===true&&Number.isFinite(gameState.achievementCase.elapsedSeconds)&&gameState.achievementCase.elapsedSeconds>0&&gameState.achievementCase.elapsedSeconds<30*60},
- frequent_flyer:{id:'frequent_flyer',icon:'✈️',title:'Frequent Flyer',description:'Visit five cities in one investigation.',isUnlocked:()=>unique(list(gameState.achievementCase?.cityIds)).length>=5},
- clue_hound:{id:'clue_hound',icon:'🕵️',title:'Clue Hound',description:'Collect twenty clues across your investigations.',isUnlocked:()=>gameState.achievementProgress?.clueCount>=20},
- globe_trotter:{id:'globe_trotter',icon:'🌍',title:'Globe Trotter',description:'Travel to ten different cities.',isUnlocked:()=>unique(list(gameState.achievementProgress?.cityIds)).length>=10},
- master_detective:{id:'master_detective',icon:'🏆',title:'Master Detective',description:'Close five cases.',isUnlocked:()=>gameState.casesSolved>=5},
- chief_inspector:{id:'chief_inspector',icon:'⭐',title:'Chief Inspector',description:'Make five successful arrests.',isUnlocked:()=>gameState.arrests>=5},
- dead_mail_return_to_sender:{id:'dead_mail_return_to_sender',icon:'✉️',title:'Return to Sender',
-  description:'Solve the Blackthorn Cemetery case. The recipient remains alive.',
+ frequent_flyer:{id:'frequent_flyer',icon:'✈️',title:__dialogueText("managers/AchievementManager.js", "t_4f7da0e1209baeeb3bed"),description:__dialogueText("managers/AchievementManager.js", "t_90e7d61f1c42b02a9d31"),isUnlocked:()=>unique(list(gameState.achievementCase?.cityIds)).length>=5},
+ clue_hound:{id:'clue_hound',icon:'🕵️',title:__dialogueText("managers/AchievementManager.js", "t_fb55068744ebda1d52df"),description:__dialogueText("managers/AchievementManager.js", "t_60668cd92d63d804af24"),isUnlocked:()=>gameState.achievementProgress?.clueCount>=20},
+ globe_trotter:{id:'globe_trotter',icon:'🌍',title:__dialogueText("managers/AchievementManager.js", "t_57d56861fb3ecd75048b"),description:__dialogueText("managers/AchievementManager.js", "t_5bfefc51fda47cf31a58"),isUnlocked:()=>unique(list(gameState.achievementProgress?.cityIds)).length>=10},
+ master_detective:{id:'master_detective',icon:'🏆',title:__dialogueText("managers/AchievementManager.js", "t_038d159b410233519b5e"),description:__dialogueText("managers/AchievementManager.js", "t_c433fab77ab2d69f4faf"),isUnlocked:()=>gameState.casesSolved>=5},
+ chief_inspector:{id:'chief_inspector',icon:'⭐',title:__dialogueText("managers/AchievementManager.js", "t_828bfe5a22b384668641"),description:__dialogueText("managers/AchievementManager.js", "t_7b5d4bd56110a20ce7fd"),isUnlocked:()=>gameState.arrests>=5},
+ dead_mail_return_to_sender:{id:'dead_mail_return_to_sender',icon:'✉️',title:__dialogueText("managers/AchievementManager.js", "t_6e6e82ddd9c9f0af1dde"),
+  description:__dialogueText("managers/AchievementManager.js", "t_900fc99e00c90a2b9b93"),
   isUnlocked:()=>gameState.deadMailPreview?.finale?.completed===true},
- postal_delivered_eventually:{id:'postal_delivered_eventually',icon:'MAIL',title:'Delivered. Eventually.',
-  description:'Complete Return to Sender without opening the sealed letter.',
+ postal_delivered_eventually:{id:'postal_delivered_eventually',icon:'MAIL',title:__dialogueText("managers/AchievementManager.js", "t_f08165711ba645a98919"),
+  description:__dialogueText("managers/AchievementManager.js", "t_d8b074ad955a2068fb71"),
   isUnlocked:()=>gameState.postOffice?.returnCase?.stage==='completed'}
 };
 export function getAchievementList(){return Object.values(ACHIEVEMENTS);}
@@ -90,10 +91,10 @@ export function installAchievementSystem(game){
   const achievement=toastQueue.shift();
   if(!toastRoot){
    toastRoot=document.createElement('div');toastRoot.setAttribute('role','status');toastRoot.setAttribute('aria-live','polite');
-   Object.assign(toastRoot.style,{position:'fixed',right:'16px',bottom:'16px',zIndex:'100001',maxWidth:'min(380px, calc(100vw - 32px))',boxSizing:'border-box',background:'#181511',color:'#ffe7ab',border:'2px solid #d4af37',padding:'16px',fontFamily:'SpecialElite, monospace',fontSize:'18px',whiteSpace:'pre-line',pointerEvents:'none',boxShadow:'0 4px 24px #0009'});
+   Object.assign(toastRoot.style,{position:'fixed',right:'16px',bottom:'16px',zIndex:'100001',maxWidth:__dialogueText("managers/AchievementManager.js", "t_c68ac6986ef3e6a84a9b"),boxSizing:'border-box',background:'#181511',color:'#ffe7ab',border:__dialogueText("managers/AchievementManager.js", "t_2a6679f96b4b4d222ba3"),padding:'16px',fontFamily:'SpecialElite, monospace',fontSize:'18px',whiteSpace:'pre-line',pointerEvents:'none',boxShadow:__dialogueText("managers/AchievementManager.js", "t_7925597c70f9ae30e9bb")});
    document.body.appendChild(toastRoot);
   }
-  toastRoot.textContent=[`${achievement.icon} ACHIEVEMENT UNLOCKED`,achievement.title,achievement.description].join('\n');toastRoot.hidden=false;
+  toastRoot.textContent=[`${achievement.icon}${__dialogueText("managers/AchievementManager.js", "t_843d9fd2e9e06cdccc72")}`,achievement.title,achievement.description].join('\n');toastRoot.hidden=false;
   toastTimer=setTimeout(()=>{toastTimer=null;if(toastRoot)toastRoot.hidden=true;showNextToast();},4500);
  };
  const onUnlocked=a=>{toastQueue.push(a);showNextToast();};

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 const word = (keywordId, text) =>
   text === undefined
     ? { keywordId }
@@ -39,7 +40,7 @@ const contact = (
   name,
   requiresKeyword,
 
-  choicePrompt: 'What would you like to ask?',
+  choicePrompt: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_a0dbb0ffa63779baf32c"),
 
   greeting: [
     line(speaker, greeting)
@@ -48,7 +49,7 @@ const contact = (
   fallback: [
     line(
       speaker,
-      'Could you be more specific?'
+      __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_b000a9470b62f2dd538f")
     )
   ],
 
@@ -59,68 +60,68 @@ export const ALIBI_INTERVIEW_SEARCH = {
   clouds: [
     {
       id: 'interviews',
-      title: 'CONTACTS / REAL EVENINGS'
+      title: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_a35f29ede16c7eb35056")
     },
     {
       id: 'verification',
-      title: 'INDEPENDENT CHECKS'
+      title: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_ca875d73c3682d7acc18")
     }
   ],
 
   keywords: [
     {
       id: 'nora_phone',
-      label: '429',
+      label: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_2d1007980f49215311f7"),
       cloudId: 'interviews'
     },
     {
       id: 'simon_phone',
-      label: '430',
+      label: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_fed88b40aba63cac05ea"),
       cloudId: 'interviews'
     },
     {
       id: 'evelyn_phone',
-      label: '431',
+      label: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_0a1f1256f9bac68e8064"),
       cloudId: 'interviews'
     },
     {
       id: 'company_phone',
-      label: '432',
+      label: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_98f1f17f9a73ccfe3e25"),
       cloudId: 'interviews'
     },
     {
       id: 'pie_contest',
-      label: 'Civic Pie Challenge',
+      label: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_5b3d2434d90ebb6f24e3"),
       cloudId: 'interviews'
     },
     {
       id: 'board_tournament',
-      label: 'Rook & Ruin Open',
+      label: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_a05e96774c14aa4f0766"),
       cloudId: 'interviews'
     },
     {
       id: 'nora_verified',
-      label: 'Stage attendance record',
+      label: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_f1fd8b249d54aac03848"),
       cloudId: 'verification'
     },
     {
       id: 'simon_verified',
-      label: 'Signed match sheet',
+      label: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_07791d5910b82e447e97"),
       cloudId: 'verification'
     },
     {
       id: 'morrow_records',
-      label: 'Morrow Records',
+      label: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_6f56621a82707ed0bcf5"),
       cloudId: 'verification'
     },
     {
       id: 'records_breakin',
-      label: 'Tuesday break-in',
+      label: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_e49ba0c10e6e41898c4c"),
       cloudId: 'verification'
     },
     {
       id: 'blue_folder',
-      label: 'blue folder',
+      label: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_5e4ba369aac7ad63f846"),
       cloudId: 'verification'
     }
   ],
@@ -128,265 +129,265 @@ export const ALIBI_INTERVIEW_SEARCH = {
   pages: [
     {
       id: 'nora_profile',
-      title: 'Nora Bell | Public contact',
+      title: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_e7e25a1068e84a87c2ba"),
       address:
-        'www.communitycontacts.local/nora-bell',
-      brand: 'COMMUNITY CONTACTS',
+        __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_1d994383745168697174"),
+      brand: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_4cfac39f906206ece50e"),
 
       template: 'directory',
       theme: 'directory',
 
       blocks: [
         [
-          word('nora_bell')
+          word(__dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_fc5a9c3b12088a2ccfbd"))
         ],
         [
-          'Local volunteering and community events.'
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_e31a30868c77352e3fee")
         ],
         [
-          'Public contact email: nora.bell@post.local. Telephone: ',
-          word('nora_phone'),
-          '.'
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_f494a5e8694a17a44f96"),
+          word(__dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_d56174cc575a4e334f5a")),
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_cdb4ee2aea69cc6a8333")
         ],
         [
-          'Listed with the member’s permission. Please do not call about extended warranties.'
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_44745e8cd16f6b131705")
         ]
       ],
 
       links: [],
 
       snippet:
-        'Nora Bell — community events and public contact details.'
+        __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_802c35bc9f597d698dbc")
     },
 
     {
       id: 'simon_profile',
-      title: 'Simon Pike | Club member directory',
+      title: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_32b7b3b35a5187e782d1"),
       address:
-        'www.tabletopcircle.local/members/simon-pike',
-      brand: 'TABLETOP CIRCLE',
+        __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_aaaec30844a0f787ab7d"),
+      brand: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_82517bcb0c8a0c5b8fbb"),
 
       template: 'directory',
       theme: 'directory',
 
       blocks: [
         [
-          word('simon_pike')
+          word(__dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_2a4b6bdc80a180c94eb9"))
         ],
         [
-          'Member contact: simon.pike@post.local. Local telephone: ',
-          word('simon_phone'),
-          '.'
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_3b19deb7933383d842c1"),
+          word(__dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_44679e14ba83309cae0e")),
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_cdb4ee2aea69cc6a8333")
         ],
         [
-          'Available for club enquiries. Not available to explain why the rules are still on page one.'
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_2c25cb5ff9208e64cce4")
         ]
       ],
 
       links: [],
 
       snippet:
-        'Simon Pike — club member contact, published by permission.'
+        __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_ee72f2f085fe2d5daf88")
     },
 
     {
       id: 'evelyn_profile',
-      title: 'Evelyn Shaw | Morrow Records',
+      title: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_6dc97a1287f81824ff97"),
       address:
-        'www.morrowrecords.local/people/evelyn-shaw',
-      brand: 'MORROW RECORDS',
+        __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_af5e5e520c98ed730073"),
+      brand: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_cec46fcbcf1e95a34cf6"),
 
       template: 'directory',
       theme: 'directory',
 
       blocks: [
         [
-          word('evelyn_shaw'),
-          ' — accounts assistant at ',
-          word('morrow_records'),
-          '.'
+          word(__dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_4f6e54dad543a8c9edb9")),
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_ccaeca1ce1ecd1711207"),
+          word(__dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_ff1618327a8b7476aef7")),
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_cdb4ee2aea69cc6a8333")
         ],
         [
-          'Work enquiries: direct line ',
-          word('evelyn_phone'),
-          '. Listed alternative contact: evelyn.shaw@post.local.'
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_3330b1bf0b4f30102939"),
+          word(__dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_0ad261186c2da78f31c2")),
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_4ebf467576aa50a32b1f")
         ],
         [
-          'Company statements are handled by the records liaison.'
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_9d99a50c57df6332dac4")
         ]
       ],
 
       links: [
         {
-          label: 'Company notices',
+          label: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_8a3db575da4d1a7c4329"),
           pageId: 'morrow_notice'
         },
         {
-          label: 'Records liaison',
+          label: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_3f7991714910557e69d8"),
           pageId: 'morrow_contact'
         }
       ],
 
       snippet:
-        'Evelyn Shaw — accounts assistant, staff contact listing.'
+        __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_650a038b45be07465cf3")
     },
 
     {
       id: 'pie_results',
       title:
-        'Civic Pie Challenge | Tuesday evening results',
+        __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_ba6af611bffd3ec0bea5"),
       address:
-        'www.civic-events.local/pie-challenge/tuesday',
-      brand: 'CIVIC EVENTS OFFICE',
+        __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_c5dbb0826c7603541ae1"),
+      brand: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_6328000342be5a057e9b"),
 
       template: 'organisation',
       theme: 'organisation',
 
       blocks: [
         [
-          word('pie_contest')
+          word(__dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_ec3e9f4d59036471f4c9"))
         ],
         [
-          'Tuesday evening session: 19:00–21:15. Winner: ',
-          word('nora_bell'),
-          '.'
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_103ec9bae2cdd63864a6"),
+          word(__dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_fc5a9c3b12088a2ccfbd")),
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_cdb4ee2aea69cc6a8333")
         ],
         [
-          word('nora_verified'),
-          '\nHead judge: Mabel Crumb.' +
-          '\nCheck-in: 18:50. Award presentation: 21:15.' +
-          '\nNora remained on the supervised competition stage throughout. No breaks or exits were recorded.'
+          word(__dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_8061b6373041c15ea9bf")),
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_39f38cd53dcb7660e9c7") +
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_c84f655066e81a59899f") +
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_f88bc3a17e5523de3e0b")
         ],
         [
-          'Winning total: seven slices. Her acceptance speech was postponed until swallowing became an option.'
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_3b574dca7dbcf1fd36eb")
         ]
       ],
 
       links: [],
 
       snippet:
-        'Tuesday results and the head judge’s stage record.'
+        __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_1975d3018d239dd6f8da")
     },
 
     {
       id: 'game_results',
       title:
-        'Rook & Ruin Open | Tuesday match records',
+        __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_e1210dd13d2b42656d47"),
       address:
-        'www.tabletopcircle.local/events/rook-ruin/tuesday',
+        __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_5b3fb28049b29ca8247f"),
       brand:
-        'TABLETOP CIRCLE — OFFICIAL RESULTS',
+        __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_0c1fb11820c558db40a7"),
 
       template: 'association',
       theme: 'organisation',
 
       blocks: [
         [
-          word('board_tournament')
+          word(__dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_03b65a672d89cc694fef"))
         ],
         [
-          'Tuesday session: 19:00–21:30. Player: ',
-          word('simon_pike'),
-          '.'
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_afdb5a2932d6df493ae3"),
+          word(__dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_2a4b6bdc80a180c94eb9")),
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_cdb4ee2aea69cc6a8333")
         ],
         [
-          word('simon_verified'),
-          '\nSupervised final table: 20:00–20:40.' +
-          '\nSimon remained seated throughout. No substitute, break or departure was recorded.' +
-          '\nSigned by the event referee.'
+          word(__dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_2568e69f9cde719a4db8")),
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_6e80d120d556b898bc7f") +
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_e0e31d7aead14b1135fe") +
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_2382f4def67358e47943")
         ],
         [
-          'Final result: second place. His written objection to the dice finished first.'
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_8fac93bba05ab8221196")
         ]
       ],
 
       links: [],
 
       snippet:
-        'Tuesday tournament results and the referee’s signed match sheet.'
+        __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_c591d4af0760d77ef9c6")
     },
 
     {
       id: 'morrow_notice',
       title:
-        'Tuesday incident statement | Morrow Records',
+        __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_fa8cfaf6266c530317f0"),
       address:
-        'www.morrowrecords.local/notices/tuesday',
-      brand: 'MORROW RECORDS',
+        __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_a82eca0f2f61ceaa35b6"),
+      brand: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_cec46fcbcf1e95a34cf6"),
 
       template: 'business',
       theme: 'business',
 
       blocks: [
         [
-          word('morrow_records'),
-          ' — public statement'
+          word(__dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_ff1618327a8b7476aef7")),
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_4dbb5618fe1250b1d863")
         ],
         [
-          'A ',
-          word('records_breakin'),
-          ' occurred in our secure office between 20:10 and 20:25. The interval is established from the access alarm and responding staff.'
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_7a7202fb1b53105f00a4"),
+          word(__dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_76b85025c8908d08f991")),
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_194dcb9f4b59b7f32937")
         ],
         [
-          'An item was taken from the records office. Its description and contents are being withheld.'
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_2c99da00d31982336e39")
         ],
         [
-          'Enquiries are ongoing. No culprit has been identified.'
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_248382f48e9e05dc1049")
         ]
       ],
 
       links: [
         {
-          label: 'Records liaison',
+          label: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_3f7991714910557e69d8"),
           pageId: 'morrow_contact'
         },
         {
-          label: 'Staff contact',
+          label: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_18cd30dc6decf9892f9b"),
           pageId: 'evelyn_profile'
         }
       ],
 
       snippet:
-        'Secure-office intrusion on Tuesday, 20:10–20:25.'
+        __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_4d642ddec04f81951167")
     },
 
     {
       id: 'morrow_contact',
       title:
-        'Records liaison | Morrow Records',
+        __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_b18943fb42b4f0b507fc"),
       address:
-        'www.morrowrecords.local/contact/records',
-      brand: 'MORROW RECORDS',
+        __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_7f3d96d2a145703dbbc5"),
+      brand: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_cec46fcbcf1e95a34cf6"),
 
       template: 'business',
       theme: 'business',
 
       blocks: [
         [
-          word('morrow_records'),
-          ' — records liaison'
+          word(__dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_ff1618327a8b7476aef7")),
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_ab36775f26b0e79d5d3d")
         ],
         [
-          'Enquiries concerning the ',
-          word('records_breakin'),
-          ': ',
-          word('company_phone'),
-          '.'
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_6cef68daa8653a88e7be"),
+          word(__dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_76b85025c8908d08f991")),
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_45822f54a0d0e030f756"),
+          word(__dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_fb8eb27ad5ae16861100")),
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_cdb4ee2aea69cc6a8333")
         ],
         [
-          'Please have the relevant correspondence to hand. Our hold music has already caused enough complaints.'
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_67d532c8e4f9aee6d2d1")
         ]
       ],
 
       links: [
         {
-          label: 'Incident statement',
+          label: __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_cf7be0cec09f64982801"),
           pageId: 'morrow_notice'
         }
       ],
 
       snippet:
-        'Company contact for the Tuesday incident.'
+        __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_658a559485f81d14db5c")
     }
   ],
 
@@ -456,28 +457,28 @@ const CHALLENGE_REQUIREMENTS = [
 function evelynSlip(question) {
   return [
     line(
-      'You',
+      __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_08b041935798fbf6fd6f"),
       question
     ),
 
     line(
-      'Evelyn Shaw',
-      'That blue folder was empty anyway. You are making a great deal out of nothing.',
+      __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_f693eba06ad2594e170c"),
+      __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_2ca5a4eb462301f30d20"),
       [
-        'That ',
-        word('blue_folder', 'blue folder'),
-        ' was empty anyway. You are making a great deal out of nothing.'
+        __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_00b2138021018046386b"),
+        word('blue_folder', __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_5e4ba369aac7ad63f846")),
+        __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_e51f0b5a107d59b1066f")
       ]
     ),
 
     line(
-      'You',
-      'Where did you hear that?'
+      __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_08b041935798fbf6fd6f"),
+      __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_e3dad0b50f6afcf60d07")
     ),
 
     line(
-      'Evelyn Shaw',
-      'Speak to the company. I have nothing else to add.'
+      __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_f693eba06ad2594e170c"),
+      __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_6c7edb57a8d94157a0c3")
     )
   ];
 }
@@ -485,18 +486,18 @@ function evelynSlip(question) {
 function folderCheck(question) {
   return [
     line(
-      'You',
+      __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_08b041935798fbf6fd6f"),
       question
     ),
 
     line(
-      'Records liaison',
-      'The records manager confirms that the missing item was a blue folder. Its description was not in our public statement. Evelyn was not on the internal notification list.'
+      __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_3f7991714910557e69d8"),
+      __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_e2432492d78af33e4adc")
     ),
 
     line(
-      'Records liaison',
-      'Please send us a copy of the conversation. We will need her exact words.'
+      __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_3f7991714910557e69d8"),
+      __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_f5c79a6084c52e0917eb")
     )
   ];
 }
@@ -505,10 +506,10 @@ export const ALIBI_INTERVIEW_CONTACTS = [
   contact(
     'alibi_nora_bell',
     '429',
-    'Nora Bell — Enquiries',
+    __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_dac335a5077488ca8d55"),
     'nora_phone',
-    'Nora Bell',
-    'Nora Bell speaking. Is this about Tuesday? Please say it is about Thursday.',
+    __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_4cca0264ed42816c466a"),
+    __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_a8155ac49edb0713cf28"),
 
     [
       topic(
@@ -517,12 +518,12 @@ export const ALIBI_INTERVIEW_CONTACTS = [
 
         [
           line(
-            'You',
-            'You asked Arthur Finch to confirm a Tuesday dinner. What happened?'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_08b041935798fbf6fd6f"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_c60efb376a0dbb471e42")
           ),
           line(
-            'Nora Bell',
-            'I sent the message. I would rather not discuss my evening without knowing why you are asking.'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_4cca0264ed42816c466a"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_8ef7d2a1b228ca53a0c8")
           )
         ]
       ),
@@ -533,32 +534,32 @@ export const ALIBI_INTERVIEW_CONTACTS = [
 
         [
           line(
-            'You',
-            'Your dinner story matches the club’s TUE-DC-02 sample. Arthur’s receipt and the Tuesday kitchen closure contradict it. Why did you send it?'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_08b041935798fbf6fd6f"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_7a28caadd23d60303406")
           ),
 
           line(
-            'Nora Bell',
-            'All right. I bought that story. Arthur was never with me. I am sorry I involved him.'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_4cca0264ed42816c466a"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_20d98014fb784beda717")
           ),
 
           line(
-            'Nora Bell',
-            'I was at the Civic Pie Challenge. I won. My family thought I had finally embraced sensible portions.',
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_4cca0264ed42816c466a"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_606711565c1ad9aea10a"),
 
             [
-              'I was at the ',
+              __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_393400c137ef0be8a2c9"),
               word(
                 'pie_contest',
-                'Civic Pie Challenge'
+                __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_5b3d2434d90ebb6f24e3")
               ),
-              '. I won. My family thought I had finally embraced sensible portions.'
+              __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_a05b0389b478b86cbfa0")
             ]
           ),
 
           line(
-            'Nora Bell',
-            'I wanted to miss my sister’s family dinner without explaining the seven slices of pie.'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_4cca0264ed42816c466a"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_7cf3dd0f623c87f4310f")
           )
         ],
 
@@ -572,13 +573,13 @@ export const ALIBI_INTERVIEW_CONTACTS = [
 
         [
           line(
-            'You',
-            'Where are the competition results published?'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_08b041935798fbf6fd6f"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_a66c3e04a5cee40df4e1")
           ),
 
           line(
-            'Nora Bell',
-            'On the civic events website. Mabel insisted on putting the stage register up as well. She runs a very serious pie competition.'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_4cca0264ed42816c466a"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_aedc9248b7d46c2f7e39")
           )
         ],
 
@@ -591,10 +592,10 @@ export const ALIBI_INTERVIEW_CONTACTS = [
   contact(
     'alibi_simon_pike',
     '430',
-    'Simon Pike — Club contact',
+    __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_291ac92536daeb7fa1b7"),
     'simon_phone',
-    'Simon Pike',
-    'Simon Pike. If you are selling a strategy guide, I already own three and understand none.',
+    __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_95df72b5037a3593588e"),
+    __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_5e9be429342b9f48aa6c"),
 
     [
       topic(
@@ -603,13 +604,13 @@ export const ALIBI_INTERVIEW_CONTACTS = [
 
         [
           line(
-            'You',
-            'You asked Arthur Finch to confirm a Tuesday dinner. Why?'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_08b041935798fbf6fd6f"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_8af108635fbdb8a29522")
           ),
 
           line(
-            'Simon Pike',
-            'I needed to account for my evening. I thought the message would be enough.'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_95df72b5037a3593588e"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_c38398936a60c3c18ce7")
           )
         ]
       ),
@@ -620,32 +621,32 @@ export const ALIBI_INTERVIEW_CONTACTS = [
 
         [
           line(
-            'You',
-            'Your account matches TUE-DC-02. Arthur’s receipt and the restaurant’s service record contradict it. What were you doing?'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_08b041935798fbf6fd6f"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_40727c8b31d268e83d8f")
           ),
 
           line(
-            'Simon Pike',
-            'I bought the account to avoid a compulsory company dinner. Arthur did not agree to any of this.'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_95df72b5037a3593588e"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_e41a16d7aff62b559d9e")
           ),
 
           line(
-            'Simon Pike',
-            'I was playing in the Rook & Ruin Open. Calling it a serious strategic problem was technically accurate.',
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_95df72b5037a3593588e"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_c64816bbd5d4f1d4d3a4"),
 
             [
-              'I was playing in the ',
+              __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_e339037fef0f401172a3"),
               word(
                 'board_tournament',
-                'Rook & Ruin Open'
+                __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_a05e96774c14aa4f0766")
               ),
-              '. Calling it a serious strategic problem was technically accurate.'
+              __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_5050e03c4a9e0d45b12f")
             ]
           ),
 
           line(
-            'Simon Pike',
-            'I made the final table. Lost. My objection to the dice was apparently not a recognised appeal.'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_95df72b5037a3593588e"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_ba6098e703ccd731d2be")
           )
         ],
 
@@ -659,13 +660,13 @@ export const ALIBI_INTERVIEW_CONTACTS = [
 
         [
           line(
-            'You',
-            'Does the club publish the match records?'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_08b041935798fbf6fd6f"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_8d698f06ec89bcf0d02a")
           ),
 
           line(
-            'Simon Pike',
-            'Yes. The referee signed the final-table sheet. It has the times and everything. More paperwork than my last performance review.'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_95df72b5037a3593588e"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_45f264427a5d54bf0ab3")
           )
         ],
 
@@ -678,10 +679,10 @@ export const ALIBI_INTERVIEW_CONTACTS = [
   contact(
     'alibi_evelyn_shaw',
     '431',
-    'Evelyn Shaw — Work enquiries',
+    __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_fae07f060ef6b531b0fc"),
     'evelyn_phone',
-    'Evelyn Shaw',
-    'Evelyn Shaw. This had better be a work enquiry.',
+    __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_f693eba06ad2594e170c"),
+    __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_9c3163c4d5a56fca9168"),
 
     [
       topic(
@@ -690,13 +691,13 @@ export const ALIBI_INTERVIEW_CONTACTS = [
 
         [
           line(
-            'You',
-            'You asked Arthur Finch to confirm dinner. Can you explain?'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_08b041935798fbf6fd6f"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_cc7e338d8e85f5cb2708")
           ),
 
           line(
-            'Evelyn Shaw',
-            'I sent a perfectly clear account. I do not see why it needs explaining.'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_f693eba06ad2594e170c"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_3719bdc987cd0f25dcff")
           )
         ]
       ),
@@ -707,18 +708,18 @@ export const ALIBI_INTERVIEW_CONTACTS = [
 
         [
           line(
-            'You',
-            'Your dinner account matches TUE-DC-02. Arthur’s receipt contradicts it, and no soup was served that evening. Do you stand by it?'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_08b041935798fbf6fd6f"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_18354efb32dcb18dc5dd")
           ),
 
           line(
-            'Evelyn Shaw',
-            'I stand by what I sent.'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_f693eba06ad2594e170c"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_c66e1bee0fd5193a5964")
           ),
 
           line(
-            'Evelyn Shaw',
-            'I do not intend to spend all evening defending soup.'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_f693eba06ad2594e170c"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_bcf5a867d290ad09b5b8")
           )
         ],
 
@@ -731,7 +732,7 @@ export const ALIBI_INTERVIEW_CONTACTS = [
         ['records_breakin'],
 
         evelynSlip(
-          'What do you know about the Tuesday break-in at Morrow Records?'
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_4dafd43da01ff692746a")
         ),
 
         ['evelyn_slip'],
@@ -743,7 +744,7 @@ export const ALIBI_INTERVIEW_CONTACTS = [
         ['evelyn_shaw', 'records_breakin'],
 
         evelynSlip(
-          'What can you tell me about the Tuesday break-in at your employer?'
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_661fca908416f5f79de0")
         ),
 
         ['evelyn_slip'],
@@ -755,10 +756,10 @@ export const ALIBI_INTERVIEW_CONTACTS = [
   contact(
     'alibi_morrow_liaison',
     '432',
-    'Morrow Records — Records liaison',
+    __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_49598df9e0315735a468"),
     'company_phone',
-    'Records liaison',
-    'Morrow Records, records liaison. How can I help?',
+    __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_3f7991714910557e69d8"),
+    __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_cc09ae2bf6df6634c98e"),
 
     [
       topic(
@@ -767,18 +768,18 @@ export const ALIBI_INTERVIEW_CONTACTS = [
 
         [
           line(
-            'You',
-            'Can you confirm the timing of the break-in?'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_08b041935798fbf6fd6f"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_adfd19ca687afd47e8bf")
           ),
 
           line(
-            'Records liaison',
-            'The secure office was entered between 20:10 and 20:25 on Tuesday. The access alarm and responding staff establish that interval.'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_3f7991714910557e69d8"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_68bd390bb00a55b047ae")
           ),
 
           line(
-            'Records liaison',
-            'An item was taken. Its description and contents were withheld from the public statement. No culprit has been identified.'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_3f7991714910557e69d8"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_204e6df28037c7971213")
           )
         ],
 
@@ -791,13 +792,13 @@ export const ALIBI_INTERVIEW_CONTACTS = [
 
         [
           line(
-            'You',
-            'Who handles information about the incident?'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_08b041935798fbf6fd6f"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_48171e68d051dd145eb3")
           ),
 
           line(
-            'Records liaison',
-            'This office. What would you like to ask?'
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_3f7991714910557e69d8"),
+            __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_c8b05607237732320047")
           )
         ]
       ),
@@ -807,7 +808,7 @@ export const ALIBI_INTERVIEW_CONTACTS = [
         ['blue_folder', 'records_breakin'],
 
         folderCheck(
-          'Evelyn mentioned a blue folder when I asked about the break-in. Can you check whether that matches the missing item?'
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_6b88b21e29de25f6e2f9")
         ),
 
         ['folder_detail_verified'],
@@ -819,7 +820,7 @@ export const ALIBI_INTERVIEW_CONTACTS = [
         ['blue_folder'],
 
         folderCheck(
-          'Evelyn described a blue folder. Was that the missing item, and had the description been circulated?'
+          __dialogueText("ui/pi-computer/AlibiInterviewData.js", "t_8c6f552857975cf236e3")
         ),
 
         ['folder_detail_verified'],

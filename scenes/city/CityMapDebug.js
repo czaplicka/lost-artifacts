@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { CITY_MAP_LAYOUTS } from './CityMapLayouts.js';
 
 const STORAGE_KEY = 'lost-artifacts:city-map-layouts:v1';
@@ -124,9 +125,9 @@ export class CityMapDebug {
     if (!LOCAL) return;
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(this.localLayouts));
-      this.message = 'Saved locally. C exports positions for the project.';
+      this.message = __dialogueText("scenes/city/CityMapDebug.js", "t_b76b281cf882e2e3e1c3");
     } catch (error) {
-      this.message = 'Local save failed. Press C to export.';
+      this.message = __dialogueText("scenes/city/CityMapDebug.js", "t_ddf8dae9d50c282b3ddd");
       console.warn('[CityMapDebug] Saving failed.', error);
     }
   }
@@ -158,7 +159,7 @@ export class CityMapDebug {
     if (enabled) {
       this.scene.closeAllUIPanels?.();
       this.selectedIndex = 0;
-      this.message = 'Drag a point. Locations are disabled while editing.';
+      this.message = __dialogueText("scenes/city/CityMapDebug.js", "t_cde304c8db006f168a14");
       this.buildHandles();
     } else {
       this.clearHandles();
@@ -211,16 +212,16 @@ export class CityMapDebug {
       const { x, y } = h.target.anchor;
       h.zone.setPosition(x, y);
       h.box.setPosition(x, y).setStrokeStyle(2, index === this.selectedIndex ? 0xff44ff : 0x00ff88);
-      h.label.setText(`${h.target.name} | ${Math.round(x)}, ${Math.round(y)}`)
+      h.label.setText(`${h.target.name}${__dialogueText("scenes/city/CityMapDebug.js", "t_ffa9044b934017b2aed8")}${Math.round(x)}${__dialogueText("scenes/city/CityMapDebug.js", "t_0a07f659461970d8d8dc")}${Math.round(y)}`)
         .setPosition(x, Math.max(24, y - h.height / 2 - 5));
     }
     const t = this.targets[this.selectedIndex];
     this.help?.setText([
-      `CITY MAP DEBUG | ${this.scene.cityId} | ${t?.id || 'no points'}`,
-      'D: close | Drag / Arrows: move | Alt: 1px | Tab / Shift+Tab: select',
-      'C: export | R: clear local layout for this city | Locations disabled.',
+      `${__dialogueText("scenes/city/CityMapDebug.js", "t_76da1569aefa55721e0b")}${this.scene.cityId}${__dialogueText("scenes/city/CityMapDebug.js", "t_ffa9044b934017b2aed8")}${t?.id || __dialogueText("scenes/city/CityMapDebug.js", "t_36b15bb15119e49693fe")}`,
+      __dialogueText("scenes/city/CityMapDebug.js", "t_46a752f4318233ccb3d2"),
+      __dialogueText("scenes/city/CityMapDebug.js", "t_046a9e10f8c60d683ed9"),
       this.message
-    ].join('\n'));
+    ].join(__dialogueText("scenes/city/CityMapDebug.js", "t_01ba4719c80b6fe911b0")));
     if (this.help) this.help.setPosition(12, Math.max(90, this.scene.scale.height - this.help.height - 12));
   }
 
@@ -242,7 +243,7 @@ export class CityMapDebug {
       return;
     }
     if (!this.targets.length) return;
-    if (event.code === 'Tab') {
+    if (event.code === __dialogueText("scenes/city/CityMapDebug.js", "t_90ddf1963abb36c9921c")) {
       event.preventDefault();
       this.selectedIndex = (this.selectedIndex + (event.shiftKey ? -1 : 1) + this.targets.length) % this.targets.length;
       this.syncHandles(); return;
@@ -269,17 +270,17 @@ export class CityMapDebug {
       if (local) Object.assign(points, local.points);
       merged[city] = { width: ref.width, height: ref.height, points };
     }
-    const source = `export const CITY_MAP_LAYOUTS = ${JSON.stringify(merged, null, 2)};\n`;
+    const source = `${__dialogueText("scenes/city/CityMapDebug.js", "t_314a600272cefac77a03")}${JSON.stringify(merged, null, 2)}${__dialogueText("scenes/city/CityMapDebug.js", "t_d8a957038679125d4840")}`;
     console.log('REPLACE scenes/city/CityMapLayouts.js WITH:\n' + source);
-    this.message = 'Export printed in console.';
+    this.message = __dialogueText("scenes/city/CityMapDebug.js", "t_0b23b6b99d554ae8269d");
     try {
       const pending = navigator.clipboard?.writeText(source);
       pending?.then(() => {
-        if (!this.destroyed) { this.message = 'Export copied to clipboard and printed in console.'; this.syncHandles(); }
+        if (!this.destroyed) { this.message = __dialogueText("scenes/city/CityMapDebug.js", "t_b49dfcaffa79ff6c0d11"); this.syncHandles(); }
       }).catch(() => {
-        if (!this.destroyed) { this.message = 'Clipboard unavailable. Copy export from console.'; this.syncHandles(); }
+        if (!this.destroyed) { this.message = __dialogueText("scenes/city/CityMapDebug.js", "t_b86d65a47d59b8fd8b9a"); this.syncHandles(); }
       });
-    } catch { this.message = 'Copy export from console.'; }
+    } catch { this.message = __dialogueText("scenes/city/CityMapDebug.js", "t_095f4f64cfb1fc8c9d67"); }
     this.syncHandles();
     return source;
   }

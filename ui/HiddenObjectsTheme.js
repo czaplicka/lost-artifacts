@@ -1,11 +1,12 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // ui/HiddenObjectsTheme.js
 // Wspólny motyw wizualny sceny Hidden Objects:
 // "teczka śledcza" - papier, pieczątki, taśma policyjna, znaczniki dowodów.
 // Wszystkie tekstury są rysowane proceduralnie (zero nowych assetów).
 
 export const HO_FONTS = {
-  body: 'SpecialElite, "Courier New", monospace',
-  pixel: 'PressStart2P, "Courier New", monospace'
+  body: __dialogueText("ui/HiddenObjectsTheme.js", "t_749639cb7eb80c7ff9a7"),
+  pixel: __dialogueText("ui/HiddenObjectsTheme.js", "t_8579050150a2d7c2e239")
 };
 
 export const HO_COLORS = {
@@ -122,8 +123,8 @@ function paintPaper(ctx, w, h, options) {
     gradient.addColorStop(
       0,
       light
-        ? 'rgba(255,246,218,0.12)'
-        : 'rgba(120,85,40,0.08)'
+        ? __dialogueText("ui/HiddenObjectsTheme.js", "t_07f9a6496b87d65b7ff6")
+        : __dialogueText("ui/HiddenObjectsTheme.js", "t_bfea9a5939ee9b96793f")
     );
 
     gradient.addColorStop(1, 'rgba(0,0,0,0)');
@@ -197,8 +198,8 @@ function paintPaper(ctx, w, h, options) {
       x, y, r * 1.05
     );
 
-    halo.addColorStop(0, 'rgba(120,78,30,0.05)');
-    halo.addColorStop(0.85, 'rgba(120,78,30,0.10)');
+    halo.addColorStop(0, __dialogueText("ui/HiddenObjectsTheme.js", "t_2d2c1ee552e399cfc1a9"));
+    halo.addColorStop(0.85, __dialogueText("ui/HiddenObjectsTheme.js", "t_d22983cb881bd664df16"));
     halo.addColorStop(1, 'rgba(120,78,30,0)');
 
     ctx.fillStyle = halo;
@@ -206,13 +207,13 @@ function paintPaper(ctx, w, h, options) {
     ctx.arc(x, y, r * 1.05, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.strokeStyle = 'rgba(96,58,22,0.30)';
+    ctx.strokeStyle = __dialogueText("ui/HiddenObjectsTheme.js", "t_1eec7fe115fde6b4d237");
     ctx.lineWidth = 4;
     ctx.beginPath();
     ctx.arc(x, y, r, 0.2, Math.PI * 1.8);
     ctx.stroke();
 
-    ctx.strokeStyle = 'rgba(96,58,22,0.14)';
+    ctx.strokeStyle = __dialogueText("ui/HiddenObjectsTheme.js", "t_735eafa237454e21d088");
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.arc(x + 1, y + 1, r - 4, 0.9, Math.PI * 2.3);
@@ -295,7 +296,7 @@ export function ensureNoiseTile(scene) {
       }
 
       // Delikatny splot, żeby tło wyglądało jak skóra / sukno.
-      ctx.strokeStyle = 'rgba(255,255,255,0.018)';
+      ctx.strokeStyle = __dialogueText("ui/HiddenObjectsTheme.js", "t_d6f5e1ed6adab0690ce3");
       ctx.lineWidth = 1;
 
       for (let i = -h; i < w; i += 8) {
@@ -321,8 +322,8 @@ export function ensureVignetteTexture(scene) {
       );
 
       gradient.addColorStop(0, 'rgba(0,0,0,0)');
-      gradient.addColorStop(0.6, 'rgba(0,0,0,0.08)');
-      gradient.addColorStop(1, 'rgba(0,0,0,0.6)');
+      gradient.addColorStop(0.6, __dialogueText("ui/HiddenObjectsTheme.js", "t_a70919eca5a85f47f76a"));
+      gradient.addColorStop(1, __dialogueText("ui/HiddenObjectsTheme.js", "t_f71fbab13810b917607a"));
 
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, w, h);

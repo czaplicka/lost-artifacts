@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 export const POSTAL_WORLD_CASE_ID='pi_return_to_sender';
 
 // Canonical source: PostOfficeManager.RETURN_CASE and PostalCaseSupport receipt.
@@ -12,18 +13,18 @@ export function postalWorldOutcome(state,now=Date.now()){
     campaignId:state._createdAt,caseId:POSTAL_WORLD_CASE_ID,
     kind:'pi_case_completed',system:'pi',visibility:'private',
     createdAt:Number.isFinite(completed)?completed:now,
-    caseTitle:'Return to Sender',endingId:record.ending,
+    caseTitle:__dialogueText("systems/PostalWorldOutcome.js", "t_6e6e82ddd9c9f0af1dde"),endingId:record.ending,
     settlementId:POSTAL_WORLD_CASE_ID+':reward:v1',
     completedAt:Number.isFinite(completed)?record.rewardAt:null,
-    source:'postOffice.returnCase',rewardReceiptVersion:1
+    source:__dialogueText("systems/PostalWorldOutcome.js", "t_290511b7de457b74dd26"),rewardReceiptVersion:1
   };
 }
 export function postalWorldOutcomeText(event){
   if(event.endingId==='private'){
-    return 'The sealed letter was left with the authorised correspondence service. You kept the recipient’s requested new name out of the report to the sender. No identity details are included in this office notice.';
+    return __dialogueText("systems/PostalWorldOutcome.js", "t_3a5381e073add212e49e");
   }
   if(event.endingId==='disclose'){
-    return 'The sealed letter was left with the authorised correspondence service. Your report to the sender included the recipient’s new name despite the request to keep it private. This was disclosure to the sender, not a public press release. No identity details are repeated in this office notice.';
+    return __dialogueText("systems/PostalWorldOutcome.js", "t_fdf14a6f130867edd439");
   }
-  return 'The postal case is closed. Consult the original case record for its outcome.';
+  return __dialogueText("systems/PostalWorldOutcome.js", "t_fe8b5849dd89dcad3815");
 }

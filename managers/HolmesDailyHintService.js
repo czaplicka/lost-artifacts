@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { supabase } from '../supabase-client.js';
 import { hintManager } from './HintManager.js';
 import { gameState } from '../GameData.js';
@@ -11,7 +12,7 @@ function bounded(operation,ms=12000) {
   let timer;
   return Promise.race([
     Promise.resolve().then(operation),
-    new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Connection timed out.')),ms);})
+    new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error(__dialogueText("managers/HolmesDailyHintService.js", "t_87d75c777cece30cb89f"))),ms);})
   ]).finally(()=>clearTimeout(timer));
 }
 export class HolmesDailyHintService {
@@ -129,7 +130,7 @@ export class HolmesDailyHintService {
       if (this.save()!==true) return failure('save_failed');
     } else {
       const before=this.state.hintState==null ? null : structuredClone(this.state.hintState);
-      const result=this.hints.grantOnce(grantId,1,`Holmes daily free hint (${response.data.claim_day}, UTC)`);
+      const result=this.hints.grantOnce(grantId,1,`${__dialogueText("managers/HolmesDailyHintService.js", "t_06fb9f5167c8f3a253cc")}${response.data.claim_day}${__dialogueText("managers/HolmesDailyHintService.js", "t_474e2237944660c0eea2")}`);
       if (!result.success || result.saved!==true) {
         if (typeof this.state.updateState==='function') this.state.updateState({hintState:before});
         else this.state.hintState=before;

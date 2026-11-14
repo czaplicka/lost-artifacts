@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 export const CHASE_CONFIG = Object.freeze({
   version: 2,
   decisionMs: 15000,
@@ -28,17 +29,17 @@ export const CHASE_CONFIG = Object.freeze({
     follow: {
       gain: 5,
       loss: 6,
-      label: 'Reliable route'
+      label: __dialogueText("config/chaseConfig.js", "t_a30a98c131583011db9e")
     },
     shortcut: {
       gain: 18,
       loss: 12,
-      label: 'Risky shortcut'
+      label: __dialogueText("config/chaseConfig.js", "t_161a49b7f81487b03cd7")
     },
     desperate: {
       gain: 28,
       loss: 22,
-      label: 'High risk / high reward'
+      label: __dialogueText("config/chaseConfig.js", "t_8544911f9a1853bf63a9")
     }
   },
 

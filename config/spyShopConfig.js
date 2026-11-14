@@ -1,16 +1,17 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // config/spyShopConfig.js
 export const SPY_SHOP_CONFIG = {
   // Set this to the actual image path when your background is ready.
   // Example: backgroundUrl: 'assets/local/spyshop.webp',
 backgroundUrl: 'assets/local/spyshop.webp',
 backgroundKey: 'pi_spy_shop_background',
-  title: 'DISCREET ELECTRONICS',
-  subtitle: 'Repairs. Accessories. Plausible deniability.',
+  title: __dialogueText("config/spyShopConfig.js", "t_bd13b027fbf8aaa338f2"),
+  subtitle: __dialogueText("config/spyShopConfig.js", "t_adb199521c4805eb9695"),
   // Normalised coordinates: x/y are the centre; w/h are width and height.
 hotspots: [
   {
     "id": "exit",
-    "label": "Exit",
+    "label": __dialogueText("config/spyShopConfig.js", "t_d17d84a604994b722db3"),
     "action": "exit",
     "x": 0.12567708333333333,
     "y": 0.5895370370370371,
@@ -19,7 +20,7 @@ hotspots: [
   },
   {
     "id": "shopkeeper",
-    "label": "Shopkeeper",
+    "label": __dialogueText("config/spyShopConfig.js", "t_750db8444cd74ad2d575"),
     "action": "talk",
     "x": 0.5158072916666666,
     "y": 0.5831944444444443,
@@ -28,7 +29,7 @@ hotspots: [
   },
   {
     "id": "equipment",
-    "label": "Browse Equipment",
+    "label": __dialogueText("config/spyShopConfig.js", "t_267753ad0e5d6f7a3410"),
     "action": "browse",
     "x": 0.8533854166666667,
     "y": 0.6235185185185185,
@@ -46,9 +47,9 @@ hotspots: [
     { category: 'documents', key: 'detectiveMonthly' }
   ],
   dialogue: [
-    { question: 'What do you sell?', answer: 'Electronics. If anyone asks, you bought batteries. If nobody asks, you still bought batteries.' },
-    { question: 'Is all this legal?', answer: 'Every item comes with a perfectly ordinary receipt. What you do with the receipt is between you and your accountant.' },
-    { question: 'Why the rubber duck?', answer: 'Waterproof. Low maintenance. Excellent under pressure. No other customer has questioned its qualifications.' },
-    { question: 'Does the badge make me a police officer?', answer: 'No. It makes you a private investigator with a badge. The difference becomes important at roadblocks.' }
+    { question: __dialogueText("config/spyShopConfig.js", "t_44bde37db8317c6321f3"), answer: __dialogueText("config/spyShopConfig.js", "t_e3fbd849059c2ae5d23e") },
+    { question: __dialogueText("config/spyShopConfig.js", "t_b4ca0d0e282984171beb"), answer: __dialogueText("config/spyShopConfig.js", "t_7fb7b0a4b2cee099e5d8") },
+    { question: __dialogueText("config/spyShopConfig.js", "t_73a8707a9c0ac09d9265"), answer: __dialogueText("config/spyShopConfig.js", "t_b2cd308b52dd6ec86d2d") },
+    { question: __dialogueText("config/spyShopConfig.js", "t_bd3ad7228faae83a20cc"), answer: __dialogueText("config/spyShopConfig.js", "t_96b8afe3139067bfb142") }
   ]
 };

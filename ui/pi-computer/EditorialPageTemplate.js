@@ -1,15 +1,16 @@
-const INSTALLED = Symbol.for('lostArtifacts.editorialPages');
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
+const INSTALLED = Symbol.for(__dialogueText("ui/pi-computer/EditorialPageTemplate.js", "t_c9782360da2e3c079a62"));
 const STYLES = {
-    news: { ink: 0x294b50, accent: 0xb09b73, paper: 0xf3eee0, banner: 0xf9f6eb, section: 'COMMUNITY / LOCAL NEWS' },
-    lifestyle: { ink: 0x744b53, accent: 0xb48d72, paper: 0xf2e7de, banner: 0xfaeee5, section: 'STYLE / THE EDIT' }
+    news: { ink: 0x294b50, accent: 0xb09b73, paper: 0xf3eee0, banner: 0xf9f6eb, section: __dialogueText("ui/pi-computer/EditorialPageTemplate.js", "t_87e63823bb3156b46bf2") },
+    lifestyle: { ink: 0x744b53, accent: 0xb48d72, paper: 0xf2e7de, banner: 0xfaeee5, section: __dialogueText("ui/pi-computer/EditorialPageTemplate.js", "t_5b8987a8d74ba31dfb0f") }
 };
 export function editorialKind(page) {
     if (!page || page.layout === 'default') return null;
     if (page.template) return Object.hasOwn(STYLES, page.template) ? page.template : null;
     if (['tabloid','gossip'].includes(page.theme)) return null;
     if (page.theme === 'news' || page.theme === 'lifestyle') return page.theme;
-    if (page.brand === 'COMMUNITY LEDGER') return 'news';
-    if (page.brand === 'THE EVERYDAY EDIT') return 'lifestyle';
+    if (page.brand === __dialogueText("ui/pi-computer/EditorialPageTemplate.js", "t_9364bc83c985db0cc349")) return 'news';
+    if (page.brand === __dialogueText("ui/pi-computer/EditorialPageTemplate.js", "t_e523b8783bfe3be6e1cc")) return 'lifestyle';
     return null;
 }
 export function installEditorialPages(ui) {
@@ -46,7 +47,7 @@ export function renderEditorial(ui,search,page,kind){
     const small=b.w<760||b.h<460,gap=small?9:14;
     d.rectangle(b.x+5,b.y+5,b.w,b.h,0,.3);d.bevel(b.x,b.y,b.w,b.h,0xc8bfae);
     d.rectangle(b.x+4,b.y+4,b.w-8,28,0x493e50);
-    fit(b.x+13,b.y+13,`OWL NAVIGATOR / ${page.brand||'NEWS'}`,b.w-65,8,'#f9e8bb',true);
+    fit(b.x+13,b.y+13,`${__dialogueText("ui/pi-computer/EditorialPageTemplate.js", "t_6a5469aa820b1a95a6fd")}${page.brand||'NEWS'}`,b.w-65,8,'#f9e8bb',true);
     button(b.x+b.w-32,b.y+7,23,21,'X',()=>search.back());
     const ay=b.y+38;
     button(b.x+10,ay,45,27,'<',()=>search.back());button(b.x+61,ay,58,27,'OWL',()=>search.goHome());
@@ -58,7 +59,7 @@ export function renderEditorial(ui,search,page,kind){
     d.rectangle(sx,hy+5,sw,2,p.ink);
     d.rectangle(sx,hy+hh-6,sw,3,p.ink);
     d.rectangle(sx,hy+hh-1,sw,1,p.accent);
-    const brand=page.brand||(kind==='news'?'LOCAL NEWS':'THE EDIT');
+    const brand=page.brand||(kind==='news'?__dialogueText("ui/pi-computer/EditorialPageTemplate.js", "t_f8f0541e225c4388616c"):__dialogueText("ui/pi-computer/EditorialPageTemplate.js", "t_eb7369519e7fbe0d3d9a"));
     const logoW=search.textureOk(page.logoKey)?(small?40:56):0;
     if(logoW)search.art(page.logoKey,sx+12,hy+12,logoW,hh-25);
     const masthead=fit(sx+14+(logoW?logoW+12:0),hy+(small?16:20),brand,
@@ -67,7 +68,7 @@ export function renderEditorial(ui,search,page,kind){
     const sub=fit(sx+14,hy+hh-25,page.tagline||p.section,sw-28,small?9:11,'#857967');
     sub.setX(sx+Math.max(14,(sw-sub.width)/2));
     const cy=hy+hh+gap,fy=b.y+b.h-35,ch=fy-cy-gap;
-    if(ch<75){fit(sx+8,cy,'Enlarge the game window to read this article.',sw-16,12);return;}
+    if(ch<75){fit(sx+8,cy,__dialogueText("ui/pi-computer/EditorialPageTemplate.js", "t_4c246bd020e0807497a5"),sw-16,12);return;}
     const photo=Boolean(page.imageKey)&&b.w>=720&&ch>=190;
     const photoW=photo?Math.floor((sw-gap)*.32):0;
     const articleW=sw-(photo?photoW+gap:0);
@@ -79,8 +80,8 @@ export function renderEditorial(ui,search,page,kind){
         const px=sx+articleW+gap;d.bevel(px,cy,photoW,ch,p.banner);
         d.rectangle(px+8,cy+8,photoW-16,ch-46,0xe0d8c6);
         const image=search.art(page.imageKey,px+11,cy+11,photoW-22,ch-52);
-        if(!image)fit(px+15,cy+20,'PHOTO UNAVAILABLE',photoW-30,8,css(p.ink),true);
-        fit(px+12,cy+ch-25,page.imageCaption||page.caption||'ARTICLE PHOTOGRAPH',photoW-24,10,'#81735f');
+        if(!image)fit(px+15,cy+20,__dialogueText("ui/pi-computer/EditorialPageTemplate.js", "t_81e8132432559fda2441"),photoW-30,8,css(p.ink),true);
+        fit(px+12,cy+ch-25,page.imageCaption||page.caption||__dialogueText("ui/pi-computer/EditorialPageTemplate.js", "t_7959337552df6005d94d"),photoW-24,10,'#81735f');
     }
     const size=small?14:16,lh=small?24:27;
     // Full headline and every keyword remain in the paginated text.

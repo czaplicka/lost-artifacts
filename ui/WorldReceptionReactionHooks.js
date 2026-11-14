@@ -1,15 +1,16 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { latestWorldNewspaperEvent, readWorldReactions } from '../systems/WorldReactionModel.js';
 
 const installed=new WeakMap();
-const TOPIC='Seen the latest case news?';
+const TOPIC=__dialogueText("ui/WorldReceptionReactionHooks.js", "t_1a34c8f172305020d364");
 const RESPONSES={
-  agency_convicted:'The court has delivered an outcome. I wish our contractor would try that. No, a date on a napkin is not an outcome.',
-  agency_released:'The defendant was released, according to the bulletin. I know better than to turn a headline into a reference check.',
-  agency_suspect_arrested:'A detention, not a conviction. Understood. Around here we also distinguish a quotation from a signed contract.',
-  agency_pursuit_escape:'The report says the pursuit ended without a detention. I only know what was in the bulletin, so I can’t offer directions.',
-  agency_time_expired:'An unresolved inquiry. We have some experience with unfinished work here. I try not to label anything completed on the strength of optimism.'
+  agency_convicted:__dialogueText("ui/WorldReceptionReactionHooks.js", "t_607b1a8d759bc0306af7"),
+  agency_released:__dialogueText("ui/WorldReceptionReactionHooks.js", "t_9b40f91aa48f243c55af"),
+  agency_suspect_arrested:__dialogueText("ui/WorldReceptionReactionHooks.js", "t_633df3995610ee386827"),
+  agency_pursuit_escape:__dialogueText("ui/WorldReceptionReactionHooks.js", "t_0259dc8d9c770fa21cdf"),
+  agency_time_expired:__dialogueText("ui/WorldReceptionReactionHooks.js", "t_450e072b35614220c8dd")
 };
 const seenKey=id=>JSON.stringify(['business_center_receptionist',id]);
 function seenEntries(state){
@@ -23,7 +24,7 @@ export function getReceptionWorldReaction(state){
   if(!event||event.visibility!=='public'||event.system!=='agency'||
     String(event.campaignId)!==String(state._createdAt)||!RESPONSES[event.kind]||
     seenEntries(state).includes(seenKey(event.id)))return null;
-  return{eventId:event.id,text:`The bulletin mentioned the ${event.artifact||'artefact'} case in ${event.cityName||'the city'}.\n\n${RESPONSES[event.kind]}`};
+  return{eventId:event.id,text:`${__dialogueText("ui/WorldReceptionReactionHooks.js", "t_8eaad1d5679904cf64c8")}${event.artifact||__dialogueText("ui/WorldReceptionReactionHooks.js", "t_4edfbd28d0483e702f24")}${__dialogueText("ui/WorldReceptionReactionHooks.js", "t_f42b9f039db44f945dae")}${event.cityName||__dialogueText("ui/WorldReceptionReactionHooks.js", "t_0f53fb3533eb343bc155")}${__dialogueText("ui/WorldReceptionReactionHooks.js", "t_0673d69ff78439adfb40")}${RESPONSES[event.kind]}`};
 }
 export function markReceptionWorldReaction(state,eventId){
   const history=readWorldReactions(state);
@@ -61,7 +62,7 @@ function openReaction(scene,token){
     scene.reception();
   };
   // show() retains the existing Back to the lobby choice and portrait behaviour.
-  scene.show('Receptionist',reaction.text,[['Something else.',back]]);
+  scene.show(__dialogueText("ui/WorldReceptionReactionHooks.js", "t_ab63c0d0657040400f5a"),reaction.text,[[__dialogueText("ui/WorldReceptionReactionHooks.js", "t_240f1c9f302be82fb90a"),back]]);
   if(scene.dialogue?.data)scene.dialogue.data.worldReceptionEventId=reaction.eventId;
 }
 export function installReceptionWorldReactions(scene){
@@ -74,7 +75,7 @@ export function installReceptionWorldReactions(scene){
     const token=this.token,rawShow=this.show;
     let injected=false;
     const decoratedShow=function(title,text,choices=[],...rest){
-      if(injected||title!=='Receptionist'||!available(this)||!Array.isArray(choices))return rawShow.call(this,title,text,choices,...rest);
+      if(injected||title!==__dialogueText("ui/WorldReceptionReactionHooks.js", "t_ab63c0d0657040400f5a")||!available(this)||!Array.isArray(choices))return rawShow.call(this,title,text,choices,...rest);
       injected=true;
       return rawShow.call(this,title,text,[[TOPIC,()=>openReaction(this,token)],...choices],...rest);
     };

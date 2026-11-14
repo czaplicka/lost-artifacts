@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import {
   latestWorldNewspaperEvent,
   worldNewspaperArticle
@@ -18,7 +19,7 @@ export function buildWorldTVSegment(event,cityConfig,tvConfig={}){
     id:`world-tv:${event.id}`,type:'news',worldEventId:event.id,worldCaseId:event.caseId,
     worldOutcome:event.kind,title:article.headline,
     anchorName:cityConfig.reporterName||cityConfig.anchorName,
-    label:'CASE UPDATE',badge:'UPDATE',channel:cityConfig.channel,
+    label:__dialogueText("systems/WorldTVReactions.js", "t_e3a112c078c2633766e0"),badge:'UPDATE',channel:cityConfig.channel,
     charDelay:template.charDelay||17,linePause:template.linePause||260,hold:template.hold||1400,
     theme:{...(template.theme||{})},
     backgroundKey:cityConfig.backgroundKey,presenterKey:cityConfig.presenterKey,
@@ -28,6 +29,6 @@ export function buildWorldTVSegment(event,cityConfig,tvConfig={}){
       worldEventId:event.id,outcome:event.kind,
       publicClue:null,missionClue:null
     },
-    lines:[article.headline+'.',article.lead,article.body]
+    lines:[article.headline+__dialogueText("systems/WorldTVReactions.js", "t_cdb4ee2aea69cc6a8333"),article.lead,article.body]
   };
 }

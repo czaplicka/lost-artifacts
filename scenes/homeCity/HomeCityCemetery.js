@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { HomeCityBuildings } from './HomeCityBuildings.js';
 import { css, light, dark, hash, pp, poly, rect, circle, ellipse, line, shadow } from './HomeCityDrawing.js';
 
@@ -13,9 +14,9 @@ export class HomeCityCemetery extends HomeCityBuildings {
     const minX = this.pt(left, front).x - 40, minY = this.pt(left, back, 40).y - 30, maxX = this.pt(right, back).x + 40, maxY = this.pt(right, front).y + 50;
     const gk = this.bake('cem_ground', maxX - minX, maxY - minY, ctx => {
       poly(ctx, [this.pt(left, back), this.pt(right, back), this.pt(right, front), this.pt(left, front)], 0x4d5d45);
-      for (let i = 0; i < 90; i++) { const q = this.pt(left + hash(i, 1, 51) * (right - left), back + hash(i, 2, 52) * (front - back)); rect(ctx, q.x, q.y, 3, 2, hash(i, 3, 53) > 0.5 ? 'rgba(130,160,100,.35)' : 'rgba(20,30,18,.3)'); }
+      for (let i = 0; i < 90; i++) { const q = this.pt(left + hash(i, 1, 51) * (right - left), back + hash(i, 2, 52) * (front - back)); rect(ctx, q.x, q.y, 3, 2, hash(i, 3, 53) > 0.5 ? __dialogueText("scenes/homeCity/HomeCityCemetery.js", "t_2f1c151f56910f36f927") : __dialogueText("scenes/homeCity/HomeCityCemetery.js", "t_c196f8b3a722d0b7c3ec")); }
       poly(ctx, [this.pt(b.door.x - 0.25, back + 0.4), this.pt(b.door.x + 0.25, back + 0.4), this.pt(b.door.x + 0.25, front + 0.45), this.pt(b.door.x - 0.25, front + 0.45)], 0xa29679);
-      for (let i = 0; i < 24; i++) { const q = this.pt(b.door.x - 0.2 + hash(i, 4, 54) * 0.4, back + 0.5 + (i / 24) * (front - back)); rect(ctx, q.x, q.y, 5, 2, hash(i, 5, 55) > 0.5 ? 'rgba(255,255,255,.18)' : 'rgba(0,0,0,.2)'); }
+      for (let i = 0; i < 24; i++) { const q = this.pt(b.door.x - 0.2 + hash(i, 4, 54) * 0.4, back + 0.5 + (i / 24) * (front - back)); rect(ctx, q.x, q.y, 5, 2, hash(i, 5, 55) > 0.5 ? __dialogueText("scenes/homeCity/HomeCityCemetery.js", "t_82e16a994350237520ec") : __dialogueText("scenes/homeCity/HomeCityCemetery.js", "t_18a22573f70f00ec829e")); }
     }, minX, minY);
     if (gk) s.add.image(minX, minY, gk).setOrigin(0, 0).setDepth(-690);
     const fence = (axis, fixed, a, c, depth, name, pillarEnd) => {
@@ -44,7 +45,7 @@ export class HomeCityCemetery extends HomeCityBuildings {
     const tk = this.bakeSprite('deadtree', 180, 240, 90, 228, ctx => this.drawDeadTree(ctx));
     const tp = this.pt(b.x + 3.2, b.y + 3.1); s.add.image(tp.x, tp.y, tk).setOrigin(...this.anchors.get(tk)).setDepth((b.x + 3.2 + b.y + 3.1) * 100 + 6);
     const gh = this.bakeSprite('ghost', 60, 80, 30, 70, ctx => {
-      ctx.fillStyle = 'rgba(240,244,250,.92)'; ctx.beginPath(); ctx.moveTo(-18, 0); ctx.quadraticCurveTo(-22, -52, 0, -56); ctx.quadraticCurveTo(22, -52, 18, 0);
+      ctx.fillStyle = __dialogueText("scenes/homeCity/HomeCityCemetery.js", "t_c325349dc7b78b4e2c99"); ctx.beginPath(); ctx.moveTo(-18, 0); ctx.quadraticCurveTo(-22, -52, 0, -56); ctx.quadraticCurveTo(22, -52, 18, 0);
       ctx.lineTo(10, -8); ctx.lineTo(3, 0); ctx.lineTo(-4, -8); ctx.lineTo(-11, 0); ctx.closePath(); ctx.fill(); circle(ctx, -6, -34, 3, 0x1a1f2a); circle(ctx, 6, -34, 3, 0x1a1f2a); ellipse(ctx, 0, -25, 3, 4, 0x1a1f2a);
     });
     const gp = this.pt(b.x + 2.2, b.y + 1.5, 0);
@@ -52,7 +53,7 @@ export class HomeCityCemetery extends HomeCityBuildings {
     const zone = s.add.zone(Math.min(...hull.map(q => q.x)), Math.min(...hull.map(q => q.y)), 1, 1).setOrigin(0, 0).setDepth(9998);
     const zx = Math.min(...hull.map(q => q.x)), zy = Math.min(...hull.map(q => q.y)), zw = Math.max(...hull.map(q => q.x)) - zx, zh = Math.max(...hull.map(q => q.y)) - zy;
     zone.setSize(zw, zh); this.hookBuilding(zone, b.id, hull.map(q => ({ x: q.x - zx, y: q.y - zy })));
-    this.afterFonts(() => this.bakeBanner(b, 'BLACKTHORN - NO REFUNDS', 150, 2.4));
+    this.afterFonts(() => this.bakeBanner(b, __dialogueText("scenes/homeCity/HomeCityCemetery.js", "t_bc208c51e3a36a63d0d9"), 150, 2.4));
   }
   bakeGate(b, front) {
     const s = this.scene, x = b.door.x, pts = this.faceP('x', front, x - 0.6, x + 0.6, 0, 125), xs = pts.map(q => q.x), ys = pts.map(q => q.y), l = Math.min(...xs) - 12, t = Math.min(...ys) - 12;
@@ -71,7 +72,7 @@ export class HomeCityCemetery extends HomeCityBuildings {
     if (i % 3 === 0) { rect(ctx, -14, -46, 28, 44, stone); ctx.fillStyle = css(stone); ctx.beginPath(); ctx.arc(0, -46, 14, Math.PI, 0); ctx.fill(); rect(ctx, 8, -42, 6, 40, dk); line(ctx, -6, -34, 7, -34, dk, 2); line(ctx, -5, -26, 6, -26, dk, 2); }
     else if (i % 3 === 1) { rect(ctx, -5, -64, 10, 62, stone); rect(ctx, -18, -50, 36, 9, stone); rect(ctx, 3, -62, 3, 60, dk); rect(ctx, -18, -44, 36, 3, dk); }
     else { poly(ctx, pp([-12, -2], [12, -2], [8, -58], [-8, -58]), stone); rect(ctx, 6, -56, 5, 52, dk); poly(ctx, pp([-8, -58], [8, -58], [0, -70]), light(stone, 0.1)); }
-    for (let k = 0; k < 5; k++) rect(ctx, -12 + hash(k, i, 1) * 24, -40 + hash(i, k, 2) * 36, 3, 2, 'rgba(70,95,60,.5)');
+    for (let k = 0; k < 5; k++) rect(ctx, -12 + hash(k, i, 1) * 24, -40 + hash(i, k, 2) * 36, 3, 2, __dialogueText("scenes/homeCity/HomeCityCemetery.js", "t_58bdf216b5cbd8aef2c3"));
   }
   drawDeadTree(ctx) {
     shadow(ctx, 36, 10); poly(ctx, pp([-9, 0], [9, 0], [5, -90], [-4, -90]), 0x3e342d);

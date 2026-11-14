@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 // scenes/travel/TravelTextures.js
 // Shared layout helpers + procedurally generated textures for the travel transition.
 // Nothing here needs external assets - every texture is drawn once and cached by Phaser.
@@ -132,14 +133,14 @@ function paintDesk(ctx, w, h) {
 function paintVignette(ctx, w, h) {
   const gradient = ctx.createRadialGradient(w / 2, h / 2, h * 0.34, w / 2, h / 2, w * 0.62);
   gradient.addColorStop(0, 'rgba(3,8,14,0)');
-  gradient.addColorStop(1, 'rgba(3,8,14,0.88)');
+  gradient.addColorStop(1, __dialogueText("scenes/travel/TravelTextures.js", "t_8f9d1edb9671fbf72fc7"));
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, w, h);
 }
 
 function paintFade(ctx, w, h) {
   const gradient = ctx.createLinearGradient(0, 0, 0, h);
-  gradient.addColorStop(0, 'rgba(3,8,14,0.96)');
+  gradient.addColorStop(0, __dialogueText("scenes/travel/TravelTextures.js", "t_625091fe761eca756224"));
   gradient.addColorStop(1, 'rgba(3,8,14,0)');
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, w, h);
@@ -155,11 +156,11 @@ function paintFallbackMap(ctx, w, h) {
     ctx.arc(Math.random() * w, Math.random() * h, 10 + Math.random() * 60, 0, Math.PI * 2);
     ctx.fill();
   }
-  ctx.strokeStyle = 'rgba(90,60,30,0.28)';
+  ctx.strokeStyle = __dialogueText("scenes/travel/TravelTextures.js", "t_dbb1b7359a5c9c0ec23e");
   ctx.lineWidth = 1;
   for (let x = 0; x <= w; x += 48) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
   for (let y = 0; y <= h; y += 48) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
-  ctx.strokeStyle = 'rgba(90,60,30,0.65)';
+  ctx.strokeStyle = __dialogueText("scenes/travel/TravelTextures.js", "t_2c45a2fd066f8d51e2c2");
   ctx.lineWidth = 4;
   ctx.strokeRect(12, 12, w - 24, h - 24);
 }

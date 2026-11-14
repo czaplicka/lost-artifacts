@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { ArrestSelectionScene as OriginalArrestSelectionScene } from './ArrestSelectionScene.js';
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
@@ -15,7 +16,7 @@ export class ArrestSelectionScene extends OriginalArrestSelectionScene {
  create(){
   if(gameState.arrestWarrantIssued){
    try{if(ensureCaseIdentity(gameState)&&!saveGameState())console.warn('[ArrestSelectionScene] Restored case ID could not be saved.');}
-   catch(error){console.error('[ArrestSelectionScene] Case identity:',error);super.create();this.dialogueText?.setText('The case file could not be restored. Reload your saved game.');return;}
+   catch(error){console.error('[ArrestSelectionScene] Case identity:',error);super.create();this.dialogueText?.setText(__dialogueText("scenes/ArrestChaseSelectionScene.js", "t_bf0a5b32b34c8d16b6e7"));return;}
   }
   const record=currentChase();
   if(record&&chaseFailureCode(record)){
@@ -25,14 +26,14 @@ export class ArrestSelectionScene extends OriginalArrestSelectionScene {
    BaseScene.prototype.create.call(this);
    const target=record.terminalScene;
    if(target&&target!=='ChaseScene'&&target!=='ArrestSelectionScene')void this.goto(target,{caseId:record.caseId,suspectId:record.suspectId});
-   else this.add.text(80,80,'The saved pursuit is already settled. Load its result checkpoint.',{fontFamily:'SpecialElite',fontSize:'26px',color:'#ffffff'});
+   else this.add.text(80,80,__dialogueText("scenes/ArrestChaseSelectionScene.js", "t_aeb7e047c881664f47b5"),{fontFamily:'SpecialElite',fontSize:'26px',color:'#ffffff'});
    return;
   }
   if(record){
    try{
     prepareTheorySubmission(gameState,record.suspectId);
     if(!persistChase(record))throw new Error('Could not save the pursuit checkpoint.');
-   }catch(error){super.create();this.dialogueText?.setText(error.message);this.bottomNoteText?.setText('No pursuit plan has been rerolled. Complete the theory at the office or hotel, then return.');return;}
+   }catch(error){super.create();this.dialogueText?.setText(error.message);this.bottomNoteText?.setText(__dialogueText("scenes/ArrestChaseSelectionScene.js", "t_2c79497d179fe89e7152"));return;}
    BaseScene.prototype.create.call(this);void this.resumePursuit(record);return;
   }
   super.create();
@@ -80,8 +81,8 @@ export class ArrestSelectionScene extends OriginalArrestSelectionScene {
   this.enableNavigation();this.arrestButton?.setInteractive({useHandCursor:true});
   this.arrestButton?.bg?.setFillStyle(this.arrestButton.fillNormal??0x8f1d14,1);
   this.arrestButtonText?.setAlpha(1);this.currentCard?.polaroidFrame?.setStrokeStyle(2,0xcfc2a0,1);
-  this.startArrestPulse();this.dialogueText?.setText('The pursuit has not started. No arrest has been recorded.');
-  this.bottomNoteText?.setText(error?.message||'Review the case file and try again.');
+  this.startArrestPulse();this.dialogueText?.setText(__dialogueText("scenes/ArrestChaseSelectionScene.js", "t_2e221730ac43e086d6c9"));
+  this.bottomNoteText?.setText(error?.message||__dialogueText("scenes/ArrestChaseSelectionScene.js", "t_638fda49d09257cb8f8e"));
  }
  completeChase(){
   const record=currentChase();if(!record||!['caught','review'].includes(record.phase))return;

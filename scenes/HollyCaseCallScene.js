@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { HollySurvivalCallUI } from '../ui/HollySurvivalCallUI.js';
 export class HollyCaseCallScene extends BaseScene{
@@ -13,7 +14,7 @@ export class HollyCaseCallScene extends BaseScene{
     this.progress=h.normalize(DATA,this.preview?null:status);
     this.callUI=new HollySurvivalCallUI(this,{portraitKey:'holly',deskKey:'pi_phone_desk',onNext:()=>this.next(),onClose:()=>this.closeCall()});
     this.callUI.showOffer(DATA.offer,this.preview);
-    if(!this.allowed)this.callUI.showUnavailable(DATA.unavailable||'Finish the preceding investigation steps first. A completed update cannot be completed twice.');
+    if(!this.allowed)this.callUI.showUnavailable(DATA.unavailable||__dialogueText("scenes/HollyCaseCallScene.js", "t_bd515abacb0590e9d0fc"));
     else if(this.progress.lineIndex>=0)this.renderLine();
     this.trackInputEvent(this.scale,'resize',this.layout);
     if(this.input.keyboard){
@@ -24,14 +25,14 @@ export class HollyCaseCallScene extends BaseScene{
   }
   persist(){
     if(this.preview||!this.allowed)return true;const result=this.callHooks.save(this.progress);this.savedOk=result.saved;
-    if(!result.success){this.callUI?.addSystemNote('Story requirements changed. Pause and reopen the call.');return false;}return true;
+    if(!result.success){this.callUI?.addSystemNote(__dialogueText("scenes/HollyCaseCallScene.js", "t_d07943911a2176f6e9fc"));return false;}return true;
   }
   next(){
     if(!this.allowed||this.finished||this.closing||this.time.now<this.inputLockedUntil)return;this.inputLockedUntil=this.time.now+180;
     if(this.callUI.finishCurrentTyping())return;
     const h=this.callHooks,DATA=h.data,result=h.advance(DATA,this.progress,Math.max(0,this.silenceUntil-this.time.now));if(!result.ok)return;
     const before=this.progress;this.progress=result.state;if(!this.persist()){this.progress=before;return;}
-    if(this.progress.completed){this.finished=true;this.callUI.setSilenceUntil(0);this.callUI.showResult(DATA.resultTitle,DATA.nextTitle,DATA.objective,this.preview?'Preview complete. Story progress was not changed.':this.savedOk===false?DATA.messages.saveFailed:'Case update saved.');}
+    if(this.progress.completed){this.finished=true;this.callUI.setSilenceUntil(0);this.callUI.showResult(DATA.resultTitle,DATA.nextTitle,DATA.objective,this.preview?__dialogueText("scenes/HollyCaseCallScene.js", "t_4699a004d54fcc73b5ef"):this.savedOk===false?DATA.messages.saveFailed:__dialogueText("scenes/HollyCaseCallScene.js", "t_68bc020e28fc01cd59e9"));}
     else this.renderLine();
   }
   renderLine(){const DATA=this.callHooks.data;this.callUI.showLine(DATA.lines,this.progress.lineIndex);this.silenceUntil=this.time.now+(DATA.lines[this.progress.lineIndex]?.silenceMs||0);this.callUI.setSilenceUntil(this.silenceUntil);}

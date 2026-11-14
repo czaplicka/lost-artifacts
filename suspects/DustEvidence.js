@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // suspects/DustEvidence.js
 //
 // Authored rules for the game's deduction puzzles.
@@ -12,53 +13,53 @@
 
 const HOBBIES = Object.freeze({
   // Sports chalk
-  bouldering: 'Bouldering',
-  gymnastics: 'Gymnastics',
-  weightlifting: 'Weightlifting',
+  bouldering: __dialogueText("suspects/DustEvidence.js", "t_13e21bad6df8981b68b7"),
+  gymnastics: __dialogueText("suspects/DustEvidence.js", "t_766407af68d2456457c4"),
+  weightlifting: __dialogueText("suspects/DustEvidence.js", "t_3623004950e5e2b1033e"),
 
   // Artist acrylic paint
-  painting: 'Acrylic painting',
-  miniature_painting: 'Painting miniatures',
-  stage_scenery: 'Making stage scenery',
+  painting: __dialogueText("suspects/DustEvidence.js", "t_c21abf5b2d5601254dd9"),
+  miniature_painting: __dialogueText("suspects/DustEvidence.js", "t_1dc4932bd7acf3f8206e"),
+  stage_scenery: __dialogueText("suspects/DustEvidence.js", "t_47ac216e53c9e73a8b93"),
 
   // Ceramic clay
-  pottery: 'Pottery',
-  ceramic_sculpture: 'Ceramic sculpture',
-  ceramic_jewellery: 'Making ceramic jewellery',
+  pottery: __dialogueText("suspects/DustEvidence.js", "t_4d3338ff7a67ea568392"),
+  ceramic_sculpture: __dialogueText("suspects/DustEvidence.js", "t_a31a21ababde2e881aff"),
+  ceramic_jewellery: __dialogueText("suspects/DustEvidence.js", "t_68af0542b940ce90c106"),
 
   // Wood dust
-  model_shipbuilding: 'Building wooden model ships',
-  woodcarving: 'Woodcarving',
-  furniture_restoration: 'Restoring old furniture',
+  model_shipbuilding: __dialogueText("suspects/DustEvidence.js", "t_4cb8c8490016c2b39c49"),
+  woodcarving: __dialogueText("suspects/DustEvidence.js", "t_176c18cc0837bc68e38d"),
+  furniture_restoration: __dialogueText("suspects/DustEvidence.js", "t_d816988e37631e3a016d"),
 
   // Graphite dust
-  pencil_sketching: 'Pencil sketching',
-  graphite_portraits: 'Drawing graphite portraits',
-  graphite_illustration: 'Making graphite illustrations',
+  pencil_sketching: __dialogueText("suspects/DustEvidence.js", "t_aaad13b268e596236973"),
+  graphite_portraits: __dialogueText("suspects/DustEvidence.js", "t_a75525586954cd35f2f3"),
+  graphite_illustration: __dialogueText("suspects/DustEvidence.js", "t_e63b58a9e44046c1dd1a"),
 
   // Wax particles
-  candle_making: 'Making candles',
-  batik: 'Batik textile art',
-  wax_sculpture: 'Wax sculpture',
+  candle_making: __dialogueText("suspects/DustEvidence.js", "t_9dd37da0058c6d495f5d"),
+  batik: __dialogueText("suspects/DustEvidence.js", "t_669f2e0610243bbad1ec"),
+  wax_sculpture: __dialogueText("suspects/DustEvidence.js", "t_963dbfff76f1d12b4ecb"),
 
   // Unrelated interests
-  running: 'Distance running',
-  chess: 'Chess',
-  birdwatching: 'Birdwatching',
-  photography: 'Photography',
-  crosswords: 'Crosswords',
-  astronomy: 'Amateur astronomy',
-  origami: 'Origami',
-  stamp_collecting: 'Stamp collecting'
+  running: __dialogueText("suspects/DustEvidence.js", "t_23faec2eb54629afc59f"),
+  chess: __dialogueText("suspects/DustEvidence.js", "t_c1aade8253979ee2f395"),
+  birdwatching: __dialogueText("suspects/DustEvidence.js", "t_5aab3f0e1e1e6969b45d"),
+  photography: __dialogueText("suspects/DustEvidence.js", "t_7be8b75c22f417725401"),
+  crosswords: __dialogueText("suspects/DustEvidence.js", "t_86cba9722e58df4b658d"),
+  astronomy: __dialogueText("suspects/DustEvidence.js", "t_0dda27a77996f8307cd7"),
+  origami: __dialogueText("suspects/DustEvidence.js", "t_501073e4a4a7203951b3"),
+  stamp_collecting: __dialogueText("suspects/DustEvidence.js", "t_a38edc555108198d3f49")
 });
 
 const PROFILES = Object.freeze({
   sports_chalk: Object.freeze({
-    label: 'Sports chalk',
-    composition: 'MAGNESIUM CARBONATE',
+    label: __dialogueText("suspects/DustEvidence.js", "t_885fb3fc83878f275608"),
+    composition: __dialogueText("suspects/DustEvidence.js", "t_c7ce4a8f72344c9420bc"),
 
     report:
-      'Magnesium carbonate. Consistent with sports chalk.',
+      __dialogueText("suspects/DustEvidence.js", "t_502c13365811d83a5554"),
 
     hobbyIds: Object.freeze([
       'bouldering',
@@ -68,12 +69,12 @@ const PROFILES = Object.freeze({
   }),
 
   acrylic_paint: Object.freeze({
-    label: 'Artist acrylic paint',
-    composition: 'ACRYLIC BINDER / ARTIST PIGMENT',
+    label: __dialogueText("suspects/DustEvidence.js", "t_365fc99f9289e65e2f4a"),
+    composition: __dialogueText("suspects/DustEvidence.js", "t_2ee9880faece65cde391"),
 
     report:
-      'Dried acrylic binder and pigment particles. ' +
-      'Consistent with artist acrylic paint.',
+      __dialogueText("suspects/DustEvidence.js", "t_2951de1adaacc6f6b482") +
+      __dialogueText("suspects/DustEvidence.js", "t_124f4e4f4c18dbc97a20"),
 
     hobbyIds: Object.freeze([
       'painting',
@@ -83,12 +84,12 @@ const PROFILES = Object.freeze({
   }),
 
   ceramic_clay: Object.freeze({
-    label: 'Ceramic clay',
-    composition: 'CERAMIC CLAY MINERALS',
+    label: __dialogueText("suspects/DustEvidence.js", "t_68ebff24663aea8bf0c4"),
+    composition: __dialogueText("suspects/DustEvidence.js", "t_415b11904d2d0a58f777"),
 
     report:
-      'Fine ceramic clay residue. ' +
-      'Not ordinary museum dust.',
+      __dialogueText("suspects/DustEvidence.js", "t_015687b9414a46ef5bfd") +
+      __dialogueText("suspects/DustEvidence.js", "t_433b5066bdbaeaf36292"),
 
     hobbyIds: Object.freeze([
       'pottery',
@@ -98,12 +99,12 @@ const PROFILES = Object.freeze({
   }),
 
   wood_dust: Object.freeze({
-    label: 'Wood dust',
-    composition: 'FINE WOOD PARTICLES',
+    label: __dialogueText("suspects/DustEvidence.js", "t_b55dab10602e39b12d51"),
+    composition: __dialogueText("suspects/DustEvidence.js", "t_bf6e25aa92ced2b8ed39"),
 
     report:
-      'Fine wood particles with freshly abraded surfaces. ' +
-      'The sample differs from the surrounding museum dust.',
+      __dialogueText("suspects/DustEvidence.js", "t_ad44157055ed434375f2") +
+      __dialogueText("suspects/DustEvidence.js", "t_40ab696343814c59950b"),
 
     hobbyIds: Object.freeze([
       'model_shipbuilding',
@@ -113,12 +114,12 @@ const PROFILES = Object.freeze({
   }),
 
   graphite_dust: Object.freeze({
-    label: 'Graphite dust',
-    composition: 'GRAPHITE / PENCIL RESIDUE',
+    label: __dialogueText("suspects/DustEvidence.js", "t_65436effecac519b2de0"),
+    composition: __dialogueText("suspects/DustEvidence.js", "t_a7493e752e8c171a15ab"),
 
     report:
-      'Fine graphite particles with pencil residue. ' +
-      'Not soot. The machine checked twice.',
+      __dialogueText("suspects/DustEvidence.js", "t_6db1e8c97766608aea8f") +
+      __dialogueText("suspects/DustEvidence.js", "t_d94129e4f2e0c8de9c98"),
 
     hobbyIds: Object.freeze([
       'pencil_sketching',
@@ -128,12 +129,12 @@ const PROFILES = Object.freeze({
   }),
 
   wax_particles: Object.freeze({
-    label: 'Wax particles',
-    composition: 'WAX FLAKES / PIGMENT TRACES',
+    label: __dialogueText("suspects/DustEvidence.js", "t_f4fec99a5a7bfb1b8a0b"),
+    composition: __dialogueText("suspects/DustEvidence.js", "t_87f96817c6c161919ec6"),
 
     report:
-      'Small wax flakes containing pigment traces. ' +
-      'The sample differs from the museum floor polish.',
+      __dialogueText("suspects/DustEvidence.js", "t_3bb57e80b1641445600c") +
+      __dialogueText("suspects/DustEvidence.js", "t_af433f2d80e8038b64e6"),
 
     hobbyIds: Object.freeze([
       'candle_making',
@@ -282,7 +283,7 @@ export function createDustEvidence(
     // Existing registered focus minigame.
     minigame: 'ToolmarkAnalysisScene',
 
-    label: 'Microtrace Analysis',
+    label: __dialogueText("suspects/DustEvidence.js", "t_8a1b0a09e53e7085462e"),
 
     correctValue: profileId,
     thief_value: profileId,
@@ -449,7 +450,7 @@ export function getDustDossierNotes(suspect) {
   return [
     {
       id: 'personal_hobbies',
-      text: `Hobbies: ${labels.join('; ')}.`
+      text: `${__dialogueText("suspects/DustEvidence.js", "t_873d76d8a2e7a535bdf1")}${labels.join(__dialogueText("suspects/DustEvidence.js", "t_0a2d3f8f9b727cf73e6c"))}${__dialogueText("suspects/DustEvidence.js", "t_cdb4ee2aea69cc6a8333")}`
     }
   ];
 }

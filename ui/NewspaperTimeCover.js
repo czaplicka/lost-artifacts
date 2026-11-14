@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // ---------------------------------------------------------------------------
 // ui/NewspaperTimeCover.js
 //
@@ -14,11 +15,11 @@ const NAVY = '#14161f';
 const RED = '#c1121f';
 
 export const TIME_CAPTIONS = [
-  'PRIVATE EYE OF THE WEEK: "I saw nothing. Professionally."',
-  'MAN OF THE WEEK: Wears sunglasses indoors. For the case.',
-  'COVER STAR: Declined to comment. Accepted the fee.',
-  'FIGURE OF THE WEEK: Still looking for the thief. And the hat.',
-  'THE DETECTIVE: Has a hunch. Also has a snack.'
+  __dialogueText("ui/NewspaperTimeCover.js", "t_06f483f2a5a3354bf579"),
+  __dialogueText("ui/NewspaperTimeCover.js", "t_c3c3385a316e525aed66"),
+  __dialogueText("ui/NewspaperTimeCover.js", "t_ff5d9aba45a0e2cfd7cc"),
+  __dialogueText("ui/NewspaperTimeCover.js", "t_5a391f94edb92d7f0298"),
+  __dialogueText("ui/NewspaperTimeCover.js", "t_9c70b4f067c817136844")
 ];
 
 function mulberry32(seed) {
@@ -74,8 +75,8 @@ function paintDesk(ctx, W, H, rand) {
   for (let y = 0; y < H; y += 3) {
     const dark = rand() < 0.6;
     ctx.strokeStyle = dark
-      ? `rgba(10, 5, 2, ${0.05 + rand() * 0.10})`
-      : `rgba(150, 100, 60, ${0.03 + rand() * 0.05})`;
+      ? `${__dialogueText("ui/NewspaperTimeCover.js", "t_10ff90e58115dccbb7b5")}${0.05 + rand() * 0.10}${__dialogueText("ui/NewspaperTimeCover.js", "t_ba5ec51d07a4ac0e9516")}`
+      : `${__dialogueText("ui/NewspaperTimeCover.js", "t_4decc4200d427c969b9b")}${0.03 + rand() * 0.05}${__dialogueText("ui/NewspaperTimeCover.js", "t_ba5ec51d07a4ac0e9516")}`;
     ctx.lineWidth = 1 + rand() * 1.5;
 
     ctx.beginPath();
@@ -94,7 +95,7 @@ function paintDesk(ctx, W, H, rand) {
     const y = rand() * H;
 
     for (let r = 4; r < 26; r += 4) {
-      ctx.strokeStyle = `rgba(10, 5, 2, ${0.12 - r * 0.003})`;
+      ctx.strokeStyle = `${__dialogueText("ui/NewspaperTimeCover.js", "t_10ff90e58115dccbb7b5")}${0.12 - r * 0.003}${__dialogueText("ui/NewspaperTimeCover.js", "t_ba5ec51d07a4ac0e9516")}`;
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.ellipse(x, y, r * 2.2, r, 0, 0, Math.PI * 2);
@@ -108,7 +109,7 @@ function paintPencil(ctx, x, y) {
   ctx.translate(x, y);
   ctx.rotate(-0.35);
 
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+  ctx.shadowColor = __dialogueText("ui/NewspaperTimeCover.js", "t_8691ae8f8efbf1337bde");
   ctx.shadowBlur = 10;
   ctx.shadowOffsetX = 6;
   ctx.shadowOffsetY = 8;
@@ -118,7 +119,7 @@ function paintPencil(ctx, x, y) {
 
   ctx.shadowColor = 'transparent';
 
-  ctx.fillStyle = 'rgba(255, 220, 120, 0.35)';
+  ctx.fillStyle = __dialogueText("ui/NewspaperTimeCover.js", "t_1e7a01c2fafd0a4ebf13");
   ctx.fillRect(0, -9, 300, 5);
 
   ctx.fillStyle = '#e8cfa0';
@@ -151,7 +152,7 @@ function paintCoverPaper(ctx, c, rand) {
   const { x, y, width: w, height: h } = c;
 
   ctx.save();
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.65)';
+  ctx.shadowColor = __dialogueText("ui/NewspaperTimeCover.js", "t_2985c779056fbf2dc946");
   ctx.shadowBlur = 46;
   ctx.shadowOffsetX = 12;
   ctx.shadowOffsetY = 16;
@@ -219,8 +220,8 @@ function paintCoverPaper(ctx, c, rand) {
     const angle = rand() * Math.PI * 2;
 
     ctx.strokeStyle = rand() < 0.7
-      ? `rgba(110, 80, 40, ${0.04 + rand() * 0.07})`
-      : `rgba(255, 252, 240, ${0.08 + rand() * 0.10})`;
+      ? `${__dialogueText("ui/NewspaperTimeCover.js", "t_454d89fc4af6c838c9cb")}${0.04 + rand() * 0.07}${__dialogueText("ui/NewspaperTimeCover.js", "t_ba5ec51d07a4ac0e9516")}`
+      : `${__dialogueText("ui/NewspaperTimeCover.js", "t_a8a30833064ee9487a3a")}${0.08 + rand() * 0.10}${__dialogueText("ui/NewspaperTimeCover.js", "t_ba5ec51d07a4ac0e9516")}`;
     ctx.lineWidth = 0.6 + rand() * 0.7;
     ctx.beginPath();
     ctx.moveTo(fx, fy);
@@ -256,7 +257,7 @@ function paintCoverPrint(ctx, layout) {
 
   // logo: TIME, drawn letter by letter so we control the spacing
   const size = layout.logo.size;
-  ctx.font = `bold ${size}px "Times New Roman", Georgia, serif`;
+  ctx.font = `${__dialogueText("ui/NewspaperTimeCover.js", "t_83f1acae29fdefe9796c")}${size}${__dialogueText("ui/NewspaperTimeCover.js", "t_12e0ffc0ea37a67fbc4b")}`;
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = NAVY;
 
@@ -329,7 +330,7 @@ function paintIllustration(ctx, box, badge) {
     const a0 = (Math.PI * 2 * i) / rays;
     const a1 = (Math.PI * 2 * (i + 1)) / rays;
 
-    ctx.fillStyle = 'rgba(193, 18, 31, 0.16)';
+    ctx.fillStyle = __dialogueText("ui/NewspaperTimeCover.js", "t_ca022129a9bc3a534410");
     ctx.beginPath();
     ctx.moveTo(sx, sy);
     ctx.arc(sx, sy, w, a0, a1);
@@ -338,7 +339,7 @@ function paintIllustration(ctx, box, badge) {
   }
 
   // red halo behind the head
-  ctx.fillStyle = 'rgba(184, 35, 30, 0.92)';
+  ctx.fillStyle = __dialogueText("ui/NewspaperTimeCover.js", "t_021a8fcfc984a70e9ce9");
   ctx.beginPath();
   ctx.arc(cx, y + 200, 150, 0, Math.PI * 2);
   ctx.fill();
@@ -346,7 +347,7 @@ function paintIllustration(ctx, box, badge) {
   drawDetective(ctx, cx, y);
 
   // halftone dots over the whole picture
-  ctx.fillStyle = 'rgba(20, 22, 31, 0.07)';
+  ctx.fillStyle = __dialogueText("ui/NewspaperTimeCover.js", "t_8077b06e701896741f66");
   for (let py = y + 4; py < y + h; py += 8) {
     for (let px = x + 4; px < x + w; px += 8) {
       ctx.beginPath();
@@ -465,7 +466,7 @@ function drawDetective(ctx, cx, top) {
   ctx.lineTo(gx - 100, gy + 112);
   ctx.stroke();
 
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+  ctx.fillStyle = __dialogueText("ui/NewspaperTimeCover.js", "t_5ddee158d1bfb318b865");
   ctx.beginPath();
   ctx.arc(gx, gy, 54, 0, Math.PI * 2);
   ctx.fill();
@@ -500,7 +501,7 @@ function paintCoverWear(ctx, c, rand) {
   ctx.clip();
 
   // ink dropouts
-  ctx.fillStyle = 'rgba(244, 237, 218, 0.6)';
+  ctx.fillStyle = __dialogueText("ui/NewspaperTimeCover.js", "t_1a6ca6e072579a818e02");
   for (let n = 0; n < 1400; n++) {
     ctx.fillRect(x + rand() * w, y + rand() * h, 1 + rand() * 1.6, 1 + rand() * 1.6);
   }
@@ -508,8 +509,8 @@ function paintCoverWear(ctx, c, rand) {
   // yellowed edges
   const edge = (x0, y0, x1, y1, rx, ry, rw, rh) => {
     const g = ctx.createLinearGradient(x0, y0, x1, y1);
-    g.addColorStop(0, 'rgba(150, 100, 40, 0.30)');
-    g.addColorStop(1, 'rgba(150, 100, 40, 0)');
+    g.addColorStop(0, __dialogueText("ui/NewspaperTimeCover.js", "t_82aa9a3a7da47083c367"));
+    g.addColorStop(1, __dialogueText("ui/NewspaperTimeCover.js", "t_43d7addf3fa56c371b98"));
     ctx.fillStyle = g;
     ctx.fillRect(rx, ry, rw, rh);
   };
@@ -521,9 +522,9 @@ function paintCoverWear(ctx, c, rand) {
 
   // bent bottom-right corner crease
   const g = ctx.createLinearGradient(x + w - 90, y + h - 90, x + w - 40, y + h - 40);
-  g.addColorStop(0, 'rgba(60, 40, 15, 0)');
-  g.addColorStop(0.5, 'rgba(60, 40, 15, 0.28)');
-  g.addColorStop(1, 'rgba(255, 250, 235, 0.25)');
+  g.addColorStop(0, __dialogueText("ui/NewspaperTimeCover.js", "t_d2f3a1d75ce3cdd1b235"));
+  g.addColorStop(0.5, __dialogueText("ui/NewspaperTimeCover.js", "t_83e8056fd6212e83f9dc"));
+  g.addColorStop(1, __dialogueText("ui/NewspaperTimeCover.js", "t_d7671e0c73cefd0042d2"));
   ctx.fillStyle = g;
   ctx.beginPath();
   ctx.moveTo(x + w - 130, y + h);
@@ -536,10 +537,10 @@ function paintCoverWear(ctx, c, rand) {
   const rx = x + 120;
   const ry = y + h - 120;
   const ring = ctx.createRadialGradient(rx, ry, 10, rx, ry, 52);
-  ring.addColorStop(0, 'rgba(120, 72, 24, 0.04)');
-  ring.addColorStop(0.85, 'rgba(120, 72, 24, 0.10)');
-  ring.addColorStop(0.96, 'rgba(92, 52, 16, 0.22)');
-  ring.addColorStop(1, 'rgba(92, 52, 16, 0)');
+  ring.addColorStop(0, __dialogueText("ui/NewspaperTimeCover.js", "t_1fc4fca3fca02732f3c3"));
+  ring.addColorStop(0.85, __dialogueText("ui/NewspaperTimeCover.js", "t_c0df390e3ad58d2430a6"));
+  ring.addColorStop(0.96, __dialogueText("ui/NewspaperTimeCover.js", "t_1ebde2f76ed19c488106"));
+  ring.addColorStop(1, __dialogueText("ui/NewspaperTimeCover.js", "t_74548834764eff68a98a"));
   ctx.fillStyle = ring;
   ctx.beginPath();
   ctx.arc(rx, ry, 52, 0, Math.PI * 2);

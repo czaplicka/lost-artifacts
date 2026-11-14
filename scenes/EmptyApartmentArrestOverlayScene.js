@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 
 import {
@@ -10,7 +11,7 @@ import {
 } from '../gameStatePersistence.js';
 
 const SCENE_KEY = 'EmptyApartmentArrestOverlayScene';
-const VIDEO_PATH = 'assets/video/failed_arrest.mp4';
+const VIDEO_PATH = __dialogueText("scenes/EmptyApartmentArrestOverlayScene.js", "t_3f9aafda104e38fe07fe");
 
 const pendingLaunches = new WeakMap();
 
@@ -187,7 +188,7 @@ export class EmptyApartmentArrestOverlayScene
       pointerEvents: 'none'
     });
 
-    message.textContent = 'Loading...';
+    message.textContent = __dialogueText("scenes/EmptyApartmentArrestOverlayScene.js", "t_47d2a515ef2f05b87d68");
 
     const button = document.createElement('button');
 
@@ -195,9 +196,9 @@ export class EmptyApartmentArrestOverlayScene
       position: 'absolute',
       left: '50%',
       top: '60%',
-      transform: 'translate(-50%, -50%)',
-      padding: '16px 24px',
-      border: '2px solid #a58655',
+      transform: __dialogueText("scenes/EmptyApartmentArrestOverlayScene.js", "t_569bd25dce87a68e236e"),
+      padding: __dialogueText("scenes/EmptyApartmentArrestOverlayScene.js", "t_692ea4a5b5988b75787e"),
+      border: __dialogueText("scenes/EmptyApartmentArrestOverlayScene.js", "t_2d2d582cc6544da4ffd6"),
       background: '#241e19',
       color: '#f4e3bc',
       fontFamily: 'PressStart2P, monospace',
@@ -224,9 +225,9 @@ export class EmptyApartmentArrestOverlayScene
       position: 'absolute',
       right: '20px',
       bottom: '20px',
-      padding: '12px 16px',
-      border: '1px solid #a58655',
-      background: 'rgba(0, 0, 0, 0.65)',
+      padding: __dialogueText("scenes/EmptyApartmentArrestOverlayScene.js", "t_1319878ebef56ba28ca8"),
+      border: __dialogueText("scenes/EmptyApartmentArrestOverlayScene.js", "t_c5dda845d9920a330837"),
+      background: __dialogueText("scenes/EmptyApartmentArrestOverlayScene.js", "t_2985c779056fbf2dc946"),
       color: '#ead1a0',
       fontFamily: 'PressStart2P, monospace',
       fontSize: '10px',
@@ -252,7 +253,7 @@ export class EmptyApartmentArrestOverlayScene
 
     video.onerror = () => {
       this.showVideoPrompt(
-        'The video could not be loaded. Retry or skip.',
+        __dialogueText("scenes/EmptyApartmentArrestOverlayScene.js", "t_715d2660893d4e2c6eb0"),
         'RETRY'
       );
     };
@@ -304,7 +305,7 @@ export class EmptyApartmentArrestOverlayScene
     const attempt = ++this.playAttempt;
 
     this.videoButton.style.display = 'none';
-    this.videoMessage.textContent = 'Loading...';
+    this.videoMessage.textContent = __dialogueText("scenes/EmptyApartmentArrestOverlayScene.js", "t_47d2a515ef2f05b87d68");
 
     try {
       await this.videoElement.play();
@@ -319,7 +320,7 @@ export class EmptyApartmentArrestOverlayScene
 
       if (error?.name === 'NotAllowedError') {
         this.showVideoPrompt(
-          'Click to play.',
+          __dialogueText("scenes/EmptyApartmentArrestOverlayScene.js", "t_653c34e124fd9121ae1e"),
           'PLAY'
         );
 
@@ -332,7 +333,7 @@ export class EmptyApartmentArrestOverlayScene
       );
 
       this.showVideoPrompt(
-        'The video could not be played. Retry or skip.',
+        __dialogueText("scenes/EmptyApartmentArrestOverlayScene.js", "t_20052e9b2b1e63e43a31"),
         'RETRY'
       );
     }
@@ -402,7 +403,7 @@ export class EmptyApartmentArrestOverlayScene
       this.finishing = false;
 
       this.showVideoPrompt(
-        'The apartment search could not be opened. Press SKIP to retry.',
+        __dialogueText("scenes/EmptyApartmentArrestOverlayScene.js", "t_fd6fee35780648bf9c73"),
         'REPLAY'
       );
     }
@@ -460,11 +461,11 @@ export class EmptyApartmentArrestOverlayScene
 
     if (this.completed) {
       apartment.showMessage(
-        'The suspect has already escaped.\n' +
-        'Search the apartment for clues ' +
-        'to their next destination.',
+        __dialogueText("scenes/EmptyApartmentArrestOverlayScene.js", "t_1744f2beabf56372425c") +
+        __dialogueText("scenes/EmptyApartmentArrestOverlayScene.js", "t_5b797b22795ac494a3bb") +
+        __dialogueText("scenes/EmptyApartmentArrestOverlayScene.js", "t_dde889a72a4d22202471"),
         4500,
-        '#795548'
+        __dialogueText("scenes/EmptyApartmentArrestOverlayScene.js", "t_0fa2e0046576e38dd099")
       );
     }
 
@@ -550,10 +551,10 @@ export async function launchEmptyApartmentArrest(scene) {
       scene.sys.isActive()
     ) {
       scene.showMessage(
-        'The arrest operation could not be opened.\n' +
-        'Check the console for details.',
+        __dialogueText("scenes/EmptyApartmentArrestOverlayScene.js", "t_65c814816785ef005b15") +
+        __dialogueText("scenes/EmptyApartmentArrestOverlayScene.js", "t_616558b3e9e3e27bed72"),
         4000,
-        '#8b3030'
+        __dialogueText("scenes/EmptyApartmentArrestOverlayScene.js", "t_c27978fb247345a3da90")
       );
     }
 

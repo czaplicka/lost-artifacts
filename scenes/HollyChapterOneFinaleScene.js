@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { MainStoryManager } from '../managers/MainStoryManager.js';
 import { loadJson } from '../config/loadJson.js';
@@ -30,7 +31,7 @@ export class HollyChapterOneFinaleScene extends BaseScene {
     this.allowed=this.preview||getHollyChapterOneState().canContact;
     this.callUI.showOffer(DATA.offer,this.preview);
     if(!this.allowed){
-      this.callUI.showUnavailable('Finish the fourth mission, hear Alex\'s account and complete the reconstruction first. A completed chapter cannot be completed twice.');
+      this.callUI.showUnavailable(__dialogueText("scenes/HollyChapterOneFinaleScene.js", "t_509eee3d9d7f2e087b03"));
     }else if(!this.preview){
       const saved=MainStoryManager.getSideClue(HOLLY_CHAPTER_ONE_CALL);
       if(saved?.completed!==true&&Number.isInteger(saved?.lineIndex)&&saved.lineIndex>=0&&saved.lineIndex<DATA.lines.length){
@@ -59,11 +60,11 @@ export class HollyChapterOneFinaleScene extends BaseScene {
     }
     if(!this.preview){
       const result=completeHollyChapterOne();
-      if(!result.success){this.callUI.addSystemNote('The story requirements changed. Return and reopen the call.');return;}
+      if(!result.success){this.callUI.addSystemNote(__dialogueText("scenes/HollyChapterOneFinaleScene.js", "t_57a5273b4fa1edfee491"));return;}
       this.savedOk=result.saved;
     }
     this.finished=true;
-    const note=this.preview?'Preview complete. The actual chapter was not changed.':this.savedOk===false?DATA.saveWarning:'New objective recorded. Chapter II is unlocked.';
+    const note=this.preview?__dialogueText("scenes/HollyChapterOneFinaleScene.js", "t_236c541bb1a2bd5ba4c0"):this.savedOk===false?DATA.saveWarning:__dialogueText("scenes/HollyChapterOneFinaleScene.js", "t_1b73b7bcc42ba4e3a531");
     this.callUI.showResult(DATA.chapterTitle,DATA.nextTitle,DATA.nextObjective,note);
     if(!this.preview)this.emitBus('mainStory:hollyChapterOneCompleted',{chapter:1,nextChapter:2});
   }

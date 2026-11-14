@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import {
   FORGER_CONFIG,
   getForgerAccess,
@@ -175,7 +176,7 @@ export class ForgerObservationUI {
     this.text(
       70,
       58,
-      'PASSPORT TO SOMEWHERE',
+      __dialogueText("ui/ForgerObservationUI.js", "t_40d5a52451a2b89ddaf4"),
       30,
       null,
       '#ffdb90'
@@ -184,7 +185,7 @@ export class ForgerObservationUI {
     this.text(
       70,
       110,
-      'New identity. Same disappointing photograph.',
+      __dialogueText("ui/ForgerObservationUI.js", "t_7a0e7401eae43a0a97e2"),
       24
     );
 
@@ -192,7 +193,7 @@ export class ForgerObservationUI {
       1610,
       60,
       230,
-      'Return to city',
+      __dialogueText("ui/ForgerObservationUI.js", "t_ef5f430bcbebe3c2a89e"),
       () => this.cleanup()
     );
 
@@ -200,7 +201,7 @@ export class ForgerObservationUI {
       1330,
       60,
       250,
-      this.page === 'notes' ? 'Workshop view' : 'Observation notes',
+      this.page === 'notes' ? __dialogueText("ui/ForgerObservationUI.js", "t_1c1d655dd00b1518de2d") : __dialogueText("ui/ForgerObservationUI.js", "t_12f51dd8b8f6060eb6f9"),
       () => {
         this.page = this.page === 'notes' ? 'workshop' : 'notes';
         this.render();
@@ -227,7 +228,7 @@ export class ForgerObservationUI {
     this.text(
       130,
       211,
-      'EXPRESS PHOTO / COPIES / ABSOLUTELY NO CRIME',
+      __dialogueText("ui/ForgerObservationUI.js", "t_349c698756400d04370e"),
       22,
       1000,
       '#dfcfa4'
@@ -249,7 +250,7 @@ export class ForgerObservationUI {
       beat?.hotspot === 'desk' ? 0xffdd87 : 0x77634a
     ).setInteractive({ useHandCursor: true });
 
-    this.text(195, 670, 'Inspect desk / photograph', 23);
+    this.text(195, 670, __dialogueText("ui/ForgerObservationUI.js", "t_9ec7af62fd749e1deffa"), 23);
 
     desk.on('pointerdown', () => this.inspect('desk'));
 
@@ -288,7 +289,7 @@ export class ForgerObservationUI {
     ).setInteractive({ useHandCursor: true });
 
     this.text(1044, 450, 'PHONE', 23);
-    this.text(1005, 565, 'Listen', 23);
+    this.text(1005, 565, __dialogueText("ui/ForgerObservationUI.js", "t_225d29f6201e1a635684"), 23);
 
     phone.on('pointerdown', () => this.inspect('phone'));
 
@@ -298,9 +299,9 @@ export class ForgerObservationUI {
       beat?.caption ||
         (
           record.submitted
-            ? 'The workshop carries on. Your working alias is recorded.'
-            : 'Observe the desk and telephone. Link the photograph ' +
-              'from your envelope to the correct document order.'
+            ? __dialogueText("ui/ForgerObservationUI.js", "t_4f879d70889b209bb917")
+            : __dialogueText("ui/ForgerObservationUI.js", "t_a9dcf3a2fcb0611d40ce") +
+              __dialogueText("ui/ForgerObservationUI.js", "t_ccfbb9844d6348f79937")
         ),
       27,
       1090,
@@ -310,16 +311,16 @@ export class ForgerObservationUI {
     this.rect(1230, 170, 610, 565, 0x17130f)
       .setStrokeStyle(2, 0x7c715d);
 
-    this.text(1260, 195, 'WHAT YOU NOTICE', 24, 550, '#ffdb90');
+    this.text(1260, 195, __dialogueText("ui/ForgerObservationUI.js", "t_871b6394c65adffa7061"), 24, 550, '#ffdb90');
 
     this.text(
       1260,
       250,
       this.detail ||
-        'Click the highlighted area to inspect or listen.\n\n' +
-        'Advancing without inspecting can mean missing a detail.\n\n' +
-        'You may replay the observation, but another round costs time ' +
-        'and energy.',
+        __dialogueText("ui/ForgerObservationUI.js", "t_9ba7360d171b484dd7ba") +
+        __dialogueText("ui/ForgerObservationUI.js", "t_c01b008889ab6ca009f1") +
+        __dialogueText("ui/ForgerObservationUI.js", "t_10ba3fd312c2148cc42d") +
+        __dialogueText("ui/ForgerObservationUI.js", "t_9d332a7d07563265e4b6"),
       25,
       545
     );
@@ -330,8 +331,8 @@ export class ForgerObservationUI {
       this.text(
         90,
         870,
-        'You recognise the customer from the photograph in the envelope. ' +
-        'Now find out which new identity belongs to that order.',
+        __dialogueText("ui/ForgerObservationUI.js", "t_53648ea9f5d86a9f4a3d") +
+        __dialogueText("ui/ForgerObservationUI.js", "t_785980231e0f642b09d7"),
         25,
         1100
       );
@@ -340,7 +341,7 @@ export class ForgerObservationUI {
         1230,
         865,
         610,
-        this.roundLabel('Begin observation'),
+        this.roundLabel(__dialogueText("ui/ForgerObservationUI.js", "t_1e9d51af97c4e906fb79")),
         () => this.startRound()
       );
 
@@ -351,8 +352,8 @@ export class ForgerObservationUI {
       this.text(
         90,
         920,
-        `Moment ${record.cursor + 1} / 6  |  ` +
-        `${record.notes.length} details recorded`,
+        `${__dialogueText("ui/ForgerObservationUI.js", "t_20d7c578c531547622e1")}${record.cursor + 1}${__dialogueText("ui/ForgerObservationUI.js", "t_0a66a7d5f1390e847c8e")}` +
+        `${record.notes.length}${__dialogueText("ui/ForgerObservationUI.js", "t_b0bf2fe137c492b0846b")}`,
         24,
         1050
       );
@@ -361,7 +362,7 @@ export class ForgerObservationUI {
         1230,
         865,
         610,
-        record.cursor === 5 ? 'Finish this observation' : 'Watch next action',
+        record.cursor === 5 ? __dialogueText("ui/ForgerObservationUI.js", "t_a5881c2945d6173a31c4") : __dialogueText("ui/ForgerObservationUI.js", "t_c51c7639287339baea9f"),
         () => {
           nextObservationBeat(this.cityId);
           this.detail = '';
@@ -376,7 +377,7 @@ export class ForgerObservationUI {
       this.text(
         90,
         860,
-        'Which identity belongs to the customer in your envelope?',
+        __dialogueText("ui/ForgerObservationUI.js", "t_4851f6ef08f1bccf044f"),
         24,
         1100,
         '#ffdb90'
@@ -400,7 +401,7 @@ export class ForgerObservationUI {
         1230,
         865,
         610,
-        this.roundLabel('Observe again'),
+        this.roundLabel(__dialogueText("ui/ForgerObservationUI.js", "t_70b438f3c541e5a737c5")),
         () => this.startRound()
       );
 
@@ -408,20 +409,20 @@ export class ForgerObservationUI {
         1230,
         940,
         610,
-        'Record selected identity',
+        __dialogueText("ui/ForgerObservationUI.js", "t_c141c79803afac774c80"),
         () => {
           if (!this.selectedId) {
-            this.detail = 'Select an identity first.';
+            this.detail = __dialogueText("ui/ForgerObservationUI.js", "t_c67a2e43e0f5d7028b14");
             this.render();
             return;
           }
 
           if (submitForgerIdentity(this.cityId, this.selectedId)) {
             this.detail =
-              'Working identity recorded in your notebook.\n\n' +
-              'Correctly matched documents let you ask more focused ' +
-              'questions during later interviews.\n\n' +
-              'The normal city clues remain unchanged.';
+              __dialogueText("ui/ForgerObservationUI.js", "t_9456eca1979035610468") +
+              __dialogueText("ui/ForgerObservationUI.js", "t_d1377e810e22b7d9d237") +
+              __dialogueText("ui/ForgerObservationUI.js", "t_9b2798d8eb9d1880c082") +
+              __dialogueText("ui/ForgerObservationUI.js", "t_f2abaf663d4775ecebea");
 
             this.render();
           }
@@ -438,9 +439,9 @@ export class ForgerObservationUI {
     this.text(
       90,
       875,
-      `Recorded identity: ${selected?.name || 'Unknown'}\n` +
-      `Occupation: ${selected?.occupation || 'Unknown'}\n\n` +
-      'This is your recorded conclusion, not an automatic identity check.',
+      `${__dialogueText("ui/ForgerObservationUI.js", "t_a83986a1bcdd1d29a5b4")}${selected?.name || __dialogueText("ui/ForgerObservationUI.js", "t_b764cdc0eab713746721")}${__dialogueText("ui/ForgerObservationUI.js", "t_01ba4719c80b6fe911b0")}` +
+      `${__dialogueText("ui/ForgerObservationUI.js", "t_e9cc97d8283ed7929e9f")}${selected?.occupation || __dialogueText("ui/ForgerObservationUI.js", "t_b764cdc0eab713746721")}${__dialogueText("ui/ForgerObservationUI.js", "t_75a11da44c802486bc6f")}` +
+      __dialogueText("ui/ForgerObservationUI.js", "t_78fef43fd6795d03b610"),
       26,
       1600,
       '#ffdb90'
@@ -449,8 +450,8 @@ export class ForgerObservationUI {
 
   roundLabel(label) {
     return (
-      `${label} | ${FORGER_CONFIG.observationMinutes} min / ` +
-      `${getObservationEnergyCost()} energy`
+      `${label}${__dialogueText("ui/ForgerObservationUI.js", "t_ffa9044b934017b2aed8")}${FORGER_CONFIG.observationMinutes}${__dialogueText("ui/ForgerObservationUI.js", "t_da271cde26db7e48070c")}` +
+      `${getObservationEnergyCost()}${__dialogueText("ui/ForgerObservationUI.js", "t_6e17fd780882359031cf")}`
     );
   }
 
@@ -475,7 +476,7 @@ export class ForgerObservationUI {
     } catch (error) {
       console.error('[ForgerObservationUI]', error);
       this.detail =
-        'The observation could not start. Your current progress is kept.';
+        __dialogueText("ui/ForgerObservationUI.js", "t_2b951de67a7c2758a0de");
     } finally {
       this.busy = false;
 
@@ -496,7 +497,7 @@ export class ForgerObservationUI {
     const detail = inspectObservationBeat(this.cityId, hotspot);
 
     this.detail = detail ||
-      'Nothing useful to inspect here at this moment.';
+      __dialogueText("ui/ForgerObservationUI.js", "t_bc966bdd0fe812123cd8");
 
     this.render();
   }
@@ -505,7 +506,7 @@ export class ForgerObservationUI {
     this.text(
       90,
       180,
-      'OBSERVATION NOTES',
+      __dialogueText("ui/ForgerObservationUI.js", "t_2439522876d695457f36"),
       27,
       null,
       '#ffdb90'
@@ -515,7 +516,7 @@ export class ForgerObservationUI {
       this.text(
         90,
         245,
-        'No details recorded yet. Inspect the desk or listen to the phone.',
+        __dialogueText("ui/ForgerObservationUI.js", "t_422d126b8f243b0b6041"),
         25,
         1700
       );

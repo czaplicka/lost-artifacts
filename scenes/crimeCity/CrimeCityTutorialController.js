@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 
 import {
@@ -286,7 +287,7 @@ export class CrimeCityTutorialController {
       object?.active &&
       object.visible &&
       object.input?.enabled &&
-      object.type === 'Image' &&
+      object.type === __dialogueText("scenes/crimeCity/CrimeCityTutorialController.js", "t_1aa4cb0bcca76e92e306") &&
       typeof object.getBounds === 'function'
     ));
 
@@ -397,9 +398,9 @@ export class CrimeCityTutorialController {
           scene.time.now + PHONE_RETRY_DELAY_MS;
 
         scene.showMessage(
-          'HQ could not connect.\nRetrying the line...',
+          __dialogueText("scenes/crimeCity/CrimeCityTutorialController.js", "t_a487b8454373f3ea6d7d"),
           2500,
-          '#8b0000'
+          __dialogueText("scenes/crimeCity/CrimeCityTutorialController.js", "t_f27f7bc32875ed02b2fc")
         );
 
         return;
@@ -519,7 +520,7 @@ export class CrimeCityTutorialController {
     const title = scene.add.text(
       width / 2,
       height / 2 - 120,
-      'NEW LEAD: SUSPECT FILES',
+      __dialogueText("scenes/crimeCity/CrimeCityTutorialController.js", "t_aaaf9ef538033159d8e4"),
       {
         fontFamily: 'PressStart2P',
         fontSize: '20px',
@@ -534,15 +535,15 @@ export class CrimeCityTutorialController {
       width / 2,
       height / 2 - 25,
       [
-        'The lab report is in, detective.',
+        __dialogueText("scenes/crimeCity/CrimeCityTutorialController.js", "t_e64e7a674ae19dda3adb"),
         '',
-        'Open Suspect Files and eliminate anyone',
-        'who cannot match the forensic evidence',
-        'and the reconstructed method of the theft.',
+        __dialogueText("scenes/crimeCity/CrimeCityTutorialController.js", "t_2d0b80effec92369774a"),
+        __dialogueText("scenes/crimeCity/CrimeCityTutorialController.js", "t_74c6c0e1f57701c4c8db"),
+        __dialogueText("scenes/crimeCity/CrimeCityTutorialController.js", "t_87bb784229967b35e5aa"),
         '',
-        'Science has spoken.',
-        'Now make the suspects uncomfortable.'
-      ].join('\n'),
+        __dialogueText("scenes/crimeCity/CrimeCityTutorialController.js", "t_96486b81d1aa93ccff3d"),
+        __dialogueText("scenes/crimeCity/CrimeCityTutorialController.js", "t_0e4b12c847d153bebc0a")
+      ].join(__dialogueText("scenes/crimeCity/CrimeCityTutorialController.js", "t_01ba4719c80b6fe911b0")),
       {
         fontFamily: 'SpecialElite',
         fontSize: '21px',
@@ -557,7 +558,7 @@ export class CrimeCityTutorialController {
     const button = scene.add.text(
       width / 2,
       height / 2 + 118,
-      'OPEN SUSPECT FILES',
+      __dialogueText("scenes/crimeCity/CrimeCityTutorialController.js", "t_7de9537f7eec93d33255"),
       {
         fontFamily: 'PressStart2P',
         fontSize: '14px',
@@ -597,10 +598,10 @@ export class CrimeCityTutorialController {
         !gameState.caseSuspects.length
       ) {
         scene.showMessage(
-          'Suspect files are still being assembled.\n' +
-          'Bureaucracy has entered its larval stage.',
+          __dialogueText("scenes/crimeCity/CrimeCityTutorialController.js", "t_7b4054d6d1e056ee6763") +
+          __dialogueText("scenes/crimeCity/CrimeCityTutorialController.js", "t_7e1ca5374a0b0b18c2e4"),
           2800,
-          '#5d2a00'
+          __dialogueText("scenes/crimeCity/CrimeCityTutorialController.js", "t_e09afad9b0dfcb2294f9")
         );
 
         return;

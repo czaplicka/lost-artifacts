@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { getSuspectImageKey } from '../../suspects/suspectHelpers.js';
 import { FONT_PIXEL, FONT_TYPE, PAL, DEFAULT_DIALOGUE, DEFAULT_NOTE } from './config.js';
 
@@ -88,7 +89,7 @@ export const controlsMethods = {
       } else {
         children.push(
           this.add
-            .text(0, -8, '?', {
+            .text(0, -8, __dialogueText("scenes/arrestSelection/controls.js", "t_8a8de823d5ed3e12746a"), {
               fontFamily: FONT_PIXEL,
               fontSize: '22px',
               color: '#f7ebc6'
@@ -99,7 +100,7 @@ export const controlsMethods = {
 
       children.push(
         this.add
-          .text(0, 37, `FILE ${index + 1}`, {
+          .text(0, 37, `${__dialogueText("scenes/arrestSelection/controls.js", "t_3e25b41de17bf0813725")}${index + 1}`, {
             fontFamily: FONT_PIXEL,
             fontSize: '9px',
             color: PAL.ink
@@ -152,7 +153,7 @@ export const controlsMethods = {
       .setStrokeStyle(1, 0xf7e6bc, 0.5);
 
     this.arrestButtonText = this.add
-      .text(0, -9, 'ARREST', {
+      .text(0, -9, __dialogueText("scenes/arrestSelection/controls.js", "t_e938cc0b76cf901241f7"), {
         fontFamily: FONT_PIXEL,
         fontSize: '26px',
         color: '#fff7de'
@@ -160,7 +161,7 @@ export const controlsMethods = {
       .setOrigin(0.5);
 
     const sub = this.add
-      .text(0, 22, 'SIGN THE ORDER', {
+      .text(0, 22, __dialogueText("scenes/arrestSelection/controls.js", "t_c165752f858f6dac0d7c"), {
         fontFamily: FONT_TYPE,
         fontSize: '16px',
         color: '#f3d9c4'

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { storageRoomDialogues as DIALOGUES } from '../storageRoomDialogueService.js';
 import { BaseScene } from './BaseScene.js';
 import { microfilmData as DATA,getMicrofilmStory,storeMicrofilm } from '../johnMicrofilmService.js';
@@ -11,42 +12,42 @@ export class MicrofilmScene extends BaseScene{
  create(){
   super.create();const story=getMicrofilmStory();this.allowed=this.preview||(story.eligible&&(this.mode==='receive'||story.copyReceived));this.progress=normalizeMicrofilm(DATA,this.preview?null:story);if(this.preview&&this.mode==='compare')this.progress.copyReceived=true;
   this.cameras.main.setBackgroundColor('#101811');this.root=this.add.container(0,0);this.root.add(this.add.rectangle(800,500,1600,1000,0x19291f));
-  this.text(740,50,this.mode==='receive'?'ALEX / RETAINED REEL':'MICROFILM / TWO COPIES',25,1300,'#f0d091',this.root,'PressStart2P');this.button(1450,50,'BACK / ESC',()=>this.closeVisit(),this.root);
+  this.text(740,50,this.mode==='receive'?__dialogueText("scenes/MicrofilmScene.js", "t_f8b8a41bd97be4f50f1e"):__dialogueText("scenes/MicrofilmScene.js", "t_a66193a27d70843be3f2"),25,1300,'#f0d091',this.root,'PressStart2P');this.button(1450,50,__dialogueText("scenes/MicrofilmScene.js", "t_a31e9f98f863454d2602"),()=>this.closeVisit(),this.root);
   this.content=this.add.container(0,0);this.root.add(this.content);this.render();this.layout();this.trackInputEvent(this.scale,'resize',this.layout);
   if(this.input.keyboard)this.trackInputEvent(this.input.keyboard,'keydown',e=>{
-   if(e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;if(e.code==='Escape'){e.preventDefault();this.closeVisit();return;}if(!this.allowed||this.mode!=='compare'||this.progress.completed)return;
-   if(e.code==='Tab'){e.preventDefault();this.activeReel=this.activeReel==='left'?'right':'left';this.render();return;}
+   if(e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;if(e.code===__dialogueText("scenes/MicrofilmScene.js", "t_037c968467aa3fd7c059")){e.preventDefault();this.closeVisit();return;}if(!this.allowed||this.mode!=='compare'||this.progress.completed)return;
+   if(e.code===__dialogueText("scenes/MicrofilmScene.js", "t_90ddf1963abb36c9921c")){e.preventDefault();this.activeReel=this.activeReel==='left'?'right':'left';this.render();return;}
    if(['ArrowLeft','ArrowRight'].includes(e.code)){e.preventDefault();this.moveReel(this.activeReel,e.code==='ArrowLeft'?-1:1);}
   });
   this.suspend();this.events.once('shutdown',()=>{stopMicrofilmTransport(this);this.restore();this.onFinished=null;});
  }
  text(x,y,value,size=25,width=1400,color='#eee0bf',parent=this.content,font='SpecialElite'){const t=this.add.text(x,y,value,{fontFamily:`${font}, monospace`,fontSize:`${size}px`,color,align:'center',wordWrap:{width},lineSpacing:6}).setOrigin(.5);parent.add(t);return t;}
  button(x,y,value,callback,parent=this.content){const t=this.add.text(x,y,value,{fontFamily:'SpecialElite',fontSize:'23px',color:'#ffe2ae',backgroundColor:'#36513d',padding:{x:16,y:11}}).setOrigin(.5).setInteractive({useHandCursor:true});t.on('pointerdown',(p,x,y,e)=>{e?.stopPropagation();if(!this.closing&&this.time.now>=this.lockUntil){this.lockUntil=this.time.now+140;callback();}});parent.add(t);return t;}
- persist(){if(this.preview)return true;if(!this.allowed)return false;const result=storeMicrofilm(this.progress);this.savedOk=result.saved;if(!result.success)this.message='Story requirements changed. No progress was committed.';return result.success;}
+ persist(){if(this.preview)return true;if(!this.allowed)return false;const result=storeMicrofilm(this.progress);this.savedOk=result.saved;if(!result.success)this.message=__dialogueText("scenes/MicrofilmScene.js", "t_4df945541fa084b296ef");return result.success;}
  render(){
   this.content.removeAll(true);
-  if(!this.allowed){this.text(800,460,'Collect the retained reel after mission twelve, then use the archive reader.',29);return;}
+  if(!this.allowed){this.text(800,460,__dialogueText("scenes/MicrofilmScene.js", "t_31e96044efbec19a1d71"),29);return;}
   if(this.mode==='receive'){
-   this.text(800,260,'ALEX MURPHY',29,1200,'#f0d091');
+   this.text(800,260,__dialogueText("scenes/MicrofilmScene.js", "t_54852f7a3d22807c3cd1"),29,1200,'#f0d091');
    this.text(800,470,this.progress.copyReceived?DIALOGUES.microfilm.received:DATA.intro[this.progress.introLine],31,1340);
-   this.button(800,760,this.progress.copyReceived?'RETURN TO STORAGE':this.progress.introLine===DATA.intro.length-1?'RECEIVE REEL':'CONTINUE',()=>{
+   this.button(800,760,this.progress.copyReceived?__dialogueText("scenes/MicrofilmScene.js", "t_acbd88a81a5caacdc5b8"):this.progress.introLine===DATA.intro.length-1?__dialogueText("scenes/MicrofilmScene.js", "t_ab1ba57ba08cd8180819"):'CONTINUE',()=>{
     if(this.progress.copyReceived){this.closeVisit();return;}this.advanceReceipt();
    });this.footer();return;
   }
-  if(this.progress.completed){this.text(800,270,'LOCATION LEAD / WARSAW',32,1300,'#f0d091');this.text(800,465,DATA.success,31,1320);this.text(800,655,'City: Warsaw / contact reference WAW-17\nNext: travel to Warsaw and verify the contact in person.',27);this.button(800,810,'RETURN TO ARCHIVE',()=>this.closeVisit());this.footer();return;}
-  this.text(800,115,'Match the CONTACT AMENDMENT identifiers. Focus the reader, then click three differing fields.',22);
+  if(this.progress.completed){this.text(800,270,__dialogueText("scenes/MicrofilmScene.js", "t_36bc87daa47d3ed96e15"),32,1300,'#f0d091');this.text(800,465,DATA.success,31,1320);this.text(800,655,__dialogueText("scenes/MicrofilmScene.js", "t_63bb355d1a58f0d7ada0"),27);this.button(800,810,__dialogueText("scenes/MicrofilmScene.js", "t_23ed4bfb47639cd1866b"),()=>this.closeVisit());this.footer();return;}
+  this.text(800,115,__dialogueText("scenes/MicrofilmScene.js", "t_bc96ed2c380646dac907"),22);
   this.drawFrame('left',430,DATA.leftFrames[this.progress.left],this.progress.left,DATA.leftFrames.length);
   this.drawFrame('right',1170,DATA.rightFrames[this.progress.right],this.progress.right,DATA.rightFrames.length);
-  this.button(200,745,'< ARCHIVE',()=>this.moveReel('left',-1));this.button(650,745,'ARCHIVE >',()=>this.moveReel('left',1));this.button(940,745,'< ALEX',()=>this.moveReel('right',-1));this.button(1400,745,'ALEX >',()=>this.moveReel('right',1));
-  this.button(380,825,'FOCUS -',()=>this.changeFocus(-.1));this.text(800,823,`FOCUS ${Math.round(this.progress.focus*100)}% / ${microfilmFocused(DATA,this.progress)?'READABLE':'ADJUST'}`,23);
-  this.button(1220,825,'FOCUS +',()=>this.changeFocus(.1));this.button(800,880,'AUTO FOCUS / FREE',()=>this.autoFocus());
+  this.button(200,745,__dialogueText("scenes/MicrofilmScene.js", "t_5232601d2fc57152e2b6"),()=>this.moveReel('left',-1));this.button(650,745,__dialogueText("scenes/MicrofilmScene.js", "t_3534ecae490921758cb2"),()=>this.moveReel('left',1));this.button(940,745,__dialogueText("scenes/MicrofilmScene.js", "t_08fc9a0a091d6adf4c01"),()=>this.moveReel('right',-1));this.button(1400,745,__dialogueText("scenes/MicrofilmScene.js", "t_f45ec974ade4f296920e"),()=>this.moveReel('right',1));
+  this.button(380,825,__dialogueText("scenes/MicrofilmScene.js", "t_31db3d45f386fa107b6e"),()=>this.changeFocus(-.1));this.text(800,823,`${__dialogueText("scenes/MicrofilmScene.js", "t_076256bbd3dd4d1b47ce")}${Math.round(this.progress.focus*100)}${__dialogueText("scenes/MicrofilmScene.js", "t_85f76cc69cfab7e1dc11")}${microfilmFocused(DATA,this.progress)?'READABLE':'ADJUST'}`,23);
+  this.button(1220,825,__dialogueText("scenes/MicrofilmScene.js", "t_43bfd0dc534f3c1015d1"),()=>this.changeFocus(.1));this.button(800,880,__dialogueText("scenes/MicrofilmScene.js", "t_bc4edcba87e4cfa50569"),()=>this.autoFocus());
   if(DATA.differenceFields.every(k=>this.progress.differences.includes(k))){DATA.destinations.forEach((d,i)=>this.button(370+i*430,930,d.label,()=>this.chooseCity(d.id)));}
-  else this.text(800,930,this.message||`Differences: ${this.progress.differences.length}/3. Click fields, not the page title.`,21);
+  else this.text(800,930,this.message||`${__dialogueText("scenes/MicrofilmScene.js", "t_bf4c120babea31073da3")}${this.progress.differences.length}${__dialogueText("scenes/MicrofilmScene.js", "t_5ae60b97f457e43ed6f0")}`,21);
   this.footer();
  }
- footer(){const feedback=!this.progress.completed&&this.message?this.message:'';this.text(800,979,feedback?((this.preview?'PREVIEW / ':'')+feedback):this.preview?'PREVIEW / no story changes':this.savedOk===false?DATA.messages.saveFailed:'Case progress saved. Tab switches active reel; arrows move it.',16,1520,'#baa98e');}
+ footer(){const feedback=!this.progress.completed&&this.message?this.message:'';this.text(800,979,feedback?((this.preview?__dialogueText("scenes/MicrofilmScene.js", "t_50d1058f5474fe46bb88"):'')+feedback):this.preview?__dialogueText("scenes/MicrofilmScene.js", "t_db1d7313ec962ed15287"):this.savedOk===false?DATA.messages.saveFailed:__dialogueText("scenes/MicrofilmScene.js", "t_2aa863ce46ace0c1dd14"),16,1520,'#baa98e');}
  drawFrame(side,x,frame,index,total){
-  this.text(x,185,(side==='left'?'ARCHIVE COPY':'ALEX / RETAINED COPY')+` / ${index+1}/${total}`+(this.activeReel===side?' *':''),25,690,'#f0d091');
+  this.text(x,185,(side==='left'?__dialogueText("scenes/MicrofilmScene.js", "t_b8af4f20a05e5a3cf2e9"):__dialogueText("scenes/MicrofilmScene.js", "t_4f285ac1907a12fa8c17"))+` / ${index+1}/${total}`+(this.activeReel===side?' *':''),25,690,'#f0d091');
   const g=this.add.graphics();g.fillStyle(0x060c07,1).fillRect(x-345,235,690,455);g.lineStyle(2,0x819573).strokeRect(x-345,235,690,455);
   for(let xx=x-325;xx<x+330;xx+=35){g.fillStyle(0xc8c9a3,1).fillRect(xx,247,18,15).fillRect(xx,662,18,15);}this.content.add(g);
   this.text(x,295,`${frame.id.toUpperCase()} / ${frame.title}`,22,650,'#d8dcba');

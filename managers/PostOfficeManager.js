@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 
 import {
@@ -65,7 +66,7 @@ function evidence(caseId, id, label, text) {
     id: 'postal-' + id,
     label,
     text,
-    metaText: 'Post Office',
+    metaText: __dialogueText("managers/PostOfficeManager.js", "t_bf90c07b7526b278c9c8"),
     color: 'blue',
     pinned: true
   });
@@ -105,38 +106,38 @@ export function canCheckDeadMail() {
 
 const DEAD_MAIL_TOPICS = {
   photo: [
-    'Courier label',
+    __dialogueText("managers/PostOfficeManager.js", "t_e2f10087eb02afc209ad"),
 
-    'The delivery label in Florence’s photograph ' +
-    'belongs to a private courier, not the town ' +
-    'postal service. The local post office cannot ' +
-    'authenticate that courier’s delivery status.'
+    __dialogueText("managers/PostOfficeManager.js", "t_8daeb4ee7426b0a792e6") +
+    __dialogueText("managers/PostOfficeManager.js", "t_cf5325f118472fccb139") +
+    __dialogueText("managers/PostOfficeManager.js", "t_81e43dd606af04fc2da2") +
+    __dialogueText("managers/PostOfficeManager.js", "t_8a5419ef6ad65ce8188a")
   ],
 
   route: [
-    'Not the postal round',
+    __dialogueText("managers/PostOfficeManager.js", "t_930da03b7edef6bc653a"),
 
-    'The postman says he did not deliver the ' +
-    'photographed parcel. His route does not ' +
-    'include private-courier deliveries. This ' +
-    'does not identify who did deliver it.'
+    __dialogueText("managers/PostOfficeManager.js", "t_4ad9ed0ea8330b1eb61c") +
+    __dialogueText("managers/PostOfficeManager.js", "t_2178c3eec53a32b9e51d") +
+    __dialogueText("managers/PostOfficeManager.js", "t_a1c811ec1193173ceb1b") +
+    __dialogueText("managers/PostOfficeManager.js", "t_f04a87813b113d54980f")
   ],
 
   gate: [
-    'An instruction, not a signature',
+    __dialogueText("managers/PostOfficeManager.js", "t_198eb291f96bc0da57e7"),
 
-    'SERVICE GATE B is a delivery instruction, ' +
-    'not the name or signature of a recipient. ' +
-    'A photograph of a parcel at a location does ' +
-    'not establish who collected it.'
+    __dialogueText("managers/PostOfficeManager.js", "t_6b462632273642cc567c") +
+    __dialogueText("managers/PostOfficeManager.js", "t_bc78b4b6d8d6d8a023d6") +
+    __dialogueText("managers/PostOfficeManager.js", "t_0c4ea9d42bdf5c65cf8f") +
+    __dialogueText("managers/PostOfficeManager.js", "t_957dc926f07b95377196")
   ]
 };
 
 export function postalDeadTopic(id) {
   if (!canCheckDeadMail()) {
     return (
-      'Read Florence’s email or inspect the ' +
-      'delivery photograph first.'
+      __dialogueText("managers/PostOfficeManager.js", "t_72ff3471bf0290163d3a") +
+      __dialogueText("managers/PostOfficeManager.js", "t_06184adfa2ca1a5b517c")
     );
   }
 
@@ -153,7 +154,7 @@ export function postalDeadTopic(id) {
     id: DEAD_MAIL_PREVIEW_CASE,
     kind: 'side',
     requiresBoard: true,
-    title: 'Dead Mail'
+    title: __dialogueText("managers/PostOfficeManager.js", "t_16abdc3e0b396e03e229")
   });
 
   const [label, text] =
@@ -189,19 +190,19 @@ export function startReturnCase() {
     id: RETURN_CASE,
     kind: 'side',
     requiresBoard: true,
-    title: 'Return to Sender'
+    title: __dialogueText("managers/PostOfficeManager.js", "t_6e6e82ddd9c9f0af1dde")
   });
 
   evidence(
     RETURN_CASE,
     'envelope',
-    'The returning letter',
+    __dialogueText("managers/PostOfficeManager.js", "t_cf5132422263cab1878c"),
 
-    'A sealed letter addressed to A. Reed has ' +
-    'returned from three addresses. The final ' +
-    'forwarding address is the PI office. The ' +
-    'postman authorises inspection of the ' +
-    'envelope, not its contents.'
+    __dialogueText("managers/PostOfficeManager.js", "t_1414464e7251e0fe7e88") +
+    __dialogueText("managers/PostOfficeManager.js", "t_a273a8ef5863e1b26221") +
+    __dialogueText("managers/PostOfficeManager.js", "t_b13f6c97abfc9cc4a9bb") +
+    __dialogueText("managers/PostOfficeManager.js", "t_9184e1e2f5fd4d215bec") +
+    __dialogueText("managers/PostOfficeManager.js", "t_ac9d1d54a6cf1c82e101")
   );
 
   save({
@@ -219,32 +220,32 @@ export function startReturnCase() {
 
 export const RETURN_CLUES = {
   envelope: [
-    'Forwarding trail',
+    __dialogueText("managers/PostOfficeManager.js", "t_c8da9f3c26a178b36a2f"),
 
-    'The envelope reads A. REED / CLOCK REPAIRS. ' +
-    'Its three old addresses match the forwarding ' +
-    'trail. The final instruction names your PI ' +
-    'office, not a residence.'
+    __dialogueText("managers/PostOfficeManager.js", "t_b20238d38041d495e1f7") +
+    __dialogueText("managers/PostOfficeManager.js", "t_8572d65661900a915b11") +
+    __dialogueText("managers/PostOfficeManager.js", "t_38cdf47346ad8072a321") +
+    __dialogueText("managers/PostOfficeManager.js", "t_08383eb925fe5b82ce9d")
   ],
 
   card: [
-    'Signed forwarding card',
+    __dialogueText("managers/PostOfficeManager.js", "t_d6b41029439ef2d2d2e8"),
 
-    'The postman provides the relevant signed ' +
-    'forwarding card: A. Reed authorises ' +
-    'undeliverable mail to be referred to a ' +
-    'private investigator. The card bears a ' +
-    'small clock drawing.'
+    __dialogueText("managers/PostOfficeManager.js", "t_2ffd72ca779ab68909ca") +
+    __dialogueText("managers/PostOfficeManager.js", "t_bae4ed77f86d11bd80a6") +
+    __dialogueText("managers/PostOfficeManager.js", "t_48cbdda9f065ae9999f0") +
+    __dialogueText("managers/PostOfficeManager.js", "t_cc045c085815905635c0") +
+    __dialogueText("managers/PostOfficeManager.js", "t_8fad04cde8980f54bb3e")
   ],
 
   notice: [
-    'A public notice',
+    __dialogueText("managers/PostOfficeManager.js", "t_5c8c942139729ee6e5de"),
 
-    'A notice on the public board reads: ' +
-    'CLOCK REPAIRS — ELLIS BELL. Formerly ' +
-    'trading as A. Reed. Correspondence: ' +
-    'poste restante, CLOCKWORK. No home ' +
-    'address is listed.'
+    __dialogueText("managers/PostOfficeManager.js", "t_7bf4f29a8331832914b0") +
+    __dialogueText("managers/PostOfficeManager.js", "t_7061b423a6d7cd1fcf9d") +
+    __dialogueText("managers/PostOfficeManager.js", "t_845840f9ffe820a1cc2b") +
+    __dialogueText("managers/PostOfficeManager.js", "t_790127ebf851f243ae10") +
+    __dialogueText("managers/PostOfficeManager.js", "t_84913e91ac538027aa66")
   ]
 };
 
@@ -298,27 +299,27 @@ export function identifyRecipient(answer) {
     state.returnCase.clues.length !== 3
   ) {
     return (
-      'Inspect all three authorised sources first.'
+      __dialogueText("managers/PostOfficeManager.js", "t_94f0cf8341e8c29cf7b4")
     );
   }
 
   if (answer !== 'ellis') {
     return (
-      'That interpretation does not connect the ' +
-      'forwarding card, the trade name and the ' +
-      'public notice.'
+      __dialogueText("managers/PostOfficeManager.js", "t_ba5dcd528f12eae2b8ce") +
+      __dialogueText("managers/PostOfficeManager.js", "t_274a16a6206da829ff13") +
+      __dialogueText("managers/PostOfficeManager.js", "t_238992dfc038ec7e6b1c")
     );
   }
 
   evidence(
     RETURN_CASE,
     'identity',
-    'A. Reed is Ellis Bell',
+    __dialogueText("managers/PostOfficeManager.js", "t_7ec3d28b131f0c24183d"),
 
-    'The public notice explicitly links the ' +
-    'former trade name A. Reed to Ellis Bell. ' +
-    'CLOCKWORK is his correspondence alias, ' +
-    'not his home address.'
+    __dialogueText("managers/PostOfficeManager.js", "t_5b3300485fa86a505c5a") +
+    __dialogueText("managers/PostOfficeManager.js", "t_6b2a667460fcd19894a2") +
+    __dialogueText("managers/PostOfficeManager.js", "t_dc32a350650ec71a20b0") +
+    __dialogueText("managers/PostOfficeManager.js", "t_de49af01aa7c9850a83c")
   );
 
   save({
@@ -331,9 +332,9 @@ export function identifyRecipient(answer) {
   });
 
   return (
-    'Ellis Bell is the intended recipient. ' +
-    'Use the CLOCKWORK correspondence service ' +
-    'to reach him without searching for his home.'
+    __dialogueText("managers/PostOfficeManager.js", "t_149491a0246636070bf4") +
+    __dialogueText("managers/PostOfficeManager.js", "t_1b0716c696993e24fc2e") +
+    __dialogueText("managers/PostOfficeManager.js", "t_fec8408b61b3a787c762")
   );
 }
 
@@ -354,11 +355,11 @@ export function leavePostalMessage(
 
   if (
     normalizedAlias !== 'CLOCKWORK' ||
-    normalizedPassword !== 'SECOND HAND'
+    normalizedPassword !== __dialogueText("managers/PostOfficeManager.js", "t_9e3ce8d3f0616285504a")
   ) {
     return (
-      'The clerk cannot verify that alias ' +
-      'and password. Nothing has been deposited.'
+      __dialogueText("managers/PostOfficeManager.js", "t_1261f135bb5eb58cc2ba") +
+      __dialogueText("managers/PostOfficeManager.js", "t_12f8e61421cc99a0277e")
     );
   }
 
@@ -371,15 +372,15 @@ export function leavePostalMessage(
     ].includes(state.returnCase.stage)
   ) {
     return (
-      'You have not established who this ' +
-      'correspondence belongs to.'
+      __dialogueText("managers/PostOfficeManager.js", "t_6848d78d64d30e517026") +
+      __dialogueText("managers/PostOfficeManager.js", "t_2c710b71bf2eb7bf2231")
     );
   }
 
   if (state.restante.clockwork) {
     return (
-      'Your correspondence is already on file. ' +
-      'No duplicate was created.'
+      __dialogueText("managers/PostOfficeManager.js", "t_5924efb0ba6de3ce0e56") +
+      __dialogueText("managers/PostOfficeManager.js", "t_b26c67fa4792bf920211")
     );
   }
 
@@ -387,15 +388,15 @@ export function leavePostalMessage(
 
   if (!text) {
     return (
-      'An empty envelope is a philosophical ' +
-      'statement, not correspondence.'
+      __dialogueText("managers/PostOfficeManager.js", "t_b350e03db8397137d74f") +
+      __dialogueText("managers/PostOfficeManager.js", "t_aa9558795ff0c6a89eda")
     );
   }
 
   evidence(
     RETURN_CASE,
     'message',
-    'Message left for CLOCKWORK',
+    __dialogueText("managers/PostOfficeManager.js", "t_772bb5e56037ab9d1f3a"),
     text
   );
 
@@ -419,9 +420,9 @@ export function leavePostalMessage(
   });
 
   return (
-    'Message deposited. Leave the post office ' +
-    'and return to check for a reply. No fee ' +
-    'and no energy cost.'
+    __dialogueText("managers/PostOfficeManager.js", "t_df17ae64e669458bd7f3") +
+    __dialogueText("managers/PostOfficeManager.js", "t_724b41d97737739dfc9e") +
+    __dialogueText("managers/PostOfficeManager.js", "t_d1f75b641a3dc1a0f50a")
   );
 }
 
@@ -430,34 +431,34 @@ export function collectPostalReply() {
   const message = state.restante.clockwork;
 
   if (!message) {
-    return 'There is no correspondence for you.';
+    return __dialogueText("managers/PostOfficeManager.js", "t_ef7323da00125fc42342");
   }
 
   if (message.collected) {
     return (
-      'You have already collected the reply. ' +
-      'It is recorded on your case board.'
+      __dialogueText("managers/PostOfficeManager.js", "t_dac62b6bf9a6a9e0d6af") +
+      __dialogueText("managers/PostOfficeManager.js", "t_35f035f544bc0530ba9e")
     );
   }
 
   if (state.visits <= message.leftVisit) {
     return (
-      'No reply yet. Check after your next visit.'
+      __dialogueText("managers/PostOfficeManager.js", "t_16102e350599cda5a15f")
     );
   }
 
   const text =
-    '“Yes, A. Reed was my old trading name. ' +
-    'I changed it after a business partnership ' +
-    'ended. Please leave the sealed letter here ' +
-    'for CLOCKWORK. Tell the sender I can receive ' +
-    'a reply through this desk, but please do not ' +
-    'pass on my new name. — Ellis Bell”';
+    __dialogueText("managers/PostOfficeManager.js", "t_10f89fae95f2c7672c15") +
+    __dialogueText("managers/PostOfficeManager.js", "t_40cc67252fea4c0c3959") +
+    __dialogueText("managers/PostOfficeManager.js", "t_f2b59f04b4ad96e17c3e") +
+    __dialogueText("managers/PostOfficeManager.js", "t_afd37ff61dd815d1f03e") +
+    __dialogueText("managers/PostOfficeManager.js", "t_306cf00c2c0ca8b5be6d") +
+    __dialogueText("managers/PostOfficeManager.js", "t_408de46adc8b70956c12");
 
   evidence(
     RETURN_CASE,
     'reply',
-    'Ellis confirms his identity',
+    __dialogueText("managers/PostOfficeManager.js", "t_c6d0fecb778f8c4b2cf6"),
     text
   );
 
@@ -494,22 +495,22 @@ export function completeReturnCase(choice) {
 
   const text = choice === 'private'
     ? (
-        'The clerk places the sealed letter in ' +
-        'CLOCKWORK’s collection slot. The sender ' +
-        'receives only a correspondence address. ' +
-        'Ellis’s new name remains private.'
+        __dialogueText("managers/PostOfficeManager.js", "t_f74231459e87e4e94f6e") +
+        __dialogueText("managers/PostOfficeManager.js", "t_debede0adaaa71a383a9") +
+        __dialogueText("managers/PostOfficeManager.js", "t_67f622badf6eca5c7ba3") +
+        __dialogueText("managers/PostOfficeManager.js", "t_a33f848ca197c0c9f260")
       )
     : (
-        'The clerk places the sealed letter in ' +
-        'CLOCKWORK’s collection slot. Your report ' +
-        'to the sender includes Ellis’s new name ' +
-        'despite his request.'
+        __dialogueText("managers/PostOfficeManager.js", "t_f74231459e87e4e94f6e") +
+        __dialogueText("managers/PostOfficeManager.js", "t_4230b1a5b9b2e87d95d0") +
+        __dialogueText("managers/PostOfficeManager.js", "t_8625922a2f08985a30d5") +
+        __dialogueText("managers/PostOfficeManager.js", "t_8a8935723735e8b34aea")
       );
 
   evidence(
     RETURN_CASE,
     'ending',
-    'Letter delivered / case closed',
+    __dialogueText("managers/PostOfficeManager.js", "t_0057d83cb0fada88d37a"),
     text
   );
 
@@ -532,8 +533,8 @@ export function completeReturnCase(choice) {
 
   return (
     text +
-    ' The postman gives you a commemorative ' +
-    'card: DELIVERED. EVENTUALLY. It is recorded ' +
-    'with the case. No repeatable cash reward.'
+    __dialogueText("managers/PostOfficeManager.js", "t_60c2107d3f5d09357f31") +
+    __dialogueText("managers/PostOfficeManager.js", "t_ebc6ff29b5275a606ddf") +
+    __dialogueText("managers/PostOfficeManager.js", "t_10d3eda908080100fb65")
   );
 }

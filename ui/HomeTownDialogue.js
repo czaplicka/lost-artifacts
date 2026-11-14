@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 export class HomeTownDialogue {
   constructor(scene,onClose=()=>{}){
     this.scene=scene;this.onClose=onClose;this.root=null;this.data=null;this.timer=null;this.seen=new Set();this.menuPage=0;this.textPage=0;
@@ -45,11 +46,11 @@ export class HomeTownDialogue {
       b.setColor(this.seen.has(id)?'#7a7160':'#ffd86b');b.on('pointerout',()=>b.setColor(this.seen.has(id)?'#7a7160':'#ffd86b'));cy+=item.height;
     }
     if(groups.length>1){this.button(mx,h-77,'<',()=>{this.menuPage=(this.menuPage-1+groups.length)%groups.length;this.draw();});this.text(mx+35,h-77,`${this.menuPage+1}/${groups.length}`,14,'#d4af37');this.button(w-44,h-77,'>',()=>{this.menuPage=(this.menuPage+1)%groups.length;this.draw();});}
-    this.button(mx,h-39,'Leave',()=>this.close());this.type();
+    this.button(mx,h-39,__dialogueText("ui/HomeTownDialogue.js", "t_fc6e4a408d56be9670c1"),()=>this.close());this.type();
   }
   type(){
     this.stop();const t=this.pages[this.textPage]||'';this.pageText=t;this.body.setText('');
-    this.footer.setText(this.pages.length>1?`${this.textPage+1}/${this.pages.length} · Click text to continue`:'Click text to finish');if(!t)return;
+    this.footer.setText(this.pages.length>1?`${this.textPage+1}${__dialogueText("ui/HomeTownDialogue.js", "t_8a5edab282632443219e")}${this.pages.length}${__dialogueText("ui/HomeTownDialogue.js", "t_d90fff41cd2a95c087c6")}`:__dialogueText("ui/HomeTownDialogue.js", "t_fac824502fbe8b53b98c"));if(!t)return;
     let i=0;this.typing=true;this.timer=this.scene.time.addEvent({delay:54,loop:true,callback:()=>{if(!this.root?.active){this.stop();return;}i=Math.min(i+3,t.length);this.body.setText(t.slice(0,i));if(i>=t.length)this.stop();}});
   }
   advance(){if(this.typing){this.stop();this.body?.setText(this.pageText);}else if(this.textPage<this.pages.length-1){this.textPage++;this.type();}}

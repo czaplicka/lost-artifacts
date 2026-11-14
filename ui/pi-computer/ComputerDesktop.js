@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { COLORS, FONTS } from './ComputerTheme.js';
 import { formatStampDate } from '../../managers/PassportManager.js';
 import { thiefdokuService } from '../../systems/thiefdoku/ThiefdokuService.js';
@@ -5,15 +6,15 @@ import { thiefdokuService } from '../../systems/thiefdoku/ThiefdokuService.js';
 const INK = 0x1b2530;
 
 const TRASH_JOKES = [
-  'The Recycle Bin contains: 1 case file, 3 regrets and an unpaid parking ticket.',
-  'You try to empty the Recycle Bin. It politely declines. It has seen things.',
-  'The Recycle Bin is full of paper planes. Someone in this office is very bored.'
+  __dialogueText("ui/pi-computer/ComputerDesktop.js", "t_b97a7e1def5238e7e8f9"),
+  __dialogueText("ui/pi-computer/ComputerDesktop.js", "t_fbce81e8e34bfbead2f4"),
+  __dialogueText("ui/pi-computer/ComputerDesktop.js", "t_5c103f95f815703b3941")
 ];
 
 const CAT_JOKES = [
-  'Cat_Pics.zip is password protected. The cat refuses to share the password.',
-  'Cat_Pics.zip: 4,096 photos, 4,095 of them out of focus. The cat will not comment.',
-  'Cat_Pics.zip is currently asleep. Please try again in 16 hours.'
+  __dialogueText("ui/pi-computer/ComputerDesktop.js", "t_b9e9024c49644145016d"),
+  __dialogueText("ui/pi-computer/ComputerDesktop.js", "t_4f92ae935d19a05b64ee"),
+  __dialogueText("ui/pi-computer/ComputerDesktop.js", "t_e1dffebc7ef845a3cfd9")
 ];
 
 const SEARCH_ICON_Y = 310;
@@ -32,11 +33,11 @@ export class ComputerDesktop {
     const dh = h - 36;
 
     const entries = [
-      ['mail', 'Mail', 'envelope', 0xe6d9ab],
-      ['ledger', 'Personal\nLedger', 'ledger', 0xa5c397],
-      ['classifieds', 'Classifieds', 'paper', 0xd1d6d8],
-      ['investigations', 'Investigations', 'board', 0xc69d7d],
-      ['travel', 'World\nTravel', 'globe', 0x98b9ce],
+      ['mail', __dialogueText("ui/pi-computer/ComputerDesktop.js", "t_07ed6ccf6bf6393d1868"), 'envelope', 0xe6d9ab],
+      ['ledger', __dialogueText("ui/pi-computer/ComputerDesktop.js", "t_051fe5f19c9e64fa9532"), 'ledger', 0xa5c397],
+      ['classifieds', __dialogueText("ui/pi-computer/ComputerDesktop.js", "t_c2a15c2c550a91eda017"), 'paper', 0xd1d6d8],
+      ['investigations', __dialogueText("ui/pi-computer/ComputerDesktop.js", "t_21476f00fdcfab750c7e"), 'board', 0xc69d7d],
+      ['travel', __dialogueText("ui/pi-computer/ComputerDesktop.js", "t_86991929b8126f48abce"), 'globe', 0x98b9ce],
       ['chat', 'IMEGO', 'chat', 0x8db7a6]
     ];
 
@@ -57,7 +58,7 @@ export class ComputerDesktop {
         x + 152,
         y + THIEFDOKU_ICON_Y,
         128,
-        'Thiefdoku',
+        __dialogueText("ui/pi-computer/ComputerDesktop.js", "t_5cf46358ab38145b427c"),
         'boards',
         0xd9a7b5,
         () => ui.openApp('thiefdoku')
@@ -68,7 +69,7 @@ export class ComputerDesktop {
       x + 152,
       y + AUDIO_ICON_Y,
       128,
-      'Owl Audio',
+      __dialogueText("ui/pi-computer/ComputerDesktop.js", "t_5ddde5a18bc919b6ce35"),
       'audio',
       0x93ba99,
       () => ui.openApp('audio')
@@ -78,7 +79,7 @@ export class ComputerDesktop {
       x + w - 290,
       y + dh - 108,
       128,
-      'Cat_Pics\n.zip',
+      __dialogueText("ui/pi-computer/ComputerDesktop.js", "t_f4493be34bca100d58f4"),
       'cat',
       0xe0a458,
       () => this.joke(CAT_JOKES)
@@ -88,7 +89,7 @@ export class ComputerDesktop {
       x + w - 150,
       y + dh - 108,
       128,
-      'Recycle\nBin',
+      __dialogueText("ui/pi-computer/ComputerDesktop.js", "t_718039dbb2044f35d9a5"),
       'trash',
       0x8b99a3,
       () => this.joke(TRASH_JOKES)
@@ -99,7 +100,7 @@ export class ComputerDesktop {
     d.pixel(
       x + w - 22,
       y + 22,
-      'NIGHT OWL\nOPERATING SYSTEM',
+      __dialogueText("ui/pi-computer/ComputerDesktop.js", "t_feb0d25e891e512dec77"),
       12,
       '#e6edf5'
     )
@@ -111,7 +112,7 @@ export class ComputerDesktop {
     d.text(
       x + w - 22,
       y + 74,
-      'v1.0 (it mostly works)',
+      __dialogueText("ui/pi-computer/ComputerDesktop.js", "t_84d36929c0f74dc93d6d"),
       14,
       '#9db3d6'
     )
@@ -174,7 +175,7 @@ export class ComputerDesktop {
       scene.add.text(
         -64,
         -58,
-        'TO DO:\n[x] get hired\n[ ] solve case\n[ ] eat something\n[ ] call mom\n     (she knows)',
+        __dialogueText("ui/pi-computer/ComputerDesktop.js", "t_be4e2fcd31e118ccfde8"),
         {
           fontFamily: FONTS.body,
           fontSize: '13px',
@@ -211,7 +212,7 @@ export class ComputerDesktop {
     d.rectangle(dx + 8, dy + 8, dw, dh, 0x050a10, 0.5);
     d.bevel(dx, dy, dw, dh, COLORS.window);
     d.rectangle(dx + 4, dy + 4, dw - 8, 28, COLORS.titlebar);
-    d.pixel(dx + 14, dy + 12, 'Night Owl OS', 10, COLORS.titleText);
+    d.pixel(dx + 14, dy + 12, __dialogueText("ui/pi-computer/ComputerDesktop.js", "t_fbf041a1eeccd5b4078f"), 10, COLORS.titleText);
 
     const g = scene.add.graphics();
     ui.content.add(g);
@@ -224,7 +225,7 @@ export class ComputerDesktop {
     d.pixel(dx + 33, dy + 63, 'i', 14, '#ffffff');
     d.text(dx + 76, dy + 48, ui.notice, 16, COLORS.text, dw - 110);
 
-    d.button(dx + dw - 76, dy + dh - 50, 'OK', () => {
+    d.button(dx + dw - 76, dy + dh - 50, __dialogueText("ui/pi-computer/ComputerDesktop.js", "t_565339bc4d33d72817b5"), () => {
       ui.notice = '';
       ui.render();
     });
@@ -235,13 +236,13 @@ export class ComputerDesktop {
     const d = ui.drawing;
     const scene = ui.scene;
 
-    if (label === 'Web Search' || label === 'Owl Search') {
+    if (label === __dialogueText("ui/pi-computer/ComputerDesktop.js", "t_d04fc7d7e19702f8b611") || label === __dialogueText("ui/pi-computer/ComputerDesktop.js", "t_6f6ca128fbbdf22488f9")) {
       x = ui.layout.x + 152;
       y = ui.layout.y + SEARCH_ICON_Y;
       kind = 'owl_search';
     }
 
-    if (label === 'Owl Audio') {
+    if (label === __dialogueText("ui/pi-computer/ComputerDesktop.js", "t_5ddde5a18bc919b6ce35")) {
       x = ui.layout.x + 152;
       y = ui.layout.y + AUDIO_ICON_Y;
     }

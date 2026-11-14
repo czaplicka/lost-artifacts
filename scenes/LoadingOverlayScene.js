@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 const FONT_PIXEL = 'PressStart2P';
 const FONT_TYPE = 'SpecialElite';
 
@@ -7,45 +8,45 @@ const PAPER_H = 500;
 const BAR = { x: 62, y: 300, w: 696, h: 26, inset: 4 };
 
 const TIPS = [
-  'Dusting for fingerprints. Finding mostly dust.',
-  'Teaching the filing cabinet to cooperate.',
-  'Checking whether the alibi came with a receipt.',
-  'Removing coffee stains from classified documents.',
-  'Asking the red herrings to form an orderly queue.',
-  'Waiting for the evidence to stop looking suspicious.',
-  'Your request is important to us. Please remain suspicious.',
-  'The archive has no secrets. Just restricted opening hours.',
-  'Locating Form 27B: Permission to Locate Other Forms.',
-  'Please do not feed the shredder original evidence.',
-  'Cross-referencing lies with slightly better lies.',
-  'The suspect has a lawyer. The printer has a jam.',
-  'No artefacts were harmed in the filing of this report.',
-  'Recovering documents from the "Definitely Not Important" drawer.',
-  'Our filing system is a mystery. You are qualified.',
-  'Looking for a paper trail. Found a paper mountain.',
-  'Reclassifying "probably cursed" as "handle with care".',
-  'The archivist has approved your request to wait.',
-  'Checking the chain of custody. Someone borrowed the chain.',
-  'Putting the organised back into organised crime.',
-  'Sharpening pencils. Nobody asked for this, but here we are.',
-  'The monkey cameraman has been told to stay off the filing cabinets.',
-  'Stamping the stamp that stamps the other stamps.',
-  'Please hold. Your call is being ignored in order of importance.'
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_f0c018fcd47c1b94b78b"),
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_fae66184451e5a7798a9"),
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_589940d1ce56e302e503"),
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_cb9f3a044014c435fcec"),
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_e591b5bc10f09f6b593e"),
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_3c02c02f32af1b581208"),
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_417d34f820155ff478da"),
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_124e0329fad33b5ebc8b"),
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_1f8911490279719fd73d"),
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_ddd1b81163cf4de1716c"),
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_088ec0a52359f96ec3a8"),
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_22b0057f3eca423359bd"),
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_5748a9fe96b77a5adbf8"),
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_8809d6448c0cdb61b9e5"),
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_436c42da56dd5a2f276d"),
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_c839ccb4354d13a169c5"),
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_eb11f97626c8a74c238d"),
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_b2e2727600beea2535d3"),
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_b3789574bcbd4b5a8b45"),
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_fea9d9353cf4647ca7a6"),
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_856b2a7fd45fba272519"),
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_e06ed5d17af7937fd0ca"),
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_65fff27c88babaadf379"),
+  __dialogueText("scenes/LoadingOverlayScene.js", "t_ecde942e8290be56c0e0")
 ];
 
 // Im dłużej trwa ładowanie, tym bardziej absurdalna stopka.
 const FOOTER_STAGES = [
-  { at: 0, text: 'PLEASE WAIT. THE PAPERWORK IS RESISTING.' },
-  { at: 6, text: 'THE ARCHIVIST HAS STEPPED OUT. PROBABLY FOR COFFEE.' },
-  { at: 12, text: 'FILE FOUND. NOW LOOKING FOR THE FILE THAT EXPLAINS THE FILE.' },
-  { at: 20, text: 'THIS IS TAKING LONGER THAN THE SUSPECT\'S ALIBI.' },
-  { at: 35, text: 'STILL HERE. WE ARE AS SURPRISED AS YOU ARE.' },
-  { at: 60, text: 'IF NOTHING HAPPENS, THE CAT SAT ON THE SERVER.' }
+  { at: 0, text: __dialogueText("scenes/LoadingOverlayScene.js", "t_ac79c809d443ac8f6007") },
+  { at: 6, text: __dialogueText("scenes/LoadingOverlayScene.js", "t_1154909def7fd5d85662") },
+  { at: 12, text: __dialogueText("scenes/LoadingOverlayScene.js", "t_213a6b2394367cc2ffb0") },
+  { at: 20, text: __dialogueText("scenes/LoadingOverlayScene.js", "t_04076b8967c51825f84e") },
+  { at: 35, text: __dialogueText("scenes/LoadingOverlayScene.js", "t_f4f958ed9551382eba17") },
+  { at: 60, text: __dialogueText("scenes/LoadingOverlayScene.js", "t_a4b79d82daa57dc62ac9") }
 ];
 
 const prefersReducedMotion = () =>
   typeof window !== 'undefined' &&
-  Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
+  Boolean(window.matchMedia?.(__dialogueText("scenes/LoadingOverlayScene.js", "t_fce63bfb9ebaba3d69fc")).matches);
 
 export class LoadingOverlayScene extends Phaser.Scene {
   constructor() {
@@ -126,7 +127,7 @@ export class LoadingOverlayScene extends Phaser.Scene {
       callback: () => {
         this.dotCount = (this.dotCount + 1) % 4;
 
-        this.activityText.setText(`SEARCHING${'.'.repeat(this.dotCount)}`);
+        this.activityText.setText(`${__dialogueText("scenes/LoadingOverlayScene.js", "t_23a7c3188fb83ed63011")}${__dialogueText("scenes/LoadingOverlayScene.js", "t_cdb4ee2aea69cc6a8333").repeat(this.dotCount)}`);
       }
     });
 
@@ -159,8 +160,8 @@ export class LoadingOverlayScene extends Phaser.Scene {
         const grad = ctx.createRadialGradient(128, 72, 40, 128, 72, 160);
 
         grad.addColorStop(0, 'rgba(0,0,0,0)');
-        grad.addColorStop(0.65, 'rgba(0,0,0,0.35)');
-        grad.addColorStop(1, 'rgba(0,0,0,0.9)');
+        grad.addColorStop(0.65, __dialogueText("scenes/LoadingOverlayScene.js", "t_7be18e16198b94e74581"));
+        grad.addColorStop(1, __dialogueText("scenes/LoadingOverlayScene.js", "t_ef567e29707ba5405776"));
 
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, 256, 144);
@@ -174,8 +175,8 @@ export class LoadingOverlayScene extends Phaser.Scene {
 
         const grad = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
 
-        grad.addColorStop(0, 'rgba(255,214,150,0.32)');
-        grad.addColorStop(0.55, 'rgba(255,190,120,0.10)');
+        grad.addColorStop(0, __dialogueText("scenes/LoadingOverlayScene.js", "t_5b090d3ec5c6e8711245"));
+        grad.addColorStop(0.55, __dialogueText("scenes/LoadingOverlayScene.js", "t_7359307132db264a8878"));
         grad.addColorStop(1, 'rgba(255,190,120,0)');
 
         ctx.fillStyle = grad;
@@ -351,13 +352,13 @@ export class LoadingOverlayScene extends Phaser.Scene {
 
     /* ---------- teksty ---------- */
 
-    this.folderText = this.add.text(24, -21, `CASE No. ${this.caseNumber}`, {
+    this.folderText = this.add.text(24, -21, `${__dialogueText("scenes/LoadingOverlayScene.js", "t_bbc8ad66c4df0b7b9f35")}${this.caseNumber}`, {
       fontFamily: FONT_PIXEL,
       fontSize: '9px',
       color: '#4a3922'
     }).setOrigin(0, 0.5);
 
-    this.agencyText = this.add.text(36, 34, 'MARK AGENCY', {
+    this.agencyText = this.add.text(36, 34, __dialogueText("scenes/LoadingOverlayScene.js", "t_9246fca97ffafae56410"), {
       fontFamily: FONT_PIXEL,
       fontSize: '14px',
       color: '#413329'
@@ -366,7 +367,7 @@ export class LoadingOverlayScene extends Phaser.Scene {
     this.departmentText = this.add.text(
       36,
       62,
-      'ARCHIVES & QUESTIONABLE PAPERWORK',
+      __dialogueText("scenes/LoadingOverlayScene.js", "t_33381f32adc85c8b53c9"),
       {
         fontFamily: FONT_TYPE,
         fontSize: '16px',
@@ -385,7 +386,7 @@ export class LoadingOverlayScene extends Phaser.Scene {
       .setOrigin(1, 0);
 
     this.titleText = this.add
-      .text(410, 172, 'DIGGING THROUGH\nTHE ARCHIVES', {
+      .text(410, 172, __dialogueText("scenes/LoadingOverlayScene.js", "t_af177e6d57810d405928"), {
         fontFamily: FONT_PIXEL,
         fontSize: '20px',
         color: '#362b23',
@@ -397,7 +398,7 @@ export class LoadingOverlayScene extends Phaser.Scene {
     this.activityLight = this.add.rectangle(341, 228, 7, 7, 0x8d513a);
 
     this.activityText = this.add
-      .text(354, 224, 'SEARCHING', {
+      .text(354, 224, __dialogueText("scenes/LoadingOverlayScene.js", "t_23a7c3188fb83ed63011"), {
         fontFamily: FONT_PIXEL,
         fontSize: '9px',
         color: '#786651'
@@ -412,7 +413,7 @@ export class LoadingOverlayScene extends Phaser.Scene {
       });
 
     this.percentText = this.add
-      .text(758, 252, '0%', {
+      .text(758, 252, __dialogueText("scenes/LoadingOverlayScene.js", "t_d9a847a1a79ab44825bb"), {
         fontFamily: FONT_PIXEL,
         fontSize: '13px',
         color: '#514334'
@@ -496,7 +497,7 @@ export class LoadingOverlayScene extends Phaser.Scene {
     g.strokeRect(-w / 2, -h / 2, w, h);
 
     this.tipHeading = this.add
-      .text(0, -h / 2 + 24, 'A NOTE FROM THE ARCHIVIST', {
+      .text(0, -h / 2 + 24, __dialogueText("scenes/LoadingOverlayScene.js", "t_bb6230d294da1882196d"), {
         fontFamily: FONT_PIXEL,
         fontSize: '9px',
         color: '#8b513b'
@@ -528,7 +529,7 @@ export class LoadingOverlayScene extends Phaser.Scene {
       .setStrokeStyle(3, 0x963e32);
 
     this.stampText = this.add
-      .text(0, 1, 'CLASSIFIED', {
+      .text(0, 1, __dialogueText("scenes/LoadingOverlayScene.js", "t_889999e4746fd0f2cbcf"), {
         fontFamily: FONT_PIXEL,
         fontSize: '12px',
         color: '#963e32'
@@ -545,7 +546,7 @@ export class LoadingOverlayScene extends Phaser.Scene {
     const m = String(Math.floor(this.elapsedSeconds / 60)).padStart(2, '0');
     const s = String(this.elapsedSeconds % 60).padStart(2, '0');
 
-    return `FORM MA-404\nINTERNAL USE ONLY\nON HOLD: ${m}:${s}`;
+    return `${__dialogueText("scenes/LoadingOverlayScene.js", "t_a7846a2174edf4cfcc41")}${m}${__dialogueText("scenes/LoadingOverlayScene.js", "t_e7ac0786668e0ff0f02b")}${s}`;
   }
 
   /* ========================================================
@@ -716,7 +717,7 @@ export class LoadingOverlayScene extends Phaser.Scene {
 
     this.stampBorder.setStrokeStyle(3, color);
     this.stampText
-      .setText(approved ? 'APPROVED' : 'CLASSIFIED')
+      .setText(approved ? __dialogueText("scenes/LoadingOverlayScene.js", "t_f1995216dcfbca4efddf") : __dialogueText("scenes/LoadingOverlayScene.js", "t_889999e4746fd0f2cbcf"))
       .setColor(approved ? '#3d6a3f' : '#963e32');
 
     this.tweens.killTweensOf(this.stamp);
@@ -782,7 +783,7 @@ export class LoadingOverlayScene extends Phaser.Scene {
 
     if (percent !== this.shownPercent) {
       this.shownPercent = percent;
-      this.percentText.setText(`${percent}%`);
+      this.percentText.setText(`${percent}${__dialogueText("scenes/LoadingOverlayScene.js", "t_bbf3f11cb5b43e700273")}`);
     }
 
     if (!this.reduceMotion) {
@@ -890,8 +891,8 @@ export class LoadingOverlayScene extends Phaser.Scene {
         ? `${label.slice(0, 54)}...`
         : label
       : this.progressTarget >= 1
-        ? 'Files retrieved. Suspicion intact.'
-        : 'Retrieving case files...';
+        ? __dialogueText("scenes/LoadingOverlayScene.js", "t_92ada5bf70be4676b204")
+        : __dialogueText("scenes/LoadingOverlayScene.js", "t_299e7a33fcf6e1073d13");
 
     this.typeStatus(text);
   }

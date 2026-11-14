@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 export function acquireSideQuestAssets(game, bundle = 'quest:dead_mail') {
   const manager = game?.assets;
   const owner = Symbol(`side-quest:${bundle}`);
@@ -9,7 +10,7 @@ export function acquireSideQuestAssets(game, bundle = 'quest:dead_mail') {
       if (!Array.isArray(manager.manifest.bundles[bundle])) {
         throw new Error(`Missing bundle ${bundle}. Install the side-quests manifest, then reload the page.`);
       }
-      await manager.ensureBundles([bundle], owner, 'Developing the cemetery photographs...');
+      await manager.ensureBundles([bundle], owner, __dialogueText("managers/SideQuestAssetScope.js", "t_296263fd1465c0de6696"));
     } finally {
       if (released) unpin();
     }

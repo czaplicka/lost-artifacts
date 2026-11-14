@@ -1,10 +1,11 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // Only these catalog entries may become pigeon loot. Never sample the whole catalog.
 const ALLOWED = new Map([
-  ['souvenirs.postcard', 'postcard'],
-  ['consumables.energyDrink', 'energy_drink'],
-  ['consumables.sandwich', 'sandwich'],
-  ['souvenirs.tokyoLuckyCat', 'souvenir_tokyo_lucky_cat'],
-  ['souvenirs.islamabadTruck', 'souvenir_islamabad_truck']
+  [__dialogueText("managers/PigeonCatalog.js", "t_77b137edca3b3f77daf1"), 'postcard'],
+  [__dialogueText("managers/PigeonCatalog.js", "t_118f7d5a299aac4fe4eb"), 'energy_drink'],
+  [__dialogueText("managers/PigeonCatalog.js", "t_600d11f87c435e5585c2"), 'sandwich'],
+  [__dialogueText("managers/PigeonCatalog.js", "t_fb1d71ee5a712b63d6b3"), 'souvenir_tokyo_lucky_cat'],
+  [__dialogueText("managers/PigeonCatalog.js", "t_d6e969fbdb60835e2d1e"), 'souvenir_islamabad_truck']
 ]);
 let catalog = null, loading = null, error = '', failedAt = 0;
 const clone = value => JSON.parse(JSON.stringify(value));
@@ -31,7 +32,7 @@ export function loadPigeonCatalog({ retry = false } = {}) {
       for (const ref of ALLOWED.keys()) if (!resolveFrom(source, ref)) throw Error(`Missing or invalid pigeon item: ${ref}`);
       catalog = source; error = ''; return true;
     } catch (failure) {
-      error = 'Item catalog unavailable. Your pigeon and its find are safe. Please try again.';
+      error = __dialogueText("managers/PigeonCatalog.js", "t_6439c45e187a4539abcb");
       failedAt = Date.now(); console.error('[PigeonCatalog]', failure); return false;
     } finally { loading = null; }
   })();

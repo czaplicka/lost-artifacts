@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { MainStoryManager } from '../managers/MainStoryManager.js';
 import { saveGameState } from '../gameStatePersistence.js';
@@ -37,15 +38,15 @@ export class ShreddedReportScene extends BaseScene {
     this.root = this.add.container(0, 0);
     this.root.add(this.add.rectangle(640, 450, 1280, 900, 0x302729));
     this.root.add(this.add.rectangle(640, 480, 984, 624, 0x171416).setStrokeStyle(3, 0x957551));
-    this.label(640, 45, 'THE PAPER TRAIL', 23, '#f0ce88', 'PressStart2P');
-    this.label(640, 94, 'Join the broken stamp, ruled lines and torn words. No reading-order guesswork.', 22);
-    this.label(640, 128, 'Drag one piece onto another to swap them. Or click two pieces.', 20, '#c6bba6');
+    this.label(640, 45, __dialogueText("scenes/ShreddedReportScene.js", "t_642d355b884871ebb2df"), 23, '#f0ce88', 'PressStart2P');
+    this.label(640, 94, __dialogueText("scenes/ShreddedReportScene.js", "t_1ae0ce2b9d278f954e9f"), 22);
+    this.label(640, 128, __dialogueText("scenes/ShreddedReportScene.js", "t_e58c305bb42c3514fa54"), 20, '#c6bba6');
     this.message = this.label(640, 813, '', 21);
-    this.checkButton = this.button(380, 861, 'CHECK DOCUMENT', () => this.checkDocument());
-    this.label(650, 861, this.preview ? 'PREVIEW / no story changes' : 'ARCHIVE / JM-041', 17, '#b9aa94');
+    this.checkButton = this.button(380, 861, __dialogueText("scenes/ShreddedReportScene.js", "t_9c908cd69c6fe997f1be"), () => this.checkDocument());
+    this.label(650, 861, this.preview ? __dialogueText("scenes/ShreddedReportScene.js", "t_db1d7313ec962ed15287") : __dialogueText("scenes/ShreddedReportScene.js", "t_325e04b49761797d5aaf"), 17, '#b9aa94');
     this.button(1025, 861, 'BACK', () => this.closeDocument());
     this.makeDocumentTexture(); this.buildTiles(); this.placeTiles(); this.paint();
-    this.message.setText('The red seal belongs to one document. Its fragments must meet.');
+    this.message.setText(__dialogueText("scenes/ShreddedReportScene.js", "t_e724af8864a5f1c128b5"));
     if (this.finished) this.showSuccess();
     this.layout(); this.trackInputEvent(this.scale, 'resize', this.layout);
     this.trackInputEvent(this.input, 'dragstart', this.dragStart);
@@ -74,41 +75,41 @@ export class ShreddedReportScene extends BaseScene {
     const texture = this.textures.createCanvas(this.textureKey, PW, PH), c = texture.getContext();
     c.fillStyle = '#e4d4ad'; c.fillRect(0, 0, PW, PH);
     for (let i = 0; i < 3800; i++) {
-      c.fillStyle = i % 2 ? 'rgba(92,66,35,0.055)' : 'rgba(255,250,220,0.12)';
+      c.fillStyle = i % 2 ? __dialogueText("scenes/ShreddedReportScene.js", "t_f7c9386972d73d5e918f") : __dialogueText("scenes/ShreddedReportScene.js", "t_75bb0f9b99996a8a202e");
       c.fillRect((i * 137) % PW, (i * 83) % PH, 2, 1);
     }
     c.strokeStyle = '#8e7959'; c.lineWidth = 3; c.strokeRect(24, 24, PW - 48, PH - 48);
     c.strokeStyle = '#ad9671'; c.lineWidth = 1; c.strokeRect(32, 32, PW - 64, PH - 64);
-    c.strokeStyle = 'rgba(165,66,54,0.45)'; c.beginPath(); c.moveTo(61, 142); c.lineTo(61, 564); c.stroke();
-    c.fillStyle = '#3c342a'; c.font = 'bold 35px SpecialElite, monospace'; c.fillText('MARK AGENCY', 78, 77);
-    c.font = '22px SpecialElite, monospace'; c.fillText('FIELD OPERATIONS / INTERNAL COPY', 78, 112);
-    c.font = 'bold 27px SpecialElite, monospace'; c.fillText('JM-041', 756, 76);
+    c.strokeStyle = __dialogueText("scenes/ShreddedReportScene.js", "t_7651d189b77ed6a8e673"); c.beginPath(); c.moveTo(61, 142); c.lineTo(61, 564); c.stroke();
+    c.fillStyle = '#3c342a'; c.font = __dialogueText("scenes/ShreddedReportScene.js", "t_4b473bb6ca49434a541d"); c.fillText(__dialogueText("scenes/ShreddedReportScene.js", "t_9246fca97ffafae56410"), 78, 77);
+    c.font = __dialogueText("scenes/ShreddedReportScene.js", "t_47f5b6bcb99464322f8f"); c.fillText(__dialogueText("scenes/ShreddedReportScene.js", "t_912fa181fa373fd5c572"), 78, 112);
+    c.font = __dialogueText("scenes/ShreddedReportScene.js", "t_70cfb904694a563693e0"); c.fillText('JM-041', 756, 76);
     c.strokeStyle = '#77664c'; c.lineWidth = 2; c.beginPath(); c.moveTo(55, 140); c.lineTo(905, 140); c.stroke();
-    const lines = [['SUBJECT: John McClane', 180], ['Recovered object cleared for transport.', 228],
-      ['Handover completed before departure.', 276], ['Contact lost during the transport operation.', 324],
-      ['Supporting records: restricted circulation.', 372]];
-    c.font = '24px SpecialElite, monospace';
+    const lines = [[__dialogueText("scenes/ShreddedReportScene.js", "t_aa645106510d2e42de16"), 180], [__dialogueText("scenes/ShreddedReportScene.js", "t_95b3c06f22a210784305"), 228],
+      [__dialogueText("scenes/ShreddedReportScene.js", "t_e3be67d24250adddd642"), 276], [__dialogueText("scenes/ShreddedReportScene.js", "t_9e5a2dfb8dc267737fd5"), 324],
+      [__dialogueText("scenes/ShreddedReportScene.js", "t_c667e82fbc744f54f158"), 372]];
+    c.font = __dialogueText("scenes/ShreddedReportScene.js", "t_9a87e164fe39d4b696d6");
     for (const [text, y] of lines) {
-      c.fillStyle = '#44392c'; c.fillText(text, 80, y); c.strokeStyle = 'rgba(91,105,114,0.38)';
+      c.fillStyle = '#44392c'; c.fillText(text, 80, y); c.strokeStyle = __dialogueText("scenes/ShreddedReportScene.js", "t_88a9c622b39495e65f67");
       c.lineWidth = 1; c.beginPath(); c.moveTo(77, y + 12); c.lineTo(890, y + 12); c.stroke();
     }
     c.save(); c.translate(696, 402); c.rotate(-0.19);
-    c.strokeStyle = 'rgba(151,44,37,0.82)'; c.fillStyle = 'rgba(151,44,37,0.82)'; c.lineWidth = 5;
+    c.strokeStyle = __dialogueText("scenes/ShreddedReportScene.js", "t_bc7d91d10c21064bef99"); c.fillStyle = __dialogueText("scenes/ShreddedReportScene.js", "t_bc7d91d10c21064bef99"); c.lineWidth = 5;
     c.beginPath(); c.ellipse(0, 0, 150, 85, 0, 0, Math.PI * 2); c.stroke();
     c.lineWidth = 2; c.beginPath(); c.ellipse(0, 0, 138, 74, 0, 0, Math.PI * 2); c.stroke();
-    c.textAlign = 'center'; c.font = 'bold 29px monospace'; c.fillText('RESTRICTED', 0, -5);
-    c.font = '19px monospace'; c.fillText('MARK AGENCY', 0, 25); c.restore();
-    c.fillStyle = '#453b31'; c.font = '21px SpecialElite, monospace';
-    c.fillText('Supporting annex filed separately.', 80, 465); c.fillText('Report prepared by:', 80, 520);
+    c.textAlign = 'center'; c.font = __dialogueText("scenes/ShreddedReportScene.js", "t_19462f73c92c0cf0a2e2"); c.fillText('RESTRICTED', 0, -5);
+    c.font = __dialogueText("scenes/ShreddedReportScene.js", "t_59f88630d6b461d5a376"); c.fillText(__dialogueText("scenes/ShreddedReportScene.js", "t_9246fca97ffafae56410"), 0, 25); c.restore();
+    c.fillStyle = '#453b31'; c.font = __dialogueText("scenes/ShreddedReportScene.js", "t_e1766effa5478d47605c");
+    c.fillText(__dialogueText("scenes/ShreddedReportScene.js", "t_cd94210c96fe9983d78a"), 80, 465); c.fillText(__dialogueText("scenes/ShreddedReportScene.js", "t_e5a6ec5e1b288161d67b"), 80, 520);
     c.save(); c.translate(361, 520); c.rotate(-0.045); c.fillStyle = '#324c69';
-    c.font = 'italic 43px cursive'; c.fillText('Marcus', 0, 0);
+    c.font = __dialogueText("scenes/ShreddedReportScene.js", "t_ef8d19f390031e10ef48"); c.fillText(__dialogueText("scenes/ShreddedReportScene.js", "t_245536acb08b0958f1aa"), 0, 0);
     c.strokeStyle = '#324c69'; c.lineWidth = 2; c.beginPath(); c.moveTo(-12, 10);
     c.bezierCurveTo(58, -3, 107, 26, 199, 3); c.stroke(); c.restore();
-    c.fillStyle = '#5d5141'; c.font = '17px SpecialElite, monospace';
-    c.fillText('Distribution: Records Office / sealed annex', 80, 557);
-    c.strokeStyle = 'rgba(100,69,32,0.17)'; c.lineWidth = 3;
+    c.fillStyle = '#5d5141'; c.font = __dialogueText("scenes/ShreddedReportScene.js", "t_fce64cbc91446ed9650a");
+    c.fillText(__dialogueText("scenes/ShreddedReportScene.js", "t_ed0aec725c697f6d79ca"), 80, 557);
+    c.strokeStyle = __dialogueText("scenes/ShreddedReportScene.js", "t_96333cf0ac275aeae875"); c.lineWidth = 3;
     c.beginPath(); c.ellipse(844, 220, 43, 49, 0.2, 0, Math.PI * 2); c.stroke();
-    c.strokeStyle = 'rgba(99,75,43,0.20)'; c.lineWidth = 1;
+    c.strokeStyle = __dialogueText("scenes/ShreddedReportScene.js", "t_e80d9dc58a36683bdea2"); c.lineWidth = 1;
     c.beginPath(); c.moveTo(0, 95); c.bezierCurveTo(280, 105, 580, 87, 960, 102); c.stroke();
     c.beginPath(); c.moveTo(112, 0); c.bezierCurveTo(103, 210, 129, 390, 115, 600); c.stroke();
     c.beginPath(); c.moveTo(0, 490); c.bezierCurveTo(290, 503, 620, 479, 960, 493); c.stroke();
@@ -170,7 +171,7 @@ export class ShreddedReportScene extends BaseScene {
   }
   grantCompletionXP() {
     let result;
-    try { result = progressionManager.grantReward(XP_REWARD_ID, KEY, "Story puzzle solved: Shredded report"); }
+    try { result = progressionManager.grantReward(XP_REWARD_ID, KEY, __dialogueText("scenes/ShreddedReportScene.js", "t_f0343f422130ad5f7c81")); }
     catch (error) {
       if (!progressionManager.hasReward(XP_EVENT_ID)) throw error;
       console.error('[ShreddedReport] XP notification failed after commit:', error);
@@ -185,7 +186,7 @@ export class ShreddedReportScene extends BaseScene {
     if (this.finished || this.closing || this.checking || this.dragged) return;
     this.checks += 1;
     if (!complete(this.order)) {
-      this.message.setText('Not aligned yet. Follow the red seal, the blue signature and the ruled lines.'); this.persist(); return;
+      this.message.setText(__dialogueText("scenes/ShreddedReportScene.js", "t_05662a1f978a55a26c19")); this.persist(); return;
     }
     this.checking = true;
     try {
@@ -193,17 +194,17 @@ export class ShreddedReportScene extends BaseScene {
         try { this.xpGranted = this.grantCompletionXP(); }
         catch (error) {
           console.error('[ShreddedReport] XP settlement failed:', error);
-          this.message.setText('Document restored, but XP could not be recorded. Click CHECK DOCUMENT again to retry.'); return;
+          this.message.setText(__dialogueText("scenes/ShreddedReportScene.js", "t_1d554cc01747f74fcb15")); return;
         }
       }
       this.finished = true; this.selected = null; this.persist(); this.showSuccess();
-      if (!this.preview) this.emitBus('archive:shreddedReportCompleted', { documentId: 'JM-041', author: 'Marcus' });
+      if (!this.preview) this.emitBus('archive:shreddedReportCompleted', { documentId: 'JM-041', author: __dialogueText("scenes/ShreddedReportScene.js", "t_245536acb08b0958f1aa") });
     } finally { this.checking = false; }
   }
   persist() {
     if (this.preview) return;
     MainStoryManager.setSideClue(KEY, { version: 2, order: [...this.order], checks: this.checks,
-      completed: this.finished, documentId: 'JM-041', author: this.finished ? 'Marcus' : null,
+      completed: this.finished, documentId: 'JM-041', author: this.finished ? __dialogueText("scenes/ShreddedReportScene.js", "t_245536acb08b0958f1aa") : null,
       lead: this.finished ? 'supporting_annex_filed_separately' : null });
     if (this.finished) MainStoryManager.setFlag(FLAG, true);
     try { this.savedOk = saveGameState(); }
@@ -213,11 +214,11 @@ export class ShreddedReportScene extends BaseScene {
     this.checkButton.setVisible(false); this.paint();
     this.tiles.forEach(tile => { tile.item.disableInteractive(); tile.image.setDisplaySize(TW, TH); });
     if (this.preview) {
-      this.message.setText('RESTORED / Marcus signed the report. The annex was filed separately. / PREVIEW'); return;
+      this.message.setText(__dialogueText("scenes/ShreddedReportScene.js", "t_c02441fe528f61095db7")); return;
     }
-    const xpText = this.xpGranted > 0 ? ` +${this.xpGranted} XP.` : '';
-    this.message.setText(this.savedOk === false ? 'RESTORED / Saving failed. Save manually before leaving the game.' + xpText :
-      'RESTORED / Marcus signed the report. The annex was filed separately.' + xpText);
+    const xpText = this.xpGranted > 0 ? `${__dialogueText("scenes/ShreddedReportScene.js", "t_c13f23cc27f966a4eadf")}${this.xpGranted}${__dialogueText("scenes/ShreddedReportScene.js", "t_a73feda6e2f76a6b740b")}` : '';
+    this.message.setText(this.savedOk === false ? __dialogueText("scenes/ShreddedReportScene.js", "t_b31856594b7efa894674") + xpText :
+      __dialogueText("scenes/ShreddedReportScene.js", "t_1ca27ac0eedbe2e66fa8") + xpText);
   }
   layout() {
     if (!this.root) return;

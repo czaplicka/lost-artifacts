@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 import { BoardData } from './crimeBoard/BoardData.js';
 import { BoardItems } from './crimeBoard/BoardItems.js';
 import { BoardLinks } from './crimeBoard/BoardLinks.js';
@@ -9,8 +10,8 @@ import { BoardDeduction } from './crimeBoard/BoardDeduction.js';
 export class CrimeBoard {
   constructor(root, options = {}) {
     this.root = root;
-    this.svg = root?.querySelector('.crime-board__strings');
-    this.itemsLayer = root?.querySelector('.crime-board__items');
+    this.svg = root?.querySelector(__dialogueText("CrimeBoard.js", "t_98056d3d7285cc88ad39"));
+    this.itemsLayer = root?.querySelector(__dialogueText("CrimeBoard.js", "t_e6f778c9d8d32d128401"));
 
 
     if (!this.root || !this.svg || !this.itemsLayer) {
@@ -38,7 +39,7 @@ export class CrimeBoard {
     };
 
 
-    this.app = this.root.closest('.crime-board-app') || document;
+    this.app = this.root.closest(__dialogueText("CrimeBoard.js", "t_5f4a8917bd85d04d9691")) || document;
     this.meta = {};
     this.state = { items: [], links: [] };
     this.selectedItemId = null;

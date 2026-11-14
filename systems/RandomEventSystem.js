@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
 import { getDifficultyConfig } from '../DifficultySettings.js';
@@ -166,14 +167,14 @@ export const RandomEventSystem = {
                 EventBus.emit('advanceTime', cfg.restHours, 0);
                 if (!active()) return { ok: true, failed: true };
                 const after = read();
-                after.effect = { label: 'Recovered and rested', multiplier: cfg.recoveryEnergyMultiplier,
+                after.effect = { label: __dialogueText("systems/RandomEventSystem.js", "t_38628658593e5d90df7f"), multiplier: cfg.recoveryEnergyMultiplier,
                     expiresAt: getClockMinutes(gameState) + cfg.recoveryDurationHours * 60 };
                 write(after);
                 const energy = getEnergyManager();
-                energy.recoverCustom(energy.getMaxEnergy(), 'Medical rest: energy restored',
+                energy.recoverCustom(energy.getMaxEnergy(), __dialogueText("systems/RandomEventSystem.js", "t_24426337b69926b5fa31"),
                     { recoveryType: 'sleep', recoverySubtype: 'medical_rest' });
             } else {
-                s.effect = { label: 'Working while sick', multiplier: cfg.workEnergyMultiplier,
+                s.effect = { label: __dialogueText("systems/RandomEventSystem.js", "t_efb378b41adcefe0baf1"), multiplier: cfg.workEnergyMultiplier,
                     expiresAt: getClockMinutes(gameState) + cfg.workDurationHours * 60 };
                 write(s);
             }
@@ -183,7 +184,7 @@ export const RandomEventSystem = {
         }
         if (choice === 'refuse') { saveGameState(); return { ok: true }; }
         moneyManager.addCash(settings().bribe.amount, {
-            category: 'bribe', description: 'Anonymous payment for closing the case',
+            category: 'bribe', description: __dialogueText("systems/RandomEventSystem.js", "t_2d5e0ec730a30ce03657"),
             metadata: { randomEventId: pendingId }
         });
         applyReputationEvent('bribe_accepted', { eventId: `random:${pendingId}:bribe`, headline: null,
@@ -192,10 +193,10 @@ export const RandomEventSystem = {
             finalArrestResult: 'FAILURE', gameOverReason: 'bribe_accepted' });
         clearSavedGame();
         return { ok: true, failed: true, gameOver: {
-            reason: 'bribe_accepted', title: 'A VERY AFFORDABLE DETECTIVE',
-            message: `You closed the case for $${settings().bribe.amount}. The money reached your personal account.\n` +
-                'Your boss: "You sold the investigation for less than our printer toner."\n' +
-                'Formal reprimand issued. Integrity damaged. Case lost.'
+            reason: 'bribe_accepted', title: __dialogueText("systems/RandomEventSystem.js", "t_1f4b14064f4ad60b5364"),
+            message: `${__dialogueText("systems/RandomEventSystem.js", "t_ca10f43b18511fa2d934")}${settings().bribe.amount}${__dialogueText("systems/RandomEventSystem.js", "t_ed5e03ed7422729c0b84")}` +
+                __dialogueText("systems/RandomEventSystem.js", "t_1c968f3b8c0ef0f39cd4") +
+                __dialogueText("systems/RandomEventSystem.js", "t_a4bf3507cdd81eb5d131")
         } };
     },
     force(type) {
@@ -210,7 +211,7 @@ export const RandomEventSystem = {
         s.count += 1;
         write(s);
         requestAutosave();
-        return 'Event queued. Return to an idle city map after finishing the tutorial.';
+        return __dialogueText("systems/RandomEventSystem.js", "t_7e3638cbcdcd80ad4c0a");
     },
     async load() { return true; }
 };

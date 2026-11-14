@@ -1,41 +1,42 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { BaseForensicMinigame } from './BaseForensicMinigame.js';
 
 const FONT_UI = 'PressStart2P';
 const FONT_DOC = 'SpecialElite';
 
 const WRONG_LINES = [
-  'The sample bubbles. That was not in the brochure.',
-  'Protocol violated. The clipboard looks disappointed.',
-  'The analyzer requests a more qualified detective.',
-  'A tiny warning light has developed trust issues.',
-  'The lab manual would like a word with you.'
+  __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_19d07fced09192ca726f"),
+  __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_1ffee67cdfecce31bb57"),
+  __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_d187501640ca7ab5e097"),
+  __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_2a219db4fa093ea56f71"),
+  __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_38c10cbc5cb544d6ca0e")
 ];
 
 const MANUAL_TEXT = [
-  'CHEMICAL RESIDUE — OPERATING PROCEDURE',
+  __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_971983160260bf8a6455"),
   '',
-  '1. Read the last digit of the SAMPLE CODE.',
-  '   ODD: start with REAGENT A.',
-  '   EVEN: start with REAGENT B.',
+  __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_aee09973d65f743416a9"),
+  __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_d7586a65e9c9310adddb"),
+  __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_29de470a6a1861c4fd22"),
   '',
-  '2. Check the analyzer model.',
-  '   CR-3: select UV365.',
-  '   CR-2: select UV254.',
+  __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_27d90e0ac2ea005df8be"),
+  __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_22e8ba16640fb318922c"),
+  __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_495149ef1182f1e3b50e"),
   '',
-  '3. Count the numbered residue spots.',
-  '   MORE than 3: PREP before UV.',
-  '   3 or fewer: PREP after UV.',
+  __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_2aef2d6274bc765c3020"),
+  __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_80381b0bf40ba0aa4514"),
+  __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_8184b45f52dde52fb590"),
   '',
-  '4. Apply the OTHER reagent.',
+  __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_7653a2f36f4d7181ed18"),
   '',
-  '5. Press ANALYZE, then COMPARE.',
+  __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_b118803dd39bd4236093"),
   '',
-  'Wrong action: -10 points.',
-  'Every third mistake resets the procedure.',
-  'Replacement aliquots are supplied automatically.',
+  __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_576575f5e2f027e26f97"),
+  __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_7b1ad86216459ba68ee7"),
+  __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_39572a3fdf5431b95c26"),
   '',
-  'COFFEE is not a laboratory reagent.',
-  'Fictional game protocol. Not real chemistry.'
+  __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_4ad833b9f036a7bc41c4"),
+  __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_b059a1e1d735fe6052bf")
 ].join('\n');
 
 export class ChemicalResidueScene extends BaseForensicMinigame {
@@ -55,7 +56,7 @@ export class ChemicalResidueScene extends BaseForensicMinigame {
       this.evidenceType = 'chemical_residue_preview';
       this.correctValue = 'preview_residue';
       this.clueType = 'preview';
-      this.clueText = 'Preview only. No case evidence was generated.';
+      this.clueText = __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_d29604244f635cb6b586");
     }
 
     this.protocolProgress = 0;
@@ -113,13 +114,13 @@ export class ChemicalResidueScene extends BaseForensicMinigame {
   }
 
   getTitle() {
-    return 'CHEMICAL RESIDUE ANALYSIS';
+    return __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_ee631ea13c50bb1a54d0");
   }
 
   getSubtitle() {
     return this.previewMode
-      ? 'Training sample — no case results will be saved'
-      : 'Trace examination — follow the desk protocol';
+      ? __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_a1ac03147f811969294a")
+      : __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_640042a439fd7bdb8509");
   }
 
   createEvidenceFlow() {
@@ -138,9 +139,9 @@ export class ChemicalResidueScene extends BaseForensicMinigame {
     this.input.keyboard?.on('keydown-ESC', this.escapeHandler);
 
     if (!this.configurationValid) {
-      this.setInstructions('Missing evidence configuration.');
+      this.setInstructions(__dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_a28fb13b3311d5febed4"));
       this.setDialogue(
-        'No case result supplied. Close this test and return to the lab.'
+        __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_2ac485edd2244d7165b3")
       );
       return;
     }
@@ -148,11 +149,11 @@ export class ChemicalResidueScene extends BaseForensicMinigame {
     this.buildWorkbench();
 
     this.setInstructions(
-      'Read SOP. Inspect the sample code, analyzer model and numbered spots.'
+      __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_091e41b4c6f2a82b4d5e")
     );
 
     this.setDialogue(
-      'A residue sample awaits analysis. The manual has survived three budget cuts.'
+      __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_93139a9447430419e9ca")
     );
 
     this.updateTerminal();
@@ -195,8 +196,8 @@ export class ChemicalResidueScene extends BaseForensicMinigame {
         .setStrokeStyle(2, 0x5da17f)
     );
 
-    text(-350, -136, `SAMPLE: ${this.sampleCode}`, 20, '#ffe8a3');
-    text(25, -136, `ANALYZER: ${this.analyzerModel}`, 20, '#7dff7a');
+    text(-350, -136, `${__dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_8719b82bb0df4cb0fe97")}${this.sampleCode}`, 20, '#ffe8a3');
+    text(25, -136, `${__dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_4ba4424eea8d1fd347b0")}${this.analyzerModel}`, 20, '#7dff7a');
 
     this.samplePlate = add(
       this.add.rectangle(-195, -32, 280, 126, 0xb7c5c4)
@@ -232,7 +233,7 @@ export class ChemicalResidueScene extends BaseForensicMinigame {
       );
     }
 
-    text(-335, 40, 'NUMBERED RESIDUE SPOTS', 15, '#ffe8a3');
+    text(-335, 40, __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_f4986660a6c7161cd076"), 15, '#ffe8a3');
 
     add(
       this.add.rectangle(190, -27, 330, 145, 0x030b07)
@@ -261,11 +262,11 @@ export class ChemicalResidueScene extends BaseForensicMinigame {
       return control;
     };
 
-    button(-290, 110, 'REAGENT A', () => {
+    button(-290, 110, __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_8abacbfce0a83f575b1a"), () => {
       this.handleProtocolAction({ type: 'reagent', id: 'A' });
     });
 
-    button(-145, 110, 'REAGENT B', () => {
+    button(-145, 110, __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_425702b2c0219ef95703"), () => {
       this.handleProtocolAction({ type: 'reagent', id: 'B' });
     });
 
@@ -295,7 +296,7 @@ export class ChemicalResidueScene extends BaseForensicMinigame {
 
       this.playOptionalSfx('sfx_click');
       this.setDialogue(
-        'The coffee is for the detective. The sample has suffered enough.'
+        __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_90a98ad79f799d5f749f")
       );
     });
 
@@ -304,7 +305,7 @@ export class ChemicalResidueScene extends BaseForensicMinigame {
       78,
       150,
       38,
-      'READ SOP',
+      __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_7c54e39c3c15483b9c70"),
       () => this.setManualVisible(true),
       {
         fontFamily: FONT_UI,
@@ -351,12 +352,12 @@ export class ChemicalResidueScene extends BaseForensicMinigame {
     }
 
     this.setDialogue(
-      `Step ${this.protocolProgress}/6 accepted. No paperwork casualties reported.`
+      `${__dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_474a987f3bbe57fed43b")}${this.protocolProgress}${__dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_a45fed8db95cd006bc13")}`
     );
   }
 
   actionLabel(action) {
-    if (action.type === 'reagent') return `REAGENT ${action.id}`;
+    if (action.type === 'reagent') return `${__dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_400cf207ff2842b9d0ea")}${action.id}`;
     if (action.type === 'uv') return action.id;
 
     return action.type.toUpperCase();
@@ -400,7 +401,7 @@ export class ChemicalResidueScene extends BaseForensicMinigame {
       });
     }
 
-    let message = `${Phaser.Utils.Array.GetRandom(WRONG_LINES)} (-10 pts)`;
+    let message = `${Phaser.Utils.Array.GetRandom(WRONG_LINES)}${__dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_42b3ee72ca31fd4d3559")}`;
 
     if (this.mistakes % 3 === 0) {
       this.protocolProgress = 0;
@@ -415,7 +416,7 @@ export class ChemicalResidueScene extends BaseForensicMinigame {
       });
 
       message =
-        'Aliquot contaminated. A fresh portion is ready. Restart the same protocol. (-10 pts)';
+        __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_5935ad7bac7f5d5e9abd");
     }
 
     this.updateTerminal();
@@ -424,17 +425,17 @@ export class ChemicalResidueScene extends BaseForensicMinigame {
 
   updateTerminal() {
     this.terminalText?.setText([
-      `MODEL: ${this.analyzerModel}`,
-      `ALIQUOT: ${this.aliquotNumber}`,
-      `ACCEPTED: ${this.protocolProgress}/6`,
-      `MISTAKES: ${this.mistakes}`,
+      `${__dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_075615d0c4df32dd4012")}${this.analyzerModel}`,
+      `${__dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_412498d1e382632c1e35")}${this.aliquotNumber}`,
+      `${__dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_bf2b9579d38c4db5f016")}${this.protocolProgress}${__dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_425f4b39d0b3e4fef907")}`,
+      `${__dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_95c57004c7de6dd30ff6")}${this.mistakes}`,
       this.protocolProgress === 6
-        ? 'STATUS: COMPLETE'
-        : 'STATUS: AWAITING INPUT'
-    ].join('\n'));
+        ? __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_8814d2f2349717bd418e")
+        : __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_4c83f9b8d353a93ef2e8")
+    ].join(__dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_01ba4719c80b6fe911b0")));
 
     this.protocolText?.setText(
-      `LAST ACTION: ${this.protocolLog.at(-1) || 'NONE'}`
+      `${__dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_a8b5793d609463d4ad7e")}${this.protocolLog.at(-1) || __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_c627c09c14e58e44bc51")}`
     );
   }
 
@@ -458,19 +459,19 @@ export class ChemicalResidueScene extends BaseForensicMinigame {
         width / 2,
         (145 + height - 190) / 2,
         [
-          'ANALYSIS COMPLETE',
+          __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_319aec83947878015de3"),
           '',
           this.previewMode
-            ? 'TRAINING SAMPLE'
+            ? __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_97069b6989a2b31fee4d")
             : displayValue.toUpperCase(),
           '',
-          `Protocol: 6/6 accepted`,
-          `Mistakes: ${this.mistakes}`,
+          `${__dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_eebf182f506a9cc5f009")}`,
+          `${__dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_3732cd148466f1bea431")}${this.mistakes}`,
           '',
           this.previewMode
-            ? 'Preview only. Nothing will be added to the case.'
-            : 'Result ready. Add it to the case file.'
-        ].join('\n'),
+            ? __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_2eaee54c13d6a4a701fd")
+            : __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_8be848b158628703b1c3")
+        ].join(__dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_01ba4719c80b6fe911b0")),
         {
           fontFamily: FONT_DOC,
           fontSize: '21px',
@@ -483,7 +484,7 @@ export class ChemicalResidueScene extends BaseForensicMinigame {
 
     if (this.previewMode) {
       const finishButton = this.optionButtons.at(-1);
-      finishButton?.text?.setText('CLOSE PREVIEW');
+      finishButton?.text?.setText(__dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_25c67b3301a6429c79e4"));
     }
   }
 
@@ -493,8 +494,8 @@ export class ChemicalResidueScene extends BaseForensicMinigame {
 
   getSuccessMessage() {
     return this.previewMode
-      ? 'Training complete. The clipboard reluctantly approves.'
-      : 'Protocol complete. The result is ready for the case file.';
+      ? __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_124586c814d0131e1936")
+      : __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_980eab863c19e74a9ea4");
   }
 
   getResultPayload() {
@@ -576,7 +577,7 @@ export class ChemicalResidueScene extends BaseForensicMinigame {
     const close = this.add.text(
       width / 2,
       height - 48,
-      '[ CLOSE / ESC ]',
+      __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_014b3cb291da1d46ce8e"),
       {
         fontFamily: FONT_UI,
         fontSize: '11px',

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import {
   validateDocumentCatalog, getDocumentJobs, getDocumentJob, startDocumentJob,
   answerDocumentJob, deliverDocumentJob, ownsPrinter
@@ -26,7 +27,7 @@ export class ComputerDocumentJobs {
         if (!response.ok) throw Error(`HTTP ${response.status}`);
         this.catalog = validateDocumentCatalog(await response.json());
       } catch (error) {
-        this.error = 'Document jobs could not be loaded.';
+        this.error = __dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_bcbaab87ef086569d9aa");
         console.error('[ComputerDocumentJobs]', error);
       } finally { this.loading = null; this.redraw(); }
     })();
@@ -43,15 +44,15 @@ export class ComputerDocumentJobs {
   }
   render() {
     const ui = this.ui, d = ui.drawing;
-    const box = this.shop.frame('DOCUMENT JOBS');
+    const box = this.shop.frame(__dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_c6e18052920db0f07257"));
     const x = box.x + 22, y = box.y + 58, width = box.w - 44;
     d.button(x, y, 'SHOP', () => ui.openApp('office-shop'));
-    d.text(x + 150, y + 8, 'Small print. Honest money. Allegedly.', 20, '#263a47');
+    d.text(x + 150, y + 8, __dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_de88a0830357e7779c83"), 20, '#263a47');
     if (!ownsPrinter()) {
-      d.text(x, y + 80, 'Buy an Office Printer to accept document jobs.', 20, '#713d32'); return;
+      d.text(x, y + 80, __dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_739a833672c74aac918a"), 20, '#713d32'); return;
     }
     if (!this.catalog) {
-      d.text(x, y + 80, this.error || 'Loading document jobs...', 18, '#713d32');
+      d.text(x, y + 80, this.error || __dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_4e5c273b1818e282d128"), 18, '#713d32');
       if (this.error) d.button(x, y + 130, 'RETRY', () => { void this.load(); });
       return;
     }
@@ -64,18 +65,18 @@ export class ComputerDocumentJobs {
     this.page = Math.max(0, Math.min(this.page, jobs.length - 1));
     const offer = jobs[this.page];
     d.text(x, y + 58,
-      `Up to ${this.catalog.dailyLimit} new jobs per game day. Starting a job costs ${this.catalog.durationMinutes} minutes.`,
+      `${__dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_08c05eadf48e4cc48e7e")}${this.catalog.dailyLimit}${__dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_00a4051fc9285270e118")}${this.catalog.durationMinutes}${__dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_014f602d3c3122c4078f")}`,
       17, '#315539', width);
-    d.text(x, y + 91, 'Time spent here counts towards investigation deadlines.', 16, '#713d32');
-    if (!offer) { d.text(x, y + 150, 'No jobs available.', 20, '#263a47'); return; }
+    d.text(x, y + 91, __dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_ab532d47eb9035a193e8"), 16, '#713d32');
+    if (!offer) { d.text(x, y + 150, __dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_2481f1577adaab7cc557"), 20, '#263a47'); return; }
     d.bevel(x, y + 130, width, 230, 0xe9e6d7, true);
     d.text(x + 20, y + 150, offer.title, 25, '#263a47', width - 40);
-    d.text(x + 20, y + 202, `Fee: $${offer.reward} | Time: ${offer.durationMinutes} min | Day ${offer.day}`, 18, '#315539');
-    d.text(x + 20, y + 242, `Status: ${offer.status}`, 17, '#474b42');
+    d.text(x + 20, y + 202, `${__dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_90e0569bfcc435494682")}${offer.reward}${__dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_415f61dbd610c63e0b87")}${offer.durationMinutes}${__dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_ec00cc07dc47e2189c33")}${offer.day}`, 18, '#315539');
+    d.text(x + 20, y + 242, `${__dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_4889951f61342f41fcf0")}${offer.status}`, 17, '#474b42');
     const canStart = offer.status !== 'completed';
     const armed = this.confirmId === offer.id;
     d.button(x + 20, y + 296, offer.status === 'completed' ? 'PAID' :
-      offer.status === 'available' ? (armed ? 'CONFIRM START' : 'ACCEPT JOB') : 'RESUME', () => {
+      offer.status === 'available' ? (armed ? __dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_9cd18851dec429409d56") : __dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_d312f070ce8b76fa77c1")) : 'RESUME', () => {
         if (!this.active()) return;
         if (offer.status === 'available' && !armed) { this.confirmId = offer.id; ui.render(); return; }
         const result = startDocumentJob(this.catalog, offer.id);
@@ -94,7 +95,7 @@ export class ComputerDocumentJobs {
     d.text(x, y + 55, job.title, 24, '#263a47', width);
     d.text(x, y + 89, job.description, 16, '#474b42', width);
     const column = (width - 18) / 2, paperY = y + 138;
-    ['ORIGINAL', 'PRINT DRAFT'].forEach((title, index) => {
+    ['ORIGINAL', __dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_a726b6f44995aac6b819")].forEach((title, index) => {
       const left = x + index * (column + 18);
       d.rectangle(left, paperY, column, 165, index ? 0xe5e3d6 : 0xf7efda);
       d.pixel(left + 15, paperY + 16, title, 11, '#263a47');
@@ -106,11 +107,11 @@ export class ComputerDocumentJobs {
     const answerY = paperY + 188;
     const act = callback => { if (!this.active()) return; const result = callback(); this.message = result.message; this.redraw(); };
     if (!job.timeCharged) {
-      d.button(x, answerY, 'RESUME TIME CHARGE', () => act(() => startDocumentJob(this.catalog, job.id)));
+      d.button(x, answerY, __dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_f96f782d8fd4a9d00035"), () => act(() => startDocumentJob(this.catalog, job.id)));
     } else if (job.status === 'completed') {
-      d.text(x, answerY, `Delivered and paid: $${job.reward}`, 21, '#315539');
+      d.text(x, answerY, `${__dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_c6c62454085d40977559")}${job.reward}`, 21, '#315539');
     } else if (job.corrected) {
-      const button = d.button(x, answerY, job.status === 'paying' ? 'RETRY DELIVERY' : 'PRINT & DELIVER', () => {});
+      const button = d.button(x, answerY, job.status === 'paying' ? __dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_82658ea6bcf0c2fbe3ad") : __dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_005d8fb27faab3504cba"), () => {});
       // This physical action has its own effect, not a generic button click.
       button.removeAllListeners('pointerdown');
       button.on('pointerdown', () => {
@@ -120,7 +121,7 @@ export class ComputerDocumentJobs {
     } else {
       const field = job.fields.find(entry => entry.source !== entry.draft);
       const labels = job.fieldChecked ? field.options : job.fields.map(entry => entry.label);
-      d.text(x, answerY - 8, job.fieldChecked ? 'Choose the correct replacement:' : 'Which field is wrong?', 18, '#315539');
+      d.text(x, answerY - 8, job.fieldChecked ? __dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_00ad4c30447de6b7f7b4") : __dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_669d436ffe208e313315"), 18, '#315539');
       labels.forEach((label, index) => {
         const button = d.button(x + index * (width / 3), answerY + 26,
           label, () => act(() => answerDocumentJob(job.id, job.fieldChecked ? 'value' : 'field', index)));
@@ -128,6 +129,6 @@ export class ComputerDocumentJobs {
       });
     }
     d.text(x, y + 428, this.message, 17, '#713d32', width);
-    d.button(x, box.y + box.h - 53, 'JOB LIST', () => { this.selectedId = null; this.confirmId = null; ui.render(); });
+    d.button(x, box.y + box.h - 53, __dialogueText("ui/pi-computer/ComputerDocumentJobs.js", "t_6a7605d3eeb050d39142"), () => { this.selectedId = null; this.confirmId = null; ui.render(); });
   }
 }

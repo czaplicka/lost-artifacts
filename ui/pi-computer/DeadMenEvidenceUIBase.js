@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 import {
   requestAutosave,
@@ -34,10 +35,10 @@ const patterns = {
 };
 
 const words = {
-  bed: '[hiss] [two tram-bell rings] [three taps]',
-  a1: '“Margaret. It is me. I need you to find the blue folder.”',
-  a2: '“Margaret. Listen carefully. The blue folder. You know where to look.”',
-  c: '“Have you found it? Do not tell anyone. I will call again.”'
+  bed: __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_4a3e06c03cff0b9abc78"),
+  a1: __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_9116b3020c8b6fbc984a"),
+  a2: __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_81e0dee31a3dcd8f653f"),
+  c: __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_7c5c6ce0b1111549317f")
 };
 
 const models = {
@@ -97,45 +98,45 @@ const tasks = [
 const endings = [
   {
     id: 'whole',
-    label: 'THE WHOLE TRUTH',
+    label: __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_0bbbfca1998091653fbe"),
     description:
-      'Send the factual case report and the complete private continuation. Honour Margaret’s request, even though it will hurt.',
+      __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_dbc2b4d14db8f6a2b40d"),
     appendix:
-      'PRIVATE ADDENDUM\nYou asked to know if I discovered other matters concerning Edward. The complete continuation of Archive C records Edward planning a concealed trip with Elise while saying he had told you he was travelling alone. I am supplying the complete private recording separately. It is not needed to establish Colin’s manipulation.\n\nThis records Edward’s words. It does not establish every detail of his relationship with Elise.',
-    delivery: 'Complete private continuation supplied to Margaret.',
+      __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_70f14490c97a56bafc19"),
+    delivery: __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_a244478c3e61f4cd6ab4"),
     reply:
-      'You kept your word. I wish the truth had been kinder. I need some time before I listen to that recording again.'
+      __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_b1a74267feb741bc60a1")
   },
   {
     id: 'case',
-    label: 'ONLY THE CASE',
+    label: __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_00d40a254d7e165d2a64"),
     description:
-      'Send every relevant finding about Colin, but do not mention the unrelated private continuation. Protect her from it, despite her request.',
+      __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_2ce9d9cfa6b86e41f9ee"),
     appendix: '',
     delivery:
-      'Private continuation retained with the preserved archive; not disclosed in the report.',
+      __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_3487a7901c3187ba100c"),
     reply:
-      'Thank you for explaining the calls. At least I can keep my memories of Edward without someone else borrowing his voice.'
+      __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_d4a0c6eaa1df02afa647")
   },
   {
     id: 'choose',
-    label: 'LET HER CHOOSE',
+    label: __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_96ded412f7fd696f54e7"),
     description:
-      'Tell Margaret that unrelated, potentially painful private material exists. Let her decide whether to receive it.',
+      __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_372b692815882702355e"),
     appendix:
-      'PRIVATE MATERIAL — YOUR CHOICE\nThe complete archive contains additional private material concerning Edward, unrelated to proving Colin’s manipulation. It may change how you remember him. I have preserved it without including it here. Tell me if you want the complete recording. You do not have to decide now.',
+      __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_87eb010dbe7a6d6cb6e5"),
     delivery:
-      'Private material offered without disclosure; Margaret chooses to defer receiving it.',
+      __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_152a3088de318eba10e9"),
     reply:
-      'Thank you for asking rather than deciding for me. Not now. Keep it safe. I will tell you if I want to hear it.'
+      __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_516adc4c405055f292e4")
   }
 ];
 
 const privateBody =
-  'PRIVATE CONTINUATION — COMPLETE ARCHIVE C\nSource: full retained office message reviewed by Leo during the authorised original-file comparison. The shorter extract previously supplied concerned the opening lines. This continuation was not used in Colin’s three recent messages.\n\n“Have you found it? Do not tell anyone. I will call again. If Margaret asks, the anniversary tickets are in the blue folder.”\n\n[pause]\n\n“Elise, those tickets are for Margaret and her sister. Our train leaves on Friday. I told Margaret I am travelling alone. Book the room in your name; I do not want her finding this before we leave.”\n\n[message ends]\n\nThe words establish a concealed plan in Edward’s account. They do not independently establish the full nature or duration of his relationship with Elise. This private continuation is unnecessary to establish Colin’s assembly and dispatch of the recent messages.\n\nNo original will be destroyed in any ending.';
+  __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_d2b13b9b0b791f398ba2");
 
 const wishesBody =
-  'MARGARET — FOLLOW-UP EMAIL\n\nDetective,\n\nIf you find anything else about Edward, I want to know. I have had enough people deciding what I can handle.\n\nI still keep the old anniversary message. It is how I remember his last romantic surprise.\n\nMargaret';
+  __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_f4812318d3adf1221a39");
 
 const clone = value => JSON.parse(JSON.stringify(value));
 
@@ -270,7 +271,7 @@ function mail(id, from, subject, body) {
     from,
     subject,
     body,
-    date: 'Dead Men Calling — private material'
+    date: __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_0b1f0c3732c8ac57e9d7")
   };
 }
 
@@ -284,14 +285,14 @@ function moralMail() {
   const items = [
     mail(
       WISH,
-      'Margaret Vale',
-      'A request about Edward',
+      __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_e3683593d8ba71a5c369"),
+      __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_62184c7887b21da50c41"),
       wishesBody
     ),
     mail(
       PRIVATE,
-      'Mercer Audio — private attachment',
-      'Archive C — private continuation',
+      __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_9ff95f279d1225c6220e"),
+      __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_858f6447f7461ffb2f3f"),
       privateBody
     )
   ];
@@ -303,8 +304,8 @@ function moralMail() {
     items.push(
       mail(
         'dead_men_private_sent',
-        'You → Margaret Vale',
-        'Sent: complete private continuation',
+        __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_36e093f31c204d28988a"),
+        __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_2cefedbca8f1189a2153"),
         privateBody
       )
     );
@@ -328,7 +329,7 @@ function makePreview(base) {
     return null;
   }
 
-  const report = base.body.split('\n\nCONTRACT FEE:')[0];
+  const report = base.body.split(__dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_f3e374110d1ce3d2879e"))[0];
 
   return {
     fee: q.reward,
@@ -356,7 +357,7 @@ function settle(preview, expectedToken) {
   if (settling) {
     return {
       ok: false,
-      message: 'Processing the report.'
+      message: __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_e30f35d1e012c01fb9b0")
     };
   }
 
@@ -371,7 +372,7 @@ function settle(preview, expectedToken) {
   ) {
     return {
       ok: false,
-      message: 'This case is already closed or unavailable.'
+      message: __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_a99e7dfb9545451daaf5")
     };
   }
 
@@ -392,7 +393,7 @@ function settle(preview, expectedToken) {
   ) {
     return {
       ok: false,
-      message: 'Review the evidence, ending and exact report again.'
+      message: __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_4bcee55f7b1c03d45c33")
     };
   }
 
@@ -419,7 +420,7 @@ function settle(preview, expectedToken) {
       try {
         moneyManager.addCash(p.preview.fee, {
           category: ECONOMY_CATEGORY.SIDE_CASE,
-          description: 'PI case closed: Dead Men Calling',
+          description: __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_9a017832ab250e548d16"),
           missionId: DEAD_MEN_QUEST,
           metadata: {
             deadMenSettlementId: p.id,
@@ -450,7 +451,7 @@ function settle(preview, expectedToken) {
 
     addPIEvidence(DEAD_MEN_QUEST, {
       id: 'dead_men_final_report',
-      label: 'Final report — Dead Men Calling',
+      label: __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_ce02ce16346ae602c210"),
       text: p.preview.report,
       metaText: p.preview.privateDelivery,
       color: 'yellow'
@@ -465,7 +466,7 @@ function settle(preview, expectedToken) {
       settlementId: p.id,
       privateDelivery: p.preview.privateDelivery,
       summary:
-        'Colin’s three manipulated calls established; accounting query unresolved.'
+        __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_e3a2f9e89e15e768311c")
     };
 
     const qs = gameState.piQuests;
@@ -525,8 +526,8 @@ function settle(preview, expectedToken) {
     return {
       ok: true,
       message: saved
-        ? `Case closed. Received $${p.preview.fee}.`
-        : 'Case closed. Saving failed — save before leaving.'
+        ? `${__dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_56e84f304751a9d98a80")}${p.preview.fee}${__dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_cdb4ee2aea69cc6a8333")}`
+        : __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_838dfc8ff4549dd73563")
     };
   } catch (error) {
     requestAutosave();
@@ -534,7 +535,7 @@ function settle(preview, expectedToken) {
     return {
       ok: false,
       message:
-        'Settlement interrupted. Retry the same report; recorded payment will not repeat.'
+        __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_e0ea7e6ba770a701e8e2")
     };
   } finally {
     settling = false;
@@ -622,9 +623,9 @@ export function installDeadMenEvidenceUI(ui) {
             return {
               ...message,
               body:
-                'Detective,\n\n' +
+                __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_22a705e57674f27a7c07") +
                 settlement.preview.reply +
-                '\n\nThe agreed fee has been paid.\n\nMargaret Vale'
+                __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_78b8ac90ad3413a41390")
             };
           }
 
@@ -658,7 +659,7 @@ export function installDeadMenEvidenceUI(ui) {
         confirmation = null;
 
         return paged(
-          'Before choosing a report, read “A request about Edward” and “Archive C — private continuation”.\n\nThe relevant findings about Colin will be reported in every ending. No originals are destroyed.',
+          __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_4d9d64bf585bda3bd8d3"),
           x,
           y,
           w,
@@ -674,18 +675,18 @@ export function installDeadMenEvidenceUI(ui) {
 
       const explanation = ending
         ? ending.description
-        : 'Choose how to handle the unrelated private material.';
+        : __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_175b46f5fc89e9081cc9");
 
       const body =
         (p
-          ? p.report + '\n\nPRIVATE MATERIAL: ' + p.privateDelivery
-          : 'MORAL DECISION\n\n' +
+          ? p.report + __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_370d76639d81d48f45c1") + p.privateDelivery
+          : __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_dfda050d3453ded2a212") +
             endings
               .map(item => item.label + '\n' + item.description)
               .join('\n\n')) +
         '\n\n' +
         explanation +
-        '\n\nCONTRACT FEE: $' +
+        __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_cb7c85e1974fadacad57") +
         (p?.fee ?? quest().reward);
 
       const token = p ? JSON.stringify(p) : null;
@@ -694,7 +695,7 @@ export function installDeadMenEvidenceUI(ui) {
       paged(
         body +
           (armed
-            ? '\n\nConfirm sending this exact report and the stated private-material delivery?'
+            ? __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_77478d56683d42eb76f3")
             : ''),
         x,
         y,
@@ -705,7 +706,7 @@ export function installDeadMenEvidenceUI(ui) {
       ui.drawing.button(
         x,
         y + h - 70,
-        'ENDING: ' +
+        __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_c03e0444f1bc5387f8d0") +
           (ending
             ? String(endings.indexOf(ending) + 1) + '/3'
             : 'CHOOSE'),
@@ -739,7 +740,7 @@ export function installDeadMenEvidenceUI(ui) {
       ui.drawing.button(
         x,
         y + h - 32,
-        armed ? 'CONFIRM SEND' : 'PREPARE SEND',
+        armed ? __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_ffb5da4d490b7803ce95") : __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_b9433b1b448012d19d68"),
         () => {
           if (
             ui.app !== 'mail' ||
@@ -815,7 +816,7 @@ export function installDeadMenEvidenceUI(ui) {
       ui.drawing.text(
         x,
         y,
-        `${task.kind} MATCH ${state().matches.length + 1}/6 — choose the source archive`,
+        `${task.kind}${__dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_ac22b86829299c80a3ca")}${state().matches.length + 1}${__dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_ccc92d0484b2744c0b98")}`,
         13,
         '#353d32',
         w
@@ -828,7 +829,7 @@ export function installDeadMenEvidenceUI(ui) {
         w,
         panelH,
         task.target,
-        task.target.replace('dead_men_recording_', 'RECENT 0'),
+        task.target.replace('dead_men_recording_', __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_cb79d269a9824e94b130")),
         task.part
       );
 
@@ -839,7 +840,7 @@ export function installDeadMenEvidenceUI(ui) {
         w,
         panelH,
         'dead_men_archive_' + source,
-        'ARCHIVE ' + source.toUpperCase()
+        __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_f1cb38668b33bd5a6448") + source.toUpperCase()
       );
 
       const fy = y + 36 + panelH * 2;
@@ -848,7 +849,7 @@ export function installDeadMenEvidenceUI(ui) {
         x,
         fy,
         feedback ||
-          'Highlighted segment: find the same shape in the lower lane.',
+          __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_6327d28f2ac062341b21"),
         12,
         '#444a38',
         w
@@ -857,7 +858,7 @@ export function installDeadMenEvidenceUI(ui) {
       ui.drawing.button(
         x,
         y + h - 32,
-        'SOURCE ' + source.toUpperCase(),
+        __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_8b51c0a15b8ed5a538a3") + source.toUpperCase(),
         () => {
           sourceIndex = (sourceIndex + 1) % 3;
           feedback = '';
@@ -877,8 +878,8 @@ export function installDeadMenEvidenceUI(ui) {
           const ok = applyMatch(task.id, source);
 
           feedback = ok
-            ? 'Fragment matched.'
-            : 'That archive does not contain this segment. Compare the shapes and transcripts.';
+            ? __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_35ab4efcacf5757a99bd")
+            : __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_f85367006a4cb9bef525");
 
           ui.bodyPage = 0;
           ui.render();
@@ -895,7 +896,7 @@ export function installDeadMenEvidenceUI(ui) {
         ui.drawing.button(
           x,
           y + h - 32,
-          'SHOW WAVES',
+          __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_87e6a46783809312304f"),
           () => {
             transcriptId = null;
             ui.bodyPage = 0;
@@ -915,7 +916,7 @@ export function installDeadMenEvidenceUI(ui) {
       ui.drawing.text(
         x,
         y,
-        'EVIDENCE PLAYER — SCHEMATIC, NOT ANALYSED AUDIO',
+        __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_05b50001feb8ec64f4ce"),
         11,
         '#555b45',
         w
@@ -928,7 +929,7 @@ export function installDeadMenEvidenceUI(ui) {
         w,
         panelH,
         id,
-        'TRANSCRIPT REPLAY',
+        __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_97f9d3f26061e2d17723"),
         parts[replay]
       );
 
@@ -944,7 +945,7 @@ export function installDeadMenEvidenceUI(ui) {
       ui.drawing.button(
         x,
         y + h - 32,
-        'NEXT FRAGMENT',
+        __dialogueText("ui/pi-computer/DeadMenEvidenceUIBase.js", "t_eac56cc947e33b02ffd8"),
         () => {
           replay = (replay + 1) % parts.length;
           ui.render();

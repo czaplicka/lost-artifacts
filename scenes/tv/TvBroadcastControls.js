@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { TV_BUTTON_OVERRIDES } from './TvBroadcastControlsConfig.js';
 
 const LOCAL_DEBUG_ALLOWED = [
@@ -455,7 +456,7 @@ export class TvBroadcastControls {
       this.isBroadcastPaused();
 
     label.setText(
-      paused ? 'PLAY' : cfg.id.toUpperCase()
+      paused ? __dialogueText("scenes/tv/TvBroadcastControls.js", "t_f53a7ab988e2f4624beb") : cfg.id.toUpperCase()
     );
 
     label.setColor(
@@ -532,12 +533,12 @@ export class TvBroadcastControls {
     this.debugText?.setText(
       show
         ? [
-            `LOCAL TV DEBUG: ${cfg?.id || 'no buttons'}`,
-            `x:${cfg?.x} y:${cfg?.y} w:${cfg?.w} h:${cfg?.h}`,
-            'Drag / Arrows: move | Shift+Arrows: resize | Alt: 1px',
-            'Tab / Shift+Tab: select | C: export | D: close',
-            'Button clicks disabled. TV keyboard shortcuts remain active.'
-          ].join('\n')
+            `${__dialogueText("scenes/tv/TvBroadcastControls.js", "t_492601879a8736c72d5c")}${cfg?.id || __dialogueText("scenes/tv/TvBroadcastControls.js", "t_d6affb46a46930ba6e84")}`,
+            `${__dialogueText("scenes/tv/TvBroadcastControls.js", "t_51e33c7c7efbc350d26f")}${cfg?.x}${__dialogueText("scenes/tv/TvBroadcastControls.js", "t_8278a5c11d3d9380f821")}${cfg?.y}${__dialogueText("scenes/tv/TvBroadcastControls.js", "t_1b89a9604b178452218e")}${cfg?.w}${__dialogueText("scenes/tv/TvBroadcastControls.js", "t_3f4674b8e35cc249a199")}${cfg?.h}`,
+            __dialogueText("scenes/tv/TvBroadcastControls.js", "t_ab723c339f7fee296c8c"),
+            __dialogueText("scenes/tv/TvBroadcastControls.js", "t_8a8e5fa4a5df6de70337"),
+            __dialogueText("scenes/tv/TvBroadcastControls.js", "t_f131e65efc8ba00702ce")
+          ].join(__dialogueText("scenes/tv/TvBroadcastControls.js", "t_01ba4719c80b6fe911b0"))
         : ''
     );
   }
@@ -590,7 +591,7 @@ export class TvBroadcastControls {
       return;
     }
 
-    if (event.code === 'Tab') {
+    if (event.code === __dialogueText("scenes/tv/TvBroadcastControls.js", "t_90ddf1963abb36c9921c")) {
       event.preventDefault();
 
       const delta = event.shiftKey ? -1 : 1;

@@ -1,19 +1,20 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import {
   HO_COLORS as C, HO_FONTS as F, addPaper, createStamp,
   drawDashedLine, drawPaperclip
 } from './HiddenObjectsTheme.js';
 
 const RANKS = [
-  { maxMisses: 0, title: 'Bloodhound' },
-  { maxMisses: 2, title: 'Seasoned Sleuth' },
-  { maxMisses: 5, title: 'Keen Amateur' },
-  { maxMisses: 9, title: 'Enthusiastic Guesser' },
-  { maxMisses: Infinity, title: 'Mall Cop' }
+  { maxMisses: 0, title: __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_9f5f6a4d35b384a2fbdb") },
+  { maxMisses: 2, title: __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_7b4f73dbc181cdaaa466") },
+  { maxMisses: 5, title: __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_747bf1f8a763587e09c7") },
+  { maxMisses: 9, title: __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_f3f94408f00852535441") },
+  { maxMisses: Infinity, title: __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_61a4a02789c6ba79b361") }
 ];
 const FAIL_QUIPS = [
-  'The evidence trail went cold. So did your coffee.',
-  'The clock won. The clock usually does.',
-  'Somewhere, a thief is laughing. Quietly. Politely.'
+  __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_80752605c63c9a182c56"),
+  __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_757a0fa1ae133e95a15f"),
+  __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_74ac50b9da1fc25b1cd4")
 ];
 function getRankTitle(misses) {
   const safe = Math.max(0, Number(misses) || 0);
@@ -49,23 +50,23 @@ export class HiddenObjectsResultOverlay {
     const left = -panelWidth / 2 + 56;
     const right = panelWidth / 2 - 56;
     this.addPanel(root, panelWidth, panelHeight, { seed: 21, base: '#dfcd9f' });
-    this.addText(root, 0, -306, 'CASE FILE UPDATE', {
+    this.addText(root, 0, -306, __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_47e89c20bcd401dc0d0b"), {
       fontFamily: F.pixel, fontSize: '10px', color: C.inkSoftHex
     });
-    this.addText(root, 0, -260, 'Crime Scene Complete', {
+    this.addText(root, 0, -260, __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_2f46d707f4e546d6d338"), {
       fontFamily: F.body, fontSize: '40px', color: C.inkHex
     });
     this.addDashed(root, left, right, -222);
-    this.addText(root, 0, -194, 'The forensic sweep is finished.', {
+    this.addText(root, 0, -194, __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_d2931470544bb10e6c8d"), {
       fontFamily: F.body, fontSize: '21px', color: C.inkSoftHex
     });
-    this.addLedgerRow(root, -144, 'Objects found',
+    this.addLedgerRow(root, -144, __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_d61df6acbc04bdedf234"),
       `${scene.foundItems.size}/${scene.activeItems.length}`, left, right);
-    this.addLedgerRow(root, -104, 'Misses', String(scene.incorrectClicks), left, right);
-    this.addLedgerRow(root, -64, 'Time left', scene.formatTime(scene.timeLeft), left, right);
-    this.addLedgerRow(root, -24, 'Time bonus', `+${remainingTimeBonus}`, left, right);
+    this.addLedgerRow(root, -104, __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_350cf2c3eee0bea7a991"), String(scene.incorrectClicks), left, right);
+    this.addLedgerRow(root, -64, __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_fc891b508273ef825c1d"), scene.formatTime(scene.timeLeft), left, right);
+    this.addLedgerRow(root, -24, __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_b8c6d6b0a08ae9c0ae78"), `+${remainingTimeBonus}`, left, right);
     this.addDashed(root, left, right, 10);
-    this.addText(root, left, 46, 'FINAL SCORE', {
+    this.addText(root, left, 46, __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_edbb156278e07476cbd6"), {
       fontFamily: F.pixel, fontSize: '13px', color: C.inkHex
     }, 0, 0.5);
     const scoreValue = this.addText(root, right, 46, '0', {
@@ -73,13 +74,13 @@ export class HiddenObjectsResultOverlay {
       color: finalScore < 0 ? C.redInkHex : C.greenHex
     }, 1, 0.5);
     this.startCountUp(scoreValue, finalScore);
-    this.addText(root, 0, 92, `Rank: ${getRankTitle(scene.incorrectClicks)}`, {
+    this.addText(root, 0, 92, `${__dialogueText("ui/HiddenObjectsResultOverlay.js", "t_d76c820f0e55ce3e8168")}${getRankTitle(scene.incorrectClicks)}`, {
       fontFamily: F.body, fontSize: '22px', color: C.inkHex
     });
     // Osobny pas pieczątki: pomiędzy rangą i instrukcją.
-    this.addStamp(root, 0, 170, 'PROCESSED', C.green, C.greenHex, 'Evidence logged');
+    this.addStamp(root, 0, 170, 'PROCESSED', C.green, C.greenHex, __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_d1cd9e998821ebc562dd"));
     this.addText(root, 0, 248,
-      'Evidence logged. Return to the city and continue the investigation.', {
+      __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_8f8bc5822666f59564a9"), {
         fontFamily: F.body, fontSize: '18px', color: C.inkSoftHex,
         align: 'center', wordWrap: { width: panelWidth - 130 }
       });
@@ -108,28 +109,28 @@ export class HiddenObjectsResultOverlay {
     this.addPanel(root, panelWidth, panelHeight, {
       seed: 34, base: '#d4bf9a', edge: '90,40,25'
     });
-    this.addText(root, 0, -280, 'CASE FILE UPDATE', {
+    this.addText(root, 0, -280, __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_47e89c20bcd401dc0d0b"), {
       fontFamily: F.pixel, fontSize: '10px', color: C.inkSoftHex
     });
-    this.addText(root, 0, -236, 'Crime Scene Lost', {
+    this.addText(root, 0, -236, __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_1b320346bff15d1d7818"), {
       fontFamily: F.body, fontSize: '38px', color: C.redInkHex
     });
     this.addDashed(root, left, right, -200);
     this.addText(root, 0, -162,
-      'You ran out of time before the scene was fully processed.', {
+      __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_362518f084edb8f3a101"), {
         fontFamily: F.body, fontSize: '20px', color: C.inkHex,
         align: 'center', wordWrap: { width: panelWidth - 120 }
       });
-    this.addLedgerRow(root, -106, 'Objects found',
+    this.addLedgerRow(root, -106, __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_d61df6acbc04bdedf234"),
       `${scene.foundItems.size}/${scene.activeItems.length}`, left, right);
-    this.addLedgerRow(root, -66, 'Misses', String(scene.incorrectClicks), left, right);
-    this.addLedgerRow(root, -26, 'Score', String(scene.score), left, right);
-    this.addStamp(root, 0, 60, 'COLD TRAIL', C.red, C.redHex, 'Case still open');
+    this.addLedgerRow(root, -66, __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_350cf2c3eee0bea7a991"), String(scene.incorrectClicks), left, right);
+    this.addLedgerRow(root, -26, __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_38e5a46cbc5ad32842ac"), String(scene.score), left, right);
+    this.addStamp(root, 0, 60, __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_05747a33b4c540d40da7"), C.red, C.redHex, __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_3747887720ccb5984ba5"));
     this.addText(root, 0, 152, FAIL_QUIPS[Math.floor(Math.random() * FAIL_QUIPS.length)], {
       fontFamily: F.body, fontSize: '18px', color: C.inkSoftHex,
       align: 'center', wordWrap: { width: panelWidth - 130 }
     });
-    const autoReturnText = this.addText(root, 0, 210, 'Returning to the city in 3...', {
+    const autoReturnText = this.addText(root, 0, 210, __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_4c2bf6836eeb43df0caa"), {
       fontFamily: F.body, fontSize: '17px', color: C.redInkHex, align: 'center'
     });
     let remaining = 3;
@@ -138,11 +139,11 @@ export class HiddenObjectsResultOverlay {
       callback: () => {
         remaining -= 1;
         if (remaining > 0 && autoReturnText?.active) {
-          autoReturnText.setText(`Returning to the city in ${remaining}...`);
+          autoReturnText.setText(`${__dialogueText("ui/HiddenObjectsResultOverlay.js", "t_b8b9654eec3030bd48c4")}${remaining}${__dialogueText("ui/HiddenObjectsResultOverlay.js", "t_ab5df625bc76dbd4e163")}`);
         }
       }
     });
-    this.addButton(root, 0, 270, 'RETURN NOW', true, () => {
+    this.addButton(root, 0, 270, __dialogueText("ui/HiddenObjectsResultOverlay.js", "t_093570e5be9e06e5adb2"), true, () => {
       this.returnToCity(false, scene.score, true);
     });
     this.animateIn(centerY, 280);

@@ -1,16 +1,17 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 // Scene routing only.
 // CrimeLabManager owns case assignment and random draws.
 
 export const CSI_RED_HERRING_POOL = [
   {
     id: 'partial_fingerprint',
-    label: 'Partial Fingerprint',
+    label: __dialogueText("scenes/CSI/CrimeLabConfig.js", "t_1df64eb7359dfe940978"),
     minigame: 'FingerprintScene',
     evidenceType: 'fingerprint_partial',
     correctValue: 'partial_loop_left_thumb',
     clueType: 'red_herring',
     clueText:
-      'A partial fingerprint was recovered, but too little remains for a reliable match.',
+      __dialogueText("scenes/CSI/CrimeLabConfig.js", "t_fc57e6dcb0a29fa12566"),
     isRedHerring: true
   }
 ];
@@ -21,7 +22,7 @@ export const CSI_TRACE_GAME_POOL = CSI_RED_HERRING_POOL;
 export const CSI_MAIN_GAME_POOL = [
   {
     id: 'hair_color',
-    label: 'Hair Analysis',
+    label: __dialogueText("scenes/CSI/CrimeLabConfig.js", "t_c943f251b85d757b582c"),
     minigame: 'HairAnalysisScene',
     evidenceType: 'hair_color',
     clueType: 'main',
@@ -29,7 +30,7 @@ export const CSI_MAIN_GAME_POOL = [
   },
   {
     id: 'blood_type',
-    label: 'Blood Type Analysis',
+    label: __dialogueText("scenes/CSI/CrimeLabConfig.js", "t_ef10c0dcf9b965982d52"),
     minigame: 'BloodAnalysisScene',
     evidenceType: 'blood_type',
     clueType: 'main',
@@ -37,7 +38,7 @@ export const CSI_MAIN_GAME_POOL = [
   },
   {
     id: 'dna_gender',
-    label: 'DNA Gender Profiling',
+    label: __dialogueText("scenes/CSI/CrimeLabConfig.js", "t_1bbdb2638974e4dcec07"),
     minigame: 'DnaGenderScene',
     evidenceType: 'dna_gender',
     clueType: 'main',
@@ -45,7 +46,7 @@ export const CSI_MAIN_GAME_POOL = [
   },
   {
     id: 'fingerprint_pattern',
-    label: 'Fingerprint Pattern Analysis',
+    label: __dialogueText("scenes/CSI/CrimeLabConfig.js", "t_f42249b5be34c92f262b"),
     minigame: 'FingerprintPatternScene',
     evidenceType: 'fingerprint_pattern',
     clueType: 'main',
@@ -58,11 +59,11 @@ export const CSI_MAIN_GAME_POOL = [
 export const CSI_DUST_ANALYSIS_VARIANTS = [
   {
     minigame: 'ToolmarkAnalysisScene',
-    label: 'Microtrace Analysis'
+    label: __dialogueText("scenes/CSI/CrimeLabConfig.js", "t_8a1b0a09e53e7085462e")
   },
   {
     minigame: 'ChemicalResidueScene',
-    label: 'Chemical Residue Analysis'
+    label: __dialogueText("scenes/CSI/CrimeLabConfig.js", "t_ce259d2d314b28f4a169")
   }
 ];
 

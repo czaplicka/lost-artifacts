@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { HomeCityRendererCore } from './HomeCityRendererCore.js';
 import { HW, HH, WORLD_W, WORLD_H, FONT_UI, DIRS, STREET_TEXTS } from './HomeCityConfig.js';
 import { css, mix, hash, rect, circle, ellipse } from './HomeCityDrawing.js';
@@ -38,8 +39,8 @@ export class HomeCityGround extends HomeCityRendererCore {
     const stroke = (a, b, c, d2, color, w) => { ctx.strokeStyle = color; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(x - 0.5 + a, y - 0.5 + b); ctx.lineTo(x - 0.5 + c, y - 0.5 + d2); ctx.stroke(); };
     if (k === 'road') {
       if (!this.texFill(ctx, 'hc_tex_road', x, y)) fill(mix(0x4a4f4b, 0x5c615a, n));
-      if (hash(x, y, 2) > 0.78) rect(ctx, x - 0.4 + hash(x, y, 8) * 0.3, y - 0.4 + hash(y, x, 9) * 0.3, 0.35, 0.28, 'rgba(20,22,20,.16)');
-      if (hash(x, y, 5) > 0.8) { const a = hash(x, y, 6), b = hash(x, y, 7); stroke(a, 0.05, a + 0.2, 0.4, 'rgba(18,20,18,.5)', 0.012); stroke(a + 0.2, 0.4, b, 0.95, 'rgba(18,20,18,.5)', 0.012); }
+      if (hash(x, y, 2) > 0.78) rect(ctx, x - 0.4 + hash(x, y, 8) * 0.3, y - 0.4 + hash(y, x, 9) * 0.3, 0.35, 0.28, __dialogueText("scenes/homeCity/HomeCityGround.js", "t_1074ce7d756e46ca0def"));
+      if (hash(x, y, 5) > 0.8) { const a = hash(x, y, 6), b = hash(x, y, 7); stroke(a, 0.05, a + 0.2, 0.4, __dialogueText("scenes/homeCity/HomeCityGround.js", "t_fd149cb69e4b75a9dc57"), 0.012); stroke(a + 0.2, 0.4, b, 0.95, __dialogueText("scenes/homeCity/HomeCityGround.js", "t_fd149cb69e4b75a9dc57"), 0.012); }
       for (let i = 0; i < 5; i++) spot(hash(x, i, 3), hash(i, y, 4), 0.012, 0xa4a89c, 0.35);
     } else if (k === 'walk') {
       const isPath = this.paths.has(this.scene.cellKey(x, y)) && !this.isSidewalk(x, y);
@@ -48,8 +49,8 @@ export class HomeCityGround extends HomeCityRendererCore {
         for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) { const v = hash(x * 3 + c, y * 3 + r, 1); rect(ctx, x - 0.5 + c / 3 + 0.02, y - 0.5 + r / 3 + 0.02, 0.29, 0.29, v > 0.65 ? 0xb8ad93 : v > 0.3 ? 0xaca187 : 0x9b917a); }
       } else {
         for (let r = 0; r < 2; r++) for (let c = 0; c < 2; c++) rect(ctx, x - 0.5 + c / 2, y - 0.5 + r / 2, 0.5, 0.5, css(0xffffff, hash(x * 2 + c, y * 2 + r, 2) * 0.09));
-        ctx.strokeStyle = 'rgba(70,60,45,.26)'; ctx.lineWidth = 0.016; ctx.strokeRect(x - 0.5, y - 0.5, 1, 1);
-        stroke(0.5, 0, 0.5, 1, 'rgba(70,60,45,.2)', 0.012); stroke(0, 0.5, 1, 0.5, 'rgba(70,60,45,.2)', 0.012);
+        ctx.strokeStyle = __dialogueText("scenes/homeCity/HomeCityGround.js", "t_3cafb55e334678ebdae0"); ctx.lineWidth = 0.016; ctx.strokeRect(x - 0.5, y - 0.5, 1, 1);
+        stroke(0.5, 0, 0.5, 1, __dialogueText("scenes/homeCity/HomeCityGround.js", "t_7a48c32e571df75bdaf4"), 0.012); stroke(0, 0.5, 1, 0.5, __dialogueText("scenes/homeCity/HomeCityGround.js", "t_7a48c32e571df75bdaf4"), 0.012);
       }
       if (hash(x, y, 11) > 0.96) spot(hash(x, y, 12), hash(y, x, 13), 0.025, 0x4b3f3a, 0.55);
       if (hash(x, y, 14) > 0.9) spot(hash(x, y, 15), hash(y, x, 16), 0.022, [0xc9822f, 0xd8b04a, 0x8a5a2b][Math.floor(hash(x, y, 17) * 3)], 0.8);
@@ -75,7 +76,7 @@ export class HomeCityGround extends HomeCityRendererCore {
     const strip = (x, y, dx, dy, w, c) => {
       const px = dx === 1 ? x + 0.5 - w : dx === -1 ? x - 0.5 : x - 0.5, py = dy === 1 ? y + 0.5 - w : dy === -1 ? y - 0.5 : y - 0.5;
       rect(ctx, px, py, dx ? w : 1, dy ? w : 1, c);
-      rect(ctx, dx === 1 ? x + 0.5 : dx === -1 ? x - 0.5 - 0.08 : x - 0.5, dy === 1 ? y + 0.5 : dy === -1 ? y - 0.5 - 0.08 : y - 0.5, dx ? 0.08 : 1, dy ? 0.08 : 1, 'rgba(10,12,10,.22)');
+      rect(ctx, dx === 1 ? x + 0.5 : dx === -1 ? x - 0.5 - 0.08 : x - 0.5, dy === 1 ? y + 0.5 : dy === -1 ? y - 0.5 - 0.08 : y - 0.5, dx ? 0.08 : 1, dy ? 0.08 : 1, __dialogueText("scenes/homeCity/HomeCityGround.js", "t_f07f373c58c897270a9f"));
     };
     for (let y = 0; y < s.rows; y++) for (let x = 0; x < s.cols; x++) {
       const k = this.kind(x, y); if (k !== 'walk' && k !== 'plaza') continue;
@@ -84,7 +85,7 @@ export class HomeCityGround extends HomeCityRendererCore {
     ctx.lineCap = 'butt';
     const dash = (u1, v1, u2, v2, c, w) => { ctx.setLineDash([0.42, 0.5]); ctx.strokeStyle = c; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(u1, v1); ctx.lineTo(u2, v2); ctx.stroke(); ctx.setLineDash([]); };
     const solid = (u1, v1, u2, v2, c, w) => { ctx.strokeStyle = c; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(u1, v1); ctx.lineTo(u2, v2); ctx.stroke(); };
-    const Y = 'rgba(224,186,70,.75)', W = 'rgba(232,228,212,.7)';
+    const Y = __dialogueText("scenes/homeCity/HomeCityGround.js", "t_e1f2961e85fb3154754a"), W = __dialogueText("scenes/homeCity/HomeCityGround.js", "t_e60a49ab97ec2198a651");
     for (const x of [10, 1.5]) for (const [a, b] of [[-9, 6.4], [12.6, 16.4], [20.6, 31]]) dash(x, a, x, b, Y, 0.05);
     for (const [a, b] of [[-9, 0.4], [3.7, 7.3], [18, 34]]) { solid(a, 9.45, b, 9.45, Y, 0.035); solid(a, 9.56, b, 9.56, Y, 0.035); }
     for (const [a, b] of [[-9, 0.4], [3.7, 7.3], [12.7, 34]]) dash(a, 18.5, b, 18.5, W, 0.045);
@@ -95,14 +96,14 @@ export class HomeCityGround extends HomeCityRendererCore {
     for (const u of [3, 8, 12]) zebraU(17.6, 19.4, u);
     for (const [u, v] of [[10, 4], [10, 15], [5, 10], [21, 9.2]]) {
       circle(ctx, u, v, 0.21, 0x2b2e2b); circle(ctx, u, v, 0.17, 0x474b47);
-      solid(u - 0.15, v, u + 0.15, v, 'rgba(20,22,20,.8)', 0.02); solid(u, v - 0.15, u, v + 0.15, 'rgba(20,22,20,.8)', 0.02);
+      solid(u - 0.15, v, u + 0.15, v, __dialogueText("scenes/homeCity/HomeCityGround.js", "t_44ab11e3eccb2f7fc92b"), 0.02); solid(u, v - 0.15, u, v + 0.15, __dialogueText("scenes/homeCity/HomeCityGround.js", "t_44ab11e3eccb2f7fc92b"), 0.02);
     }
     for (const [u, v, r] of [[9.2, 14, 0.5], [20, 10.8, 0.6], [6.4, 8.8, 0.4], [10.4, 2, 0.45]]) {
-      ellipse(ctx, u, v, r, r * 0.7, 'rgba(120,152,176,.3)', 0.6); ellipse(ctx, u - r * 0.2, v - r * 0.2, r * 0.4, r * 0.22, 'rgba(225,238,246,.3)', 0.6);
+      ellipse(ctx, u, v, r, r * 0.7, __dialogueText("scenes/homeCity/HomeCityGround.js", "t_4ecd0f2e9a13228bd173"), 0.6); ellipse(ctx, u - r * 0.2, v - r * 0.2, r * 0.4, r * 0.22, __dialogueText("scenes/homeCity/HomeCityGround.js", "t_b2341d1b9e3b0cdf6782"), 0.6);
     }
-    ctx.strokeStyle = 'rgba(70,62,50,.5)'; ctx.lineWidth = 0.13; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.arc(15, 9.5, 1.05, 0, Math.PI * 2); ctx.stroke(); solid(15.75, 10.25, 16.55, 11.05, 'rgba(70,62,50,.5)', 0.2);
-    ctx.fillStyle = 'rgba(255,255,255,.05)'; ctx.beginPath(); ctx.arc(15, 9.5, 1.0, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = __dialogueText("scenes/homeCity/HomeCityGround.js", "t_073a747438094b889098"); ctx.lineWidth = 0.13; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.arc(15, 9.5, 1.05, 0, Math.PI * 2); ctx.stroke(); solid(15.75, 10.25, 16.55, 11.05, __dialogueText("scenes/homeCity/HomeCityGround.js", "t_073a747438094b889098"), 0.2);
+    ctx.fillStyle = __dialogueText("scenes/homeCity/HomeCityGround.js", "t_8caa693a1d6f391b73cb"); ctx.beginPath(); ctx.arc(15, 9.5, 1.0, 0, Math.PI * 2); ctx.fill();
     ctx.lineCap = 'butt';
   }
   bakeFlatText(job) {
@@ -110,8 +111,8 @@ export class HomeCityGround extends HomeCityRendererCore {
     const key = this.bake(`txt_${job.t.replace(/\W/g, '')}`, 560, 300, ctx => {
       ctx.save(); ctx.transform(HW, HH, -HW, HH, o.x, o.y); ctx.translate(job.u, job.v);
       if (job.rot === 'v') ctx.rotate(-Math.PI / 2);
-      ctx.scale(1 / 64, 1 / 64); ctx.font = `${job.size}px ${FONT_UI}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillStyle = 'rgba(232,224,190,.5)'; ctx.fillText(job.t, 0, 0); ctx.restore();
+      ctx.scale(1 / 64, 1 / 64); ctx.font = `${job.size}${__dialogueText("scenes/homeCity/HomeCityGround.js", "t_2e0dd9220c0e7b7f0e34")}${FONT_UI}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = __dialogueText("scenes/homeCity/HomeCityGround.js", "t_9f2570635845628ca364"); ctx.fillText(job.t, 0, 0); ctx.restore();
     }, c.x - 280, c.y - 150);
     if (key) s.add.image(c.x - 280, c.y - 150, key).setOrigin(0, 0).setDepth(-900);
   }

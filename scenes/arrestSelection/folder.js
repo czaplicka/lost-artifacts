@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 import { FONT_PIXEL, FONT_TYPE, PAL } from './config.js';
 
@@ -64,14 +65,14 @@ export const folderMethods = {
     const caseNumber = String(caseId).padStart(3, '0');
 
     const tabText = this.add
-      .text(310, 136, `CASE ${caseNumber}`, {
+      .text(310, 136, `${__dialogueText("scenes/arrestSelection/folder.js", "t_9920eb00b9040e7c20e1")}${caseNumber}`, {
         fontFamily: FONT_PIXEL,
         fontSize: '13px',
         color: PAL.ink
       })
       .setOrigin(0.5);
 
-    const pageTitle = this.add.text(975, 206, 'SUBJECT RECORD', {
+    const pageTitle = this.add.text(975, 206, __dialogueText("scenes/arrestSelection/folder.js", "t_ecb516e868e1378c6c3e"), {
       fontFamily: FONT_PIXEL,
       fontSize: '17px',
       color: PAL.ink
@@ -88,7 +89,7 @@ export const folderMethods = {
     const signCaption = this.add.text(
       975,
       808,
-      "Arresting officer's signature",
+      __dialogueText("scenes/arrestSelection/folder.js", "t_671940d53ee1ff7f6202"),
       {
         fontFamily: FONT_TYPE,
         fontSize: '16px',
@@ -97,10 +98,10 @@ export const folderMethods = {
     );
 
     const signScribble = this.add
-      .text(1000, 764, '(sign here, detective)', {
+      .text(1000, 764, __dialogueText("scenes/arrestSelection/folder.js", "t_6d0fc45ac3ccce3c6e07"), {
         fontFamily: FONT_TYPE,
         fontSize: '28px',
-        fontStyle: 'italic',
+        fontStyle: __dialogueText("scenes/arrestSelection/folder.js", "t_db2365bb7a376f09d1dd"),
         color: '#6c7396'
       })
       .setAlpha(0.45)
@@ -141,18 +142,18 @@ export const folderMethods = {
     band.fillRect(0, 112, width, 6);
 
     this.add
-      .text(width / 2, 36, 'MARK AGENCY', {
+      .text(width / 2, 36, __dialogueText("scenes/arrestSelection/folder.js", "t_9246fca97ffafae56410"), {
         fontFamily: FONT_PIXEL,
         fontSize: '18px',
         color: PAL.goldCss,
-        stroke: '#2e1f10',
+        stroke: __dialogueText("scenes/arrestSelection/folder.js", "t_65a103aa74ee8a7ded7b"),
         strokeThickness: 5
       })
       .setOrigin(0.5)
       .setDepth(340);
 
     this.add
-      .text(width / 2, 78, 'FINAL SUSPECT DOSSIER', {
+      .text(width / 2, 78, __dialogueText("scenes/arrestSelection/folder.js", "t_44c0f230da507c2b8226"), {
         fontFamily: FONT_TYPE,
         fontSize: '34px',
         color: PAL.creamWarm
@@ -169,7 +170,7 @@ export const folderMethods = {
       .text(
         width - 210,
         34,
-        `CASE FILE ${String(caseId).padStart(3, '0')}`,
+        `${__dialogueText("scenes/arrestSelection/folder.js", "t_acef1d3fae9e9cc57501")}${String(caseId).padStart(3, __dialogueText("scenes/arrestSelection/folder.js", "t_5feceb66ffc86f38d952"))}`,
         {
           fontFamily: FONT_PIXEL,
           fontSize: '13px',
@@ -184,7 +185,7 @@ export const folderMethods = {
     this.createStamp(
       width - 210,
       80,
-      'TOP PRIORITY',
+      __dialogueText("scenes/arrestSelection/folder.js", "t_12a2fa34714ebff75637"),
       12,
       0xc0392b,
       -0.07
@@ -205,7 +206,7 @@ export const folderMethods = {
       this.addHoverEffect(this.backBtn, 0.42, 0.48);
     } else {
       this.backBtn = this.add
-        .text(baseX, baseY, '<', {
+        .text(baseX, baseY, __dialogueText("scenes/arrestSelection/folder.js", "t_dabd3aff769f07eb2965"), {
           fontFamily: FONT_PIXEL,
           fontSize: '22px',
           color: '#f6e7bc',
@@ -226,7 +227,7 @@ export const folderMethods = {
     }
 
     this.backBtnLabel = this.add
-      .text(baseX + 70, baseY, 'BACK', {
+      .text(baseX + 70, baseY, __dialogueText("scenes/arrestSelection/folder.js", "t_639807a2e01886a2236b"), {
         fontFamily: FONT_TYPE,
         fontSize: '24px',
         color: '#f5e7bf'

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import {
   deadMenNamingOptions
 } from './DeadMenCloudModel.js';
@@ -126,7 +127,7 @@ export function namingOptions(
   return [
     {
       id: 'daniel',
-      label: 'Daniel Reed'
+      label: __dialogueText("ui/PlayerCloudModel.js", "t_6cb3c65fc4369ef0ffc9")
     },
 
     ...words
@@ -428,7 +429,7 @@ export function cloudTitle(
     definition
   ).find(option =>
     option.id === cloud.titleKey
-  )?.label || 'Unnamed cloud';
+  )?.label || __dialogueText("ui/PlayerCloudModel.js", "t_e49f0f4af30b79d7cc8f");
 }
 
 export function reedPhoneQuestions(
@@ -466,139 +467,139 @@ export function reedPhoneQuestions(
   const specs = [
     [
       'reed_claire_delegate',
-      'Claire’s reason for attending',
+      __dialogueText("ui/PlayerCloudModel.js", "t_95b3096dec2fc93f320c"),
       'claire',
       'conference'
     ],
     [
       'reed_claire_message',
-      'Leave a message for Claire',
+      __dialogueText("ui/PlayerCloudModel.js", "t_c04114f0b7e67c38d588"),
       'claire'
     ],
     [
       'reed_nora_private_number',
-      'Contacting Nora',
+      __dialogueText("ui/PlayerCloudModel.js", "t_e240e28068f504dc7a86"),
       'nora'
     ],
     [
       'reed_nora_handover',
-      'What happened after the photograph?',
+      __dialogueText("ui/PlayerCloudModel.js", "t_a1298aa1268343c31ad7"),
       'nora',
       'checked_jacket'
     ],
     [
       'reed_claire_table',
-      'Ask about Claire’s table',
+      __dialogueText("ui/PlayerCloudModel.js", "t_c05213661feb2f9cab71"),
       'claire',
       'two_glasses'
     ],
     [
       'reed_daniel_enquiry',
-      'Daniel’s connection to the event',
+      __dialogueText("ui/PlayerCloudModel.js", "t_6cc7778bb67200f8a87c"),
       'daniel'
     ],
     [
       'reed_daniel_accommodation',
-      'Daniel’s hotel booking',
+      __dialogueText("ui/PlayerCloudModel.js", "t_daebbe1b988f622dca5e"),
       'daniel'
     ],
     [
       'reed_delegate_status',
-      'Who received delegate passes?',
+      __dialogueText("ui/PlayerCloudModel.js", "t_792519d99bb72a3076a5"),
       'open_skies',
       'swallow_logo'
     ],
     [
       'reed_event_photograph_timing',
-      'When were the reception photographs taken?',
+      __dialogueText("ui/PlayerCloudModel.js", "t_5e2e386a32c3c2e8d4a2"),
       'open_skies',
       'conference'
     ],
     [
       'reed_miramar_private_rooms',
-      'Event arrangements and private bookings',
+      __dialogueText("ui/PlayerCloudModel.js", "t_2e87a7cbff8cae529c29"),
       'miramar',
       'conference'
     ],
     [
       'claire_phone_request',
-      'Contact Claire Sutton',
+      __dialogueText("ui/PlayerCloudModel.js", "t_6b0b47748be2328a16e3"),
       'claire'
     ],
     [
       'claire_work_email',
-      'Ask for Claire’s work email',
+      __dialogueText("ui/PlayerCloudModel.js", "t_0d6a0f842cbb0d003ee5"),
       'claire'
     ],
     [
       'claire_profile',
-      'Claire’s role at the foundation',
+      __dialogueText("ui/PlayerCloudModel.js", "t_88cfeedff83d69adb4a6"),
       'claire'
     ],
     [
       'claire_jacket',
-      'Claire and the borrowed jacket',
+      __dialogueText("ui/PlayerCloudModel.js", "t_07b3414edd90c0817f50"),
       'claire',
       'checked_jacket'
     ],
     [
       'nora_intro',
-      'Nora in the reception photograph',
+      __dialogueText("ui/PlayerCloudModel.js", "t_09185bf88d95b7007da9"),
       'nora'
     ],
     [
       'nora_profile',
-      'Nora’s role at the foundation',
+      __dialogueText("ui/PlayerCloudModel.js", "t_5b5da06430c462e8a4e8"),
       'nora'
     ],
     [
       'jacket_verification',
-      'Nora and the borrowed jacket',
+      __dialogueText("ui/PlayerCloudModel.js", "t_34bb8a9a00ecf4b734b7"),
       'nora',
       'checked_jacket'
     ],
     [
       'organisation_general',
-      'The foundation’s work',
+      __dialogueText("ui/PlayerCloudModel.js", "t_db8415b9dd4bd8a85237"),
       'open_skies'
     ],
     [
       'conference_general',
-      'The New Horizons programme',
+      __dialogueText("ui/PlayerCloudModel.js", "t_71587d7a2ac95a0abad0"),
       'open_skies',
       'conference'
     ],
     [
       'photo_general',
-      'Who arranged the photographs?',
+      __dialogueText("ui/PlayerCloudModel.js", "t_ff49291e10aec112ff1c"),
       'open_skies',
       'conference'
     ],
     [
       'badge_conference',
-      'Delegate badges',
+      __dialogueText("ui/PlayerCloudModel.js", "t_8cee4748d9bd70f5ca68"),
       'open_skies',
       'swallow_logo'
     ],
     [
       'hotel_conference',
-      'The reception venue',
+      __dialogueText("ui/PlayerCloudModel.js", "t_271589d47837edb5a7e9"),
       'open_skies',
       'miramar'
     ],
     [
       'hotel_general',
-      'The event at Hotel Miramar',
+      __dialogueText("ui/PlayerCloudModel.js", "t_1252f88d069d344c2c91"),
       'miramar'
     ],
     [
       'mariner_general',
-      'Ask about The Mariner',
+      __dialogueText("ui/PlayerCloudModel.js", "t_63c4a83fbb1e7d2dc24e"),
       'mariner'
     ],
     [
       'coral_general',
-      'Ask about Coral Crown Hotel',
+      __dialogueText("ui/PlayerCloudModel.js", "t_7a9ae1df2577c5d28fc9"),
       'coral'
     ]
   ];

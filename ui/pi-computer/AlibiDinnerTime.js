@@ -1,12 +1,13 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { ALIBI_SEARCH_CASE } from './AlibiCaseData.js';
 
 export const ALIBI_DINNER_TIME_KEYWORD = {
   id: 'dinner_time',
-  label: '19:00–21:00',
+  label: __dialogueText("ui/pi-computer/AlibiDinnerTime.js", "t_7182205850e8ad95c360"),
   cloudId: 'dinner'
 };
 
-const MARKER = Symbol.for('lostArtifacts.alibiDinnerTimeKeywordV1');
+const MARKER = Symbol.for(__dialogueText("ui/pi-computer/AlibiDinnerTime.js", "t_f565cc37830fe6046f99"));
 
 export function ensureAlibiDinnerTimeKeyword(definition = ALIBI_SEARCH_CASE) {
   if (definition?.id !== 'borrowed_alibi') return;

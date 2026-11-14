@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { LS_THEME, LS_PHOTO, THEME_DEFS, lsSet, GENDER_FILTERS, STATUS_FILTERS, SORT_MODES } from './WantedDatabaseConfig.js';
 
 export const WantedDatabaseFilters = {
@@ -29,7 +30,7 @@ export const WantedDatabaseFilters = {
         this.searchPlaceholder = this.makeText(
             boxX + 30,
             r1 + 16,
-            'TYPE TO SEARCH NAME / SKILLS / ACCENT...',
+            __dialogueText("scenes/wanted-database/WantedDatabaseFilters.js", "t_5d8e277b245891630991"),
             10,
             { color: th.sDim }
         ).setOrigin(0, 0.5);
@@ -56,7 +57,7 @@ export const WantedDatabaseFilters = {
             r1,
             130,
             32,
-            '[?] HELP',
+            __dialogueText("scenes/wanted-database/WantedDatabaseFilters.js", "t_42ec4f2e10ade75dbec3"),
             () => this.toggleHelp(),
             11
         );
@@ -72,11 +73,11 @@ export const WantedDatabaseFilters = {
 
         const r2 = panelY + 52;
 
-        const statusLabels = STATUS_FILTERS.map((s) => `STATUS: ${s.label}`);
-        const sortLabels = SORT_MODES.map((s) => `SORT: ${s.label}`);
-        const imgLabels = ['IMG: PHOSPHOR', 'IMG: COLOR'];
+        const statusLabels = STATUS_FILTERS.map((s) => `${__dialogueText("scenes/wanted-database/WantedDatabaseFilters.js", "t_b38c2113d660280ef051")}${s.label}`);
+        const sortLabels = SORT_MODES.map((s) => `${__dialogueText("scenes/wanted-database/WantedDatabaseFilters.js", "t_22b7180f9ba4d22e2c96")}${s.label}`);
+        const imgLabels = [__dialogueText("scenes/wanted-database/WantedDatabaseFilters.js", "t_d56b890698b7114b5c0d"), __dialogueText("scenes/wanted-database/WantedDatabaseFilters.js", "t_463873d892160c135666")];
         const themeLabels = Object.values(THEME_DEFS).map(
-            (t) => `THEME: ${t.label}`
+            (t) => `${__dialogueText("scenes/wanted-database/WantedDatabaseFilters.js", "t_001cf2b5e975c9fa02e1")}${t.label}`
         );
 
         const maxLen = (arr) => Math.max(...arr.map((s) => s.length));
@@ -223,19 +224,19 @@ export const WantedDatabaseFilters = {
             STATUS_FILTERS.find((s) => s.value === this.filterStatus) ||
             STATUS_FILTERS[0];
 
-        this.statusButton.setLabel(`STATUS: ${status.label}`);
+        this.statusButton.setLabel(`${__dialogueText("scenes/wanted-database/WantedDatabaseFilters.js", "t_b38c2113d660280ef051")}${status.label}`);
         this.statusButton.setActive(this.filterStatus !== 'all');
 
-        this.sortButton.setLabel(`SORT: ${SORT_MODES[this.sortIndex].label}`);
+        this.sortButton.setLabel(`${__dialogueText("scenes/wanted-database/WantedDatabaseFilters.js", "t_22b7180f9ba4d22e2c96")}${SORT_MODES[this.sortIndex].label}`);
 
         this.imgButton.setLabel(
-            this.photoFilterOn ? 'IMG: PHOSPHOR' : 'IMG: COLOR'
+            this.photoFilterOn ? __dialogueText("scenes/wanted-database/WantedDatabaseFilters.js", "t_d56b890698b7114b5c0d") : __dialogueText("scenes/wanted-database/WantedDatabaseFilters.js", "t_463873d892160c135666")
         );
 
         this.imgButton.setActive(this.photoFilterOn);
 
         this.themeButton.setLabel(
-            `THEME: ${this.th.key === 'green' ? 'GREEN' : 'AMBER'}`
+            `${__dialogueText("scenes/wanted-database/WantedDatabaseFilters.js", "t_001cf2b5e975c9fa02e1")}${this.th.key === 'green' ? 'GREEN' : 'AMBER'}`
         );
     },
 
@@ -324,14 +325,14 @@ export const WantedDatabaseFilters = {
         this.searchPlaceholder?.setVisible(empty);
 
         this.searchText.setText(
-            this.searchQuery + (this.cursorOn ? '_' : ' ')
+            this.searchQuery + (this.cursorOn ? __dialogueText("scenes/wanted-database/WantedDatabaseFilters.js", "t_d2e2adf7177b7a8afddb") : __dialogueText("scenes/wanted-database/WantedDatabaseFilters.js", "t_36a9e7f1c95b82ffb997"))
         );
     },
 
     updateCounter() {
         if (!this.isWantedTextAlive(this.counterText)) return;
         this.counterText.setText(
-            `RECORDS: ${this.filteredSuspects.length}/${this.suspects.length}`
+            `${__dialogueText("scenes/wanted-database/WantedDatabaseFilters.js", "t_3c685c915bc39ffc8fe4")}${this.filteredSuspects.length}${__dialogueText("scenes/wanted-database/WantedDatabaseFilters.js", "t_8a5edab282632443219e")}${this.suspects.length}`
         );
     },
 

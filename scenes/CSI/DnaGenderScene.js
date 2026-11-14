@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { BaseForensicMinigame } from './BaseForensicMinigame.js';
 import { EventBus } from '../../EventBus.js';
 
@@ -6,8 +7,8 @@ const DNA_PROFILES = ['XX', 'XY'];
 
 
 const PROFILE_SUBLABEL = {
-  XX: 'FEMALE PROFILE',
-  XY: 'MALE PROFILE'
+  XX: __dialogueText("scenes/CSI/DnaGenderScene.js", "t_7e2d3e350c7ed951b4e1"),
+  XY: __dialogueText("scenes/CSI/DnaGenderScene.js", "t_9d7a090a504886108162")
 };
 
 
@@ -91,17 +92,17 @@ export class DnaGenderScene extends BaseForensicMinigame {
 
 
   getTitle() {
-    return 'DNA GENDER PROFILING';
+    return __dialogueText("scenes/CSI/DnaGenderScene.js", "t_6fe6927089c8e077cd16");
   }
 
 
   getSubtitle() {
-    return 'Amelogenin marker analysis';
+    return __dialogueText("scenes/CSI/DnaGenderScene.js", "t_2ff96cefb755b47ad97d");
   }
 
 
   getRetryHint() {
-    return 'Amplify a fresh sample, run it against the control ladders, then count the bands under UV light.';
+    return __dialogueText("scenes/CSI/DnaGenderScene.js", "t_1b8678fe6f8b0f19aad9");
   }
 
 
@@ -113,8 +114,8 @@ export class DnaGenderScene extends BaseForensicMinigame {
   startStep1() {
     this.clearStage();
     this.setStep(0);
-    this.setInstructions('Step 1: Use the tweezers to remove the sealed DNA vial from the evidence bag.');
-    this.setDialogue('Drag the tweezers over the evidence bag.');
+    this.setInstructions(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_f9c0af0530e8669afa8b"));
+    this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_28e59084359193658315"));
 
 
     const { width, height } = this.scale;
@@ -139,7 +140,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
     this.createTweezers(width * 0.48, height * 0.53, (tipX, tipY) => {
       if (!this.evidenceBag.getBounds().contains(tipX, tipY)) {
         this.penalize(3);
-        this.setDialogue('The tweezers missed the evidence bag. Try again.');
+        this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_a3fde91f812076edcb8d"));
         return;
       }
 
@@ -150,7 +151,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
       this.tweezers.disableInteractive();
 
 
-      this.setDialogue('Sealed vial recovered. Click it to break the seal.');
+      this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_3e44544ef9dc3620226d"));
 
 
       this.time.delayedCall(450, () => {
@@ -163,8 +164,8 @@ export class DnaGenderScene extends BaseForensicMinigame {
   startStep2() {
     this.clearStage();
     this.setStep(1);
-    this.setInstructions('Step 2: Click the sealed vial to open it and expose the swab inside.');
-    this.setDialogue('Click the vial to break the seal.');
+    this.setInstructions(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_b38f0ebd2487071f6af9"));
+    this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_8208053b74f575fcaa93"));
 
 
     const { width, height } = this.scale;
@@ -195,7 +196,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
     });
 
 
-    const hint = this.add.text(this.closedSwab.x, this.closedSwab.y + 140, 'CLICK TO OPEN', {
+    const hint = this.add.text(this.closedSwab.x, this.closedSwab.y + 140, __dialogueText("scenes/CSI/DnaGenderScene.js", "t_7a5f665e7774cf246c94"), {
       fontFamily: 'PressStart2P',
       fontSize: '10px',
       color: '#ffe8a3',
@@ -217,7 +218,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
       this.closedSwab.setDisplaySize(240, 200);
 
 
-      this.setDialogue('Vial opened. Pull the swab out and load it into the PCR tube.');
+      this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_e75098c3ba2ecc28cdd2"));
 
 
       this.time.delayedCall(500, () => {
@@ -230,8 +231,8 @@ export class DnaGenderScene extends BaseForensicMinigame {
   startStep3() {
     this.clearStage();
     this.setStep(2);
-    this.setInstructions('Step 3: Drag the swab out of the vial and into the PCR tube, then run the thermocycler.');
-    this.setDialogue('Move the swab onto the PCR tube.');
+    this.setInstructions(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_21a2b0fd9f8d7c5c63c4"));
+    this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_b7c59aea13386f8e4b0b"));
 
 
     const { width, height } = this.scale;
@@ -286,7 +287,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
 
       if (!this.pcrTube.getBounds().contains(this.dnaSwab.x, this.dnaSwab.y)) {
         this.penalize(3);
-        this.setDialogue('The swab needs to go into the PCR tube.');
+        this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_82870e9615ff5b34b19e"));
         return;
       }
 
@@ -298,8 +299,8 @@ export class DnaGenderScene extends BaseForensicMinigame {
       this.pcrTube.setTint(0xbfffd0);
 
 
-      this.setDialogue('Sample loaded. Press RUN to start amplification.');
-      this.createRunButton(width * 0.72, height * 0.86, 'RUN PCR', () => this.runPcr());
+      this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_82806a3b3bb43e9ef0eb"));
+      this.createRunButton(width * 0.72, height * 0.86, __dialogueText("scenes/CSI/DnaGenderScene.js", "t_6056a0e38a4306d58616"), () => this.runPcr());
     });
   }
 
@@ -307,7 +308,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
   runPcr() {
     if (this.pcrRunning || this.pcrComplete) return;
     this.pcrRunning = true;
-    this.setDialogue('Amplifying DNA... hold on.');
+    this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_d135f17c93ea532145fb"));
 
 
     const light = this.add.circle(this.thermocycler.x, this.thermocycler.y - 105, 10, 0xff5a5a, 1)
@@ -334,7 +335,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
       light.setAlpha(1);
       light.setFillStyle(0x39ff14, 1);
       this.pcrTube.setTint(0x39ff14);
-      this.setDialogue('Amplification complete. Transfer the sample to the gel with the pipette.');
+      this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_754a3176f13a328078da"));
 
 
       this.time.delayedCall(500, () => {
@@ -375,8 +376,8 @@ export class DnaGenderScene extends BaseForensicMinigame {
   startStep4() {
     this.clearStage();
     this.setStep(3);
-    this.setInstructions('Step 4: Load the amplified sample onto the gel, then run the electrophoresis.');
-    this.setDialogue('Use the pipette: PCR tube first, sample well second.');
+    this.setInstructions(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_43ad072f556ce9dab28a"));
+    this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_096736ced7aba7d1754f"));
 
 
     const { width, height } = this.scale;
@@ -398,7 +399,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
     this.addStageObject(this.pcrTube);
 
 
-    const tubeLabel = this.add.text(width * 0.14, height * 0.30 + 78, 'SAMPLE', {
+    const tubeLabel = this.add.text(width * 0.14, height * 0.30 + 78, __dialogueText("scenes/CSI/DnaGenderScene.js", "t_ef0a524e07664d8f9f4e"), {
       fontFamily: 'PressStart2P',
       fontSize: '9px',
       color: '#f4e6cf'
@@ -407,9 +408,9 @@ export class DnaGenderScene extends BaseForensicMinigame {
 
 
     const laneOffsets = [
-      { id: 'controlXX', label: 'CTRL XX', x: -170, bands: 1, isControl: true },
-      { id: 'controlXY', label: 'CTRL XY', x: -55, bands: 2, isControl: true },
-      { id: 'sample', label: 'SAMPLE', x: 90, bands: null, isControl: false }
+      { id: 'controlXX', label: __dialogueText("scenes/CSI/DnaGenderScene.js", "t_71de0161b2d830c940e6"), x: -170, bands: 1, isControl: true },
+      { id: 'controlXY', label: __dialogueText("scenes/CSI/DnaGenderScene.js", "t_06cdc9f2b54f1081bbb3"), x: -55, bands: 2, isControl: true },
+      { id: 'sample', label: __dialogueText("scenes/CSI/DnaGenderScene.js", "t_ef0a524e07664d8f9f4e"), x: 90, bands: null, isControl: false }
     ];
 
 
@@ -512,10 +513,10 @@ export class DnaGenderScene extends BaseForensicMinigame {
         if (this.pcrTube?.getBounds().contains(tipX, tipY)) {
           tubeLoaded = true;
           marker.setFillStyle(0x39ff14, 1);
-          this.setDialogue('Sample loaded. Place it in the SAMPLE well.');
+          this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_c647e7393809395855a7"));
         } else {
           this.penalize(3);
-          this.setDialogue('Draw the amplified sample from the PCR tube first.');
+          this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_448a35a8a5366dfdc943"));
         }
         return;
       }
@@ -527,13 +528,13 @@ export class DnaGenderScene extends BaseForensicMinigame {
 
       if (distance > 40) {
         this.penalize(3);
-        this.setDialogue('Aim the pipette at the SAMPLE well on the gel.');
+        this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_910406ecd40ee5756638"));
         return;
       }
 
 
       if (this.loadedSample) {
-        this.setDialogue('The sample well is already loaded.');
+        this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_2495bb007c94a1f96237"));
         return;
       }
 
@@ -544,8 +545,8 @@ export class DnaGenderScene extends BaseForensicMinigame {
       this.pipette.disableInteractive();
 
 
-      this.setDialogue('Sample loaded. Press RUN to start the electrophoresis.');
-      this.createRunButton(this.scale.width * 0.55, this.scale.height * 0.88, 'RUN GEL', () => this.runGel());
+      this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_e4709320e9eed49109ef"));
+      this.createRunButton(this.scale.width * 0.55, this.scale.height * 0.88, __dialogueText("scenes/CSI/DnaGenderScene.js", "t_3363d4987c91927a7cad"), () => this.runGel());
     });
   }
 
@@ -553,7 +554,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
   runGel() {
     if (this.gelRun) return;
     this.gelRun = true;
-    this.setDialogue('Running electrophoresis... DNA fragments are separating by size.');
+    this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_df33b9d0f7b769e9e04a"));
 
 
     const sampleWell = this.wells.find(w => w.id === 'sample');
@@ -590,7 +591,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
 
     this.time.delayedCall(2200, () => {
       if (this.resolved) return;
-      this.setDialogue('Run complete. Use the UV light to inspect the bands, then classify the sample.');
+      this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_4d01e5fa2dd8a523e8df"));
       this.showGelReadout();
     });
   }
@@ -610,7 +611,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
     this.addStageObject(hotspot);
 
 
-    const hint = this.add.text(this.gelTray.x, this.gelTray.y + 145, 'CLICK GEL FOR UV LIGHT', {
+    const hint = this.add.text(this.gelTray.x, this.gelTray.y + 145, __dialogueText("scenes/CSI/DnaGenderScene.js", "t_5ca7df37e5954bf40839"), {
       fontFamily: 'PressStart2P',
       fontSize: '10px',
       color: '#ffe8a3',
@@ -650,7 +651,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
       .setTint(0xbfffe0);
 
 
-    const title = this.add.text(width / 2, height * 0.13, 'UV LIGHT: BAND PATTERN', {
+    const title = this.add.text(width / 2, height * 0.13, __dialogueText("scenes/CSI/DnaGenderScene.js", "t_b32a51e246591a5819c2"), {
       fontFamily: 'PressStart2P',
       fontSize: '13px',
       color: '#ffe8a3'
@@ -660,7 +661,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
     const laneTexts = this.wells.map((lane, index) => {
       const bandCount = lane.isControl ? lane.bands : sampleWell.bands;
       const bars = Array.from({ length: bandCount }, () => '▬▬▬▬').join('\n');
-      return this.add.text(width * (0.32 + index * 0.18), height * 0.5, `${lane.label}\n\n${bars}`, {
+      return this.add.text(width * (0.32 + index * 0.18), height * 0.5, `${lane.label}${__dialogueText("scenes/CSI/DnaGenderScene.js", "t_75a11da44c802486bc6f")}${bars}`, {
         fontFamily: 'SpecialElite',
         fontSize: '20px',
         color: '#39ff14',
@@ -671,9 +672,9 @@ export class DnaGenderScene extends BaseForensicMinigame {
 
 
     const reactionText = this.add.text(width / 2, height * 0.78, [
-      `SAMPLE BANDS: ${sampleWell.bands}`,
-      sampleWell.bands === 1 ? 'MATCHES CONTROL XX (1 BAND)' : 'MATCHES CONTROL XY (2 BANDS)'
-    ].join('\n'), {
+      `${__dialogueText("scenes/CSI/DnaGenderScene.js", "t_d3655db26be893ca0f9d")}${sampleWell.bands}`,
+      sampleWell.bands === 1 ? __dialogueText("scenes/CSI/DnaGenderScene.js", "t_6d4f8eadec91657f77bf") : __dialogueText("scenes/CSI/DnaGenderScene.js", "t_71ab0faf74a37fad27dc")
+    ].join(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_01ba4719c80b6fe911b0")), {
       fontFamily: 'SpecialElite',
       fontSize: '22px',
       color: '#dff2de',
@@ -682,7 +683,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
     }).setOrigin(0.5).setDepth(53);
 
 
-    const hint = this.add.text(width / 2, height - 45, 'CLICK ANYWHERE TO CLOSE', {
+    const hint = this.add.text(width / 2, height - 45, __dialogueText("scenes/CSI/DnaGenderScene.js", "t_e8825e41e8f3c18554f4"), {
       fontFamily: 'PressStart2P',
       fontSize: '10px',
       color: '#ffe8a3',
@@ -708,7 +709,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
 
 
       this.setDialogue(
-        'Compare the band count with the reference ladders, then classify the sample.'
+        __dialogueText("scenes/CSI/DnaGenderScene.js", "t_49ecdd692415f329ba98")
       );
     });
   }
@@ -724,7 +725,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
       .setStrokeStyle(2, 0x39ff14, 0.6);
 
 
-    const title = this.add.text(x, y - 120, 'CLASSIFY PROFILE', {
+    const title = this.add.text(x, y - 120, __dialogueText("scenes/CSI/DnaGenderScene.js", "t_1d9c0894eceab05b033f"), {
       fontFamily: 'SpecialElite',
       fontSize: '20px',
       color: '#ffe8a3'
@@ -756,7 +757,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
 
 
           if (!this.gelViewerOpened) {
-            this.setDialogue('Inspect the gel under UV light before classifying the sample.');
+            this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_48ad2e0b998f7812565b"));
             return;
           }
 

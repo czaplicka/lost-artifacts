@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { radioSpliceData as DATA, getRadioSpliceStory, storeRadioSplice } from '../radioSpliceService.js';
 import { normalizeRadio, placeRadio, evaluateRadio, radioHint } from './archive/RadioSpliceModel.js';
@@ -36,11 +37,11 @@ export class RadioSpliceScene extends BaseScene {
     this.root.add(this.add.rectangle(720, 510, 1440, 1020, 0x18271e));
     this.label(720, 42, DATA.title, 22, '#f0ce88', 'PressStart2P');
     this.button(1235, 972, 'BACK', () => this.closeSplice());
-    this.mode = this.label(720, 1006, (this.preview ? 'PREVIEW / ' : '') +
+    this.mode = this.label(720, 1006, (this.preview ? __dialogueText("scenes/RadioSpliceScene.js", "t_50d1058f5474fe46bb88") : '') +
       (DATA.clips.some(c => this.cache.audio.exists(this.audioKey(c.id))) ?
-      'TRANSCRIPT / ATTACHED AUDIO AVAILABLE' : 'TRANSCRIPT ONLY / NO RECORDED AUDIO ATTACHED'), 13, '#baa98e');
+      __dialogueText("scenes/RadioSpliceScene.js", "t_66ef8e80758f8cdbc7c9") : __dialogueText("scenes/RadioSpliceScene.js", "t_6cf25fbc0758ffee8220")), 13, '#baa98e');
     if (this.allowed) this.buildBoard();
-    else this.label(720, 470, 'Complete mission eleven and the financial enquiry first.', 28);
+    else this.label(720, 470, __dialogueText("scenes/RadioSpliceScene.js", "t_789e01efad23d98a1382"), 28);
     this.layout(); this.trackInputEvent(this.scale, 'resize', this.layout);
     if (this.input.keyboard) this.trackInputEvent(this.input.keyboard, 'keydown-ESC', e => {
       if (e.repeat) return;
@@ -67,20 +68,20 @@ export class RadioSpliceScene extends BaseScene {
     }); parent.add(o); return o;
   }
   buildBoard() {
-    this.label(720, 84, 'Arrange requests and replies, then compare the assembled text with the mission summary.', 20);
-    this.button(260, 122, 'SOURCE / SUMMARY', () => this.openSummary());
-    this.playButton = this.button(720, 122, 'NO AUDIO SELECTED', () => this.playSelected());
+    this.label(720, 84, __dialogueText("scenes/RadioSpliceScene.js", "t_221a0406d5d3aba45862"), 20);
+    this.button(260, 122, __dialogueText("scenes/RadioSpliceScene.js", "t_dd98480f3147dd9ef671"), () => this.openSummary());
+    this.playButton = this.button(720, 122, __dialogueText("scenes/RadioSpliceScene.js", "t_4ddc213de59398f0576e"), () => this.playSelected());
     this.playButton.disableInteractive();
-    this.button(1160, 122, 'READ SEQUENCE', () => this.openSequence());
-    this.label(360, 166, 'FRAGMENT BANK', 19, '#cdbb9a');
-    this.label(1080, 166, 'ASSEMBLED / EARLIEST TO LATEST', 19, '#cdbb9a');
+    this.button(1160, 122, __dialogueText("scenes/RadioSpliceScene.js", "t_a665bcb34cca50ae8acb"), () => this.openSequence());
+    this.label(360, 166, __dialogueText("scenes/RadioSpliceScene.js", "t_27a6d32d295f7d251c2f"), 19, '#cdbb9a');
+    this.label(1080, 166, __dialogueText("scenes/RadioSpliceScene.js", "t_9cceb56fe67a392833ef"), 19, '#cdbb9a');
     Phaser.Utils.Array.Shuffle([...DATA.clips]).forEach((clip, i) => {
       const x = 193 + (i % 2) * 344, y = 245 + Math.floor(i / 2) * 135;
       const box = this.add.rectangle(x, y, 326, 112, 0xe2d4b6).setStrokeStyle(2, 0x9b8662)
         .setInteractive({ useHandCursor: true });
       const title = this.add.text(x, y - 34, clip.label, { fontFamily: 'SpecialElite', fontSize: '20px',
         color: '#3f3126' }).setOrigin(.5);
-      const text = this.add.text(x, y + 12, clip.text.length > 76 ? clip.text.slice(0, 73) + '...' : clip.text,
+      const text = this.add.text(x, y + 12, clip.text.length > 76 ? clip.text.slice(0, 73) + __dialogueText("scenes/RadioSpliceScene.js", "t_ab5df625bc76dbd4e163") : clip.text,
         { fontFamily: 'SpecialElite', fontSize: '18px', color: '#534636', align: 'center',
           wordWrap: { width: 300 } }).setOrigin(.5);
       this.root.add([box, title, text]);
@@ -100,27 +101,27 @@ export class RadioSpliceScene extends BaseScene {
       this.root.add([box, text]); box.on('pointerdown', () => this.chooseSlot(i)); this.slotObjects.push({ box, text });
     }
     this.root.add(this.add.rectangle(720, 736, 1360, 116, 0xe2d4b6).setStrokeStyle(2, 0x9b8662));
-    this.sourceTitle = this.label(720, 701, 'SELECT A FRAGMENT / FREE TRANSCRIPT', 18, '#74463a');
+    this.sourceTitle = this.label(720, 701, __dialogueText("scenes/RadioSpliceScene.js", "t_34322b80037a88324d77"), 18, '#74463a');
     this.sourceBody = this.label(720, 750, DATA.provenance, 20, '#3d332c'); this.sourceBody.setWordWrapWidth(1300);
-    this.label(720, 819, 'COMPARE WITH THE MISSION SUMMARY', 19, '#cdbb9a');
+    this.label(720, 819, __dialogueText("scenes/RadioSpliceScene.js", "t_6740bdbb740259210dbc"), 19, '#cdbb9a');
     DATA.conclusions.forEach((item, i) => {
       const button = this.button(260 + i * 460, 864, item.label, () => {
         if (this.finished) return;
         this.progress.conclusion = item.id; this.persist(); this.refreshBoard();
       }); this.conclusionButtons.push({ id: item.id, button });
     });
-    this.message = this.label(720, 918, 'Select a fragment and a position. Select two positions to swap them.', 20);
-    this.checkButton = this.button(265, 972, 'CHECK ASSEMBLY', () => this.check());
-    this.clearButton = this.button(600, 972, 'CLEAR SLOT', () => this.clearSlot());
+    this.message = this.label(720, 918, __dialogueText("scenes/RadioSpliceScene.js", "t_7d8052156f730bb5500b"), 20);
+    this.checkButton = this.button(265, 972, __dialogueText("scenes/RadioSpliceScene.js", "t_773a258e7e29b83a9722"), () => this.check());
+    this.clearButton = this.button(600, 972, __dialogueText("scenes/RadioSpliceScene.js", "t_dfaa13932eb9b80ee382"), () => this.clearSlot());
     this.timelineHelp = new TimelineHelpController(this); this.timelineHelp.create();
     this.refreshBoard(); if (this.finished) this.showSuccess();
   }
   blocked() { return this.closing || Boolean(this.modal) || Boolean(this.timelineHelp?.modal) || !this.allowed; }
   inspect(id) {
     this.stopAudio(); const c = DATA.clips.find(c => c.id === id); if (!c) return;
-    this.inspected = id; this.sourceTitle.setText(`${c.label} / ${c.speaker}`); this.sourceBody.setText(c.text);
+    this.inspected = id; this.sourceTitle.setText(`${c.label}${__dialogueText("scenes/RadioSpliceScene.js", "t_005e1574a2b5c8163046")}${c.speaker}`); this.sourceBody.setText(c.text);
     const available = this.cache.audio.exists(this.audioKey(id));
-    this.playButton.setText(available ? 'PLAY SELECTED CLIP' : 'NO AUDIO / TEXT ONLY');
+    this.playButton.setText(available ? __dialogueText("scenes/RadioSpliceScene.js", "t_6bce4b54636c0515c847") : __dialogueText("scenes/RadioSpliceScene.js", "t_1fb1ceab2385c243b09c"));
     if (available) this.playButton.setInteractive({ useHandCursor: true }); else this.playButton.disableInteractive();
   }
   chooseSlot(i) {
@@ -151,7 +152,7 @@ export class RadioSpliceScene extends BaseScene {
     });
     this.slotObjects.forEach(({ box, text }, i) => {
       const clip = DATA.clips.find(c => c.id === this.progress.slots[i]);
-      text.setText(`${i + 1}. ${clip ? clip.label + ' / ' + clip.text.slice(0, 49) + '...' : '[ select a fragment ]'}`);
+      text.setText(`${i + 1}${__dialogueText("scenes/RadioSpliceScene.js", "t_8dccf256f6d5783e62bb")}${clip ? clip.label + __dialogueText("scenes/RadioSpliceScene.js", "t_005e1574a2b5c8163046") + clip.text.slice(0, 49) + __dialogueText("scenes/RadioSpliceScene.js", "t_ab5df625bc76dbd4e163") : __dialogueText("scenes/RadioSpliceScene.js", "t_f01546c6703d0677b4db")}`);
       box.setStrokeStyle(this.selectedSlot === i ? 4 : 2, this.selectedSlot === i ? 0xe7ac48 : 0x957a58);
     });
     this.conclusionButtons.forEach(({ id, button }) => button.setBackgroundColor(this.progress.conclusion === id ? '#725337' : '#354c39'));
@@ -162,7 +163,7 @@ export class RadioSpliceScene extends BaseScene {
       Number.isInteger(h.slotIndex) ? this.slotObjects[h.slotIndex]?.box : null,
       h.conclusionId ? this.conclusionButtons.find(c => c.id === h.conclusionId)?.button : null].filter(Boolean) };
   }
-  setDialogue(text) { this.message?.setText(`HINT: ${text}`).setFontSize(18); }
+  setDialogue(text) { this.message?.setText(`${__dialogueText("scenes/RadioSpliceScene.js", "t_e0e94082545fdad681ba")}${text}`).setFontSize(18); }
   persist() { if (!this.preview && this.allowed) this.savedOk = storeRadioSplice(this.progress).saved; }
   check() {
     if (this.finished || this.blocked()) return;
@@ -176,9 +177,9 @@ export class RadioSpliceScene extends BaseScene {
   showSuccess() {
     this.checkButton.setVisible(false); this.clearButton.setVisible(false);
     this.timelineHelp?.hintButton?.setVisible(false); this.conclusionButtons.forEach(c => c.button.disableInteractive());
-    this.sourceTitle.setText('SUPPORTED: INSTRUCTIONS CHANGED / VOICE NOT AUTHENTICATED');
+    this.sourceTitle.setText(__dialogueText("scenes/RadioSpliceScene.js", "t_3022bf9302ef1caeb2c4"));
     this.sourceBody.setText(DATA.success);
-    this.message.setText(this.preview ? 'Assembly complete / preview only.' : this.savedOk === false ?
+    this.message.setText(this.preview ? __dialogueText("scenes/RadioSpliceScene.js", "t_a03d734f160f3ebabcdd") : this.savedOk === false ?
       DATA.messages.saveFailed : DATA.messages.complete).setFontSize(20); this.refreshBoard();
   }
   makeModal() {
@@ -189,29 +190,29 @@ export class RadioSpliceScene extends BaseScene {
   }
   openSummary() {
     this.makeModal();
-    this.label(720, 245, 'SOURCE / WORKING MISSION SUMMARY', 28, '#ffe2ae', 'SpecialElite', this.modal);
+    this.label(720, 245, __dialogueText("scenes/RadioSpliceScene.js", "t_ade856a770c5b99c87aa"), 28, '#ffe2ae', 'SpecialElite', this.modal);
     this.label(720, 430, DATA.report, 29, '#f0e5cf', 'SpecialElite', this.modal).setWordWrapWidth(1160);
     this.label(720, 620, DATA.provenance, 23, '#c4ccb9', 'SpecialElite', this.modal).setWordWrapWidth(1160);
     this.button(720, 800, 'BACK', () => this.closeModal(), this.modal);
   }
   openSequence() {
     if (this.progress.slots.some(id => !id)) {
-      this.message.setText('Fill all six positions to read the assembled sequence.'); return;
+      this.message.setText(__dialogueText("scenes/RadioSpliceScene.js", "t_c170e1b611a1057e5f15")); return;
     }
     this.modalIndex = 0; this.makeModal(); this.renderSequence();
   }
   renderSequence() {
     const old = this.modal; this.modal = null; old.destroy(true); this.makeModal();
     const c = DATA.clips.find(c => c.id === this.progress.slots[this.modalIndex]);
-    this.label(720, 230, `ASSEMBLED TRANSCRIPT ${this.modalIndex + 1}/${DATA.slotCount} / ${c.label}`,
+    this.label(720, 230, `${__dialogueText("scenes/RadioSpliceScene.js", "t_b99dada6846254023171")}${this.modalIndex + 1}${__dialogueText("scenes/RadioSpliceScene.js", "t_8a5edab282632443219e")}${DATA.slotCount}${__dialogueText("scenes/RadioSpliceScene.js", "t_005e1574a2b5c8163046")}${c.label}`,
       27, '#ffe2ae', 'SpecialElite', this.modal);
     this.label(720, 330, c.speaker, 24, '#d7c295', 'SpecialElite', this.modal);
     this.label(720, 490, c.text, 31, '#f0e5cf', 'SpecialElite', this.modal).setWordWrapWidth(1150);
     if (this.modalIndex > 0) this.button(300, 760, 'PREVIOUS', () => { this.modalIndex--; this.renderSequence(); }, this.modal);
     if (this.modalIndex < DATA.slotCount - 1) this.button(1140, 760, 'NEXT', () => { this.modalIndex++; this.renderSequence(); }, this.modal);
-    this.button(720, 820, 'BACK TO ASSEMBLY', () => this.closeModal(), this.modal);
+    this.button(720, 820, __dialogueText("scenes/RadioSpliceScene.js", "t_e51e832d5fa933221814"), () => this.closeModal(), this.modal);
     if (this.progress.slots.every(id => this.cache.audio.exists(this.audioKey(id)))) {
-      this.button(720, 700, 'PLAY ASSEMBLED AUDIO', () => this.playAudioOrder([...this.progress.slots]), this.modal);
+      this.button(720, 700, __dialogueText("scenes/RadioSpliceScene.js", "t_7059fff4cf85ae4dce57"), () => this.playAudioOrder([...this.progress.slots]), this.modal);
     }
   }
   closeModal() {
@@ -238,7 +239,7 @@ export class RadioSpliceScene extends BaseScene {
         });
       } catch (error) {
         this.stopAudio();
-        this.message?.setText('Attached audio could not be played. The transcript remains available.');
+        this.message?.setText(__dialogueText("scenes/RadioSpliceScene.js", "t_9bad0480e3aed6291f68"));
       }
     }; next(0);
   }

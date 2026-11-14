@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { EventBus } from '../EventBus.js';
 import { gameState } from '../GameData.js';
 import { BaseScene } from '../scenes/BaseScene.js';
@@ -178,7 +179,7 @@ export class UIScene extends BaseScene {
       partOfDay:
         gameState.currentPartOfDay ||
         gameState.partOfDay ||
-        'Morning'
+        __dialogueText("ui/UIScene.js", "t_e9376a281aac57bb78e2")
     };
   }
 
@@ -222,7 +223,7 @@ export class UIScene extends BaseScene {
         document.getElementById('energy-target'),
 
       energyWrapper:
-        container?.querySelector('.energy-wrapper') || null,
+        container?.querySelector(__dialogueText("ui/UIScene.js", "t_2ca2d1c09cbe57e3bf6e")) || null,
 
       energyFill:
         document.getElementById('energy-fill'),
@@ -459,7 +460,7 @@ export class UIScene extends BaseScene {
         if (!(target instanceof Element)) return;
 
         const button = target.closest(
-          '#profile-modal button[data-progression-stat]'
+          __dialogueText("ui/UIScene.js", "t_1cdd68cb0d766cbce2f4")
         );
 
         if (!(button instanceof HTMLButtonElement)) return;
@@ -502,9 +503,9 @@ export class UIScene extends BaseScene {
 
           this._setProgressionMessage(
             modal,
-            `${STAT_NAMES[result.statId]} increased to ${
+            `${STAT_NAMES[result.statId]}${__dialogueText("ui/UIScene.js", "t_4d50f073d001891cd6a6")}${
               result.effectiveStats[result.statId]
-            }.`,
+            }${__dialogueText("ui/UIScene.js", "t_cdb4ee2aea69cc6a8333")}`,
             false
           );
 
@@ -530,7 +531,7 @@ export class UIScene extends BaseScene {
 
           this._setProgressionMessage(
             modal,
-            'Could not update this personnel file.',
+            __dialogueText("ui/UIScene.js", "t_0944cbbd10db0e7be236"),
             true
           );
 
@@ -545,14 +546,14 @@ export class UIScene extends BaseScene {
 
   _getSkillPointError(reason) {
     const messages = {
-      no_skill_points: 'No skill points available.',
-      unknown_stat: 'Unknown field assessment.',
+      no_skill_points: __dialogueText("ui/UIScene.js", "t_448f9f20d622ab37e1ca"),
+      unknown_stat: __dialogueText("ui/UIScene.js", "t_9b76fb8f5a6769c15682"),
       character_stats_missing:
-        'Character assessment unavailable.',
-      stat_limit: 'This skill cannot be increased further.'
+        __dialogueText("ui/UIScene.js", "t_4de6ed55b8d62da32cf7"),
+      stat_limit: __dialogueText("ui/UIScene.js", "t_e1bd3c8af40b079bb805")
     };
 
-    return messages[reason] || 'Could not increase this skill.';
+    return messages[reason] || __dialogueText("ui/UIScene.js", "t_9c9cf9e0df3d6cb7d87a");
   }
 
   _readProgressionSummary() {
@@ -576,163 +577,7 @@ export class UIScene extends BaseScene {
     const style = document.createElement('style');
     style.id = PROGRESSION_STYLE_ID;
 
-    style.textContent = `
-      #profile-modal .ui-progression {
-        box-sizing: border-box;
-        margin: 12px 0 16px;
-        padding: 12px;
-        border: 2px solid #6c5135;
-        background: rgba(92, 65, 35, .07);
-        color: #35281d;
-        font-family: 'SpecialElite', 'Special Elite', monospace;
-        text-transform: none;
-        letter-spacing: normal;
-      }
-
-      #profile-modal .ui-progression-heading {
-        display: flex;
-        justify-content: space-between;
-        align-items: baseline;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 9px;
-      }
-
-      #profile-modal .ui-progression-level {
-        font-family: 'PressStart2P', 'Press Start 2P', monospace;
-        font-size: 10px;
-        line-height: 1.7;
-      }
-
-      #profile-modal .ui-progression-total {
-        font-size: 13px;
-      }
-
-      #profile-modal .ui-progression-bar {
-        display: block;
-        box-sizing: border-box;
-        width: 100%;
-        height: 15px;
-        border: 2px solid #6c5135;
-        background: #d9c9a9;
-        overflow: hidden;
-      }
-
-      #profile-modal .ui-progression-fill {
-        display: block;
-        height: 100%;
-        background: #66734a;
-        transition: width 180ms ease;
-      }
-
-      #profile-modal .ui-progression-caption,
-      #profile-modal .ui-progression-points,
-      #profile-modal .ui-progression-message {
-        margin: 8px 0 0;
-        font-size: 13px;
-        line-height: 1.45;
-      }
-
-      #profile-modal .ui-progression-points.has-points {
-        color: #365327;
-        font-weight: bold;
-      }
-
-      #profile-modal .ui-progression-message {
-        min-height: 1.45em;
-      }
-
-      #profile-modal .ui-progression-message.is-error {
-        color: #8c241e;
-      }
-
-      #profile-modal .profile-stat-value.ui-stat-value {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 8px;
-      }
-
-      #profile-modal .ui-stat-increase {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        flex: 0 0 34px;
-        box-sizing: border-box;
-        width: 34px;
-        height: 34px;
-        min-width: 34px;
-        margin: 0;
-        padding: 0;
-        border: 2px solid #5d452e;
-        border-radius: 0;
-        background: #e7dabd;
-        color: #35281d;
-        box-shadow: 2px 2px 0 #5d452e;
-        font-family: 'SpecialElite', 'Special Elite', monospace;
-        font-size: 23px;
-        line-height: 1;
-        cursor: pointer;
-      }
-
-      #profile-modal .ui-stat-increase:hover:not(:disabled) {
-        background: #f5e9ce;
-      }
-
-      #profile-modal .ui-stat-increase:active:not(:disabled) {
-        transform: translate(1px, 1px);
-        box-shadow: 1px 1px 0 #5d452e;
-      }
-
-      #profile-modal .ui-stat-increase:disabled {
-        opacity: .35;
-        box-shadow: none;
-        cursor: default;
-      }
-
-      #profile-modal .ui-stat-increase:focus-visible,
-      #profile-modal .ui-progression:focus-visible {
-        outline: 3px solid #47668b;
-        outline-offset: 3px;
-      }
-
-      .ui-level-up-notice {
-        position: fixed;
-        z-index: 100000;
-        left: 50%;
-        top: max(20px, env(safe-area-inset-top));
-        transform: translateX(-50%);
-        box-sizing: border-box;
-        width: min(440px, calc(100vw - 32px));
-        padding: 18px 20px;
-        border: 3px solid #59412b;
-        background: #eddfbf;
-        color: #35281d;
-        box-shadow: 5px 5px 0 rgba(0, 0, 0, .4);
-        pointer-events: none;
-        font-family: 'SpecialElite', 'Special Elite', monospace;
-        text-align: center;
-      }
-
-      .ui-level-up-notice-title {
-        margin: 0 0 10px;
-        font-family: 'PressStart2P', 'Press Start 2P', monospace;
-        font-size: 12px;
-        line-height: 1.7;
-      }
-
-      .ui-level-up-notice-text {
-        margin: 6px 0 0;
-        font-size: 16px;
-        line-height: 1.4;
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        #profile-modal .ui-progression-fill {
-          transition: none;
-        }
-      }
-    `;
+    style.textContent = `${__dialogueText("ui/UIScene.js", "t_a3705d0c70746913c715")}`;
 
     document.head.appendChild(style);
   }
@@ -752,52 +597,9 @@ export class UIScene extends BaseScene {
     section.className = 'ui-progression';
     section.dataset.progressionSummary = 'true';
     section.tabIndex = -1;
-    section.setAttribute('aria-label', 'Character progression');
+    section.setAttribute('aria-label', __dialogueText("ui/UIScene.js", "t_e83f54d473c2ba805213"));
 
-    section.innerHTML = `
-      <div class="ui-progression-heading">
-        <span
-          class="ui-progression-level"
-          data-progression-level
-        ></span>
-        <span
-          class="ui-progression-total"
-          data-progression-total
-        ></span>
-      </div>
-
-      <div
-        class="ui-progression-bar"
-        data-progression-bar
-        role="progressbar"
-        aria-label="Experience toward next level"
-        aria-valuemin="0"
-        aria-valuemax="100"
-      >
-        <span
-          class="ui-progression-fill"
-          data-progression-fill
-        ></span>
-      </div>
-
-      <p
-        class="ui-progression-caption"
-        data-progression-caption
-      ></p>
-
-      <p
-        class="ui-progression-points"
-        data-progression-points
-      ></p>
-
-      <p
-        class="ui-progression-message"
-        data-progression-message
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-      ></p>
-    `;
+    section.innerHTML = `${__dialogueText("ui/UIScene.js", "t_55556983602d8863a846")}`;
 
     statsGrid.insertAdjacentElement('beforebegin', section);
 
@@ -817,19 +619,19 @@ export class UIScene extends BaseScene {
       this._setHtmlText(
         section,
         '[data-progression-level]',
-        'PROGRESSION UNAVAILABLE'
+        __dialogueText("ui/UIScene.js", "t_f237510157f5a488487c")
       );
 
       this._setHtmlText(
         section,
-        '[data-progression-total], [data-progression-caption]',
+        __dialogueText("ui/UIScene.js", "t_aca16f0360cc1f3efdeb"),
         ''
       );
 
       this._setHtmlText(
         section,
         '[data-progression-points]',
-        'Personnel file could not be read.'
+        __dialogueText("ui/UIScene.js", "t_5a8af88edf434fc0ab87")
       );
 
       const bar = section.querySelector('[data-progression-bar]');
@@ -841,13 +643,13 @@ export class UIScene extends BaseScene {
     this._setHtmlText(
       section,
       '[data-progression-level]',
-      `LEVEL ${summary.level}`
+      `${__dialogueText("ui/UIScene.js", "t_6466f20e2210f3cc107d")}${summary.level}`
     );
 
     this._setHtmlText(
       section,
       '[data-progression-total]',
-      `${formatNumber(summary.totalXP)} total XP`
+      `${formatNumber(summary.totalXP)}${__dialogueText("ui/UIScene.js", "t_a320e95964ab10d8b38b")}`
     );
 
     const bar = section.querySelector('[data-progression-bar]');
@@ -865,8 +667,8 @@ export class UIScene extends BaseScene {
       bar.setAttribute(
         'aria-valuetext',
         summary.isMaxLevel
-          ? 'Maximum level reached'
-          : `${summary.currentLevelXP} of ${summary.requiredXP} XP`
+          ? __dialogueText("ui/UIScene.js", "t_ab738e7625797d81498c")
+          : `${summary.currentLevelXP}${__dialogueText("ui/UIScene.js", "t_a4282e4b2298b90b56f7")}${summary.requiredXP}${__dialogueText("ui/UIScene.js", "t_42e2aa5470e71f56e5a5")}`
       );
     }
 
@@ -878,10 +680,10 @@ export class UIScene extends BaseScene {
       section,
       '[data-progression-caption]',
       summary.isMaxLevel
-        ? 'Maximum level reached. HR is investigating.'
-        : `${formatNumber(summary.currentLevelXP)} / ${
+        ? __dialogueText("ui/UIScene.js", "t_e10e18271bf5a8bd2e3b")
+        : `${formatNumber(summary.currentLevelXP)}${__dialogueText("ui/UIScene.js", "t_005e1574a2b5c8163046")}${
             formatNumber(summary.requiredXP)
-          } XP — ${formatNumber(summary.xpToNextLevel)} to next level`
+          }${__dialogueText("ui/UIScene.js", "t_329c75838b2aa07a7636")}${formatNumber(summary.xpToNextLevel)}${__dialogueText("ui/UIScene.js", "t_429fbc3cecdc256c9a0c")}`
     );
 
     const points = section.querySelector(
@@ -891,10 +693,10 @@ export class UIScene extends BaseScene {
     if (points) {
       points.textContent =
         summary.availablePoints > 0
-          ? `${summary.availablePoints} skill ${
+          ? `${summary.availablePoints}${__dialogueText("ui/UIScene.js", "t_7d5c39c2d6cacb815d7c")}${
               summary.availablePoints === 1 ? 'point' : 'points'
-            } available. Use + to improve a skill.`
-          : 'No unspent skill points. Next level grants 1 point.';
+            }${__dialogueText("ui/UIScene.js", "t_c1bc7f984634c5d32f06")}`
+          : __dialogueText("ui/UIScene.js", "t_6d0e91f4cbf23e57d920");
 
       points.classList.toggle(
         'has-points',
@@ -930,12 +732,12 @@ export class UIScene extends BaseScene {
 
     const title = document.createElement('p');
     title.className = 'ui-level-up-notice-title';
-    title.textContent = `LEVEL ${summary.level}`;
+    title.textContent = `${__dialogueText("ui/UIScene.js", "t_6466f20e2210f3cc107d")}${summary.level}`;
 
     const message = document.createElement('p');
     message.className = 'ui-level-up-notice-text';
     message.textContent =
-      'Your paperwork now suggests professional growth.';
+      __dialogueText("ui/UIScene.js", "t_403a5c2f1f2be4cef9ba");
 
     const points = document.createElement('p');
     points.className = 'ui-level-up-notice-text';
@@ -946,9 +748,9 @@ export class UIScene extends BaseScene {
     );
 
     points.textContent =
-      `${gainedPoints} skill ${
+      `${gainedPoints}${__dialogueText("ui/UIScene.js", "t_7d5c39c2d6cacb815d7c")}${
         gainedPoints === 1 ? 'point' : 'points'
-      } earned. Open your Personnel File to spend.`;
+      }${__dialogueText("ui/UIScene.js", "t_cc6c16a434cd36239eb4")}`;
 
     notice.append(title, message, points);
     document.body.appendChild(notice);
@@ -994,8 +796,8 @@ export class UIScene extends BaseScene {
         element: this.dom.scoreTarget || this.dom.score,
         getContent: () => [
           'SCORE',
-          `${formatNumber(gameState.score)} points.`,
-          'Solve cases, collect clues and make smart arrests.'
+          `${formatNumber(gameState.score)}${__dialogueText("ui/UIScene.js", "t_d317b64a5b36e260196b")}`,
+          __dialogueText("ui/UIScene.js", "t_f0b31d2f8e1c73209e50")
         ].join('\n')
       },
       {
@@ -1047,7 +849,7 @@ export class UIScene extends BaseScene {
     }
 
     target.setAttribute('role', 'meter');
-    target.setAttribute('aria-label', 'Energy remaining');
+    target.setAttribute('aria-label', __dialogueText("ui/UIScene.js", "t_a0b354577d6472224061"));
     target.setAttribute('aria-valuemin', '0');
     target.setAttribute('aria-valuemax', '100');
 
@@ -1100,11 +902,11 @@ export class UIScene extends BaseScene {
     target.addEventListener(
       'keydown',
       event => {
-        if (event.key === 'Enter' || event.key === ' ') {
+        if (event.key === __dialogueText("ui/UIScene.js", "t_dc8659db6d416dc32fca") || event.key === ' ') {
           event.preventDefault();
           event.stopPropagation();
           this._toggleEnergyLog();
-        } else if (event.key === 'Escape') {
+        } else if (event.key === __dialogueText("ui/UIScene.js", "t_037c968467aa3fd7c059")) {
           event.preventDefault();
           event.stopPropagation();
 
@@ -1156,12 +958,12 @@ export class UIScene extends BaseScene {
     } = moneyManager.getState();
 
     return [
-      `CASH: $${cash}`,
-      `Agency budget: $${agencyBudget}`,
+      `${__dialogueText("ui/UIScene.js", "t_cb0fd9c4330cd050bc89")}${cash}`,
+      `${__dialogueText("ui/UIScene.js", "t_eb4223a04f74d59bdd86")}${agencyBudget}`,
       agencyDebt > 0
-        ? `Agency debt: $${agencyDebt}`
-        : 'No agency debt.',
-      'Cash pays for comfort, shortcuts and private detective work.'
+        ? `${__dialogueText("ui/UIScene.js", "t_43565ea0e4608f0bd9fe")}${agencyDebt}`
+        : __dialogueText("ui/UIScene.js", "t_7e055b0e317876dfce45"),
+      __dialogueText("ui/UIScene.js", "t_32e638aac98bb8494637")
     ].join('\n');
   }
 
@@ -1171,23 +973,23 @@ export class UIScene extends BaseScene {
     if (!summary) {
       return [
         'EXPERIENCE',
-        'Personnel file could not be read.'
+        __dialogueText("ui/UIScene.js", "t_5a8af88edf434fc0ab87")
       ].join('\n');
     }
 
     const points = summary.availablePoints;
 
     return [
-      `EXPERIENCE: LEVEL ${summary.level}`,
-      `${formatNumber(summary.totalXP)} total XP.`,
+      `${__dialogueText("ui/UIScene.js", "t_6531d947ed509d92c037")}${summary.level}`,
+      `${formatNumber(summary.totalXP)}${__dialogueText("ui/UIScene.js", "t_6088ccbb048740fc41bc")}`,
       summary.isMaxLevel
-        ? 'Maximum level reached. HR is investigating.'
-        : `${formatNumber(summary.xpToNextLevel)} XP to next level.`,
+        ? __dialogueText("ui/UIScene.js", "t_e10e18271bf5a8bd2e3b")
+        : `${formatNumber(summary.xpToNextLevel)}${__dialogueText("ui/UIScene.js", "t_202a591342c2ad5a2316")}`,
       points > 0
-        ? `${points} unspent skill ${
+        ? `${points}${__dialogueText("ui/UIScene.js", "t_b8577c0ec279ab0fdc52")}${
             points === 1 ? 'point' : 'points'
-          }. Open your Detective Profile.`
-        : 'Solve cases and make smart arrests to gain XP.'
+          }${__dialogueText("ui/UIScene.js", "t_a4d26645b682c23f57d6")}`
+        : __dialogueText("ui/UIScene.js", "t_5b5ca951128001a96d9e")
     ].join('\n');
   }
 
@@ -1299,7 +1101,7 @@ export class UIScene extends BaseScene {
         ? 'critical'
         : remainingSeconds <= 43200
           ? 'warn'
-          : 'ok'
+          : __dialogueText("ui/UIScene.js", "t_2689367b205c16ce32ed")
     );
   }
 
@@ -1322,11 +1124,11 @@ export class UIScene extends BaseScene {
     const minutes = Math.floor((safeSeconds % 3600) / 60);
 
     if (days > 0) {
-      return `${days}D ${String(hours).padStart(2, '0')}H`;
+      return `${days}${__dialogueText("ui/UIScene.js", "t_f0a768c6fe5fff5a5d19")}${String(hours).padStart(2, '0')}${__dialogueText("ui/UIScene.js", "t_44bd7ae60f478fae1061")}`;
     }
 
     if (hours > 0) {
-      return `${hours}H ${String(minutes).padStart(2, '0')}M`;
+      return `${hours}${__dialogueText("ui/UIScene.js", "t_ef666e3d289af8ddae6f")}${String(minutes).padStart(2, '0')}${__dialogueText("ui/UIScene.js", "t_08f271887ce94707da82")}`;
     }
 
     return `${minutes}M`;
@@ -1402,7 +1204,7 @@ export class UIScene extends BaseScene {
         ? 'critical'
         : daysLeft <= 2
           ? 'warn'
-          : 'ok'
+          : __dialogueText("ui/UIScene.js", "t_2689367b205c16ce32ed")
     );
   }
 
@@ -1506,7 +1308,7 @@ export class UIScene extends BaseScene {
 
     this.dom.energyTarget?.setAttribute(
       'aria-valuetext',
-      `${percent}% energy remaining`
+      `${percent}${__dialogueText("ui/UIScene.js", "t_8e5d75479f65b7333e86")}`
     );
 
     if (this._isEnergyTooltipActive()) {
@@ -1632,11 +1434,11 @@ export class UIScene extends BaseScene {
       .getEnergyLog()
       .slice(-5)
       .reverse()
-      .map(entry => entry.label || 'Energy changed.');
+      .map(entry => entry.label || __dialogueText("ui/UIScene.js", "t_be987d3c4a19256ef8b1"));
 
     this.dom.energyLogText.textContent = entries.length
       ? entries.join('\n')
-      : 'No energy changes recorded.';
+      : __dialogueText("ui/UIScene.js", "t_1278d222cc725c16a94b");
   }
 
   _getClockTooltip() {
@@ -1645,7 +1447,7 @@ export class UIScene extends BaseScene {
       `${this.dom.time?.textContent || '--:--'} — ${
         this.dom.partOfDay?.textContent || ''
       }`,
-      'Conversations, travel and tasks move time forward.'
+      __dialogueText("ui/UIScene.js", "t_528c2861128f1754bb61")
     ].join('\n');
   }
 
@@ -1655,9 +1457,9 @@ export class UIScene extends BaseScene {
     );
 
     return [
-      'CASE DATE',
+      __dialogueText("ui/UIScene.js", "t_783c7c3e305711f6c0d5"),
       label,
-      `Day ${this.currentGameDay} of the investigation.`
+      `${__dialogueText("ui/UIScene.js", "t_df2441a485d20426bd94")}${this.currentGameDay}${__dialogueText("ui/UIScene.js", "t_6ae72d6cc40433b6523e")}`
     ].join('\n');
   }
 
@@ -1666,10 +1468,10 @@ export class UIScene extends BaseScene {
 
     if (remainingSeconds !== null) {
       return [
-        'CASE DEADLINE',
-        `${this._formatCaseDeadline(remainingSeconds)} remaining.`,
-        'Travel, lab work, crime scenes and sleep consume case time.',
-        'When time runs out, the thief disappears.'
+        __dialogueText("ui/UIScene.js", "t_f58a763ebfea870c7263"),
+        `${this._formatCaseDeadline(remainingSeconds)}${__dialogueText("ui/UIScene.js", "t_e0b952f35ba855cc33ab")}`,
+        __dialogueText("ui/UIScene.js", "t_33534a24d6fcd44f1466"),
+        __dialogueText("ui/UIScene.js", "t_db598d033c38a3bc467d")
       ].join('\n');
     }
 
@@ -1679,9 +1481,9 @@ export class UIScene extends BaseScene {
     );
 
     return [
-      'CASE DEADLINE',
-      `${daysLeft} day${daysLeft === 1 ? '' : 's'} remaining.`,
-      'When time runs out, the case is over.'
+      __dialogueText("ui/UIScene.js", "t_f58a763ebfea870c7263"),
+      `${daysLeft}${__dialogueText("ui/UIScene.js", "t_4b6a5d3d63b22f032e31")}${daysLeft === 1 ? '' : 's'}${__dialogueText("ui/UIScene.js", "t_e0b952f35ba855cc33ab")}`,
+      __dialogueText("ui/UIScene.js", "t_fe045f3dc1eddac6910f")
     ].join('\n');
   }
 
@@ -1689,7 +1491,7 @@ export class UIScene extends BaseScene {
     const manager = this.energyManager;
 
     if (!manager) {
-      return 'ENERGY\nEnergy monitor unavailable.';
+      return __dialogueText("ui/UIScene.js", "t_b44d76d3ed187cb35669");
     }
 
     const { percent } =
@@ -1698,12 +1500,12 @@ export class UIScene extends BaseScene {
     const last = manager.lastEnergyChange?.label;
 
     return [
-      `ENERGY: ${percent}%`,
-      `STATUS: ${String(manager.getEnergyStatus()).toUpperCase()}`,
+      `${__dialogueText("ui/UIScene.js", "t_be89bf96a7d4a637280e")}${percent}${__dialogueText("ui/UIScene.js", "t_bbf3f11cb5b43e700273")}`,
+      `${__dialogueText("ui/UIScene.js", "t_b38c2113d660280ef051")}${String(manager.getEnergyStatus()).toUpperCase()}`,
       manager.getEnergyTooltip(),
       last
-        ? `Last: ${last}`
-        : 'Click the bolt for the full energy log.'
+        ? `${__dialogueText("ui/UIScene.js", "t_d7e6ea5d1c3ed78de73a")}${last}`
+        : __dialogueText("ui/UIScene.js", "t_6b7649dbc0268fcab724")
     ].join('\n');
   }
 
@@ -1768,7 +1570,7 @@ export class UIScene extends BaseScene {
 
   async openProfileModal() {
     const modal = await this._loadHtmlModal(
-      'profile.html',
+      __dialogueText("ui/UIScene.js", "t_f32cee85e87bd5c9da57"),
       'profile-modal',
       'btn-close-profile'
     );
@@ -1782,7 +1584,7 @@ export class UIScene extends BaseScene {
 
   async openAgentModal() {
     const modal = await this._loadHtmlModal(
-      'agent.html',
+      __dialogueText("ui/UIScene.js", "t_d366d1c0b4e883df86ca"),
       'agent-modal',
       'btn-close-agent'
     );
@@ -1879,7 +1681,7 @@ export class UIScene extends BaseScene {
     }
 
     const container = await this._fetchHtmlElement(
-      'ui/hud.template',
+      __dialogueText("ui/UIScene.js", "t_11fc71f89d5aadc4815a"),
       '#hud-container'
     );
 
@@ -1981,16 +1783,16 @@ export class UIScene extends BaseScene {
   _populateProfileModalData(modal) {
     const difficultyData = {
       rookie: [
-        'ROOKIE DETECTIVE',
-        'Extra guidance. More retries. Less paperwork.'
+        __dialogueText("ui/UIScene.js", "t_3e6b212e38b2bb8a83aa"),
+        __dialogueText("ui/UIScene.js", "t_600b7737cd8fb54defaf")
       ],
       field: [
-        'FIELD AGENT',
-        'Standard Mark Agency field procedure.'
+        __dialogueText("ui/UIScene.js", "t_898b1ad9707eac7ca046"),
+        __dialogueText("ui/UIScene.js", "t_66d12def874fa622b577")
       ],
       master: [
-        'MASTER SLEUTH',
-        'Fewer second chances. Better coffee not guaranteed.'
+        __dialogueText("ui/UIScene.js", "t_15970d29cd6269fe928c"),
+        __dialogueText("ui/UIScene.js", "t_7121496487a129750ed1")
       ]
     };
 
@@ -2005,7 +1807,7 @@ export class UIScene extends BaseScene {
     this._setHtmlText(
       modal,
       '#profile-alias',
-      gameState.playerName || gameState.agentName || 'Detective'
+      gameState.playerName || gameState.agentName || __dialogueText("ui/UIScene.js", "t_2653ceeec1fd951707a3")
     );
 
     this._setHtmlText(
@@ -2017,7 +1819,7 @@ export class UIScene extends BaseScene {
     this._setHtmlText(
       modal,
       '#profile-rank',
-      gameState.playerRank || 'Junior Agent'
+      gameState.playerRank || __dialogueText("ui/UIScene.js", "t_bf32e97cd768b3cc39be")
     );
 
     this._setHtmlText(
@@ -2060,16 +1862,16 @@ export class UIScene extends BaseScene {
       this._setHtmlText(
         modal,
         '#profile-archetype',
-        'ASSESSMENT UNAVAILABLE'
+        __dialogueText("ui/UIScene.js", "t_f67b5b42d75cb056d508")
       );
 
       this._setHtmlText(
         modal,
         '#profile-bonus',
-        'No character assessment was found in this personnel file.'
+        __dialogueText("ui/UIScene.js", "t_74b088014c98defd0577")
       );
 
-      const note = modal.querySelector('.profile-stats-note');
+      const note = modal.querySelector(__dialogueText("ui/UIScene.js", "t_23af6d074816c52bca8e"));
       if (note) note.hidden = true;
 
       return;
@@ -2119,10 +1921,10 @@ export class UIScene extends BaseScene {
     this._setHtmlText(
       modal,
       '#profile-bonus',
-      `PROFILE BONUS: ${profile.bonus}`
+      `${__dialogueText("ui/UIScene.js", "t_6201521d9540f2602b05")}${profile.bonus}`
     );
 
-    const note = modal.querySelector('.profile-stats-note');
+    const note = modal.querySelector(__dialogueText("ui/UIScene.js", "t_23af6d074816c52bca8e"));
     if (note) note.hidden = false;
 
     for (const statId of STAT_IDS) {
@@ -2134,7 +1936,7 @@ export class UIScene extends BaseScene {
 
       row.className =
         bonus > 0
-          ? 'profile-stat has-profile-bonus'
+          ? __dialogueText("ui/UIScene.js", "t_82f29ce3c2e55545ce94")
           : 'profile-stat';
 
       const name = document.createElement('dt');
@@ -2142,7 +1944,7 @@ export class UIScene extends BaseScene {
       name.textContent = STAT_NAMES[statId];
 
       const value = document.createElement('dd');
-      value.className = 'profile-stat-value ui-stat-value';
+      value.className = __dialogueText("ui/UIScene.js", "t_29e0974837a312b7b652");
 
       const number = document.createElement('span');
       number.textContent = String(finalValue);
@@ -2159,14 +1961,14 @@ export class UIScene extends BaseScene {
 
       increase.setAttribute(
         'aria-label',
-        `Increase ${STAT_NAMES[statId]} by 1. Costs 1 skill point.`
+        `${__dialogueText("ui/UIScene.js", "t_348fc02ccdb0cfde0800")}${STAT_NAMES[statId]}${__dialogueText("ui/UIScene.js", "t_225ae107308a57c787a2")}`
       );
 
       increase.title = !hasValidStats
-        ? 'Character assessment unavailable'
+        ? __dialogueText("ui/UIScene.js", "t_15b6a1ec9474af7b5f2c")
         : increase.disabled
-          ? 'No skill points available or skill limit reached'
-          : `Spend 1 skill point on ${STAT_NAMES[statId]}`;
+          ? __dialogueText("ui/UIScene.js", "t_0aa9513fa485fd62b062")
+          : `${__dialogueText("ui/UIScene.js", "t_e57e2e10ea6a8dbbe09d")}${STAT_NAMES[statId]}`;
 
       value.append(number, increase);
 
@@ -2175,8 +1977,8 @@ export class UIScene extends BaseScene {
 
       breakdown.textContent =
         bonus > 0
-          ? `Base ${baseValue} + ${bonus} profile bonus`
-          : `Base ${baseValue}`;
+          ? `${__dialogueText("ui/UIScene.js", "t_4f1271d836894d23e60e")}${baseValue}${__dialogueText("ui/UIScene.js", "t_46209f696e32b54882cb")}${bonus}${__dialogueText("ui/UIScene.js", "t_bff921275c9f9418ec49")}`
+          : `${__dialogueText("ui/UIScene.js", "t_4f1271d836894d23e60e")}${baseValue}`;
 
       row.append(name, value, breakdown);
       grid.appendChild(row);
@@ -2187,11 +1989,11 @@ export class UIScene extends BaseScene {
     const playerName =
       gameState.playerName ||
       gameState.agentName ||
-      'Detective';
+      __dialogueText("ui/UIScene.js", "t_2653ceeec1fd951707a3");
 
     this._setHtmlText(
       modal,
-      '#agent-name, #agent-alias, #pub-alias',
+      __dialogueText("ui/UIScene.js", "t_aa7985870d10fb12c63d"),
       playerName
     );
 
@@ -2199,14 +2001,14 @@ export class UIScene extends BaseScene {
 
     this._setHtmlText(
       modal,
-      '#agent-score, #agent-points, #pub-points',
+      __dialogueText("ui/UIScene.js", "t_1743df1e297aa9e31d8a"),
       formatNumber(gameState.score)
     );
 
     this._setHtmlText(
       modal,
       '#pub-rank',
-      gameState.playerRank || 'Junior Agent'
+      gameState.playerRank || __dialogueText("ui/UIScene.js", "t_bf32e97cd768b3cc39be")
     );
 
     const avatar = modal.querySelector('#pub-avatar');
@@ -2233,7 +2035,7 @@ export class UIScene extends BaseScene {
 
       avatar.setAttribute(
         'aria-label',
-        `${playerName}'s agent portrait`
+        `${playerName}${__dialogueText("ui/UIScene.js", "t_f7824571098797937aae")}`
       );
     }
 
@@ -2265,7 +2067,7 @@ export class UIScene extends BaseScene {
 
     Object.assign(tagline.style, {
       display: alias ? 'block' : 'none',
-      margin: '4px 0 10px',
+      margin: __dialogueText("ui/UIScene.js", "t_70b9fca79ae1440a5e60"),
       padding: '0',
       fontFamily: "'SpecialElite', 'Special Elite', monospace",
       fontSize: 'clamp(10px, 1.2vw, 16px)',
@@ -2300,11 +2102,11 @@ export class UIScene extends BaseScene {
 
       item.className = unlocked
         ? 'achievement-item'
-        : 'achievement-item locked';
+        : __dialogueText("ui/UIScene.js", "t_ae698bf60e2d38102696");
 
       item.title = unlocked
         ? achievement.description
-        : 'Achievement locked';
+        : __dialogueText("ui/UIScene.js", "t_5ba5299030a87a3104a0");
 
       const icon = document.createElement('span');
       icon.className = 'achievement-icon';

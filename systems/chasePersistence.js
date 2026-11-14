@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 
 import {
@@ -17,34 +18,34 @@ import {
 } from './chaseLogic.js';
 
 export const ESCAPE_MESSAGE =
-  'You lost the suspect during the pursuit. ' +
-  'The thief escaped with the artefact. ' +
-  'Your shoes have declined to comment.';
+  __dialogueText("systems/chasePersistence.js", "t_a2bc479ee3e8e28e1477") +
+  __dialogueText("systems/chasePersistence.js", "t_43f53aaf73c4646e302f") +
+  __dialogueText("systems/chasePersistence.js", "t_7a0c635c047a521cb2f7");
 
 const CHASE_FAILURES = Object.freeze({
   chase_escape: {
-    title: 'SUSPECT ESCAPED',
+    title: __dialogueText("systems/chasePersistence.js", "t_2de8c6bcc823fd89a58b"),
     message: ESCAPE_MESSAGE
   },
 
   missing_warrant: {
-    title: 'ARREST FAILED',
+    title: __dialogueText("systems/chasePersistence.js", "t_aaa83133a177ce1167f4"),
     message:
-      'You caught the suspect, but had no arrest warrant. ' +
-      'The arrest could not proceed. The mission has failed.'
+      __dialogueText("systems/chasePersistence.js", "t_067aafd9c04e9f46e3cb") +
+      __dialogueText("systems/chasePersistence.js", "t_cb6583a584a88af4dabb")
   },
 
   warrant_mismatch: {
-    title: 'ARREST FAILED',
+    title: __dialogueText("systems/chasePersistence.js", "t_aaa83133a177ce1167f4"),
     message:
-      'You caught the suspect, but your warrant named another person. ' +
-      'The arrest could not proceed. The mission has failed.'
+      __dialogueText("systems/chasePersistence.js", "t_46f168d72b464e8f0c2f") +
+      __dialogueText("systems/chasePersistence.js", "t_cb6583a584a88af4dabb")
   }
 });
 
 const COURT_RELEASE_MESSAGE =
-  'The court released the defendant. ' +
-  'The prosecution failed to establish the case.';
+  __dialogueText("systems/chasePersistence.js", "t_0de1a1cfb8e07c468593") +
+  __dialogueText("systems/chasePersistence.js", "t_d15995e1076bbe82188b");
 
 const PREFIX =
   'lost-artefacts:chase-checkpoint:v2:';
@@ -273,7 +274,7 @@ function grantNewArrestXP(record, previousRecord) {
     return progressionManager.grantReward(
       'correct_arrest',
       caseId,
-      'Correct suspect arrested'
+      __dialogueText("systems/chasePersistence.js", "t_a5b21b2626588c5f7e67")
     );
   } catch (error) {
     console.error(
@@ -444,7 +445,7 @@ export function terminalData(record) {
 
   if (releasedByCourt) {
     return {
-      title: 'DEFENDANT RELEASED',
+      title: __dialogueText("systems/chasePersistence.js", "t_92624f92e0a888fb966d"),
       reasonCode: 'court_release',
       caseId: record.caseId,
       suspectId: record.suspectId,
@@ -467,7 +468,7 @@ export function terminalData(record) {
   }
 
   return {
-    title: 'MISSION FAILED',
+    title: __dialogueText("systems/chasePersistence.js", "t_12a3b87da732b611ab19"),
     reasonCode: 'mission_failed',
 
     caseId:
@@ -480,7 +481,7 @@ export function terminalData(record) {
 
     message:
       gameState.gameOverReason ||
-      'The mission has failed.'
+      __dialogueText("systems/chasePersistence.js", "t_42393c93e18b35d98e47")
   };
 }
 

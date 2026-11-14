@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 const LOCAL = typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname);
 const round = n => Math.round(n * 100) / 100;
 
@@ -107,7 +108,7 @@ export class ApartmentHotspotDebug {
     const objects = this.objects();
     if (!objects.length) return;
     let index = objects.findIndex(o => o.config.layoutSlotId === this.selectedId);
-    if (event.code === 'Tab') {
+    if (event.code === __dialogueText("scenes/apartament/ApartmentHotspotDebug.js", "t_90ddf1963abb36c9921c")) {
       event.preventDefault();
       if (index < 0) index = event.shiftKey ? 0 : -1;
       index = (index + (event.shiftKey ? -1 : 1) + objects.length) % objects.length;
@@ -163,19 +164,19 @@ export class ApartmentHotspotDebug {
     }
     const slot = this.system.layoutConfig.slots.find(s => s.id === this.selectedId);
     this.text.setText([
-      `LOCAL DEBUG | ${this.system.renderedPackId}/${this.system.roomId} | ${slot?.id || '-'}`,
-      `x:${slot?.x} y:${slot?.y} w:${slot?.w} h:${slot?.h} (1920x1080 reference)`,
-      'Drag / Arrows: move | Shift+Arrows: resize | Alt: 1px',
-      'Tab / Shift+Tab: select | C: export JSON to console | D: close',
-      'Interactions disabled. Geometry autosaved in this browser only.'
-    ].join('\n'));
+      `${__dialogueText("scenes/apartament/ApartmentHotspotDebug.js", "t_320cffef0f86251a5baa")}${this.system.renderedPackId}${__dialogueText("scenes/apartament/ApartmentHotspotDebug.js", "t_8a5edab282632443219e")}${this.system.roomId}${__dialogueText("scenes/apartament/ApartmentHotspotDebug.js", "t_ffa9044b934017b2aed8")}${slot?.id || __dialogueText("scenes/apartament/ApartmentHotspotDebug.js", "t_3973e022e93220f9212c")}`,
+      `${__dialogueText("scenes/apartament/ApartmentHotspotDebug.js", "t_51e33c7c7efbc350d26f")}${slot?.x}${__dialogueText("scenes/apartament/ApartmentHotspotDebug.js", "t_8278a5c11d3d9380f821")}${slot?.y}${__dialogueText("scenes/apartament/ApartmentHotspotDebug.js", "t_1b89a9604b178452218e")}${slot?.w}${__dialogueText("scenes/apartament/ApartmentHotspotDebug.js", "t_3f4674b8e35cc249a199")}${slot?.h}${__dialogueText("scenes/apartament/ApartmentHotspotDebug.js", "t_04a2f0d902821763db08")}`,
+      __dialogueText("scenes/apartament/ApartmentHotspotDebug.js", "t_ab723c339f7fee296c8c"),
+      __dialogueText("scenes/apartament/ApartmentHotspotDebug.js", "t_734191e37a5c797a172a"),
+      __dialogueText("scenes/apartament/ApartmentHotspotDebug.js", "t_dcafcbbb0668acd78086")
+    ].join(__dialogueText("scenes/apartament/ApartmentHotspotDebug.js", "t_01ba4719c80b6fe911b0")));
   }
 
   exportConfig() {
     const text = JSON.stringify({packId:this.system.renderedPackId, ...this.system.layoutConfig}, null, 2);
     console.log('APARTMENT LAYOUT — geometry only; no suspect or evidence data:');
     console.log(text);
-    this.scene.showDescription?.('Layout exported to the browser console. Copy the JSON to keep it outside this browser.');
+    this.scene.showDescription?.(__dialogueText("scenes/apartament/ApartmentHotspotDebug.js", "t_e23bb43da7825852153c"));
   }
 
   destroy() {

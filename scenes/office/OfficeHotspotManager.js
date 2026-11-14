@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { audioManager } from '../../managers/AudioManager.js';
 
 const LOCAL_DEBUG_ALLOWED = [
@@ -197,7 +198,7 @@ export class OfficeHotspotManager {
       return;
     }
 
-    if (event.code === 'Tab') {
+    if (event.code === __dialogueText("scenes/office/OfficeHotspotManager.js", "t_90ddf1963abb36c9921c")) {
       event.preventDefault();
 
       const direction = event.shiftKey ? -1 : 1;
@@ -316,11 +317,11 @@ export class OfficeHotspotManager {
 
         return [
           '  {',
-          `    id: ${JSON.stringify(data.id)},`,
-          `    x: ${Math.round(data.x)},`,
-          `    y: ${Math.round(data.y)},`,
-          `    width: ${Math.round(data.width)},`,
-          `    height: ${Math.round(data.height)}`,
+          `${__dialogueText("scenes/office/OfficeHotspotManager.js", "t_68a9cbdb79d09949e676")}${JSON.stringify(data.id)}${__dialogueText("scenes/office/OfficeHotspotManager.js", "t_d03502c43d74a30b9367")}`,
+          `${__dialogueText("scenes/office/OfficeHotspotManager.js", "t_c4318afa01947bbe99f2")}${Math.round(data.x)}${__dialogueText("scenes/office/OfficeHotspotManager.js", "t_d03502c43d74a30b9367")}`,
+          `${__dialogueText("scenes/office/OfficeHotspotManager.js", "t_ec123b387f36ac1fdbb9")}${Math.round(data.y)}${__dialogueText("scenes/office/OfficeHotspotManager.js", "t_d03502c43d74a30b9367")}`,
+          `${__dialogueText("scenes/office/OfficeHotspotManager.js", "t_c591218c19d7121289f3")}${Math.round(data.width)}${__dialogueText("scenes/office/OfficeHotspotManager.js", "t_d03502c43d74a30b9367")}`,
+          `${__dialogueText("scenes/office/OfficeHotspotManager.js", "t_f6492003325fef78893a")}${Math.round(data.height)}`,
           '  }'
         ].join('\n');
       });
@@ -380,8 +381,8 @@ export class OfficeHotspotManager {
 
       if (!this._destroyed) {
         this._statusText = copied
-          ? 'Coordinates copied to clipboard.'
-          : 'Copy failed. Coordinates are in the console.';
+          ? __dialogueText("scenes/office/OfficeHotspotManager.js", "t_d390872faf9921cd47c6")
+          : __dialogueText("scenes/office/OfficeHotspotManager.js", "t_bd5f9ad96f5cda7a0e75");
 
         if (this.debugEnabled) {
           this.createDebugOverlay();
@@ -567,7 +568,7 @@ export class OfficeHotspotManager {
       const label = this.scene.add.text(
         data.x + 8,
         data.y + 8,
-        `${selected ? '> ' : ''}${data.id}`,
+        `${selected ? __dialogueText("scenes/office/OfficeHotspotManager.js", "t_ec4f8e3d1f7cafbdb86e") : ''}${data.id}`,
         {
           fontFamily: 'Arial',
           fontSize: '16px',
@@ -584,24 +585,24 @@ export class OfficeHotspotManager {
     const { width, height } = this.scene.scale;
 
     const lines = [
-      `LOCAL HOTSPOT DEBUG | ${data?.id || 'no hotspots'}`,
+      `${__dialogueText("scenes/office/OfficeHotspotManager.js", "t_9d48e1007e637f811d3b")}${data?.id || __dialogueText("scenes/office/OfficeHotspotManager.js", "t_7754a43ab84c63bd005f")}`,
       data
-        ? `x:${data.x} y:${data.y} width:${data.width} height:${data.height}`
+        ? `${__dialogueText("scenes/office/OfficeHotspotManager.js", "t_51e33c7c7efbc350d26f")}${data.x}${__dialogueText("scenes/office/OfficeHotspotManager.js", "t_8278a5c11d3d9380f821")}${data.y}${__dialogueText("scenes/office/OfficeHotspotManager.js", "t_b87f46679673f5dfd46e")}${data.width}${__dialogueText("scenes/office/OfficeHotspotManager.js", "t_4a74ac2931f76f596e2c")}${data.height}`
         : '',
-      'Click: select | Drag / Arrows: move',
-      'Shift+Arrows: resize | Alt: 1px',
-      'Tab / Shift+Tab: select',
-      'Ctrl+C / Cmd+C: copy coordinates | D: close',
+      __dialogueText("scenes/office/OfficeHotspotManager.js", "t_b51e831fe414beddbf5c"),
+      __dialogueText("scenes/office/OfficeHotspotManager.js", "t_5bf2b2c221b5499e5ce3"),
+      __dialogueText("scenes/office/OfficeHotspotManager.js", "t_9d17c0754f4ec7faaf2c"),
+      __dialogueText("scenes/office/OfficeHotspotManager.js", "t_a765f85d19300aa48b28"),
       this.isLocked
-        ? 'Hotspots locked.'
-        : 'Hotspot actions disabled while debugging.',
+        ? __dialogueText("scenes/office/OfficeHotspotManager.js", "t_d1652b4efb07105037d9")
+        : __dialogueText("scenes/office/OfficeHotspotManager.js", "t_d7fa3fed326df60448bf"),
       this._statusText
     ].filter(Boolean);
 
     this.debugHelp = this.scene.add.text(
       12,
       height - 12,
-      lines.join('\n'),
+      lines.join(__dialogueText("scenes/office/OfficeHotspotManager.js", "t_01ba4719c80b6fe911b0")),
       {
         fontFamily: 'monospace',
         fontSize: '13px',

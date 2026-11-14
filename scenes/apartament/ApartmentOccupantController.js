@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
 
 import {
@@ -169,7 +170,7 @@ export class ApartmentOccupantController {
     this.button = scene.add.text(
       scene.scale.width - 12,
       118,
-      `[ TALK: ${this.occupant.role.toUpperCase()} ]`,
+      `${__dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_ed81c0632a204569bc64")}${this.occupant.role.toUpperCase()}${__dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_fe13f4313ea0880d091d")}`,
       {
         fontFamily: 'SpecialElite',
         fontSize: '18px',
@@ -291,15 +292,15 @@ export class ApartmentOccupantController {
               );
 
               this.notice = result.ok
-                ? 'Transaction record confirmed.'
+                ? __dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_5299ae41078f943a47ca")
                 : result.message;
 
               this.render();
             },
 
             footer:
-              'The transaction is confirmed. ' +
-              'Its contents still require inspection in the finale.'
+              __dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_7e47da8bb29b9ff2f1de") +
+              __dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_b8c8838b6361be802a78")
           }
         );
 
@@ -418,7 +419,7 @@ export class ApartmentOccupantController {
     const top = -panelHeight / 2;
 
     text(
-      `${this.occupant.role.toUpperCase()} — INTERVIEW`,
+      `${this.occupant.role.toUpperCase()}${__dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_ca2405ea78a40a6068d8")}`,
       left,
       top + 12,
       panelWidth - 32,
@@ -428,7 +429,7 @@ export class ApartmentOccupantController {
     );
 
     button(
-      '[ Close ]',
+      __dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_94a691d45075b1eaa763"),
       panelWidth / 2 - 90,
       top + 42,
       () => this.close()
@@ -459,7 +460,7 @@ export class ApartmentOccupantController {
           );
 
       text(
-        `NEW LEAD\n${details}`,
+        `${__dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_6f404106a437e51137b9")}${details}`,
         left,
         top + panelHeight * 0.57,
         panelWidth - 32,
@@ -471,8 +472,8 @@ export class ApartmentOccupantController {
       if (this.trail) {
         button(
           this.trail.status === 'verified'
-            ? '[ VIEW VERIFIED RECORD ]'
-            : '[ CALL CONTACT ]',
+            ? __dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_66c9c1dda0cf47bda3fd")
+            : __dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_f1c2a6b4972363a4b19e"),
           left,
           top + panelHeight * 0.84,
           () => {
@@ -493,7 +494,7 @@ export class ApartmentOccupantController {
     ) % statements.length;
 
     text(
-      `STATEMENT ${this.statementIndex + 1}/${statements.length}`,
+      `${__dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_659376509384842fcbe6")}${this.statementIndex + 1}${__dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_8a5edab282632443219e")}${statements.length}`,
       left,
       top + panelHeight * 0.25,
       panelWidth - 32,
@@ -511,7 +512,7 @@ export class ApartmentOccupantController {
     );
 
     button(
-      '[ Previous ]',
+      __dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_ccb199547dcf4d998d21"),
       left,
       top + panelHeight * 0.46,
       () => {
@@ -522,7 +523,7 @@ export class ApartmentOccupantController {
     );
 
     button(
-      '[ Next ]',
+      __dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_77e1a5c904d373ecb1fa"),
       20,
       top + panelHeight * 0.46,
       () => {
@@ -543,12 +544,12 @@ export class ApartmentOccupantController {
     text(
       item
         ? (
-            `ITEM ${this.itemIndex + 1}/${items.length}: ` +
+            `${__dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_658299c41fdccee2bdf8")}${this.itemIndex + 1}${__dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_8a5edab282632443219e")}${items.length}${__dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_45822f54a0d0e030f756")}` +
             `${item.label || item.name}`
           )
         : (
-            'No apartment evidence in your inventory. ' +
-            'Keep searching.'
+            __dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_aa6ce3704208b978be35") +
+            __dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_8d5ebad822547f935e20")
           ),
       left,
       top + panelHeight * 0.54,
@@ -568,7 +569,7 @@ export class ApartmentOccupantController {
     );
 
     button(
-      '[ Previous item ]',
+      __dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_c049979a8694e8900817"),
       left,
       top + panelHeight * 0.75,
       () => {
@@ -578,7 +579,7 @@ export class ApartmentOccupantController {
     );
 
     button(
-      '[ Next item ]',
+      __dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_cbe76a435682605bc33f"),
       20,
       top + panelHeight * 0.75,
       () => {
@@ -588,7 +589,7 @@ export class ApartmentOccupantController {
     );
 
     button(
-      '[ PRESENT EVIDENCE ]',
+      __dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_131a6e32c45be471969e"),
       left,
       top + panelHeight * 0.82,
       () => {
@@ -630,7 +631,7 @@ export class ApartmentOccupantController {
         }
       )
     ) {
-      this.notice = 'Choose an item you currently have.';
+      this.notice = __dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_0495ae6f5626ddb5b123");
       this.render();
       return;
     }
@@ -656,7 +657,7 @@ export class ApartmentOccupantController {
         type: 'apartment',
         category: 'apartment',
         key: lead.id,
-        value: 'Occupant testimony: artefact lead',
+        value: __dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_5fd08d29be69208a1f11"),
         text: lead.text,
         missionId: this.scene.missionId,
         cityId: this.scene.cityId,

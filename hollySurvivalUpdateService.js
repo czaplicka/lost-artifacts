@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 import { MainStoryManager } from './managers/MainStoryManager.js';
 import { getCompletedAgencyCaseCount } from './archiveMissingReportService.js';
 import { gameState } from './GameData.js';
@@ -23,7 +24,7 @@ export function storeHollySurvival(raw,state=gameState){
     MainStoryManager.setFlag('holly_chapter_two_completed',true);
     MainStoryManager.setFlag('holly_financial_lead_conversation_unlocked',true);
     MainStoryManager.setSideClue('holly_survival_update_summary',{source:'holly_phone_call',stagedEscapeReported:true,currentLocationKnown:false,
-      reaction:'An unusual silence after the news.',reactionEstablishesGuilt:false});
+      reaction:__dialogueText("hollySurvivalUpdateService.js", "t_d840962bb13ec41b4f02"),reactionEstablishesGuilt:false});
     const old=MainStoryManager.getSideClue('holly_chapter_progress');
     if(!(Number(old?.chapter)>3))MainStoryManager.setSideClue('holly_chapter_progress',{
       ...(old&&typeof old==='object'&&!Array.isArray(old)?old:{}),version:1,chapter:3,chapterTwoCompleted:true,objective:'ask_holly_for_financial_lead'});
