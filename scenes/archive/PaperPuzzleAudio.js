@@ -13,5 +13,5 @@ export function playPaperChange(scene, before, after) {
   if (before.length === after.length && before.every((id, index) => id === after[index])) return;
   audioManager.init(scene);
   const key = scene.cache.audio.exists(PAPER_KEY) ? PAPER_KEY : 'paper_rustle';
-  audioManager.playSfx(key, { volume: audioManager.getSfxVolume() * 0.3 });
+  audioManager.playSfx(key, { gain: 0.3, volume: audioManager.getSfxVolume() * 0.3 });
 }

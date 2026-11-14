@@ -15,9 +15,9 @@ export function stopGordonSafeAudio(owner){
  if(sound){try{audioManager.releaseSound(sound);}catch{}}
 }
 export function playGordonSafeAudio(owner){
- const scene=owner.scene;
- if(owner.destroyed||!owner.isOpen||scene.closing||!scene.sys.isActive()||!scene.cache?.audio?.exists(KEY))return;
- try{audioManager.init(scene);stopGordonSafeAudio(owner);const sound=audioManager.playSfx(KEY,{volume:audioManager.getSfxVolume()*.3});
+ const scene=owner?.scene;
+ if(!owner||owner.destroyed||!owner.isOpen||!scene||scene.closing||scene._cleanupDone||!scene.sys?.isActive()||!scene.cache?.audio?.exists(KEY))return;
+ try{audioManager.init(scene);stopGordonSafeAudio(owner);const sound=audioManager.playSfx(KEY,{gain:.3,volume:audioManager.getSfxVolume()*.3});
  if(sound){sounds.set(owner,sound);sound.once('destroy',()=>{if(sounds.get(owner)===sound)sounds.delete(owner);});}}
  catch(error){console.debug('[GordonSafeAudio] Sound unavailable:',error);}
 }

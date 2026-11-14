@@ -5,6 +5,6 @@ export function preloadMenuActionAudio(scene){
 }
 export function playMenuActionAudio(scene){
  if(scene._cleanupDone||!scene.sys?.isActive()||!scene.cache.audio.exists(KEY))return null;
- try{audioManager.init(scene);return audioManager.playSfx(KEY,{volume:audioManager.getSfxVolume()*.2});}
+ try{audioManager.init(scene);return audioManager.playSfx(KEY,{gain:.2,volume:audioManager.getSfxVolume()*.2});}
  catch(error){console.debug('[MenuActionAudio] Click unavailable:',error);return null;}
 }

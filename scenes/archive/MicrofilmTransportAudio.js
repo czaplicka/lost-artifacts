@@ -14,7 +14,7 @@ export function playMicrofilmTransport(scene) {
   try {
     audioManager.init(scene);
     stopMicrofilmTransport(scene);
-    const sound = audioManager.playSfx(KEY, { volume: audioManager.getSfxVolume() * 0.3 });
+    const sound = audioManager.playSfx(KEY, { gain: 0.3, volume: audioManager.getSfxVolume() * 0.3 });
     if (sound) {
       playing.set(scene, sound);
       sound.once('destroy', () => { if (playing.get(scene) === sound) playing.delete(scene); });

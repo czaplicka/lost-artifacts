@@ -15,8 +15,10 @@ export function playDocumentSfx(scene, name, volume = 0.3) {
   const entry = AUDIO[name];
   if (!entry || scene.closing || scene._cleanupDone || !scene.sys?.isActive() ||
       !scene.cache.audio.exists(entry[0])) return null;
+  const gain = Math.max(0, Math.min(1, Number(volume) || 0));
   audioManager.init(scene);
   return audioManager.playSfx(entry[0], {
-    volume: audioManager.getSfxVolume() * Math.max(0, Math.min(1, Number(volume) || 0))
+    gain,
+    volume: audioManager.getSfxVolume() * gain
   });
 }

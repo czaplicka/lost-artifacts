@@ -17,9 +17,11 @@ export function playPuzzleSfx(scene, name, volume = 0.3) {
   const sound = SOUNDS[name];
   if (!sound || scene.closing || scene._cleanupDone || !scene.sys?.isActive() ||
       !scene.cache.audio.exists(sound.key)) return null;
+  const gain = Math.max(0, Math.min(1, Number(volume) || 0));
   audioManager.init(scene);
   return audioManager.playSfx(sound.key, {
-    volume: audioManager.getSfxVolume() * Math.max(0, Math.min(1, Number(volume) || 0))
+    gain,
+    volume: audioManager.getSfxVolume() * gain
   });
 }
 

@@ -34,6 +34,7 @@ export const SCENE_TIERS = {
     'BusinessCenterScene',
     'PigeonLoftScene',
     'SpyShopScene',
+    'DriveScene',
     'TavernScene',
     'PoliceStationScene',
     'NewspaperOverlayScene',
@@ -134,6 +135,8 @@ export const sceneRegistry = {
     import('./scenes/TravelTransitionScene.js').then(
       m => m.TravelTransitionScene
     ),
+
+DriveScene: () => import('./scenes/DriveScene.js').then(m => m.DriveScene),
 
   HotelScene: () =>
     import('./scenes/HotelScene.js').then(m => m.HotelScene),

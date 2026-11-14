@@ -6,7 +6,7 @@ export function preloadTypewriterAudio(scene){
 }
 export function playTypewriterAudio(scene,name){
  const entry=ASSETS[name];if(!entry||scene.closing||scene._cleanupDone||!scene.sys.isActive()||!scene.cache.audio.exists(entry[0]))return;
- try{audioManager.init(scene);const sound=audioManager.playSfx(entry[0],{volume:audioManager.getSfxVolume()*entry[2]});
+ try{audioManager.init(scene);const sound=audioManager.playSfx(entry[0],{gain:entry[2],volume:audioManager.getSfxVolume()*entry[2]});
  if(sound){let owned=sounds.get(scene);if(!owned){owned=new Set();sounds.set(scene,owned);}owned.add(sound);sound.once('destroy',()=>owned.delete(sound));}}
  catch(error){console.debug('[TypewriterComparisonAudio] Sound unavailable:',error);}
 }

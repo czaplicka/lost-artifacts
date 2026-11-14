@@ -40,9 +40,11 @@ export function playGordonPaperAudio(scene, name) {
   if (!entry || scene.closing || scene._cleanupDone || !scene.sys?.isActive() ||
       !scene.cache.audio.exists(entry[0])) return null;
   try {
+    const gain = name === 'page' ? 0.25 : 0.3;
     audioManager.init(scene);
     return audioManager.playSfx(entry[0], {
-      volume: audioManager.getSfxVolume() * (name === 'page' ? 0.25 : 0.3)
+      gain,
+      volume: audioManager.getSfxVolume() * gain
     });
   } catch (error) {
     console.debug('[GordonPaperAudio] Sound unavailable:', error);

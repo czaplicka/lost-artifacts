@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="../../"><title>Tester spraw</title><link rel="stylesheet" href="admin/case-tester/tester.css"></head>
+<body><main>
+<header><h1>Tester spraw</h1><p>Osobna, jednorazowa sesja. Bez wczytywania kampanii, zapisu na koncie i wysyłania wyników.</p></header>
+<p id="status" role="status">Sprawdzam uprawnienia…</p>
+<form id="config" hidden>
+<div class="grid">
+<label>Numer misji w kampanii<input id="caseNumber" type="number" min="1" max="1000" value="1" required></label>
+<label>Złodziej<select id="thiefId"></select></label>
+<label>Miasto przestępstwa<select id="crimeCityId"></select></label>
+<label>Sprawa / artefakt<select id="missionIndex"></select></label>
+<label>Punkt startowy<select id="start"></select></label>
+<label>Miasto do swobodnego podglądu<select id="startCityId"></select></label>
+<label>Etap głównej fabuły<select id="storyStage"></select></label>
+</div>
+<details><summary>Dodatkowe flagi fabularne</summary><p>Opcjonalny obiekt JSON, np. {"recruitment_flashback_seen": true}. Nie zmienia normalnego zapisu.</p><textarea id="flags" rows="4" spellcheck="false">{}</textarea></details>
+<p class="note">Numer misji ustawia warianty sprawy i liczbę rozwiązanych spraw. Etap fabuły ustawia odblokowania MainStoryManager, nie wszystkie szczegółowe warunki rozmów. Pozycje „podgląd” uruchamiają istniejący tryb preview sceny. Nie są testem spełnienia jej warunków w kampanii.</p>
+<div class="actions"><button id="run" type="submit">Uruchom test</button><button id="restart" type="button" disabled>Uruchom ponownie</button><button id="stop" type="button" disabled>Zakończ test</button><button id="fullscreen" type="button" disabled>Pełny ekran</button></div>
+</form>
+<section id="session" hidden><div class="testbar">TEST SESSION — zapis wyłącznie w pamięci tej sesji</div><div id="viewport"></div></section>
+<details><summary>Dziennik testera</summary><pre id="log"></pre></details>
+</main><script type="module" src="admin/case-tester/editor.js"></script></body></html>

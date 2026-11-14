@@ -2936,6 +2936,511 @@
       "groups": [
         "backgrounds"
       ]
+    },
+    {
+      "key": "landing",
+      "url": "assets/css/landing.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "extracted",
+      "url": "assets/data/dialogue/extracted.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "npcs",
+      "url": "assets/data/npcs.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "personnelWitnesses",
+      "url": "assets/data/personnelWitnesses.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "storageRoomDialogues",
+      "url": "assets/data/storageRoomDialogues.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "airport",
+      "url": "assets/map_locations/airport.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alley",
+      "url": "assets/map_locations/alley.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bank",
+      "url": "assets/map_locations/bank.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "garbage",
+      "url": "assets/map_locations/garbage.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "harbor",
+      "url": "assets/map_locations/harbor.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "map_locations__hotel",
+      "url": "assets/map_locations/hotel.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "parking",
+      "url": "assets/map_locations/parking.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "police",
+      "url": "assets/map_locations/police.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "restaurant",
+      "url": "assets/map_locations/restaurant.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "10",
+      "url": "assets/maps/Berlin/10.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "11",
+      "url": "assets/maps/Berlin/11.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "12",
+      "url": "assets/maps/Berlin/12.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "13",
+      "url": "assets/maps/Berlin/13.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "14",
+      "url": "assets/maps/Berlin/14.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "15",
+      "url": "assets/maps/Berlin/15.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "16",
+      "url": "assets/maps/Berlin/16.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "17",
+      "url": "assets/maps/Berlin/17.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "18",
+      "url": "assets/maps/Berlin/18.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "19",
+      "url": "assets/maps/Berlin/19.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "20",
+      "url": "assets/maps/Berlin/20.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "21",
+      "url": "assets/maps/Berlin/21.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "22",
+      "url": "assets/maps/Berlin/22.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "23",
+      "url": "assets/maps/Berlin/23.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "24",
+      "url": "assets/maps/Berlin/24.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "maps__Berlin__25",
+      "url": "assets/maps/Berlin/25.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "26",
+      "url": "assets/maps/Berlin/26.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "27",
+      "url": "assets/maps/Berlin/27.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "28",
+      "url": "assets/maps/Berlin/28.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "29",
+      "url": "assets/maps/Berlin/29.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "30",
+      "url": "assets/maps/Berlin/30.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "31",
+      "url": "assets/maps/Berlin/31.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "32",
+      "url": "assets/maps/Berlin/32.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "33",
+      "url": "assets/maps/Berlin/33.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "34",
+      "url": "assets/maps/Berlin/34.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "35",
+      "url": "assets/maps/Berlin/35.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "5",
+      "url": "assets/maps/Berlin/5.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "7",
+      "url": "assets/maps/Berlin/7.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "8",
+      "url": "assets/maps/Berlin/8.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "9",
+      "url": "assets/maps/Berlin/9.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "crime cities",
+      "url": "assets/maps/Berlin/crime cities.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bum_c",
+      "url": "assets/npc/bum_c.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bum_d",
+      "url": "assets/npc/bum_d.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "fence_c",
+      "url": "assets/npc/fence_c.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "fence_d",
+      "url": "assets/npc/fence_d.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "fence_o",
+      "url": "assets/npc/fence_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "knajpa_c",
+      "url": "assets/npc/knajpa_c.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "knajpa_d",
+      "url": "assets/npc/knajpa_d.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "knajpa_o",
+      "url": "assets/npc/knajpa_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "maid_c",
+      "url": "assets/npc/maid_c.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "maid_d",
+      "url": "assets/npc/maid_d.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "maid_o",
+      "url": "assets/npc/maid_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "parkingowy_c",
+      "url": "assets/npc/parkingowy_c.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "parkingowy_d",
+      "url": "assets/npc/parkingowy_d.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "parkingowy_o",
+      "url": "assets/npc/parkingowy_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "side_quests__Mom__s__Not__Proud__background",
+      "url": "assets/side_quests/Mom’s Not Proud/background.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "pigeon_mural",
+      "url": "assets/side_quests/Mom’s Not Proud/pigeon_mural.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "raven_painting",
+      "url": "assets/side_quests/Mom’s Not Proud/raven_painting.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "movie1",
+      "url": "assets/video/movie1.mp4",
+      "type": "video",
+      "groups": [
+        "videos"
+      ],
+      "noAudio": false
     }
   ]
 }

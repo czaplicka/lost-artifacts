@@ -17,6 +17,6 @@ export function playReaderAudio(scene, name) {
   if (!entry || scene.closing || scene._cleanupDone || !scene.sys?.isActive() || !scene.cache.audio.exists(entry[0])) return null;
   try {
     audioManager.init(scene);
-    return audioManager.playSfx(entry[0], { volume: audioManager.getSfxVolume() * entry[2] });
+    return audioManager.playSfx(entry[0], { gain: entry[2], volume: audioManager.getSfxVolume() * entry[2] });
   } catch (error) { console.debug('[ReaderAudio] Sound unavailable:', error); return null; }
 }

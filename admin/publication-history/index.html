@@ -1,0 +1,17 @@
+<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Historia publikacji</title><link rel="stylesheet" href="style.css"></head><body><main>
+<h1>Historia publikacji i cofanie zmian</h1>
+<p>Historia GitHub: kto, kiedy i jakie pliki zmienił. Zapis w repozytorium nie oznacza potwierdzonego wdrożenia na hosting.</p>
+<p id="status" role="status">Sprawdzam dostęp…</p>
+<section id="workspace" hidden>
+<form id="filters"><label>Ścieżka pliku (opcjonalnie)<input id="path" placeholder="assets/data/locations.json" autocomplete="off"></label><button type="submit">Odśwież historię</button></form>
+<p class="muted">Autor Git to nie zawsze osoba używająca admina: wcześniejsze edytory mogą publikować wspólnym kontem. Nie dopisujemy nazwisk do starych zmian.</p>
+<div class="columns"><section><h2>Commity</h2><div id="commits"></div><div class="actions"><button id="prev">Poprzednie</button><span id="page"></span><button id="next">Następne</button></div></section>
+<section><h2>Wybrana publikacja</h2><pre id="commit-info">Wybierz commit.</pre><div id="files"></div><button id="more-files" hidden>Więcej plików tego commitu</button></section></div>
+<section id="file-panel" hidden><h2 id="file-title"></h2><pre id="patch"></pre><p id="patch-note" class="muted"></p>
+<div class="actions"><button id="versions">Pokaż wersje pliku</button><button id="preview">Przygotuj bezpieczne cofnięcie</button></div>
+<p class="warning">Cofamy tylko zmianę wskazanego commitu w tym pliku, nie całą gałąź. Późniejsze niezależne zmiany w JSON są zachowywane. Konflikt oznacza blokadę. Pliku kodu po późniejszych zmianach nie cofamy automatycznie.</p>
+<div id="versions-panel" hidden class="versions"><details><summary>Wersja przed wybranym commitem</summary><pre id="before"></pre></details><details open><summary>Wersja po wybranym commicie</summary><pre id="after"></pre></details><details><summary>Obecna wersja</summary><pre id="current"></pre></details></div>
+</section>
+<section id="approval" hidden><h2>Porównanie przed publikacją</h2><p id="context"></p><ul id="warnings"></ul><div class="columns"><section><h3>Obecnie</h3><pre id="live"></pre></section><section><h3>Po cofnięciu</h3><pre id="result"></pre></section></div>
+<label class="ack"><input id="ack" type="checkbox">Sprawdziłam porównanie i zależności tego pliku.</label><button id="publish">Utwórz nowy commit cofający zmianę</button></section>
+</section></main><script type="module" src="history.js"></script></body></html>
