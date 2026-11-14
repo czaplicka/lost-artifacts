@@ -1,0 +1,214 @@
+{
+  "ui": {
+    "title": "PERSONNEL FILES",
+    "instruction": "Read the accounts. Cross out anyone you can rule out.",
+    "back": "Back",
+    "submit": "Submit shortlist",
+    "hint": "Hint",
+    "review": "Review hint",
+    "note": "Investigator's note",
+    "updated": "Personnel files updated. Please review the new accounts.",
+    "floor": "Floor {floor}",
+    "ground": "Ground floor",
+    "cleared": "CLEARED",
+    "witness": "Witness"
+  },
+  "help": {
+    "title": "PERSONNEL ASSISTANCE",
+    "intro": "One hint explains the selected account. Previously purchased hints can be read again for free.",
+    "instructions": "Compare each account with the portraits, occupations and assigned floors. Click a card to cross it out; click again to undo. Submit when you have finished reviewing the accounts.",
+    "free": "Use free hint ({count}) — integrity unchanged",
+    "bad": "Cut corners — 5 energy, 10 min, integrity −1",
+    "good": "Documented help — 10 energy, 30 min, integrity +1",
+    "close": "Back to personnel",
+    "sleep": "You need to finish resting before requesting help."
+  },
+  "floor": {
+    "speaker": "Access-control engineer",
+    "text": "That access fault affected every card issued to staff based on {floor}. From {from} to {to}, none of those cards could open a door into the collection wing. We thought it was one bad card until a queue formed. I checked the entrance cameras afterwards as well: none of those staff got in.",
+    "note": "The fault report, denied-access records and footage from every entrance to the collection wing agree. The assigned floor on each personnel card identifies the affected cardholders.",
+    "hint": "Use the assigned floor on each card, not the occupation. This account rules out staff based on {floor}; it does not rule out everyone who happened to visit that floor."
+  },
+  "glasses": {
+    "speaker": "Visiting optometrist",
+    "text": "The free eye clinic was in the annex. Everyone listed as wearing glasses had booked the group session from {from} to {to}; the booking list matches your staff photos. I ran the tests, then adjusted their frames while my colleague gave the lens-care demonstration. We were all still there when reception called about the theft.",
+    "note": "Both clinicians confirm the full session. The named booking list was checked against the staff photographs; it includes every glasses-wearing person on this roster.",
+    "hint": "This group crosses department boundaries. Look for glasses in the portraits: every glasses-wearing person on this roster is covered by the clinic account."
+  },
+  "tattoo": {
+    "speaker": "Receptionist",
+    "text": "They came right up to my desk to ask which way the collection wing was. No mask, no scarf over their face. They turned towards me, then towards the corridor — I saw both cheeks under the desk lamp. No facial tattoo. I remember because I had just complimented a colleague on theirs.",
+    "note": "The receptionist places this encounter immediately before the theft. The desk camera confirms the route and the clear view of both cheeks. Only visible facial tattoos are relevant, not tattoos elsewhere on the body.",
+    "hint": "Check the visible marks on the faces, not the hair, clothes or job titles. This observation excludes facial tattoos only; it says nothing about tattoos hidden under clothing."
+  },
+  "jobs": {
+    "cleaning": {
+      "speaker": "Cleaning supervisor",
+      "text": "The cleaning crew were dealing with a burst pipe in our other building. I signed them in at {from}, and we did not finish until {to}. There was water coming through a light fitting. You do not leave a job like that halfway through to look at a painting.",
+      "note": "The other building's duty manager confirms the crew remained there. The incident log and signed work sheet cover the relevant period.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "security": {
+      "speaker": "Security trainer",
+      "text": "The people who guard the building and monitor its cameras were with me at the emergency-response centre from {from} to {to}. This was the mandatory refresher, not an open lecture. I took the register and supervised every exercise.",
+      "note": "The trainer's register and exercise assessments identify the entire security team covered by this account.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "admissions": {
+      "speaker": "Admissions supervisor",
+      "text": "The ticket and cloakroom staff were at the visitor centre with me from {from} until {to}. The new tills kept printing yesterday's date, so the practice session ran late. I wish I could tell you we had finished earlier.",
+      "note": "The supervisor and centre receptionist confirm attendance for the full practice session.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "guides": {
+      "speaker": "Tour programme coordinator",
+      "text": "The people who lead our guided tours were trying the new route at the partner venue. We left together at {from} and returned at {to}. I stayed with the group the whole time. They corrected my pronunciation of the same name three times.",
+      "note": "The coordinator, partner venue and group transport records confirm the full trip.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "curatorial": {
+      "speaker": "Exhibition committee chair",
+      "text": "The curators and their collection-keeping assistants were in the university seminar room from {from} to {to}. We were deciding which objects to lend. I chaired the discussion; it never broke up into separate groups.",
+      "note": "The chair and university host confirm the committee remained together throughout the meeting.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "conservation": {
+      "speaker": "Partner laboratory supervisor",
+      "text": "The people who conserve and restore the objects were at our laboratory. We admitted them at {from} and escorted them out at {to}. A solvent spill meant nobody could leave the supervised work area until the safety check was complete.",
+      "note": "Laboratory access records, the incident report and supervising staff confirm the visit.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "archaeology": {
+      "speaker": "University finds supervisor",
+      "text": "The archaeology team brought the new excavation finds to our lab at {from}. We sorted them together until {to}. I know exactly who stayed: each tray had to be checked by the person who unpacked it before I could sign it off.",
+      "note": "The signed finds register and laboratory supervisor account for the full team.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "archives": {
+      "speaker": "Municipal archivist",
+      "text": "Your archive and records staff were here checking a transferred set of files. We opened the supervised reading room at {from} and locked it after they left at {to}. I was on duty inside the room, not just at the front desk.",
+      "note": "Reading-room records and the supervising archivist confirm continuous attendance.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "education": {
+      "speaker": "School partnership organiser",
+      "text": "The people who run school visits and teaching workshops were at our teachers' centre from {from} to {to}. We tried their new activity as a group. There was clay involved. I can still account for most of it.",
+      "note": "The organiser and the centre's session record identify all education staff covered by the account.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "finance": {
+      "speaker": "External auditor",
+      "text": "I was with the accounts and payroll staff from {from} until {to}, at our office. We were reconciling a discrepancy, line by line. Everyone had their own records to explain; nobody dropped out of the session.",
+      "note": "The auditor's session notes and office host confirm the finance staff remained present.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "administration": {
+      "speaker": "Office relocation coordinator",
+      "text": "The secretarial and office-administration staff were with me at the temporary office from {from} to {to}. We were checking the correspondence against the delivery list. We signed the handover together at the end.",
+      "note": "The coordinator and signed handover records cover the full working session.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "hr": {
+      "speaker": "Recruitment panel chair",
+      "text": "The recruitment and personnel staff were sitting on my interview panel at the training centre from {from} until {to}. We interviewed applicants continuously and compared notes between them. Each panel member signed every assessment.",
+      "note": "Panel assessments and the centre receptionist confirm the personnel team's attendance.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "it": {
+      "speaker": "Hotel conference host",
+      "text": "The people who support your computers and networks had booked our hotel room for their team workshop. I stayed with them to run the exercises from {from} to {to}. They asked if the projector had been restarted. It had. Several times.",
+      "note": "The facilitator and the named workshop register confirm the full IT team session.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "press": {
+      "speaker": "Press briefing producer",
+      "text": "The publicity, press and social-media team were at our media centre from {from} to {to}. We were running a live rehearsal. Every person had a speaking cue, so a missing participant would have been rather obvious.",
+      "note": "The producer and time-stamped rehearsal material account for the communications team.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "shop": {
+      "speaker": "Retail supplier representative",
+      "text": "The souvenir-shop staff were in our showroom from {from} until {to}. I took them through the new stock and the checkout demonstration. We all signed the order together before leaving the room.",
+      "note": "The supplier, showroom host and signed order confirm the full retail visit.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "cafe": {
+      "speaker": "Catering inspector",
+      "text": "The cafe's cooks, coffee staff and assistants were taking the supervised food-safety assessment with me. It began at {from}; the final practical check ended at {to}. They all had to complete both parts.",
+      "note": "The examiner's individual assessment sheets and venue records account for the cafe staff.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "exhibition": {
+      "speaker": "Installation coordinator",
+      "text": "The people who design, mount and assemble the displays were with me at the off-site preparation workshop from {from} to {to}. We were checking a full-size mock-up. Every time somebody moved a panel, somebody else had to measure it again.",
+      "note": "The coordinator and workshop staff confirm the installation team remained on the mock-up job.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "audiovisual": {
+      "speaker": "Rehearsal studio manager",
+      "text": "The sound, lighting and projection technicians were running the presentation in our studio from {from} until {to}. I sat at the back with the cue sheet. We stopped and restarted it together; this was not a drop-in session.",
+      "note": "The studio manager, cue sheet and rehearsal records identify the technical team.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "fundraising": {
+      "speaker": "Supporters' event host",
+      "text": "The donor, sponsorship and membership staff were at the hotel with me from {from} to {to}. We worked through the reception seating plan around one table. Apparently putting two people at opposite ends of a room counts as diplomacy.",
+      "note": "The event host and hotel coordinator confirm the development team stayed for the full planning session.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "loans": {
+      "speaker": "Partner institution registrar",
+      "text": "The people who handle incoming loans, object histories and accessions were at our registrar's office from {from} until {to}. We checked each object file together before releasing the documents.",
+      "note": "Both institutions' handover records and the supervising registrar account for the visit.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "valuations": {
+      "speaker": "Sale rehearsal coordinator",
+      "text": "The people who catalogue and value the lots or conduct the bidding were at the sale rehearsal from {from} to {to}. I called every cue. No one could disappear without leaving an empty place in the run-through.",
+      "note": "The rehearsal coordinator and named cue sheet account for the sale team.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "estate": {
+      "speaker": "Estate director",
+      "text": "The house and estate stewards were with me in the estate office from {from} until {to}. We were settling the household rota before the weekend. I stayed at the table throughout.",
+      "note": "The director and office host confirm the household-management meeting.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "garden": {
+      "speaker": "Grounds manager",
+      "text": "The people who tend the gardens and grounds were at the nursery with me from {from} until {to}. We travelled together to inspect the replacement planting and returned in the same vehicle.",
+      "note": "The nursery host and transport record confirm the grounds team's visit.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "warehouse": {
+      "speaker": "Inventory supervisor",
+      "text": "The warehouse and stock-records staff were with me at the off-site inventory office from {from} until {to}. We were matching the stored items to the records. Every discrepancy needed the whole team to check it.",
+      "note": "The supervisor and countersigned inventory sheets cover the full session.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "loading": {
+      "speaker": "Freight training assessor",
+      "text": "The loading crew and forklift operators were taking the handling assessment at our freight centre from {from} to {to}. I supervised the practical tests. Everyone remained for the safety debrief at the end.",
+      "note": "Individual assessment records and the assessor confirm the cargo-handling team's attendance.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "shipping": {
+      "speaker": "Shipping agent",
+      "text": "The dispatch, shipping and customs-paperwork staff were at my office from {from} until {to}. We had to correct the outgoing manifests before the carrier would accept them. I checked the final set with all of them present.",
+      "note": "The carrier's corrections record and the agent's account cover the shipping team.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "packing": {
+      "speaker": "Packing supervisor",
+      "text": "The people who pack the objects and prepare their crates were with me at our other packing facility from {from} until {to}. We were checking the cushioning procedure. Everyone had to demonstrate it before I signed the work off.",
+      "note": "The supervisor and individual handling sign-offs account for the full packing team.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    },
+    "management": {
+      "speaker": "Trustees' secretary",
+      "text": "The directors and department heads were in the boardroom with the trustees from {from} until {to}. I took the minutes. They spent the first half-hour disputing the minutes of the previous meeting.",
+      "note": "The trustees' secretary and recorded attendance confirm that all directors and department heads stayed throughout.",
+      "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
+    }
+  }
+}

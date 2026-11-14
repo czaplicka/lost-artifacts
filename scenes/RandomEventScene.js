@@ -1,9 +1,9 @@
-import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { getDifficultyConfig } from '../DifficultySettings.js';
 import { getCaseClockStatus } from '../CaseTimeHelper.js';
 import { RandomEventSystem } from '../systems/RandomEventSystem.js';
+import { preloadMenuActionAudio, playMenuActionAudio } from './archive/MenuActionAudio.js';
 
 export class RandomEventScene extends BaseScene {
     constructor() { super({ key: 'RandomEventScene' }); }
@@ -20,6 +20,8 @@ export class RandomEventScene extends BaseScene {
         this.navigationFailed = false;
         this.gameOverData = null;
     }
+
+    preload() { preloadMenuActionAudio(this); }
 
     create() {
         super.create();
@@ -73,7 +75,6 @@ export class RandomEventScene extends BaseScene {
                 if (source.sys.isPaused()) this.game.scene.resume(key);
                 else if (source.sys.isSleeping()) this.game.scene.wake(key);
                 else if (!source.sys.isActive()) {
-                    // resume() nie uruchamia sceny, która została zatrzymana.
                     this.game.scene.start(key, {
                         cityId: gameState.currentCityId || gameState.crimeCityId,
                         fromRandomEvent: true
@@ -102,7 +103,15 @@ export class RandomEventScene extends BaseScene {
         }).setOrigin(.5).setInteractive({ useHandCursor: true });
         button.on('pointerover', () => button.setColor('#f3cc80'));
         button.on('pointerout', () => button.setColor('#fff0d5'));
-        button.on('pointerdown', () => { if (!this.busy) action(); });
+        button.on('pointerdown', () => {
+            if (this.busy || this._cleanupDone || !this.sys.isActive() || !button.active || !button.scene) return;
+            if (!this.gameOverData && !RandomEventSystem.current(this.pendingId, this.caseKey)) {
+                this.returnToMap();
+                return;
+            }
+            playMenuActionAudio(this);
+            action();
+        });
         this.buttons.push(button);
     }
 
@@ -112,20 +121,20 @@ export class RandomEventScene extends BaseScene {
         this.clearButtons();
         const cfg = getDifficultyConfig(gameState.difficulty).randomEvents;
         if (pending.type === 'illness') {
-            this.title.setText(__dialogueText("scenes/RandomEventScene.js", "t_6d5667d223535c0c6f27"));
-            this.body.setText(__dialogueText("scenes/RandomEventScene.js", "t_53b740eb045eabebe718"));
-            this.addChoice(`${__dialogueText("scenes/RandomEventScene.js", "t_f386f79eeea745201e9b")}${cfg.illness.workEnergyMultiplier}${__dialogueText("scenes/RandomEventScene.js", "t_ccb2f8fb3cff62792429")}${cfg.illness.workDurationHours}${__dialogueText("scenes/RandomEventScene.js", "t_2a72224e91dbc06381bd")}`, () => this.choose('work'));
-            this.addChoice(`${__dialogueText("scenes/RandomEventScene.js", "t_3d839ad739a728da1be3")}${cfg.illness.restHours}${__dialogueText("scenes/RandomEventScene.js", "t_8de03ea7de573c28de39")}${cfg.illness.recoveryEnergyMultiplier}${__dialogueText("scenes/RandomEventScene.js", "t_ccb2f8fb3cff62792429")}${cfg.illness.recoveryDurationHours}${__dialogueText("scenes/RandomEventScene.js", "t_4cf29e2851a432550f76")}`, () => this.choose('rest'));
+            this.title.setText('UNDER THE WEATHER');
+            this.body.setText('Your immune system has requested a transfer.\nYou feel like a suspect’s alibi: weak, shaky and unlikely to survive questioning.');
+            this.addChoice(`Work: energy costs ×${cfg.illness.workEnergyMultiplier} for ${cfg.illness.workDurationHours} hours.`, () => this.choose('work'));
+            this.addChoice(`Rest ${cfg.illness.restHours}h: full energy, then energy costs ×${cfg.illness.recoveryEnergyMultiplier} for ${cfg.illness.recoveryDurationHours}h. The case clock keeps running.`, () => this.choose('rest'));
         } else {
-            this.title.setText(__dialogueText("scenes/RandomEventScene.js", "t_161d3b80dde3f5818f03"));
+            this.title.setText('ANONYMOUS LETTER');
             if (this.confirming) {
-                this.body.setText(`${__dialogueText("scenes/RandomEventScene.js", "t_4dffe50c3fc06416eed7")}${cfg.bribe.amount}${__dialogueText("scenes/RandomEventScene.js", "t_69582034a7c73be5e3a7")}`);
-                this.addChoice(__dialogueText("scenes/RandomEventScene.js", "t_c6792e640e9d8307de1f"), () => { this.confirming = false; this.render(); });
-                this.addChoice(`${__dialogueText("scenes/RandomEventScene.js", "t_a140dc088d46127c0200")}${cfg.bribe.amount}${__dialogueText("scenes/RandomEventScene.js", "t_1c8dc00a6a5af942e3f9")}`, () => this.choose('accept'));
+                this.body.setText(`Accept $${cfg.bribe.amount} and close the case?\nThis ends the investigation as a FAILURE, brings a reprimand and reduces integrity.`);
+                this.addChoice('Cancel. Keep investigating.', () => { this.confirming = false; this.render(); });
+                this.addChoice(`Confirm: accept $${cfg.bribe.amount} and lose the case.`, () => this.choose('accept'));
             } else {
-                this.body.setText(`${__dialogueText("scenes/RandomEventScene.js", "t_f911b7b0cf2b3cce5148")}${cfg.bribe.amount}${__dialogueText("scenes/RandomEventScene.js", "t_f9c4c74bd877ae51a015")}`);
-                this.addChoice(__dialogueText("scenes/RandomEventScene.js", "t_fe2b935d1df98d057a3c"), () => this.choose('refuse'));
-                this.addChoice(`${__dialogueText("scenes/RandomEventScene.js", "t_588bc2b416429a131090")}${cfg.bribe.amount}${__dialogueText("scenes/RandomEventScene.js", "t_1da34c5b9c54927be682")}`, () => { this.confirming = true; this.render(); });
+                this.body.setText(`"Close the case. Receive $${cfg.bribe.amount}. Nobody needs to know."\nThe envelope smells of expensive cologne and inexpensive ethics.`);
+                this.addChoice('Refuse. Continue investigating.', () => this.choose('refuse'));
+                this.addChoice(`Consider the $${cfg.bribe.amount} offer…`, () => { this.confirming = true; this.render(); });
             }
         }
     }
@@ -139,7 +148,7 @@ export class RandomEventScene extends BaseScene {
             await this.openGameOver();
         } catch (error) {
             console.error('[RandomEventScene] Choice failed.', error);
-            this.status.setText(__dialogueText("scenes/RandomEventScene.js", "t_6a97ac970b5362ab88e4"));
+            this.status.setText('The paperwork jammed. Check the console.');
         } finally { this.busy = false; }
     }
 
@@ -149,8 +158,8 @@ export class RandomEventScene extends BaseScene {
         const moved = await this.goto('GameOverScene', this.gameOverData);
         if (!moved && this.sys.isActive()) {
             this.navigationFailed = true;
-            this.status.setText(__dialogueText("scenes/RandomEventScene.js", "t_ce2fb60a5dcab937aa7a"));
-            this.addChoice(__dialogueText("scenes/RandomEventScene.js", "t_3876261e191f1b9b69aa"), () => { void this.openGameOver(); });
+            this.status.setText('Could not open the case report. Retry without accepting the payment again.');
+            this.addChoice('Open case report', () => { void this.openGameOver(); });
         }
     }
 

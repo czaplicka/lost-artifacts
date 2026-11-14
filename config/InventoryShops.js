@@ -1,5 +1,36 @@
-import {DEFAULT_INVENTORY_SHOPS} from './InventoryShopModel.js';
-const response=await fetch(new URL('../assets/data/inventory-shops.json',import.meta.url));
-if(!response.ok&&response.status!==404)throw Error('Inventory shop configuration HTTP '+response.status);
-export const INVENTORY_SHOPS=response.status===404?structuredClone(DEFAULT_INVENTORY_SHOPS):await response.json();
-if(INVENTORY_SHOPS.version!==1||!Array.isArray(INVENTORY_SHOPS.city?.hotspots)||!Array.isArray(INVENTORY_SHOPS.spy))throw Error('Unsupported inventory shop configuration.');
+import {
+  DEFAULT_INVENTORY_SHOPS
+} from './InventoryShopModel.js';
+
+function cloneConfiguration(configuration) {
+  if (typeof structuredClone === 'function') {
+    return structuredClone(configuration);
+  }
+
+  return JSON.parse(
+    JSON.stringify(configuration)
+  );
+}
+
+function validateConfiguration(configuration) {
+  if (
+    configuration?.version !== 1 ||
+    !Array.isArray(
+      configuration.city?.hotspots
+    ) ||
+    !Array.isArray(configuration.spy)
+  ) {
+    throw new Error(
+      'Unsupported inventory shop configuration.'
+    );
+  }
+
+  return configuration;
+}
+
+export const INVENTORY_SHOPS =
+  validateConfiguration(
+    cloneConfiguration(
+      DEFAULT_INVENTORY_SHOPS
+    )
+  );

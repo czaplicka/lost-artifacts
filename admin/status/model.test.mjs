@@ -1,0 +1,17 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {functionResult,repositoryResult,counts,pool} from './model.mjs';
+import {MODULES,REGISTRY_VERSION} from './registry.mjs';
+import {MODULES as SERVER_MODULES,REGISTRY_VERSION as SERVER_VERSION} from '../../supabase/functions/admin-status/registry.mjs';
+test('client and server registries identical',()=>{assert.deepEqual(MODULES,SERVER_MODULES);assert.equal(REGISTRY_VERSION,SERVER_VERSION);});
+test('module identifiers unique',()=>assert.equal(new Set(MODULES.map(m=>m.id)).size,MODULES.length));
+test('access success does not promise publication',()=>{const r=functionResult(200,true);assert.equal(r.state,'ok');assert.match(r.detail,/Nie testowano publikacji/);});
+test('network result unknown not absent',()=>{assert.equal(functionResult(0,false).state,'unknown');assert.match(functionResult(0,false).detail,/CORS/);});
+test('401 and 403 distinguished',()=>{assert.match(functionResult(401,false).detail,/JWT/);assert.match(functionResult(403,false).detail,/uprawnienia/);});
+test('404 accurately qualified',()=>assert.match(functionResult(404,false).detail,/sprawdź wdrożenie/));
+test('repository unavailable not treated as missing directory',()=>assert.equal(repositoryResult({state:'error'},'cities').state,'unknown'));
+test('directory presence qualified',()=>{const r=repositoryResult({state:'ok',modules:[{id:'cities',adminDirectory:true,functionDirectory:true}]},'cities');assert.equal(r.state,'ok');assert.match(r.detail,/nie potwierdza wdrożenia/);});
+test('missing directory warning',()=>assert.equal(repositoryResult({state:'ok',modules:[{id:'cities',adminDirectory:false,functionDirectory:true}]},'cities').state,'warning'));
+test('counts measure components not modules',()=>{const r=counts([{hosting:{state:'ok'},function:{state:'error'},repository:{state:'unknown'}}]);assert.equal(r.ok,1);assert.equal(r.error,1);assert.equal(r.unknown,1);});
+test('worker pool respects concurrency and completes all tasks',async()=>{let active=0,max=0,done=0;await pool(Array.from({length:10},(_,i)=>i),3,async()=>{active++;max=Math.max(active,max);await new Promise(r=>setTimeout(r,2));active--;done++;});assert.equal(done,10);assert.ok(max<=3);});
+test('aborted pool launches no tasks',async()=>{const c=new AbortController();c.abort();let count=0;await pool([1,2],3,async()=>{count++;},c.signal);assert.equal(count,0);});

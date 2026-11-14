@@ -1,735 +1,115 @@
-import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
-
 import { gameState } from '../GameData.js';
-
-import {
-  getCaseSuspects
-} from '../suspects/CaseSuspects.js';
-
-import {
-  CrimeLabManager
-} from './CSI/CrimeLabManager.js';
-
-import {
-  CrimeCityTutorial,
-  advanceCrimeTutorial
-} from '../tutorials/CrimeCityTutorial.js';
-
-import {
-  getGridMarkState
-} from '../suspectsBoard/gridHelpers.js';
-
-import {
-  GridDataMixin
-} from '../suspectsBoard/GridData.mixin.js';
-
-import {
-  GridDrawMixin
-} from '../suspectsBoard/GridDraw.mixin.js';
-
-import {
-  GridCellsMixin
-} from '../suspectsBoard/GridCells.mixin.js';
-
-import {
-  GridInputMixin
-} from '../suspectsBoard/GridInput.mixin.js';
-
-import {
-  GridLogicMixin
-} from '../suspectsBoard/GridLogic.mixin.js';
-
-import {
-  getPersonnelGridGate,
-  acknowledgePersonnelCorrection,
-  PersonnelNoticeView
-} from '../suspects/PersonnelRosterFlow.js';
-
-export class SuspectGridScene extends BaseScene {
-  constructor() {
-    super('SuspectGridScene');
-
-    this.gameState = gameState;
-
-    this.cityId = null;
-    this.returnScene = 'CrimeCityScene';
-    this.returnData = {};
-
-    this.labManager = null;
-
-    this.suspects = [];
-    this.rows = [];
-    this.clueCards = [];
-
-    this.revealedFields = new Set();
-    this.selectedClueId = null;
-
-    this.placedCluesByCell = {};
-    this.markedUnlikelyBySuspectId = {};
-
-    this.uiRoot = null;
-    this.modalRoot = null;
-    this.maskGraphics = [];
-
-    this.feedbackText = null;
-    this.feedbackMessage = '';
-
-    this.regions = {
-      body: null,
-      scene: null,
-      header: null,
-      names: null,
-      clueList: null
-    };
-
-    this.bodyContainer = null;
-    this.headerContainer = null;
-    this.sceneContainer = null;
-    this.nameContainer = null;
-    this.clueListContainer = null;
-
-    this.layout = null;
-    this.gridOrigin = null;
-
-    this.scrollX = 0;
-    this.scrollY = 0;
-
-    this.minScrollX = 0;
-    this.minScrollY = 0;
-
-    this.clueScrollY = 0;
-    this.minClueScroll = 0;
-
-    this.dragTarget = null;
-    this.dragMoved = false;
-
-    this.dragStart = {
-      x: 0,
-      y: 0,
-      sx: 0,
-      sy: 0,
-      cy: 0
-    };
-
-    this.modalOpen = false;
-    this.resizeHandler = null;
-    this.crimeTutorial = null;
-
-    this.newsHudSnapshot = null;
-    this.overlayHideTimer = null;
-
-    this.returnHighlight = null;
-    this.returnHighlightTween = null;
-    this.gridLeaving = false;
-
-    this.personnelNotice = null;
-    this.gridStarted = false;
-    this.entryData = {};
+import { getCaseSuspects } from '../suspects/CaseSuspects.js';
+import { CrimeLabManager } from './CSI/CrimeLabManager.js';
+import { CrimeCityTutorial,advanceCrimeTutorial } from '../tutorials/CrimeCityTutorial.js';
+import { getGridMarkState } from '../suspectsBoard/gridHelpers.js';
+import { GridDataMixin } from '../suspectsBoard/GridData.mixin.js';
+import { GridDrawMixin } from '../suspectsBoard/GridDraw.mixin.js';
+import { GridCellsMixin } from '../suspectsBoard/GridCells.mixin.js';
+import { GridInputMixin } from '../suspectsBoard/GridInput.mixin.js';
+import { GridLogicMixin } from '../suspectsBoard/GridLogic.mixin.js';
+import { getPersonnelGridGate,acknowledgePersonnelCorrection,PersonnelNoticeView } from '../suspects/PersonnelRosterFlow.js';
+import { preloadPuzzleSfx } from './archive/PuzzleSfx.js';
+import { preloadDocumentSfx } from './archive/DocumentSfx.js';
+export class SuspectGridScene extends BaseScene{
+ constructor(){
+  super('SuspectGridScene');this.gameState=gameState;this.cityId=null;this.returnScene='CrimeCityScene';this.returnData={};this.labManager=null;
+  this.suspects=[];this.rows=[];this.clueCards=[];this.revealedFields=new Set();this.selectedClueId=null;
+  this.placedCluesByCell={};this.markedUnlikelyBySuspectId={};this.uiRoot=null;this.modalRoot=null;this.maskGraphics=[];
+  this.feedbackText=null;this.feedbackMessage='';this.regions={body:null,scene:null,header:null,names:null,clueList:null};
+  this.bodyContainer=null;this.headerContainer=null;this.sceneContainer=null;this.nameContainer=null;this.clueListContainer=null;
+  this.layout=null;this.gridOrigin=null;this.scrollX=0;this.scrollY=0;this.minScrollX=0;this.minScrollY=0;this.clueScrollY=0;this.minClueScroll=0;
+  this.dragTarget=null;this.dragMoved=false;this.dragStart={x:0,y:0,sx:0,sy:0,cy:0};this.modalOpen=false;this.resizeHandler=null;this.crimeTutorial=null;
+  this.newsHudSnapshot=null;this.overlayHideTimer=null;this.returnHighlight=null;this.returnHighlightTween=null;this.gridLeaving=false;
+  this.personnelNotice=null;this.gridStarted=false;this.entryData={};
+ }
+ getCaseSuspects(){return getCaseSuspects(this.gameState);}
+ init(data={}){
+  this.clearReturnHighlight();this.destroyCrimeTutorial();this.personnelNotice?.destroy();this.personnelNotice=null;this.entryData={...data};
+  this.gameState=data.gameState||gameState;this.cityId=data.cityId||this.gameState.currentMission?.city||this.gameState.crimeCityId||'unknown_city';
+  this.returnScene=typeof data.returnScene==='string'&&data.returnScene.trim()?data.returnScene.trim():'CrimeCityScene';
+  this.returnData={...(data.returnData||{}),cityId:this.cityId,openPanel:data.returnData?.openPanel||'alibi'};
+  this.labManager=new CrimeLabManager(this.gameState,this.cityId);this.suspects=[];this.rows=[];this.clueCards=[];
+  this.placedCluesByCell={};this.markedUnlikelyBySuspectId={};this.selectedClueId=null;this.scrollX=0;this.scrollY=0;this.clueScrollY=0;
+  this.feedbackMessage='';this.modalOpen=false;this.newsHudSnapshot=null;this.overlayHideTimer=null;this.gridLeaving=false;this.gridStarted=false;
+ }
+ preload(){preloadPuzzleSfx(this,['paper']);preloadDocumentSfx(this,['click']);}
+ prepareGridData(forcedIds=null){
+  const allSuspects=this.getCaseSuspects(),requestedIds=forcedIds||this.entryData.suspectIds||this.gameState.suspectGridInput?.suspectIds||this.gameState.currentMission?.suspectIds||allSuspects.map(suspect=>suspect.id);
+  const validIds=new Set(Array.isArray(requestedIds)?requestedIds:[]);this.suspects=allSuspects.filter(suspect=>suspect?.id&&validIds.has(suspect.id));
+  const forensics=this.labManager.ensureCaseForensics();forensics.suspectGrid??={};forensics.suspectGrid.placedCluesByCell??={};
+  this.placedCluesByCell={...forensics.suspectGrid.placedCluesByCell};this.markedUnlikelyBySuspectId=getGridMarkState(forensics.suspectGrid);
+  this.clueCards=this.buildClueCards(forensics,this.entryData);this.rows=this.buildRows();
+ }
+ hideOverlayHuds(){
+  const keys=this.scene.manager.keys,news=keys.NewsHud;
+  if(news?.sys?.isActive()&&news.menuTab&&news.menuPanel){
+   this.newsHudSnapshot??={scene:news,hudEnabled:news.hudEnabled,sceneVisible:news.sys.settings.visible};news.setHudVisible(false);news.sys.setVisible(false);
   }
-
-
-  installGridTopHudLock() {
-    this.releaseGridTopHudLock();
-    if (typeof document === 'undefined' || !document.head) return;
-    const style = document.createElement('style');
-    style.setAttribute('data-suspect-grid-top-hud-lock', 'true');
-    style.textContent = `${__dialogueText("scenes/SuspectGridScene.js", "t_987b85c49a4abe19415a")}`;
-    document.head.appendChild(style);
-    this._gridTopHudLockStyle = style;
+  if(keys.PlayerHudScene?.sys?.isActive())this.scene.sleep('PlayerHudScene');
+ }
+ restoreNewsHud(){
+  const snapshot=this.newsHudSnapshot;this.newsHudSnapshot=null;if(!snapshot)return;const news=this.scene.manager.keys.NewsHud;
+  if(news!==snapshot.scene||news.isShutDown||!news.menuTab||!news.menuPanel)return;
+  news.setHudVisible(snapshot.hudEnabled);news.sys.setVisible(snapshot.sceneVisible);
+ }
+ create(){
+  super.create();this.hideOverlayHuds();this.overlayHideTimer=this.time.delayedCall(150,()=>{this.overlayHideTimer=null;this.hideOverlayHuds();});
+  this.cameras.main.setBackgroundColor('#110d0e');this.events.once(Phaser.Scenes.Events.SHUTDOWN,this.cleanupScene,this);
+  try{
+   const allSuspects=this.getCaseSuspects(),gate=getPersonnelGridGate(this.gameState,allSuspects);
+   if(gate.type==='incomplete'){
+    this.personnelNotice=new PersonnelNoticeView(this,{title:'PERSONNEL REVIEW REQUIRED',paragraphs:['Complete the personnel shortlist before opening the evidence grid.'],buttonLabel:'Back to investigation',onContinue:()=>{this.personnelNotice=null;this.leaveBeforeGrid();}});return;
+   }
+   if(gate.type==='correction'){
+    const targetIds=new Set(gate.suspectIds),correctedPeople=allSuspects.filter(suspect=>targetIds.has(suspect.id));
+    this.personnelNotice=new PersonnelNoticeView(this,{
+     title:'INTERNAL REVIEW',paragraphs:['A colleague reviewed your shortlist and found a few inconsistencies with the verified statements.','The corrected list is attached.','Nobody tell HR this counts as teamwork.'],
+     people:correctedPeople,buttonLabel:'Continue with corrected list',onContinue:()=>{this.personnelNotice=null;const ids=acknowledgePersonnelCorrection(gate.roster);this.startGrid(ids);}
+    });return;
+   }
+   this.startGrid(gate.suspectIds);
+  }catch(error){
+   console.error('[SuspectGridScene] Personnel review failed:',error);
+   this.personnelNotice=new PersonnelNoticeView(this,{title:'CASE FILE ERROR',paragraphs:['The personnel review could not be prepared.',error.message],buttonLabel:'Back',onContinue:()=>{this.personnelNotice=null;this.leaveBeforeGrid();}});
   }
-
-  releaseGridTopHudLock() {
-    this._gridTopHudLockStyle?.remove();
-    this._gridTopHudLockStyle = null;
-  }
-
-  bindGridTopHudLock() {
-    this.cleanupGridTopHudLock();
-    this.installGridTopHudLock();
-    this.events.on('sleep', this.releaseGridTopHudLock, this);
-    this.events.on('wake', this.installGridTopHudLock, this);
-    this.events.once('destroy', this.cleanupGridTopHudLock, this);
-  }
-
-  cleanupGridTopHudLock() {
-    this.events.off('sleep', this.releaseGridTopHudLock, this);
-    this.events.off('wake', this.installGridTopHudLock, this);
-    this.events.off('destroy', this.cleanupGridTopHudLock, this);
-    this.releaseGridTopHudLock();
-  }
-
-  getCaseSuspects() {
-    return getCaseSuspects(this.gameState);
-  }
-
-  init(data = {}) {
-    this.clearReturnHighlight();
-    this.destroyCrimeTutorial();
-
-    this.personnelNotice?.destroy();
-    this.personnelNotice = null;
-
-    this.entryData = { ...data };
-
-    this.gameState =
-      data.gameState || gameState;
-
-    this.cityId =
-      data.cityId ||
-      this.gameState.currentMission?.city ||
-      this.gameState.crimeCityId ||
-      'unknown_city';
-
-    this.returnScene =
-      typeof data.returnScene === 'string' &&
-      data.returnScene.trim()
-        ? data.returnScene.trim()
-        : 'CrimeCityScene';
-
-    this.returnData = {
-      ...(data.returnData || {}),
-      cityId: this.cityId,
-      openPanel:
-        data.returnData?.openPanel || 'alibi'
-    };
-
-    this.labManager =
-      new CrimeLabManager(
-        this.gameState,
-        this.cityId
-      );
-
-    this.suspects = [];
-    this.rows = [];
-    this.clueCards = [];
-
-    this.placedCluesByCell = {};
-    this.markedUnlikelyBySuspectId = {};
-
-    this.selectedClueId = null;
-
-    this.scrollX = 0;
-    this.scrollY = 0;
-    this.clueScrollY = 0;
-
-    this.feedbackMessage = '';
-    this.modalOpen = false;
-
-    this.newsHudSnapshot = null;
-    this.overlayHideTimer = null;
-    this.gridLeaving = false;
-    this.gridStarted = false;
-  }
-
-  prepareGridData(forcedIds = null) {
-    const allSuspects = this.getCaseSuspects();
-
-    const requestedIds =
-      forcedIds ||
-      this.entryData.suspectIds ||
-      this.gameState.suspectGridInput?.suspectIds ||
-      this.gameState.currentMission?.suspectIds ||
-      allSuspects.map(suspect => suspect.id);
-
-    const validIds = new Set(
-      Array.isArray(requestedIds)
-        ? requestedIds
-        : []
-    );
-
-    this.suspects = allSuspects.filter(
-      suspect =>
-        suspect?.id &&
-        validIds.has(suspect.id)
-    );
-
-    const forensics =
-      this.labManager.ensureCaseForensics();
-
-    forensics.suspectGrid ??= {};
-
-    forensics.suspectGrid.placedCluesByCell ??= {};
-
-    this.placedCluesByCell = {
-      ...forensics.suspectGrid.placedCluesByCell
-    };
-
-    this.markedUnlikelyBySuspectId =
-      getGridMarkState(forensics.suspectGrid);
-
-    this.clueCards = this.buildClueCards(
-      forensics,
-      this.entryData
-    );
-
-    this.rows = this.buildRows();
-  }
-
-  hideOverlayHuds() {
-    const keys = this.scene.manager.keys;
-    const news = keys.NewsHud;
-
-    if (
-      news?.sys?.isActive() &&
-      news.menuTab &&
-      news.menuPanel
-    ) {
-      this.newsHudSnapshot ??= {
-        scene: news,
-        hudEnabled: news.hudEnabled,
-        sceneVisible: news.sys.settings.visible
-      };
-
-      news.setHudVisible(false);
-      news.sys.setVisible(false);
-    }
-
-    if (
-      keys.PlayerHudScene?.sys?.isActive()
-    ) {
-      this.scene.sleep('PlayerHudScene');
-    }
-  }
-
-  restoreNewsHud() {
-    const snapshot = this.newsHudSnapshot;
-
-    this.newsHudSnapshot = null;
-
-    if (!snapshot) {
-      return;
-    }
-
-    const news =
-      this.scene.manager.keys.NewsHud;
-
-    if (
-      news !== snapshot.scene ||
-      news.isShutDown ||
-      !news.menuTab ||
-      !news.menuPanel
-    ) {
-      return;
-    }
-
-    news.setHudVisible(snapshot.hudEnabled);
-
-    news.sys.setVisible(
-      snapshot.sceneVisible
-    );
-  }
-
-  create() {
-    super.create();
-    this.bindGridTopHudLock();
-
-    this.hideOverlayHuds();
-
-    this.overlayHideTimer =
-      this.time.delayedCall(150, () => {
-        this.overlayHideTimer = null;
-        this.hideOverlayHuds();
-      });
-
-    this.cameras.main.setBackgroundColor(
-      '#110d0e'
-    );
-
-    this.events.once(
-      Phaser.Scenes.Events.SHUTDOWN,
-      this.cleanupScene,
-      this
-    );
-
-    try {
-      const allSuspects =
-        this.getCaseSuspects();
-
-      const gate = getPersonnelGridGate(
-        this.gameState,
-        allSuspects
-      );
-
-      if (gate.type === 'incomplete') {
-        this.personnelNotice =
-          new PersonnelNoticeView(this, {
-            title: __dialogueText("scenes/SuspectGridScene.js", "t_a4d1eef381f0b222834a"),
-
-            paragraphs: [
-              __dialogueText("scenes/SuspectGridScene.js", "t_03822862666264bba2a2")
-            ],
-
-            buttonLabel: __dialogueText("scenes/SuspectGridScene.js", "t_355ed6ca1f915cf03230"),
-
-            onContinue: () => {
-              this.personnelNotice = null;
-              this.leaveBeforeGrid();
-            }
-          });
-
-        return;
-      }
-
-      if (gate.type === 'correction') {
-        const targetIds = new Set(
-          gate.suspectIds
-        );
-
-        const correctedPeople =
-          allSuspects.filter(
-            suspect =>
-              targetIds.has(suspect.id)
-          );
-
-        this.personnelNotice =
-          new PersonnelNoticeView(this, {
-            title: __dialogueText("scenes/SuspectGridScene.js", "t_a7ae97179ff9e0573966"),
-
-            paragraphs: [
-              __dialogueText("scenes/SuspectGridScene.js", "t_da80e772f66a5547127b"),
-              __dialogueText("scenes/SuspectGridScene.js", "t_ba70f2832ad201990a43"),
-              __dialogueText("scenes/SuspectGridScene.js", "t_30031792f406d1725111")
-            ],
-
-            people: correctedPeople,
-
-            buttonLabel:
-              __dialogueText("scenes/SuspectGridScene.js", "t_6215440a97ab7106501a"),
-
-            onContinue: () => {
-              this.personnelNotice = null;
-
-              const ids =
-                acknowledgePersonnelCorrection(
-                  gate.roster
-                );
-
-              this.startGrid(ids);
-            }
-          });
-
-        return;
-      }
-
-      this.startGrid(gate.suspectIds);
-    } catch (error) {
-      console.error(
-        '[SuspectGridScene] Personnel review failed:',
-        error
-      );
-
-      this.personnelNotice =
-        new PersonnelNoticeView(this, {
-          title: __dialogueText("scenes/SuspectGridScene.js", "t_00ff7d6b0496d2bd6eb0"),
-
-          paragraphs: [
-            __dialogueText("scenes/SuspectGridScene.js", "t_fcc64986a0c34ddbccfc"),
-            error.message
-          ],
-
-          buttonLabel: __dialogueText("scenes/SuspectGridScene.js", "t_76900f1bfd16c8d4dd3d"),
-
-          onContinue: () => {
-            this.personnelNotice = null;
-            this.leaveBeforeGrid();
-          }
-        });
-    }
-  }
-
-  startGrid(suspectIds = null) {
-    if (this.gridStarted) {
-      return;
-    }
-
-    this.prepareGridData(suspectIds);
-
-    this.gridStarted = true;
-
-    this.input.on(
-      'pointerdown',
-      this.handlePointerDown,
-      this
-    );
-
-    this.input.on(
-      'pointermove',
-      this.handlePointerMove,
-      this
-    );
-
-    this.input.on(
-      'pointerup',
-      this.handlePointerUp,
-      this
-    );
-
-    this.input.on(
-      'wheel',
-      this.handleWheel,
-      this
-    );
-
-    this.buildUI();
-    this.startCrimeTutorial();
-    this.syncReturnHighlight();
-
-    this.resizeHandler = () => {
-      if (
-        this.sys.isActive() &&
-        this.gridStarted
-      ) {
-        this.refreshAll();
-      }
-    };
-
-    this.scale.on(
-      'resize',
-      this.resizeHandler,
-      this
-    );
-  }
-
-  leaveBeforeGrid() {
-    this.gridLeaving = true;
-
-    if (
-      this.returnScene &&
-      this.returnScene !== this.scene.key &&
-      this.scene.manager.keys[this.returnScene]
-    ) {
-      this.goto(
-        this.returnScene,
-        { ...this.returnData }
-      );
-
-      return;
-    }
-
-    this.scene.stop();
-  }
-
-  startCrimeTutorial() {
-    this.destroyCrimeTutorial();
-
-    const saved =
-      this.gameState.onboarding?.crimeCity;
-
-    if (!saved || saved.completed) {
-      return;
-    }
-
-    if (
-      saved.step === 'hypothesis' &&
-      this.gameState.reconstructedHeist
-        ?.playerTheoryResult
-    ) {
-      advanceCrimeTutorial(
-        this.gameState,
-        'hypothesis'
-      );
-    }
-
-    if (saved.step === 'suspects') {
-      advanceCrimeTutorial(
-        this.gameState,
-        'suspects'
-      );
-    }
-
-    if (saved.step !== 'suspect_grid') {
-      return;
-    }
-
-    this.crimeTutorial =
-      new CrimeCityTutorial(
-        this,
-        this.gameState
-      );
-
-    this.crimeTutorial.start();
-  }
-
-  destroyCrimeTutorial() {
-    if (!this.crimeTutorial) {
-      return;
-    }
-
-    try {
-      this.crimeTutorial.destroy();
-    } catch (error) {
-      console.warn(
-        '[SuspectGridScene] Tutorial cleanup failed:',
-        error
-      );
-    }
-
-    this.crimeTutorial = null;
-  }
-
-  syncReturnHighlight() {
-    this.clearReturnHighlight();
-
-    if (
-      this.gridLeaving ||
-      !this.gridStarted
-    ) {
-      return;
-    }
-
-    if (this.crimeTutorial?.isActive()) {
-      this.crimeTutorial.syncGridStep(true);
-      return;
-    }
-
-    const remaining =
-      this.getGridRemainingSuspects();
-
-    const submitted =
-      this.isGridShortlistSubmitted();
-
-    if (
-      !submitted &&
-      remaining.length !== 2
-    ) {
-      return;
-    }
-
-    const { width, height } = this.scale;
-
-    this.returnHighlight = this.add
-      .rectangle(
-        submitted ? 110 : width - 135,
-        height - 31,
-        submitted ? 202 : 262,
-        50
-      )
-      .setStrokeStyle(
-        4,
-        0xf2d477,
-        1
-      )
-      .setFillStyle(
-        0xf2d477,
-        0.06
-      )
-      .setDepth(9999)
-      .setScrollFactor(0);
-
-    this.returnHighlightTween =
-      this.tweens.add({
-        targets: this.returnHighlight,
-
-        alpha: {
-          from: 0.3,
-          to: 1
-        },
-
-        duration: 650,
-        yoyo: true,
-        repeat: -1
-      });
-
-    this.setFeedback(
-      submitted
-        ? __dialogueText("scenes/SuspectGridScene.js", "t_34a885cc81d7c814f06f")
-        : __dialogueText("scenes/SuspectGridScene.js", "t_4b27a4da16d0cb51c39d")
-    );
-  }
-
-  clearReturnHighlight() {
-    this.returnHighlightTween?.stop();
-
-    this.returnHighlightTween?.remove?.();
-
-    this.returnHighlightTween = null;
-
-    this.returnHighlight?.destroy();
-    this.returnHighlight = null;
-  }
-
-  refreshAll() {
-    if (!this.gridStarted) {
-      return;
-    }
-
-    this.buildUI();
-    this.syncReturnHighlight();
-  }
-
-  rebuildScene() {
-    this.refreshAll();
-  }
-
-  cleanupScene() {
-    this.cleanupGridTopHudLock();
-    this.personnelNotice?.destroy();
-    this.personnelNotice = null;
-
-    this.clearReturnHighlight();
-    this.destroyCrimeTutorial();
-
-    this.overlayHideTimer?.remove(false);
-    this.overlayHideTimer = null;
-
-    this.restoreNewsHud();
-
-    if (this.resizeHandler) {
-      this.scale.off(
-        'resize',
-        this.resizeHandler,
-        this
-      );
-    }
-
-    this.input.off(
-      'pointerdown',
-      this.handlePointerDown,
-      this
-    );
-
-    this.input.off(
-      'pointermove',
-      this.handlePointerMove,
-      this
-    );
-
-    this.input.off(
-      'pointerup',
-      this.handlePointerUp,
-      this
-    );
-
-    this.input.off(
-      'wheel',
-      this.handleWheel,
-      this
-    );
-
-    this.events.off(
-      Phaser.Scenes.Events.SHUTDOWN,
-      this.cleanupScene,
-      this
-    );
-
-    this.resizeHandler = null;
-    this.dragTarget = null;
-    this.modalOpen = false;
-
-    if (this.gridStarted) {
-      this.clearUI();
-    }
-
-    this.gridStarted = false;
-  }
+ }
+ startGrid(suspectIds=null){
+  if(this.gridStarted)return;this.prepareGridData(suspectIds);this.gridStarted=true;
+  this.input.on('pointerdown',this.handlePointerDown,this);this.input.on('pointermove',this.handlePointerMove,this);this.input.on('pointerup',this.handlePointerUp,this);this.input.on('wheel',this.handleWheel,this);
+  this.buildUI();this.startCrimeTutorial();this.syncReturnHighlight();this.resizeHandler=()=>{if(this.sys.isActive()&&this.gridStarted)this.refreshAll();};this.scale.on('resize',this.resizeHandler,this);
+ }
+ leaveBeforeGrid(){
+  this.gridLeaving=true;
+  if(this.returnScene&&this.returnScene!==this.scene.key&&this.scene.manager.keys[this.returnScene]){this.goto(this.returnScene,{...this.returnData});return;}this.scene.stop();
+ }
+ startCrimeTutorial(){
+  this.destroyCrimeTutorial();const saved=this.gameState.onboarding?.crimeCity;if(!saved||saved.completed)return;
+  if(saved.step==='hypothesis'&&this.gameState.reconstructedHeist?.playerTheoryResult)advanceCrimeTutorial(this.gameState,'hypothesis');
+  if(saved.step==='suspects')advanceCrimeTutorial(this.gameState,'suspects');if(saved.step!=='suspect_grid')return;
+  this.crimeTutorial=new CrimeCityTutorial(this,this.gameState);this.crimeTutorial.start();
+ }
+ destroyCrimeTutorial(){
+  if(!this.crimeTutorial)return;try{this.crimeTutorial.destroy();}catch(error){console.warn('[SuspectGridScene] Tutorial cleanup failed:',error);}this.crimeTutorial=null;
+ }
+ syncReturnHighlight(){
+  this.clearReturnHighlight();if(this.gridLeaving||!this.gridStarted)return;
+  if(this.crimeTutorial?.isActive()){this.crimeTutorial.syncGridStep(true);return;}
+  const remaining=this.getGridRemainingSuspects(),submitted=this.isGridShortlistSubmitted();if(!submitted&&remaining.length!==2)return;
+  const{width,height}=this.scale;
+  this.returnHighlight=this.add.rectangle(submitted?110:width-135,height-31,submitted?202:262,50).setStrokeStyle(4,0xf2d477,1).setFillStyle(0xf2d477,.06).setDepth(9999).setScrollFactor(0);
+  this.returnHighlightTween=this.tweens.add({targets:this.returnHighlight,alpha:{from:.3,to:1},duration:650,yoyo:true,repeat:-1});
+  this.setFeedback(submitted?'Shortlist sent. Return to Crime City to investigate the alibis.':'Two suspects remain. Click SEND TO ALIBIS to submit your shortlist.');
+ }
+ clearReturnHighlight(){this.returnHighlightTween?.stop();this.returnHighlightTween?.remove?.();this.returnHighlightTween=null;this.returnHighlight?.destroy();this.returnHighlight=null;}
+ refreshAll(){if(!this.gridStarted)return;this.buildUI();this.syncReturnHighlight();}
+ rebuildScene(){this.refreshAll();}
+ cleanupScene(){
+  this.personnelNotice?.destroy();this.personnelNotice=null;this.clearReturnHighlight();this.destroyCrimeTutorial();this.overlayHideTimer?.remove(false);this.overlayHideTimer=null;this.restoreNewsHud();
+  if(this.resizeHandler)this.scale.off('resize',this.resizeHandler,this);
+  this.input.off('pointerdown',this.handlePointerDown,this);this.input.off('pointermove',this.handlePointerMove,this);this.input.off('pointerup',this.handlePointerUp,this);this.input.off('wheel',this.handleWheel,this);
+  this.events.off(Phaser.Scenes.Events.SHUTDOWN,this.cleanupScene,this);this.resizeHandler=null;this.dragTarget=null;this.modalOpen=false;if(this.gridStarted)this.clearUI();this.gridStarted=false;
+ }
 }
-
-Object.assign(
-  SuspectGridScene.prototype,
-  GridDataMixin,
-  GridDrawMixin,
-  GridCellsMixin,
-  GridInputMixin,
-  GridLogicMixin
-);
+Object.assign(SuspectGridScene.prototype,GridDataMixin,GridDrawMixin,GridCellsMixin,GridInputMixin,GridLogicMixin);

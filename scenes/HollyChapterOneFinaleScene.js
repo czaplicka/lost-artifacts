@@ -5,6 +5,7 @@ import { loadJson } from '../config/loadJson.js';
 import { HollyChapterOneCallUI } from '../ui/HollyChapterOneCallUI.js';
 import { HOLLY_CHAPTER_ONE_CALL, getHollyChapterOneState,
   saveHollyChapterOnePosition, completeHollyChapterOne } from '../hollyChapterOneService.js';
+import { StoryCallAudio } from './phone/StoryCallAudio.js';
 
 const DATA=await loadJson('../assets/data/hollyChapterOneFinale.json',import.meta.url);
 const PORTRAIT_KEY='holly';
@@ -13,6 +14,7 @@ const DESK_KEY='pi_phone_desk';
 export class HollyChapterOneFinaleScene extends BaseScene {
   constructor(){super({key:'HollyChapterOneFinaleScene'});}
   init(data={}){
+    this.storyCallAudio?.destroy();this.storyCallAudio=null;
     this.preview=data.preview!==false;
     this.returnSceneKey=data.returnSceneKey??null;
     this.onFinished=typeof data.onFinished==='function'?data.onFinished:null;
@@ -22,6 +24,7 @@ export class HollyChapterOneFinaleScene extends BaseScene {
   preload(){
     if(!this.textures.exists(PORTRAIT_KEY))this.load.image(PORTRAIT_KEY,'assets/pi/holly.webp');
     if(!this.textures.exists(DESK_KEY))this.load.image(DESK_KEY,'assets/ui/pi-phone/desk.webp');
+    StoryCallAudio.preload(this);
   }
   create(){
     super.create();this.cameras.main.setBackgroundColor('#050b08');
@@ -38,6 +41,7 @@ export class HollyChapterOneFinaleScene extends BaseScene {
         this.lineIndex=saved.lineIndex;this.renderLine();
       }
     }
+    this.storyCallAudio=new StoryCallAudio(this,{started:this.lineIndex>=0});
     this.trackInputEvent(this.scale,'resize',this.layout);
     if(this.input.keyboard){
       const advance=event=>{if(event.repeat)return;event.preventDefault();this.next();};
@@ -47,6 +51,7 @@ export class HollyChapterOneFinaleScene extends BaseScene {
     }
     this.suspendBackground();
     this.events.once(Phaser.Scenes.Events.SHUTDOWN,()=>{
+      this.storyCallAudio?.destroy();this.storyCallAudio=null;
       this.callUI?.destroy();this.callUI=null;this.restoreBackground();this.onFinished=null;
     });
   }
@@ -54,9 +59,12 @@ export class HollyChapterOneFinaleScene extends BaseScene {
     if(!this.allowed||this.finished||this.closing)return;
     if(this.callUI.finishCurrentTyping())return;
     if(this.lineIndex<DATA.lines.length-1){
+      const starting=this.lineIndex<0;
       this.lineIndex+=1;
       if(!this.preview)this.savedOk=saveHollyChapterOnePosition(this.lineIndex);
-      this.renderLine();return;
+      this.renderLine();
+      if(starting)this.storyCallAudio?.connected();
+      return;
     }
     if(!this.preview){
       const result=completeHollyChapterOne();
@@ -85,6 +93,7 @@ export class HollyChapterOneFinaleScene extends BaseScene {
   }
   closeFinale(){
     if(this.closing)return;this.closing=true;
+    this.storyCallAudio?.destroy();this.storyCallAudio=null;
     this.callUI?.destroy();this.callUI=null;
     const callback=this.onFinished;this.onFinished=null;this.restoreBackground();
     try{callback?.({completed:this.finished,preview:this.preview,saved:this.savedOk});}finally{this.scene.stop();}

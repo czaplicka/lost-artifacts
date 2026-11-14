@@ -1,9 +1,9 @@
-import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { getReputation } from '../managers/ReputationManager.js';
 import { HomeTownDialogue } from '../ui/HomeTownDialogue.js';
 import { installHospitalWorldReactions } from '../ui/WorldHospitalReactionHooks.js';
+import { preloadMenuActionAudio, playMenuActionAudio } from './archive/MenuActionAudio.js';
 
 const KEY='HospitalScene';
 const BACKGROUND_KEY='hospital_reception_nurse';
@@ -19,7 +19,10 @@ export class HospitalScene extends BaseScene{
     this.dialogue=null;this.dialogueOpen=false;this.errorText=null;this.imageBox=null;
     this.hiddenHudElement=null;this.previousHudDisplay='';
   }
-  preload(){if(!this.textures.exists(BACKGROUND_KEY))this.load.image(BACKGROUND_KEY,BACKGROUND_URL);}
+  preload(){
+    if(!this.textures.exists(BACKGROUND_KEY))this.load.image(BACKGROUND_KEY,BACKGROUND_URL);
+    preloadMenuActionAudio(this);
+  }
   create(){
     super.create();
     installHospitalWorldReactions(this,{canEnter:canEnterHospital});
@@ -28,20 +31,20 @@ export class HospitalScene extends BaseScene{
     this.events.once('destroy',this.disposeHospital,this);
     this.hideGameplayHud();this.cameras.main.setBackgroundColor('#11191c');
     this.dialogue=new HomeTownDialogue(this,()=>{
-      this.dialogueOpen=false;this.refreshHotspot();void this.leave();
+      this.dialogueOpen=false;this.refreshHotspot();void this.leave(false);
     });
     if(this.textures.exists(BACKGROUND_KEY)){
       this.background=this.add.image(0,0,BACKGROUND_KEY).setOrigin(0).setDepth(0);
       this.createNurseHotspot();
     }else{
       this.errorText=this.add.text(24,90,[
-        __dialogueText("scenes/HospitalScene.js", "t_940405beb6a225060ce1"),'',__dialogueText("scenes/HospitalScene.js", "t_a59531ee131478a79104"),BACKGROUND_URL,'',__dialogueText("scenes/HospitalScene.js", "t_e78e6cb773453ed2df43")
-      ].join(__dialogueText("scenes/HospitalScene.js", "t_01ba4719c80b6fe911b0")),{
+        'Hospital background could not be loaded.','','Expected file:',BACKGROUND_URL,'','Use Back to town to return.'
+      ].join('\n'),{
         fontFamily:'SpecialElite, monospace',fontSize:22,color:'#ffe4c0',
         wordWrap:{width:Math.max(100,this.scale.width-48)}
       }).setDepth(20);
     }
-    this.exitButton=this.add.text(18,16,__dialogueText("scenes/HospitalScene.js", "t_05a9505481b14d636cc5"),{
+    this.exitButton=this.add.text(18,16,'< Back to town',{
       fontFamily:'SpecialElite, monospace',fontSize:20,color:'#ffe0a0',backgroundColor:'#24352e',padding:{x:12,y:10}
     }).setDepth(100).setInteractive({useHandCursor:true});
     this.exitButton.on('pointerdown',()=>{void this.leave();});
@@ -59,12 +62,12 @@ export class HospitalScene extends BaseScene{
   }
   createNurseHotspot(){
     this.nurseHotspot=this.add.rectangle(0,0,1,1,0xffffff,0).setDepth(10).setInteractive({useHandCursor:true});
-    this.nurseLabel=this.add.text(0,0,__dialogueText("scenes/HospitalScene.js", "t_41e96c33cee3543fb051"),{
+    this.nurseLabel=this.add.text(0,0,'Nurse',{
       fontFamily:'SpecialElite, monospace',fontSize:20,color:'#ffe3a4',backgroundColor:'#18201c',padding:{x:10,y:6}
     }).setOrigin(0.5,1).setDepth(30).setVisible(false);
     this.nurseHotspot.on('pointerover',()=>{if(this.canInteract())this.nurseLabel.setVisible(true);});
     this.nurseHotspot.on('pointerout',()=>{this.nurseLabel.setVisible(false);});
-    this.nurseHotspot.on('pointerdown',()=>{if(this.canInteract())this.talk();});
+    this.nurseHotspot.on('pointerdown',()=>{if(this.canInteract())this.talk(true);});
   }
   canInteract(){return !this.disposed&&!this.navigating&&!this.dialogueOpen;}
   refreshHotspot(){
@@ -95,42 +98,49 @@ export class HospitalScene extends BaseScene{
   showDialogue(text,choices=[]){
     if(this.disposed||this.navigating)return;
     this.dialogueOpen=true;this.refreshHotspot();
-    this.dialogue.show({title:__dialogueText("scenes/HospitalScene.js", "t_41e96c33cee3543fb051"),text,choices});
+    this.dialogue.show({title:'Nurse',text,choices});
   }
-  talk(){
+  talk(userAction=false){
     if(this.disposed||this.navigating)return;
+    if(userAction)playMenuActionAudio(this);
     const fame=getReputation().fame;
     if(!canEnterHospital()){
       this.showDialogue([
-        __dialogueText("scenes/HospitalScene.js", "t_049c7edbefc5856ee465"),
-        __dialogueText("scenes/HospitalScene.js", "t_cfab992a935e61a71f96"),'',
-        `${__dialogueText("scenes/HospitalScene.js", "t_50db7e2c64f442a59192")}${HOSPITAL_MIN_FAME}${__dialogueText("scenes/HospitalScene.js", "t_92f33d623e93610818f9")}${fame}${__dialogueText("scenes/HospitalScene.js", "t_cdb4ee2aea69cc6a8333")}`
-      ].join('\n'),[[__dialogueText("scenes/HospitalScene.js", "t_dc9fe32279628cfe7fe1"),()=>void this.leave()]]);
+        'Patient information is confidential.',
+        'Your coat is not a medical qualification. Out.','',
+        `Fame required: ${HOSPITAL_MIN_FAME}. Your fame: ${fame}.`
+      ].join('\n'),[['I know where the exit is.',()=>void this.leave()]]);
       return;
     }
-    this.showDialogue(__dialogueText("scenes/HospitalScene.js", "t_0fa341d5ef1f46aa9ad9")+__dialogueText("scenes/HospitalScene.js", "t_810ffb221674a798d24e"),[
-      [__dialogueText("scenes/HospitalScene.js", "t_7c35228e8fbd83330da4"),()=>this.showAdvice()],
-      [__dialogueText("scenes/HospitalScene.js", "t_4e318cef134c9b7e5815"),()=>this.closeDialogue()]
+    this.showDialogue("Oh. You're that detective. Fine, you can stay. "+'Touch nothing. Especially the patients.',[
+      ['Any advice?',()=>this.showAdvice()],
+      ["I'll stay out of your way.",()=>this.closeDialogue()]
     ]);
   }
   showAdvice(){
-    if(!canEnterHospital()){this.talk();return;}
-    this.showDialogue(__dialogueText("scenes/HospitalScene.js", "t_68b129c1a4eed3db8cea")+__dialogueText("scenes/HospitalScene.js", "t_d10249d5e821e4f43084"),[
-      [__dialogueText("scenes/HospitalScene.js", "t_240f1c9f302be82fb90a"),()=>this.talk()],
-      [__dialogueText("scenes/HospitalScene.js", "t_4e318cef134c9b7e5815"),()=>this.closeDialogue()]
+    if(this.disposed||this.navigating)return;
+    if(!canEnterHospital()){this.talk(true);return;}
+    playMenuActionAudio(this);
+    this.showDialogue('Yes. Stop calling every bruise a clue. '+'And wash your hands.',[
+      ['Something else.',()=>this.talk(true)],
+      ["I'll stay out of your way.",()=>this.closeDialogue()]
     ]);
   }
   closeDialogue(){
+    if(this.disposed||this.navigating)return;
     if(!canEnterHospital()){void this.leave();return;}
+    const wasOpen=this.dialogueOpen;
     this.dialogue?.close(false);this.dialogueOpen=false;this.refreshHotspot();
+    if(wasOpen)playMenuActionAudio(this);
   }
   onEscape(event){
     if(event?.repeat||this.disposed||this.navigating)return;
     event?.preventDefault();void this.leave();
   }
-  async leave(){
+  async leave(userAction=true){
     if(this.disposed||this.navigating)return false;
     this.navigating=true;this.refreshHotspot();
+    if(userAction)playMenuActionAudio(this);
     const token=this.token;
     try{
       const result=await this.goto('HomeCityScene',{entryPoint:'hospital',fromScene:KEY,gameState});
@@ -144,7 +154,7 @@ export class HospitalScene extends BaseScene{
   }
   showNavigationError(){
     this.navigating=false;
-    this.showDialogue(__dialogueText("scenes/HospitalScene.js", "t_842cf46b73dce3f1f443"),[[__dialogueText("scenes/HospitalScene.js", "t_a0c2cc1374d949943e01"),()=>void this.leave()]]);
+    this.showDialogue('The town could not be opened. Please try again.',[['Try again.',()=>void this.leave()]]);
   }
   disposeHospital(){
     if(this.disposed)return;

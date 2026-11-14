@@ -1,10 +1,15 @@
-import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { requestAutosave, saveGameState, flushAutosave } from '../gameStatePersistence.js';
 import { applyGridExclusions, getCaseKey } from './applyGridExclusions.js';
 import { RULED_OUT_EVERYONE_REASON } from './gridConstants.js';
 import { formatCellValue } from './gridHelpers.js';
 import { advanceCrimeTutorial } from '../tutorials/CrimeCityTutorial.js';
-
+import { playPuzzleSfx } from '../scenes/archive/PuzzleSfx.js';
+import { playDocumentSfx } from '../scenes/archive/DocumentSfx.js';
+function playGridAction(scene,name){
+  if(!scene.gridStarted||scene.gridLeaving||scene.modalOpen)return;
+  try{if(name==='paper')playPuzzleSfx(scene,'paper',0.25);else playDocumentSfx(scene,'click',0.15);}
+  catch(error){console.debug('[SuspectGridScene] Action audio unavailable:',error);}
+}
 export const GridLogicMixin = {
   getPlacedClueIds() { return new Set(Object.values(this.placedCluesByCell)); },
   getUnplacedClues() { const placed = this.getPlacedClueIds(); return this.clueCards.filter(clue => !placed.has(clue.id)); },
@@ -16,29 +21,34 @@ export const GridLogicMixin = {
   },
   setFeedback(message) { this.feedbackMessage = message || ''; this.feedbackText?.setText(this.feedbackMessage); },
   selectClue(clueId) {
+    const before=this.selectedClueId;
     this.selectedClueId = this.selectedClueId === clueId ? null : clueId;
-    this.setFeedback(this.selectedClueId ? __dialogueText("suspectsBoard/GridLogic.mixin.js", "t_7ef159f58cbf5ae3b054") : ''); this.refreshAll();
+    this.setFeedback(this.selectedClueId ? 'Now click the glowing cell in the grid.' : ''); this.refreshAll();
+    if(this.selectedClueId!==before)playGridAction(this,'click');
   },
   onCellClick(target, placedClue) {
     if (placedClue && !this.selectedClueId) { this.removePlacedClue(target, placedClue); return; }
     this.placeSelectedClue(target);
   },
   removePlacedClue(target, clue) {
-    delete this.placedCluesByCell[this.getCellKey(target)]; this.saveGridProgress();
-    this.setFeedback(`${clue.label}${__dialogueText("suspectsBoard/GridLogic.mixin.js", "t_e883dc0c124ecc44d9f3")}`); this.refreshAll();
+    const key=this.getCellKey(target),changed=Object.prototype.hasOwnProperty.call(this.placedCluesByCell,key);
+    delete this.placedCluesByCell[key]; this.saveGridProgress();
+    this.setFeedback(`${clue.label} taken back from the grid.`); this.refreshAll();
+    if(changed)playGridAction(this,'paper');
   },
   placeSelectedClue(target) {
     const clue = this.clueCards.find(item => item.id === this.selectedClueId);
-    if (!clue) { this.setFeedback(__dialogueText("suspectsBoard/GridLogic.mixin.js", "t_926799f0f634d72f08c1")); return; }
-    if (!this.isTargetForClue(clue, target)) { this.setFeedback(__dialogueText("suspectsBoard/GridLogic.mixin.js", "t_b4779080efd5d07bd7a2")); return; }
+    if (!clue) { this.setFeedback('Choose a clue card first.'); return; }
+    if (!this.isTargetForClue(clue, target)) { this.setFeedback('That clue does not belong in this cell.'); return; }
     const key = this.getCellKey(target);
-    if (this.placedCluesByCell[key]) { this.setFeedback(__dialogueText("suspectsBoard/GridLogic.mixin.js", "t_1268013213e0749fb537")); return; }
+    if (this.placedCluesByCell[key]) { this.setFeedback('This cell already has a clue. Click it to take it back.'); return; }
     this.placedCluesByCell[key] = clue.id; this.selectedClueId = null; this.saveGridProgress();
-    this.setFeedback(`${clue.label}${__dialogueText("suspectsBoard/GridLogic.mixin.js", "t_45822f54a0d0e030f756")}${formatCellValue(clue.value)}${__dialogueText("suspectsBoard/GridLogic.mixin.js", "t_1d09c4f33391fa4eba81")}`); this.refreshAll();
+    this.setFeedback(`${clue.label}: ${formatCellValue(clue.value)} added to the grid.`); this.refreshAll();
+    playGridAction(this,'paper');
   },
   toggleSuspectMark(suspectId) {
     this.markedUnlikelyBySuspectId[suspectId] = !this.markedUnlikelyBySuspectId[suspectId];
-    this.saveGridProgress(); this.refreshAll();
+    this.saveGridProgress(); this.refreshAll();playGridAction(this,'click');
   },
   saveGridProgress() {
     const forensics = this.labManager.ensureCaseForensics(); forensics.suspectGrid ??= {};
@@ -60,9 +70,9 @@ export const GridLogicMixin = {
     const remaining = this.getGridRemainingSuspects();
     if (!remaining.length) {
       this.showConfirmModal({
-        title: __dialogueText("suspectsBoard/GridLogic.mixin.js", "t_f91261fca31563851921"),
-        message: __dialogueText("suspectsBoard/GridLogic.mixin.js", "t_a8cda391d19344841dc4"),
-        yesLabel: __dialogueText("suspectsBoard/GridLogic.mixin.js", "t_c4063ca8c142ba1daedc"), noLabel: __dialogueText("suspectsBoard/GridLogic.mixin.js", "t_44674bc70455e9bd676e"), onYes: () => this.failCaseRuledOutEveryone()
+        title: 'RULE OUT EVERYONE?',
+        message: 'You marked every single suspect as unlikely. If you confirm, the case is closed and you lose. Are you sure, detective?',
+        yesLabel: 'YES, CLOSE THE CASE', noLabel: 'LET ME RECHECK', onYes: () => this.failCaseRuledOutEveryone()
       }); return;
     }
     if (!this.isGridShortlistSubmitted()) this.commitGrid(remaining);
@@ -73,7 +83,7 @@ export const GridLogicMixin = {
     Object.assign(forensics.suspectGrid, { completed: true, completedAt: Date.now(), ruledOutEveryone: true, alibiCandidateSuspectIds: [] });
     delete forensics.suspectGrid.remainingSuspectIds; delete forensics.suspectGrid.eliminatedSuspectIds;
     Object.assign(this.gameState, { caseFailed: true, caseResolved: false, isGameActive: false, gameOverReason: RULED_OUT_EVERYONE_REASON });
-    saveGameState(); this.goto('GameOverScene', { title: __dialogueText("suspectsBoard/GridLogic.mixin.js", "t_3f04ff73607035edc1b8"), message: RULED_OUT_EVERYONE_REASON });
+    saveGameState(); this.goto('GameOverScene', { title: 'THE CASE WENT COLD', message: RULED_OUT_EVERYONE_REASON });
   },
   commitGrid(remainingSuspects) {
     this.saveGridProgress();
@@ -87,14 +97,14 @@ export const GridLogicMixin = {
     const caseKey = getCaseKey(this.gameState, this.cityId);
     this.gameState.alibiInvestigation = { cityId: this.cityId, caseKey, suspectIds: remainingSuspects.map(suspect => suspect.id), unlocked: true };
     // Leave the HQ tutorial on suspect_grid until the player clicks Return.
-    saveGameState(); this.setFeedback(`${remainingSuspects.length}${__dialogueText("suspectsBoard/GridLogic.mixin.js", "t_0545f3b240f4f6c416f9")}`);
+    saveGameState(); this.setFeedback(`${remainingSuspects.length} suspects sent. Click CRIME CITY to return.`);
   },
   async closeScene({ skipCommit = false } = {}) {
     if (this.gridLeaving || this.modalOpen) return;
     const remaining = this.getGridRemainingSuspects(), tutorial = this.gameState.onboarding?.crimeCity;
     const guided = tutorial && !tutorial.completed && tutorial.step === 'suspect_grid';
     if (!skipCommit && remaining.length === 2 && !this.isGridShortlistSubmitted()) {
-      if (guided) { this.syncReturnHighlight?.(); this.setFeedback(__dialogueText("suspectsBoard/GridLogic.mixin.js", "t_c32f0cb05a3b89cf187c")); return; }
+      if (guided) { this.syncReturnHighlight?.(); this.setFeedback('Click SEND TO ALIBIS first. Then return to Crime City.'); return; }
       this.commitGrid(remaining);
     }
     const submitted = this.isGridShortlistSubmitted();
@@ -113,7 +123,7 @@ export const GridLogicMixin = {
       if (this._cleanupDone) return;
       if (snapshot && this.gameState.onboarding) this.gameState.onboarding.crimeCity = snapshot;
       this.gridLeaving = false; requestAutosave(); this.startCrimeTutorial?.(); this.syncReturnHighlight?.();
-      this.setFeedback(__dialogueText("suspectsBoard/GridLogic.mixin.js", "t_a5d459c5fc757ceac3bb"));
+      this.setFeedback('Could not return to Crime City. Please try again.');
       console.error('[SuspectGridScene] Return failed:', error);
     }
   }

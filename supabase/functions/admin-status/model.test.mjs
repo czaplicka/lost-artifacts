@@ -1,0 +1,21 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {validateAction,readGithub,reportEnvelope,httpIssue} from './model.mjs';
+import {MODULES} from './registry.mjs';
+const sha='a'.repeat(40);
+const response=(status,data)=>({status,ok:status>=200&&status<300,json:async()=>data});
+function mock({repoStatus=200,branch='main',admin=true,functions=true}={}){const calls=[];const request=async(url,options)=>{calls.push({url,options});if(url.endsWith('lost-artifacts'))return response(repoStatus,{default_branch:branch});if(url.includes('/git/ref/'))return response(200,{object:{sha}});if(url.includes('/contents/admin?'))return response(admin?200:404,admin?MODULES.map(m=>({name:m.id,type:'dir'})):{});if(url.includes('/contents/supabase/functions?'))return response(functions?200:404,functions?[...new Set(MODULES.map(m=>m.fn))].map(name=>({name,type:'dir'})):{});throw Error('Unexpected path');};return{request,calls};}
+test('only access/report accepted',()=>{assert.equal(validateAction({action:'access'}),'access');assert.equal(validateAction({action:'report'}),'report');});
+for(const action of ['publish','preview','saveDraft','delete','catalog'])test('reject write/unsupported action '+action,()=>assert.throws(()=>validateAction({action})));
+test('reject extra request destinations',()=>assert.throws(()=>validateAction({action:'report',url:'https://example.com'})));
+test('reject invalid bodies',()=>{for(const x of [null,[],{},'access',1])assert.throws(()=>validateAction(x));});
+test('missing token performs no requests',async()=>{let count=0;const r=await readGithub({token:'',request:()=>{count++;}});assert.equal(r.configured,false);assert.equal(count,0);});
+test('GET only; fixed repository; head pinned',async()=>{const m=mock();const r=await readGithub({token:'secret-fixture',request:m.request});assert.equal(r.state,'ok');assert.equal(r.head,sha);assert.equal(m.calls.length,4);assert.ok(m.calls.every(c=>c.options.method==='GET'));assert.ok(m.calls.every(c=>c.url.startsWith('https://api.github.com/repos/czaplicka/lost-artifacts')));assert.ok(m.calls.filter(c=>c.url.includes('/contents/')).every(c=>c.url.endsWith('?ref='+sha)));assert.equal(r.modules.length,MODULES.length);});
+test('custom branch honored',async()=>{const m=mock();const r=await readGithub({token:'x',branch:'feature/test',request:m.request});assert.equal(r.branch,'feature/test');assert.ok(m.calls.some(c=>c.url.endsWith('/git/ref/heads/feature/test')));});
+test('unsafe branch refused',async()=>{const m=mock();const r=await readGithub({token:'x',branch:'../secret',request:m.request});assert.equal(r.state,'error');assert.equal(m.calls.length,1);});
+test('missing directories distinct from missing deployment',async()=>{const m=mock({admin:false,functions:false});const r=await readGithub({token:'x',request:m.request});assert.equal(r.state,'ok');assert.ok(r.modules.every(m=>m.adminDirectory===false&&m.functionDirectory===false));});
+test('repository 403 classified',async()=>{const m=mock({repoStatus:403});const r=await readGithub({token:'x',request:m.request});assert.equal(r.state,'error');assert.match(r.detail,/403/);assert.deepEqual(r.modules,[]);});
+test('token never appears in response',async()=>{const m=mock();const r=await readGithub({token:'private-secret-token',request:m.request});assert.ok(!JSON.stringify(r).includes('private-secret-token'));});
+test('network exception not reflected to client',async()=>{const r=await readGithub({token:'x',request:async()=>{throw Error('private-secret-token');}});assert.equal(r.state,'unknown');assert.ok(!JSON.stringify(r).includes('private-secret-token'));});
+test('404 and rate limits distinguished',()=>{assert.match(httpIssue(404).detail,/404/);assert.equal(httpIssue(429).state,'warning');});
+test('envelope read-only and dated',()=>{const r=reportEnvelope({state:'ok'},'https://example.test');assert.equal(r.readOnly,true);assert.equal(r.allowedOrigin,'https://example.test');assert.ok(Number.isFinite(Date.parse(r.checkedAt)));});

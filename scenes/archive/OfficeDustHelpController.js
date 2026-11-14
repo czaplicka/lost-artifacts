@@ -29,7 +29,13 @@ export class OfficeDustHelpController extends ForensicHelpController {
     label=label.replace(__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_887ded7583c53dfaf1b8"),__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_ab54be8f55c14bfdd304")).replace(__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_e59dd6a4c606d360d6a5"),__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_a224ade223493a9c49f7"));
     if(label.startsWith(__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_d1cbbf44341666456748")))label+=__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_9c7fd168c10f116a0ba2");
     if(label.startsWith(__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_ab54be8f55c14bfdd304")))label+=__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_314538d65759cb745d17");
-    return super.makeButton(x,y,label,callback,parent,enabled);
+    return super.makeButton(x,y,label,()=>{
+      if(this.scene.closing||this.scene._cleanupDone||!this.scene.sys.isActive())return;
+      const before=this.modal;
+      const result=callback();
+      if(!this.destroyed&&(!this.modal||this.modal===before))playOfficeDustAudio(this.scene,'click');
+      return result;
+    },parent,enabled);
   }
   handleResize(){if(this.modal&&!this.busy)this.close();}
   destroy(){if(this.destroyed)return;this.scene.scale.off('resize',this.handleResize,this);super.destroy();}

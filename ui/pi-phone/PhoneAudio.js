@@ -49,6 +49,7 @@ export const PhoneAudio = {
     try {
       audioManager.init(this.scene);
       const sound = audioManager.playSfx(resolveKey(key), {
+        gain: clamp01(volume),
         volume: audioManager.getSfxVolume() * clamp01(volume)
       });
       if (sound) {
@@ -66,6 +67,7 @@ export const PhoneAudio = {
     try {
       audioManager.init(this.scene);
       const sound = audioManager.playLoopSfx(resolved, {
+        gain: clamp01(volume),
         volume: audioManager.getSfxVolume() * clamp01(volume)
       });
       if (sound) { this.loops.add(resolved); return true; }
@@ -82,6 +84,7 @@ export const PhoneAudio = {
   },
   sfxClick() { this.playOnce(SFX.click, 0.5); },
   tone(frequency, duration = 0.12, volume = 0.025) {
+    if (this.destroyed || !this.isOpen) return;
     const manager = this.scene?.sound, context = manager?.context;
     const hz = Number(frequency), seconds = Number(duration);
     if (!context || !Number.isFinite(hz) || hz <= 0 || !Number.isFinite(seconds) || seconds <= 0 ||

@@ -1,120 +1,126 @@
-import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { APPEARANCE_OPTIONS, renderAvatarPreview } from '../ui/characterCreation/AppearanceControls.js';
 import { createRandomIdentity } from '../ui/characterCreation/CharacterCreationData.js';
 import { saveGameState } from '../gameStatePersistence.js';
+import { loadJson } from '../config/loadJson.js';
 import { getPersonnelVenue, getPersonnelCollections } from './PersonnelCollections.js';
+import { PersonnelHelpController } from './PersonnelHelpController.js';
 
+export const PERSONNEL_TEXT = await loadJson('../assets/data/personnelWitnesses.json', import.meta.url);
+const VERSION=4;
 const pick=a=>a[Math.floor(Math.random()*a.length)];
-const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const normalize=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
-const occupationOf=s=>s.publicProfile?.occupation||s.occupation||'';
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const nameOf=s=>s.publicProfile?.displayName||s.name||'';
-function shuffle(items) {
+const jobOf=s=>s.publicProfile?.occupation||s.occupation||'';
+const norm=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+const format=(text,values)=>text.replace(/\{(\w+)\}/g,(all,key)=>values[key]??all);
+export function shuffle(items){
   const a=[...items];
   for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
   return a;
 }
-function clock(minutes) {
-  const h=Math.floor(minutes/60)%24,m=minutes%60;
-  return `${h%12||12}${m?':'+String(m).padStart(2,'0'):''} ${h<12?__dialogueText("suspects/PersonnelRoster.js", "t_7b455f2dd791ffcc1278"):__dialogueText("suspects/PersonnelRoster.js", "t_36e11c186286bdb79b77")}`;
+function clock(n){const h=Math.floor(n/60)%24,m=n%60;return `${h%12||12}:${String(m).padStart(2,'0')} ${h<12?'a.m.':'p.m.'}`;}
+function floorLabel(n){return n===0?PERSONNEL_TEXT.ui.ground:format(PERSONNEL_TEXT.ui.floor,{floor:n});}
+export function occupationMatches(c,job){return c.match.test(job)||c.roles.some(role=>norm(role)===norm(job));}
+function collections(mission){
+  return [...getPersonnelCollections(mission),{id:'management',match:/director|head of|department head|operations manager|senior manager/i,
+    roles:['Director','Deputy director','Head of operations','Head of visitor services']}];
 }
-export function occupationMatches(collection,occupation) {
-  return collection.match.test(occupation)||collection.roles.some(role=>normalize(role)===normalize(occupation));
-}
-function appearanceFor(person,used) {
-  const entry=person.restrictedProfile?.forensicAttributes?.hair_color;
-  const raw=String(entry?.value??entry??'').toLowerCase().trim();
-  const hair=({blond:'blonde',gray:'grey',white:'grey',ginger:'red',auburn:'red'})[raw]||raw;
-  if(hair&&!APPEARANCE_OPTIONS.hairColor.options.some(x=>x.id===hair))throw new Error(`Unsupported forensic hair colour: ${raw}`);
-  for(let attempt=0;attempt<10000;attempt++){
-    const value=createRandomIdentity().appearance;
-    if(hair)value.hairColor=hair;
-    if(raw==='white')value.hairHex='#e8e4dc';
-    if(raw==='auburn')value.hairHex='#793a25';
-    value.hairStyle=pick(['neat','messy','bob','long','curly','braids','pixie']);
-    const key=JSON.stringify(value);
-    if(!used.has(key)){used.add(key);return value;}
-  }
-  throw new Error('Could not generate distinct personnel portraits.');
-}
-function chooseCollections(mission,suspects) {
-  const available=shuffle(getPersonnelCollections(mission).filter(c=>!suspects.some(s=>occupationMatches(c,occupationOf(s)))));
-  // Search rather than relying on a greedy ordering of overlapping departments.
-  function search(start,selected){
-    if(selected.length===6)return selected;
-    if(available.length-start<6-selected.length)return null;
+function chooseJobs(mission,suspects,count){
+  const available=shuffle(collections(mission).filter(c=>PERSONNEL_TEXT.jobs[c.id]&&!suspects.some(s=>occupationMatches(c,jobOf(s)))));
+  function search(start,chosen){
+    if(chosen.length===count)return chosen;
     for(let i=start;i<available.length;i++){
       const c=available[i];
-      const conflict=selected.some(other=>c.roles.some(role=>occupationMatches(other,role))||other.roles.some(role=>occupationMatches(c,role)));
-      if(!conflict){const result=search(i+1,[...selected,c]);if(result)return result;}
+      if(chosen.some(other=>c.roles.some(r=>occupationMatches(other,r))||other.roles.some(r=>occupationMatches(c,r))))continue;
+      const result=search(i+1,[...chosen,c]);if(result)return result;
     }
     return null;
   }
   const result=search(0,[]);
-  if(!result)throw new Error('This venue needs more compatible staff collections for the current suspect occupations. No unrelated jobs were substituted.');
+  if(!result)throw new Error('Not enough compatible venue staff groups for this case.');
   return result;
 }
-export function buildPersonnelRoster(state,suspects) {
-  if(suspects.length!==10||new Set(suspects.map(s=>s.id)).size!==10)throw new Error('Personnel roster requires ten distinct canonical suspects.');
-  if(suspects.some(s=>!nameOf(s)||!occupationOf(s)))throw new Error('Every canonical suspect needs a name and an occupation.');
-  const venue=getPersonnelVenue(state.currentMission);
-  const window=state.caseData?.crimeWindow;
-  if(!Number.isInteger(window?.startMinute)||!Number.isInteger(window?.endMinute)||window.endMinute<=window.startMinute)throw new Error('Personnel roster requires a valid crime time window.');
-  const usedLooks=new Set(),usedNames=new Set(suspects.map(s=>normalize(nameOf(s)))),usedIds=new Set(suspects.map(s=>s.id));
-  const people=suspects.map(s=>({id:s.id,name:nameOf(s),occupation:occupationOf(s),appearance:appearanceFor(s,usedLooks)}));
-  const selected=chooseCollections(state.currentMission,suspects),sizes=shuffle([8,7,7,6,6,6]),statements=[];
-  const caseKey=String(state.currentCaseId||state.currentMission.id||state.currentMission.scene);
-  let serial=0;
-  for(let index=0;index<selected.length;index++){
-    const c=selected[index],roles=shuffle(c.roles),ids=[];
-    for(let n=0;n<sizes[index];n++){
-      const occupation=roles[n%roles.length];
-      let identity,attempt=0;
-      do{identity=createRandomIdentity();if(++attempt>10000)throw new Error('Could not generate unique personnel names.');}while(usedNames.has(normalize(identity.name)));
-      usedNames.add(normalize(identity.name));
-      let id;
-      do{id=`personnel:${caseKey}:${++serial}`;}while(usedIds.has(id));
-      usedIds.add(id);
-      people.push({id,name:identity.name,occupation,appearance:appearanceFor({},usedLooks)});
-      ids.push(id);
-    }
-    const situation=c.situation.replaceAll('{from}',clock(window.startMinute-60)).replaceAll('{to}',clock(window.endMinute+60));
-    statements.push({id:`statement:${c.id}`,speaker:createRandomIdentity().name,speakerRole:c.witness,
-      text:`${pick([__dialogueText("suspects/PersonnelRoster.js", "t_3259cd7c1fbf2dc3ded8"),__dialogueText("suspects/PersonnelRoster.js", "t_964b460c427971129122"),__dialogueText("suspects/PersonnelRoster.js", "t_e1e0f9ec60f0dd154242")])}${__dialogueText("suspects/PersonnelRoster.js", "t_36a9e7f1c95b82ffb997")}${c.clue}${__dialogueText("suspects/PersonnelRoster.js", "t_23eeade931d8902dde57")}${situation}${__dialogueText("suspects/PersonnelRoster.js", "t_36a9e7f1c95b82ffb997")}${c.joke}${__dialogueText("suspects/PersonnelRoster.js", "t_6435bdb71889415758f4")}`,
-      corroboration:__dialogueText("suspects/PersonnelRoster.js", "t_db537205afc126376015"),
-      clearedIds:ids,collectionId:c.id});
+function looksFor(source,primary,active,used){
+  const entry=source.restrictedProfile?.forensicAttributes?.hair_color;
+  const raw=String(entry?.value??entry??'').toLowerCase();
+  const hair=({blond:'blonde',gray:'grey',white:'grey',auburn:'red',ginger:'red'})[raw]||raw;
+  if(hair&&!APPEARANCE_OPTIONS.hairColor.options.some(o=>o.id===hair))throw new Error(`Unsupported hair colour: ${raw}`);
+  for(let n=0;n<10000;n++){
+    const a=createRandomIdentity().appearance;
+    if(hair)a.hairColor=hair;
+    if(raw==='white')a.hairHex='#e8e4dc';
+    if(raw==='auburn')a.hairHex='#793a25';
+    a.hairStyle=pick(['neat','messy','bob','long','curly','pixie']);
+    if(active.includes('glasses'))a.accessory=primary==='glasses'?'glasses':pick(['none','scarf','notebook','studs','hoops','earring']);
+    if(active.includes('tattoo'))a.tattoos=primary==='tattoo'?pick(['dragon','skull','rose']):'none';
+    const key=JSON.stringify(a);if(!used.has(key)){used.add(key);return a;}
   }
-  for(const s of statements){
-    const c=selected.find(c=>c.id===s.collectionId),inferred=people.filter(p=>occupationMatches(c,p.occupation)).map(p=>p.id);
-    if(inferred.length!==s.clearedIds.length||inferred.some(id=>!s.clearedIds.includes(id)))throw new Error('An occupation clue has ambiguous membership.');
-  }
-  if(people.length!==50||new Set(statements.flatMap(s=>s.clearedIds)).size!==40)throw new Error('Invalid personnel collection plan.');
-  return {version:3,venueScene:venue.scene,venueType:venue.type,location:venue.location,people:shuffle(people),statements:shuffle(statements),targetIds:suspects.map(s=>s.id),excludedIds:[],completed:false,gridReviewed:false,correctionNoticeShown:false,selectedStatement:0};
+  throw new Error('Could not generate unique portraits.');
 }
-export function ensurePersonnelRoster(state,suspects) {
-  const index=state.currentMission?.caseIndex??state.currentCaseIndex??state.caseIndex;
+function makeName(used){
+  for(let n=0;n<10000;n++){
+    const name=createRandomIdentity().name,key=norm(name);
+    if(!used.has(key)){used.add(key);return name;}
+  }
+  throw new Error('Could not generate unique personnel names.');
+}
+export function buildPersonnelRoster(state,suspects){
+  if(suspects.length!==10||new Set(suspects.map(s=>s.id)).size!==10)throw new Error('Expected ten distinct canonical suspects.');
+  if(suspects.some(s=>!nameOf(s)||!jobOf(s)))throw new Error('A suspect is missing a name or occupation.');
+  const mission=state.currentMission,venue=getPersonnelVenue(mission),window=state.caseData?.crimeWindow;
+  if(!Number.isInteger(window?.startMinute)||!Number.isInteger(window?.endMinute)||window.endMinute<=window.startMinute)throw new Error('Missing crime time window.');
+  const floors=mission.personnelFloors??[0,1,2];
+  if(!Array.isArray(floors)||floors.length<2||floors.some(f=>!Number.isInteger(f)||f<0)||new Set(floors).size!==floors.length)throw new Error('personnelFloors must contain at least two distinct non-negative integers.');
+  const active=shuffle(['floor','glasses','tattoo']).slice(0,2);
+  const blocked=pick(floors),safeFloors=floors.filter(f=>f!==blocked);
+  const jobs=chooseJobs(mission,suspects,4);
+  const allCollections=collections(mission);
+  const neutralJobs=[...new Set(allCollections.flatMap(c=>c.roles))].filter(job=>!jobs.some(c=>occupationMatches(c,job)));
+  if(!neutralJobs.length)throw new Error('No neutral venue occupations remain.');
+  const usedLooks=new Set(),usedNames=new Set(suspects.map(s=>norm(nameOf(s)))),usedIds=new Set(suspects.map(s=>s.id));
+  const floorFor=primary=>active.includes('floor')?(primary==='floor'?blocked:pick(safeFloors)):pick(floors);
+  const people=suspects.map(s=>({id:s.id,name:nameOf(s),occupation:jobOf(s),floor:floorFor(null),appearance:looksFor(s,null,active,usedLooks)}));
+  const plans=shuffle([...active.map(kind=>({kind})),...jobs.map(collection=>({kind:'job',collection}))]);
+  const sizes=shuffle([8,7,7,6,6,6]);
+  const runId=globalThis.crypto?.randomUUID?.()||`${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  let serial=0;
+  for(let i=0;i<plans.length;i++){
+    const plan=plans[i];
+    for(let n=0;n<sizes[i];n++){
+      let id;do{id=`personnel:${runId}:${++serial}`;}while(usedIds.has(id));usedIds.add(id);
+      people.push({id,name:makeName(usedNames),occupation:plan.kind==='job'?pick(plan.collection.roles):pick(neutralJobs),floor:floorFor(plan.kind),appearance:looksFor({},plan.kind,active,usedLooks)});
+    }
+  }
+  const matches=(plan,p)=>plan.kind==='floor'?p.floor===blocked:plan.kind==='glasses'?p.appearance.accessory==='glasses':plan.kind==='tattoo'?p.appearance.tattoos!=='none':occupationMatches(plan.collection,p.occupation);
+  const values={from:clock(window.startMinute-60),to:clock(window.endMinute+60),floor:floorLabel(blocked)};
+  const statements=plans.map((plan,i)=>{
+    const data=plan.kind==='job'?PERSONNEL_TEXT.jobs[plan.collection.id]:PERSONNEL_TEXT[plan.kind];
+    const clearedIds=people.filter(p=>matches(plan,p)).map(p=>p.id);
+    if(clearedIds.length<4||clearedIds.length>8||suspects.some(s=>clearedIds.includes(s.id)))throw new Error('A clue contradicts the canonical shortlist.');
+    return {id:`${plan.kind}:${plan.collection?.id||i}`,kind:plan.kind,collectionId:plan.collection?.id||null,
+      speaker:makeName(usedNames),speakerRole:data.speaker,speakerAppearance:looksFor({},null,[],usedLooks),
+      text:format(data.text,values),corroboration:format(data.note,values),hint:format(data.hint,values),clearedIds};
+  });
+  const cleared=new Set(statements.flatMap(s=>s.clearedIds));
+  if(people.length!==50||cleared.size!==40||people.filter(p=>!cleared.has(p.id)).some(p=>!suspects.some(s=>s.id===p.id)))throw new Error('Invalid personnel solution.');
+  return {version:VERSION,runId,caseId:state.currentCaseId??null,venueScene:venue.scene,location:venue.location,
+    people:shuffle(people),statements,targetIds:suspects.map(s=>s.id),excludedIds:[],selectedStatement:0,completed:false,gridReviewed:false,correctionNoticeShown:false};
+}
+export function ensurePersonnelRoster(state,suspects){
+  const mission=state.currentMission,index=mission?.caseIndex??state.currentCaseIndex??state.caseIndex;
   if(!Number.isInteger(index))throw new Error('Missing campaign case index.');
   if(index<1)return null;
-  const mission=state.currentMission;
-  if(!mission)throw new Error('Missing active mission.');
   let roster=mission.personnelRoster;
-  if(!roster||(roster.version!==3&&!roster.completed)){
-    const upgraded=Boolean(roster);
-    roster=buildPersonnelRoster(state,suspects);
-    if(upgraded)roster.updatedFromPreviousVersion=true;
-    mission.personnelRoster=roster;
+  if(!roster||(roster.version!==VERSION&&!roster.completed)){
+    const updated=Boolean(roster);roster=buildPersonnelRoster(state,suspects);roster.updatedFromPreviousVersion=updated;mission.personnelRoster=roster;
   }
   const expected=new Set(suspects.map(s=>s.id));
-  if(!Array.isArray(roster.targetIds)||roster.targetIds.length!==expected.size||new Set(roster.targetIds).size!==expected.size||roster.targetIds.some(id=>!expected.has(id)))throw new Error('Saved personnel roster does not match this case.');
-  if(roster.version===3&&roster.venueScene!==String(mission.scene).trim().toLowerCase())throw new Error('Saved personnel roster belongs to a different crime scene.');
-  for(const suspect of suspects){
-    const person=roster.people.find(p=>p.id===suspect.id);
-    if(!person)throw new Error('Missing canonical suspect in personnel roster.');
-    suspect.appearance={...person.appearance};
-  }
+  if(!Array.isArray(roster.targetIds)||roster.targetIds.length!==expected.size||new Set(roster.targetIds).size!==expected.size||roster.targetIds.some(id=>!expected.has(id)))throw new Error('Personnel roster belongs to another case.');
+  if(roster.version===VERSION&&roster.venueScene!==mission.scene)throw new Error('Personnel roster belongs to another venue.');
+  for(const suspect of suspects){const p=roster.people.find(p=>p.id===suspect.id);if(!p)throw new Error('Missing canonical suspect.');suspect.appearance={...p.appearance};}
   saveGameState();return roster;
 }
-export function submitPersonnelShortlist(roster) {
+export function submitPersonnelShortlist(roster){
   if(roster.completed)return false;
   const excluded=new Set(roster.excludedIds||[]);
   roster.submittedIds=roster.people.filter(p=>!excluded.has(p.id)).map(p=>p.id);
@@ -122,8 +128,34 @@ export function submitPersonnelShortlist(roster) {
   delete roster.correctedIds;delete roster.gridReviewedAt;
   return true;
 }
+const PATHS={
+  shield:'M12 2 3 6v6c0 5 9 10 9 10s9-5 9-10V6Z',
+  computer:'M3 3h18v13H3zM8 21h8m-4-5v5',
+  broom:'m15 2-4 10m-5 0h10l4 10H2z',
+  ticket:'M2 5h20v5a2 2 0 0 0 0 4v5H2v-5a2 2 0 0 0 0-4zM15 5v14',
+  book:'M3 3h7l2 2 2-2h7v17h-7l-2 2-2-2H3zM12 5v17',
+  brush:'m10 13 9-11 3 3-11 10M10 14c-5-2-7 2-7 7 5 0 9-2 7-7',
+  briefcase:'M8 7V3h8v4M2 7h20v14H2zM2 12l10 4 10-4',
+  box:'m2 7 10-5 10 5v12l-10 4-10-4zM2 7l10 5 10-5M12 12v11'
+};
+function icon(job){
+  const key=/secur|guard|CCTV/i.test(job)?'shield':/\bIT\b|network|computer|software|database/i.test(job)?'computer':/clean|janitor|housekeep/i.test(job)?'broom':/ticket|admission|cloakroom/i.test(job)?'ticket':/archiv|educat|guide|docent|research/i.test(job)?'book':/conserv|restor|curat|display/i.test(job)?'brush':/pack|cargo|warehouse|freight|stock/i.test(job)?'box':'briefcase';
+  return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${PATHS[key]}"/></svg>`;
+}
+let avatarCss='';
+const avatarStyleParts=new Set();
+function portrait(appearance,name){
+  const wrapper=document.createElement('div');wrapper.innerHTML=renderAvatarPreview({appearance,name});
+  for(const style of wrapper.querySelectorAll('style'))avatarStyleParts.add(style.textContent);
+  avatarCss=[...avatarStyleParts].join('\n');
+  const avatar=wrapper.querySelector('.agency-id-avatar');
+  if(!avatar)throw new Error('Avatar renderer did not return a portrait.');
+  avatar.removeAttribute('data-avatar-preview');avatar.setAttribute('aria-label',name);
+  if(appearance?.hairHex)avatar.style.setProperty('--hair',appearance.hairHex);
+  return avatar.outerHTML;
+}
 function loadStyles(){
-  for(const [id,path] of [['personnel-v2',__dialogueText("suspects/PersonnelRoster.js", "t_f13829eddecedcd941b6")],['personnel-avatars',__dialogueText("suspects/PersonnelRoster.js", "t_d976a2ef02321c60c588")]]){
+  for(const [id,path] of [['personnel-v4','../assets/css/personnel-roster.css'],['personnel-avatars','../assets/css/character-creation.css']]){
     if(document.getElementById(id))continue;
     const link=document.createElement('link');link.id=id;link.rel='stylesheet';link.href=new URL(path,import.meta.url).href;document.head.append(link);
   }
@@ -133,50 +165,59 @@ export class PersonnelRosterView {
     this.scene=scene;this.roster=roster;this.onComplete=onComplete;this.onClose=onClose;
     this.selectedStatement=Math.max(0,Math.min(roster.selectedStatement||0,roster.statements.length-1));
     this.handleClick=this.handleClick.bind(this);this.resize=this.resize.bind(this);loadStyles();
-    this.element=scene.add.dom(0,0).createFromHTML(`${__dialogueText("suspects/PersonnelRoster.js", "t_7f48cd959ba007fbdc08")}${esc(roster.location||'')}${__dialogueText("suspects/PersonnelRoster.js", "t_c35c1e133be5d9db1c99")}`).setOrigin(0,0).setDepth(2000).setScrollFactor(0);
-    this.root=this.element.node.querySelector(__dialogueText("suspects/PersonnelRoster.js", "t_0abdcccbbdd807c54557"));this.root.addEventListener('click',this.handleClick);scene.scale.on('resize',this.resize);this.render();this.resize();
+    const ui=PERSONNEL_TEXT.ui;
+    this.element=scene.add.dom(0,0).createFromHTML(`
+      <section class="personnel-roster" aria-label="${esc(ui.title)}"><style data-avatar-css></style>
+        <header class="personnel-header"><div><h1>${esc(ui.title)}</h1><p>${esc(roster.location)} — ${esc(ui.instruction)}</p></div><button type="button" data-close>${esc(ui.back)}</button></header>
+        <section class="personnel-testimony"><div class="personnel-witness-photo" data-witness-photo></div><div class="personnel-account">
+          <div class="personnel-witness-bar"><button type="button" data-prev aria-label="Previous witness">&#8249;</button><div data-speaker></div><button type="button" data-next aria-label="Next witness">&#8250;</button></div>
+          <blockquote data-statement></blockquote><details><summary>${esc(ui.note)}</summary><p data-corroboration></p></details>
+        </div></section><div class="personnel-grid" data-grid></div>
+        <footer><button type="button" data-hint>${esc(ui.hint)}</button><p data-message role="status" aria-live="polite"></p><button type="button" data-confirm>${esc(ui.submit)}</button></footer>
+      </section>`).setOrigin(0,0).setDepth(2000).setScrollFactor(0);
+    this.root=this.element.node.querySelector('.personnel-roster');
+    this.help=new PersonnelHelpController(scene,this,PERSONNEL_TEXT.help);
+    this.root.addEventListener('click',this.handleClick);scene.scale.on('resize',this.resize);
+    this.help.create();this.render();this.resize();
   }
+  message(text){if(this.root)this.root.querySelector('[data-message]').textContent=text;}
   resize(){
     if(!this.element?.node)return;
-    const {width,height}=this.scene.scale;
-    Object.assign(this.element.node.style,{width:`${width}px`,height:`${height}px`,pointerEvents:'auto'});Object.assign(this.root.style,{width:`${width}px`,height:`${height}px`});
+    const {width,height}=this.scene.scale;Object.assign(this.element.node.style,{width:`${width}px`,height:`${height}px`,pointerEvents:'auto'});Object.assign(this.root.style,{width:`${width}px`,height:`${height}px`});this.help?.resizeModal();
   }
   render(){
-    const excluded=new Set(this.roster.excludedIds||[]);
-    this.root.querySelector('[data-grid]').innerHTML=this.roster.people.map(person=>{
-      const wrapper=document.createElement('div');wrapper.innerHTML=renderAvatarPreview({appearance:person.appearance,name:person.name});
-      const avatar=wrapper.querySelector(__dialogueText("suspects/PersonnelRoster.js", "t_64781541f2719c61a61f"));avatar.removeAttribute('data-avatar-preview');
-      if(person.appearance?.hairHex)avatar.style.setProperty('--hair',person.appearance.hairHex);
-      avatar.setAttribute('aria-label',`${__dialogueText("suspects/PersonnelRoster.js", "t_4ebf2947be9412144d12")}${person.name}`);
-      return `${__dialogueText("suspects/PersonnelRoster.js", "t_145ee8e5bdb8d9c619cb")}${excluded.has(person.id)?__dialogueText("suspects/PersonnelRoster.js", "t_777741c0f535a5e37e71"):''}${__dialogueText("suspects/PersonnelRoster.js", "t_2dcc6dd830e42ff686fe")}${esc(person.id)}${__dialogueText("suspects/PersonnelRoster.js", "t_b3c0b044207f0ecc4137")}${excluded.has(person.id)}${__dialogueText("suspects/PersonnelRoster.js", "t_f50d324d8a3b2119bca7")}${esc(person.name)}${__dialogueText("suspects/PersonnelRoster.js", "t_0a07f659461970d8d8dc")}${esc(person.occupation)}${__dialogueText("suspects/PersonnelRoster.js", "t_e7968067112a6a975bbf")}${avatar.outerHTML}${__dialogueText("suspects/PersonnelRoster.js", "t_74dbe18716cdd018db34")}${esc(person.name)}${__dialogueText("suspects/PersonnelRoster.js", "t_6d65c3cec938f427f5d1")}${esc(person.occupation)}${__dialogueText("suspects/PersonnelRoster.js", "t_fed48d69b2f478abb2f5")}`;
-    }).join('');
-    this.renderStatement();this.updateCount();
-    if(this.roster.updatedFromPreviousVersion)this.root.querySelector('[data-message]').textContent=__dialogueText("suspects/PersonnelRoster.js", "t_070a69b94aa33997a3b2");
+    const excluded=new Set(this.roster.excludedIds||[]),ui=PERSONNEL_TEXT.ui;
+    this.root.querySelector('[data-grid]').innerHTML=this.roster.people.map(p=>`<button type="button" class="personnel-card${excluded.has(p.id)?' is-cleared':''}" data-person="${esc(p.id)}" aria-pressed="${excluded.has(p.id)}">
+      <span class="personnel-photo">${portrait(p.appearance,p.name)}<span class="personnel-stamp" aria-hidden="true">${esc(ui.cleared)}</span></span>
+      <span class="personnel-name">${esc(p.name)}</span><span class="personnel-occupation">${icon(p.occupation)}<span>${esc(p.occupation)}</span></span><span class="personnel-floor">${esc(floorLabel(p.floor))}</span></button>`).join('');
+    this.renderStatement();this.updateCount();if(this.roster.updatedFromPreviousVersion)this.message(ui.updated);
   }
   renderStatement(){
     const s=this.roster.statements[this.selectedStatement];
-    this.root.querySelector('[data-speaker]').innerHTML=`<strong>${esc(s.speaker)}</strong><span>${esc(s.speakerRole||__dialogueText("suspects/PersonnelRoster.js", "t_5464a8914419f3a1a237"))}</span>`;
+    this.root.querySelector('[data-speaker]').innerHTML=`<strong>${esc(s.speaker)}</strong><span>${esc(s.speakerRole)}</span>`;
+    this.root.querySelector('[data-witness-photo]').innerHTML=portrait(s.speakerAppearance,s.speaker);
     this.root.querySelector('[data-statement]').textContent=`“${s.text}”`;
-    this.root.querySelector('[data-corroboration]').textContent=s.corroboration||'';this.root.querySelector('details').open=false;
+    this.root.querySelector('[data-corroboration]').textContent=s.corroboration;this.root.querySelector('details').open=false;
+    this.root.querySelector('[data-avatar-css]').textContent=avatarCss;this.help?.refresh();
   }
   updateCount(){this.root.querySelector('[data-confirm]').disabled=this.roster.completed===true;}
   handleClick(event){
-    const button=event.target?.closest?.('button');if(!button||!this.root?.contains(button))return;
-    if(button.hasAttribute('data-close')){this.onClose?.();return;}
-    if(button.hasAttribute('data-prev')||button.hasAttribute('data-next')){
-      this.selectedStatement=(this.selectedStatement+(button.hasAttribute('data-prev')?-1:1)+this.roster.statements.length)%this.roster.statements.length;
+    const b=event.target?.closest?.('button');if(!b||!this.root?.contains(b)||this.help.modal)return;
+    if(b.hasAttribute('data-close')){this.onClose?.();return;}
+    if(b.hasAttribute('data-hint')){this.help.open(false);return;}
+    if(b.hasAttribute('data-prev')||b.hasAttribute('data-next')){
+      this.selectedStatement=(this.selectedStatement+(b.hasAttribute('data-prev')?-1:1)+this.roster.statements.length)%this.roster.statements.length;
       this.roster.selectedStatement=this.selectedStatement;this.renderStatement();saveGameState();return;
     }
-    if(button.hasAttribute('data-person')){
+    if(b.hasAttribute('data-person')){
       if(this.roster.completed)return;
-      const id=button.dataset.person,ids=new Set(this.roster.excludedIds||[]);
+      const ids=new Set(this.roster.excludedIds||[]),id=b.dataset.person;
       if(ids.has(id))ids.delete(id);else ids.add(id);
-      this.roster.excludedIds=[...ids];button.classList.toggle('is-cleared',ids.has(id));button.setAttribute('aria-pressed',String(ids.has(id)));saveGameState();return;
+      this.roster.excludedIds=[...ids];b.classList.toggle('is-cleared',ids.has(id));b.setAttribute('aria-pressed',String(ids.has(id)));saveGameState();return;
     }
-    if(button.hasAttribute('data-confirm')){
-      if(!submitPersonnelShortlist(this.roster))return;
+    if(b.hasAttribute('data-confirm')&&submitPersonnelShortlist(this.roster)){
       saveGameState();const complete=this.onComplete;this.destroy();complete?.();
     }
   }
-  destroy(){this.scene.scale.off('resize',this.resize);this.root?.removeEventListener('click',this.handleClick);this.element?.destroy();this.element=null;this.root=null;}
+  destroy(){this.help?.destroy();this.scene.scale.off('resize',this.resize);this.root?.removeEventListener('click',this.handleClick);this.element?.destroy();this.element=null;this.root=null;}
 }

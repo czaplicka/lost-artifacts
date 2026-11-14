@@ -1,4 +1,3 @@
-import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { SpyShopScene as OriginalShopScene } from './SpyShopScene.js';
 import { SPY_SHOP_CONFIG } from '../config/spyShopConfig.js';
 import { SpyShopAnimations } from './spy-shop/SpyShopAnimations.js';
@@ -9,7 +8,7 @@ export class SpyShopScene extends OriginalShopScene {
   drawBackground() {
     super.drawBackground();
     this.animatedShopBackground = [...this.children.list].reverse().find(
-      item => item.type === __dialogueText("scenes/SpyShopSceneWithAnimations.js", "t_1aa4cb0bcca76e92e306") && item.texture?.key === SPY_SHOP_CONFIG.backgroundKey
+      item => item.type === 'Image' && item.texture?.key === SPY_SHOP_CONFIG.backgroundKey
     ) ?? null;
   }
 

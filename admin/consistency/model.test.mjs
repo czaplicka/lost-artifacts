@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mergeFindings,summarize,editorHref,EDITORS} from './model.mjs';
+import {EDITORS as SERVER_EDITORS} from '../../supabase/functions/game-audit/registry.mjs';
+const issue={severity:'error',code:'X',file:'assets/data/test.json',pointer:'/a',message:'Missing',editor:'npcs'};
+test('editor registries match',()=>assert.deepEqual(EDITORS,SERVER_EDITORS));
+test('duplicate findings deduplicated across phases',()=>assert.equal(mergeFindings([{phase:'a',issues:[issue]},{phase:'b',issues:[issue]}]).length,1));
+test('partial scan never complete',()=>assert.equal(summarize({expectedPhases:4,phases:[{complete:true,issues:[]}]}).complete,false));
+test('cancelled scan never complete',()=>assert.equal(summarize({cancelled:true,expectedPhases:1,phases:[{complete:true,issues:[]}]}).complete,false));
+test('complete scan may still have errors',()=>{const r=summarize({expectedPhases:1,phases:[{complete:true,issues:[issue]}]});assert.equal(r.complete,true);assert.equal(r.counts.error,1);});
+test('omitted results exposed',()=>assert.equal(summarize({expectedPhases:1,phases:[{complete:false,issues:[],omitted:5}]}).omitted,5));
+test('editor links restricted to known routes',()=>{assert.equal(editorHref('https://evil.test','https://game.test/admin/consistency/app.mjs'),null);assert.equal(editorHref('__proto__','https://game.test/admin/consistency/app.mjs'),null);assert.equal(editorHref('npcs','https://game.test/admin/consistency/app.mjs'),'https://game.test/admin/npcs/');});
