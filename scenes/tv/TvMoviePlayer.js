@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 let movieTextureCounter = 0;
 
 export class TvMoviePlayer {
@@ -97,7 +98,7 @@ export class TvMoviePlayer {
     this.message = scene.add.text(
       0,
       0,
-      "LOADING FEATURE PRESENTATION...",
+      __dialogueText("scenes/tv/TvMoviePlayer.js", "t_48125d5c9120ebc2c3cc"),
       {
         fontFamily: "SpecialElite",
         fontSize: `${Math.max(16, Math.round(width / 36))}px`,
@@ -185,8 +186,8 @@ export class TvMoviePlayer {
 
       this.message
         ?.setText(
-          "THE FILM COULD NOT BE LOADED.\n\n" +
-          "Press NEXT to continue or close the TV."
+          __dialogueText("scenes/tv/TvMoviePlayer.js", "t_973fb3618be33738d8d5") +
+          __dialogueText("scenes/tv/TvMoviePlayer.js", "t_4f1efc6f89cd7890638a")
         )
         .setVisible(true);
     });
@@ -345,8 +346,8 @@ export class TvMoviePlayer {
 
       this.message
         ?.setText(
-          "FEATURE PRESENTATION\n\n" +
-          "Click the TV screen or press ENTER to start."
+          __dialogueText("scenes/tv/TvMoviePlayer.js", "t_5ca310ca566db018e9f3") +
+          __dialogueText("scenes/tv/TvMoviePlayer.js", "t_1726e318e219fc86de0b")
         )
         .setVisible(true);
 
@@ -359,8 +360,8 @@ export class TvMoviePlayer {
 
     this.message
       ?.setText(
-        "THE PROJECTOR HAS FILED A COMPLAINT.\n\n" +
-        "Press NEXT to continue or close the TV."
+        __dialogueText("scenes/tv/TvMoviePlayer.js", "t_2f7a992e116dabd4f219") +
+        __dialogueText("scenes/tv/TvMoviePlayer.js", "t_4f1efc6f89cd7890638a")
       )
       .setVisible(true);
   }

@@ -20,7 +20,7 @@ const text = id => __dialogueText(SOURCE, id);
 const VOLUME_LEVELS = [1, 0.5, 0];
 
 const MOVIE_URL = new URL(
-  "../video/movie1.mp4",
+  __dialogueText("scenes/TvBroadcastScene.js", "t_95f300e5ffc5f8db2c3f"),
   import.meta.url
 ).href;
 
@@ -135,8 +135,8 @@ export class TvBroadcastScene extends BaseScene {
       {
         id: "feature-movie-1",
         type: "movie",
-        title: "Feature Presentation",
-        label: "MOVIE",
+        title: __dialogueText("scenes/TvBroadcastScene.js", "t_9e2d75f650f4aafab40c"),
+        label: __dialogueText("scenes/TvBroadcastScene.js", "t_8c733dc668925ff77581"),
         badge: "FEATURE",
         videoUrl: MOVIE_URL,
         lines: []
@@ -242,12 +242,12 @@ export class TvBroadcastScene extends BaseScene {
 
       case "skip":
         return this.currentSegment?.type === "movie"
-          ? "Skip movie"
+          ? __dialogueText("scenes/TvBroadcastScene.js", "t_75dcb793497f033be67b")
           : text("t_88a76d8c3c671ce5915a");
 
       case "next":
         return this.currentSegment?.type === "movie"
-          ? "End movie"
+          ? __dialogueText("scenes/TvBroadcastScene.js", "t_44755f81bf9fe80a0ff2")
           : text("t_60642d51c6f0682ea60a");
 
       case "pause":

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { ForensicHelpController } from '../scenes/CSI/ForensicHelpController.js';
 import { hintManager } from '../managers/HintManager.js';
 import { getEnergyManager } from '../managers/EnergyManager.js';
@@ -26,7 +27,7 @@ export class PersonnelHelpController extends ForensicHelpController {
   refresh(){
     if(this.destroyed||!this.view.root)return;
     const definition=this.definition(),button=this.view.root.querySelector('[data-hint]');
-    if(button)button.textContent=definition&&this.receipt(definition)?'Review hint':'Hint';
+    if(button)button.textContent=definition&&this.receipt(definition)?__dialogueText("suspects/PersonnelHelpController.js", "t_95df559c0e69831fc001"):__dialogueText("suspects/PersonnelHelpController.js", "t_a7b4cf9f7e429771071e");
   }
   panel(title,body){const modal=super.panel(this.text.title,body);this.resizeModal();return modal;}
   resizeModal(){

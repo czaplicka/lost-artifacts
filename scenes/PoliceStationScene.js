@@ -31,7 +31,7 @@ export class PoliceStationScene extends ExistingPoliceStationScene {
     if(this.disposed||this.navigating||!this.sys.isActive())return;
     audioManager.init(this);
     if(this.stationAmbient?.isPlaying)return;
-    this.stationAmbient=audioManager.playAmbient(AMBIENT_KEY,{volume:audioManager.getSfxVolume()*0.28,loop:true});
+    this.stationAmbient=audioManager.playAmbient(AMBIENT_KEY,{gain:0.28,volume:audioManager.getSfxVolume()*0.28,loop:true});
   }
   stopStationAudio(){
     if(this.stationAmbient)audioManager.releaseSound(this.stationAmbient);

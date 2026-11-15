@@ -56,7 +56,8 @@
       "castle",
       "dockyard",
       "auction_house",
-      "havela"
+      "havela",
+      "tokyo_museum"
     ],
     "trueExplanation": "It proudly boots into a menu that says \"Demo mode\" and nothing else actually works.",
     "heistExplanation": "The thief brought their own gear; not sure yet what they were planning to do with it.",
@@ -348,7 +349,8 @@
     "scene": [
       "louvre",
       "auction_house",
-      "havela"
+      "havela",
+      "tokyo_museum"
     ],
     "trueExplanation": "One shard still has lipstick on it; someone lost a glass, not a masterpiece.",
     "heistExplanation": "The thief prefers clean exits; stepping on glass is loud, messy, and terrible for stealth shoes.",
@@ -397,7 +399,8 @@
       "castle",
       "dockyard",
       "auction_house",
-      "havela"
+      "havela",
+      "tokyo_museum"
     ],
     "trueExplanation": "The \"mysterious code\" is a list: milk, bread, batteries, don't forget cat food.",
     "heistExplanation": "The thief left no dramatic manifesto; they let the grocery list take all the literary credit.",
@@ -491,7 +494,8 @@
     ],
     "scene": [
       "tower",
-      "havela"
+      "havela",
+      "tokyo_museum"
     ],
     "trueExplanation": "The photo looks suspiciously like a stock image of ‘generic security professional’.",
     "heistExplanation": "The thief knew that at 3 a.m. nobody studies faces; they just glance at plastic and sigh.",
@@ -643,7 +647,8 @@
     "scene": [
       "castle",
       "auction_house",
-      "havela"
+      "havela",
+      "tokyo_museum"
     ],
     "trueExplanation": "It ticks loudly enough to annoy an entire quiet reading room.",
     "heistExplanation": "An elegant wristwatch that counted down the seconds to the heist while secretly broadcasting its owner's exact latitude.",
@@ -696,7 +701,8 @@
       "castle",
       "dockyard",
       "auction_house",
-      "havela"
+      "havela",
+      "tokyo_museum"
     ],
     "trueExplanation": "Left by a school kid who ate buttered popcorn right before touching the velvet barrier rope.",
     "heistExplanation": "It looks dramatic and ominous in dusting powder, but in a busy public hall it is just evidence of poor hygiene.",
@@ -748,7 +754,8 @@
     "scene": [
       "dockyard",
       "auction_house",
-      "havela"
+      "havela",
+      "tokyo_museum"
     ],
     "trueExplanation": "Used to secure loose wiring along the dockyard perimeter fence.",
     "heistExplanation": "When time is short and security is closing in, industrial zip ties solve almost every problem badly and fast.",
@@ -853,7 +860,8 @@
     "scene": [
       "dockyard",
       "auction_house",
-      "havela"
+      "havela",
+      "tokyo_museum"
     ],
     "trueExplanation": "Snagged off a worker's bright red high-visibility vest on a rusty nail.",
     "heistExplanation": "Tiny microscopic traces are often the loudest witnesses in an otherwise silent crime scene.",

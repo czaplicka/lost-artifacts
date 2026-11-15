@@ -1,0 +1,13 @@
+<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Biblioteka grafik i dźwięków</title><link rel="stylesheet" href="style.css"></head><body><main>
+<h1>Biblioteka grafik i dźwięków</h1><p>Pliki z repozytorium, klucze manifestów i przypisania. Podgląd pochodzi z wybranej wersji GitHub, nie z cache strony gry.</p>
+<p id="status" role="status">Sprawdzam uprawnienia…</p>
+<section id="workspace" hidden><form id="search"><label>Szukaj klucza, nazwy pliku, ścieżki lub grupy<input id="query" maxlength="200" placeholder="np. archivist, storage, ambient"></label><label>Typ<select id="type"><option value="">Grafiki i dźwięki</option value="image">Grafiki</option><option value="audio">Dźwięki</option></select></label><button type="submit">Szukaj / odśwież</button></form>
+<div class="layout"><section><h2>Katalog</h2><p id="count"></p><div id="rows"></div><div class="actions"><button id="prev">Poprzednie</button><span id="page"></span><button id="next">Następne</button></div></section>
+<section id="detail" hidden><h2 id="title"></h2><label>Plik / wariant<select id="variant"></select></label><pre id="metadata"></pre><div class="actions"><button id="copy">Kopiuj klucz</button><button id="media">Wczytaj podgląd</button></div><div id="media-box"></div>
+<h3>Wszystkie klucze tego samego pliku</h3><ul id="aliases"></ul><h3>Przypisania w manifestach</h3><ul id="assignments"></ul>
+<p class="warning" id="static-warning"></p><div class="actions"><button id="scan">Skanuj użycia w danych i kodzie</button><button id="cancel" hidden>Anuluj skan</button></div><p id="scan-status"></p><div id="uses"></div><details><summary>Pominięte pliki</summary><pre id="skipped"></pre></details>
+<section id="replace"><h3>Wymień grafikę pod tą samą ścieżką</h3><p>Statyczne PNG, JPEG i WebP, do 4 MiB. Wymiary muszą pozostać identyczne. Biblioteka nie zmienia kluczy ani przypisań.</p>
+<p id="replace-note"></p><input id="new-file" type="file" accept="image/png,image/jpeg,image/webp"><div id="new-media"></div><p id="new-info"></p><button id="preview">Sprawdź podmianę i pokaż ostrzeżenia</button>
+</section></section></div>
+<section id="approval" hidden><h2>Potwierdzenie podmiany</h2><pre id="plan"></pre><ul id="warnings"></ul><label class="ack"><input id="ack" type="checkbox">Sprawdziłam podglądy i rozumiem wpływ na wspólne użycia oraz ograniczenia skanu statycznego.</label><button id="publish">Opublikuj grafikę przez nowy commit</button></section>
+</section></main><script type="module" src="library.js"></script></body></html>

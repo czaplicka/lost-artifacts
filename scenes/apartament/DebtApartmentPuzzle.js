@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { EventBus } from '../../EventBus.js';
 
 const SAVE_KEY = 'debtCabinetPuzzleV1';
@@ -231,8 +232,8 @@ export class DebtApartmentPuzzle {
     this.text(
       0, -315,
       this.view === 'tools'
-        ? 'KITCHEN DRAWER'
-        : 'OUTSTANDING BALANCE',
+        ? __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_26002f58c33b35996b25")
+        : __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_e99d70db677ca1e62e2d"),
       24,
       '#ffd788'
     );
@@ -261,24 +262,24 @@ export class DebtApartmentPuzzle {
 
   defaultNote() {
     if (this.view === 'tools') {
-      return 'A repair kit. Finally, something here without interest payments.';
+      return __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_62724bb86bb34dfab7fd");
     }
 
     const state = this.state;
 
     if (state.collected) {
-      return 'Document recovered. The cabinet remains financially unstable.';
+      return __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_b1e3ce4a17f50830ff4b");
     }
 
     if (state.moved) {
-      return 'The document is free. Click it to take it.';
+      return __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_c086d724048b8261291b");
     }
 
     if (this.selectedTool) {
-      return `Selected: ${this.selectedTool.toUpperCase()}. Click a target.`;
+      return `${__dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_1f153fd1824c1367e373")}${this.selectedTool.toUpperCase()}${__dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_21b2f35e8ff0cb78d07d")}`;
     }
 
-    return 'A travel document is trapped under the broken wheel.';
+    return __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_fef482c0d3ba6c7aeb29");
   }
 
   box(x, y, width, height, color) {
@@ -354,13 +355,13 @@ export class DebtApartmentPuzzle {
       wedge.fillTriangle(-230, -40, -120, -40, -120, -95);
       this.content.add(wedge);
 
-      this.text(-175, 5, 'RUBBER WEDGE', 17);
+      this.text(-175, 5, __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_445486b4845b72f4360d"), 17);
       this.target(-175, -65, 150, 100, () => {
         this.save({ wedgeTaken: true });
-        this.tell('Rubber wedge taken.');
+        this.tell(__dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_3e2cf7decf0123676d44"));
       });
     } else {
-      this.text(-175, -65, 'WEDGE TAKEN', 17, '#a59a88');
+      this.text(-175, -65, __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_5463381ae3a63dd02053"), 17, '#a59a88');
     }
 
     if (!state.crowbarTaken) {
@@ -373,16 +374,16 @@ export class DebtApartmentPuzzle {
       bar.strokePath();
       this.content.add(bar);
 
-      this.text(165, 5, 'SMALL CROWBAR', 17);
+      this.text(165, 5, __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_52ba8546e66ca5aac66a"), 17);
       this.target(165, -95, 180, 160, () => {
         this.save({ crowbarTaken: true });
-        this.tell('Small crowbar taken.');
+        this.tell(__dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_b695c751bb77d8a38172"));
       });
     } else {
-      this.text(165, -65, 'CROWBAR TAKEN', 17, '#a59a88');
+      this.text(165, -65, __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_4c1b1fe22eec81ca103b"), 17, '#a59a88');
     }
 
-    this.button(0, 100, 300, 'SEARCH THE REST OF THE DRAWER', () => {
+    this.button(0, 100, 300, __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_b2bb1baf2fc4f4d46796"), () => {
       this.close();
       this.drawerOriginal.call(this.drawer);
     });
@@ -418,7 +419,7 @@ export class DebtApartmentPuzzle {
 
     this.text(
       doorX, -225,
-      state.doorSecured ? 'DOOR SECURED' : 'SAGGING DOOR',
+      state.doorSecured ? __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_4627d4a1260667bbc92d") : __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_68077ab861d238c3262b"),
       16
     );
 
@@ -439,7 +440,7 @@ export class DebtApartmentPuzzle {
 
     this.text(
       offset - 125, 110,
-      state.cornerLifted ? 'CORNER SUPPORTED' : 'BROKEN WHEEL',
+      state.cornerLifted ? __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_babecbe576e9c47eabab") : __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_6922ce98ee98eda8c889"),
       15
     );
 
@@ -464,11 +465,11 @@ export class DebtApartmentPuzzle {
     }
 
     if (!state.moved) {
-      this.button(-190, -265, 270, 'MOVE CAREFULLY — 8 MIN', () => {
+      this.button(-190, -265, 270, __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_42d95ada78401c14139c"), () => {
         this.move(false);
       });
 
-      this.button(190, -265, 270, 'YANK IT — 2 MIN / NOISE', () => {
+      this.button(190, -265, 270, __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_3db34e9e8a94fa284e34"), () => {
         this.move(true);
       });
     }
@@ -485,21 +486,21 @@ export class DebtApartmentPuzzle {
 
     this.button(
       -220, 248, 240,
-      this.selectedTool === 'wedge' ? '> RUBBER WEDGE' : 'RUBBER WEDGE',
+      this.selectedTool === 'wedge' ? __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_dcee96f27e5f96fefd2d") : __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_445486b4845b72f4360d"),
       () => select('wedge'),
       state.wedgeTaken && !state.doorSecured
     );
 
     this.button(
       40, 248, 240,
-      this.selectedTool === 'crowbar' ? '> CROWBAR' : 'CROWBAR',
+      this.selectedTool === 'crowbar' ? __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_b1c8afee9a4b9f9183cf") : 'CROWBAR',
       () => select('crowbar'),
       state.crowbarTaken && !state.cornerLifted
     );
 
     this.text(
       300, 248,
-      'LOCAL TOOLKIT',
+      __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_188aef766cb9b187708d"),
       15,
       '#b8a98d',
       170
@@ -510,15 +511,15 @@ export class DebtApartmentPuzzle {
     const state = this.state;
 
     if (state.moved) {
-      this.tell('The cabinet has already been moved.');
+      this.tell(__dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_44826d4af99928ce9b96"));
       return;
     }
 
     if (!this.selectedTool) {
       this.tell(
         target === 'door'
-          ? 'The door sags outward and catches against the wall. Something could hold it clear.'
-          : 'The wheel has collapsed. The corner needs lifting and support.'
+          ? __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_1c08af289e7f910d2121")
+          : __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_73681127f981d75911fa")
       );
       return;
     }
@@ -526,7 +527,7 @@ export class DebtApartmentPuzzle {
     if (target === 'door' && this.selectedTool === 'wedge') {
       this.save({ doorSecured: true });
       this.selectedTool = null;
-      this.tell('The wedge holds the door clear of the wall.');
+      this.tell(__dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_35d3169b1cf6859ab2b1"));
       return;
     }
 
@@ -534,15 +535,15 @@ export class DebtApartmentPuzzle {
       this.save({ cornerLifted: true });
       this.selectedTool = null;
       this.tell(
-        'You lever the damaged corner up and brace the bar against the frame.'
+        __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_875fd88e458b89a275b2")
       );
       return;
     }
 
     this.tell(
       target === 'door'
-        ? 'Prying the door will not keep it supported.'
-        : 'The rubber wedge cannot lift the weight of the cabinet.'
+        ? __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_4271d5c04ad711f8bcee")
+        : __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_210a848c9ba6fd76305b")
     );
   }
 
@@ -552,12 +553,12 @@ export class DebtApartmentPuzzle {
     if (state.moved) return;
 
     if (!state.doorSecured) {
-      this.tell('The sagging door catches against the wall. Secure it first.');
+      this.tell(__dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_2cc99ad9c03677085ed1"));
       return;
     }
 
     if (!state.cornerLifted) {
-      this.tell('The broken wheel digs into the floor. Lift that corner first.');
+      this.tell(__dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_18529de41d9ffa9e69da"));
       return;
     }
 
@@ -570,8 +571,8 @@ export class DebtApartmentPuzzle {
 
     this.selectedTool = null;
     this.note = noisy
-      ? 'CRASH!\nNeighbour: "If that is the repossession people, the television is mine!"'
-      : 'You ease the cabinet aside. A perfect crime against interior design.';
+      ? __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_49348a406ec2b59b735f")
+      : __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_c41038a0db935429bea2");
 
     this.render();
 
@@ -583,13 +584,13 @@ export class DebtApartmentPuzzle {
 
     if (state.collected || this.scene.hasItemAlready(this.reward.id)) {
       this.save({ collected: true });
-      this.tell('The document is already in your inventory.');
+      this.tell(__dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_563ead89282f254ff360"));
       return;
     }
 
     if (!state.moved) {
       this.tell(
-        'The paper is pinned under the broken wheel. Apparently the furniture is withholding evidence.'
+        __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_a29dacc1cb62f60f2c77")
       );
       return;
     }
@@ -615,7 +616,7 @@ export class DebtApartmentPuzzle {
       this.cabinet.saveProgress();
     } else {
       this.scene.showMessage(
-        'The document could not be collected. Make room in your inventory and try again.',
+        __dialogueText("scenes/apartament/DebtApartmentPuzzle.js", "t_bdd05c607e292d7c002b"),
         4000
       );
     }

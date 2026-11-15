@@ -1,5 +1,6 @@
 import { dialogueText as __dialogueText } from "./DialogueText.js";
 import { DialogManager as DialogManagerBase } from './DialogManagerBase.js';
+import { getHQGuidance } from './HQGuidance.js';
 import { holmesDailyHintService } from '../managers/HolmesDailyHintService.js';
 
 export class DialogManager extends DialogManagerBase {
@@ -8,12 +9,18 @@ export class DialogManager extends DialogManagerBase {
     this.holmesRequest=0;
     this.claimingHolmesHint=false;
   }
-  discoverContactKeys() {return [...new Set([...super.discoverContactKeys(),'holmes'])];}
-  hasContact(key) {return key==='holmes' || super.hasContact(key);}
+  discoverContactKeys() {return [...new Set([...super.discoverContactKeys(),'holmes','hq'])];}
+  hasContact(key) {return key==='hq' || key==='holmes' || super.hasContact(key);}
   startDialog(key,contact) {
     this.holmesRequest++;
+    if (key==='hq') return this.startHQDialog();
     if (key==='holmes') return this.startHolmesDialog();
     return super.startDialog(key,contact);
+  }
+  startHQDialog() {
+    if (!this.dialogUI || this.dialogUI.destroyed) return;
+    const guidance=getHQGuidance(this.gameState);
+    this.dialogUI.open({speaker:'HQ',portraitKey:'portrait_hq',lines:guidance.lines});
   }
   openHolmes(lines,options={}) {
     if (!this.dialogUI || this.dialogUI.destroyed) return;

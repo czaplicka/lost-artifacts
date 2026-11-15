@@ -216,7 +216,8 @@
       "castle",
       "dockyard",
       "auction_house",
-      "havela"
+      "havela",
+      "tokyo_museum"
     ],
     "trueExplanation": "It proudly boots into a menu that says \"Demo mode\" and nothing else actually works.",
     "heistExplanation": "The thief brought their own gear; not sure yet what they were planning to do with it.",
@@ -1298,7 +1299,8 @@
     ],
     "scene": [
       "louvre",
-      "tower"
+      "tower",
+      "tokyo_museum"
     ],
     "trueExplanation": "There is a tiny label on the handle: \"For detecting dust, not criminals\".",
     "heistExplanation": "The thief left no prints to admire, depriving the magnifying glass of its big detective moment.",
@@ -1345,7 +1347,8 @@
     "scene": [
       "louvre",
       "auction_house",
-      "havela"
+      "havela",
+      "tokyo_museum"
     ],
     "trueExplanation": "One shard still has lipstick on it; someone lost a glass, not a masterpiece.",
     "heistExplanation": "The thief prefers clean exits; stepping on glass is loud, messy, and terrible for stealth shoes.",
@@ -1394,7 +1397,8 @@
       "castle",
       "dockyard",
       "auction_house",
-      "havela"
+      "havela",
+      "tokyo_museum"
     ],
     "trueExplanation": "The \"mysterious code\" is a list: milk, bread, batteries, don't forget cat food.",
     "heistExplanation": "The thief left no dramatic manifesto; they let the grocery list take all the literary credit.",
@@ -1489,7 +1493,8 @@
     "scene": [
       "louvre",
       "tower",
-      "auction_house"
+      "auction_house",
+      "tokyo_museum"
     ],
     "trueExplanation": "Cobwebs inside the empty mount suggest this camera retired years ago.",
     "heistExplanation": "The thief chose their route based on working cameras; this one is basically interior decoration.",

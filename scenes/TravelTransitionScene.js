@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { audioManager } from '../managers/AudioManager.js';
 import { BaseScene } from './BaseScene.js';
@@ -202,8 +203,8 @@ export class TravelTransitionScene extends BaseScene {
       this.itinerary = {
         legs: [
           {
-            fromCity: data.fromCity || 'Unknown',
-            toCity: data.toCity || 'Unknown',
+            fromCity: data.fromCity || __dialogueText("scenes/TravelTransitionScene.js", "t_b764cdc0eab713746721"),
+            toCity: data.toCity || __dialogueText("scenes/TravelTransitionScene.js", "t_b764cdc0eab713746721"),
             fromPoint: from?.map || null,
             toPoint: to?.map || null,
             transportType: data.transportType || 'plane',
@@ -275,8 +276,8 @@ export class TravelTransitionScene extends BaseScene {
       U,
       transport,
       vehicleKey: this.stage.vehicleKey,
-      fromCity: data.fromCity || 'Unknown',
-      toCity: data.toCity || 'Unknown',
+      fromCity: data.fromCity || __dialogueText("scenes/TravelTransitionScene.js", "t_b764cdc0eab713746721"),
+      toCity: data.toCity || __dialogueText("scenes/TravelTransitionScene.js", "t_b764cdc0eab713746721"),
       returning
     });
 
@@ -370,7 +371,7 @@ export class TravelTransitionScene extends BaseScene {
   projectLegPoint(leg, side) {
     const lonLat = resolveTravelLonLat(
       leg?.[`${side}Id`],
-      leg?.[`${side}City`],
+      leg?.[`${side}${__dialogueText("scenes/TravelTransitionScene.js", "t_fc33f73246f48295702f")}`],
       this.getLocations()
     );
 
@@ -508,16 +509,16 @@ export class TravelTransitionScene extends BaseScene {
     }
 
     const mode = leg.ferry
-      ? 'Ferry'
+      ? __dialogueText("scenes/TravelTransitionScene.js", "t_be3152d00da37fd330a5")
       : (
         leg.transportType[0].toUpperCase() +
         leg.transportType.slice(1)
       );
 
     this.routeText.setText(
-      `Leg ${index + 1}/${legs.length}: ` +
-      `${leg.fromCity} → ${leg.toCity} | ` +
-      `${mode} | ${leg.hours}h`
+      `${__dialogueText("scenes/TravelTransitionScene.js", "t_d242bb004356ce1cf962")}${index + 1}${__dialogueText("scenes/TravelTransitionScene.js", "t_8a5edab282632443219e")}${legs.length}${__dialogueText("scenes/TravelTransitionScene.js", "t_45822f54a0d0e030f756")}` +
+      `${leg.fromCity}${__dialogueText("scenes/TravelTransitionScene.js", "t_592f6fd0750e870cf487")}${leg.toCity}${__dialogueText("scenes/TravelTransitionScene.js", "t_ffa9044b934017b2aed8")}` +
+      `${mode}${__dialogueText("scenes/TravelTransitionScene.js", "t_ffa9044b934017b2aed8")}${leg.hours}${__dialogueText("scenes/TravelTransitionScene.js", "t_aaa9402664f1a41f40eb")}`
     );
 
     this.headerObjects[1]?.setTexture(this.stage.vehicleKey);
@@ -528,12 +529,12 @@ export class TravelTransitionScene extends BaseScene {
 
       this.journal.type(
         this.transitionData.returnToPIOffice
-          ? 'Returning to your private office...'
+          ? __dialogueText("scenes/TravelTransitionScene.js", "t_840243447459e4f627c2")
           : pick(transport.quips)
       );
     } else {
       this.journal.type(
-        `Boarding for ${leg.toCity}. Same detective. Different seat.`
+        `${__dialogueText("scenes/TravelTransitionScene.js", "t_ddac0a6b24ab172286a5")}${leg.toCity}${__dialogueText("scenes/TravelTransitionScene.js", "t_b1ae7f332d8ebb5e1937")}`
       );
     }
 
@@ -618,12 +619,12 @@ export class TravelTransitionScene extends BaseScene {
         const wait = next.transferHours || 0;
 
         this.routeText.setText(
-          `Transfer in ${leg.toCity} | Waiting: ${wait}h\n` +
-          `Next: ${next.toCity}`
+          `${__dialogueText("scenes/TravelTransitionScene.js", "t_bd4493769222f33f953c")}${leg.toCity}${__dialogueText("scenes/TravelTransitionScene.js", "t_6bfd1b6c7650317b22bc")}${wait}${__dialogueText("scenes/TravelTransitionScene.js", "t_91ee5e9f42ba3d34e414")}` +
+          `${__dialogueText("scenes/TravelTransitionScene.js", "t_1ee8f7531e33f8726677")}${next.toCity}`
         );
 
         this.journal.type(
-          'Change here. Your luggage is enjoying a separate investigation.',
+          __dialogueText("scenes/TravelTransitionScene.js", "t_0af858031965a859a2ed"),
           14
         );
 
@@ -662,7 +663,7 @@ export class TravelTransitionScene extends BaseScene {
       });
 
       this.continueHint
-        ?.setText('Close passport, then click to continue')
+        ?.setText(__dialogueText("scenes/TravelTransitionScene.js", "t_09850b4b25801c17abf6"))
         .setColor('#f4e7c1');
     } catch (error) {
       console.error(
@@ -674,7 +675,7 @@ export class TravelTransitionScene extends BaseScene {
       this.travelPassport = null;
 
       this.continueHint
-        ?.setText('Click to continue')
+        ?.setText(__dialogueText("scenes/TravelTransitionScene.js", "t_d5a436f27838b6f6b09a"))
         .setColor('#f4e7c1');
     } finally {
       this.passportPresentationPending = false;
@@ -693,7 +694,7 @@ export class TravelTransitionScene extends BaseScene {
     this.ticket?.markArrived();
 
     this.routeText.setText(
-      `Arrived in ${toCity || 'your private office'}`
+      `${__dialogueText("scenes/TravelTransitionScene.js", "t_ae1e3985ce28520d5b76")}${toCity || __dialogueText("scenes/TravelTransitionScene.js", "t_63225d9c941038db4e0c")}`
     );
 
     const showPassport =
@@ -728,8 +729,8 @@ export class TravelTransitionScene extends BaseScene {
     this.continueHint
       ?.setText(
         showPassport
-          ? 'Passport inspection...'
-          : 'Click to continue'
+          ? __dialogueText("scenes/TravelTransitionScene.js", "t_6528f01be828b9c62637")
+          : __dialogueText("scenes/TravelTransitionScene.js", "t_d5a436f27838b6f6b09a")
       )
       .setColor('#f4e7c1');
 
@@ -745,7 +746,7 @@ export class TravelTransitionScene extends BaseScene {
     this.continueHint = this.add.text(
       width / 2,
       height - 40 * U,
-      'Please wait...',
+      __dialogueText("scenes/TravelTransitionScene.js", "t_2dfd888fdd5e8018cee8"),
       {
         fontFamily: 'SpecialElite',
         fontSize: fs(U, 22),
@@ -773,7 +774,7 @@ export class TravelTransitionScene extends BaseScene {
       this.canContinue = true;
 
       if (!this.arrived) {
-        this.continueHint.setText('Click to skip');
+        this.continueHint.setText(__dialogueText("scenes/TravelTransitionScene.js", "t_c00e4ad4470418ff4b2e"));
       }
     });
 

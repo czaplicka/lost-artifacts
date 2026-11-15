@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // ui/LocationDialoguePanel.js
 // Wspólny panel dialogowy w stylu LocationScene: dolny pasek, portret po lewej,
 // tekst z efektem maszyny do pisania, menu tematów po prawej, "Leave" na dole.
@@ -36,7 +37,7 @@ export class LocationDialoguePanel {
    */
   constructor(scene, options = {}) {
     this.scene = scene;
-    this.options = { depth: 700, menuWidth: 205, leaveLabel: 'Leave', onLeave: null, ...options };
+    this.options = { depth: 700, menuWidth: 205, leaveLabel: __dialogueText("ui/LocationDialoguePanel.js", "t_fc6e4a408d56be9670c1"), onLeave: null, ...options };
     this.destroyed = false;
     this.typewriter = null;
     this.isTyping = false;
@@ -153,7 +154,7 @@ export class LocationDialoguePanel {
       if (fw > 0 && fh > 0) visual.setScale(Math.min(inner / fw, inner / fh));
       else visual.setDisplaySize(inner, inner);
     } else {
-      visual = s.add.text(L.centerX, L.centerY, portrait?.text || '?', {
+      visual = s.add.text(L.centerX, L.centerY, portrait?.text || __dialogueText("ui/LocationDialoguePanel.js", "t_8a8de823d5ed3e12746a"), {
         fontFamily: 'PressStart2P', fontSize: '72px', color: '#d4af37'
       }).setOrigin(0.5);
     }

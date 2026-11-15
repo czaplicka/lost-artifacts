@@ -24,6 +24,6 @@ export function playSearchEvidenceAudio(ui) {
       scene?._cleanupDone || !scene?.sys?.isActive() || !scene.cache?.audio?.exists(KEY)) return;
   try {
     audioManager.init(scene);
-    audioManager.playSfx(KEY, { volume: audioManager.getSfxVolume() * 0.3 });
+    audioManager.playSfx(KEY, { gain: 0.3, volume: audioManager.getSfxVolume() * 0.3 });
   } catch (error) { console.debug('[SearchEvidenceAudio] Sound unavailable:', error); }
 }

@@ -2,6 +2,7 @@ import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js"
 import { gameState } from '../../GameData.js';
 import { saveGameState } from '../../gameStatePersistence.js';
 import { EventBus } from '../../EventBus.js';
+import { audioManager } from '../../managers/AudioManager.js';
 
 import {
   progressionManager
@@ -457,7 +458,8 @@ export class HiddenObjectsSceneFlow {
     const scene = this.scene;
 
     scene.playSfx('wrong', {
-      volume: 0.5
+      gain: 0.5,
+      volume: audioManager.getSfxVolume() * 0.5
     });
 
     this.flashScreen(

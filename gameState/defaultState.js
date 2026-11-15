@@ -1,7 +1,12 @@
 import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
+
 import {
   GAME_VERSION
 } from '../config/gameVersion.js';
+
+import {
+  HOME_TOWN_ID
+} from '../config/RoadTripTowns.js';
 
 export function createDefaultReconstructedHeist() {
   return {
@@ -63,6 +68,9 @@ export const defaultGameState = {
   currentEncounterId: null,
   currentCaseId: null,
 
+  // Osobna lokalizacja podróży samochodowych.
+  roadTripTownId: HOME_TOWN_ID,
+
   finalArrestResult: null,
   finalArrestSuspectId: null,
 
@@ -114,8 +122,16 @@ export const defaultGameState = {
   score: 0,
   scoreSaved: false,
 
-  playerName: __dialogueText("gameState/defaultState.js", "t_2653ceeec1fd951707a3"),
-  playerRank: __dialogueText("gameState/defaultState.js", "t_bf32e97cd768b3cc39be"),
+  playerName: __dialogueText(
+    "gameState/defaultState.js",
+    "t_2653ceeec1fd951707a3"
+  ),
+
+  playerRank: __dialogueText(
+    "gameState/defaultState.js",
+    "t_bf32e97cd768b3cc39be"
+  ),
+
   avatarUrl: 'assets/profiles.png',
 
   casesSolved: 0,
@@ -227,6 +243,7 @@ export const defaultGameState = {
 
   identityEvidence: null,
   traceEvidence: [],
+
   identityEvidenceResult: null,
 
   hypothesisEvidence: null,

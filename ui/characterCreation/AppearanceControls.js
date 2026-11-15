@@ -12,7 +12,7 @@ function option(id, label) {
 
 export const APPEARANCE_OPTIONS = {
   skinTone: {
-    label: text("t_54d975a5391daaf26c58"),
+    label: text(__dialogueText("ui/characterCreation/AppearanceControls.js", "t_1f555d849065b210b76c")),
     options: [
       option("light", text("t_dbcd5e7bb7a0f538810d")),
       option("warm", text("t_316f24288be59c8327d0")),
@@ -23,7 +23,7 @@ export const APPEARANCE_OPTIONS = {
   },
 
   hairStyle: {
-    label: text("t_72995a619735750cf9e3"),
+    label: text(__dialogueText("ui/characterCreation/AppearanceControls.js", "t_c8f9a7f8ddbeaab0a33f")),
     options: [
       option("neat", text("t_4fdc1c84d9761eb1713d")),
       option("messy", text("t_5f501b6712777e15bbef")),
@@ -35,16 +35,16 @@ export const APPEARANCE_OPTIONS = {
       option("shaved", text("t_988e8d7826699e62e061")),
       option("hat", text("t_dc34efd49ed738bf4500")),
 
-      option("highPonytail", "High Ponytail"),
-      option("lowBun", "Low Bun"),
-      option("sideBraid", "Side Braid"),
-      option("longWaves", "Long Waves"),
-      option("bobBangs", "Bob with Bangs")
+      option("highPonytail", __dialogueText("ui/characterCreation/AppearanceControls.js", "t_c4b4dd6dd313827eccc0")),
+      option("lowBun", __dialogueText("ui/characterCreation/AppearanceControls.js", "t_c7731e917428e933e706")),
+      option("sideBraid", __dialogueText("ui/characterCreation/AppearanceControls.js", "t_97caccf8d1bde48dc9b6")),
+      option("longWaves", __dialogueText("ui/characterCreation/AppearanceControls.js", "t_7c41b6e054cfde0cc8fc")),
+      option("bobBangs", __dialogueText("ui/characterCreation/AppearanceControls.js", "t_fdb6e8a1ecbb31208016"))
     ]
   },
 
   hairColor: {
-    label: text("t_8b42c9f862e90cffa479"),
+    label: text(__dialogueText("ui/characterCreation/AppearanceControls.js", "t_62882b9195db1fa1a89d")),
     options: [
       option("black", text("t_c6cfe6e4f129a34671d1")),
       option("brown", text("t_18f285592896ec8ead1b")),
@@ -55,23 +55,23 @@ export const APPEARANCE_OPTIONS = {
   },
 
   coat: {
-    label: "Clothing",
+    label: __dialogueText("ui/characterCreation/AppearanceControls.js", "t_5bea3ab36d884792954c"),
     options: [
       option("trench", text("t_e1d2439aa6241a93abfe")),
       option("leather", text("t_e8e775159a57aaaf0f55")),
       option("blazer", text("t_766e11b9770ba38ea5dc")),
       option("sweater", text("t_89e32192c4b2e707574a")),
 
-      option("bowBlouse", "Bow Blouse"),
-      option("vNeckBlouse", "V-Neck Blouse"),
-      option("cardigan", "Cardigan"),
-      option("fittedBlazer", "Fitted Blazer"),
-      option("dress", "Dress")
+      option("bowBlouse", __dialogueText("ui/characterCreation/AppearanceControls.js", "t_af0a8c6e6a276e3c4d37")),
+      option("vNeckBlouse", __dialogueText("ui/characterCreation/AppearanceControls.js", "t_8004bc2bae315c3dd68f")),
+      option("cardigan", __dialogueText("ui/characterCreation/AppearanceControls.js", "t_8c25ea3e749db218f59d")),
+      option("fittedBlazer", __dialogueText("ui/characterCreation/AppearanceControls.js", "t_1c2473800b9e18ab4b54")),
+      option("dress", __dialogueText("ui/characterCreation/AppearanceControls.js", "t_2f524af640388c7d2928"))
     ]
   },
 
   facialHair: {
-    label: text("t_2cf1d88320c0365cb7ea"),
+    label: text(__dialogueText("ui/characterCreation/AppearanceControls.js", "t_1f57370dca80642aa612")),
     options: [
       option("none", text("t_dc937b59892604f5a86a")),
       option("moustache", text("t_138fa83d28e7fe1f2dec")),
@@ -81,7 +81,7 @@ export const APPEARANCE_OPTIONS = {
   },
 
   makeup: {
-    label: text("t_69689d91e1e99a29da26"),
+    label: text(__dialogueText("ui/characterCreation/AppearanceControls.js", "t_0ce3cb87e04e9b0ead03")),
     options: [
       option("none", text("t_dc937b59892604f5a86a")),
       option("natural", text("t_d6acb6d51cfc574936fc")),
@@ -92,17 +92,17 @@ export const APPEARANCE_OPTIONS = {
   },
 
   blush: {
-    label: "Blush",
+    label: __dialogueText("ui/characterCreation/AppearanceControls.js", "t_c5c152f7e89062d27c38"),
     options: [
-      option("none", "None"),
-      option("softRose", "Soft Rose"),
-      option("peach", "Peach"),
-      option("berry", "Berry")
+      option("none", __dialogueText("ui/characterCreation/AppearanceControls.js", "t_dc937b59892604f5a86a")),
+      option("softRose", __dialogueText("ui/characterCreation/AppearanceControls.js", "t_7ab4122b9deccbe29781")),
+      option("peach", __dialogueText("ui/characterCreation/AppearanceControls.js", "t_2b1f3f0b7afa26e4a824")),
+      option("berry", __dialogueText("ui/characterCreation/AppearanceControls.js", "t_ef2a28f03f6eafb0fe03"))
     ]
   },
 
   accessory: {
-    label: text("t_adf7651801aea4615532"),
+    label: text(__dialogueText("ui/characterCreation/AppearanceControls.js", "t_2fefa0cb9c5aefc6c4fb")),
     options: [
       option("none", text("t_dc937b59892604f5a86a")),
       option("glasses", text("t_eb25ede23e75985188ce")),
@@ -112,14 +112,14 @@ export const APPEARANCE_OPTIONS = {
       option("hoops", text("t_88844c4a9225c3682473")),
       option("earring", text("t_7f86981a572461d80534")),
 
-      option("pearlNecklace", "Pearl Necklace"),
-      option("pendant", "Pendant"),
-      option("dropEarrings", "Drop Earrings")
+      option("pearlNecklace", __dialogueText("ui/characterCreation/AppearanceControls.js", "t_1978bc390d430fc2024b")),
+      option("pendant", __dialogueText("ui/characterCreation/AppearanceControls.js", "t_f0f7234ab71431779509")),
+      option("dropEarrings", __dialogueText("ui/characterCreation/AppearanceControls.js", "t_de634a2519963fe0c40b"))
     ]
   },
 
   tattoos: {
-    label: text("t_104975033d074c49d179"),
+    label: text(__dialogueText("ui/characterCreation/AppearanceControls.js", "t_f4a3f7e6de11dde0f3a1")),
     options: [
       option("none", text("t_dc937b59892604f5a86a")),
       option("dragon", text("t_bbe963c645f060d61857")),
@@ -182,9 +182,9 @@ const SUMMARY_LABELS = {
 
   blush: {
     none: "No blush",
-    softRose: "Soft rose blush",
-    peach: "Peach blush",
-    berry: "Berry blush"
+    softRose: __dialogueText("ui/characterCreation/AppearanceControls.js", "t_e3298f36ed042b426c58"),
+    peach: __dialogueText("ui/characterCreation/AppearanceControls.js", "t_361534ced30aa7edb8c8"),
+    berry: __dialogueText("ui/characterCreation/AppearanceControls.js", "t_564fdefb670706993241")
   },
 
   accessory: {
@@ -203,497 +203,7 @@ const SUMMARY_LABELS = {
 
 const PREVIEW_DETAIL_STYLES = text("t_e066a49962df4c782c79");
 
-const EXTRA_PREVIEW_STYLES = `
-<style>
-/* Independent cheek colour, without replacing existing makeup. */
-
-.agency-id-avatar[data-blush="softRose"] {
-  --avatar-blush: rgba(208, 92, 119, 0.58);
-}
-
-.agency-id-avatar[data-blush="peach"] {
-  --avatar-blush: rgba(242, 143, 100, 0.62);
-}
-
-.agency-id-avatar[data-blush="berry"] {
-  --avatar-blush: rgba(175, 53, 103, 0.68);
-}
-
-.agency-id-avatar:is(
-  [data-blush="softRose"],
-  [data-blush="peach"],
-  [data-blush="berry"]
-) .avatar-face {
-  background-image:
-    radial-gradient(
-      ellipse 20px 12px at 20% 61%,
-      var(--avatar-blush) 0%,
-      transparent 100%
-    ),
-    radial-gradient(
-      ellipse 20px 12px at 80% 61%,
-      var(--avatar-blush) 0%,
-      transparent 100%
-    );
-  background-color: var(--skin);
-}
-
-/* New hairstyles. */
-
-.agency-id-avatar:is(
-  [data-hair-style="highPonytail"],
-  [data-hair-style="lowBun"],
-  [data-hair-style="sideBraid"],
-  [data-hair-style="longWaves"],
-  [data-hair-style="bobBangs"]
-) .avatar-hair {
-  background: var(--hair);
-  box-shadow: none;
-  clip-path: none;
-}
-
-.agency-id-avatar:is(
-  [data-hair-style="highPonytail"],
-  [data-hair-style="lowBun"],
-  [data-hair-style="sideBraid"],
-  [data-hair-style="longWaves"],
-  [data-hair-style="bobBangs"]
-) .avatar-hair::before,
-.agency-id-avatar:is(
-  [data-hair-style="highPonytail"],
-  [data-hair-style="lowBun"],
-  [data-hair-style="sideBraid"],
-  [data-hair-style="longWaves"],
-  [data-hair-style="bobBangs"]
-) .avatar-hair::after {
-  position: absolute;
-  display: block;
-  background: var(--hair);
-  content: "";
-  pointer-events: none;
-}
-
-.agency-id-avatar[data-hair-style="highPonytail"] .avatar-hair {
-  top: 48px;
-  width: 138px;
-  height: 75px;
-  border-radius: 62% 52% 28% 22%;
-}
-
-.agency-id-avatar[data-hair-style="highPonytail"] .avatar-hair::before {
-  top: -17px;
-  right: -35px;
-  width: 58px;
-  height: 170px;
-  border-radius: 62% 72% 48% 70%;
-  transform: rotate(-12deg);
-  box-shadow: inset -8px 0 rgba(0, 0, 0, 0.13);
-}
-
-.agency-id-avatar[data-hair-style="highPonytail"] .avatar-hair::after {
-  top: -1px;
-  right: -7px;
-  width: 28px;
-  height: 13px;
-  border-radius: 5px;
-  background: #9a354a;
-  transform: rotate(20deg);
-}
-
-.agency-id-avatar[data-hair-style="lowBun"] .avatar-hair {
-  top: 53px;
-  width: 140px;
-  height: 70px;
-  border-radius: 65% 58% 20% 28%;
-}
-
-.agency-id-avatar[data-hair-style="lowBun"] .avatar-hair::before {
-  top: 76px;
-  right: -25px;
-  width: 47px;
-  height: 55px;
-  border: 5px solid rgba(0, 0, 0, 0.13);
-  border-radius: 50%;
-  box-sizing: border-box;
-}
-
-.agency-id-avatar[data-hair-style="lowBun"] .avatar-hair::after {
-  top: 22px;
-  left: 5px;
-  width: 55px;
-  height: 59px;
-  border-radius: 80% 0 80% 20%;
-  transform: rotate(19deg);
-}
-
-.agency-id-avatar[data-hair-style="sideBraid"] .avatar-hair {
-  top: 47px;
-  width: 143px;
-  height: 78px;
-  border-radius: 60% 58% 30% 25%;
-}
-
-.agency-id-avatar[data-hair-style="sideBraid"] .avatar-hair::before {
-  top: 61px;
-  right: -6px;
-  width: 31px;
-  height: 151px;
-  border-radius: 48% 48% 42% 42%;
-  background:
-    repeating-linear-gradient(
-      145deg,
-      transparent 0 9px,
-      rgba(0, 0, 0, 0.24) 9px 12px,
-      transparent 12px 20px
-    ),
-    var(--hair);
-  transform: rotate(-7deg);
-  box-shadow: inset -5px 0 rgba(0, 0, 0, 0.14);
-}
-
-.agency-id-avatar[data-hair-style="sideBraid"] .avatar-hair::after {
-  top: 198px;
-  right: -9px;
-  width: 27px;
-  height: 9px;
-  border-radius: 3px;
-  background: #9a354a;
-}
-
-.agency-id-avatar[data-hair-style="longWaves"] .avatar-hair {
-  top: 39px;
-  width: 162px;
-  height: 91px;
-  border-radius: 55% 55% 30% 30%;
-}
-
-.agency-id-avatar[data-hair-style="longWaves"] .avatar-hair::before,
-.agency-id-avatar[data-hair-style="longWaves"] .avatar-hair::after {
-  top: 45px;
-  width: 35px;
-  height: 171px;
-  border-radius: 48% 48% 42% 42%;
-  box-shadow:
-    inset -7px 0 rgba(0, 0, 0, 0.15),
-    0 29px 0 -4px var(--hair);
-}
-
-.agency-id-avatar[data-hair-style="longWaves"] .avatar-hair::before {
-  left: -5px;
-  transform: rotate(5deg);
-}
-
-.agency-id-avatar[data-hair-style="longWaves"] .avatar-hair::after {
-  right: -5px;
-  transform: rotate(-5deg);
-}
-
-.agency-id-avatar[data-hair-style="bobBangs"] .avatar-hair {
-  top: 47px;
-  width: 164px;
-  height: 169px;
-  border-radius: 49% 49% 21% 21%;
-  clip-path: polygon(
-    0 0,
-    100% 0,
-    100% 100%,
-    80% 100%,
-    79% 41%,
-    67% 44%,
-    54% 41%,
-    42% 44%,
-    30% 41%,
-    21% 43%,
-    20% 100%,
-    0 100%
-  );
-}
-
-/* Clothing. */
-
-.agency-id-avatar[data-coat="bowBlouse"] {
-  --coat: #e3c9ad;
-}
-
-.agency-id-avatar[data-coat="vNeckBlouse"] {
-  --coat: #6d3d60;
-}
-
-.agency-id-avatar[data-coat="cardigan"] {
-  --coat: #638172;
-}
-
-.agency-id-avatar[data-coat="fittedBlazer"] {
-  --coat: #723e4d;
-}
-
-.agency-id-avatar[data-coat="dress"] {
-  --coat: #253c54;
-}
-
-.agency-id-avatar:is(
-  [data-coat="bowBlouse"],
-  [data-coat="vNeckBlouse"],
-  [data-coat="cardigan"],
-  [data-coat="fittedBlazer"],
-  [data-coat="dress"]
-) .avatar-coat {
-  width: 214px;
-  height: 153px;
-  border-radius: 47% 47% 0 0;
-}
-
-.agency-id-avatar:is(
-  [data-coat="bowBlouse"],
-  [data-coat="vNeckBlouse"],
-  [data-coat="cardigan"],
-  [data-coat="fittedBlazer"],
-  [data-coat="dress"]
-) .avatar-coat::before,
-.agency-id-avatar:is(
-  [data-coat="bowBlouse"],
-  [data-coat="vNeckBlouse"],
-  [data-coat="cardigan"],
-  [data-coat="fittedBlazer"],
-  [data-coat="dress"]
-) .avatar-coat::after {
-  position: absolute;
-  left: 50%;
-  display: block;
-  margin: 0;
-  border: 0;
-  box-sizing: border-box;
-  content: "";
-  transform: translateX(-50%);
-  pointer-events: none;
-}
-
-.agency-id-avatar[data-coat="bowBlouse"] .avatar-coat::before {
-  top: 30px;
-  width: 65px;
-  height: 52px;
-  background: #8c4053;
-  clip-path: polygon(
-    0 7%,
-    43% 28%,
-    50% 20%,
-    57% 28%,
-    100% 7%,
-    94% 62%,
-    60% 47%,
-    76% 100%,
-    51% 80%,
-    26% 100%,
-    40% 47%,
-    6% 62%
-  );
-}
-
-.agency-id-avatar[data-coat="bowBlouse"] .avatar-coat::after {
-  top: 87px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #9b7963;
-  box-shadow:
-    0 19px 0 #9b7963,
-    0 38px 0 #9b7963;
-}
-
-.agency-id-avatar[data-coat="vNeckBlouse"] .avatar-coat::before {
-  top: 16px;
-  width: 70px;
-  height: 67px;
-  background: var(--skin);
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-}
-
-.agency-id-avatar[data-coat="vNeckBlouse"] .avatar-coat::after {
-  top: 24px;
-  width: 91px;
-  height: 70px;
-  background: rgba(255, 235, 225, 0.2);
-  clip-path: polygon(
-    0 0,
-    9% 0,
-    50% 86%,
-    91% 0,
-    100% 0,
-    50% 100%
-  );
-}
-
-.agency-id-avatar[data-coat="cardigan"] .avatar-coat::before {
-  top: 20px;
-  width: 75px;
-  height: 135px;
-  background: #e7d5b7;
-  clip-path: polygon(
-    0 0,
-    100% 0,
-    78% 49%,
-    78% 100%,
-    22% 100%,
-    22% 49%
-  );
-}
-
-.agency-id-avatar[data-coat="cardigan"] .avatar-coat::after {
-  top: 87px;
-  left: calc(50% + 35px);
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #d6b778;
-  box-shadow:
-    0 21px 0 #d6b778,
-    0 42px 0 #d6b778;
-}
-
-.agency-id-avatar[data-coat="fittedBlazer"] .avatar-coat::before {
-  top: 16px;
-  width: 85px;
-  height: 135px;
-  background: #e7d6c4;
-  clip-path: polygon(13% 0, 87% 0, 56% 100%, 44% 100%);
-}
-
-.agency-id-avatar[data-coat="fittedBlazer"] .avatar-coat::after {
-  top: 22px;
-  width: 117px;
-  height: 100px;
-  background: #512a38;
-  clip-path: polygon(
-    0 0,
-    27% 0,
-    50% 70%,
-    73% 0,
-    100% 0,
-    83% 42%,
-    68% 40%,
-    50% 100%,
-    32% 40%,
-    17% 42%
-  );
-}
-
-.agency-id-avatar[data-coat="dress"] .avatar-coat::before {
-  top: 9px;
-  width: 100px;
-  height: 61px;
-  border-radius: 0 0 48% 48%;
-  background: var(--skin);
-}
-
-.agency-id-avatar[data-coat="dress"] .avatar-coat::after {
-  top: 49px;
-  width: 109px;
-  height: 29px;
-  border-bottom: 4px solid #c8a76d;
-  border-radius: 0 0 50% 50%;
-  background: transparent;
-}
-
-/* New accessories: above face and clothing, below scan lines. */
-
-.agency-id-avatar:is(
-  [data-accessory="pearlNecklace"],
-  [data-accessory="pendant"],
-  [data-accessory="dropEarrings"]
-) .avatar-accessory {
-  position: absolute;
-  z-index: 8;
-  inset: 0;
-  width: auto;
-  height: auto;
-  border: 0;
-  background: transparent;
-  transform: none;
-  pointer-events: none;
-}
-
-.agency-id-avatar:is(
-  [data-accessory="pearlNecklace"],
-  [data-accessory="pendant"],
-  [data-accessory="dropEarrings"]
-) .avatar-accessory::before,
-.agency-id-avatar:is(
-  [data-accessory="pearlNecklace"],
-  [data-accessory="pendant"],
-  [data-accessory="dropEarrings"]
-) .avatar-accessory::after {
-  position: absolute;
-  display: block;
-  box-sizing: border-box;
-  content: "";
-}
-
-.agency-id-avatar[data-accessory="pearlNecklace"] .avatar-accessory::before {
-  top: 223px;
-  left: 50%;
-  width: 86px;
-  height: 40px;
-  border: 7px dotted #f4e9ce;
-  border-top: 0;
-  border-radius: 0 0 50% 50%;
-  background: transparent;
-  transform: translateX(-50%);
-  filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.35));
-}
-
-.agency-id-avatar[data-accessory="pearlNecklace"] .avatar-accessory::after {
-  display: none;
-}
-
-.agency-id-avatar[data-accessory="pendant"] .avatar-accessory::before {
-  top: 220px;
-  left: 50%;
-  width: 71px;
-  height: 49px;
-  border: 2px solid #d7b35f;
-  border-top: 0;
-  border-radius: 0 0 50% 50%;
-  background: transparent;
-  transform: translateX(-50%);
-}
-
-.agency-id-avatar[data-accessory="pendant"] .avatar-accessory::after {
-  top: 260px;
-  left: 50%;
-  width: 14px;
-  height: 20px;
-  border: 3px solid #d7b35f;
-  border-radius: 45% 45% 55% 55%;
-  background: #318c83;
-  transform: translateX(-50%);
-  box-shadow: inset 3px 0 rgba(255, 255, 255, 0.2);
-}
-
-.agency-id-avatar[data-accessory="dropEarrings"] .avatar-accessory::before,
-.agency-id-avatar[data-accessory="dropEarrings"] .avatar-accessory::after {
-  top: 176px;
-  width: 13px;
-  height: 34px;
-  border: 3px solid #d9b867;
-  border-radius: 45% 45% 58% 58%;
-  background:
-    linear-gradient(
-      to bottom,
-      transparent 0 43%,
-      #327f82 43% 100%
-    );
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.25);
-}
-
-.agency-id-avatar[data-accessory="dropEarrings"] .avatar-accessory::before {
-  left: calc(50% - 80px);
-}
-
-.agency-id-avatar[data-accessory="dropEarrings"] .avatar-accessory::after {
-  right: calc(50% - 80px);
-}
-</style>
-`;
+const EXTRA_PREVIEW_STYLES = `${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_23e2cd827ff6972b7695")}`;
 
 function escapeHtml(value = "") {
   return String(value)
@@ -836,7 +346,7 @@ export function renderAvatarPreview({
 
   return markup.replace(
     /\bdata-skin-tone\s*=/,
-    `data-blush="${escapeHtml(value.blush)}" data-skin-tone=`
+    `${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_f083284179fa044fc4ad")}${escapeHtml(value.blush)}${__dialogueText("ui/characterCreation/AppearanceControls.js", "t_6a0ebab8d9bb19e3eab4")}`
   );
 }
 

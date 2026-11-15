@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../gameStatePersistence.js';
@@ -62,14 +63,14 @@ export class CharacterCreationScene extends BaseScene {
  }
  refresh(){
   if(!this.domElement?.node||this._cleanupDone||!this.sys.isActive())return;
-  this._cancelRefreshFrame();const content=this.getRoot()?.querySelector('.character-creation-content');
+  this._cancelRefreshFrame();const content=this.getRoot()?.querySelector(__dialogueText("scenes/CharacterCreationScene.js", "t_6297b30c7ffa248d9e81"));
   const scrollTop=content?.scrollTop??0,scrollLeft=content?.scrollLeft??0;
   this._removeRootListeners();this.domElement.setHTML(this.getTemplate());this.fitDomInterface();this.bindDomEvents();
   const token=this._runToken;
   this._refreshFrame=requestAnimationFrame(()=>{
    this._refreshFrame=null;
    if(this._runToken!==token||this._cleanupDone||!this.domElement?.node||!this.sys.isActive())return;
-   const refreshedContent=this.getRoot()?.querySelector('.character-creation-content');
+   const refreshedContent=this.getRoot()?.querySelector(__dialogueText("scenes/CharacterCreationScene.js", "t_6297b30c7ffa248d9e81"));
    if(refreshedContent){refreshedContent.scrollTop=scrollTop;refreshedContent.scrollLeft=scrollLeft;}
   });
  }
@@ -133,7 +134,7 @@ export class CharacterCreationScene extends BaseScene {
   if(this.currentStep>0){this.currentStep-=1;this.clearError();this.refresh();return;}
   const token=this._runToken;this.isLeavingScene=true;this.clearError();this.refresh();
   const left=await this.goto('EnterScene',{...this.entryData});
-  if(!left&&this._runToken===token&&!this._cleanupDone){this.isLeavingScene=false;this.showError('The agency door is stuck. Please try again.');}
+  if(!left&&this._runToken===token&&!this._cleanupDone){this.isLeavingScene=false;this.showError(__dialogueText("scenes/CharacterCreationScene.js", "t_b7e7b438aeb5cf7c01d4"));}
  }
  goToStep(step){
   if(this._isInputBlocked()||!Number.isInteger(step)||step<0||step>=STEP_COUNT)return;
@@ -147,10 +148,10 @@ export class CharacterCreationScene extends BaseScene {
  }
  validateCurrentStep(){
   if(this.currentStep===0&&!this.playerData.name.trim()){
-   this.showError('Mark Agency needs a name for the paperwork. Even a suspicious one.');return false;
+   this.showError(__dialogueText("scenes/CharacterCreationScene.js", "t_09c9832f9f5be7fc8088"));return false;
   }
   if(this.currentStep===2&&this.getRemainingPoints()!==0){
-   this.showError(`Assign all ${INITIAL_STAT_POINTS} instinct points before HR loses the form.`);return false;
+   this.showError(`${__dialogueText("scenes/CharacterCreationScene.js", "t_4b96d0183cb9876c2d83")}${INITIAL_STAT_POINTS}${__dialogueText("scenes/CharacterCreationScene.js", "t_02a94b6d88bdca6df903")}`);return false;
   }return true;
  }
  getRemainingPoints(){
@@ -176,9 +177,9 @@ export class CharacterCreationScene extends BaseScene {
  }
  updateIdentityPreview(){
   const root=this.getRoot();if(!root)return;
-  const name=this.playerData.name.trim()||'UNNAMED APPLICANT',alias=this.playerData.alias.trim()||'UNLISTED';
+  const name=this.playerData.name.trim()||__dialogueText("scenes/CharacterCreationScene.js", "t_803b7246d0b19ce1283c"),alias=this.playerData.alias.trim()||'UNLISTED';
   const avatarName=root.querySelector('[data-avatar-name]'),avatarAlias=root.querySelector('[data-avatar-alias]');
-  if(avatarName)avatarName.textContent=name.toUpperCase();if(avatarAlias)avatarAlias.textContent=`ALIAS: ${alias.toUpperCase()}`;
+  if(avatarName)avatarName.textContent=name.toUpperCase();if(avatarAlias)avatarAlias.textContent=`${__dialogueText("scenes/CharacterCreationScene.js", "t_5c8f69d797c417f6b56b")}${alias.toUpperCase()}`;
  }
  showError(message){this.errorMessage=message;this.refresh();}
  clearError(){this.errorMessage='';}
@@ -212,10 +213,10 @@ export class CharacterCreationScene extends BaseScene {
     EventBus.emit('character-created',{name:gameState.playerName,profile:gameState.detectiveProfile,difficulty:gameState.difficulty});
    }
    const started=await this.goto('GameScene',{...this.entryData,fromCharacterCreation:true,isNewGame:true,startOnboarding:true});
-   if(!started&&this._runToken===token&&!this._cleanupDone){this.isStartingGame=false;this.showError('The agency elevator stalled. Please try again.');}
+   if(!started&&this._runToken===token&&!this._cleanupDone){this.isStartingGame=false;this.showError(__dialogueText("scenes/CharacterCreationScene.js", "t_f905bfaf51328a4c6a1f"));}
   }catch(error){
    if(this._runToken===token&&!this._cleanupDone){
-    console.error('[CharacterCreationScene] Unable to create detective:',error);this.isStartingGame=false;this.showError('The agency filing cabinet jammed. Please try again.');
+    console.error('[CharacterCreationScene] Unable to create detective:',error);this.isStartingGame=false;this.showError(__dialogueText("scenes/CharacterCreationScene.js", "t_cc5126fafc64833a1941"));
    }
   }
  }

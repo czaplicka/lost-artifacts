@@ -9,7 +9,7 @@ export function playShopPurchaseAudio(scene) {
       !scene.sys?.isActive() || !scene.cache.audio.exists(KEY)) return null;
   try {
     audioManager.init(scene);
-    return audioManager.playSfx(KEY, { volume: audioManager.getSfxVolume() * 0.4 });
+    return audioManager.playSfx(KEY, { gain: 0.4, volume: audioManager.getSfxVolume() * 0.4 });
   } catch (error) {
     console.debug('[ShopPurchaseAudio] Sound unavailable:', error);
     return null;

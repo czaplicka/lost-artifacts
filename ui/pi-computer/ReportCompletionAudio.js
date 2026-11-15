@@ -11,7 +11,7 @@ export function prepareReportCompletionAudio(scene){
 }
 function play(ui){
  const scene=ui.scene;if(!scene.cache?.audio?.exists(KEY))return;
- try{audioManager.init(scene);audioManager.playSfx(KEY,{volume:audioManager.getSfxVolume()*.35});}catch(error){console.debug('[ReportCompletionAudio] Sound unavailable:',error);}
+ try{audioManager.init(scene);audioManager.playSfx(KEY,{gain:.35,volume:audioManager.getSfxVolume()*.35});}catch(error){console.debug('[ReportCompletionAudio] Sound unavailable:',error);}
 }
 export function reportCompletionButton(ui,x,y,label,action){
  const token=ui.viewToken,button=ui.drawing.button(x,y,label,()=>{});let busy=false;

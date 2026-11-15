@@ -14,6 +14,6 @@ export function prepareEvidenceTextAudio(scene){
 export function playEvidenceTextAudio(ui){
  const scene=ui?.scene;
  if(!ui||ui.destroyed||!ui.isOpen||ui.suspended||ui.booting||scene?._cleanupDone||!scene?.sys?.isActive()||!scene.cache?.audio?.exists(KEY))return;
- try{audioManager.init(scene);audioManager.playSfx(KEY,{volume:audioManager.getSfxVolume()*.3});}
+ try{audioManager.init(scene);audioManager.playSfx(KEY,{gain:.3,volume:audioManager.getSfxVolume()*.3});}
  catch(error){console.debug('[EvidenceTextAudio] Sound unavailable:',error);}
 }

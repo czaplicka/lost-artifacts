@@ -1,26 +1,27 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { openPayPalSandbox } from '../ui/PayPalSandboxCheckout.js';
 import { preloadDocumentSfx, playDocumentSfx } from './archive/DocumentSfx.js';
 const SCENE_KEY='ExpansionStoreScene', W=1920, H=1080;
 const COLORS={ink:'#382b20',muted:'#796448',paper:'#e1cfa8',red:'#893f32',cream:'#eadbb9',green:'#b8c69c'};
 const PRODUCTS=[
- {id:'dead_mail',number:'01',category:'HALLOWEEN / PI CASE',title:'DEAD\nMAIL',location:'Blackthorn Cemetery',
-  description:'A parcel for a dead woman. She would like to complain in person.',status:'IN DEVELOPMENT',stamp:'DEAD LETTER',
-  monitorLabel:'DELIVERY STATUS',monitorValue:'RECIPIENT\nALIVE',contents:[
-   'Day investigation: chapters 1–2 (local preview)','Night surveillance: chapter 3 (local preview)',
-   'Controlled delivery and report: chapter 4 (local preview)','Exclusive local achievement and souvenir phone']},
- {id:'case_missing_exhibit',number:'02',category:'CASE FILE',title:'THE MISSING\nEXHIBIT',location:'A standalone investigation',
-  description:'An exhibit has vanished. The director calls it an interactive experience.',status:'COMING SOON',stamp:'CLASSIFIED',
-  monitorLabel:'EXHIBIT STATUS',monitorValue:'NOT\nEXHIBITING',contents:[
-   'One additional investigation','New witnesses and dialogue','A new crime scene','A very defensive museum director']},
- {id:'city_pack',number:'03',category:'CITY PACK',title:'NEXT STOP:\nTROUBLE',location:'A new destination',
-  description:'New streets. New suspects. The same inadequate travel allowance.',status:'COMING SOON',stamp:'OVERSEAS',
-  monitorLabel:'TRAVEL REQUEST',monitorValue:'UNDER\nREVIEW',contents:[
-   'An additional city','New locations and characters','Additional investigations','More questionable local advice']},
- {id:'story_expansion',number:'04',category:'STORY EXPANSION',title:'THE FILE\nNOBODY FILED',location:'An additional agency story',
-  description:'Someone buried this case. In the alphabetical filing system.',status:'COMING SOON',stamp:'RESTRICTED',
-  monitorLabel:'FILE RECOVERY',monitorValue:'PLEASE\nPANIC',contents:[
-   'An additional story arc','New agency characters','New evidence and conversations','Administrative misconduct']}
+ {id:'dead_mail',number:'01',category:__dialogueText("scenes/ExpansionStoreScene.js", "t_c301e78d65c90d17c316"),title:__dialogueText("scenes/ExpansionStoreScene.js", "t_18c9241e0ab9f97b7a29"),location:__dialogueText("scenes/ExpansionStoreScene.js", "t_fcd5ad393af860802561"),
+  description:__dialogueText("scenes/ExpansionStoreScene.js", "t_6071c2c3f65e67bc5fd7"),status:'IN DEVELOPMENT',stamp:__dialogueText("scenes/ExpansionStoreScene.js", "t_91f18fe806b2ef031916"),
+  monitorLabel:__dialogueText("scenes/ExpansionStoreScene.js", "t_6bb088893c386e60f061"),monitorValue:__dialogueText("scenes/ExpansionStoreScene.js", "t_75427588881460b48787"),contents:[
+   __dialogueText("scenes/ExpansionStoreScene.js", "t_6625acabbbfe75050edb"),__dialogueText("scenes/ExpansionStoreScene.js", "t_43d343fbae1633b8ab49"),
+   __dialogueText("scenes/ExpansionStoreScene.js", "t_edb3185f791e72f7ca77"),__dialogueText("scenes/ExpansionStoreScene.js", "t_79e62eac98fc6cb7f05e")]},
+ {id:'case_missing_exhibit',number:'02',category:__dialogueText("scenes/ExpansionStoreScene.js", "t_c95495641200bd4f90b7"),title:__dialogueText("scenes/ExpansionStoreScene.js", "t_094d8ead6fa046b60e53"),location:__dialogueText("scenes/ExpansionStoreScene.js", "t_e1e891184ef5ebf4d4cb"),
+  description:__dialogueText("scenes/ExpansionStoreScene.js", "t_d2a0f327d8810dbb27ac"),status:'COMING SOON',stamp:'CLASSIFIED',
+  monitorLabel:__dialogueText("scenes/ExpansionStoreScene.js", "t_e962b2e38420b0854254"),monitorValue:__dialogueText("scenes/ExpansionStoreScene.js", "t_60aa77df5f91154a6d4d"),contents:[
+   __dialogueText("scenes/ExpansionStoreScene.js", "t_bbeb21edc4694c916e37"),__dialogueText("scenes/ExpansionStoreScene.js", "t_fe25503e2f2ca39163a6"),__dialogueText("scenes/ExpansionStoreScene.js", "t_01f73bcab2d931ad987e"),__dialogueText("scenes/ExpansionStoreScene.js", "t_8b0611378a2c4939974a")]},
+ {id:'city_pack',number:'03',category:__dialogueText("scenes/ExpansionStoreScene.js", "t_e9983ec207be6e8fbdb7"),title:__dialogueText("scenes/ExpansionStoreScene.js", "t_b1a5ff1910f86e985bd7"),location:__dialogueText("scenes/ExpansionStoreScene.js", "t_d9c9201be87c97ac52bc"),
+  description:__dialogueText("scenes/ExpansionStoreScene.js", "t_d2f1159ea21f37aeff33"),status:'COMING SOON',stamp:'OVERSEAS',
+  monitorLabel:__dialogueText("scenes/ExpansionStoreScene.js", "t_2a52786decf5654c5f18"),monitorValue:__dialogueText("scenes/ExpansionStoreScene.js", "t_a6a0132cc7ebbf3d7df5"),contents:[
+   __dialogueText("scenes/ExpansionStoreScene.js", "t_36d81cdb30d554086a85"),__dialogueText("scenes/ExpansionStoreScene.js", "t_bd9a6be58aac6eb1f2fd"),__dialogueText("scenes/ExpansionStoreScene.js", "t_bed228adf18624c89698"),__dialogueText("scenes/ExpansionStoreScene.js", "t_56cba68a0083c76a488f")]},
+ {id:'story_expansion',number:'04',category:__dialogueText("scenes/ExpansionStoreScene.js", "t_098be22fd247b417c0dd"),title:__dialogueText("scenes/ExpansionStoreScene.js", "t_40858f70219d7c1a0bf8"),location:__dialogueText("scenes/ExpansionStoreScene.js", "t_4e00488fcbbd8ceebd62"),
+  description:__dialogueText("scenes/ExpansionStoreScene.js", "t_9b4cb3e809c62a94c2af"),status:'COMING SOON',stamp:'RESTRICTED',
+  monitorLabel:__dialogueText("scenes/ExpansionStoreScene.js", "t_f6361e22eeafca47e145"),monitorValue:__dialogueText("scenes/ExpansionStoreScene.js", "t_5e1802a888e98f14e012"),contents:[
+   __dialogueText("scenes/ExpansionStoreScene.js", "t_2fcca820d17a3766bc3c"),__dialogueText("scenes/ExpansionStoreScene.js", "t_bae13057e64439b1c055"),__dialogueText("scenes/ExpansionStoreScene.js", "t_25afa713614d54cb4e7b"),__dialogueText("scenes/ExpansionStoreScene.js", "t_344bf29060504c030074")]}
 ];
 let openingPromise=null;
 export async function openExpansionStore(){
@@ -45,15 +46,15 @@ export class ExpansionStoreScene extends BaseScene{
   this.cameras.main.setBackgroundColor('#0b0b12');this.input.setTopOnly(true);this.root=this.add.container(0,0);
   if(this.textures.exists('shopping'))this.root.add(this.add.image(960,540,'shopping').setDisplaySize(W,H));
   else this.root.add(this.add.rectangle(960,540,W,H,0x29201b));
-  this.text(68,28,'MARK AGENCY',20,COLORS.cream,{fontFamily:'PressStart2P'});
-  this.text(68,69,'EXTRA CASES / THE ASSIGNMENT CATALOG',20,'#bca986');
-  this.action(1785,53,'BACK TO GAME',()=>this.scene.stop(),{width:202,height:45,fontSize:20});
-  this.text(70,1028,'More crime. Same expense policy.',18,'#b6a483');
-  this.text(960,1028,'CATALOG PREVIEW / NOT FOR SALE',15,'#b6a483',{originX:.5});
-  this.action(1730,1035,'PAYPAL / SANDBOX',()=>openPayPalSandbox(this),{width:245,height:36,fontSize:16,subtle:true});
+  this.text(68,28,__dialogueText("scenes/ExpansionStoreScene.js", "t_9246fca97ffafae56410"),20,COLORS.cream,{fontFamily:'PressStart2P'});
+  this.text(68,69,__dialogueText("scenes/ExpansionStoreScene.js", "t_2a4a6490e34b9e7f1e41"),20,'#bca986');
+  this.action(1785,53,__dialogueText("scenes/ExpansionStoreScene.js", "t_dbbd2eddb463fec26223"),()=>this.scene.stop(),{width:202,height:45,fontSize:20});
+  this.text(70,1028,__dialogueText("scenes/ExpansionStoreScene.js", "t_d46bd98e6db0a1cb782c"),18,'#b6a483');
+  this.text(960,1028,__dialogueText("scenes/ExpansionStoreScene.js", "t_e800ce53a83e1e1b9e26"),15,'#b6a483',{originX:.5});
+  this.action(1730,1035,__dialogueText("scenes/ExpansionStoreScene.js", "t_6534905d7a0be79bf7f5"),()=>openPayPalSandbox(this),{width:245,height:36,fontSize:16,subtle:true});
   const notebook=this.add.container(345,747).setAngle(-12);this.root.add(notebook);
   this.text(0,0,'AGENCY',23,'#e2cba0',{originX:.5},notebook);this.text(0,32,'CATALOG',23,'#e2cba0',{originX:.5},notebook);
-  this.text(0,78,`${PRODUCTS.length.toString().padStart(2,'0')} CASE FILES`,16,'#baa17a',{originX:.5},notebook);
+  this.text(0,78,`${PRODUCTS.length.toString().padStart(2,'0')}${__dialogueText("scenes/ExpansionStoreScene.js", "t_a5751cf9a73a87ba5cb6")}`,16,'#baa17a',{originX:.5},notebook);
   this.productLayer=this.add.container(0,0);this.root.add(this.productLayer);
   this.arrow(598,834,-1);this.arrow(992,834,1);this.drawProduct();this.fitLayout();this.scale.on('resize',this.fitLayout,this);
   if(this.input.keyboard){
@@ -98,17 +99,17 @@ export class ExpansionStoreScene extends BaseScene{
  }
  drawProduct(){
   this.productLayer.removeAll(true);const p=PRODUCTS[this.productIndex],parent=this.productLayer;
-  this.text(698,532,`MA / FILE ${p.number}`,16,'#735b37',{},parent);this.rule(parent,695,566,224);
+  this.text(698,532,`${__dialogueText("scenes/ExpansionStoreScene.js", "t_3b7050ae8b490e000fac")}${p.number}`,16,'#735b37',{},parent);this.rule(parent,695,566,224);
   this.fitText(693,592,p.title,230,145,43,COLORS.ink,{lineSpacing:9},parent);
   this.fitText(696,748,p.category,222,40,15,'#765e3e',{},parent);
   const stamp=this.add.container(800,817).setAngle(-9);parent.add(stamp);
   stamp.add(this.add.rectangle(0,0,207,42).setStrokeStyle(2,0x894432,.72));
   this.text(0,0,p.stamp,20,COLORS.red,{originX:.5,originY:.5},stamp);
   this.text(800,868,`${p.number}  /  ${PRODUCTS.length.toString().padStart(2,'0')}`,16,'#745e3b',{originX:.5},parent);
-  this.text(1061,593,'THE BRIEF',16,'#796e5c',{},parent);this.rule(parent,1060,625,224,0x8d806a,.45);
+  this.text(1061,593,__dialogueText("scenes/ExpansionStoreScene.js", "t_7e698b381a0a380bdb52"),16,'#796e5c',{},parent);this.rule(parent,1060,625,224,0x8d806a,.45);
   this.fitText(1060,646,p.description,224,122,23,'#36322b',{lineSpacing:6},parent);
   this.text(1172,795,p.status,16,COLORS.red,{originX:.5},parent);
-  this.action(1172,856,'OPEN CASE FILE',()=>this.openDetails(),{width:224,height:48,fontSize:19,parent});
+  this.action(1172,856,__dialogueText("scenes/ExpansionStoreScene.js", "t_dae708adb0550357d27e"),()=>this.openDetails(),{width:224,height:48,fontSize:19,parent});
   const monitor=this.add.container(1585,248);parent.add(monitor);
   this.text(0,-29,p.monitorLabel,15,'#8c9a79',{originX:.5,align:'center'},monitor);
   this.text(0,10,p.monitorValue,25,COLORS.green,{originX:.5,align:'center',lineSpacing:9},monitor);
@@ -121,27 +122,27 @@ export class ExpansionStoreScene extends BaseScene{
   layer.add(this.add.rectangle(960,540,1280,830,0x473523).setStrokeStyle(2,0x917349));
   layer.add(this.add.rectangle(678,195,670,96,0xc5ab79));layer.add(this.add.rectangle(678,566,670,650,0xdfcca4));
   layer.add(this.add.rectangle(1294,520,510,744,0x241f1a));
-  this.text(375,162,`MARK AGENCY / FILE ${p.number}`,16,'#5f482e',{},layer);this.text(375,200,p.category,19,'#6c5233',{},layer);
+  this.text(375,162,`${__dialogueText("scenes/ExpansionStoreScene.js", "t_6bb5e7f33139a6d857bd")}${p.number}`,16,'#5f482e',{},layer);this.text(375,200,p.category,19,'#6c5233',{},layer);
   this.fitText(375,279,p.title.replace(/\n/g,' '),590,112,40,COLORS.ink,{lineSpacing:7},layer);
   this.fitText(375,407,p.location,590,50,23,'#79603e',{},layer);this.rule(layer,375,475,590);
   this.fitText(375,505,p.description,590,124,28,COLORS.ink,{lineSpacing:10},layer);
-  this.text(375,674,'WHAT IS IN THE FILE',16,'#7a6040',{},layer);
+  this.text(375,674,__dialogueText("scenes/ExpansionStoreScene.js", "t_e9cd58c4cb7dd9fb65ca"),16,'#7a6040',{},layer);
   let y=721;p.contents.forEach((item,index)=>{
    this.text(375,y,`${index+1}.`,20,'#8a6a40',{},layer);this.fitText(410,y,item,548,37,20,'#423526',{lineSpacing:3},layer);y+=41;
   });
-  this.text(1082,185,'ASSIGNMENT STATUS',16,'#ac9671',{},layer);this.fitText(1082,232,p.status,420,80,29,'#e2c996',{},layer);
+  this.text(1082,185,__dialogueText("scenes/ExpansionStoreScene.js", "t_92af7023d685d3538537"),16,'#ac9671',{},layer);this.fitText(1082,232,p.status,420,80,29,'#e2c996',{},layer);
   this.rule(layer,1082,330,420,0xa68a5e,.4);
   if(p.id==='dead_mail'){
-   this.text(1082,372,'START IN YOUR PI OFFICE',19,'#dac293',{},layer);
-   this.fitText(1082,423,'Accept Florence’s advertisement in Classifieds, then read her email.',420,125,25,'#d0c0a1',{lineSpacing:10},layer);
-   this.fitText(1082,590,'Field investigations begin at Blackthorn Cemetery. Find it on the city map and walk to the gate.',420,150,24,'#d0c0a1',{lineSpacing:10},layer);
+   this.text(1082,372,__dialogueText("scenes/ExpansionStoreScene.js", "t_e4bfbe58fa8b34af93f8"),19,'#dac293',{},layer);
+   this.fitText(1082,423,__dialogueText("scenes/ExpansionStoreScene.js", "t_5f225783bfe532cd35be"),420,125,25,'#d0c0a1',{lineSpacing:10},layer);
+   this.fitText(1082,590,__dialogueText("scenes/ExpansionStoreScene.js", "t_744265b2237c1ef51c3c"),420,150,24,'#d0c0a1',{lineSpacing:10},layer);
   }else{
-   this.text(1082,372,'CURRENTLY IN THE ARCHIVE',18,'#dac293',{},layer);
-   this.fitText(1082,425,'This is a preview of planned content. It is not available to purchase.',420,150,26,'#d0c0a1',{lineSpacing:10},layer);
-   this.fitText(1082,630,'No price has been set. The agency is still locating its calculator.',420,110,21,'#a59273',{lineSpacing:8},layer);
+   this.text(1082,372,__dialogueText("scenes/ExpansionStoreScene.js", "t_841ddd4e1500bd37d0e6"),18,'#dac293',{},layer);
+   this.fitText(1082,425,__dialogueText("scenes/ExpansionStoreScene.js", "t_cf8bc681a3947b8ba2a9"),420,150,26,'#d0c0a1',{lineSpacing:10},layer);
+   this.fitText(1082,630,__dialogueText("scenes/ExpansionStoreScene.js", "t_a05feaec1fcda3f39f25"),420,110,21,'#a59273',{lineSpacing:8},layer);
   }
-  this.action(1294,825,'BACK TO CATALOG',()=>this.closeDetails(),{width:420,height:56,fontSize:22,parent:layer});
-  this.text(960,921,'CATALOG PREVIEW / NO PURCHASE ON THIS PAGE',15,'#b8a17d',{originX:.5},layer);
+  this.action(1294,825,__dialogueText("scenes/ExpansionStoreScene.js", "t_13cfc53587a05ef51902"),()=>this.closeDetails(),{width:420,height:56,fontSize:22,parent:layer});
+  this.text(960,921,__dialogueText("scenes/ExpansionStoreScene.js", "t_05d4b4dd2ab319e7a980"),15,'#b8a17d',{originX:.5},layer);
   this.catalogSfx('paper');
  }
  closeDetails(){

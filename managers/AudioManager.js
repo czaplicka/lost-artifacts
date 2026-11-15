@@ -74,6 +74,7 @@ class AudioManager {
     this._keyOwner = new Map(); this._activeTweens = new Set(); this._fades = new Map();
     this._playingOneShots = new Map(); this._playingSfx = new Map();
     this._sceneBindings = new Map(); this._soundOwners = new WeakMap();
+    this._soundMix = new WeakMap();
     this._destroyingSounds = new WeakSet(); this._audioHost = null; this._hostRequested = false;
     this._boundGameDestroy = () => this._destroyForGame();
     this.selectedTrack = JUKEBOX_TRACKS.find(t => t.id === safeGet(STORAGE.TRACK))?.id || JUKEBOX_TRACKS[0]?.id || null;
@@ -147,10 +148,42 @@ class AudioManager {
       if (this._isValidSound(s)) s.setMute?.(this.muted);
     }
   }
+  _mixMaster(mix) { return mix.channel === 'music' ? this.musicVolume : this.sfxVolume; }
+  _resolveGain(config, master, volume = config.volume ?? master) {
+    if (config.gain !== undefined && Number.isFinite(Number(config.gain))) return Math.max(0, Number(config.gain));
+    if (config.volume == null) return 1;
+    return master > 0 ? clamp01(volume) / master : 0;
+  }
+  _trackMix(sound, config, store, volume) {
+    const channel = store === this.activeMusic ? 'music' : 'sfx';
+    const master = channel === 'music' ? this.musicVolume : this.sfxVolume;
+    const mix = { channel, gain: this._resolveGain(config, master, volume), lastMaster: master, lastVolume: null };
+    this._soundMix.set(sound, mix);
+    return clamp01(master * mix.gain);
+  }
+  _captureMix(sound) {
+    const mix = this._soundMix.get(sound);
+    if (!mix) return null;
+    // Preserve a scene's direct setVolume without deriving gain from a new slider value.
+    if (!this._fades.has(sound) && mix.lastVolume !== null && Number.isFinite(sound.volume) &&
+        Math.abs(sound.volume - mix.lastVolume) > 1e-9 && mix.lastMaster > 0) {
+      mix.gain = clamp01(sound.volume) / mix.lastMaster;
+    }
+    return mix;
+  }
+  _renderMix(sound) {
+    if (!this._isValidSound(sound)) return;
+    const mix = this._soundMix.get(sound);
+    if (!mix) return;
+    mix.lastMaster = this._mixMaster(mix);
+    mix.lastVolume = clamp01(mix.lastMaster * mix.gain);
+    sound.setVolume?.(mix.lastVolume);
+  }
   _syncChannelVolumes(sounds, volume) {
-    for (const s of [...sounds]) {
-      if (!this._isValidSound(s) || this._fades.get(s)?.stopAfter) continue;
-      this._cancelFade(s); s.setVolume?.(clamp01(volume));
+    for (const sound of [...sounds]) {
+      if (!this._isValidSound(sound)) continue;
+      if (this._captureMix(sound)) this._renderMix(sound);
+      else sound.setVolume?.(clamp01(volume));
     }
   }
   _applyGlobalAudioState() {
@@ -179,7 +212,7 @@ class AudioManager {
     let cleaned = false;
     sound.once('destroy', () => {
       if (cleaned) return; cleaned = true;
-      this._cancelFade(sound); this._soundOwners.delete(sound);
+      this._cancelFade(sound); this._soundOwners.delete(sound); this._soundMix.delete(sound);
       if (store instanceof Map) { if (store.get(key) === sound) store.delete(key); }
       else store.delete(sound);
       if (this._keyOwner.get(key)?.sound === sound) this._keyOwner.delete(key);
@@ -192,9 +225,11 @@ class AudioManager {
     if (owner && owner.store !== requestingStore) this._destroySound(owner.sound);
   }
   _playConfigured(sound, config, volume, loop) {
-    const playback = { ...config, volume: clamp01(volume), loop, mute: this.muted };
+    const { gain, ...phaserConfig } = config;
+    const playback = { ...phaserConfig, volume: clamp01(volume), loop, mute: this.muted };
     this._applySoundState(sound, playback.volume);
     const started = sound.play(playback); this._applySoundState(sound, playback.volume);
+    this._renderMix(sound);
     return started;
   }
   _createOrReuse(key, config, store, volume, loop = true) {
@@ -203,37 +238,51 @@ class AudioManager {
     let sound = store.get(key);
     if (!this._isValidSound(sound)) { store.delete(key); sound = null; }
     if (sound) {
-      this._cancelFade(sound); sound.setLoop?.(loop); this._applySoundState(sound, volume);
+      this._cancelFade(sound); volume = this._trackMix(sound, config, store, volume);
+      sound.setLoop?.(loop); this._applySoundState(sound, volume); this._renderMix(sound);
       this._soundOwners.set(sound, this.scene);
       if (!sound.isPlaying) this._playConfigured(sound, config, volume, loop);
       return sound;
     }
-    sound = this.game.sound.add(key, { ...config, loop, volume: clamp01(volume), mute: this.muted });
+    const { gain, ...phaserConfig } = config;
+    sound = this.game.sound.add(key, { ...phaserConfig, loop, volume: clamp01(volume), mute: this.muted });
+    volume = this._trackMix(sound, config, store, volume);
     store.set(key, sound); this._keyOwner.set(key, { store, sound });
     this._soundOwners.set(sound, this.scene); this._watchSound(sound, store, key);
     this._playConfigured(sound, config, volume, loop); return sound;
   }
-  _fadeTo(sound, targetVolume, duration = 300, stopAfter = false, startVolume = null) {
+  _fadeTo(sound, targetVolume, duration = 300, stopAfter = false, startVolume = null, targetGain = null) {
     if (!this._isValidSound(sound)) return null;
+    let mix = this._captureMix(sound);
+    if (!mix) {
+      const store = [...this.activeMusic.values()].includes(sound) ? this.activeMusic : this.activeSfx;
+      this._trackMix(sound, { volume: sound.volume }, store, sound.volume);
+      mix = this._soundMix.get(sound);
+    }
     this._cancelFade(sound);
-    const target = clamp01(targetVolume), from = clamp01(startVolume ?? sound.volume);
-    sound.setVolume?.(from);
+    const master = this._mixMaster(mix);
+    const from = startVolume === null ? mix.gain : master > 0 ? clamp01(startVolume) / master : 0;
+    const target = targetGain !== null ? Math.max(0, Number(targetGain) || 0) :
+      clamp01(targetVolume) === 0 ? 0 : master > 0 ? clamp01(targetVolume) / master : clamp01(targetVolume);
+    mix.gain = from; this._renderMix(sound);
     const milliseconds = Math.max(0, Number(duration) || 0), host = this._ensureAudioHost();
-    const finish = () => { if (stopAfter) this._destroySound(sound); else sound.setVolume?.(target); };
+    const finish = () => {
+      if (stopAfter) this._destroySound(sound);
+      else if (this._isValidSound(sound)) { mix.gain = target; this._renderMix(sound); }
+    };
     if (!milliseconds || !host?.sys?.isActive?.() || !host.tweens?.addCounter) { finish(); return null; }
     const record = { tween: null, stopAfter }; this._fades.set(sound, record);
     try {
       record.tween = host.tweens.addCounter({ from, to: target, duration: milliseconds, ease: 'Sine.easeInOut',
         onUpdate: tween => {
           if (this._fades.get(sound) === record && this._isValidSound(sound)) {
-            const value = tween.getValue(); if (Number.isFinite(value)) sound.setVolume(clamp01(value));
+            const value = tween.getValue();
+            if (Number.isFinite(value)) { mix.gain = Math.max(0, value); this._renderMix(sound); }
           }
         },
         onComplete: () => {
           if (this._fades.get(sound) !== record) return;
-          this._fades.delete(sound); this._activeTweens.delete(record.tween);
-          if (stopAfter) this._destroySound(sound);
-          else if (this._isValidSound(sound)) sound.setVolume(target);
+          this._fades.delete(sound); this._activeTweens.delete(record.tween); finish();
         }
       });
       this._activeTweens.add(record.tween); return record.tween;
@@ -269,8 +318,10 @@ class AudioManager {
     if (!this._canPlay(key)) return null;
     const { overlap = false, ...soundConfig } = config, trackRecent = recent && !overlap;
     if (trackRecent) this._destroySound(recent.get(key));
-    const volume = clamp01(soundConfig.volume ?? this.sfxVolume);
-    const sound = this.game.sound.add(key, { ...soundConfig, loop: false, volume, mute: this.muted });
+    let volume = clamp01(soundConfig.volume ?? this.sfxVolume);
+    const { gain, ...phaserConfig } = soundConfig;
+    const sound = this.game.sound.add(key, { ...phaserConfig, loop: false, volume, mute: this.muted });
+    volume = this._trackMix(sound, soundConfig, store, volume);
     store.add(sound); if (trackRecent) recent.set(key, sound);
     this._soundOwners.set(sound, this.scene); this._watchSound(sound, store, key);
     const finish = () => this._destroySound(sound);
@@ -282,13 +333,15 @@ class AudioManager {
   playVoice(key, config = {}) { return this._playTemporary(key, config, this.activeVoice); }
   fadeInMusic(key, config = {}, duration = 500) {
     if (BACKGROUND_KEYS.has(key)) return this.playMusic(key, config);
-    const sound = this.playMusic(key, { ...config, volume: 0 });
-    if (sound) this._fadeTo(sound, config.volume ?? this.musicVolume, duration, false, 0);
+    const targetGain = this._resolveGain(config, this.musicVolume);
+    const sound = this.playMusic(key, { ...config, gain: 0, volume: 0 });
+    if (sound) this._fadeTo(sound, config.volume ?? this.musicVolume, duration, false, 0, targetGain);
     return sound;
   }
   fadeInAmbient(key, config = {}, duration = 500) {
-    const sound = this.playAmbient(key, { ...config, volume: 0 });
-    if (sound) this._fadeTo(sound, config.volume ?? this.sfxVolume, duration, false, 0);
+    const targetGain = this._resolveGain(config, this.sfxVolume);
+    const sound = this.playAmbient(key, { ...config, gain: 0, volume: 0 });
+    if (sound) this._fadeTo(sound, config.volume ?? this.sfxVolume, duration, false, 0, targetGain);
     return sound;
   }
   fadeOutAndStop(soundOrKey, duration = 400) {
@@ -423,7 +476,7 @@ class AudioManager {
         let sound = this.activeMusic.get(track.key);
         if (this._isValidSound(sound) && sound.isPaused) {
           sound.setLoop(false);
-          this._applySoundState(sound, this.musicVolume); sound.resume();
+          this._renderMix(sound); this._applySoundState(sound, sound.volume); sound.resume();
         } else sound = this._createOrReuse(track.key, { loop: false }, this.activeMusic, this.musicVolume, false);
         if (!sound) throw new Error(`Cannot create audio: ${track.title}`);
         this._watchJukeboxCompletion(sound, track, request, game);

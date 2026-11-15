@@ -33,7 +33,7 @@ function syncProgress(){
 export const ACHIEVEMENTS={
  first_game:{id:'first_game',icon:'🪪',title:__dialogueText("managers/AchievementManager.js", "t_43316bc0c65c3282fe11"),description:__dialogueText("managers/AchievementManager.js", "t_e9c19ccefd5005a3111a"),
   isUnlocked:()=>Boolean(gameState.currentMission)&&(gameState.isGameActive===true||gameState.caseResolved===true||gameState.caseFailed===true)},
- the_dream:{id:'the_dream',icon:'🌙',title:__dialogueText("managers/AchievementManager.js", "t_25336ba244f8655760ed"),description:__dialogueText("managers/AchievementManager.js", "t_f15ff299f03dd32dd845"),isUnlocked:()=>gameState.hollyIntroSeen===true},
+ the_dream:{id:'the_dream',icon:'🌙',title:__dialogueText("managers/AchievementManager.js", "t_8aaba793a9ee98d98925"),description:__dialogueText("managers/AchievementManager.js", "t_f15ff299f03dd32dd845"),isUnlocked:()=>gameState.hollyIntroSeen===true},
  first_travel:{id:'first_travel',icon:'🧳',title:__dialogueText("managers/AchievementManager.js", "t_58ed20063970e1da1cfa"),description:__dialogueText("managers/AchievementManager.js", "t_60c93886469a85d54547"),
   isUnlocked:()=>gameState.firstTravelCompleted===true||[...list(gameState.travelHistory),gameState.lastTravel].some(t=>{
    if(!record(t))return false;const destination=id(t.toCityId),origin=id(t.fromCityId);return destination!==null&&origin!==null&&destination!==origin;

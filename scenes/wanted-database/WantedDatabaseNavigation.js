@@ -45,7 +45,7 @@ export const WantedDatabaseNavigation = {
         if (!this.cache.audio.exists('sfx_wanted_search_key')) return;
         try {
             audioManager.init(this);
-            audioManager.playSfx('sfx_wanted_search_key', { volume: audioManager.getSfxVolume() * 0.2 });
+            audioManager.playSfx('sfx_wanted_search_key', { gain: 0.2, volume: audioManager.getSfxVolume() * 0.2 });
         } catch (error) { console.debug('[WantedDatabaseScene] Search sound unavailable:', error); }
     },
     onKeyDown(event) {

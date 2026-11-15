@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { APPEARANCE_OPTIONS, renderAvatarPreview } from '../ui/characterCreation/AppearanceControls.js';
 import { createRandomIdentity } from '../ui/characterCreation/CharacterCreationData.js';
 import { saveGameState } from '../gameStatePersistence.js';
@@ -18,12 +19,12 @@ export function shuffle(items){
   for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
   return a;
 }
-function clock(n){const h=Math.floor(n/60)%24,m=n%60;return `${h%12||12}:${String(m).padStart(2,'0')} ${h<12?'a.m.':'p.m.'}`;}
+function clock(n){const h=Math.floor(n/60)%24,m=n%60;return `${h%12||12}:${String(m).padStart(2,'0')} ${h<12?__dialogueText("suspects/PersonnelRoster.js", "t_7b455f2dd791ffcc1278"):__dialogueText("suspects/PersonnelRoster.js", "t_36e11c186286bdb79b77")}`;}
 function floorLabel(n){return n===0?PERSONNEL_TEXT.ui.ground:format(PERSONNEL_TEXT.ui.floor,{floor:n});}
 export function occupationMatches(c,job){return c.match.test(job)||c.roles.some(role=>norm(role)===norm(job));}
 function collections(mission){
   return [...getPersonnelCollections(mission),{id:'management',match:/director|head of|department head|operations manager|senior manager/i,
-    roles:['Director','Deputy director','Head of operations','Head of visitor services']}];
+    roles:[__dialogueText("suspects/PersonnelRoster.js", "t_c149bc14e45c0d92e0ad"),__dialogueText("suspects/PersonnelRoster.js", "t_5adba028e6d98e5bda2b"),__dialogueText("suspects/PersonnelRoster.js", "t_e2ec20a539a0be435309"),__dialogueText("suspects/PersonnelRoster.js", "t_d880dd739b5ff0dfe780")]}];
 }
 function chooseJobs(mission,suspects,count){
   const available=shuffle(collections(mission).filter(c=>PERSONNEL_TEXT.jobs[c.id]&&!suspects.some(s=>occupationMatches(c,jobOf(s)))));
@@ -129,18 +130,18 @@ export function submitPersonnelShortlist(roster){
   return true;
 }
 const PATHS={
-  shield:'M12 2 3 6v6c0 5 9 10 9 10s9-5 9-10V6Z',
-  computer:'M3 3h18v13H3zM8 21h8m-4-5v5',
-  broom:'m15 2-4 10m-5 0h10l4 10H2z',
-  ticket:'M2 5h20v5a2 2 0 0 0 0 4v5H2v-5a2 2 0 0 0 0-4zM15 5v14',
-  book:'M3 3h7l2 2 2-2h7v17h-7l-2 2-2-2H3zM12 5v17',
-  brush:'m10 13 9-11 3 3-11 10M10 14c-5-2-7 2-7 7 5 0 9-2 7-7',
-  briefcase:'M8 7V3h8v4M2 7h20v14H2zM2 12l10 4 10-4',
-  box:'m2 7 10-5 10 5v12l-10 4-10-4zM2 7l10 5 10-5M12 12v11'
+  shield:__dialogueText("suspects/PersonnelRoster.js", "t_a5d1da40b9e00ad88ca7"),
+  computer:__dialogueText("suspects/PersonnelRoster.js", "t_97d182edfc1ab70ae5bc"),
+  broom:__dialogueText("suspects/PersonnelRoster.js", "t_a596f1071aad9faeaf13"),
+  ticket:__dialogueText("suspects/PersonnelRoster.js", "t_f8945c551dff80edadd7"),
+  book:__dialogueText("suspects/PersonnelRoster.js", "t_a24518d69d3234b81e05"),
+  brush:__dialogueText("suspects/PersonnelRoster.js", "t_253720b487f2b271b472"),
+  briefcase:__dialogueText("suspects/PersonnelRoster.js", "t_58706234b3180f72985d"),
+  box:__dialogueText("suspects/PersonnelRoster.js", "t_a49730180b6b1a65fa43")
 };
 function icon(job){
   const key=/secur|guard|CCTV/i.test(job)?'shield':/\bIT\b|network|computer|software|database/i.test(job)?'computer':/clean|janitor|housekeep/i.test(job)?'broom':/ticket|admission|cloakroom/i.test(job)?'ticket':/archiv|educat|guide|docent|research/i.test(job)?'book':/conserv|restor|curat|display/i.test(job)?'brush':/pack|cargo|warehouse|freight|stock/i.test(job)?'box':'briefcase';
-  return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${PATHS[key]}"/></svg>`;
+  return `${__dialogueText("suspects/PersonnelRoster.js", "t_f323980de7ff35d17862")}${PATHS[key]}${__dialogueText("suspects/PersonnelRoster.js", "t_fc2a84ab62b5bd298ac6")}`;
 }
 let avatarCss='';
 const avatarStyleParts=new Set();
@@ -148,14 +149,14 @@ function portrait(appearance,name){
   const wrapper=document.createElement('div');wrapper.innerHTML=renderAvatarPreview({appearance,name});
   for(const style of wrapper.querySelectorAll('style'))avatarStyleParts.add(style.textContent);
   avatarCss=[...avatarStyleParts].join('\n');
-  const avatar=wrapper.querySelector('.agency-id-avatar');
+  const avatar=wrapper.querySelector(__dialogueText("suspects/PersonnelRoster.js", "t_64781541f2719c61a61f"));
   if(!avatar)throw new Error('Avatar renderer did not return a portrait.');
   avatar.removeAttribute('data-avatar-preview');avatar.setAttribute('aria-label',name);
   if(appearance?.hairHex)avatar.style.setProperty('--hair',appearance.hairHex);
   return avatar.outerHTML;
 }
 function loadStyles(){
-  for(const [id,path] of [['personnel-v4','../assets/css/personnel-roster.css'],['personnel-avatars','../assets/css/character-creation.css']]){
+  for(const [id,path] of [['personnel-v4',__dialogueText("suspects/PersonnelRoster.js", "t_f13829eddecedcd941b6")],['personnel-avatars',__dialogueText("suspects/PersonnelRoster.js", "t_d976a2ef02321c60c588")]]){
     if(document.getElementById(id))continue;
     const link=document.createElement('link');link.id=id;link.rel='stylesheet';link.href=new URL(path,import.meta.url).href;document.head.append(link);
   }
@@ -166,16 +167,8 @@ export class PersonnelRosterView {
     this.selectedStatement=Math.max(0,Math.min(roster.selectedStatement||0,roster.statements.length-1));
     this.handleClick=this.handleClick.bind(this);this.resize=this.resize.bind(this);loadStyles();
     const ui=PERSONNEL_TEXT.ui;
-    this.element=scene.add.dom(0,0).createFromHTML(`
-      <section class="personnel-roster" aria-label="${esc(ui.title)}"><style data-avatar-css></style>
-        <header class="personnel-header"><div><h1>${esc(ui.title)}</h1><p>${esc(roster.location)} — ${esc(ui.instruction)}</p></div><button type="button" data-close>${esc(ui.back)}</button></header>
-        <section class="personnel-testimony"><div class="personnel-witness-photo" data-witness-photo></div><div class="personnel-account">
-          <div class="personnel-witness-bar"><button type="button" data-prev aria-label="Previous witness">&#8249;</button><div data-speaker></div><button type="button" data-next aria-label="Next witness">&#8250;</button></div>
-          <blockquote data-statement></blockquote><details><summary>${esc(ui.note)}</summary><p data-corroboration></p></details>
-        </div></section><div class="personnel-grid" data-grid></div>
-        <footer><button type="button" data-hint>${esc(ui.hint)}</button><p data-message role="status" aria-live="polite"></p><button type="button" data-confirm>${esc(ui.submit)}</button></footer>
-      </section>`).setOrigin(0,0).setDepth(2000).setScrollFactor(0);
-    this.root=this.element.node.querySelector('.personnel-roster');
+    this.element=scene.add.dom(0,0).createFromHTML(`${__dialogueText("suspects/PersonnelRoster.js", "t_7894280d0cc22f6b55ff")}${esc(ui.title)}${__dialogueText("suspects/PersonnelRoster.js", "t_b860d5f775a18a3e20d0")}${esc(ui.title)}${__dialogueText("suspects/PersonnelRoster.js", "t_427148483efaaabf7744")}${esc(roster.location)}${__dialogueText("suspects/PersonnelRoster.js", "t_3b2e8119b6fcc97df985")}${esc(ui.instruction)}${__dialogueText("suspects/PersonnelRoster.js", "t_17760dd7eee1b14d1834")}${esc(ui.back)}${__dialogueText("suspects/PersonnelRoster.js", "t_2800c3da8fd588cffc67")}${esc(ui.note)}${__dialogueText("suspects/PersonnelRoster.js", "t_b8a52c3c3b1b94b75425")}${esc(ui.hint)}${__dialogueText("suspects/PersonnelRoster.js", "t_72f82f5e83207e5a5c17")}${esc(ui.submit)}${__dialogueText("suspects/PersonnelRoster.js", "t_adc3ae5e7cf6379200b1")}`).setOrigin(0,0).setDepth(2000).setScrollFactor(0);
+    this.root=this.element.node.querySelector(__dialogueText("suspects/PersonnelRoster.js", "t_0abdcccbbdd807c54557"));
     this.help=new PersonnelHelpController(scene,this,PERSONNEL_TEXT.help);
     this.root.addEventListener('click',this.handleClick);scene.scale.on('resize',this.resize);
     this.help.create();this.render();this.resize();
@@ -187,9 +180,7 @@ export class PersonnelRosterView {
   }
   render(){
     const excluded=new Set(this.roster.excludedIds||[]),ui=PERSONNEL_TEXT.ui;
-    this.root.querySelector('[data-grid]').innerHTML=this.roster.people.map(p=>`<button type="button" class="personnel-card${excluded.has(p.id)?' is-cleared':''}" data-person="${esc(p.id)}" aria-pressed="${excluded.has(p.id)}">
-      <span class="personnel-photo">${portrait(p.appearance,p.name)}<span class="personnel-stamp" aria-hidden="true">${esc(ui.cleared)}</span></span>
-      <span class="personnel-name">${esc(p.name)}</span><span class="personnel-occupation">${icon(p.occupation)}<span>${esc(p.occupation)}</span></span><span class="personnel-floor">${esc(floorLabel(p.floor))}</span></button>`).join('');
+    this.root.querySelector('[data-grid]').innerHTML=this.roster.people.map(p=>`${__dialogueText("suspects/PersonnelRoster.js", "t_145ee8e5bdb8d9c619cb")}${excluded.has(p.id)?__dialogueText("suspects/PersonnelRoster.js", "t_777741c0f535a5e37e71"):''}${__dialogueText("suspects/PersonnelRoster.js", "t_2dcc6dd830e42ff686fe")}${esc(p.id)}${__dialogueText("suspects/PersonnelRoster.js", "t_b3c0b044207f0ecc4137")}${excluded.has(p.id)}${__dialogueText("suspects/PersonnelRoster.js", "t_99d2ca2d1aa2d0be0ace")}${portrait(p.appearance,p.name)}${__dialogueText("suspects/PersonnelRoster.js", "t_549386b255132b68059e")}${esc(ui.cleared)}${__dialogueText("suspects/PersonnelRoster.js", "t_63edff4808ebde6d73b3")}${esc(p.name)}${__dialogueText("suspects/PersonnelRoster.js", "t_6d65c3cec938f427f5d1")}${icon(p.occupation)}${__dialogueText("suspects/PersonnelRoster.js", "t_f0a8ebd68c47ad5549c3")}${esc(p.occupation)}${__dialogueText("suspects/PersonnelRoster.js", "t_81f81d5723b9e3df62be")}${esc(floorLabel(p.floor))}${__dialogueText("suspects/PersonnelRoster.js", "t_fed48d69b2f478abb2f5")}`).join('');
     this.renderStatement();this.updateCount();if(this.roster.updatedFromPreviousVersion)this.message(ui.updated);
   }
   renderStatement(){

@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { getCaseSuspects } from '../suspects/CaseSuspects.js';
@@ -60,19 +61,19 @@ export class SuspectGridScene extends BaseScene{
   try{
    const allSuspects=this.getCaseSuspects(),gate=getPersonnelGridGate(this.gameState,allSuspects);
    if(gate.type==='incomplete'){
-    this.personnelNotice=new PersonnelNoticeView(this,{title:'PERSONNEL REVIEW REQUIRED',paragraphs:['Complete the personnel shortlist before opening the evidence grid.'],buttonLabel:'Back to investigation',onContinue:()=>{this.personnelNotice=null;this.leaveBeforeGrid();}});return;
+    this.personnelNotice=new PersonnelNoticeView(this,{title:__dialogueText("scenes/SuspectGridScene.js", "t_a4d1eef381f0b222834a"),paragraphs:[__dialogueText("scenes/SuspectGridScene.js", "t_03822862666264bba2a2")],buttonLabel:__dialogueText("scenes/SuspectGridScene.js", "t_355ed6ca1f915cf03230"),onContinue:()=>{this.personnelNotice=null;this.leaveBeforeGrid();}});return;
    }
    if(gate.type==='correction'){
     const targetIds=new Set(gate.suspectIds),correctedPeople=allSuspects.filter(suspect=>targetIds.has(suspect.id));
     this.personnelNotice=new PersonnelNoticeView(this,{
-     title:'INTERNAL REVIEW',paragraphs:['A colleague reviewed your shortlist and found a few inconsistencies with the verified statements.','The corrected list is attached.','Nobody tell HR this counts as teamwork.'],
-     people:correctedPeople,buttonLabel:'Continue with corrected list',onContinue:()=>{this.personnelNotice=null;const ids=acknowledgePersonnelCorrection(gate.roster);this.startGrid(ids);}
+     title:__dialogueText("scenes/SuspectGridScene.js", "t_a7ae97179ff9e0573966"),paragraphs:[__dialogueText("scenes/SuspectGridScene.js", "t_da80e772f66a5547127b"),__dialogueText("scenes/SuspectGridScene.js", "t_ba70f2832ad201990a43"),__dialogueText("scenes/SuspectGridScene.js", "t_30031792f406d1725111")],
+     people:correctedPeople,buttonLabel:__dialogueText("scenes/SuspectGridScene.js", "t_6215440a97ab7106501a"),onContinue:()=>{this.personnelNotice=null;const ids=acknowledgePersonnelCorrection(gate.roster);this.startGrid(ids);}
     });return;
    }
    this.startGrid(gate.suspectIds);
   }catch(error){
    console.error('[SuspectGridScene] Personnel review failed:',error);
-   this.personnelNotice=new PersonnelNoticeView(this,{title:'CASE FILE ERROR',paragraphs:['The personnel review could not be prepared.',error.message],buttonLabel:'Back',onContinue:()=>{this.personnelNotice=null;this.leaveBeforeGrid();}});
+   this.personnelNotice=new PersonnelNoticeView(this,{title:__dialogueText("scenes/SuspectGridScene.js", "t_00ff7d6b0496d2bd6eb0"),paragraphs:[__dialogueText("scenes/SuspectGridScene.js", "t_fcc64986a0c34ddbccfc"),error.message],buttonLabel:__dialogueText("scenes/SuspectGridScene.js", "t_76900f1bfd16c8d4dd3d"),onContinue:()=>{this.personnelNotice=null;this.leaveBeforeGrid();}});
   }
  }
  startGrid(suspectIds=null){
@@ -100,7 +101,7 @@ export class SuspectGridScene extends BaseScene{
   const{width,height}=this.scale;
   this.returnHighlight=this.add.rectangle(submitted?110:width-135,height-31,submitted?202:262,50).setStrokeStyle(4,0xf2d477,1).setFillStyle(0xf2d477,.06).setDepth(9999).setScrollFactor(0);
   this.returnHighlightTween=this.tweens.add({targets:this.returnHighlight,alpha:{from:.3,to:1},duration:650,yoyo:true,repeat:-1});
-  this.setFeedback(submitted?'Shortlist sent. Return to Crime City to investigate the alibis.':'Two suspects remain. Click SEND TO ALIBIS to submit your shortlist.');
+  this.setFeedback(submitted?__dialogueText("scenes/SuspectGridScene.js", "t_34a885cc81d7c814f06f"):__dialogueText("scenes/SuspectGridScene.js", "t_4b27a4da16d0cb51c39d"));
  }
  clearReturnHighlight(){this.returnHighlightTween?.stop();this.returnHighlightTween?.remove?.();this.returnHighlightTween=null;this.returnHighlight?.destroy();this.returnHighlight=null;}
  refreshAll(){if(!this.gridStarted)return;this.buildUI();this.syncReturnHighlight();}

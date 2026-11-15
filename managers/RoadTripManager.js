@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
 import { getEnergyManager } from './EnergyManager.js';
@@ -85,7 +86,7 @@ export function canStartRoadTrip(fromId, toId) {
     return {
       ok: false,
       reason: 'same_town',
-      message: 'We are already here. Dino checked twice.',
+      message: __dialogueText("managers/RoadTripManager.js", "t_f86acecd1b82d7c93dc7"),
       quote
     };
   }
@@ -97,8 +98,8 @@ export function canStartRoadTrip(fromId, toId) {
       ok: false,
       reason: 'no_fuel_money',
       message:
-        `Fuel for this trip costs $${quote.fuelCost}. ` +
-        `You have $${cash}. Dino offers to push.`,
+        `${__dialogueText("managers/RoadTripManager.js", "t_44edcacb7a32cade7856")}${quote.fuelCost}${__dialogueText("managers/RoadTripManager.js", "t_8dccf256f6d5783e62bb")}` +
+        `${__dialogueText("managers/RoadTripManager.js", "t_2a3042e6d8feb4f97fb0")}${cash}${__dialogueText("managers/RoadTripManager.js", "t_23878fd2ce68340bd310")}`,
       quote
     };
   }
@@ -123,7 +124,7 @@ export function canStartRoadTrip(fromId, toId) {
     return {
       ok: false,
       reason: 'sleep_required',
-      message: 'You have been awake far too long to drive. Sleep first. Dino insists.',
+      message: __dialogueText("managers/RoadTripManager.js", "t_d82ee2447358e72b2759"),
       quote
     };
   }
@@ -189,7 +190,7 @@ export function applyOutcome(quote, outcome) {
     moneyManager.spend(fuel, {
       source: MONEY_SOURCE.CASH,
       category: ECONOMY_CATEGORY.TRAVEL,
-      description: `Fuel: ${label}`,
+      description: `${__dialogueText("managers/RoadTripManager.js", "t_ef808e0f86dd1e704cf3")}${label}`,
       metadata
     });
   }
@@ -203,7 +204,7 @@ export function applyOutcome(quote, outcome) {
     moneyManager.spend(fine, {
       source: MONEY_SOURCE.CASH,
       category: ECONOMY_CATEGORY.TRAVEL,
-      description: `Speed camera fine: ${label}`,
+      description: `${__dialogueText("managers/RoadTripManager.js", "t_896e605215912741f5bd")}${label}`,
       metadata
     });
   }
@@ -211,7 +212,7 @@ export function applyOutcome(quote, outcome) {
   if (outcome.coins > 0) {
     moneyManager.addCash(outcome.coins, {
       category: ECONOMY_CATEGORY.SIDE_CASE,
-      description: `Coins found on the road: ${label}`,
+      description: `${__dialogueText("managers/RoadTripManager.js", "t_21a94b1db9606f90c45e")}${label}`,
       metadata
     });
   }
@@ -220,11 +221,11 @@ export function applyOutcome(quote, outcome) {
   const energy = getEnergyManager();
 
   if (outcome.netEnergy > 0) {
-    energy.consumeCustom(outcome.netEnergy, `Road trip: ${label}`, {
+    energy.consumeCustom(outcome.netEnergy, `${__dialogueText("managers/RoadTripManager.js", "t_2759dfaf9248c562829a")}${label}`, {
       activityType: 'travel_car'
     });
   } else if (outcome.netEnergy < 0) {
-    energy.recoverCustom(-outcome.netEnergy, `Road coffee: ${label}`, {
+    energy.recoverCustom(-outcome.netEnergy, `${__dialogueText("managers/RoadTripManager.js", "t_9a77614428393a5d75d5")}${label}`, {
       recoveryType: 'drink',
       recoverySubtype: 'road_coffee'
     });
@@ -248,7 +249,7 @@ export async function startRoadTrip(scene, toTownId, options = {}) {
 
   if (!check.ok) {
     EventBus.emit('showDialogue', {
-      speaker: 'Dino',
+      speaker: __dialogueText("managers/RoadTripManager.js", "t_6fb86a981cf3ed052b51"),
       text: check.message
     });
 

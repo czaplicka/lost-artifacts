@@ -28,7 +28,8 @@ export const WantedDatabaseUi = {
         if (!this.cache.audio.exists(resolved)) return;
         try {
             audioManager.init(this);
-            audioManager.playSfx(resolved, { volume: audioManager.getSfxVolume() * (mapped ? 0.2 : 1) });
+            const gain = mapped ? 0.2 : 1;
+            audioManager.playSfx(resolved, { gain, volume: audioManager.getSfxVolume() * gain });
         } catch (error) { console.debug('[WantedDatabaseScene] UI sound unavailable:', error); }
     },
     wantedButtonAudioState() {

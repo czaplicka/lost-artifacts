@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // ui/RoadTripDestinationsUI.js
 //
 // Parchment "county map" for the funny road-trip towns.
@@ -43,13 +44,13 @@ const MAP_Y0 = 175;
 const MAP_H = 760;
 
 const ROAD_NOTES = [
-  'Roads marked in brown. Cows marked in everything.',
-  'A detour is just a shortcut with ambition.',
-  'Dino insists he can read maps. He holds it upside down.',
-  'Rule one of road trips: someone needs the loo at km 3.',
-  'Petrol station sushi is a choice. Not a good one.',
-  'The scale of this map is "roughly". The accuracy is "optimistic".',
-  'Every town here has exactly one pigeon. We counted.'
+  __dialogueText("ui/RoadTripDestinationsUI.js", "t_02c0199853ad2852f166"),
+  __dialogueText("ui/RoadTripDestinationsUI.js", "t_3e2910b403d6af569d8c"),
+  __dialogueText("ui/RoadTripDestinationsUI.js", "t_a24f5df98b035392dea8"),
+  __dialogueText("ui/RoadTripDestinationsUI.js", "t_814a8aa2b8b988fe7f14"),
+  __dialogueText("ui/RoadTripDestinationsUI.js", "t_aceac75da19c5e946ad3"),
+  __dialogueText("ui/RoadTripDestinationsUI.js", "t_1bf14977612d4dec76b2"),
+  __dialogueText("ui/RoadTripDestinationsUI.js", "t_7aca75cb88588bcbb36a")
 ];
 
 function mulberry32(seed) {
@@ -358,7 +359,7 @@ export class RoadTripDestinationsUI {
     this.buildMap();
 
     this.closeBtn = scene.add
-      .text(width - 100, 75, '✕', {
+      .text(width - 100, 75, __dialogueText("ui/RoadTripDestinationsUI.js", "t_be64f28a8d0a6257b2af"), {
         fontFamily: 'SpecialElite',
         fontSize: '48px',
         color: this.theme.closeColor
@@ -501,7 +502,7 @@ export class RoadTripDestinationsUI {
 
     this.legend = makeText(
       this.scene, 250, 884,
-      'Legend:  brown line = road   red X = town\nlittle cow = probably',
+      __dialogueText("ui/RoadTripDestinationsUI.js", "t_b09598200472988ed4d0"),
       { fontFamily: 'SpecialElite', fontSize: '17px', color: '#7a5c35' }
     );
 
@@ -564,13 +565,13 @@ export class RoadTripDestinationsUI {
   buildTitles() {
     const s = this.scene;
 
-    this.title = makeText(s, DW / 2, 66, 'County Road Map', {
+    this.title = makeText(s, DW / 2, 66, __dialogueText("ui/RoadTripDestinationsUI.js", "t_aa9de920bf8baec13de9"), {
       fontFamily: 'SpecialElite', fontSize: '40px', color: '#3b2a18'
     }).setOrigin(0.5);
 
     this.subtitle = makeText(
       s, DW / 2, 102,
-      'Scale: roughly. Accuracy: optimistic. Dino navigates.',
+      __dialogueText("ui/RoadTripDestinationsUI.js", "t_4f39e606e59eb1394303"),
       { fontFamily: 'SpecialElite', fontSize: '18px', color: '#7a5c35' }
     ).setOrigin(0.5);
 
@@ -631,7 +632,7 @@ export class RoadTripDestinationsUI {
         wordWrap: wrap ? { width: wrap, useAdvancedWrap: true } : undefined
       });
 
-    this.infoTitle = text(20, 14, 'Road Trip', 27, t.titleColor);
+    this.infoTitle = text(20, 14, __dialogueText("ui/RoadTripDestinationsUI.js", "t_7fa655cc123f15def656"), 27, t.titleColor);
     this.infoCity = text(20, 60, '', 23, t.cityColor);
     this.infoTagline = text(20, 88, '', 17, t.countryColor, 335);
     this.infoPrompt = text(20, 140, '', 17, t.promptColor, 335);
@@ -644,7 +645,7 @@ export class RoadTripDestinationsUI {
       .setStrokeStyle(2, t.confirmStroke)
       .setInteractive({ useHandCursor: true });
 
-    this.confirmLabel = text(190, 350, 'Pick a town', 17, t.confirmText).setOrigin(0.5);
+    this.confirmLabel = text(190, 350, __dialogueText("ui/RoadTripDestinationsUI.js", "t_6eb9e7d4fa3e6d2e8a9d"), 17, t.confirmText).setOrigin(0.5);
 
     this.confirmButton.on('pointerdown', () => {
       void this.confirm();
@@ -694,13 +695,13 @@ export class RoadTripDestinationsUI {
     const t = this.theme;
 
     if (!town) {
-      this.infoCity.setText('Pick a town');
+      this.infoCity.setText(__dialogueText("ui/RoadTripDestinationsUI.js", "t_6eb9e7d4fa3e6d2e8a9d"));
       this.infoTagline.setText('');
       this.infoPrompt.setText('');
       this.infoTravel.setText('');
       this.infoHours.setText('');
       this.infoWarn.setText('');
-      this.confirmLabel.setText('Pick a town');
+      this.confirmLabel.setText(__dialogueText("ui/RoadTripDestinationsUI.js", "t_6eb9e7d4fa3e6d2e8a9d"));
       this.setConfirmEnabled(false);
       return;
     }
@@ -715,22 +716,22 @@ export class RoadTripDestinationsUI {
 
     this.infoPrompt
       .setColor(t.promptColor)
-      .setText('Travel by: 🚗 Car (Dino rides shotgun)');
+      .setText(__dialogueText("ui/RoadTripDestinationsUI.js", "t_5c9d49f9d9f177474dd7"));
 
     this.infoTravel.setText(
-      `Distance: ${quote.km} km\n` +
-      `Fuel: $${quote.fuelCost}    Energy: -${quote.energyCost}\n` +
-      `Your purse: $${purse.cash}    Energy: ${purse.energy}`
+      `${__dialogueText("ui/RoadTripDestinationsUI.js", "t_d4f0c98a7ca933680de3")}${quote.km}${__dialogueText("ui/RoadTripDestinationsUI.js", "t_436130357b07e861a60f")}` +
+      `${__dialogueText("ui/RoadTripDestinationsUI.js", "t_accf5ff1416a08bfb95b")}${quote.fuelCost}${__dialogueText("ui/RoadTripDestinationsUI.js", "t_41d1981991e7116a2849")}${quote.energyCost}${__dialogueText("ui/RoadTripDestinationsUI.js", "t_01ba4719c80b6fe911b0")}` +
+      `${__dialogueText("ui/RoadTripDestinationsUI.js", "t_0b51cd3cd5f2e8f345fb")}${purse.cash}${__dialogueText("ui/RoadTripDestinationsUI.js", "t_4a70ec10b250d882dd0d")}${purse.energy}`
     );
 
-    this.infoHours.setText(`Drive time: ~${quote.baseHours}h (+20 min per dent)`);
+    this.infoHours.setText(`${__dialogueText("ui/RoadTripDestinationsUI.js", "t_d659ad85ef58eb97435d")}${quote.baseHours}${__dialogueText("ui/RoadTripDestinationsUI.js", "t_90f4dc4589c0dfbb0574")}`);
 
     if (check.ok) {
-      this.infoWarn.setColor(t.warnColor).setText('Coffee on the road restores energy. Cows do not.');
-      this.confirmLabel.setText(`Drive to ${town.short.length > 14 ? 'town' : town.name}`);
+      this.infoWarn.setColor(t.warnColor).setText(__dialogueText("ui/RoadTripDestinationsUI.js", "t_d760836bb2aa9c93ebcf"));
+      this.confirmLabel.setText(`${__dialogueText("ui/RoadTripDestinationsUI.js", "t_206b1b5392a98c548c8e")}${town.short.length > 14 ? __dialogueText("ui/RoadTripDestinationsUI.js", "t_50ac81f970325a3e011f") : town.name}`);
     } else {
       this.infoWarn.setColor(t.errorColor).setText(check.message);
-      this.confirmLabel.setText('Cannot go yet');
+      this.confirmLabel.setText(__dialogueText("ui/RoadTripDestinationsUI.js", "t_53468567a19606c41752"));
     }
 
     this.setConfirmEnabled(check.ok);
@@ -778,7 +779,7 @@ export class RoadTripDestinationsUI {
       const pin = new RoadPin(this, town, pos, {
         isHere,
         side: pos.x > 1000 ? -1 : 1,
-        subText: isHere ? 'You are here' : `${quote.km} km  ·  $${quote.fuelCost} fuel`
+        subText: isHere ? __dialogueText("ui/RoadTripDestinationsUI.js", "t_b0b52ce074f3c6d015bb") : `${quote.km}${__dialogueText("ui/RoadTripDestinationsUI.js", "t_2a0fdd4fbfc5e013e73b")}${quote.fuelCost}${__dialogueText("ui/RoadTripDestinationsUI.js", "t_18f2efa215d612c8cd00")}`
       });
 
       pin.bind({
@@ -817,7 +818,7 @@ export class RoadTripDestinationsUI {
     ring.arc(0, 0, 28, 0.5, Math.PI * 2 - 0.2, false);
     ring.strokePath();
 
-    const note = makeText(s, 0, -58, 'You are here', {
+    const note = makeText(s, 0, -58, __dialogueText("ui/RoadTripDestinationsUI.js", "t_b0b52ce074f3c6d015bb"), {
       fontFamily: 'SpecialElite', fontSize: '22px', color: '#8b2a1d'
     }).setOrigin(0.5).setAngle(-6);
 
@@ -990,7 +991,7 @@ export class RoadTripDestinationsUI {
       }
     }
 
-    this.noteText.setText(`✎ ${s.target.slice(0, s.typed)}`);
+    this.noteText.setText(`${__dialogueText("ui/RoadTripDestinationsUI.js", "t_fc74c9d3e676521960b2")}${s.target.slice(0, s.typed)}`);
   }
 
   // ------------------------------------------------------------ confirm
@@ -1043,7 +1044,7 @@ export class RoadTripDestinationsUI {
         this.open();
       }
 
-      this.showError(result?.message || 'The car refused to start. Dino blames you.');
+      this.showError(result?.message || __dialogueText("ui/RoadTripDestinationsUI.js", "t_e7ff5eaaab1d87f153f5"));
     }
 
     return false;

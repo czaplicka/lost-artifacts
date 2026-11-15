@@ -44,7 +44,7 @@ export class HiddenObjectsInteractionController {
     const scene = this.scene;
     audioManager.init(scene);
     const key = scene.cache.audio.exists('sfx_evidence_collect') ? 'sfx_evidence_collect' : 'correct';
-    scene.playSfx(key, { volume: audioManager.getSfxVolume() * 0.45, overlap: true });
+    scene.playSfx(key, { gain: 0.45, volume: audioManager.getSfxVolume() * 0.45, overlap: true });
   }
 
   handleHiddenObjectClick(zone) {
@@ -92,7 +92,7 @@ export class HiddenObjectsInteractionController {
     scene.incorrectClicks += 1;
     scene.score = scene.scoreManager.addHiddenObjectScore(HIDDEN_OBJECT_MISS_POINTS);
     scene.ui.updateScoreAndMisses(scene.score, scene.incorrectClicks);
-    scene.playSfx('wrong', { volume: 0.38 });
+    scene.playSfx('wrong', { gain: 0.38, volume: audioManager.getSfxVolume() * 0.38 });
     this.markMiss(pointer, HIDDEN_OBJECT_MISS_POINTS);
     this.bumpText(scene.ui.missesText);
     this.bumpText(scene.ui.scoreText);

@@ -143,7 +143,8 @@
       "castle",
       "dockyard",
       "auction_house",
-      "havela"
+      "havela",
+      "tokyo_museum"
     ],
     "trueExplanation": "It proudly boots into a menu that says \"Demo mode\" and nothing else actually works.",
     "heistExplanation": "The thief brought their own gear; not sure yet what they were planning to do with it.",
@@ -774,7 +775,8 @@
     ],
     "scene": [
       "louvre",
-      "tower"
+      "tower",
+      "tokyo_museum"
     ],
     "trueExplanation": "There is a tiny label on the handle: \"For detecting dust, not criminals\".",
     "heistExplanation": "The thief left no prints to admire, depriving the magnifying glass of its big detective moment.",
@@ -821,7 +823,8 @@
     "scene": [
       "louvre",
       "tower",
-      "auction_house"
+      "auction_house",
+      "tokyo_museum"
     ],
     "trueExplanation": "Cobwebs inside the empty mount suggest this camera retired years ago.",
     "heistExplanation": "The thief chose their route based on working cameras; this one is basically interior decoration.",
@@ -1504,7 +1507,8 @@
     ],
     "scene": [
       "tower",
-      "havela"
+      "havela",
+      "tokyo_museum"
     ],
     "trueExplanation": "The photo looks suspiciously like a stock image of ‘generic security professional’.",
     "heistExplanation": "The thief knew that at 3 a.m. nobody studies faces; they just glance at plastic and sigh.",

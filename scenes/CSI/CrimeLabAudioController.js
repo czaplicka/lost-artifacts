@@ -74,7 +74,8 @@ export class CrimeLabAudioController {
     // playSfx zawsze gra jednorazowo, więc loop: true był tam ignorowany.
     this.labAmbient = audioManager.playAmbient('crimelab_ambient', {
       loop: true,
-      volume: 0.28
+      gain: 0.28,
+      volume: audioManager.getSfxVolume() * 0.28
     });
   }
 

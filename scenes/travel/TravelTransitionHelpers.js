@@ -11,6 +11,7 @@ export function playTransportSfx(transport) {
   const relativeVolume = Number.isFinite(configured) ? Math.min(1, Math.max(0, configured)) : 0.5;
   try {
     return audioManager.playSfx(transport.sfxKey, {
+      gain: relativeVolume,
       volume: audioManager.getSfxVolume() * relativeVolume
     });
   } catch (error) {

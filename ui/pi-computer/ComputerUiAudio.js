@@ -25,6 +25,6 @@ export function playComputerUiClick(ui) {
   if (!computerUiCanInteract(ui) || !ui.scene.cache?.audio?.exists(KEY)) return;
   try {
     audioManager.init(ui.scene);
-    audioManager.playSfx(KEY, { volume: audioManager.getSfxVolume() * 0.2 });
+    audioManager.playSfx(KEY, { gain: 0.2, volume: audioManager.getSfxVolume() * 0.2 });
   } catch (error) { console.debug('[ComputerUiAudio] Sound unavailable:', error); }
 }

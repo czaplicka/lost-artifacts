@@ -1,3 +1,4 @@
+import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
 import {
@@ -154,7 +155,7 @@ export class DriveScene extends BaseScene {
     this.ready = true;
 
     this.time.delayedCall(900, () => {
-      this.say(`Next stop: ${this.town.name}. ${this.town.tagline}`, 4200, true);
+      this.say(`${__dialogueText("scenes/DriveScene.js", "t_b3eb5ad3c68f84659ba7")}${this.town.name}${__dialogueText("scenes/DriveScene.js", "t_8dccf256f6d5783e62bb")}${this.town.tagline}`, 4200, true);
     });
   }
 
@@ -672,11 +673,11 @@ export class DriveScene extends BaseScene {
     // gauge needles + digital speed
     this.gaugeGfx = this.add.graphics().setDepth(212);
 
-    this.speedText = this.add.text(W * 0.405, top + H * 0.062, '0', {
+    this.speedText = this.add.text(W * 0.405, top + H * 0.062, __dialogueText("scenes/DriveScene.js", "t_5feceb66ffc86f38d952"), {
       fontFamily: 'PressStart2P', fontSize: this.px(20), color: '#cfe8ff'
     }).setOrigin(0.5).setDepth(213);
 
-    this.add.text(W * 0.405, top + H * 0.092, 'KM/H', {
+    this.add.text(W * 0.405, top + H * 0.092, __dialogueText("scenes/DriveScene.js", "t_3a8e2546d8152f9f6c50"), {
       fontFamily: 'PressStart2P', fontSize: this.px(9), color: '#7d8fa3'
     }).setOrigin(0.5).setDepth(213);
 
@@ -759,7 +760,7 @@ export class DriveScene extends BaseScene {
     this.autoGfx.lineStyle(3, 0xd4af37, 1);
     this.autoGfx.strokeRoundedRect(x - w / 2, y - h / 2, w, h, 8 * U);
 
-    this.autoText = this.add.text(x, y, 'AUTO\nPILOT', {
+    this.autoText = this.add.text(x, y, __dialogueText("scenes/DriveScene.js", "t_ecb1d5dcf3d13e4f3454"), {
       fontFamily: 'PressStart2P', fontSize: this.px(11), color: '#d4af37',
       align: 'center', lineSpacing: 6
     }).setOrigin(0.5).setDepth(216);
@@ -784,7 +785,7 @@ export class DriveScene extends BaseScene {
       });
 
       this.autoZone.on('pointerover', () => {
-        this.say('Autopilot: Dino drives. Dino has no license. Costs you 15 minutes.', 3200, true);
+        this.say(__dialogueText("scenes/DriveScene.js", "t_eff86d8f257880ce4016"), 3200, true);
       });
     });
   }
@@ -814,7 +815,7 @@ export class DriveScene extends BaseScene {
 
     this.introText = this.add.text(
       W / 2, H * 0.22,
-      'LEFT / RIGHT: steer    UP: boost    DOWN: brake\nGrab coffee. Dodge livestock. Avoid speed cameras.',
+      __dialogueText("scenes/DriveScene.js", "t_a299a13955305d00ea45"),
       {
         fontFamily: 'SpecialElite', fontSize: this.px(26), color: '#f4e7c1',
         backgroundColor: '#1a130e', align: 'center', padding: { x: 18 * U, y: 12 * U }
@@ -832,7 +833,7 @@ export class DriveScene extends BaseScene {
   refreshStats() {
     const s = this.stats;
     this.statsText?.setText(
-      `COFFEE ${s.coffees}   COINS $${s.coins}   DENTS ${s.hits}   FINES $${s.fines}`
+      `${__dialogueText("scenes/DriveScene.js", "t_b15a09a918a712a6fdb5")}${s.coffees}${__dialogueText("scenes/DriveScene.js", "t_4dabc8fc0998bd184e87")}${s.coins}${__dialogueText("scenes/DriveScene.js", "t_49f970bc616a0d881cc5")}${s.hits}${__dialogueText("scenes/DriveScene.js", "t_acf6f855220fa82df1dd")}${s.fines}`
     );
   }
 
@@ -947,7 +948,7 @@ export class DriveScene extends BaseScene {
   floatText(text, color = '#ffd84d') {
     const t = this.add.text(this.W / 2, this.dashTop - this.H * 0.08, text, {
       fontFamily: 'PressStart2P', fontSize: this.px(20), color,
-      stroke: '#000000', strokeThickness: 4
+      stroke: __dialogueText("scenes/DriveScene.js", "t_7b2817bf9b80e66d07f2"), strokeThickness: 4
     }).setOrigin(0.5).setDepth(260);
 
     this.createTrackedTween({
@@ -1320,7 +1321,7 @@ export class DriveScene extends BaseScene {
     this.cameras.main.flash(160, 255, 70, 40);
 
     this.say(pick(o.def.hitLines), 3200, true);
-    this.floatText('-20 MIN', '#ff6b5a');
+    this.floatText(__dialogueText("scenes/DriveScene.js", "t_38ab3e1e1401a1c43009"), '#ff6b5a');
     this.refreshStats();
 
     const sprite = o.sprite;
@@ -1350,7 +1351,7 @@ export class DriveScene extends BaseScene {
 
     if (o.type === 'coffee') {
       this.stats.coffees += 1;
-      this.floatText('+3 ENERGY', '#8cff9a');
+      this.floatText(__dialogueText("scenes/DriveScene.js", "t_a7f35f3fb892dd17776e"), '#8cff9a');
       this.say(pick(FLAVOUR.dinoCoffee), 2400);
     } else {
       this.stats.coins += COIN_VALUE;
@@ -1550,7 +1551,7 @@ export class DriveScene extends BaseScene {
       this.speedText.setText(String(Math.round(this.speed * 0.55)));
 
       const left = Math.max(0, (1 - progress) * this.quote.km);
-      this.rKm.setText(`${left.toFixed(1)} KM`);
+      this.rKm.setText(`${left.toFixed(1)}${__dialogueText("scenes/DriveScene.js", "t_7474ac0c56a5235015a8")}`);
     }
   }
 
@@ -1601,7 +1602,7 @@ export class DriveScene extends BaseScene {
 
     const title = this.add.text(
       W / 2, py0 + ph * 0.085,
-      `ARRIVED:\n${this.town.name.toUpperCase()}`,
+      `${__dialogueText("scenes/DriveScene.js", "t_0c4caacaf379aadd6a9a")}${this.town.name.toUpperCase()}`,
       {
         fontFamily: 'PressStart2P', fontSize: this.px(18), color: '#d4af37',
         align: 'center', lineSpacing: 10, wordWrap: { width: pw * 0.9 }
@@ -1611,17 +1612,17 @@ export class DriveScene extends BaseScene {
     const fmtMoney = v => (v > 0 ? `$${v}` : '$0');
 
     const rows = [
-      ['Distance driven', `${o.km} km`],
-      ['Fuel', `-${fmtMoney(o.fuel)}`],
-      ['Time on the road', `${o.hours}h ${o.minutes}m`],
-      ['Dents (+20 min each)', `${o.hits}`],
+      [__dialogueText("scenes/DriveScene.js", "t_58406adeb74d4175ba60"), `${o.km}${__dialogueText("scenes/DriveScene.js", "t_408b05c97145e3efe2b1")}`],
+      [__dialogueText("scenes/DriveScene.js", "t_a80f942f4112036dfc2d"), `-${fmtMoney(o.fuel)}`],
+      [__dialogueText("scenes/DriveScene.js", "t_500d2cc38bae33dd09e5"), `${o.hours}${__dialogueText("scenes/DriveScene.js", "t_17c76396f75dbc3aeb88")}${o.minutes}${__dialogueText("scenes/DriveScene.js", "t_62c66a7a5dd70c314661")}`],
+      [__dialogueText("scenes/DriveScene.js", "t_c9748265d9c5230dd377"), `${o.hits}`],
       [
-        'Energy',
+        __dialogueText("scenes/DriveScene.js", "t_f2fcd3f7dccadd194c4c"),
         o.netEnergy > 0 ? `-${o.netEnergy}` : o.netEnergy < 0 ? `+${-o.netEnergy}` : '0'
       ],
-      ['Coffee found', `${o.coffees}`],
-      ['Coins found', `+${fmtMoney(o.coins)}`],
-      ['Speed camera fines', `-${fmtMoney(o.fines)}`]
+      [__dialogueText("scenes/DriveScene.js", "t_a116554a98b3e9831fb5"), `${o.coffees}`],
+      [__dialogueText("scenes/DriveScene.js", "t_99208c35ada138cffe46"), `+${fmtMoney(o.coins)}`],
+      [__dialogueText("scenes/DriveScene.js", "t_59ea361f6060e0dfa85c"), `-${fmtMoney(o.fines)}`]
     ];
 
     const rowH = ph * 0.065;
@@ -1651,10 +1652,10 @@ export class DriveScene extends BaseScene {
 
     const verdict = this.add.text(W / 2, py0 + ph * 0.8, verdictText, {
       fontFamily: 'SpecialElite', fontSize: this.px(22), color: '#3b2d20',
-      align: 'center', fontStyle: 'italic', wordWrap: { width: pw * 0.86 }
+      align: 'center', fontStyle: __dialogueText("scenes/DriveScene.js", "t_db2365bb7a376f09d1dd"), wordWrap: { width: pw * 0.86 }
     }).setOrigin(0.5, 0).setDepth(402);
 
-    const hint = this.add.text(W / 2, py0 + ph * 0.93, 'Click to continue', {
+    const hint = this.add.text(W / 2, py0 + ph * 0.93, __dialogueText("scenes/DriveScene.js", "t_d5a436f27838b6f6b09a"), {
       fontFamily: 'PressStart2P', fontSize: this.px(12), color: '#6b1d12'
     }).setOrigin(0.5).setDepth(402);
 

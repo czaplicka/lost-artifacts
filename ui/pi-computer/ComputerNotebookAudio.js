@@ -18,6 +18,6 @@ export function prepareComputerNotebookAudio(scene){
 export function playComputerNotebookAudio(ui,name){
  const scene=ui?.scene,entry=ASSETS[name];
  if(!entry||!ui||ui.destroyed||!ui.isOpen||ui.suspended||ui.booting||scene?._cleanupDone||!scene?.sys?.isActive()||!scene.cache?.audio?.exists(entry[0]))return;
- try{audioManager.init(scene);audioManager.playSfx(entry[0],{volume:audioManager.getSfxVolume()*.25});}
+ try{audioManager.init(scene);audioManager.playSfx(entry[0],{gain:.25,volume:audioManager.getSfxVolume()*.25});}
  catch(error){console.debug('[ComputerNotebookAudio] Sound unavailable:',error);}
 }
