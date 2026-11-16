@@ -3,6 +3,8 @@ import { SCORE_CONFIG } from '../../config/ScoreConfig.js';
 
 export const ALL_DAY = [__dialogueText("scenes/city/CityConfig.js", "t_e9376a281aac57bb78e2"), __dialogueText("scenes/city/CityConfig.js", "t_fb847b43637eee429168"), __dialogueText("scenes/city/CityConfig.js", "t_458c1fed574354042397"), __dialogueText("scenes/city/CityConfig.js", "t_4e9f8db8242b57e72e00")];
 export const LOCATION_HOURS = {
+  "librery": [__dialogueText("scenes/city/CityConfig.js", "t_e9376a281aac57bb78e2"), __dialogueText("scenes/city/CityConfig.js", "t_fb847b43637eee429168")],
+
   bank: [__dialogueText("scenes/city/CityConfig.js", "t_e9376a281aac57bb78e2"), __dialogueText("scenes/city/CityConfig.js", "t_fb847b43637eee429168")],
   policehq: [__dialogueText("scenes/city/CityConfig.js", "t_e9376a281aac57bb78e2"), __dialogueText("scenes/city/CityConfig.js", "t_fb847b43637eee429168"), __dialogueText("scenes/city/CityConfig.js", "t_458c1fed574354042397")],
   hotel: ALL_DAY, airport: ALL_DAY, harbor: ALL_DAY, alley: ALL_DAY,

@@ -1,0 +1,55 @@
+{
+  "libreryClues": {
+    "locationVariants": {
+      "default": {
+        "banter": [
+          "Please keep your voice down. The dictionaries are trying to define silence.",
+          "We lend books, not alibis. The waiting list for those would be unbearable.",
+          "The crime section is over there. The true-crime section is being questioned by the police.",
+          "If you find a suspicious bookmark, please leave it in the suspicious book.",
+          "They asked whether overdue books could be extradited. I finally felt understood.",
+          "I remember every visitor who damages a book. It is less a memory than a prosecution file.",
+          "No running, no shouting, and absolutely no underlining in the rare editions."
+        ],
+        "repeatLines": [
+          [
+            "Back again?",
+            "At least somebody is renewing their interest."
+          ],
+          [
+            "I remember you.",
+            "You asked about a suspect rather than the toilets."
+          ]
+        ],
+        "falseLeadLines": [
+          [
+            "Nobody matching that description has asked me anything useful.",
+            "You may be following the wrong chapter."
+          ],
+          [
+            "I checked the reading-room register.",
+            "Your suspect is not in this edition."
+          ]
+        ],
+        "topics": {
+          "books": [
+            "@editable:They were researching their next stop. Their reading slip described {literaryBook}. They wanted to use literature as a map. I recommended an actual map.",
+            "@editable:For their next destination, they copied a reference to {literaryBook}. Then they folded the page. That is when I became a witness.",
+            "@editable:They left a note about their next stop: {literaryBook}. The book was returned. My faith in humanity was not.",
+            "@editable:Their next destination was being researched through {literaryBook}. They asked whether the ending would spoil the journey. I said only if the police arrived first."
+          ],
+          "authors": [
+            "@editable:They were researching their next destination. Their notes mentioned {literaryAuthor}. They wrote on a ticket envelope. Better than writing in the margins.",
+            "@editable:For their next stop, they wanted references to {literaryAuthor}. Apparently international flight requires a reading list.",
+            "@editable:Their next destination came up while they were looking up {literaryAuthor}. They asked me to keep the conversation off the record. I am a librarian. Records are rather the point.",
+            "@editable:They copied this for their next stop: {literaryAuthor}. I asked whether it was for research. They said it was for a fresh start. That is usually what people say about unread books."
+          ],
+          "travel": [
+            "@editable:They were researching their next stop in a travel guide. The note they copied described {guidebookNote}. Their handwriting was a crime against cataloguing.",
+            "@editable:For their next destination, they copied a reference to {cityRiver}. Then they asked whether our atlases were waterproof."
+          ]
+        }
+      }
+    }
+  }
+}

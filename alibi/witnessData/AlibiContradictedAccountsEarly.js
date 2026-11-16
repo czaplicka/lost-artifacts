@@ -1,0 +1,55 @@
+import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
+
+export function buildContradictedAccountsEarly(kind, c) {
+  const { n, v, a, b, t, activity, roles, joke, day } = c;
+  const e = (minute, statement, summary) => ({ minute, statement, summary });
+  const full = `${t(a - 5)}${__dialogueText("alibi/AlibiWitnessData.js", "t_87721689ee42f4415e4a")}${t(b + 5)}`;
+  const intro = `${__dialogueText("alibi/AlibiWitnessData.js", "t_7c7f0cb2fe0f2e49429a")}${day}${__dialogueText("alibi/AlibiWitnessData.js", "t_fbb9933a1bffcacef8b5")}${v}${__dialogueText("alibi/AlibiWitnessData.js", "t_9a3ac9fd1b7c3c418a95")}`;
+  let explanation = null;
+  let entries;
+  switch (kind) {
+      case 0:
+        explanation = __dialogueText("alibi/AlibiWitnessData.js", "t_3d921945a61f70acb696");
+        entries = [
+          e(a - 5, `${__dialogueText("alibi/AlibiWitnessData.js", "t_7c7f0cb2fe0f2e49429a")}${day}${__dialogueText("alibi/AlibiWitnessData.js", "t_0a07f659461970d8d8dc")}${n}${__dialogueText("alibi/AlibiWitnessData.js", "t_10f332c85c4a151201ea")}${full}${__dialogueText("alibi/AlibiWitnessData.js", "t_0a07f659461970d8d8dc")}${activity}${__dialogueText("alibi/AlibiWitnessData.js", "t_51b15d518848a42d8e99")}${v}${__dialogueText("alibi/AlibiWitnessData.js", "t_cdb4ee2aea69cc6a8333")}`, __dialogueText("alibi/AlibiWitnessData.js", "t_54b1fd6ff0fbc3af45cc")),
+          e(a - 15, `${__dialogueText("alibi/AlibiWitnessData.js", "t_7c7f0cb2fe0f2e49429a")}${day}${__dialogueText("alibi/AlibiWitnessData.js", "t_2aedf65af7b0ba41370e")}${roles[0]}${__dialogueText("alibi/AlibiWitnessData.js", "t_086a519fdeedb29a622b")}${v}${__dialogueText("alibi/AlibiWitnessData.js", "t_ed4c06d4db96f4d8d782")}${t(a - 15)}${__dialogueText("alibi/AlibiWitnessData.js", "t_87721689ee42f4415e4a")}${t(b + 15)}${__dialogueText("alibi/AlibiWitnessData.js", "t_5502b0047da3fb692196")}${n}${__dialogueText("alibi/AlibiWitnessData.js", "t_db4d2acf3568a8e4f832")}`, __dialogueText("alibi/AlibiWitnessData.js", "t_bbe9d6f039588cd399d4")),
+          e(a - 10, `${__dialogueText("alibi/AlibiWitnessData.js", "t_d9041acced4a83b8106c")}${roles[0]}${__dialogueText("alibi/AlibiWitnessData.js", "t_e3ee915a8e8c7aa02d2f")}${roles[1]}${__dialogueText("alibi/AlibiWitnessData.js", "t_d975ea32faeede1a340a")}${v}${__dialogueText("alibi/AlibiWitnessData.js", "t_ed4c06d4db96f4d8d782")}${t(a - 10)}${__dialogueText("alibi/AlibiWitnessData.js", "t_87721689ee42f4415e4a")}${t(b + 10)}${__dialogueText("alibi/AlibiWitnessData.js", "t_05384a3742d4033686d9")}${roles[0]}${__dialogueText("alibi/AlibiWitnessData.js", "t_df1ac6437eeb4b3f72ee")}${joke}`, __dialogueText("alibi/AlibiWitnessData.js", "t_b07410788e0e4e30c596"))
+        ]; break;
+      case 1:
+        explanation = __dialogueText("alibi/AlibiWitnessData.js", "t_6acc5b4cad522ca4020e");
+        entries = [
+          e(a - 5, `${intro}${__dialogueText("alibi/AlibiWitnessData.js", "t_36a9e7f1c95b82ffb997")}${n}${__dialogueText("alibi/AlibiWitnessData.js", "t_7bda77d9c2eb569625ea")}${full}${__dialogueText("alibi/AlibiWitnessData.js", "t_0a07f659461970d8d8dc")}${activity}${__dialogueText("alibi/AlibiWitnessData.js", "t_cdb4ee2aea69cc6a8333")}`, __dialogueText("alibi/AlibiWitnessData.js", "t_af9fe40282a902e6b286")),
+          e(a - 20, `${__dialogueText("alibi/AlibiWitnessData.js", "t_7c7f0cb2fe0f2e49429a")}${day}${__dialogueText("alibi/AlibiWitnessData.js", "t_004324959f38e701957f")}${v}${__dialogueText("alibi/AlibiWitnessData.js", "t_12cd12f270bdc5611c75")}${t(a - 20)}${__dialogueText("alibi/AlibiWitnessData.js", "t_405d8b372503e66a532f")}${t(b + 20)}${__dialogueText("alibi/AlibiWitnessData.js", "t_cdb4ee2aea69cc6a8333")}`, __dialogueText("alibi/AlibiWitnessData.js", "t_34f1db948f754eeffc17")),
+          e(a - 10, `${__dialogueText("alibi/AlibiWitnessData.js", "t_99179009a5c9d56b3c2f")}${v}${__dialogueText("alibi/AlibiWitnessData.js", "t_dfd430332571e3e1b955")}${t(a - 10)}${__dialogueText("alibi/AlibiWitnessData.js", "t_87721689ee42f4415e4a")}${t(b + 10)}${__dialogueText("alibi/AlibiWitnessData.js", "t_ce6a913eb91dd112e430")}${joke}`, __dialogueText("alibi/AlibiWitnessData.js", "t_540387063cd922b0732c"))
+        ]; break;
+      case 2:
+        explanation = __dialogueText("alibi/AlibiWitnessData.js", "t_8fc1a29b236dd856a088");
+        entries = [
+          e(a - 20, `${intro}${__dialogueText("alibi/AlibiWitnessData.js", "t_36a9e7f1c95b82ffb997")}${n}${__dialogueText("alibi/AlibiWitnessData.js", "t_7189651207068e54cd8c")}${t(a - 20)}${__dialogueText("alibi/AlibiWitnessData.js", "t_87721689ee42f4415e4a")}${t(b + 10)}${__dialogueText("alibi/AlibiWitnessData.js", "t_0a07f659461970d8d8dc")}${activity}${__dialogueText("alibi/AlibiWitnessData.js", "t_9dcb23246874e66864c1")}`, __dialogueText("alibi/AlibiWitnessData.js", "t_0b9e4dfaf0eb8426a4cc")),
+          e(a - 15, `${__dialogueText("alibi/AlibiWitnessData.js", "t_9418a80eabbaf6111f2c")}${n}${__dialogueText("alibi/AlibiWitnessData.js", "t_55dd909678994427e8c7")}${t(a - 15)}${__dialogueText("alibi/AlibiWitnessData.js", "t_24a4d21301c9c09e919b")}${day}${__dialogueText("alibi/AlibiWitnessData.js", "t_b4c88b110eeeafe70d34")}${v}${__dialogueText("alibi/AlibiWitnessData.js", "t_266939a404e1c9b128c1")}${t(b + 15)}${__dialogueText("alibi/AlibiWitnessData.js", "t_3e8b3708cd3c0356c77f")}`, __dialogueText("alibi/AlibiWitnessData.js", "t_9040eda397b972510bf5")),
+          e(a - 10, `${__dialogueText("alibi/AlibiWitnessData.js", "t_2203ab3c99991fc6f2e2")}${n}${__dialogueText("alibi/AlibiWitnessData.js", "t_dfec1463299c4752396e")}${t(a - 10)}${__dialogueText("alibi/AlibiWitnessData.js", "t_be39afc998b6f5db5b15")}${roles[1]}${__dialogueText("alibi/AlibiWitnessData.js", "t_4e8d2e46e5e156cbd60b")}${v}${__dialogueText("alibi/AlibiWitnessData.js", "t_8dccf256f6d5783e62bb")}${n}${__dialogueText("alibi/AlibiWitnessData.js", "t_42fa4ae4c2748b4abe7c")}${t(b + 10)}${__dialogueText("alibi/AlibiWitnessData.js", "t_8dccf256f6d5783e62bb")}${joke}`, __dialogueText("alibi/AlibiWitnessData.js", "t_0b1ede761a4455386e06"))
+        ]; break;
+      case 3:
+        explanation = __dialogueText("alibi/AlibiWitnessData.js", "t_5f760bca2ccfe80fed9e");
+        entries = [
+          e(a - 10, `${intro}${__dialogueText("alibi/AlibiWitnessData.js", "t_36a9e7f1c95b82ffb997")}${n}${__dialogueText("alibi/AlibiWitnessData.js", "t_921c9eb67395ade44673")}${t(a - 10)}${__dialogueText("alibi/AlibiWitnessData.js", "t_964440cd92259f3448b1")}${t(b + 20)}${__dialogueText("alibi/AlibiWitnessData.js", "t_0a07f659461970d8d8dc")}${activity}${__dialogueText("alibi/AlibiWitnessData.js", "t_cdb4ee2aea69cc6a8333")}`, __dialogueText("alibi/AlibiWitnessData.js", "t_e39bf6b8e582740bcd19")),
+          e(b + 5, `${__dialogueText("alibi/AlibiWitnessData.js", "t_7c7f0cb2fe0f2e49429a")}${day}${__dialogueText("alibi/AlibiWitnessData.js", "t_686c7a30761b0c2ab5e9")}${v}${__dialogueText("alibi/AlibiWitnessData.js", "t_31a5eba0663b73c1217e")}${n}${__dialogueText("alibi/AlibiWitnessData.js", "t_378dbe8c02ff231fdd50")}${t(b + 5)}${__dialogueText("alibi/AlibiWitnessData.js", "t_35dd8c8fe717fa50eda9")}`, __dialogueText("alibi/AlibiWitnessData.js", "t_32bae3f68071e8b79c3e")),
+          e(b + 10, `${__dialogueText("alibi/AlibiWitnessData.js", "t_4427967a2fec8888b775")}${n}${__dialogueText("alibi/AlibiWitnessData.js", "t_70588f56cad95df7fdca")}${t(b + 10)}${__dialogueText("alibi/AlibiWitnessData.js", "t_7b5089605d8f2b997c9e")}${t(a - 10)}${__dialogueText("alibi/AlibiWitnessData.js", "t_cb140b3fdc4563ead829")}${t(b + 5)}${__dialogueText("alibi/AlibiWitnessData.js", "t_8dccf256f6d5783e62bb")}${joke}`, __dialogueText("alibi/AlibiWitnessData.js", "t_111a8a0fda35026afdab"))
+        ]; break;
+      case 4:
+        explanation = __dialogueText("alibi/AlibiWitnessData.js", "t_97025d5f7679339ddfb6");
+        entries = [
+          e(a - 15, `${intro}${__dialogueText("alibi/AlibiWitnessData.js", "t_36a9e7f1c95b82ffb997")}${n}${__dialogueText("alibi/AlibiWitnessData.js", "t_e846ed325dde7d03ad00")}${t(a - 15)}${__dialogueText("alibi/AlibiWitnessData.js", "t_964440cd92259f3448b1")}${t(b + 15)}${__dialogueText("alibi/AlibiWitnessData.js", "t_0a07f659461970d8d8dc")}${activity}${__dialogueText("alibi/AlibiWitnessData.js", "t_33838fb262de31cd3a4b")}`, __dialogueText("alibi/AlibiWitnessData.js", "t_4f4fe311f68c07d988cc")),
+          e(a - 10, `${__dialogueText("alibi/AlibiWitnessData.js", "t_d77629c739551f939796")}${t(a - 10)}${__dialogueText("alibi/AlibiWitnessData.js", "t_24a4d21301c9c09e919b")}${day}${__dialogueText("alibi/AlibiWitnessData.js", "t_c0bd01f126510572287d")}${day - 1}${__dialogueText("alibi/AlibiWitnessData.js", "t_4021b90ee0f3567e5b51")}${n}${__dialogueText("alibi/AlibiWitnessData.js", "t_8e935244d52047177c0e")}`, __dialogueText("alibi/AlibiWitnessData.js", "t_e6b606ccb19252e25ea8")),
+          e(a - 5, `${__dialogueText("alibi/AlibiWitnessData.js", "t_d77629c739551f939796")}${t(a - 5)}${__dialogueText("alibi/AlibiWitnessData.js", "t_24a4d21301c9c09e919b")}${day}${__dialogueText("alibi/AlibiWitnessData.js", "t_870b8f1e583be63d8b47")}${day - 1}${__dialogueText("alibi/AlibiWitnessData.js", "t_557669f6fcaf799cee23")}${joke}`, __dialogueText("alibi/AlibiWitnessData.js", "t_8d07790f7cef4f164976"))
+        ]; break;
+      case 5:
+        explanation = __dialogueText("alibi/AlibiWitnessData.js", "t_dba060088bcd92f03005");
+        entries = [
+          e(a - 25, `${intro}${__dialogueText("alibi/AlibiWitnessData.js", "t_36a9e7f1c95b82ffb997")}${n}${__dialogueText("alibi/AlibiWitnessData.js", "t_7189651207068e54cd8c")}${t(a - 25)}${__dialogueText("alibi/AlibiWitnessData.js", "t_87721689ee42f4415e4a")}${t(b + 10)}${__dialogueText("alibi/AlibiWitnessData.js", "t_0a07f659461970d8d8dc")}${activity}${__dialogueText("alibi/AlibiWitnessData.js", "t_3dfdedaa027b99108e9e")}`, __dialogueText("alibi/AlibiWitnessData.js", "t_ed802b7b6a5a4608ebb4")),
+          e(a - 10, `${__dialogueText("alibi/AlibiWitnessData.js", "t_7c7f0cb2fe0f2e49429a")}${day}${__dialogueText("alibi/AlibiWitnessData.js", "t_b422cd557561575f92bc")}${n}${__dialogueText("alibi/AlibiWitnessData.js", "t_0fdd621869d7429c3f7d")}${v}${__dialogueText("alibi/AlibiWitnessData.js", "t_086a519fdeedb29a622b")}${t(a - 10)}${__dialogueText("alibi/AlibiWitnessData.js", "t_02d0ddb60663e7aa8b8e")}${t(b + 15)}${__dialogueText("alibi/AlibiWitnessData.js", "t_e4c9b75b5bcc01e5d51b")}`, __dialogueText("alibi/AlibiWitnessData.js", "t_20621a2d39ac421626f6")),
+          e(a - 5, `${__dialogueText("alibi/AlibiWitnessData.js", "t_d77629c739551f939796")}${t(a - 5)}${__dialogueText("alibi/AlibiWitnessData.js", "t_083e1978cb5af9c8cd35")}${roles[1]}${__dialogueText("alibi/AlibiWitnessData.js", "t_9f8c7960013a7d170702")}${n}${__dialogueText("alibi/AlibiWitnessData.js", "t_bb7f4ae228b4c4195174")}${t(a - 10)}${__dialogueText("alibi/AlibiWitnessData.js", "t_124988a887ae17de3d2c")}${t(b + 10)}${__dialogueText("alibi/AlibiWitnessData.js", "t_0bf65a9efaf9c83338be")}${joke}`, __dialogueText("alibi/AlibiWitnessData.js", "t_c83b976308c0c1df9d46"))
+        ]; break;
+  }
+  return { explanation, entries };
+}

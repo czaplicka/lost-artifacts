@@ -1,0 +1,12 @@
+[
+  "npcCatalogData.js",
+  "dialogues/dialogueKeys.js",
+  "locationIcons.js",
+  "scenes/city/CityConfig.js",
+  "dialogues/EditableTravelTemplates.js",
+  "dialogues/DestinationClueText.js",
+  "assets/data/locations.json",
+  "assets/data/countryFacts.json",
+  "assets/manifests/other.json",
+  "assets/manifests/index.json"
+]

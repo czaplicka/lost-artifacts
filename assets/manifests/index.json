@@ -368,7 +368,13 @@
       "json:dialog_home",
       "json:dialog_accounting",
       "css:crime-board-css",
-      "image:artifact_great_wave"
+      "image:artifact_great_wave",
+      "image:librery_a",
+      "image:librery_h",
+      "image:librery_w",
+      "image:librery_b",
+      "image:librery_o",
+      "json:dialogue_librery"
     ],
     "scene:IntroScene": [
       "image:intro"

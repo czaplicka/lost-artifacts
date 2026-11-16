@@ -1,5 +1,11 @@
 import { NPC_CATALOG } from '../npcCatalogData.js';
 const definitions = {
+  "librarian": {
+  "key": "dialogue_librery",
+  "root": "libreryClues",
+  "file": "assets/data/dialogue/librery.json"
+},
+
   "bankier": {
     "key": "dialogue_banker",
     "root": "bankerClues",

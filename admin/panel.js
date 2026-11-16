@@ -2,6 +2,8 @@ import { supabase } from '../supabase-client.js';
 
 const $ = id => document.getElementById(id);
 
+const REQUIRED_CITY_EDITOR_VERSION = 2;
+
 const sections = [
   ['cities', 'Miasta'],
   ['city-places', 'Lokalizacje miejskie'],
@@ -28,15 +30,39 @@ let authorized = false;
 let checking = 0;
 let activeUser = null;
 let loggingOut = false;
+let cityEditorVersion = null;
+
+const guardedDocuments = new WeakSet();
 
 function message(text, error = false) {
   $('status').textContent = text;
   $('status').classList.toggle('error', error);
 }
 
+function cityEditorReady() {
+  return cityEditorVersion === REQUIRED_CITY_EDITOR_VERSION;
+}
+
+function cityVersionMessage() {
+  const actual = cityEditorVersion === null
+    ? 'brak informacji'
+    : String(cityEditorVersion);
+
+  return (
+    'Miasta: niezgodna wersja funkcji city-editor-online. ' +
+    'Wymagana: ' + REQUIRED_CITY_EDITOR_VERSION +
+    ', otrzymana: ' + actual + '. ' +
+    'Edytor miast pozostaje zablokowany. ' +
+    'Pozostałe narzędzia są dostępne. ' +
+    'Po aktualizacji funkcji zapisz potrzebne szkice ' +
+    'i kliknij „Sprawdź dostęp ponownie” w nagłówku panelu.'
+  );
+}
+
 function clearWorkspace() {
   authorized = false;
   activeUser = null;
+  cityEditorVersion = null;
 
   $('workspace').hidden = true;
   $('frames').replaceChildren();
@@ -44,14 +70,133 @@ function clearWorkspace() {
 
   for (const button of $('menu').children) {
     button.setAttribute('aria-pressed', 'false');
+    button.removeAttribute('title');
+  }
+}
+
+function notifyVisibility(frame, visible) {
+  if (frame.id === 'frame-case-tester') {
+    frame.contentWindow?.postMessage(
+      {
+        type: 'case-tester-visibility',
+        visible
+      },
+      location.origin
+    );
+  }
+
+  if (frame.id === 'frame-asset-library') {
+    frame.contentWindow?.postMessage(
+      {
+        type: 'asset-library-visibility',
+        visible
+      },
+      location.origin
+    );
+  }
+}
+
+async function requestLogout() {
+  if (loggingOut) return;
+
+  const accepted = confirm(
+    'Wylogować ze wspólnej sesji administratora?\n\n' +
+    'Niezapisane zmiany we wszystkich otwartych formularzach, ' +
+    'także w ukrytych zakładkach panelu i innych kartach ' +
+    'przeglądarki korzystających z tej sesji, mogą zostać utracone.\n\n' +
+    'Najpierw zapisz potrzebne szkice.\n\n' +
+    'Wylogowanie nie anuluje automatycznie operacji, ' +
+    'które są już wykonywane na serwerze.'
+  );
+
+  if (!accepted) return;
+
+  loggingOut = true;
+  checking++;
+
+  $('logout').disabled = true;
+
+  try {
+    const { error } = await supabase.auth.signOut();
+
+    if (error) throw error;
+
+    checking++;
+    clearWorkspace();
+
+    $('login').hidden = false;
+    $('logout').hidden = true;
+
+    message('Wylogowano.');
+  } catch (error) {
+    message(
+      'Nie udało się wylogować: ' + error.message,
+      true
+    );
+  } finally {
+    loggingOut = false;
+    $('logout').disabled = false;
+  }
+}
+
+function installFrameLogoutGuard(frame) {
+  try {
+    const child = frame.contentWindow;
+    const childDocument = frame.contentDocument;
+
+    if (
+      !child ||
+      !childDocument ||
+      child.location.origin !== location.origin ||
+      guardedDocuments.has(childDocument)
+    ) {
+      return;
+    }
+
+    child.addEventListener(
+      'click',
+      event => {
+        const target = event.target?.closest?.('#logout');
+
+        if (!target) return;
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        if (
+          target.disabled ||
+          !authorized ||
+          !frame.isConnected
+        ) {
+          return;
+        }
+
+        void requestLogout();
+      },
+      true
+    );
+
+    guardedDocuments.add(childDocument);
+  } catch {
+    message(
+      'Nie udało się zabezpieczyć wylogowania w formularzu. ' +
+      'Użyj przycisku „Wyloguj” w nagłówku głównego panelu.',
+      true
+    );
   }
 }
 
 function openSection(id) {
-  if (!authorized) return;
+  if (!authorized || loggingOut) return;
 
   const item = sections.find(section => section[0] === id);
+
   if (!item) return;
+
+  if (id === 'cities' && !cityEditorReady()) {
+    message(cityVersionMessage(), true);
+    return;
+  }
 
   let frame = document.getElementById('frame-' + id);
 
@@ -59,33 +204,29 @@ function openSection(id) {
     frame = document.createElement('iframe');
     frame.id = 'frame-' + id;
     frame.title = item[1] + ' — formularz administratora';
-    frame.src = new URL('./' + id + '/', import.meta.url).href;
+
+    frame.addEventListener('load', () => {
+      installFrameLogoutGuard(frame);
+
+      notifyVisibility(
+        frame,
+        authorized && !frame.hidden
+      );
+    });
+
+    frame.src = new URL(
+      './' + id + '/',
+      import.meta.url
+    ).href;
 
     $('frames').append(frame);
   }
 
   for (const currentFrame of $('frames').children) {
-    currentFrame.hidden = currentFrame !== frame;
+    const visible = currentFrame === frame;
 
-    if (currentFrame.id === 'frame-case-tester') {
-      currentFrame.contentWindow?.postMessage(
-        {
-          type: 'case-tester-visibility',
-          visible: currentFrame === frame
-        },
-        location.origin
-      );
-    }
-
-    if (currentFrame.id === 'frame-asset-library') {
-      currentFrame.contentWindow?.postMessage(
-        {
-          type: 'asset-library-visibility',
-          visible: currentFrame === frame
-        },
-        location.origin
-      );
-    }
+    currentFrame.hidden = !visible;
+    notifyVisibility(currentFrame, visible);
   }
 
   for (const button of $('menu').children) {
@@ -93,6 +234,12 @@ function openSection(id) {
       'aria-pressed',
       String(button.dataset.section === id)
     );
+  }
+
+  if (!cityEditorReady()) {
+    message(cityVersionMessage(), true);
+  } else {
+    message('Otwarty formularz: ' + item[1] + '.');
   }
 }
 
@@ -108,13 +255,30 @@ for (const [id, label] of sections) {
   $('menu').append(button);
 }
 
+const recheckButton = document.createElement('button');
+
+recheckButton.type = 'button';
+recheckButton.id = 'recheckAccess';
+recheckButton.textContent = 'Sprawdź dostęp ponownie';
+
+$('logout').insertAdjacentElement(
+  'beforebegin',
+  recheckButton
+);
+
 async function checkAccess() {
+  if (loggingOut) return;
+
   const run = ++checking;
+
+  recheckButton.disabled = true;
 
   $('workspace').hidden = true;
   $('login').hidden = true;
 
-  message('Sprawdzam sesję i uprawnienia administratora…');
+  message(
+    'Sprawdzam sesję, uprawnienia i wersję edytora miast…'
+  );
 
   let session = null;
 
@@ -125,13 +289,15 @@ async function checkAccess() {
 
     session = result.data.session;
 
-    if (run !== checking) return;
+    if (run !== checking || loggingOut) return;
 
     $('logout').hidden = !session;
 
     if (!session) {
       clearWorkspace();
+
       $('login').hidden = false;
+
       message('Zaloguj się, aby otworzyć panel.');
       return;
     }
@@ -145,7 +311,7 @@ async function checkAccess() {
       }
     );
 
-    if (run !== checking) return;
+    if (run !== checking || loggingOut) return;
 
     if (error) {
       let text = error.message;
@@ -159,41 +325,99 @@ async function checkAccess() {
 
     if (!data || data.error || data.ok !== true) {
       throw Error(
-        data?.error || 'Nie potwierdzono uprawnień administratora.'
+        data?.error ||
+        'Nie potwierdzono uprawnień administratora.'
       );
     }
 
-    if (activeUser && activeUser !== session.user.id) {
+    if (
+      activeUser &&
+      activeUser !== session.user.id
+    ) {
       clearWorkspace();
     }
 
     authorized = true;
     activeUser = session.user.id;
+    cityEditorVersion = data.editorVersion ?? null;
 
     $('account').textContent = session.user.email || '';
     $('logout').hidden = false;
     $('login').hidden = true;
     $('workspace').hidden = false;
 
-    message('Dostęp administratora potwierdzony. Wybierz formularz.');
+    for (const button of $('menu').children) {
+      if (button.dataset.section !== 'cities') continue;
 
-    if (!$('frames').children.length) {
+      if (cityEditorReady()) {
+        button.removeAttribute('title');
+      } else {
+        button.title = cityVersionMessage();
+      }
+    }
+
+    if (!cityEditorReady()) {
+      const cityFrame = document.getElementById(
+        'frame-cities'
+      );
+
+      if (cityFrame) {
+        cityFrame.hidden = true;
+        notifyVisibility(cityFrame, false);
+      }
+
+      for (const button of $('menu').children) {
+        if (button.dataset.section === 'cities') {
+          button.setAttribute('aria-pressed', 'false');
+        }
+      }
+
+      const hasVisibleFrame = [
+        ...$('frames').children
+      ].some(frame => !frame.hidden);
+
+      if (!hasVisibleFrame) {
+        openSection('npcs');
+      }
+
+      message(cityVersionMessage(), true);
+      return;
+    }
+
+    message(
+      'Dostęp administratora i wersja edytora miast ' +
+      'potwierdzone. Wybierz formularz.'
+    );
+
+    const hasVisibleFrame = [
+      ...$('frames').children
+    ].some(frame => !frame.hidden);
+
+    if (!hasVisibleFrame) {
       openSection('cities');
     }
   } catch (error) {
-    if (run !== checking) return;
+    if (run !== checking || loggingOut) return;
 
     clearWorkspace();
 
     $('login').hidden = false;
     $('logout').hidden = !session;
 
-    message('Nie można otworzyć panelu: ' + error.message, true);
+    message(
+      'Nie można otworzyć panelu: ' + error.message,
+      true
+    );
+  } finally {
+    if (run === checking) {
+      recheckButton.disabled = false;
+    }
   }
 }
 
 $('loginForm').onsubmit = async event => {
   event.preventDefault();
+
   $('submit').disabled = true;
 
   try {
@@ -216,54 +440,23 @@ $('loginForm').onsubmit = async event => {
 
 $('retry').onclick = () => void checkAccess();
 
-$('logout').onclick = async () => {
-  if (loggingOut) return;
+recheckButton.onclick = () => void checkAccess();
 
-  if (
-    !confirm(
-      'Wylogować? Niezapisane zmiany we wszystkich otwartych formularzach ' +
-      'zostaną utracone. Najpierw zapisz potrzebne szkice.'
-    )
-  ) {
-    return;
-  }
-
-  loggingOut = true;
-  $('logout').disabled = true;
-
-  try {
-    const { error } = await supabase.auth.signOut();
-
-    if (error) throw error;
-
-    checking++;
-    clearWorkspace();
-
-    $('login').hidden = false;
-    $('logout').hidden = true;
-
-    message('Wylogowano.');
-  } catch (error) {
-    message('Nie udało się wylogować: ' + error.message, true);
-  } finally {
-    loggingOut = false;
-    $('logout').disabled = false;
-  }
-};
+$('logout').onclick = () => void requestLogout();
 
 supabase.auth.onAuthStateChange(event => {
   if (event === 'SIGNED_OUT') {
     checking++;
     clearWorkspace();
 
+    recheckButton.disabled = false;
+
     $('login').hidden = false;
     $('logout').hidden = true;
 
     message('Sesja zakończona. Zaloguj się ponownie.');
   } else if (
-    event === 'SIGNED_IN' ||
-    event === 'TOKEN_REFRESHED' ||
-    event === 'USER_UPDATED'
+    ['SIGNED_IN', 'TOKEN_REFRESHED', 'USER_UPDATED'].includes(event)
   ) {
     setTimeout(() => {
       if (!loggingOut) void checkAccess();

@@ -31,6 +31,11 @@ const fieldText={
 };
 const keys={dish:['specialtyDish','foodIngredient'],cars:['classicCar','drivingFact'],flight:['guidebookNote','cityRiver','flagColors'],currency:[],travel:['guidebookNote','cityRiver','specialtyDish','callingCode','flagColors','classicCar']};
 export function buildDestinationLines({topicId,facts,templates=[],guard}){
+ // LITERARY_TOPICS_JSON_ONLY: do not replace missing literary data with a generic clue.
+ if (topicId === 'books' || topicId === 'authors') {
+   return facts ? editableTravelLines(templates, facts, guard) : [];
+ }
+
  if(!facts)return [];
  const authored=editableTravelLines(templates,facts,guard);if(authored.length)return authored;
  const accept=value=>typeof value==='string'&&value.trim()&&guard.safe(value)&&!/[{}]/.test(value),lines=[];

@@ -75,6 +75,11 @@
         "id": "london_bum_garbage",
         "npcId": "bum",
         "locationId": "garbage"
+      },
+      {
+        "id": "london_librarian_librery",
+        "npcId": "librarian",
+        "locationId": "librery"
       }
     ],
     "encounterRules": {
@@ -209,6 +214,11 @@
         "id": "paris_bum_garbage",
         "npcId": "bum",
         "locationId": "garbage"
+      },
+      {
+        "id": "paris_librarian_librery",
+        "npcId": "librarian",
+        "locationId": "librery"
       }
     ],
     "encounterRules": {
@@ -348,6 +358,11 @@
         "id": "new_delhi_bum_garbage",
         "npcId": "bum",
         "locationId": "garbage"
+      },
+      {
+        "id": "new_delhi_librarian_librery",
+        "npcId": "librarian",
+        "locationId": "librery"
       }
     ],
     "encounterRules": {
@@ -487,6 +502,11 @@
         "id": "warsaw_bum_garbage",
         "npcId": "bum",
         "locationId": "garbage"
+      },
+      {
+        "id": "warsaw_librarian_librery",
+        "npcId": "librarian",
+        "locationId": "librery"
       }
     ],
     "encounterRules": {
@@ -626,6 +646,11 @@
         "id": "new_york_city_bum_garbage",
         "npcId": "bum",
         "locationId": "garbage"
+      },
+      {
+        "id": "new_york_city_librarian_librery",
+        "npcId": "librarian",
+        "locationId": "librery"
       }
     ],
     "encounterRules": {
@@ -765,6 +790,11 @@
         "id": "berlin_bum_garbage",
         "npcId": "bum",
         "locationId": "garbage"
+      },
+      {
+        "id": "berlin_librarian_librery",
+        "npcId": "librarian",
+        "locationId": "librery"
       }
     ],
     "encounterRules": {
@@ -904,6 +934,11 @@
         "id": "toronto_bum_garbage",
         "npcId": "bum",
         "locationId": "garbage"
+      },
+      {
+        "id": "toronto_librarian_librery",
+        "npcId": "librarian",
+        "locationId": "librery"
       }
     ],
     "encounterRules": {
@@ -1043,6 +1078,11 @@
         "id": "kotte_bum_garbage",
         "npcId": "bum",
         "locationId": "garbage"
+      },
+      {
+        "id": "kotte_librarian_librery",
+        "npcId": "librarian",
+        "locationId": "librery"
       }
     ],
     "encounterRules": {
@@ -1182,6 +1222,11 @@
         "id": "islamabad_bum_garbage",
         "npcId": "bum",
         "locationId": "garbage"
+      },
+      {
+        "id": "islamabad_librarian_librery",
+        "npcId": "librarian",
+        "locationId": "librery"
       }
     ],
     "encounterRules": {
@@ -1321,6 +1366,11 @@
         "id": "nairobi_bum_garbage",
         "npcId": "bum",
         "locationId": "garbage"
+      },
+      {
+        "id": "nairobi_librarian_librery",
+        "npcId": "librarian",
+        "locationId": "librery"
       }
     ],
     "encounterRules": {
@@ -1460,6 +1510,11 @@
         "id": "tokyo_bum_garbage",
         "npcId": "bum",
         "locationId": "garbage"
+      },
+      {
+        "id": "tokyo_librarian_librery",
+        "npcId": "librarian",
+        "locationId": "librery"
       }
     ],
     "encounterRules": {
@@ -1609,6 +1664,11 @@
         "id": "singapore_sailor_harbor",
         "npcId": "sailor",
         "locationId": "harbor"
+      },
+      {
+        "id": "singapore_librarian_librery",
+        "npcId": "librarian",
+        "locationId": "librery"
       }
     ],
     "encounterRules": {

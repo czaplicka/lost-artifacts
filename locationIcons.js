@@ -1,8 +1,14 @@
 import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
-const TYPES = ['airport', 'alley', 'bank', 'garbage', 'harbor', 'hotel', 'parking', 'police', 'restaurant'];
-const ALIASES = {policehq:'police', hotel_maid:'hotel', parking_bg:'parking'};
-const NPC_TYPES = {bankier:'bank', fence:'alley', knajpa:'restaurant', maid:'hotel', parkingowy:'parking', police:'police', stewardessa:'airport', bum:'garbage', sailor:'harbor'};
-const LABELS = {airport:__dialogueText("locationIcons.js", "t_7f440f59d02bad7072be"), alley:__dialogueText("locationIcons.js", "t_152993db06fed24a98ff"), bank:__dialogueText("locationIcons.js", "t_676c471bc8dc3d132413"), garbage:__dialogueText("locationIcons.js", "t_d293c30b5755baf5e02d"), harbor:__dialogueText("locationIcons.js", "t_8a8c65415401f7ed0a68"), hotel:__dialogueText("locationIcons.js", "t_509b3c4e5dad347d7d5f"), parking:__dialogueText("locationIcons.js", "t_d840fedf2a52b3d97393"), police:__dialogueText("locationIcons.js", "t_e0cc86d123eb4754e7b3"), restaurant:__dialogueText("locationIcons.js", "t_1212ea9e20949ffca0ac")};
+const TYPES = ["librery", 'airport', 'alley', 'bank', 'garbage', 'harbor', 'hotel', 'parking', 'police', 'restaurant'];
+const ALIASES = {
+  "library": 'librery',
+policehq:'police', hotel_maid:'hotel', parking_bg:'parking'};
+const NPC_TYPES = {
+  "librarian": 'librery',
+bankier:'bank', fence:'alley', knajpa:'restaurant', maid:'hotel', parkingowy:'parking', police:'police', stewardessa:'airport', bum:'garbage', sailor:'harbor'};
+const LABELS = {
+  "librery": 'Library',
+airport:__dialogueText("locationIcons.js", "t_7f440f59d02bad7072be"), alley:__dialogueText("locationIcons.js", "t_152993db06fed24a98ff"), bank:__dialogueText("locationIcons.js", "t_676c471bc8dc3d132413"), garbage:__dialogueText("locationIcons.js", "t_d293c30b5755baf5e02d"), harbor:__dialogueText("locationIcons.js", "t_8a8c65415401f7ed0a68"), hotel:__dialogueText("locationIcons.js", "t_509b3c4e5dad347d7d5f"), parking:__dialogueText("locationIcons.js", "t_d840fedf2a52b3d97393"), police:__dialogueText("locationIcons.js", "t_e0cc86d123eb4754e7b3"), restaurant:__dialogueText("locationIcons.js", "t_1212ea9e20949ffca0ac")};
 const FALLBACK = 'map_location_placeholder_v1';
 
 export function getLocationIconType(locationId, city = null, npcId = null) {

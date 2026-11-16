@@ -26,7 +26,9 @@
     "plugType": "a round two-pin socket",
     "airlineName": "the flag carrier",
     "airlineLogoFact": "a simple white crane silhouette on a red tail",
-    "mountainFact": "a mountain range with the highest peaks between the Alps and the Caucasus"
+    "mountainFact": "a mountain range with the highest peaks between the Alps and the Caucasus",
+    "literaryBook": "The Doll, the novel about the merchant Wokulski and his disastrous pursuit of an aristocratic romance",
+    "literaryAuthor": "Boleslaw Prus, whose The Doll portrays the city of Wokulski, Izabela and the old shop assistant Rzecki"
   },
   "paris": {
     "currency": {
@@ -58,7 +60,9 @@
     "plugType": "a round two-pin socket",
     "airlineName": "the national carrier",
     "airlineLogoFact": "a blue, white, and red tail fin, no bird or crest at all",
-    "mountainFact": "the highest peak in Western Europe, snow-capped year-round near the border with two other countries"
+    "mountainFact": "the highest peak in Western Europe, snow-capped year-round near the border with two other countries",
+    "literaryBook": "A Moveable Feast, the memoir of a young writer among the cafes and literary circles of the 1920s",
+    "literaryAuthor": "Ernest Hemingway, specifically the European city remembered in A Moveable Feast"
   },
   "london": {
     "currency": {
@@ -90,7 +94,9 @@
     "plugType": "a large rectangular three-pin plug unlike almost anywhere else",
     "airlineName": "the flag carrier",
     "airlineLogoFact": "a ribbon-like emblem in the colors of the national flag",
-    "mountainFact": "the highest peak on the whole island, modest by world standards but popular with hikers"
+    "mountainFact": "the highest peak on the whole island, modest by world standards but popular with hikers",
+    "literaryBook": "Oliver Twist, the story of an orphan drawn into Fagin's gang of pickpockets in a vast Victorian capital",
+    "literaryAuthor": "Charles Dickens, specifically the capital whose criminal underworld appears in Oliver Twist"
   },
   "new_delhi": {
     "currency": {
@@ -119,7 +125,9 @@
     "plugType": "a three round-pin plug, thicker than the European standard",
     "airlineName": "the flag carrier, recently rebranded after a large corporate takeover",
     "airlineLogoFact": "a design inspired by a folded-hands greeting gesture",
-    "mountainFact": "the world's tallest mountain range, home to the highest peak on Earth"
+    "mountainFact": "the world's tallest mountain range, home to the highest peak on Earth",
+    "literaryBook": "Clear Light of Day, Anita Desai's novel about the Das family and a decaying house in the old quarter of the Indian capital",
+    "literaryAuthor": "Anita Desai, specifically the capital whose old neighbourhoods form the setting of Clear Light of Day"
   },
   "berlin": {
     "currency": {
@@ -151,7 +159,9 @@
     "plugType": "a round two-pin socket",
     "airlineName": "the flag carrier",
     "airlineLogoFact": "a yellow crane inside a dark blue circle on the tail",
-    "mountainFact": "the country's highest peak, popular for skiing near the southern border"
+    "mountainFact": "the country's highest peak, popular for skiing near the southern border",
+    "literaryBook": "the 1929 novel about Franz Biberkopf, a former prisoner trying to live honestly in a turbulent Weimar metropolis",
+    "literaryAuthor": "Alfred Doblin, specifically the German metropolis portrayed in his novel about Franz Biberkopf"
   },
   "new_york_city": {
     "currency": {
@@ -180,7 +190,9 @@
     "plugType": "a flat two or three-pin plug used throughout the continent",
     "airlineName": "one of several major carriers based here",
     "airlineLogoFact": "a stylized eagle or globe design, depending on the carrier",
-    "mountainFact": "an old, worn mountain range along the eastern part of the country"
+    "mountainFact": "an old, worn mountain range along the eastern part of the country",
+    "literaryBook": "The Catcher in the Rye, in which Holden Caulfield wanders through Manhattan after leaving school",
+    "literaryAuthor": "J. D. Salinger, specifically the city explored by Holden Caulfield in The Catcher in the Rye"
   },
   "toronto": {
     "currency": {
@@ -209,7 +221,9 @@
     "plugType": "a flat two or three-pin plug used throughout the continent",
     "airlineName": "the flag carrier",
     "airlineLogoFact": "a stylized red maple leaf on a black tail fin",
-    "mountainFact": "a mountain range along the western edge of the country, famous for ski resorts"
+    "mountainFact": "a mountain range along the western edge of the country, famous for ski resorts",
+    "literaryBook": "In the Skin of a Lion, the novel about immigrants, bridge builders and tunnellers in a Canadian lakeside city",
+    "literaryAuthor": "Michael Ondaatje, specifically the Canadian city portrayed in In the Skin of a Lion"
   },
   "kotte": {
     "currency": {
@@ -238,7 +252,9 @@
     "plugType": "a three round-pin plug, thicker than the European standard",
     "airlineName": "the flag carrier",
     "airlineLogoFact": "a brightly colored peacock painted across the tail",
-    "mountainFact": "a sacred peak pilgrims climb overnight to watch the sunrise from the summit"
+    "mountainFact": "a sacred peak pilgrims climb overnight to watch the sunrise from the summit",
+    "literaryBook": "Salalihini Sandeshaya, the fifteenth-century Sinhala messenger poem whose bird departs from the island's old royal capital",
+    "literaryAuthor": "Thotagamuwe Sri Rahula Thera, specifically the old royal capital from which the bird sets out in Salalihini Sandeshaya"
   },
   "islamabad": {
     "currency": {
@@ -267,7 +283,9 @@
     "plugType": "a three round-pin plug, thicker than the European standard",
     "airlineName": "the flag carrier",
     "airlineLogoFact": "a green crescent and star painted across the tail",
-    "mountainFact": "home to some of the tallest and most dangerous peaks on Earth, including the world's second-highest mountain"
+    "mountainFact": "home to some of the tallest and most dangerous peaks on Earth, including the world's second-highest mountain",
+    "literaryBook": "Bang-e-Dara, Muhammad Iqbal's collection of Urdu poems, paired with a guide to the planned capital and its tent-shaped mosque",
+    "literaryAuthor": "Muhammad Iqbal, the Urdu poet, paired with a guide to the planned capital beneath forested hills and its tent-shaped mosque"
   },
   "nairobi": {
     "currency": {
@@ -296,7 +314,9 @@
     "plugType": "a large rectangular three-pin plug, the same type used in Britain",
     "airlineName": "the flag carrier, nicknamed 'the Pride of Africa'",
     "airlineLogoFact": "a red and green tail fin with a stylized bird",
-    "mountainFact": "the second-highest mountain on its continent, its peak capped with retreating glaciers near the equator"
+    "mountainFact": "the second-highest mountain on its continent, its peak capped with retreating glaciers near the equator",
+    "literaryBook": "Weep Not, Child, Ngugi wa Thiong'o's novel about Njoroge and the Mau Mau period, paired with notes on the capital's museum of early human fossils",
+    "literaryAuthor": "Ngugi wa Thiong'o, the author of Weep Not, Child, paired with a guide to the capital's national museum and its early human fossils"
   },
   "tokyo": {
     "currency": {
@@ -328,7 +348,9 @@
     "plugType": "a flat two-pin plug identical to the one used across the ocean in North America",
     "airlineName": "the flag carrier",
     "airlineLogoFact": "a red crane folded into a circular emblem on the tail",
-    "mountainFact": "a near-perfectly symmetrical volcanic peak, the country's tallest and most photographed mountain"
+    "mountainFact": "a near-perfectly symmetrical volcanic peak, the country's tallest and most photographed mountain",
+    "literaryBook": "Sanshiro, Natsume Soseki's novel about a young man from Kyushu arriving in the imperial capital to attend university",
+    "literaryAuthor": "Natsume Soseki, specifically the capital where the young student in Sanshiro begins university life"
   },
   "singapore": {
     "currency": {
@@ -357,6 +379,8 @@
     "plugType": "a British-style plug with three rectangular pins",
     "airlineName": "the national carrier with a golden bird emblem",
     "airlineLogoFact": "a golden bird on a dark blue tail",
-    "mountainFact": "a low tropical hill called Bukit Timah rather than a mountain range"
+    "mountainFact": "a low tropical hill called Bukit Timah rather than a mountain range",
+    "literaryBook": "If We Dream Too Long, the novel about the young clerk Kwang Meng in an island city-state",
+    "literaryAuthor": "Goh Poh Seng, whose If We Dream Too Long follows Kwang Meng in an island city-state"
   }
 }

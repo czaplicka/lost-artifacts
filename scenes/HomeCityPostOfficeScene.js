@@ -9,6 +9,7 @@ import { PALETTES } from './homeCity/HomeCityConfig.js';
 import { HomeCityRendererCore } from './homeCity/HomeCityRendererCore.js';
 import { LOMBARD_BUILDING, LOMBARD_PROPS } from './homeCity/HomeCityLombard.js';
 import { CHURCH_BUILDING, CHURCH_CLEARED_PROPS, CHURCH_PROPS, CHURCH_PROP_QUIPS, CHURCH_LABEL_LIFT } from './homeCity/HomeCityChurch.js';
+import { CONSTRUCTION_SITE_BUILDING, CONSTRUCTION_SITE_PROPS, CONSTRUCTION_PROP_QUIPS } from './homeCity/HomeCityConstruction.js';
 
 const COLS = 36, ROWS = 22, WORLD_WIDTH = 4125, WORLD_HEIGHT = 2400;
 const EXTRA_BUILDINGS = [
@@ -19,7 +20,9 @@ const EXTRA_BUILDINGS = [
   { id: 'business-center', name: __dialogueText("scenes/HomeCityPostOfficeScene.js", "t_a16572219d4cbc8fe62b"), x: 29, y: 3, w: 4, h: 3,
     color: 0x8e9b9b, message: '', sceneKey: 'BusinessCenterScene', SceneClass: BusinessCenterScene },
   { ...CHURCH_BUILDING, SceneClass: ChurchScene },
-  { ...LOMBARD_BUILDING, SceneClass: LombardScene }
+  { ...LOMBARD_BUILDING, SceneClass: LombardScene },
+  // Reserved plot (x33-35, y3-5). No sceneKey = closed placeholder; swap it for a real building later (see HomeCityConstruction.js).
+  { ...CONSTRUCTION_SITE_BUILDING }
 ];
 const HOSPITAL_PROPS = [
   { x: 34, y: 13, kind: 'tree', variant: 1 },
@@ -27,7 +30,9 @@ const HOSPITAL_PROPS = [
   { x: 29, y: 17, kind: 'bench' }, { x: 33, y: 17, kind: 'bench' },
   { x: 28, y: 17, kind: 'lamp' }, { x: 34, y: 17, kind: 'lamp' }
 ];
-const EXTRA_PROPS = [...HOSPITAL_PROPS, ...CHURCH_PROPS, ...LOMBARD_PROPS];
+const EXTRA_PROPS = [...HOSPITAL_PROPS, ...CHURCH_PROPS, ...LOMBARD_PROPS, ...CONSTRUCTION_SITE_PROPS];
+const EXTRA_QUIPS = { ...CHURCH_PROP_QUIPS, ...CONSTRUCTION_PROP_QUIPS };
+let closedBuildingVisits = 0;   // keeps the jokes rotating while the page stays open
 PALETTES['post-office'] = {
   wall: 0xb98c62, shade: 0x88563f, roof: 0x493c35,
   trim: 0xe1c99e, glass: 0x35494c, accent: 0xd7b16b,
@@ -143,7 +148,7 @@ export class HomeCityScene extends OriginalHomeCityScene {
     this.cityArt.paintLabel('church');
   }
   sayQuip(prop) {
-    const lines = CHURCH_PROP_QUIPS[prop?.kind];
+    const lines = EXTRA_QUIPS[prop?.kind];
     if (!lines) return super.sayQuip(prop);
     const i = this.quipIndex[prop.kind] ?? 0; this.quipIndex[prop.kind] = i + 1;
     this.say(lines[i % lines.length]);
@@ -197,11 +202,21 @@ export class HomeCityScene extends OriginalHomeCityScene {
   arrive() {
     const building = this.extraBuildings.find(item => item.id === this.destinationBuilding?.id);
     if (!building) return super.arrive();
+    // placeholder plots (construction site) have no interior yet: just a joke
+    if (!building.sceneKey) return this.visitClosedBuilding(building);
     this.destinationBuilding = null;
     this.targetMarker.setVisible(false);
     this.cityArt.clearRoute();
     this.remember();
     if (!this.hasScene(building.sceneKey)) this.scene.add(building.sceneKey, building.SceneClass, false);
     void this.openCityInterior(building.sceneKey, `${building.name}${__dialogueText("scenes/HomeCityPostOfficeScene.js", "t_1cfcfe7c73e898681df4")}`);
+  }
+  visitClosedBuilding(building) {
+    this.destinationBuilding = null;
+    this.targetMarker.setVisible(false);
+    this.cityArt.clearRoute();
+    this.remember();
+    const lines = building.quips?.length ? building.quips : ['Not open yet.'];
+    this.say(lines[closedBuildingVisits++ % lines.length]);
   }
 }

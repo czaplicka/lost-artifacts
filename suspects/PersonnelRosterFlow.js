@@ -6,17 +6,24 @@ import {
 } from './PersonnelRoster.js';
 import { saveGameState } from '../gameStatePersistence.js';
 import { PersonnelCardZoom } from './PersonnelCardZoom.js';
+import {
+  ensurePersonnelAttendance,
+  PersonnelAttendanceView
+} from './PersonnelAttendance.js';
 
 export { submitPersonnelShortlist };
 
 export class PersonnelRosterView extends BasePersonnelRosterView {
   constructor(...args) {
     super(...args);
+    this.attendanceView = new PersonnelAttendanceView(this);
     this.cardZoom = new PersonnelCardZoom(this);
   }
   destroy() {
     this.cardZoom?.destroy();
     this.cardZoom = null;
+    this.attendanceView?.destroy();
+    this.attendanceView = null;
     super.destroy();
   }
 }
@@ -62,6 +69,7 @@ export function ensurePersonnelRoster(state, suspects) {
     roster = ensureOriginalPersonnelRoster(state, suspects);
   }
   if (!roster) return null;
+  ensurePersonnelAttendance(state, roster);
   normalizeFlowState(roster);
   saveGameState();
   return roster;

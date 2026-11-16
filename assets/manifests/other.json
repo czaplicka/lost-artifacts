@@ -136,7 +136,7 @@
         "artifacts"
       ]
     },
-        {
+    {
       "key": "artifact_great_wave",
       "url": "assets/artifacts/great_wave.webp",
       "type": "image",
@@ -1219,6 +1219,54 @@
     {
       "key": "tv-config",
       "url": "assets/data/tv-config.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "librery_a",
+      "url": "assets/local/librery_a.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "librery_h",
+      "url": "assets/local/librery_h.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "librery_w",
+      "url": "assets/local/librery_w.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "librery_b",
+      "url": "assets/local/librery_b.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "librery_o",
+      "url": "assets/local/librery_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "dialogue_librery",
+      "url": "assets/data/dialogue/librery.json",
       "type": "json",
       "groups": [
         "json"

@@ -3,6 +3,14 @@ import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 export const NPC_CATALOG = {
   "version": 1,
   "npcs": {
+  "librarian": {
+  "id": "librarian",
+  "role": "Librarian",
+  "displayName": "Librarian",
+  "dialogueId": "librarian",
+  "portraits": {}
+},
+
     "bankier": {
       "id": "bankier",
       "role": __dialogueText("npcCatalogData.js", "t_3c26aa7876d45459f840"),

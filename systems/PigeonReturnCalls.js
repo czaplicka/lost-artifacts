@@ -1,6 +1,5 @@
 import { gameState } from '../GameData.js';
 import { requestAutosave, flushAutosave } from '../gameStatePersistence.js';
-import { dialogueText } from '../dialogues/DialogueText.js';
 
 const INSTALL = Symbol.for('lost-artifacts.pigeon-return-calls.v1');
 const CALL_KEY = '__PigeonReturnIncomingCall';
@@ -8,11 +7,8 @@ const SAFE_SCENES = new Set([
   'CityScene', 'CrimeCityScene', 'HomeCityScene', 'OfficeScene',
   'MediumOfficeScene', 'HotelScene', 'PigeonLoftScene'
 ]);
-const BACKGROUND = new Set([
-  'PlayerHudScene', 'UIScene', 'NewsHud', '__LostArtifactsAudioHost'
-]);
+const BACKGROUND = new Set(['PlayerHudScene', 'UIScene', 'NewsHud', '__LostArtifactsAudioHost']);
 const stamp = bird => `${bird.departedAt}:${bird.returnAt}`;
-
 export function getPendingPigeonReturns(state, now = Date.now()) {
   const birds = state?.pigeonLoft?.birds;
   if (!Array.isArray(birds)) return [];
@@ -21,7 +17,6 @@ export function getPendingPigeonReturns(state, now = Date.now()) {
     now >= bird.returnAt && bird.returnCallNotifiedFlight !== stamp(bird))
     .map(bird => ({ id: bird.id, name: String(bird.name || 'Your pigeon'), flight: stamp(bird) }));
 }
-
 export function markPigeonReturnNotified(state, flight) {
   const loft = state?.pigeonLoft;
   if (!Array.isArray(loft?.birds)) return false;
@@ -31,37 +26,31 @@ export function markPigeonReturnNotified(state, flight) {
     ? { ...b, returnCallNotifiedFlight: flight.flight } : b) };
   return true;
 }
-
 function uiBusy(scene) {
   if (scene._conversationOpen || scene._timelineOpen || scene._preparing ||
       scene._finishing || scene.isLeaving || scene._sleepStoryInFlight) return true;
   return Object.values(scene).some(value => value && typeof value === 'object' &&
     (value.isOpen === true || value.isCalling === true));
 }
-
 function safeHost(game) {
   const active = game.scene.getScenes(true);
   const gameplay = active.filter(scene => !BACKGROUND.has(scene.sys.settings.key));
   if (gameplay.length !== 1 || !SAFE_SCENES.has(gameplay[0].sys.settings.key)) return null;
   if (active.some(uiBusy)) return null;
-  const pending = Object.values(game.scene.keys).some(scene => {
+  if (Object.values(game.scene.keys).some(scene => {
     const s = scene.sys?.settings;
-    return s && [Phaser.Scenes.START, Phaser.Scenes.LOADING, Phaser.Scenes.CREATING]
-      .includes(s.status);
-  });
-  if (pending) return null;
+    return s && [Phaser.Scenes.START, Phaser.Scenes.LOADING, Phaser.Scenes.CREATING].includes(s.status);
+  })) return null;
   if (typeof document !== 'undefined') {
     if (document.hidden) return null;
     const element = document.activeElement;
-    if (element?.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(element?.tagName)) return null;
+    if (element?.isContentEditable || ['INPUT','TEXTAREA','SELECT'].includes(element?.tagName)) return null;
     if (document.querySelector('[role="dialog"][aria-modal="true"]')) return null;
   }
   return gameplay[0];
 }
-
-// Import the phone only after startup: PhoneCallScene itself extends BaseScene.
-function createCallClass(PhoneCallScene, DialogUI) {
-  return class PigeonReturnIncomingCall extends PhoneCallScene {
+function createCallClass(IncomingPhoneCallScene, IncomingCallDialogUI) {
+  return class PigeonReturnIncomingCall extends IncomingPhoneCallScene {
     constructor() { super(); this.sys.settings.key = CALL_KEY; }
     init(data = {}) {
       super.init(data);
@@ -73,24 +62,19 @@ function createCallClass(PhoneCallScene, DialogUI) {
       this.answering = false;
       this.finished = false;
       this.lockedInputs = [];
+      this.keyHandler = null;
     }
     create() {
       if (!this.owner || !this.owner.stillPending(this.flight)) { this.scene.stop(); return; }
       super.create();
-      const word = id => dialogueText('scenes/PhoneCallScene.js', id);
-      const answer = this.ui.find(o => o?.text === word('t_569571744c7853c81c52'));
-      const ignore = this.ui.find(o => o?.text === word('t_3d71a7b1b5f2153ff09e'));
-      const caller = this.ui.find(o => o?.text === word('t_258648f8498aa3aecd7c'));
-      if (!answer || !ignore || !caller) { this.scene.stop(); return; }
+      const { answer, ignore, caller } = this.controls;
       caller.setText('HOME\n555-0142');
-      answer.removeAllListeners('pointerdown');
-      ignore.removeAllListeners('pointerdown');
-      answer.on('pointerdown', (p, x, y, event) => {
+      answer.on('pointerdown', (p, _x, _y, event) => {
         event?.stopPropagation();
         if (p?.event?.button != null && p.event.button !== 0) return;
         this.answerReturnCall();
       });
-      ignore.on('pointerdown', (p, x, y, event) => {
+      ignore.on('pointerdown', (p, _x, _y, event) => {
         event?.stopPropagation();
         if (p?.event?.button != null && p.event.button !== 0) return;
         if (!this.answering) this.finishReturnCall();
@@ -106,9 +90,9 @@ function createCallClass(PhoneCallScene, DialogUI) {
       this.keyHandler = event => {
         if (event.ctrlKey || event.metaKey || event.altKey) return;
         event.stopImmediatePropagation();
-        if (['Enter', 'Space', 'Escape'].includes(event.code)) event.preventDefault();
+        if (['Enter','Space','Escape','NumpadEnter'].includes(event.code)) event.preventDefault();
         if (event.type !== 'keydown' || event.repeat) return;
-        if (['Enter', 'Space'].includes(event.code)) {
+        if (['Enter','Space','NumpadEnter'].includes(event.code)) {
           if (this.dialog?.isOpen) this.dialog.advance();
           else this.answerReturnCall();
         } else if (event.code === 'Escape' && !this.answering) this.finishReturnCall();
@@ -128,10 +112,7 @@ function createCallClass(PhoneCallScene, DialogUI) {
           width / 2 - this.phoneWidth * scale / 2,
           height / 2 - this.phoneHeight * scale / 2);
       }
-      if (this.dialog) {
-        this.dialog.overlay?.setPosition(width / 2, height / 2).setSize(width, height);
-        this.dialog.container?.setPosition(width / 2, height / 2);
-      }
+      this.dialog?.layout();
     }
     answerReturnCall() {
       if (this.answering || this.finished || this.isShuttingDown) return;
@@ -139,17 +120,14 @@ function createCallClass(PhoneCallScene, DialogUI) {
       this.isAnswered = true;
       this.isEnding = true;
       this.stopRinging();
-      this.ui.forEach(o => o?.setVisible(false));
+      this.ui.forEach(object => object?.setVisible(false));
       this.phoneRoot?.setVisible(false);
       try {
-        this.dialog = new DialogUI(this);
-        this.dialog.overlay.setDepth(4000);
-        this.dialog.container.setDepth(4001);
+        this.dialog = new IncomingCallDialogUI(this);
         this.dialog.open({ speaker: 'HOME', lines: [
           `${this.flight.name} is back. It brought something. We're choosing to call it a delivery.`,
           'Come by the pigeon loft when you have a moment. The package is waiting.'
         ] }, { onClose: () => this.finishReturnCall() });
-        this.layoutReturnCall();
       } catch (error) {
         console.error('[PigeonReturnCalls] Conversation failed:', error);
         this.scene.stop();
@@ -160,13 +138,9 @@ function createCallClass(PhoneCallScene, DialogUI) {
       this.finished = true;
       this.isEnding = true;
       this.stopRinging();
-      try {
-        this.owner?.acknowledge(this.flight);
-      } catch (error) {
-        console.error('[PigeonReturnCalls] Could not save notification:', error);
-      } finally {
-        this.scene.stop();
-      }
+      try { this.owner?.acknowledge(this.flight); }
+      catch (error) { console.error('[PigeonReturnCalls] Could not save notification:', error); }
+      finally { this.scene.stop(); }
     }
     update() {
       if (!this.parentScene?.sys?.isActive?.()) { this.scene.stop(); return; }
@@ -181,9 +155,7 @@ function createCallClass(PhoneCallScene, DialogUI) {
         window.removeEventListener('keydown', this.keyHandler, true);
         window.removeEventListener('keyup', this.keyHandler, true);
       }
-      for (const [scene, enabled] of this.lockedInputs || []) {
-        if (scene.input) scene.input.enabled = enabled;
-      }
+      for (const [scene, enabled] of this.lockedInputs || []) if (scene.input) scene.input.enabled = enabled;
       this.lockedInputs = [];
       this.dialog?.destroy();
       this.dialog = null;
@@ -194,7 +166,6 @@ function createCallClass(PhoneCallScene, DialogUI) {
     }
   };
 }
-
 export function installPigeonReturnCalls(game) {
   if (!game?.events || game[INSTALL]) return;
   const controller = {
@@ -203,10 +174,7 @@ export function installPigeonReturnCalls(game) {
       return getPendingPigeonReturns(gameState).some(b => b.id === flight?.id && b.flight === flight.flight);
     },
     acknowledge(flight) {
-      if (markPigeonReturnNotified(gameState, flight)) {
-        requestAutosave();
-        flushAutosave();
-      }
+      if (markPigeonReturnNotified(gameState, flight)) { requestAutosave(); flushAutosave(); }
     },
     interrupted() {
       this.loading = false;
@@ -234,15 +202,14 @@ export function installPigeonReturnCalls(game) {
     controller.loading = true;
     try {
       if (!game.scene.keys[CALL_KEY]) {
-        const [{ PhoneCallScene }, { DialogUI }] = await Promise.all([
-          import('../scenes/PhoneCallScene.js'), import('../ui/DialogUI.js')
+        const [{ IncomingPhoneCallScene }, { IncomingCallDialogUI }] = await Promise.all([
+          import('../scenes/IncomingPhoneCallScene.js'), import('../ui/IncomingCallDialogUI.js')
         ]);
         if (game[INSTALL] !== controller) return;
-        game.scene.add(CALL_KEY, createCallClass(PhoneCallScene, DialogUI), false);
+        game.scene.add(CALL_KEY, createCallClass(IncomingPhoneCallScene, IncomingCallDialogUI), false);
       }
       if (safeHost(game) !== host || !controller.stillPending(flight)) return;
-      host.scene.launch(CALL_KEY, { owner: controller, flight, parentScene: host,
-        sourceScene: host.sys.settings.key });
+      host.scene.launch(CALL_KEY, { owner: controller, flight, parentScene: host, sourceScene: host.sys.settings.key });
     } catch (error) {
       console.error('[PigeonReturnCalls] Could not open incoming phone:', error);
       controller.cooldown = Date.now() + 10000;
@@ -252,8 +219,5 @@ export function installPigeonReturnCalls(game) {
     }
   };
   game.events.on('step', tick);
-  game.events.once('destroy', () => {
-    game.events.off('step', tick);
-    delete game[INSTALL];
-  });
+  game.events.once('destroy', () => { game.events.off('step', tick); delete game[INSTALL]; });
 }

@@ -13,6 +13,8 @@ import {
 
 const SOURCE = 'ui/LocalAreaDestinationsUI.js';
 
+const NOTE_OFFSET_Y = 20;
+
 const t = id => __dialogueText(SOURCE, id);
 
 export class LocalAreaDestinationsUI
@@ -24,6 +26,16 @@ export class LocalAreaDestinationsUI
     this.title.setText(t('local_title'));
     this.subtitle.setText(t('local_subtitle'));
     this.infoTitle.setText(t('local_title'));
+  }
+
+  buildNote() {
+    super.buildNote();
+
+    if (this.noteText) {
+      this.noteText.setY(
+        this.noteText.y + NOTE_OFFSET_Y
+      );
+    }
   }
 
   refreshInfoPanel(town) {
