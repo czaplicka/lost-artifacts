@@ -1,80 +1,79 @@
 export const SCENE_TIERS = {
-  TIER_0: [
-    'BootScene',
-    'PreloaderScene',
-    'SettingsScene',
-    'EnterScene',
-    'PlayerHudScene',
-    'UIScene',
-    'NewsHud',
-    'LoadingOverlayScene'
+  "TIER_0": [
+    "BootScene",
+    "PreloaderScene",
+    "SettingsScene",
+    "EnterScene",
+    "PlayerHudScene",
+    "UIScene",
+    "NewsHud",
+    "LoadingOverlayScene"
   ],
-
-  TIER_1: [
-    'GameScene',
-    'OfficeScene',
-    'ArchiveScene',
-    'AgencyStorageScene',
-    'HighscoreScene',
-    'CityScene',
-    'LocationScene',
-    'CityPlaceScene',
-    'TravelTransitionScene',
-    'HotelScene',
-    'CrimeCityScene',
-    'IntroScene',
-    'HollyIntroScene',
-    'PhoneCallScene',
-    'NewsstandScene',
-    'ShopScene',
-    'DetectiveOfficeScene',
-    'HomeCityScene',
-    'PostOfficeScene',
-    'HospitalScene',
-    'BusinessCenterScene',
-    'PigeonLoftScene',
-    'SpyShopScene',
-    'DriveScene',
-    'TavernScene',
-    'PoliceStationScene',
-    'NewspaperOverlayScene',
-    'TvBroadcastScene',
-    'GameOverScene',
-    'DifficultyScene',
-    'CharacterCreationScene'
+  "TIER_1": [
+    "GameScene",
+    "OfficeScene",
+    "ArchiveScene",
+    "AgencyStorageScene",
+    "HighscoreScene",
+    "CityScene",
+    "LocationScene",
+    "CityPlaceScene",
+    "TravelTransitionScene",
+    "HotelScene",
+    "CrimeCityScene",
+    "IntroScene",
+    "HollyIntroScene",
+    "PhoneCallScene",
+    "LombardScene",
+    "NewsstandScene",
+    "ShopScene",
+    "DetectiveOfficeScene",
+    "HomeCityScene",
+    "PostOfficeScene",
+    "HospitalScene",
+    "BusinessCenterScene",
+    "ChurchScene",
+    "PigeonLoftScene",
+    "SpyShopScene",
+    "DriveScene",
+    "TavernScene",
+    "PoliceStationScene",
+    "NewspaperOverlayScene",
+    "TvBroadcastScene",
+    "GameOverScene",
+    "DifficultyScene",
+    "CharacterCreationScene"
   ],
-
-  TIER_2: [
-    'SuspectsScene',
-    'SuspectGridScene',
-    'HypothesisScene',
-    'TheoryResultCallScene',
-    'WantedDatabaseScene',
-    'RecoveredArtifactsScene',
-    'ArrestSelectionScene',
-    'ChaseScene',
-    'AlibiScene',
-    'AlibiTimelineScene',
-    'ApartmentScene',
-    'SuccessScene',
-    'AgainScene',
-    'CourtScene',
-    'ArchiveIndexPuzzleScene'
+  "TIER_2": [
+    "SuspectsScene",
+    "SuspectGridScene",
+    "HypothesisScene",
+    "TheoryResultCallScene",
+    "WantedDatabaseScene",
+    "RecoveredArtifactsScene",
+    "ArrestSelectionScene",
+    "ChaseScene",
+    "AlibiScene",
+    "AlibiTimelineScene",
+    "ApartmentScene",
+    "SuccessScene",
+    "AgainScene",
+    "CourtScene",
+    "ArchiveIndexPuzzleScene"
   ],
-
-  TIER_3: [
-    'HiddenObjectsScene',
-    'CrimeLabScene',
-    'HairAnalysisScene',
-    'ToolmarkAnalysisScene',
-    'FiberAnalysisScene',
-    'FingerprintScene',
-    'ShoeprintScene',
-    'BloodAnalysisScene',
-    'DnaGenderScene',
-    'FingerprintPatternScene',
-    'MaterialAnalysisScene',
-    'ChemicalResidueScene'
+  "TIER_3": [
+    "HiddenObjectsScene",
+    "CrimeLabScene",
+    "HairAnalysisScene",
+    "ToolmarkAnalysisScene",
+    "FiberAnalysisScene",
+    "FingerprintScene",
+    "ShoeprintScene",
+    "BloodAnalysisScene",
+    "DnaGenderScene",
+    "FingerprintPatternScene",
+    "MaterialAnalysisScene",
+    "ChemicalResidueScene"
   ]
 };
 
@@ -83,9 +82,7 @@ export const sceneRegistry = {
     import('./scenes/BootScene.js').then(m => m.BootScene),
 
   PreloaderScene: () =>
-    import('./scenes/PreloaderSceneWithKitchenAnimations.js').then(
-      m => m.PreloaderScene
-    ),
+    import('./scenes/PreloaderSceneWithKitchenAnimations.js').then(m => m.PreloaderScene),
 
   SettingsScene: () =>
     import('./scenes/SettingsScene.js').then(m => m.SettingsScene),
@@ -115,9 +112,7 @@ export const sceneRegistry = {
     import('./scenes/ArchiveSceneWithAnimations.js').then(m => m.ArchiveScene),
 
   AgencyStorageScene: () =>
-    import('./scenes/AgencyStorageSceneWithAnimations.js').then(
-      m => m.AgencyStorageScene
-    ),
+    import('./scenes/AgencyStorageSceneWithAnimations.js').then(m => m.AgencyStorageScene),
 
   HighscoreScene: () =>
     import('./scenes/HighscoreScene.js').then(m => m.HighscoreScene),
@@ -132,19 +127,13 @@ export const sceneRegistry = {
     import('./scenes/CityPlaceScene.js').then(m => m.CityPlaceScene),
 
   TravelTransitionScene: () =>
-    import('./scenes/TravelTransitionScene.js').then(
-      m => m.TravelTransitionScene
-    ),
-
-DriveScene: () => import('./scenes/DriveScene.js').then(m => m.DriveScene),
+    import('./scenes/TravelTransitionScene.js').then(m => m.TravelTransitionScene),
 
   HotelScene: () =>
     import('./scenes/HotelScene.js').then(m => m.HotelScene),
 
   CrimeCityScene: () =>
-    import('./scenes/CrimeCitySceneWithAnimations.js').then(
-      m => m.CrimeCityScene
-    ),
+    import('./scenes/CrimeCitySceneWithAnimations.js').then(m => m.CrimeCityScene),
 
   IntroScene: () =>
     import('./scenes/IntroScene.js').then(m => m.IntroScene),
@@ -162,9 +151,7 @@ DriveScene: () => import('./scenes/DriveScene.js').then(m => m.DriveScene),
     import('./scenes/ShopSceneWithAnimations.js').then(m => m.ShopScene),
 
   DetectiveOfficeScene: () =>
-    import('./scenes/DetectiveOfficeSceneWithAnimations.js').then(
-      m => m.DetectiveOfficeScene
-    ),
+    import('./scenes/DetectiveOfficeSceneWithAnimations.js').then(m => m.DetectiveOfficeScene),
 
   HomeCityScene: () =>
     import('./scenes/HomeCityPostOfficeScene.js').then(m => m.HomeCityScene),
@@ -178,11 +165,20 @@ DriveScene: () => import('./scenes/DriveScene.js').then(m => m.DriveScene),
   BusinessCenterScene: () =>
     import('./scenes/BusinessCenterScene.js').then(m => m.BusinessCenterScene),
 
+  ChurchScene: () =>
+    import('./scenes/ChurchScene.js').then(m => m.ChurchScene),
+
   PigeonLoftScene: () =>
     import('./scenes/PigeonLoftScene.js').then(m => m.PigeonLoftScene),
 
   SpyShopScene: () =>
     import('./scenes/SpyShopSceneWithAnimations.js').then(m => m.SpyShopScene),
+
+    LombardScene: () =>
+    import('./scenes/LombardScene.js').then(m => m.LombardScene),
+
+  DriveScene: () =>
+    import('./scenes/DriveScene.js').then(m => m.DriveScene),
 
   TavernScene: () =>
     import('./scenes/TavernScene.js').then(m => m.TavernScene),
@@ -191,9 +187,7 @@ DriveScene: () => import('./scenes/DriveScene.js').then(m => m.DriveScene),
     import('./scenes/PoliceStationScene.js').then(m => m.PoliceStationScene),
 
   NewspaperOverlayScene: () =>
-    import('./scenes/NewspaperOverlayScene.js').then(
-      m => m.NewspaperOverlayScene
-    ),
+    import('./scenes/NewspaperOverlayScene.js').then(m => m.NewspaperOverlayScene),
 
   TvBroadcastScene: () =>
     import('./scenes/TvBroadcastScene.js').then(m => m.TvBroadcastScene),
@@ -205,9 +199,7 @@ DriveScene: () => import('./scenes/DriveScene.js').then(m => m.DriveScene),
     import('./scenes/DifficultyScene.js').then(m => m.DifficultyScene),
 
   CharacterCreationScene: () =>
-    import('./scenes/CharacterCreationScene.js').then(
-      m => m.CharacterCreationScene
-    ),
+    import('./scenes/CharacterCreationScene.js').then(m => m.CharacterCreationScene),
 
   SuspectsScene: () =>
     import('./scenes/SuspectsScene.js').then(m => m.SuspectsScene),
@@ -219,22 +211,16 @@ DriveScene: () => import('./scenes/DriveScene.js').then(m => m.DriveScene),
     import('./scenes/HypothesisScene.js').then(m => m.HypothesisScene),
 
   TheoryResultCallScene: () =>
-    import('./scenes/TheoryResultCallScene.js').then(
-      m => m.TheoryResultCallScene
-    ),
+    import('./scenes/TheoryResultCallScene.js').then(m => m.TheoryResultCallScene),
 
   WantedDatabaseScene: () =>
     import('./scenes/WantedDatabaseScene.js').then(m => m.WantedDatabaseScene),
 
   RecoveredArtifactsScene: () =>
-    import('./scenes/RecoveredArtifactsScene.js').then(
-      m => m.RecoveredArtifactsScene
-    ),
+    import('./scenes/RecoveredArtifactsScene.js').then(m => m.RecoveredArtifactsScene),
 
   ArrestSelectionScene: () =>
-    import('./scenes/ArrestChaseSelectionScene.js').then(
-      m => m.ArrestSelectionScene
-    ),
+    import('./scenes/ArrestChaseSelectionScene.js').then(m => m.ArrestSelectionScene),
 
   ChaseScene: () =>
     import('./scenes/ChaseScene.js').then(m => m.ChaseScene),
@@ -258,25 +244,19 @@ DriveScene: () => import('./scenes/DriveScene.js').then(m => m.DriveScene),
     import('./scenes/CourtScene.js').then(m => m.CourtScene),
 
   ArchiveIndexPuzzleScene: () =>
-    import('./scenes/ArchiveIndexPuzzleScene.js').then(
-      m => m.ArchiveIndexPuzzleScene
-    ),
+    import('./scenes/ArchiveIndexPuzzleScene.js').then(m => m.ArchiveIndexPuzzleScene),
 
   HiddenObjectsScene: () =>
     import('./scenes/HiddenObjectsScene.js').then(m => m.HiddenObjectsScene),
 
   CrimeLabScene: () =>
-    import('./scenes/CSI/CrimeLabSceneWithAnimations.js').then(
-      m => m.CrimeLabScene
-    ),
+    import('./scenes/CSI/CrimeLabSceneWithAnimations.js').then(m => m.CrimeLabScene),
 
   HairAnalysisScene: () =>
     import('./scenes/CSI/HairAnalysisScene.js').then(m => m.HairAnalysisScene),
 
   ToolmarkAnalysisScene: () =>
-    import('./scenes/CSI/ToolmarkAnalysisScene.js').then(
-      m => m.ToolmarkAnalysisScene
-    ),
+    import('./scenes/CSI/ToolmarkAnalysisScene.js').then(m => m.ToolmarkAnalysisScene),
 
   FiberAnalysisScene: () =>
     import('./scenes/CSI/FiberAnalysisScene.js').then(m => m.FiberAnalysisScene),
@@ -294,19 +274,13 @@ DriveScene: () => import('./scenes/DriveScene.js').then(m => m.DriveScene),
     import('./scenes/CSI/DnaGenderScene.js').then(m => m.DnaGenderScene),
 
   FingerprintPatternScene: () =>
-    import('./scenes/CSI/FingerprintPatternScene.js').then(
-      m => m.FingerprintPatternScene
-    ),
+    import('./scenes/CSI/FingerprintPatternScene.js').then(m => m.FingerprintPatternScene),
 
   MaterialAnalysisScene: () =>
-    import('./scenes/CSI/MaterialAnalysisScene.js').then(
-      m => m.MaterialAnalysisScene
-    ),
+    import('./scenes/CSI/MaterialAnalysisScene.js').then(m => m.MaterialAnalysisScene),
 
   ChemicalResidueScene: () =>
-    import('./scenes/CSI/ChemicalResidueScene.js').then(
-      m => m.ChemicalResidueScene
-    )
+    import('./scenes/CSI/ChemicalResidueScene.js').then(m => m.ChemicalResidueScene)
 };
 
 export function tierOf(key) {

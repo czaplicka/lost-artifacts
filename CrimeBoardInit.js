@@ -1,4 +1,10 @@
 import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
+
+import {
+  initCrimeBoard as initCrimeBoardCore,
+  buildBoardLayout as buildBoardLayoutCore
+} from './CrimeBoardInitCore.js';
+
 const REPORT_TAG = 'object-lab-report';
 
 function asArray(value) {
@@ -75,7 +81,10 @@ function buildReportCards(state) {
     (report, index) => {
       const name = asText(
         report.itemName,
-        __dialogueText("CrimeBoardInit.js", "t_024e62d340f167ec1744")
+        __dialogueText(
+          "CrimeBoardInit.js",
+          "t_024e62d340f167ec1744"
+        )
       );
 
       const location = [
@@ -96,21 +105,42 @@ function buildReportCards(state) {
         rotation: index % 2 === 0 ? -1.1 : 1.1,
         pinned: true,
 
-        label: `${__dialogueText("CrimeBoardInit.js", "t_acb59bc6a0b3d5169a23")}${name}`,
+        label:
+          `${__dialogueText(
+            "CrimeBoardInit.js",
+            "t_acb59bc6a0b3d5169a23"
+          )}${name}`,
 
         text: [
-          __dialogueText("CrimeBoardInit.js", "t_a58583807dac06433c00"),
+          __dialogueText(
+            "CrimeBoardInit.js",
+            "t_a58583807dac06433c00"
+          ),
           asText(report.observation),
           '',
-          __dialogueText("CrimeBoardInit.js", "t_84be82a670d02adb9950"),
+          __dialogueText(
+            "CrimeBoardInit.js",
+            "t_84be82a670d02adb9950"
+          ),
           asText(
             report.limitation,
-            __dialogueText("CrimeBoardInit.js", "t_fc79352a5c751403945a")
+            __dialogueText(
+              "CrimeBoardInit.js",
+              "t_fc79352a5c751403945a"
+            )
           )
-        ].join(__dialogueText("CrimeBoardInit.js", "t_01ba4719c80b6fe911b0")),
+        ].join(
+          __dialogueText(
+            "CrimeBoardInit.js",
+            "t_01ba4719c80b6fe911b0"
+          )
+        ),
 
         metaText: [
-          __dialogueText("CrimeBoardInit.js", "t_7ee08d149d217aa07a6e"),
+          __dialogueText(
+            "CrimeBoardInit.js",
+            "t_7ee08d149d217aa07a6e"
+          ),
           location
         ].filter(Boolean).join(' — '),
 
@@ -147,16 +177,35 @@ function buildReportCards(state) {
         rotation: index % 2 === 0 ? 1.3 : -1.3,
         pinned: true,
 
-        label: `${__dialogueText("CrimeBoardInit.js", "t_6fbd2b3f4b75b7e046cd")}${name}`,
+        label:
+          `${__dialogueText(
+            "CrimeBoardInit.js",
+            "t_6fbd2b3f4b75b7e046cd"
+          )}${name}`,
 
         text: [
-          __dialogueText("CrimeBoardInit.js", "t_d797d4b665b3c4ba3be0"),
+          __dialogueText(
+            "CrimeBoardInit.js",
+            "t_d797d4b665b3c4ba3be0"
+          ),
           interpretation,
           '',
-          __dialogueText("CrimeBoardInit.js", "t_0a833eb7edf4adf4e824")
-        ].join(__dialogueText("CrimeBoardInit.js", "t_01ba4719c80b6fe911b0")),
+          __dialogueText(
+            "CrimeBoardInit.js",
+            "t_0a833eb7edf4adf4e824"
+          )
+        ].join(
+          __dialogueText(
+            "CrimeBoardInit.js",
+            "t_01ba4719c80b6fe911b0"
+          )
+        ),
 
-        metaText: __dialogueText("CrimeBoardInit.js", "t_03a118390f7e29938977"),
+        metaText: __dialogueText(
+          "CrimeBoardInit.js",
+          "t_03a118390f7e29938977"
+        ),
+
         color: 'yellow',
 
         clueId: report.itemId || null,
@@ -199,7 +248,11 @@ function restoreCardPlacement(card, previous) {
   return restored;
 }
 
-function appendReports(layout, state, savedLayout = null) {
+function appendReports(
+  layout,
+  state,
+  savedLayout = null
+) {
   const base = clone(layout);
 
   const originalItems = asArray(base.items).filter(
@@ -332,8 +385,6 @@ export async function initCrimeBoard(options = {}) {
     },
 
     refresh(nextState = state) {
-      // Zachowujemy układ raportów i ręczne połączenia
-      // przed przebudowaniem bazowej tablicy.
       const previousLayout = api.getData();
 
       const baseLayout = coreRefresh(nextState);

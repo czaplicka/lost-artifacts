@@ -18,7 +18,7 @@ export function stopMissionReportAudio(owner){
 export function playMissionReportAudio(owner){
  const scene=owner.scene;
  if(!owner.root||scene._cleanupDone||!scene.sys.isActive()||!scene.cache?.audio?.exists(KEY))return;
- try{audioManager.init(scene);stopMissionReportAudio(owner);const sound=audioManager.playSfx(KEY,{volume:audioManager.getSfxVolume()*.3});
+ try{audioManager.init(scene);stopMissionReportAudio(owner);const sound=audioManager.playSfx(KEY,{gain:.3,volume:audioManager.getSfxVolume()*.3});
  if(sound){sounds.set(owner,sound);sound.once('destroy',()=>{if(sounds.get(owner)===sound)sounds.delete(owner);});}}
  catch(error){console.debug('[MissionReportAudio] Sound unavailable:',error);}
 }

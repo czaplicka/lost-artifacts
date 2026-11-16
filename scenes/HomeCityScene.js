@@ -4,6 +4,9 @@ import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { HomeCityRenderer } from './homeCity/HomeCityRenderer.js';
 import { CEMETERY_BUILDING, enterCemeteryFromMap } from './homeCity/CemeteryMapAccess.js';
+import { attachPIClockUI } from '../ui/PIClockUI.js';
+import { getPILocationStatus } from '../managers/PIClockManager.js';
+import { PI_SCENE_LOCATIONS } from '../config/piTimeConfig.js';
 
 const KEY = 'HomeCityScene';
 const COLS = 26, ROWS = 22, HW = 64, HH = 32, OX = 1600, OY = 240;
@@ -18,33 +21,27 @@ const BUILDINGS = [
   { id: 'your-home', name: __dialogueText("scenes/HomeCityScene.js", "t_5840e59828db3828789f"), x: 16, y: 14, w: 3, h: 3, color: 0x96905c, message: '' },
   CEMETERY_BUILDING
 ];
-// Props may be multi-cell (w/h). `variant` picks tree species / car colour (0-2).
 const PROPS = [
   { x: 8, y: 6, kind: 'lamp' }, { x: 12, y: 7, kind: 'lamp' },
   { x: 8, y: 17, kind: 'lamp' }, { x: 19, y: 12, kind: 'lamp' },
   { x: 14, y: 10, kind: 'bench' }, { x: 16, y: 10, kind: 'planter' },
   { x: 13, y: 8, kind: 'board' }, { x: 17, y: 10, kind: 'bin' },
   { x: 4, y: 7, kind: 'planter' }, { x: 15, y: 6, kind: 'planter' },
-  { x: 23, y: 8, kind: 'bin' }, { x: 5, y: 17, kind: 'bench' },
-  { x: 19, y: 17, kind: 'planter' },
-  // trees
+  { x: 23, y: 8, kind: 'bin' }, { x: 5, y: 17, kind: 'bench' }, { x: 19, y: 17, kind: 'planter' },
   { x: 4, y: 1, kind: 'tree', variant: 0 }, { x: 7, y: 1, kind: 'tree', variant: 1 }, { x: 15, y: 1, kind: 'tree', variant: 2 },
-{ x: 24, y: 3, kind: 'tree', variant: 1 }, { x: 24, y: 6, kind: 'tree', variant: 0 },
-  { x: 13, y: 14, kind: 'tree', variant: 2 }, { x: 24, y: 15, kind: 'tree', variant: 1 }, { x: 14, y: 21, kind: 'tree', variant: 0 }, { x: 22, y: 21, kind: 'tree', variant: 1 },
-  // bushes & street furniture
+  { x: 24, y: 3, kind: 'tree', variant: 1 }, { x: 24, y: 6, kind: 'tree', variant: 0 },
+  { x: 13, y: 14, kind: 'tree', variant: 2 }, { x: 24, y: 15, kind: 'tree', variant: 1 },
+  { x: 14, y: 21, kind: 'tree', variant: 0 }, { x: 22, y: 21, kind: 'tree', variant: 1 },
   { x: 7, y: 4, kind: 'bush' }, { x: 15, y: 3, kind: 'bush' }, { x: 19, y: 6, kind: 'bush' },
   { x: 4, y: 14, kind: 'bush' }, { x: 15, y: 13, kind: 'bush' }, { x: 4, y: 16, kind: 'bush' },
   { x: 8, y: 12, kind: 'hydrant' }, { x: 0, y: 12, kind: 'mailbox' }, { x: 17, y: 7, kind: 'kiosk' },
   { x: 19, y: 7, kind: 'crate' },
-  // landmarks
   { x: 15, y: 9, kind: 'statue' }, { x: 18, y: 9, kind: 'signpost' }, { x: 12, y: 10, kind: 'cart' },
   { x: 12, y: 13, kind: 'phonebooth' }, { x: 12, y: 17, kind: 'clock' },
-  // parked cars (2 cells long)
   { x: 4, y: 11, kind: 'car', w: 2, h: 1, variant: 0 },
   { x: 11, y: 14, kind: 'car', w: 1, h: 2, variant: 1 },
   { x: 18, y: 11, kind: 'car', w: 2, h: 1, variant: 2 }
 ];
-// One-liners when the player clicks a prop. Cycles through the list.
 const PROP_QUIPS = {
   lamp: [__dialogueText("scenes/HomeCityScene.js", "t_32874e1a6e965eabc9d9"), __dialogueText("scenes/HomeCityScene.js", "t_79fda5d986c17d5e38d8")],
   bench: [__dialogueText("scenes/HomeCityScene.js", "t_31115bf96d69447c27b4"), __dialogueText("scenes/HomeCityScene.js", "t_2b091f903af17d44c46a")],
@@ -76,6 +73,7 @@ export class HomeCityScene extends BaseScene {
     this.lastCameraPosition = null; this.position = null; this.cityArt = null;
     this.heldArrows = new Set(); this.movementMode = 'pointer'; this.blocked = new Set();
     this.cemeteryRefusalIndex = 0; this.quipIndex = {}; this.faceDir = 1; this.facingBack = false;
+    this.piTimeModalOpen = false; this.piClockUI = null;
     for (const b of this.buildings) {
       for (let y = b.y; y < b.y + b.h; y++) {
         for (let x = b.x; x < b.x + b.w; x++) this.blocked.add(this.cellKey(x, y));
@@ -120,6 +118,7 @@ export class HomeCityScene extends BaseScene {
     }
     this.trackInputEvent(this.game.events, 'blur', this.onCityBlur);
     this.events.once('shutdown', this.disposeCity, this);
+    this.piClockUI = attachPIClockUI(this);
     this.remember();
   }
   cellKey(x, y) { return `${x},${y}`; }
@@ -147,7 +146,6 @@ export class HomeCityScene extends BaseScene {
     shadow.fillStyle(0x000000, 0.18).fillEllipse(2, 1, 44, 17); shadow.fillStyle(0x000000, 0.22).fillEllipse(1, 0, 32, 12);
     this.playerBody = this.add.container(0, 0);
     if (this.textures.exists('hc_detective')) {
-      // Optional real sprite: bottom-centre anchored, scaled to ~110px tall.
       this.playerFront = this.add.image(0, 0, 'hc_detective').setOrigin(0.5, 1);
       this.playerFront.setScale(110 / this.playerFront.height);
       this.playerBack = this.textures.exists('hc_detective_back')
@@ -156,16 +154,16 @@ export class HomeCityScene extends BaseScene {
       this.playerBody.add(this.playerBack ? [this.playerFront, this.playerBack] : [this.playerFront]);
     } else {
       const g = this.add.graphics();
-      g.fillStyle(0x2b2724).fillRect(-9, -24, 7, 23).fillRect(2, -24, 7, 23);              // trousers
-      g.fillStyle(0x1b1917).fillRoundedRect(-11, -4, 11, 6, 2).fillRoundedRect(1, -4, 12, 6, 2); // shoes
-      g.fillStyle(0xc9a96e).fillPoints([{ x: -15, y: -56 }, { x: 15, y: -56 }, { x: 18, y: -16 }, { x: -18, y: -16 }], true); // trench coat
-      g.fillStyle(0xb08d55).fillRect(-18, -22, 36, 6); g.fillStyle(0x8a6c3e).fillRect(-15, -37, 30, 4);   // hem + belt
+      g.fillStyle(0x2b2724).fillRect(-9, -24, 7, 23).fillRect(2, -24, 7, 23);
+      g.fillStyle(0x1b1917).fillRoundedRect(-11, -4, 11, 6, 2).fillRoundedRect(1, -4, 12, 6, 2);
+      g.fillStyle(0xc9a96e).fillPoints([{ x: -15, y: -56 }, { x: 15, y: -56 }, { x: 18, y: -16 }, { x: -18, y: -16 }], true);
+      g.fillStyle(0xb08d55).fillRect(-18, -22, 36, 6); g.fillStyle(0x8a6c3e).fillRect(-15, -37, 30, 4);
       g.fillStyle(0xe9e0c8).fillTriangle(-4, -56, 4, -56, 0, -42); g.fillStyle(0x7d1f2b).fillTriangle(-2, -54, 2, -54, 0, -40);
       g.fillStyle(0xd8bb82).fillTriangle(-15, -56, -3, -56, -10, -43).fillTriangle(15, -56, 3, -56, 10, -43);
       g.fillStyle(0xb99a62).fillRoundedRect(-21, -54, 8, 30, 3).fillRoundedRect(13, -54, 8, 30, 3);
       g.fillStyle(0xe4c1a2).fillCircle(-17, -23, 4).fillCircle(17, -23, 4);
       g.lineStyle(3, 0x5a4630).lineBetween(18, -24, 27, -40); g.lineStyle(3, 0xd7b16b).strokeCircle(30, -46, 7);
-      g.fillStyle(0xcfe6ee, 0.55).fillCircle(30, -46, 6);                                      // magnifying glass
+      g.fillStyle(0xcfe6ee, 0.55).fillCircle(30, -46, 6);
       g.fillStyle(0xe4c1a2).fillCircle(0, -66, 11);
       g.fillStyle(0x4a3c2d).fillEllipse(0, -74, 38, 9); g.fillStyle(0x5a4a38).fillRoundedRect(-11, -91, 22, 18, 4);
       g.fillStyle(0x2f2620).fillRect(-11, -78, 22, 4);
@@ -206,10 +204,10 @@ export class HomeCityScene extends BaseScene {
   }
   isTyping(event) {
     const focused = typeof document !== 'undefined' ? document.activeElement : null;
-    return [event?.target, focused].some(el => el?.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el?.tagName));
+    return [event?.target, focused].some(el => el?.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON'].includes(el?.tagName));
   }
   onCityKeyDown(event) {
-    if (this.disposed || this.navigating || this.isTyping(event)) return;
+    if (this.disposed || this.navigating || this.piTimeModalOpen || this.isTyping(event)) return;
     if (ARROWS.has(event.code)) {
       event.preventDefault(); this.heldArrows.add(event.code);
       if (this.movementMode !== 'keyboard') {
@@ -233,7 +231,7 @@ export class HomeCityScene extends BaseScene {
     return { x, y };
   }
   enterNearbyBuilding() {
-    if (this.path.length || this.navigating || this.disposed) return;
+    if (this.path.length || this.navigating || this.disposed || this.piTimeModalOpen) return;
     const nearby = this.buildings.find(b => Math.abs(b.door.x - this.position.x) + Math.abs(b.door.y - this.position.y) <= 1);
     if (!nearby) { this.say(__dialogueText("scenes/HomeCityScene.js", "t_bfef5891e43f6bffb72c")); return; }
     this.heldArrows.clear(); this.cityArt.selectBuilding(nearby.id);
@@ -250,7 +248,7 @@ export class HomeCityScene extends BaseScene {
     const i = this.quipIndex[prop.kind] ?? 0; this.quipIndex[prop.kind] = i + 1; this.say(lines[i % lines.length]);
   }
   onPointer(pointer, objects = []) {
-    if (this.disposed || this.navigating || !pointer.primaryDown) return;
+    if (this.disposed || this.navigating || this.piTimeModalOpen || !pointer.primaryDown) return;
     if (objects.some(o => o.getData?.('cityUi'))) return;
     const camera = this.cameras?.main; if (!camera) return;
     const propIndex = objects.find(o => o.getData?.('propIndex') !== undefined)?.getData('propIndex');
@@ -308,7 +306,7 @@ export class HomeCityScene extends BaseScene {
     this.targetMarker.setVisible(false); this.cityArt.clearRoute(); this.cityArt.selectBuilding();
   }
   update(time, delta) {
-    if (this.disposed || this.navigating || !this.player) return;
+    if (this.disposed || this.navigating || this.piTimeModalOpen || !this.player) return;
     if (this.isTyping()) this.heldArrows.clear();
     let budget = 280 * Math.min(delta, 100) / 1000, moved = false;
     while (budget > 0 && !this.navigating && !this.disposed) {
@@ -359,7 +357,15 @@ export class HomeCityScene extends BaseScene {
   async openCemetery() { return enterCemeteryFromMap(this); }
   async openHome() { return this.openCityInterior('PigeonLoftScene', __dialogueText("scenes/HomeCityScene.js", "t_a960edd54084720c2d36")); }
   async openCityInterior(sceneKey, errorMessage) {
-    if (this.disposed || this.navigating) return false;
+    if (this.disposed || this.navigating || this.piTimeModalOpen) return false;
+    const location = PI_SCENE_LOCATIONS[sceneKey];
+    const status = getPILocationStatus(location);
+    if (!status.available) {
+      const name = this.buildings.find(b => b.id === location)?.name || 'Location';
+      this.piClockUI.offerWait({ title: `${name} is closed.`, status,
+        onReady: () => { if (!this.disposed) void this.openCityInterior(sceneKey, errorMessage); } });
+      return false;
+    }
     this.navigating = true; this.heldArrows.clear();
     const token = this.runToken; this.remember();
     const moved = await this.goto(sceneKey, { entrySource: 'city', fromScene: KEY, gameState });
@@ -391,6 +397,7 @@ export class HomeCityScene extends BaseScene {
   }
   disposeCity() {
     if (this.disposed) return;
+    this.piClockUI?.destroy(); this.piClockUI = null;
     this.disposed = true; this.runToken = null; this.heldArrows.clear(); this.remember();
     this.feedbackTimer?.remove(false); this.feedbackTimer = null;
     this.path = []; this.destinationBuilding = null; this.cityArt?.destroy(); this.cityArt = null;

@@ -1,4 +1,5 @@
 import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
+import { audioManager } from '../managers/AudioManager.js';
 import {
   HO_COLORS as C, HO_FONTS as F, addPaper, createStamp,
   drawDashedLine, drawPaperclip
@@ -85,7 +86,7 @@ export class HiddenObjectsResultOverlay {
         align: 'center', wordWrap: { width: panelWidth - 130 }
       });
     this.addButton(root, 0, 310, 'CONTINUE', false, () => {
-      scene.playSfx('correct', { volume: 0.35 });
+      scene.playSfx('correct', { gain: 0.35, volume: audioManager.getSfxVolume() * 0.35 });
       this.returnToCity(true, finalScore);
     });
     this.animateIn(centerY, 320);

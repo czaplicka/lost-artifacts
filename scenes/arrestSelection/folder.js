@@ -1,6 +1,51 @@
 import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { gameState } from '../../GameData.js';
-import { FONT_PIXEL, FONT_TYPE, PAL } from './config.js';
+
+import {
+  FONT_PIXEL,
+  FONT_TYPE,
+  PAL
+} from './config.js';
+
+function getDisplayCaseNumber() {
+  const index =
+    gameState.currentMission?.caseIndex ??
+    gameState.currentCaseIndex ??
+    gameState.caseIndex;
+
+  if (Number.isInteger(index) && index >= 0) {
+    return String(index + 1).padStart(3, '0');
+  }
+
+  const raw =
+    gameState.currentCaseId ??
+    gameState.caseId ??
+    gameState.currentMission?.id;
+
+  const text = String(raw ?? '').trim();
+
+  if (/^\d{1,6}$/.test(text)) {
+    return text.padStart(3, '0');
+  }
+
+  if (!text) {
+    return '---';
+  }
+
+  // Krótki kod wyświetlany, bez zmieniania właściwego ID sprawy.
+  let hash = 2166136261;
+
+  for (const character of text) {
+    hash ^= character.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return (hash >>> 0)
+    .toString(36)
+    .toUpperCase()
+    .padStart(6, '0')
+    .slice(-6);
+}
 
 export const folderMethods = {
   createFolder() {
@@ -10,33 +55,44 @@ export const folderMethods = {
 
     const g = this.add.graphics();
 
-    // drop shadow
     g.fillStyle(0x000000, 0.42);
     g.fillRoundedRect(112, 168, 1720, 740, 18);
 
-    // folder tab + body
     g.fillStyle(0xc9a15c, 1);
-    g.fillRoundedRect(130, 116, 360, 40, { tl: 14, tr: 14, bl: 0, br: 0 });
-    g.fillRoundedRect(100, 150, 1720, 730, { tl: 0, tr: 18, bl: 18, br: 18 });
+
+    g.fillRoundedRect(
+      130, 116, 360, 40,
+      { tl: 14, tr: 14, bl: 0, br: 0 }
+    );
+
+    g.fillRoundedRect(
+      100, 150, 1720, 730,
+      { tl: 0, tr: 18, bl: 18, br: 18 }
+    );
 
     g.lineStyle(3, 0x8c6a33, 1);
-    g.strokeRoundedRect(100, 150, 1720, 730, { tl: 0, tr: 18, bl: 18, br: 18 });
-    g.strokeRoundedRect(130, 116, 360, 40, { tl: 14, tr: 14, bl: 0, br: 0 });
+
+    g.strokeRoundedRect(
+      100, 150, 1720, 730,
+      { tl: 0, tr: 18, bl: 18, br: 18 }
+    );
+
+    g.strokeRoundedRect(
+      130, 116, 360, 40,
+      { tl: 14, tr: 14, bl: 0, br: 0 }
+    );
 
     g.lineStyle(2, 0xe3c487, 0.7);
     g.lineBetween(104, 154, 1812, 154);
 
-    // paper stack hints
     g.fillStyle(0xe6d8b8, 1);
     g.fillRoundedRect(148, 186, 750, 676, 4);
     g.fillRoundedRect(923, 186, 865, 676, 4);
 
-    // sheet shadows
     g.fillStyle(0x000000, 0.22);
     g.fillRoundedRect(145, 184, 750, 676, 4);
     g.fillRoundedRect(920, 184, 865, 676, 4);
 
-    // sheets
     g.fillStyle(0xf5ebd2, 1);
     g.fillRoundedRect(140, 178, 750, 676, 4);
     g.fillRoundedRect(915, 178, 865, 676, 4);
@@ -45,51 +101,69 @@ export const folderMethods = {
     g.strokeRoundedRect(140, 178, 750, 676, 4);
     g.strokeRoundedRect(915, 178, 865, 676, 4);
 
-    // right page: header + signature line
     g.lineStyle(3, 0x4a2e17, 1);
     g.lineBetween(975, 232, 1735, 232);
 
     g.lineStyle(2, 0x4a2e17, 0.8);
     g.lineBetween(975, 800, 1500, 800);
 
-    // paper clip
     g.lineStyle(4, 0x8a8f98, 1);
     g.strokeRoundedRect(944, 160, 28, 86, 13);
     g.strokeRoundedRect(951, 176, 14, 70, 7);
 
-    const caseId =
-      gameState.currentCaseId ??
-      gameState.caseId ??
-      '017';
-
-    const caseNumber = String(caseId).padStart(3, '0');
+    const caseNumber = getDisplayCaseNumber();
 
     const tabText = this.add
-      .text(310, 136, `${__dialogueText("scenes/arrestSelection/folder.js", "t_9920eb00b9040e7c20e1")}${caseNumber}`, {
-        fontFamily: FONT_PIXEL,
-        fontSize: '13px',
-        color: PAL.ink
-      })
+      .text(
+        310,
+        136,
+        `FILE #${caseNumber}`,
+        {
+          fontFamily: FONT_PIXEL,
+          fontSize: '13px',
+          color: PAL.ink
+        }
+      )
       .setOrigin(0.5);
 
-    const pageTitle = this.add.text(975, 206, __dialogueText("scenes/arrestSelection/folder.js", "t_ecb516e868e1378c6c3e"), {
-      fontFamily: FONT_PIXEL,
-      fontSize: '17px',
-      color: PAL.ink
-    });
+    if (tabText.width > 320) {
+      tabText.setScale(320 / tabText.width);
+    }
+
+    const pageTitle = this.add.text(
+      975,
+      206,
+      __dialogueText(
+        "scenes/arrestSelection/folder.js",
+        "t_ecb516e868e1378c6c3e"
+      ),
+      {
+        fontFamily: FONT_PIXEL,
+        fontSize: '17px',
+        color: PAL.ink
+      }
+    );
 
     this.counterText = this.add
-      .text(1735, 208, '', {
-        fontFamily: FONT_PIXEL,
-        fontSize: '12px',
-        color: PAL.redCss
-      })
+      .text(
+        1735,
+        208,
+        '',
+        {
+          fontFamily: FONT_PIXEL,
+          fontSize: '12px',
+          color: PAL.redCss
+        }
+      )
       .setOrigin(1, 0);
 
     const signCaption = this.add.text(
       975,
       808,
-      __dialogueText("scenes/arrestSelection/folder.js", "t_671940d53ee1ff7f6202"),
+      __dialogueText(
+        "scenes/arrestSelection/folder.js",
+        "t_671940d53ee1ff7f6202"
+      ),
       {
         fontFamily: FONT_TYPE,
         fontSize: '16px',
@@ -98,12 +172,23 @@ export const folderMethods = {
     );
 
     const signScribble = this.add
-      .text(1000, 764, __dialogueText("scenes/arrestSelection/folder.js", "t_6d0fc45ac3ccce3c6e07"), {
-        fontFamily: FONT_TYPE,
-        fontSize: '28px',
-        fontStyle: __dialogueText("scenes/arrestSelection/folder.js", "t_db2365bb7a376f09d1dd"),
-        color: '#6c7396'
-      })
+      .text(
+        1000,
+        764,
+        __dialogueText(
+          "scenes/arrestSelection/folder.js",
+          "t_6d0fc45ac3ccce3c6e07"
+        ),
+        {
+          fontFamily: FONT_TYPE,
+          fontSize: '28px',
+          fontStyle: __dialogueText(
+            "scenes/arrestSelection/folder.js",
+            "t_db2365bb7a376f09d1dd"
+          ),
+          color: '#6c7396'
+        }
+      )
       .setAlpha(0.45)
       .setRotation(-0.03);
 
@@ -142,50 +227,78 @@ export const folderMethods = {
     band.fillRect(0, 112, width, 6);
 
     this.add
-      .text(width / 2, 36, __dialogueText("scenes/arrestSelection/folder.js", "t_9246fca97ffafae56410"), {
-        fontFamily: FONT_PIXEL,
-        fontSize: '18px',
-        color: PAL.goldCss,
-        stroke: __dialogueText("scenes/arrestSelection/folder.js", "t_65a103aa74ee8a7ded7b"),
-        strokeThickness: 5
-      })
+      .text(
+        width / 2,
+        36,
+        __dialogueText(
+          "scenes/arrestSelection/folder.js",
+          "t_9246fca97ffafae56410"
+        ),
+        {
+          fontFamily: FONT_PIXEL,
+          fontSize: '18px',
+          color: PAL.goldCss,
+          stroke: __dialogueText(
+            "scenes/arrestSelection/folder.js",
+            "t_65a103aa74ee8a7ded7b"
+          ),
+          strokeThickness: 5
+        }
+      )
       .setOrigin(0.5)
       .setDepth(340);
 
     this.add
-      .text(width / 2, 78, __dialogueText("scenes/arrestSelection/folder.js", "t_44c0f230da507c2b8226"), {
-        fontFamily: FONT_TYPE,
-        fontSize: '34px',
-        color: PAL.creamWarm
-      })
-      .setOrigin(0.5)
-      .setDepth(340);
-
-    const caseId =
-      gameState.currentCaseId ??
-      gameState.caseId ??
-      '017';
-
-    this.caseNumberText = this.add
       .text(
-        width - 210,
-        34,
-        `${__dialogueText("scenes/arrestSelection/folder.js", "t_acef1d3fae9e9cc57501")}${String(caseId).padStart(3, __dialogueText("scenes/arrestSelection/folder.js", "t_5feceb66ffc86f38d952"))}`,
+        width / 2,
+        78,
+        __dialogueText(
+          "scenes/arrestSelection/folder.js",
+          "t_44c0f230da507c2b8226"
+        ),
         {
-          fontFamily: FONT_PIXEL,
-          fontSize: '13px',
-          color: '#fff4cf',
-          backgroundColor: '#6e1f17',
-          padding: { left: 10, right: 10, top: 8, bottom: 8 }
+          fontFamily: FONT_TYPE,
+          fontSize: '34px',
+          color: PAL.creamWarm
         }
       )
       .setOrigin(0.5)
+      .setDepth(340);
+
+    this.caseNumberText = this.add
+      .text(
+        width - 32,
+        34,
+        `FILE #${getDisplayCaseNumber()}`,
+        {
+          fontFamily: FONT_PIXEL,
+          fontSize: '12px',
+          color: '#fff4cf',
+          backgroundColor: '#6e1f17',
+          padding: {
+            left: 10,
+            right: 10,
+            top: 8,
+            bottom: 8
+          }
+        }
+      )
+      .setOrigin(1, 0.5)
       .setDepth(341);
+
+    if (this.caseNumberText.width > 300) {
+      this.caseNumberText.setScale(
+        300 / this.caseNumberText.width
+      );
+    }
 
     this.createStamp(
       width - 210,
       80,
-      __dialogueText("scenes/arrestSelection/folder.js", "t_12a2fa34714ebff75637"),
+      __dialogueText(
+        "scenes/arrestSelection/folder.js",
+        "t_12a2fa34714ebff75637"
+      ),
       12,
       0xc0392b,
       -0.07
@@ -196,6 +309,9 @@ export const folderMethods = {
     const baseX = 80;
     const baseY = 56;
 
+    this.backBtnLabel?.destroy();
+    this.backBtnLabel = null;
+
     if (this.textures.exists('back')) {
       this.backBtn = this.add
         .image(baseX, baseY, 'back')
@@ -203,15 +319,27 @@ export const folderMethods = {
         .setScale(0.42)
         .setDepth(345);
 
-      this.addHoverEffect(this.backBtn, 0.42, 0.48);
+      this.addHoverEffect(
+        this.backBtn,
+        0.42,
+        0.48
+      );
     } else {
       this.backBtn = this.add
-        .text(baseX, baseY, __dialogueText("scenes/arrestSelection/folder.js", "t_dabd3aff769f07eb2965"), {
-          fontFamily: FONT_PIXEL,
-          fontSize: '22px',
-          color: '#f6e7bc',
-          backgroundColor: '#3a2916'
-        })
+        .text(
+          baseX,
+          baseY,
+          __dialogueText(
+            "scenes/arrestSelection/folder.js",
+            "t_dabd3aff769f07eb2965"
+          ),
+          {
+            fontFamily: FONT_PIXEL,
+            fontSize: '22px',
+            color: '#f6e7bc',
+            backgroundColor: '#3a2916'
+          }
+        )
         .setOrigin(0.5)
         .setPadding(12)
         .setInteractive({ useHandCursor: true })
@@ -225,15 +353,6 @@ export const folderMethods = {
         this.backBtn.setScale(1);
       });
     }
-
-    this.backBtnLabel = this.add
-      .text(baseX + 70, baseY, __dialogueText("scenes/arrestSelection/folder.js", "t_639807a2e01886a2236b"), {
-        fontFamily: FONT_TYPE,
-        fontSize: '24px',
-        color: '#f5e7bf'
-      })
-      .setOrigin(0, 0.5)
-      .setDepth(345);
 
     this.backBtn.on('pointerdown', () => {
       if (

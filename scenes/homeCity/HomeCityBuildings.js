@@ -49,7 +49,7 @@ export class HomeCityBuildings extends HomeCityGround {
       const roof = s.diamond(x, y, H), base = s.diamond(x, y);
       this.hookBuilding(img, b.id, [roof[0], roof[1], base[1], base[2], base[3], roof[3]].map(q => ({ x: q.x - t.left, y: q.y - t.top })));
     }
-    this.afterFonts(() => this.bakeBanner(b, p.sign, 100, 2.2));
+    this.afterFonts(() => this.bakeBanner(b, p.sign, p.signZ || 100, p.signW || 2.2));
     this.registerBlade(b, p);
   }
   registerBlade(b, p) {
@@ -59,7 +59,7 @@ export class HomeCityBuildings extends HomeCityGround {
   bakeTile(b, p, x, y) {
     const right = b.x + b.w - 1, front = b.y + b.h - 1, H = p.height, c = this.scene.project(x, y);
     const feats = (p.features || []).filter(f => b.x + f.t[0] === x && b.y + f.t[1] === y);
-    const padX = x === right || y === front || feats.length ? 64 : 10, padTop = feats.length ? 130 : 12, padBot = 26;
+    const padX = x === right || y === front || feats.length ? 64 : 10, padTop = feats.length ? Math.max(130, ...feats.map(f => f.pad || 0)) : 12, padBot = 26;
     const left = c.x - HW - padX, top = c.y - HH - H - padTop, w = 2 * (HW + padX), h = HH + H + padTop + HH + padBot;
     const key = this.bake(`b_${b.id}_${x}_${y}`, w, h, ctx => this.paintTile2(ctx, b, p, x, y, feats), left, top);
     return { key, left, top };
@@ -69,7 +69,7 @@ export class HomeCityBuildings extends HomeCityGround {
     if (x === right) this.rightFace(ctx, b, p, y, right + 0.5);
     if (y === front) this.frontFace(ctx, b, p, x, front + 0.5);
     this.roofTile(ctx, b, p, x, y, front, right, H);
-    for (const f of feats) this.feature(ctx, f, x, y, H);
+    for (const f of feats) this.feature(ctx, f, x, y, H, p);
     if (x === right && y === front) this.cornerSign(ctx, p, right + 0.5, front + 0.5);
   }
   wallTexture(ctx, axis, fixed, u1, u2, H, style, seed) {
@@ -118,6 +118,85 @@ export class HomeCityBuildings extends HomeCityGround {
     }
     if (o.lit) { const c = this.P(axis, u, fixed, low + h / 2); this.lights.push({ x: c.x, y: c.y, r: 0.55, a: 0.2, c: 0xffc866 }); }
   }
+  // ---- gothic helpers (used only by palettes with `gothic: true`, e.g. St. John Church) ----
+  // Outline of a pointed (equilateral) arch. map(duPx, z) -> screen point; hw = half width in px.
+  archPts(map, hw, low, spring) {
+    const w = hw * 2, N = 8, pts = [map(-hw, low), map(-hw, spring)];
+    for (let i = 1; i <= N; i++) { const a = Math.PI - (Math.PI / 3) * (i / N); pts.push(map(hw + w * Math.cos(a), spring + w * Math.sin(a))); }
+    for (let i = 1; i <= N; i++) { const a = Math.PI / 3 - (Math.PI / 3) * (i / N); pts.push(map(-hw + w * Math.cos(a), spring + w * Math.sin(a))); }
+    pts.push(map(hw, low)); return pts;
+  }
+  archWindow(ctx, axis, fixed, u, p, o = {}) {
+    const hw = 15, low = 30, spring = 72, map = (du, z) => this.P(axis, u + du / HW, fixed, z), top = spring + hw * 2 * 0.866;
+    poly(ctx, this.archPts(map, hw + 4, low - 5, spring), p.trim, dark(p.trim, 0.3));
+    this.face(ctx, axis, fixed + 0.05, u - (hw + 7) / HW, u + (hw + 7) / HW, low - 10, low - 5, light(p.trim, 0.2));
+    const glass = this.archPts(map, hw, low, spring), pal = [0x2f5aa8, 0xb8372f, 0xdba93a, 0x2e8a57, 0x6d3f9a], rows = 7, cols = 3;
+    poly(ctx, glass, 0x1b2438, null);
+    ctx.save(); pathOf(ctx, glass); ctx.clip();
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+      const base = pal[Math.floor(hash(r * 3 + c, o.seed || 0, 7) * pal.length)], color = o.lit ? base : dark(base, 0.4);
+      const q = this.faceP(axis, fixed, u + (-hw + (2 * hw * c) / cols) / HW, u + (-hw + (2 * hw * (c + 1)) / cols) / HW, low + ((top - low) * r) / rows, low + ((top - low) * (r + 1)) / rows);
+      poly(ctx, q, color, 0x1a1620, 1);
+    }
+    ctx.restore();
+    const a = map(0, low), c2 = map(0, top); line(ctx, a.x, a.y, c2.x, c2.y, 0x15121a, 2);
+    if (o.lit) { const c = this.P(axis, u, fixed, (low + spring) / 2); this.lights.push({ x: c.x, y: c.y, r: 0.6, a: 0.18, c: 0xe8a050 }); }
+  }
+  gothicDoor(ctx, b, p, x, fy) {
+    const map = (du, z) => this.P('x', x + du / HW, fy, z), P3 = (u, f, z) => this.pt(u, f, z);
+    poly(ctx, [P3(x - 0.4, fy, 5), P3(x + 0.4, fy, 5), P3(x + 0.4, fy + 0.34, 5), P3(x - 0.4, fy + 0.34, 5)], 0xcdbc98, 0xa89774);
+    this.face(ctx, 'x', fy + 0.34, x - 0.4, x + 0.4, 0, 5, 0x9a8b6c);
+    poly(ctx, this.archPts(map, 25, 0, 50), p.trim, dark(p.trim, 0.3));
+    poly(ctx, this.archPts(map, 21, 0, 48), dark(p.door, 0.5), null);
+    poly(ctx, this.archPts(map, 18, 0, 46), p.door, null);
+    const seam = (du, z0, z1, c, w) => { const a = map(du, z0), d = map(du, z1); line(ctx, a.x, a.y, d.x, d.y, c, w); };
+    seam(0, 0, 77, 0x1c1210, 2); seam(-9, 0, 56, 0x2a1a12, 1); seam(9, 0, 56, 0x2a1a12, 1);
+    for (const z of [14, 36]) for (const s of [-1, 1]) { const a = map(s * 18, z), d = map(s * 4, z); line(ctx, a.x, a.y, d.x, d.y, 0x1c1a18, 3); }
+    for (const s of [-1, 1]) { const k = map(s * 5, 28); circle(ctx, k.x, k.y, 2.2, p.accent); }
+    seam(0, 52, 70, p.accent, 2); { const a = map(-6, 62), d = map(6, 62); line(ctx, a.x, a.y, d.x, d.y, p.accent, 2); }
+    const l = this.pt(x, fy, 34); this.lights.push({ x: l.x, y: l.y, r: 0.5, a: 0.14, c: 0xffd9a0 });
+  }
+  steeple(ctx, cx, cy, p) {
+    const lx = 0.34, ly = 0.34, off = 0.5 - ly, X = cx - HW * off, Y = cy + HH * off, T = (u, v, z) => S(X, Y, u, v, z);
+    const stone = p.wall, shade = p.shade, edge = dark(p.shade, 0.5), slate = p.roof;
+    isoBox(ctx, X, Y, lx, ly, 0, 58, light(stone, 0.1), stone, shade, edge);
+    for (const z of [14, 28, 42]) {
+      let a = T(-lx, ly, z), c = T(lx, ly, z); line(ctx, a.x, a.y, c.x, c.y, 'rgba(0,0,0,0.14)', 1);
+      a = T(lx, ly, z); c = T(lx, -ly, z); line(ctx, a.x, a.y, c.x, c.y, 'rgba(0,0,0,0.18)', 1);
+    }
+    // clock on the front (left visible) face
+    { const o = T(0, ly, 36); ctx.save(); ctx.transform(1, 0.5, 0, 1, o.x, o.y);
+      circle(ctx, 0, 0, 13, 0x3a3228); circle(ctx, 0, 0, 11, 0xf1ead2);
+      for (let i = 0; i < 12; i++) { const a = (i * Math.PI) / 6; line(ctx, Math.sin(a) * 8, -Math.cos(a) * 8, Math.sin(a) * 10, -Math.cos(a) * 10, 0x2b2418, 1); }
+      line(ctx, 0, 0, -4, -5, 0x2b2418, 2); line(ctx, 0, 0, 6, -7, 0x2b2418, 1.4); circle(ctx, 0, 0, 1.5, 0xb7342d); ctx.restore(); }
+    // ledge and belfry
+    isoBox(ctx, X, Y, 0.37, 0.37, 56, 61, light(p.trim, 0.2), p.trim, dark(p.trim, 0.2), edge);
+    isoBox(ctx, X, Y, 0.29, 0.29, 61, 90, light(stone, 0.05), stone, shade, edge);
+    const openings = [[(du, z) => T(du / HW, 0.29, z), 1], [(du, z) => T(0.29, du / HW, z), -1]];
+    for (const [map] of openings) {
+      poly(ctx, this.archPts(map, 8, 66, 74), 0x14161a, 0x2a2620);
+      const bell = map(0, 78); ellipse(ctx, bell.x, bell.y, 4, 5, p.accent);
+    }
+    isoBox(ctx, X, Y, 0.35, 0.35, 90, 95, light(p.trim, 0.25), p.trim, dark(p.trim, 0.2), edge);
+    // spire
+    const A = T(-0.31, 0.31, 95), B = T(0.31, 0.31, 95), C = T(0.31, -0.31, 95), apex = T(0, 0, 170);
+    poly(ctx, [A, B, apex], mix(slate, 0xffffff, 0.12), dark(slate, 0.4));
+    poly(ctx, [B, C, apex], dark(slate, 0.15), dark(slate, 0.4));
+    for (let k = 1; k < 9; k++) {
+      const t = k / 9, l1 = { x: A.x + (apex.x - A.x) * t, y: A.y + (apex.y - A.y) * t }, r1 = { x: B.x + (apex.x - B.x) * t, y: B.y + (apex.y - B.y) * t }, c1 = { x: C.x + (apex.x - C.x) * t, y: C.y + (apex.y - C.y) * t };
+      line(ctx, l1.x, l1.y, r1.x, r1.y, 'rgba(0,0,0,0.2)', 1); line(ctx, r1.x, r1.y, c1.x, c1.y, 'rgba(0,0,0,0.25)', 1);
+    }
+    line(ctx, B.x, B.y, apex.x, apex.y, 'rgba(255,255,255,0.25)', 1.5);
+    line(ctx, apex.x, apex.y, apex.x, apex.y - 20, p.accent, 2); line(ctx, apex.x - 6, apex.y - 14, apex.x + 6, apex.y - 14, p.accent, 2); circle(ctx, apex.x, apex.y, 2.5, p.accent);
+    this.lights.push({ x: X, y: Y - 76, r: 0.5, a: 0.12, c: 0xffd28a });
+    this.perches.push({ x: T(0.36, 0.36, 61).x, y: T(0.36, 0.36, 61).y }, { x: apex.x + 3, y: apex.y - 24 });
+  }
+  pinnacle(ctx, cx, cy, p) {
+    isoBox(ctx, cx, cy, 0.1, 0.1, 0, 30, light(p.wall, 0.1), p.wall, p.shade, dark(p.shade, 0.5));
+    const A = S(cx, cy, -0.13, 0.13, 30), B = S(cx, cy, 0.13, 0.13, 30), C = S(cx, cy, 0.13, -0.13, 30), apex = S(cx, cy, 0, 0, 62);
+    poly(ctx, [A, B, apex], mix(p.roof, 0xffffff, 0.12), dark(p.roof, 0.4)); poly(ctx, [B, C, apex], dark(p.roof, 0.15), dark(p.roof, 0.4));
+    circle(ctx, apex.x, apex.y, 2, p.accent);
+  }
   awning(ctx, axis, fixed, u1, u2, zTop, p) {
     const n = 6, out = 0.34, [c1, c2] = p.awning, A = (u, f, z) => this.P(axis, u, f, z);
     this.face(ctx, axis, fixed, u1, u2, zTop - 32, zTop - 15, __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_8e71d5d639eb26975bf6"), null);
@@ -128,6 +207,7 @@ export class HomeCityBuildings extends HomeCityGround {
     }
   }
   door(ctx, b, p, x, fy) {
+    if (p.gothic) { this.gothicDoor(ctx, b, p, x, fy); return; }
     const F = (...a) => this.face(ctx, 'x', fy, ...a), P3 = (u, f, z) => this.pt(u, f, z);
     F(x - 0.3, x + 0.3, 0, 68, p.trim); F(x - 0.23, x + 0.23, 0, 64, dark(p.door, 0.35), null); F(x - 0.21, x + 0.21, 0, 62, p.door, null);
     F(x - 0.16, x - 0.02, 6, 30, dark(p.door, 0.25), null); F(x + 0.02, x + 0.16, 6, 30, dark(p.door, 0.25), null);
@@ -147,18 +227,20 @@ export class HomeCityBuildings extends HomeCityGround {
     if (x === b.door.x) this.door(ctx, b, p, x, fy);
     else {
       const lit = hash(x, b.y, b.id.length) < p.lit;
-      if (p.shop) { this.window(ctx, 'x', fy, x, 20, 0.78, 46, p, { lit }); this.awning(ctx, 'x', fy, x - 0.5, x + 0.5, 76, p); }
+      if (p.gothic) this.archWindow(ctx, 'x', fy, x, p, { lit, seed: x * 7 + b.y });
+      else if (p.shop) { this.window(ctx, 'x', fy, x, 20, 0.78, 46, p, { lit }); this.awning(ctx, 'x', fy, x - 0.5, x + 0.5, 76, p); }
       else this.window(ctx, 'x', fy, x, 38, 0.5, 36, p, { lit, blinds: p.blinds && lit, shutters: p.shutters });
     }
-    if (H > 140) this.window(ctx, 'x', fy, x, 106, 0.44, 18, p, { lit: hash(x, 3, b.x) < p.lit });
+    if (H > 140 && !p.gothic) this.window(ctx, 'x', fy, x, 106, 0.44, 18, p, { lit: hash(x, 3, b.x) < p.lit });
   }
   rightFace(ctx, b, p, y, fx) {
     const H = p.height, F = (...a) => this.face(ctx, 'y', fx, ...a);
     this.wall(ctx, 'y', fx, y - 0.5, y + 0.5, H, p.shade, p, y * 11 + b.x);
     F(y - 0.5, y + 0.5, 0, 14, dark(p.wall, 0.55)); this.cornice(ctx, 'y', fx, y - 0.5, y + 0.5, H, p);
     if (p.pilasters) F(y - 0.56, y - 0.44, 0, H - 14, light(p.shade, 0.15));
-    this.window(ctx, 'y', fx, y, 38, 0.52, 36, p, { lit: hash(y, b.x, 5) < p.lit, shutters: p.shutters, blinds: p.blinds });
-    if (H > 140) this.window(ctx, 'y', fx, y, 106, 0.44, 18, p, { lit: hash(y, 7, b.x) < p.lit });
+    if (p.gothic) this.archWindow(ctx, 'y', fx, y, p, { lit: hash(y, b.x, 5) < p.lit, seed: y * 11 + b.x });
+    else this.window(ctx, 'y', fx, y, 38, 0.52, 36, p, { lit: hash(y, b.x, 5) < p.lit, shutters: p.shutters, blinds: p.blinds });
+    if (H > 140 && !p.gothic) this.window(ctx, 'y', fx, y, 106, 0.44, 18, p, { lit: hash(y, 7, b.x) < p.lit });
   }
   roofTile(ctx, b, p, x, y, front, right, H) {
     const roof = this.scene.diamond(x, y, H);
@@ -169,9 +251,19 @@ export class HomeCityBuildings extends HomeCityGround {
     if (y === front) { this.face(ctx, 'x', front + 0.5, x - 0.5, x + 0.5, H, H + 9, p.trim); this.face(ctx, 'x', front + 0.53, x - 0.5, x + 0.5, H + 9, H + 11, light(p.trim, 0.3)); }
     if (x === right) { this.face(ctx, 'y', right + 0.5, y - 0.5, y + 0.5, H, H + 9, dark(p.trim, 0.12)); this.face(ctx, 'y', right + 0.53, y - 0.5, y + 0.5, H + 9, H + 11, p.trim); }
   }
-  feature(ctx, f, x, y, H) {
+  feature(ctx, f, x, y, H, p) {
     const c = this.pt(x, y, H), cx = c.x + (f.dx || 0), cy = c.y + (f.dy || 0);
     switch (f.k) {
+      case 'steeple': this.steeple(ctx, cx, cy, p); break;
+      case 'pinnacle': this.pinnacle(ctx, cx, cy, p); break;
+      case 'pawnballs': {   // the classic three golden balls on an iron bracket
+        line(ctx, cx, cy, cx, cy - 62, 0x2d2723, 3); line(ctx, cx - 22, cy - 62, cx + 22, cy - 62, 0x2d2723, 3);
+        for (const [bx, by] of [[-20, -44], [20, -44], [0, -26]]) {
+          line(ctx, cx + (bx > 0 ? 20 : bx < 0 ? -20 : 0), cy - 62, cx + bx, cy + by - 9, 0x2d2723, 1.5);
+          circle(ctx, cx + bx, cy + by, 10, 0xc8962a); circle(ctx, cx + bx - 2, cy + by - 2, 7, 0xe8be4a); circle(ctx, cx + bx - 4, cy + by - 4, 2.4, 0xfff3c4);
+        }
+        break;
+      }
       case 'chimney':
         isoBox(ctx, cx, cy, 0.2, 0.2, 0, 44, 0x3a2d28, 0x9a5b45, 0x764536, 0x2d231f);
         for (let z = 8; z < 44; z += 8) { const a = S(cx, cy, -0.2, 0.2, z), b = S(cx, cy, 0.2, 0.2, z); line(ctx, a.x, a.y, b.x, b.y, __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_22ba49161c00126178a4")); }
@@ -231,6 +323,10 @@ export class HomeCityBuildings extends HomeCityGround {
       ctx.fillStyle = css(0xe0c070); ctx.beginPath();
       for (let i = 0; i < 10; i++) { const r = i % 2 ? 6 : 13, a = -Math.PI / 2 + (i * Math.PI) / 5; ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r); }
       ctx.closePath(); ctx.fill(); circle(ctx, 0, 0, 4, 0x2f4a82);
+    } else if (kind === 'pawn') {
+      for (const [bx, by] of [[-6, -6], [6, -6], [0, 6]]) { circle(ctx, bx, by, 6.5, 0xc8962a); circle(ctx, bx - 1.5, by - 1.5, 4.5, 0xe8be4a); circle(ctx, bx - 2.5, by - 2.5, 1.5, 0xfff3c4); }
+    } else if (kind === 'cross') {
+      rect(ctx, -3, -14, 6, 28, 0xe0c070); rect(ctx, -10, -7, 20, 6, 0xe0c070); rect(ctx, -1, -12, 2, 24, 0xfff0b8);
     } else {
       ellipse(ctx, 0, 2, 10, 7, 0xcfd3d6); circle(ctx, 9, -3, 5, 0xb7bcc0); poly(ctx, pp([13, -3], [18, -1], [13, -1]), 0xe0983c); poly(ctx, pp([-9, 0], [-17, 6], [-9, 6]), 0xa9aeb3); circle(ctx, 10, -4, 1, 0x101010);
     }

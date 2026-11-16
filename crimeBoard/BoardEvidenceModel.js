@@ -12,7 +12,6 @@ const token = value => encodeURIComponent(String(value));
 export function getBoardEvidenceRecord(state) {
   return state.caseData?.boardEvidenceCases?.[getEvidenceCaseKey(state)] || {};
 }
-
 function evidence(id,label,body,index,tags=[],fields=[]) {
   return { id,type:'evidence',label,body,tag:__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_8b59dc4ffecf624051e2"),fields,
     x:810+(index%2)*260,y:110+Math.floor(index/2)*215,z:8,
@@ -20,15 +19,12 @@ function evidence(id,label,body,index,tags=[],fields=[]) {
     tags:['board-evidence-v2',...tags],discovered:true,
     createdByPlayer:false,editableByPlayer:false };
 }
-
 export function decorateBoardEvidence(input,state) {
   const data=copy(input);
   data.items=list(data.items);data.links=list(data.links);
   if(!state?.currentMission)return data;
   const record=getBoardEvidenceRecord(state);
   const previous=new Map(data.items.map(item=>[item.id,item]));
-  // The old workspace adds this card as soon as the envelope is taken.
-  // Regenerate it only from a recorded inventory view.
   data.items=data.items.filter(item=>item.createdByPlayer ||
     (!item.tags?.includes('apartment-identity-board') &&
      !item.tags?.includes('board-evidence-v2')));
@@ -41,13 +37,17 @@ export function decorateBoardEvidence(input,state) {
     return item;
   };
   for(const clue of list(state.cluesCollected)) {
-    if(clue?.type!=='suspect' || !['accent','features'].includes(clue.category) || !text(clue.value))continue;
+    if(clue?.type!=='suspect' || !['accent','features','hair'].includes(clue.category) || !text(clue.value))continue;
     if(clue.caseId!=null && String(clue.caseId)!==String(state.currentCaseId))continue;
-    const label=clue.category==='accent'?__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_a5c6fb18c9af89b22a79"):__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_b67bb0b1f7b8b0dde907");
-    const source=text(clue.npcId)||text(clue.sourceLabel)||__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_4acdba6cff1c8924bd1c");
+    const paidHair=clue.category==='hair';
+    const hairScope=JSON.stringify([state._createdAt,state.currentCaseId,String(state.currentMission.id??state.currentMission.missionId),state.investigationStartTime??null]);
+    if(paidHair && (clue.caseKey!==hairScope || clue.source!=='paid_informant' || clue.campaignId!==state._createdAt ||
+      String(clue.missionId)!==String(state.currentMission.id??state.currentMission.missionId)))continue;
+    const label=paidHair?'Hair colour':clue.category==='accent'?__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_a5c6fb18c9af89b22a79"):__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_b67bb0b1f7b8b0dde907");
+    const source=(paidHair?text(clue.sourceLabel):text(clue.npcId))||text(clue.sourceLabel)||__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_4acdba6cff1c8924bd1c");
     put(evidence(`npc-trait-${token(clue.id || `${clue.category}:${clue.value}`)}`,
       `${label}: ${clue.value}`,text(clue.text)||text(clue.tag)||`${__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_5e4c3c78110d3c330a03")}${clue.value}${__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_cdb4ee2aea69cc6a8333")}`,index++,
-      ['npc-statement',clue.category],[{key:'Source',value:source}]));
+      [paidHair?'informant-statement':'npc-statement',clue.category],[{key:'Source',value:source}]));
   }
   const viewed=record.envelopeViewed;
   if(viewed?.clue?.category==='eyes' && text(viewed.clue.value)) {
@@ -74,8 +74,6 @@ export function decorateBoardEvidence(input,state) {
         meta:[__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_878c7d9cd9d443ed07a1"),matching?.image?__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_c0bfdc0c2ff07aa72c0a"):__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_77f96ea433d744c50f06")],
         suspectId:id,clueId:`warrant-${id}`,tags:['board-evidence-v2','suspect','warrant-identity'],
         discovered:true,createdByPlayer:false,editableByPlayer:false});
-      // Keep the discovery as history, but do not claim that the real name is
-      // still unknown once the matching identity has actually been recorded.
       for(const item of data.items) {
         if(!item.tags?.includes('false-identity'))continue;
         if(viewed?.actualId && String(viewed.actualId)===id) {
@@ -114,7 +112,6 @@ export function decorateBoardEvidence(input,state) {
       `${__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_3e2b8bb857d251fe62b6")}${name}`,body.join('\n\n'),index++,['apartment-analysis','lab-result'],fields);
     item.sourceItemId=result.itemId;item.clueId=result.itemId;put(item);
   }
-  // Replace generic reconstruction-skill text with the actual accepted card.
   const reconstruction=state.reconstructedHeist || {};
   const accepted=new Map();
   list(reconstruction.playerOrderedCards).slice(0,3).forEach((card,i)=>{

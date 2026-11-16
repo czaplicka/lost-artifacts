@@ -20,7 +20,7 @@ const text = id => __dialogueText(SOURCE, id);
 const VOLUME_LEVELS = [1, 0.5, 0];
 
 const MOVIE_URL = new URL(
-  "../video/movie1.mp4",
+  "../assets/video/movie1.mp4",
   import.meta.url
 ).href;
 

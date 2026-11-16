@@ -172,13 +172,6 @@ export class HotelHud {
 
       scene.timeManager = playerHud.timeManager || null;
 
-      console.log('[HotelScene] Bottom HUD ready:', {
-        ready: playerHud.isHudReady,
-        active: scene.isSceneActive('PlayerHudScene'),
-        visible: playerHud.sys.settings.visible,
-        context: playerHud.currentGameplaySceneKey
-      });
-
       const uiScene = await this.ensureReadyOverlay('UIScene');
 
       if (!this.isAlive()) {

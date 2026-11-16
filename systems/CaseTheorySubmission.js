@@ -1,151 +1,882 @@
-import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
+import { dialogueText as __dialogueText } from '../dialogues/DialogueText.js';
+
 import {
- THEORY_FIELDS,normalizeTheory,normalizeSkillId,theoryCaseKey,readTheory,
- getTheoryReadiness,getTheoryCards,getActualIdentityIds,getUsedSkillIds
+  THEORY_FIELDS,
+  normalizeTheory,
+  normalizeSkillId,
+  theoryCaseKey,
+  readTheory,
+  getTheoryReadiness,
+  getTheoryCards,
+  getActualIdentityIds,
+  getUsedSkillIds
 } from '../crimeBoard/CaseTheoryModel.js';
+
 import { getMotiveById } from '../motiveService.js';
-import { getOpportunityFacts,evaluateOpportunity } from './OpportunityRules.js';
-const clone=value=>JSON.parse(JSON.stringify(value));
-const arr=value=>Array.isArray(value)?value:[];
-const same=(a,b)=>a!=null&&b!=null&&String(a)===String(b);
-const has=(card,tag)=>arr(card.tags).includes(tag);
-const equivalent=(a,b,ids)=>same(a,b)||(ids.includes(String(a))&&ids.includes(String(b)));
-function alibiKey(state){
- const m=state.currentMission||{},city=state.alibiInvestigation?.cityId||state.caseSuspectCityId||state.crimeCityId||state.crimeCity||m.city||'unknown_city';
- return String(m.id||m.caseId||`${city}_${m.artifact||'default'}`);
-}
-export function addTrialEvidence(input,state){
- const data=clone(input),old=new Map(arr(data.items).map(card=>[card.id,card]));
- data.items=arr(data.items).filter(card=>card.createdByPlayer||!has(card,'trial-evidence'));
- let index=0;
- const put=(id,label,body,tags,extra={})=>{
-  const card={id,type:'evidence',label,body,tag:__dialogueText("systems/CaseTheorySubmission.js", "t_71a4dbb8919b90dd2187"),
-   x:1100+(index%2)*230,y:580+Math.floor(index++/2)*210,z:7,rotation:-1.2,pinned:false,
-   fields:[],tags:['trial-evidence',...tags],discovered:true,createdByPlayer:false,editableByPlayer:false,...extra};
-  const prior=old.get(id);if(prior)for(const key of ['x','y','z','rotation','pinned'])if(prior[key]!==undefined)card[key]=prior[key];
-  data.items.push(card);
- };
- for(const clue of arr(state.cluesCollected)){
-  if(clue?.type!=='motive'||!clue.id)continue;
-  if(clue.caseId!=null&&!same(clue.caseId,state.currentCaseId))continue;
-  put(`agency-motive-${encodeURIComponent(clue.id)}`,clue.label||__dialogueText("systems/CaseTheorySubmission.js", "t_eaec6ca7694d36fa9a99"),
-   clue.text||`${__dialogueText("systems/CaseTheorySubmission.js", "t_8c2a6fd4d74a881c93a6")}${clue.label||__dialogueText("systems/CaseTheorySubmission.js", "t_c2adf07842562a1966ba")}${__dialogueText("systems/CaseTheorySubmission.js", "t_cdb4ee2aea69cc6a8333")}`,['motive-evidence'],
-   {clueId:clue.id,fields:[{key:'Source',value:clue.npcId||__dialogueText("systems/CaseTheorySubmission.js", "t_06149ba4730bc7d4973b")}]});
- }
- const key=alibiKey(state),alibis=arr(state.caseData?.alibiCases?.[key]?.suspects);
- const people=[...arr(state.caseSuspects),...arr(state.suspects),...arr(state.suspectList)];
- const encounters=arr(state.crimeCityEncounterState?.[key]);
- for(const alibi of alibis){
-  const person=people.find(p=>same(p?.id,alibi.suspectId));
-  const name=person?.publicProfile?.displayName||person?.name||alibi.suspectName||__dialogueText("systems/CaseTheorySubmission.js", "t_f5ebb28614ebb0ee63cb");
-  for(const witness of arr(alibi.witnesses)){
-   if(!encounters.some(e=>same(e.npcId,witness.npcId)&&e.interviewed===true&&e.dialogueCompleted===true))continue;
-   if(typeof witness.statement!=='string'||!witness.statement.trim())continue;
-   put(`agency-witness-${encodeURIComponent(key)}-${encodeURIComponent(witness.npcId)}`,
-    `${witness.role||__dialogueText("systems/CaseTheorySubmission.js", "t_5464a8914419f3a1a237")} — ${name}`,witness.statement,['alibi-evidence','witness-statement'],
-    {suspectId:alibi.suspectId,clueId:witness.npcId});
+
+import {
+  getOpportunityFacts,
+  evaluateOpportunity
+} from './OpportunityRules.js';
+
+const FILE = 'systems/CaseTheorySubmission.js';
+
+const text = key => __dialogueText(FILE, key);
+
+const clone = value => JSON.parse(
+  JSON.stringify(value)
+);
+
+const arr = value => Array.isArray(value)
+  ? value
+  : [];
+
+const same = (a, b) => (
+  a != null &&
+  b != null &&
+  String(a) === String(b)
+);
+
+const has = (card, tag) => (
+  arr(card?.tags).includes(tag)
+);
+
+const nonempty = value => (
+  typeof value === 'string' &&
+  value.trim().length > 0
+);
+
+const strings = values => [
+  ...new Set(
+    arr(values)
+      .filter(value => value != null)
+      .map(String)
+  )
+];
+
+const equivalent = (a, b, ids) => (
+  a != null &&
+  b != null &&
+  (
+    same(a, b) ||
+    (
+      ids.includes(String(a)) &&
+      ids.includes(String(b))
+    )
+  )
+);
+
+const inScope = (value, state) => (
+  Boolean(value) &&
+  (
+    value.caseId == null ||
+    same(value.caseId, state.currentCaseId)
+  ) &&
+  (
+    value.campaignId == null ||
+    value.campaignId === state._createdAt
+  )
+);
+
+function conclusionCorrect(subject, state) {
+  const filed = subject?.playerConclusion;
+
+  if (
+    filed?.locked !== true ||
+    !inScope(filed, state)
+  ) {
+    return false;
   }
-  const filed=alibi.playerConclusion;
-  if(filed?.locked===true&&['confirmed','contradicted'].includes(filed.status)){
-   put(`agency-alibi-${encodeURIComponent(key)}-${encodeURIComponent(alibi.suspectId)}`,
-    `${__dialogueText("systems/CaseTheorySubmission.js", "t_9595f25d96469fbfed58")}${name}`,`${__dialogueText("systems/CaseTheorySubmission.js", "t_2bb78b9a20efd50fd4bf")}${filed.status}${__dialogueText("systems/CaseTheorySubmission.js", "t_b3d24121d6b898783085")}`,
-    ['alibi-evidence','filed-alibi'],{suspectId:alibi.suspectId,alibiStatus:filed.status,clueId:`filed-alibi-${alibi.suspectId}`});
+
+  if (
+    filed.evaluation?.conclusionCorrect === false
+  ) {
+    return false;
   }
- }
- const valid=new Set(data.items.map(c=>c.id));data.links=arr(data.links).filter(l=>valid.has(l.from)&&valid.has(l.to));
- return data;
-}
-export function assessSubmission(submission){
- const theory=normalizeTheory(submission.theory),solution=submission.solution||{};
- const ids=arr(solution.identityIds),cards=new Map(arr(submission.cards).map(card=>[card.id,card]));
- const status=value=>value==null?'inconclusive':value?'supported':'contradicted';
- const results=[];
- for(const [field,label]of THEORY_FIELDS){
-  const section=theory.sections[field];
-  const attached=section.evidenceIds.map(id=>cards.get(id)).filter(Boolean);
-  const sourced=attached.filter(card=>!card.createdByPlayer&&card.discovered!==false);
-  let answer=null,evidence=null;
-  if(field==='identity'){
-   if(ids.length)answer=ids.includes(String(section.answerId))&&equivalent(section.answerId,submission.suspectId,ids);
-   evidence=sourced.some(c=>c.suspectId!=null&&equivalent(c.suspectId,section.answerId,ids)&&!has(c,'unknown'));
-  }else if(field==='motive'){
-   if(typeof solution.motiveAnswerId==='string'&&solution.motiveAnswerId)answer=section.answerId===solution.motiveAnswerId;
-   evidence=sourced.some(c=>has(c,'motive-evidence')&&arr(solution.motiveEvidenceIds).includes(c.clueId));
-  }else if(field==='means'){
-   if(Array.isArray(solution.usedSkills))answer=JSON.stringify([...section.skillIds].sort())===JSON.stringify([...solution.usedSkills].sort());
-   evidence=section.skillIds.every(id=>sourced.some(c=>
-    (has(c,'hypothesis-skill')&&has(c,'skill-confirmed')&&normalizeSkillId(String(c.label||'').replace(/\s*\?$/,''))===id)||
-    (c.sourceObjectId&&arr(solution.skillObjects?.[id]).includes(String(c.sourceObjectId))&&!has(c,'skill-uncertain'))));
-  }else if(field==='opportunity'){
-   const verdict=evaluateOpportunity(solution.opportunity,section.answerId);
-   answer=verdict==='inconclusive'?null:verdict==='supported';
-   if(section.answerId==='false_alibi')evidence=sourced.some(c=>has(c,'filed-alibi')&&c.alibiStatus==='contradicted'&&equivalent(c.suspectId,theory.sections.identity.answerId,ids));
-   else if(section.answerId==='security_gap')evidence=sourced.some(c=>arr(solution.securityObjectIds).includes(String(c.sourceObjectId||c.clueId))&&
-    !has(c,'skill-uncertain')&&!has(c,'reconstruction-uncertain'));
-   else if(answer!=null)evidence=sourced.some(c=>arr(c.opportunityAnswerIds).includes(section.answerId));
+
+  if (subject.alibiType === 'confirmed') {
+    return filed.choice === '__no_liar__';
   }
-  if(attached.some(c=>c.isRedHerring===true))evidence=false;
-  results.push({field,label,answerStatus:status(answer),evidenceStatus:status(evidence),
-   answerLabel:submission.answerLabels?.[field]||label,
-   evidenceLabels:attached.map(c=>c.label||__dialogueText("systems/CaseTheorySubmission.js", "t_e1a5b05ffd1d4a86ab57"))});
- }
- return results;
+
+  return (
+    subject.alibiType === 'contradicted' &&
+    filed.choice !== '__no_liar__' &&
+    arr(subject.witnesses).some(witness => (
+      witness?.isLiar === true &&
+      same(witness.npcId, filed.choice)
+    ))
+  );
 }
-export function isFatalSubmission(submission){
- return assessSubmission(submission).some(row=>row.answerStatus==='contradicted'||row.evidenceStatus==='contradicted');
+
+export function addTrialEvidence(input, state) {
+  const data = clone(input || {});
+
+  const previous = new Map(
+    arr(data.items)
+      .filter(Boolean)
+      .map(card => [card.id, card])
+  );
+
+  data.items = arr(data.items).filter(card => (
+    card &&
+    (
+      card.createdByPlayer ||
+      !has(card, 'trial-evidence')
+    )
+  ));
+
+  let index = 0;
+
+  const put = (
+    id,
+    label,
+    body,
+    tags,
+    extra = {}
+  ) => {
+    const card = {
+      id,
+      type: 'evidence',
+      label,
+      body,
+      tag: text('t_71a4dbb8919b90dd2187'),
+
+      x: 1100 + (index % 2) * 230,
+      y: 580 + Math.floor(index++ / 2) * 210,
+
+      z: 7,
+      rotation: -1.2,
+      pinned: false,
+      fields: [],
+
+      tags: ['trial-evidence', ...tags],
+
+      discovered: true,
+      createdByPlayer: false,
+      editableByPlayer: false,
+
+      ...extra,
+
+      caseId: state.currentCaseId,
+      campaignId: state._createdAt
+    };
+
+    const old = previous.get(id);
+
+    if (old && !old.createdByPlayer) {
+      for (const key of [
+        'x',
+        'y',
+        'z',
+        'rotation',
+        'pinned'
+      ]) {
+        if (old[key] !== undefined) {
+          card[key] = old[key];
+        }
+      }
+    }
+
+    const position = data.items.findIndex(
+      item => item.id === id
+    );
+
+    if (position >= 0) {
+      if (data.items[position].createdByPlayer) {
+        return;
+      }
+
+      data.items[position] = card;
+    } else {
+      data.items.push(card);
+    }
+  };
+
+  for (const clue of arr(state.cluesCollected)) {
+    if (
+      clue?.type !== 'motive' ||
+      clue.id == null ||
+      !inScope(clue, state) ||
+      !nonempty(clue.text)
+    ) {
+      continue;
+    }
+
+    put(
+      `agency-motive-${encodeURIComponent(clue.id)}`,
+
+      clue.label ||
+        text('t_eaec6ca7694d36fa9a99'),
+
+      clue.text,
+
+      ['motive-evidence'],
+
+      {
+        clueId: clue.id,
+
+        fields: [
+          {
+            key: 'Source',
+            value:
+              clue.npcId ||
+              text('t_06149ba4730bc7d4973b')
+          }
+        ]
+      }
+    );
+  }
+
+  const key = theoryCaseKey(state);
+
+  const investigation =
+    state.caseData?.alibiCases?.[key];
+
+  const alibis = inScope(investigation, state)
+    ? arr(investigation.suspects)
+    : [];
+
+  const people = [
+    ...arr(state.caseSuspects),
+    ...arr(state.suspects),
+    ...arr(state.suspectList)
+  ];
+
+  const encounters = arr(
+    state.crimeCityEncounterState?.[key]
+  ).filter(entry => inScope(entry, state));
+
+  for (const alibi of alibis) {
+    if (
+      !inScope(alibi, state) ||
+      alibi.suspectId == null
+    ) {
+      continue;
+    }
+
+    const person = people.find(value => (
+      same(value?.id, alibi.suspectId)
+    ));
+
+    const name =
+      person?.publicProfile?.displayName ||
+      person?.name ||
+      alibi.suspectName ||
+      text('t_f5ebb28614ebb0ee63cb');
+
+    for (const witness of arr(alibi.witnesses)) {
+      if (
+        !witness ||
+        witness.npcId == null ||
+        !nonempty(witness.statement)
+      ) {
+        continue;
+      }
+
+      const interviewed = encounters.some(entry => (
+        same(entry.npcId, witness.npcId) &&
+        entry.interviewed === true &&
+        entry.dialogueCompleted === true
+      ));
+
+      if (!interviewed) continue;
+
+      put(
+        `agency-witness-${encodeURIComponent(key)}-${encodeURIComponent(witness.npcId)}`,
+
+        `${witness.role || text('t_5464a8914419f3a1a237')} — ${name}`,
+
+        witness.statement,
+
+        ['alibi-evidence', 'witness-statement'],
+
+        {
+          suspectId: alibi.suspectId,
+          clueId: witness.npcId
+        }
+      );
+    }
+
+    const filed = alibi.playerConclusion;
+
+    if (
+      filed?.locked === true &&
+      inScope(filed, state) &&
+      ['confirmed', 'contradicted'].includes(
+        filed.status
+      )
+    ) {
+      put(
+        `agency-alibi-${encodeURIComponent(key)}-${encodeURIComponent(alibi.suspectId)}`,
+
+        `${text('t_9595f25d96469fbfed58')}${name}`,
+
+        `${text('t_2bb78b9a20efd50fd4bf')}${filed.status}${text('t_b3d24121d6b898783085')}`,
+
+        ['alibi-evidence', 'filed-alibi'],
+
+        {
+          suspectId: alibi.suspectId,
+          alibiStatus: filed.status,
+
+          alibiVerified:
+            conclusionCorrect(alibi, state) &&
+            filed.status === alibi.alibiType,
+
+          clueId: `filed-alibi-${alibi.suspectId}`
+        }
+      );
+    }
+  }
+
+  const validIds = new Set(
+    data.items.map(card => card.id)
+  );
+
+  data.links = arr(data.links).filter(link => (
+    link &&
+    validIds.has(link.from) &&
+    validIds.has(link.to)
+  ));
+
+  return data;
 }
-export function validSubmission(submission,state,suspectId=null){
- try{
-  if(submission?.version!==3||!same(submission.caseId,state.currentCaseId)||
-   submission.campaignId!==state._createdAt||submission.suspectId==null||
-   (suspectId!=null&&!same(submission.suspectId,suspectId))||
-   !Array.isArray(submission.cards)||!submission.solution||!submission.answerLabels)return false;
-  const cards=submission.cards;if(new Set(cards.map(c=>c.id)).size!==cards.length)return false;
-  if(!getTheoryReadiness(state,submission.theory,cards).complete)return false;
-  return JSON.stringify(submission.assessment)===JSON.stringify(assessSubmission(submission));
- }catch{return false;}
+
+export function assessSubmission(submission) {
+  const theory = normalizeTheory(
+    submission?.theory
+  );
+
+  const solution = submission?.solution || {};
+  const ids = strings(solution.identityIds);
+
+  const cardList = arr(
+    submission?.cards
+  ).filter(card => (
+    card &&
+    typeof card.id === 'string'
+  ));
+
+  const cards = new Map(
+    cardList.map(card => [card.id, card])
+  );
+
+  const duplicateIds = new Set(
+    cardList
+      .filter((card, index) => (
+        cardList.findIndex(
+          other => other.id === card.id
+        ) !== index
+      ))
+      .map(card => card.id)
+  );
+
+  const status = value => (
+    value == null
+      ? 'inconclusive'
+      : value
+        ? 'supported'
+        : 'contradicted'
+  );
+
+  return THEORY_FIELDS.map(([field, label]) => {
+    const section = theory.sections[field];
+
+    const referenceIds = arr(
+      section.evidenceIds
+    );
+
+    const attached = referenceIds
+      .map(id => cards.get(id))
+      .filter(Boolean);
+
+    const sourced = attached.filter(card => (
+      !card.createdByPlayer &&
+      card.discovered !== false &&
+      (
+        submission.caseId == null ||
+        card.caseId == null ||
+        same(card.caseId, submission.caseId)
+      ) &&
+      (
+        submission.campaignId == null ||
+        card.campaignId == null ||
+        card.campaignId === submission.campaignId
+      )
+    ));
+
+    let answer = null;
+    let evidence = null;
+
+    if (field === 'identity') {
+      if (ids.length) {
+        answer =
+          ids.includes(String(section.answerId)) &&
+          equivalent(
+            section.answerId,
+            submission.suspectId,
+            ids
+          );
+      }
+
+      evidence = sourced.some(card => (
+        card.suspectId != null &&
+        equivalent(
+          card.suspectId,
+          section.answerId,
+          ids
+        ) &&
+        !has(card, 'unknown')
+      ));
+    } else if (field === 'motive') {
+      if (nonempty(solution.motiveAnswerId)) {
+        answer =
+          section.answerId ===
+          solution.motiveAnswerId;
+      }
+
+      evidence = sourced.some(card => (
+        has(card, 'motive-evidence') &&
+        strings(solution.motiveEvidenceIds).includes(
+          String(card.clueId)
+        )
+      ));
+    } else if (field === 'means') {
+      const chosen = [
+        ...new Set(
+          arr(section.skillIds)
+            .map(normalizeSkillId)
+            .filter(Boolean)
+        )
+      ].sort();
+
+      const expected = Array.isArray(
+        solution.usedSkills
+      )
+        ? [
+          ...new Set(
+            solution.usedSkills
+              .map(normalizeSkillId)
+              .filter(Boolean)
+          )
+        ].sort()
+        : null;
+
+      if (expected) {
+        answer =
+          expected.length > 0 &&
+          chosen.length > 0 &&
+          JSON.stringify(chosen) ===
+            JSON.stringify(expected);
+      }
+
+      evidence =
+        chosen.length > 0 &&
+        chosen.every(id => (
+          sourced.some(card => (
+            (
+              has(card, 'hypothesis-skill') &&
+              has(card, 'skill-confirmed') &&
+              !has(card, 'skill-uncertain') &&
+              normalizeSkillId(
+                String(card.label || '')
+                  .replace(/\s*\?$/, '')
+              ) === id
+            ) ||
+            (
+              card.sourceObjectId != null &&
+              strings(
+                solution.skillObjects?.[id]
+              ).includes(
+                String(card.sourceObjectId)
+              ) &&
+              !has(card, 'skill-uncertain') &&
+              !has(card, 'reconstruction-uncertain')
+            )
+          ))
+        ));
+    } else if (field === 'opportunity') {
+      const verdict = evaluateOpportunity(
+        solution.opportunity,
+        section.answerId
+      );
+
+      answer = verdict === 'inconclusive'
+        ? null
+        : verdict === 'supported';
+
+      if (section.answerId === 'false_alibi') {
+        evidence = sourced.some(card => (
+          has(card, 'filed-alibi') &&
+          card.alibiStatus === 'contradicted' &&
+          card.alibiVerified === true &&
+          equivalent(
+            card.suspectId,
+            theory.sections.identity.answerId,
+            ids
+          )
+        ));
+      } else if (
+        section.answerId === 'security_gap'
+      ) {
+        evidence = sourced.some(card => (
+          strings(
+            solution.securityObjectIds
+          ).includes(
+            String(
+              card.sourceObjectId ??
+              card.clueId
+            )
+          ) &&
+          !has(card, 'skill-uncertain') &&
+          !has(card, 'reconstruction-uncertain')
+        ));
+      } else if (answer != null) {
+        evidence = sourced.some(card => (
+          arr(
+            card.opportunityAnswerIds
+          ).includes(section.answerId)
+        ));
+      }
+    }
+
+    if (
+      !referenceIds.length ||
+      attached.length !== referenceIds.length ||
+      sourced.length !== attached.length ||
+      referenceIds.some(id => duplicateIds.has(id)) ||
+      attached.some(card => card.isRedHerring === true)
+    ) {
+      evidence = false;
+    }
+
+    return {
+      field,
+      label,
+
+      answerStatus: status(answer),
+      evidenceStatus: status(evidence),
+
+      answerLabel:
+        submission.answerLabels?.[field] ||
+        label,
+
+      evidenceLabels: attached.map(card => (
+        card.label ||
+        text('t_e1a5b05ffd1d4a86ab57')
+      ))
+    };
+  });
 }
-export function getSubmittedTheory(state,suspectId=null){
- const value=state.caseData?.submittedCaseTheory;
- return validSubmission(value,state,suspectId)?clone(value):null;
+
+export function isFatalSubmission(submission) {
+  return assessSubmission(submission).some(row => (
+    row.answerStatus === 'contradicted' ||
+    row.evidenceStatus === 'contradicted'
+  ));
 }
-export function prepareTheorySubmission(state,suspectId){
- if(suspectId==null)throw new Error('Select a suspect before submitting the theory.');
- const previous=state.caseData?.submittedCaseTheory;
- if(previous?.version===3){
-  if(!validSubmission(previous,state,suspectId))throw new Error('The submitted theory belongs to another suspect or is inconsistent. It was not overwritten.');
-  return clone(previous);
- }
- if(previous && (!same(previous.caseId,state.currentCaseId)||previous.campaignId!==state._createdAt||!same(previous.suspectId,suspectId)))
-  throw new Error('The existing submitted theory does not match this arrest.');
- const raw=previous?.theory||readTheory(state);
- const board=addTrialEvidence({items:getTheoryCards(state),links:[]},state);
- // Persist actually discovered additions so the player can attach them on the board.
- const readiness=getTheoryReadiness(state,raw,board.items);
- if(!readiness.complete)throw new Error('CASE THEORY INCOMPLETE\n'+readiness.missing.join('\n'));
- const motive=getMotiveById(state.caseData?.motiveId),identityIds=getActualIdentityIds(state);
- const usedSkills=getUsedSkillIds(state),claims=arr(state.reconstructedHeist?.claims),skillObjects={};
- for(const claim of claims){
-  const id=normalizeSkillId(claim?.thiefSkill);if(!id||!claim.solutionItemId)continue;
-  skillObjects[id]=[...(skillObjects[id]||[]),String(claim.solutionItemId)];
- }
- const theory=readiness.theory;theory.caseId=state.currentCaseId;theory.campaignId=state._createdAt;
- const selected=new Set(THEORY_FIELDS.flatMap(([field])=>theory.sections[field].evidenceIds));
- const identityCard=board.items.find(c=>same(c.suspectId,theory.sections.identity.answerId)&&!has(c,'unknown'));
- const submission={version:3,caseId:state.currentCaseId,campaignId:state._createdAt,
-  workspaceKey:theoryCaseKey(state),suspectId,theory:clone(theory),
-  cards:clone(board.items.filter(c=>selected.has(c.id))),
-  solution:{identityIds,motiveAnswerId:motive?.crimeBoard?.answerId||null,
-   motiveEvidenceIds:arr(motive?.escapeInvestigation?.clueStages).map(s=>s.evidenceId),
-   usedSkills,skillObjects,opportunity:getOpportunityFacts(state),
-   securityObjectIds:claims.filter(c=>['beat_security','disable_system','create_blind_spot'].includes(c.questionId)).map(c=>String(c.solutionItemId))},
-  answerLabels:{identity:identityCard?.label||__dialogueText("systems/CaseTheorySubmission.js", "t_4bf8456b297fe93a1c10"),
-   motive:theory.sections.motive.answerId===motive?.crimeBoard?.answerId?motive.crimeBoard.label:theory.sections.motive.answerId.replaceAll('_',' '),
-   means:theory.sections.means.skillIds.join(', '),
-   opportunity:theory.sections.opportunity.answerId.replaceAll('_',' ')},
-  submittedAt:previous?.submittedAt||new Date().toISOString(),migratedFromLegacy:Boolean(previous)};
- submission.assessment=assessSubmission(submission);
- const caseData={...(state.caseData||{}),submittedCaseTheory:clone(submission)};
- if(typeof state.updateState==='function')state.updateState({caseData});else state.caseData=caseData;
- return submission;
+
+export function validSubmission(
+  submission,
+  state,
+  suspectId = null
+) {
+  try {
+    if (
+      submission?.version !== 3 ||
+      !same(
+        submission.caseId,
+        state.currentCaseId
+      ) ||
+      submission.campaignId !== state._createdAt ||
+      submission.suspectId == null ||
+      (
+        suspectId != null &&
+        !same(submission.suspectId, suspectId)
+      ) ||
+      !Array.isArray(submission.cards) ||
+      !submission.solution ||
+      !submission.answerLabels
+    ) {
+      return false;
+    }
+
+    if (
+      submission.cards.some(card => (
+        !card ||
+        typeof card.id !== 'string' ||
+        !inScope(card, state)
+      ))
+    ) {
+      return false;
+    }
+
+    if (
+      new Set(
+        submission.cards.map(card => card.id)
+      ).size !== submission.cards.length
+    ) {
+      return false;
+    }
+
+    // Niepełna teoria jest dopuszczalnym zgłoszeniem.
+    // Nadal sprawdzamy spójność zapisanej oceny.
+    return (
+      JSON.stringify(submission.assessment) ===
+      JSON.stringify(assessSubmission(submission))
+    );
+  } catch {
+    return false;
+  }
+}
+
+export function getSubmittedTheory(
+  state,
+  suspectId = null
+) {
+  const value =
+    state.caseData?.submittedCaseTheory;
+
+  return validSubmission(
+    value,
+    state,
+    suspectId
+  )
+    ? clone(value)
+    : null;
+}
+
+export function prepareTheorySubmission(
+  state,
+  suspectId
+) {
+  if (suspectId == null) {
+    throw new Error(
+      'Select a suspect before submitting the theory.'
+    );
+  }
+
+  const previous =
+    state.caseData?.submittedCaseTheory;
+
+  if (previous?.version === 3) {
+    if (
+      !validSubmission(
+        previous,
+        state,
+        suspectId
+      )
+    ) {
+      throw new Error(
+        'The submitted theory belongs to another suspect, ' +
+        'uses older evidence rules or is inconsistent. ' +
+        'It was not overwritten. ' +
+        'Load a save from before submitting the theory.'
+      );
+    }
+
+    return clone(previous);
+  }
+
+  if (
+    previous &&
+    (
+      !same(
+        previous.caseId,
+        state.currentCaseId
+      ) ||
+      previous.campaignId !== state._createdAt ||
+      !same(previous.suspectId, suspectId)
+    )
+  ) {
+    throw new Error(
+      'The existing submitted theory does not match this arrest.'
+    );
+  }
+
+  const raw =
+    previous?.theory ||
+    readTheory(state);
+
+  const board = addTrialEvidence(
+    {
+      items: getTheoryCards(state),
+      links: []
+    },
+    state
+  );
+
+  const readiness = getTheoryReadiness(
+    state,
+    raw,
+    board.items
+  );
+
+  // Nie blokujemy aresztowania przy niepełnej teorii.
+  // Zapisujemy jej aktualny, znormalizowany stan.
+  const motive = getMotiveById(
+    state.caseData?.motiveId
+  );
+
+  const identityIds =
+    getActualIdentityIds(state);
+
+  const usedSkills =
+    getUsedSkillIds(state);
+
+  const claims = arr(
+    state.reconstructedHeist?.claims
+  );
+
+  const skillObjects = {};
+
+  for (const claim of claims) {
+    const id = normalizeSkillId(
+      claim?.thiefSkill
+    );
+
+    if (
+      !id ||
+      claim?.solutionItemId == null
+    ) {
+      continue;
+    }
+
+    skillObjects[id] = [
+      ...new Set([
+        ...arr(skillObjects[id]),
+        String(claim.solutionItemId)
+      ])
+    ];
+  }
+
+  const theory = readiness.theory;
+
+  theory.caseId = state.currentCaseId;
+  theory.campaignId = state._createdAt;
+
+  const selected = new Set(
+    THEORY_FIELDS.flatMap(([field]) => (
+      theory.sections[field].evidenceIds
+    ))
+  );
+
+  const identityCard = board.items.find(card => (
+    same(
+      card.suspectId,
+      theory.sections.identity.answerId
+    ) &&
+    !has(card, 'unknown')
+  ));
+
+  const finalIds = new Set(
+    arr(
+      motive?.escapeInvestigation?.clueStages
+    )
+      .filter(stage => (
+        stage?.boardAnswerUnlocked === true
+      ))
+      .map(stage => String(stage.evidenceId))
+  );
+
+  const motiveEvidenceIds = arr(
+    state.cluesCollected
+  )
+    .filter(clue => (
+      clue?.type === 'motive' &&
+      inScope(clue, state) &&
+      nonempty(clue.text) &&
+      finalIds.has(String(clue.id))
+    ))
+    .map(clue => String(clue.id));
+
+  const submission = {
+    version: 3,
+
+    caseId: state.currentCaseId,
+    campaignId: state._createdAt,
+
+    workspaceKey: theoryCaseKey(state),
+    suspectId,
+
+    theory: clone(theory),
+
+    cards: clone(
+      board.items.filter(card => (
+        selected.has(card.id)
+      ))
+    ),
+
+    solution: {
+      identityIds,
+
+      motiveAnswerId:
+        motive?.crimeBoard?.answerId ||
+        null,
+
+      motiveEvidenceIds: [
+        ...new Set(motiveEvidenceIds)
+      ],
+
+      usedSkills,
+      skillObjects,
+
+      opportunity: getOpportunityFacts(state),
+
+      securityObjectIds: claims
+        .filter(claim => (
+          claim?.solutionItemId != null &&
+          [
+            'beat_security',
+            'disable_system',
+            'create_blind_spot'
+          ].includes(claim.questionId)
+        ))
+        .map(claim => (
+          String(claim.solutionItemId)
+        ))
+    },
+
+    answerLabels: {
+      identity:
+        identityCard?.label ||
+        text('t_4bf8456b297fe93a1c10'),
+
+      motive:
+        theory.sections.motive.answerId ===
+          motive?.crimeBoard?.answerId
+          ? motive.crimeBoard.label
+          : theory.sections.motive.answerId
+            .replaceAll('_', ' '),
+
+      means:
+        theory.sections.means.skillIds.join(', '),
+
+      opportunity:
+        theory.sections.opportunity.answerId
+          .replaceAll('_', ' ')
+    },
+
+    submittedAt:
+      previous?.submittedAt ||
+      new Date().toISOString(),
+
+    migratedFromLegacy: Boolean(previous)
+  };
+
+  submission.assessment =
+    assessSubmission(submission);
+
+  const caseData = {
+    ...(state.caseData || {}),
+    submittedCaseTheory: clone(submission)
+  };
+
+  if (typeof state.updateState === 'function') {
+    state.updateState({ caseData });
+  } else {
+    state.caseData = caseData;
+  }
+
+  return submission;
 }

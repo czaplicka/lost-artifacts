@@ -296,8 +296,13 @@ export class LocationScene extends BaseScene {
     const energy = getEnergyManager();
     if (!this.npcController || this.isFinishing || this.entryBlocked || this.isFalseLead || !this.reputationAccess.allowed || energy.isForcedSleepActive() || energy.isManualSleepActive()) return;
     if (topicId === 'banter') {
+      this.askedTopics.add('banter');
       this.fullDialogueString = this.nextBanterLine();
       this.startTypewriter();
+      if (this.topicMenuLayout) {
+        const layout = this.topicMenuLayout;
+        this.createTopicMenu(layout.width, layout.panelY, layout.panelHeight, layout.menuWidth);
+      }
       return;
     }
     this.availableTopics = this.npcController.getAvailableTopics();

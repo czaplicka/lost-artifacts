@@ -21,7 +21,7 @@ export class PersonnelRosterView extends BasePersonnelRosterView {
   }
 }
 
-const TEST_FIRST_MISSION = true;
+const TEST_FIRST_MISSION = false;
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 function normalizeFlowState(roster) {

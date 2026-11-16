@@ -1,5 +1,12 @@
-import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
+import {
+  dialogueText as __dialogueText
+} from '../../dialogues/DialogueText.js';
+
 import { gameState } from '../../GameData.js';
+
+import {
+  requestAutosave
+} from '../../gameStatePersistence.js';
 
 import {
   getPIQuest
@@ -9,121 +16,207 @@ import {
   piInventoryManager
 } from '../../managers/PIInventoryManager.js';
 
+import {
+  HOME_TOWN_ID,
+  getTown
+} from '../../config/RoadTripTowns.js';
+
+import {
+  getCurrentTownId,
+  canStartRoadTrip
+} from '../../managers/RoadTripManager.js';
+
+import {
+  LocalAreaDestinationsUI
+} from '../LocalAreaDestinationsUI.js';
+
+const SOURCE =
+  'ui/pi-computer/GrandConspiracyComputer.js';
+
 const CASE_ID = 'pi_grand_conspiracy';
-const MESSAGE_ID = 'grand_conspiracy_perkins_briefing';
-const SCENE_KEY = 'GrandConspiracyScene';
 
-function getQuest() {
-  return getPIQuest(CASE_ID);
-}
+const MESSAGE_ID =
+  'grand_conspiracy_perkins_briefing';
 
-function completed() {
-  return (
-    getQuest()?.status === 'completed' ||
-    gameState.piGrandConspiracy?.completed === true
-  );
-}
+const GARDEN = 'GrandConspiracyScene';
+const DRIVE = 'DriveScene';
+const ARRIVAL = 'PILocalAreaArrivalScene';
+
+export const GRAND_CONSPIRACY_TOWN_ID =
+  'whateverville';
+
+const sessions = new Map();
+
+let nextSession = 0;
+
+const t = id => __dialogueText(SOURCE, id);
+
+const text = (...ids) => ids.map(t).join('');
+
+const getQuest = () => getPIQuest(CASE_ID);
+
+const completed = () =>
+  getQuest()?.status === 'completed' ||
+  gameState.piGrandConspiracy?.completed === true;
 
 function progress() {
   const saved = gameState.piGrandConspiracy;
 
-  if (saved?.version !== 3) {
-    return {
-      photos: [],
-      talked: false,
-      reportChoice: null
-    };
-  }
+  return saved?.version === 3
+    ? {
+        ...saved,
 
-  return {
-    ...saved,
-    photos: Array.isArray(saved.photos)
-      ? saved.photos
-      : []
-  };
+        photos: Array.isArray(saved.photos)
+          ? saved.photos
+          : []
+      }
+    : {
+        photos: [],
+        talked: false,
+        reportChoice: null
+      };
 }
 
 function getMessage() {
-  const done = completed();
   const saved = progress();
+  const done = completed();
 
-  if (done) {
-    return {
-      id: MESSAGE_ID,
-      from: __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_7e7175baf6d66a9479a7"),
-      subject: __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_10992ad944154c0e9f61"),
-      date: __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_9a264749f9d43669aac5"),
-
-      body:
-        __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_22a705e57674f27a7c07") +
-        __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_e6f0ca8de7cece60c349") +
-        (
-          saved.reportChoice === __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_979c4b8a301d4b861f0e")
-            ? __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_4493e6d79fa28026813d") +
-              __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_6bf9427abeb6339928b3")
-            : __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_1141ef1e915913f3c02f") +
-              __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_b637cbc9d8d2df264d81")
-        ) +
-        __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_96ec435ff96ffcb428eb") +
-        __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_cce6220558292e78a497") +
-        __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_224ffed80717c616344d") +
-        __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_384a65f7e2d20fbed47e") +
-        __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_d5a0ccfdb83a338fcc96") +
-        __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_c1bf1abc75c5f14ecee1") +
-        __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_474b6dd194b3434b9ee9")
-    };
-  }
-
-  const continuing =
-    saved.photos.length > 0 ||
-    saved.talked ||
-    saved.reportChoice;
+  const body = done
+    ? text(
+        't_22a705e57674f27a7c07',
+        't_e6f0ca8de7cece60c349'
+      ) +
+      (
+        saved.reportChoice === 'honest'
+          ? text(
+              't_4493e6d79fa28026813d',
+              't_6bf9427abeb6339928b3'
+            )
+          : text(
+              't_1141ef1e915913f3c02f',
+              't_b637cbc9d8d2df264d81'
+            )
+      ) +
+      text(
+        't_96ec435ff96ffcb428eb',
+        't_cce6220558292e78a497',
+        't_224ffed80717c616344d',
+        't_384a65f7e2d20fbed47e',
+        't_d5a0ccfdb83a338fcc96',
+        't_c1bf1abc75c5f14ecee1',
+        't_474b6dd194b3434b9ee9'
+      )
+    : text(
+        't_22a705e57674f27a7c07',
+        't_4794944719af86578651',
+        't_7036eed943148ab6f536',
+        't_8b71b5fecb450db43e3e',
+        't_ea7a16f2b9f96f5cc56b',
+        't_c46bf3fdbc458ae42d9c',
+        't_67680d10b5e245524bf2',
+        't_be9359fdd870b9df5044',
+        't_2f341963a371c15308ac',
+        't_d8f710e2ae1829651195',
+        't_5f1aa7bfa6b83a7e0358',
+        't_d42c70b072bad56b702f',
+        't_224ffed80717c616344d'
+      ) +
+      (
+        saved.photos.length ||
+        saved.talked ||
+        saved.reportChoice
+          ? text(
+              't_717b0a92c8ef38d4316e',
+              't_4f3a23c7a041095a7b8e'
+            )
+          : t('t_874d9848c5eadfc97a9d')
+      );
 
   return {
     id: MESSAGE_ID,
-    from: __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_7e7175baf6d66a9479a7"),
-    subject: __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_cb9dd88d4dadcbef23b8"),
-    date: __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_9a264749f9d43669aac5"),
+
+    from: t('t_7e7175baf6d66a9479a7'),
+
+    subject: t(
+      done
+        ? 't_10992ad944154c0e9f61'
+        : 't_cb9dd88d4dadcbef23b8'
+    ),
+
+    date: t('t_9a264749f9d43669aac5'),
 
     body:
-      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_22a705e57674f27a7c07") +
-      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_4794944719af86578651") +
-      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_7036eed943148ab6f536") +
-      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_8b71b5fecb450db43e3e") +
-      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_ea7a16f2b9f96f5cc56b") +
-      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_c46bf3fdbc458ae42d9c") +
-      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_67680d10b5e245524bf2") +
-      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_be9359fdd870b9df5044") +
-      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_2f341963a371c15308ac") +
-      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_d8f710e2ae1829651195") +
-      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_5f1aa7bfa6b83a7e0358") +
-      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_d42c70b072bad56b702f") +
-      __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_224ffed80717c616344d") +
+      body +
       (
-        continuing
-          ? __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_717b0a92c8ef38d4316e") +
-            __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_4f3a23c7a041095a7b8e")
-          : __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_874d9848c5eadfc97a9d")
+        done
+          ? ''
+          : '\n\n' + t('local_address')
       )
   };
 }
 
-export function installGrandConspiracyComputer(ui, documents) {
-  let destroyed = false;
-  let launching = false;
-  let restoreField = null;
+class LocalAreaArrivalScene extends Phaser.Scene {
+  constructor() {
+    super({ key: ARRIVAL });
+  }
 
-  const previousGetMail = documents.getMail;
-  const previousRender = documents.render;
-  const previousPagedText = documents.renderPagedText;
+  init(data = {}) {
+    this.arrivalData = data;
+  }
+
+  create() {
+    const session = sessions.get(
+      this.arrivalData.localAreaSession
+    );
+
+    if (!session) {
+      this.scene.start('DetectiveOfficeScene');
+      return;
+    }
+
+    try {
+      session.arrive(
+        this,
+        this.arrivalData.leg
+      );
+    } catch (error) {
+      session.fail(error);
+      this.scene.stop();
+    }
+  }
+}
+
+export function installGrandConspiracyComputer(
+  ui,
+  documents
+) {
+  let destroyed = false;
+  let busy = false;
+  let map = null;
+  let trip = null;
+  let gardenShutdown = null;
+
+  const owner = ui.scene;
+  const game = owner.game;
+  const desktop = ui.desktop;
+
+  const previous = {
+    getMail: documents.getMail,
+    render: documents.render,
+    paged: documents.renderPagedText,
+
+    desktop: desktop.render,
+    glyph: desktop.drawGlyph,
+
+    openLocalArea: ui.openLocalArea
+  };
 
   function alive() {
     return (
       !destroyed &&
       !ui.destroyed &&
       ui.isOpen &&
-      !ui.suspended &&
-      ui.scene?.sys?.isActive?.() === true
+      owner.sys.isActive()
     );
   }
 
@@ -136,29 +229,564 @@ export function installGrandConspiracyComputer(ui, documents) {
   }
 
   function refresh() {
-    if (alive()) ui.render();
+    if (alive() && !ui.suspended) {
+      ui.render();
+    }
+  }
+
+  function availability(town) {
+    if (town.id === HOME_TOWN_ID) {
+      const alreadyHome =
+        getCurrentTownId() === HOME_TOWN_ID;
+
+      return {
+        ok: !alreadyHome,
+
+        description: t('home_description'),
+
+        message: t(
+          alreadyHome
+            ? 'already_home'
+            : 'return_description'
+        ),
+
+        label: t('drive_home')
+      };
+    }
+
+    if (
+      town.id !== GRAND_CONSPIRACY_TOWN_ID
+    ) {
+      return {
+        ok: false,
+        message: t('no_local_case'),
+        description: '',
+        label: ''
+      };
+    }
+
+    const description = t('local_address');
+
+    if (completed()) {
+      return {
+        ok: false,
+        description,
+        message: t('case_done')
+      };
+    }
+
+    if (
+      !['active', 'settling'].includes(
+        getQuest()?.status
+      )
+    ) {
+      return {
+        ok: false,
+        description,
+        message: t('accept_case')
+      };
+    }
+
+    if (
+      !piInventoryManager.hasItem('camera')
+    ) {
+      return {
+        ok: false,
+        description,
+        message: t('camera_required')
+      };
+    }
+
+    return {
+      ok: true,
+      description,
+      message: t('ready'),
+      label: t('drive_olga')
+    };
+  }
+
+  function restoreComputer() {
+    if (destroyed || ui.destroyed) return;
+
+    owner.computerChild = null;
+    owner.childLoading = false;
+
+    if (
+      typeof owner.returnToComputer === 'function'
+    ) {
+      owner.returnToComputer();
+    } else if (ui.isOpen) {
+      ui.resume();
+    }
+
+    owner.hideGameplayHud?.();
+  }
+
+  function openLocalArea() {
+    if (
+      !alive() ||
+      ui.suspended ||
+      busy ||
+      trip ||
+      owner.navigating ||
+      owner.moveIn ||
+      owner.computerChild ||
+      owner.childLoading
+    ) {
+      return false;
+    }
+
+    owner.computerChild = 'local-area';
+    ui.suspend();
+
+    try {
+      if (!map || map.isDestroyed) {
+        map = new LocalAreaDestinationsUI(
+          owner,
+          {
+            getAvailability: availability,
+
+            onConfirm: depart,
+
+            onClose: (
+              { returnToComputer } = {}
+            ) => {
+              if (
+                returnToComputer &&
+                !trip
+              ) {
+                restoreComputer();
+              }
+            }
+          }
+        );
+      }
+
+      map.open();
+
+      if (!map.isOpen) {
+        throw new Error(
+          'Local map did not open.'
+        );
+      }
+
+      const town = getTown(
+        GRAND_CONSPIRACY_TOWN_ID
+      );
+
+      const pin = map.pins.find(
+        entry => entry.town.id === town.id
+      );
+
+      map.selectTown(town, pin);
+
+      owner.hideGameplayHud?.();
+
+      return true;
+    } catch (error) {
+      console.error(
+        '[LocalArea] Map failed:',
+        error
+      );
+
+      restoreComputer();
+
+      ui.notice = t('map_error');
+      refresh();
+
+      return false;
+    }
+  }
+
+  async function prepareScenes() {
+    const [
+      { DriveScene },
+      { GrandConspiracyScene }
+    ] = await Promise.all([
+      import('../../scenes/DriveScene.js'),
+
+      import(
+        '../../scenes/GrandConspiracyScene.js'
+      )
+    ]);
+
+    const definitions = [
+      [DRIVE, DriveScene],
+      [GARDEN, GrandConspiracyScene],
+      [ARRIVAL, LocalAreaArrivalScene]
+    ];
+
+    for (const [key, Scene] of definitions) {
+      if (!game.scene.keys[key]) {
+        game.scene.add(
+          key,
+          Scene,
+          false
+        );
+      }
+    }
+  }
+
+  function releaseTrip() {
+    if (!trip) return;
+
+    const finished = trip;
+
+    trip = null;
+
+    sessions.delete(finished.id);
+
+    if (gardenShutdown) {
+      game.scene
+        .getScene(GARDEN)
+        .events.off(
+          'shutdown',
+          gardenShutdown
+        );
+
+      gardenShutdown = null;
+    }
+
+    for (
+      const key of finished.returnScenes
+    ) {
+      if (game.scene.isPaused(key)) {
+        game.scene.resume(key);
+      }
+    }
+
+    if (!destroyed && !ui.destroyed) {
+      restoreComputer();
+
+      game.scene.bringToTop(
+        owner.sys.settings.key
+      );
+
+      ui.notice = t(
+        completed()
+          ? 'back_completed'
+          : 'back_office'
+      );
+
+      refresh();
+    }
+  }
+
+  function failTrip(error) {
+    console.error(
+      '[LocalArea] Journey interrupted:',
+      error
+    );
+
+    releaseTrip();
+
+    if (
+      !destroyed &&
+      !ui.destroyed &&
+      ui.isOpen
+    ) {
+      ui.notice = t('trip_error');
+      refresh();
+    }
+  }
+
+  function driveTo(toId, leg) {
+    const fromId = getCurrentTownId();
+
+    if (fromId === toId) {
+      if (leg === 'home') {
+        releaseTrip();
+      } else {
+        enterGarden();
+      }
+
+      return;
+    }
+
+    trip.phase = leg;
+
+    game.scene.start(
+      DRIVE,
+      {
+        fromTownId: fromId,
+        toTownId: toId,
+
+        nextScene: ARRIVAL,
+
+        nextData: {
+          localAreaSession: trip.id,
+          leg
+        }
+      }
+    );
+
+    game.scene.bringToTop(DRIVE);
+  }
+
+  function enterGarden(
+    arrivalScene = null
+  ) {
+    if (!trip || destroyed) return;
+
+    const access = availability(
+      getTown(GRAND_CONSPIRACY_TOWN_ID)
+    );
+
+    if (!access.ok) {
+      arrivalScene?.scene.stop();
+
+      driveTo(
+        HOME_TOWN_ID,
+        'home'
+      );
+
+      return;
+    }
+
+    trip.phase = 'garden';
+
+    const garden =
+      game.scene.getScene(GARDEN);
+
+    gardenShutdown = () => {
+      gardenShutdown = null;
+
+      const id = trip?.id;
+
+      // Czekamy na zakończenie shutdown ogrodu.
+      setTimeout(() => {
+        if (
+          !destroyed &&
+          trip?.id === id
+        ) {
+          try {
+            driveTo(
+              HOME_TOWN_ID,
+              'home'
+            );
+          } catch (error) {
+            failTrip(error);
+          }
+        }
+      }, 0);
+    };
+
+    garden.events.once(
+      'shutdown',
+      gardenShutdown
+    );
+
+    const data = {
+      returnScenes: [],
+      townId: GRAND_CONSPIRACY_TOWN_ID,
+      missionId: CASE_ID
+    };
+
+    if (arrivalScene) {
+      arrivalScene.scene.start(
+        GARDEN,
+        data
+      );
+    } else {
+      game.scene.start(
+        GARDEN,
+        data
+      );
+    }
+
+    game.scene.bringToTop(GARDEN);
+  }
+
+  async function depart(town) {
+    if (
+      destroyed ||
+      busy ||
+      trip ||
+      !map?.isOpen
+    ) {
+      return false;
+    }
+
+    let access = availability(town);
+
+    if (!access.ok) {
+      map.showError(access.message);
+      return false;
+    }
+
+    let check =
+      town.id === getCurrentTownId()
+        ? { ok: true }
+        : canStartRoadTrip(
+            getCurrentTownId(),
+            town.id
+          );
+
+    if (!check.ok) {
+      map.showError(check.message);
+      return false;
+    }
+
+    busy = true;
+
+    try {
+      await prepareScenes();
+
+      if (
+        destroyed ||
+        ui.destroyed ||
+        !map?.isOpen
+      ) {
+        return false;
+      }
+
+      access = availability(town);
+
+      check =
+        town.id === getCurrentTownId()
+          ? { ok: true }
+          : canStartRoadTrip(
+              getCurrentTownId(),
+              town.id
+            );
+
+      if (!access.ok || !check.ok) {
+        map.showError(
+          !access.ok
+            ? access.message
+            : check.message
+        );
+
+        return false;
+      }
+
+      const anotherTrip = [
+        DRIVE,
+        GARDEN,
+        ARRIVAL
+      ].some(
+        key =>
+          game.scene.isActive(key) ||
+          game.scene.isPaused(key)
+      );
+
+      if (anotherTrip) {
+        map.showError(t('trip_busy'));
+        return false;
+      }
+
+      const id =
+        'local-area-' +
+        Date.now() +
+        '-' +
+        (++nextSession);
+
+      trip = {
+        id,
+        phase: 'starting',
+
+        returnScenes: game.scene
+          .getScenes(true)
+          .map(
+            scene =>
+              scene.sys.settings.key
+          )
+          .filter(
+            key =>
+              ![
+                DRIVE,
+                GARDEN,
+                ARRIVAL
+              ].includes(key)
+          )
+      };
+
+      sessions.set(
+        id,
+        {
+          fail: failTrip,
+
+          arrive: (
+            arrivalScene,
+            leg
+          ) => {
+            if (
+              !trip ||
+              trip.id !== id
+            ) {
+              arrivalScene.scene.stop();
+              return;
+            }
+
+            requestAutosave();
+
+            if (leg === 'home') {
+              arrivalScene.scene.stop();
+              releaseTrip();
+            } else {
+              enterGarden(arrivalScene);
+            }
+          }
+        }
+      );
+
+      map.close({
+        restoreHud: false
+      });
+
+      owner.computerChild =
+        'local-area-trip';
+
+      for (
+        const key of trip.returnScenes
+      ) {
+        if (game.scene.isActive(key)) {
+          game.scene.pause(key);
+        }
+      }
+
+      driveTo(
+        town.id,
+
+        town.id === HOME_TOWN_ID
+          ? 'home'
+          : 'outbound'
+      );
+
+      return true;
+    } catch (error) {
+      failTrip(error);
+      return false;
+    } finally {
+      busy = false;
+    }
   }
 
   const getMail = function (...args) {
-    const original = previousGetMail.apply(this, args);
+    const original =
+      previous.getMail.apply(
+        this,
+        args
+      );
 
-    const messages = Array.isArray(original)
-      ? original
-      : [];
-
-    const filtered = messages.filter(
-      message => message?.id !== MESSAGE_ID
+    const messages = (
+      Array.isArray(original)
+        ? original
+        : []
+    ).filter(
+      message =>
+        message?.id !== MESSAGE_ID
     );
 
-    if (!getQuest()) return filtered;
-
-    return [
-      getMessage(),
-      ...filtered
-    ];
+    return getQuest()
+      ? [
+          getMessage(),
+          ...messages
+        ]
+      : messages;
   };
 
-  const renderPagedText = function (
+  const paged = function (
     content,
     x,
     y,
@@ -166,249 +794,263 @@ export function installGrandConspiracyComputer(ui, documents) {
     height
   ) {
     const reserve =
-      viewingMessage() && !completed()
+      viewingMessage() &&
+      !completed()
         ? 64
         : 0;
 
-    return previousPagedText.call(
+    return previous.paged.call(
       this,
       content,
       x,
       y,
       width,
-      Math.max(40, height - reserve)
+      Math.max(
+        40,
+        height - reserve
+      )
     );
   };
 
-  async function launchGarden() {
-    if (
-      launching ||
-      !alive() ||
-      !viewingMessage() ||
-      completed()
-    ) {
-      return;
-    }
-
-    const quest = getQuest();
-
-    if (!['active', 'settling'].includes(quest?.status)) {
-      ui.notice = __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_fc7e9027839ed1168d90");
-      refresh();
-      return;
-    }
-
-    if (!piInventoryManager.hasItem('camera')) {
-      ui.notice =
-        __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_4b83eeecb2de5fa8424f") +
-        __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_4fb74221ace618bce53c");
-
-      refresh();
-      return;
-    }
-
-    launching = true;
-    ui.notice = __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_5eb532a3dbd492414819");
-
-    const token = ui.viewToken;
-
-    refresh();
-
-    try {
-      const {
-        GrandConspiracyScene
-      } = await import('../../scenes/GrandConspiracyScene.js');
-
-      if (
-        !alive() ||
-        !viewingMessage() ||
-        ui.viewToken !== token ||
-        completed()
-      ) {
-        return;
-      }
-
-      const latestQuest = getQuest();
-
-      if (
-        !['active', 'settling'].includes(latestQuest?.status) ||
-        !piInventoryManager.hasItem('camera')
-      ) {
-        ui.notice =
-          __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_f5a40efc30b53d6af9f1");
-
-        return;
-      }
-
-      const game = ui.scene.game;
-
-      if (game.scene.isActive(SCENE_KEY)) {
-        ui.notice = __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_2820f24f6109dfa7bafa");
-        return;
-      }
-
-      if (!game.scene.keys[SCENE_KEY]) {
-        game.scene.add(
-          SCENE_KEY,
-          GrandConspiracyScene,
-          false
-        );
-      }
-
-      const field = game.scene.getScene(SCENE_KEY);
-
-      const returnScenes = game.scene
-        .getScenes(true)
-        .map(scene => scene.sys.settings.key)
-        .filter(key => key !== SCENE_KEY);
-
-      let restored = false;
-
-      const restore = () => {
-        if (restored) return;
-
-        restored = true;
-
-        field.events.off('shutdown', restore);
-
-        for (const key of returnScenes) {
-          if (game.scene.isPaused(key)) {
-            game.scene.resume(key);
-          }
-        }
-
-        if (!destroyed && !ui.destroyed && ui.isOpen) {
-          ui.resume();
-
-          ui.notice = completed()
-            ? __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_3f693474e5fd082c9494")
-            : __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_4985b5af4eccbde03084");
-
-          ui.render();
-        }
-
-        if (restoreField === restore) {
-          restoreField = null;
-        }
-      };
-
-      restoreField = restore;
-
-      field.events.once('shutdown', restore);
-
-      try {
-        ui.suspend();
-
-        for (const key of returnScenes) {
-          if (game.scene.isActive(key)) {
-            game.scene.pause(key);
-          }
-        }
-
-        game.scene.start(SCENE_KEY, {
-          returnScenes
-        });
-
-        game.scene.bringToTop(SCENE_KEY);
-      } catch (error) {
-        if (game.scene.isActive(SCENE_KEY)) {
-          game.scene.stop(SCENE_KEY);
-        }
-
-        restore();
-        throw error;
-      }
-    } catch (error) {
-      console.error(
-        '[GrandConspiracyComputer] Could not open garden:',
-        error
+  const render = function (...args) {
+    const result =
+      previous.render.apply(
+        this,
+        args
       );
 
-      if (!destroyed && !ui.destroyed && ui.isOpen) {
-        if (ui.suspended) ui.resume();
-
-        ui.notice =
-          __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_152abc52996ef9695c09") +
-          __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_7d60682b3500b0323977");
-      }
-    } finally {
-      launching = false;
-      refresh();
-    }
-  }
-
-  const render = function (...args) {
-    const result = previousRender.apply(this, args);
-
     if (
-      !viewingMessage() ||
-      completed() ||
-      !ui.window
+      viewingMessage() &&
+      !completed() &&
+      ui.window &&
+      ['active', 'settling'].includes(
+        getQuest()?.status
+      )
     ) {
-      return result;
+      const box = ui.window;
+
+      ui.drawing.button(
+        box.x + 312,
+        box.y + box.h - 108,
+        t('open_local_map'),
+        () => openLocalArea(),
+        !busy && !ui.accepting
+      );
     }
-
-    const quest = getQuest();
-
-    if (!['active', 'settling'].includes(quest?.status)) {
-      return result;
-    }
-
-    const saved = progress();
-    const continuing =
-      saved.photos.length > 0 ||
-      saved.talked ||
-      saved.reportChoice;
-
-    const label = launching
-      ? __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_9dafd8f8b8d7f70bc7f6")
-      : continuing
-        ? __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_47f77acdeca0a8aec820")
-        : __dialogueText("ui/pi-computer/GrandConspiracyComputer.js", "t_ca92ebd85203832c6bf3");
-
-    const box = ui.window;
-
-    ui.drawing.button(
-      box.x + 312,
-      box.y + box.h - 108,
-      label,
-      () => void launchGarden(),
-      !launching && !ui.accepting
-    );
 
     return result;
   };
 
+  const renderDesktop =
+    function (...args) {
+      const result =
+        previous.desktop.apply(
+          this,
+          args
+        );
+
+      const { x, y } = ui.layout;
+
+      this.createIcon(
+        x + 152,
+        y + 10,
+        128,
+        t('local_area_icon'),
+        'local-road',
+        0xc6ad72,
+        () => openLocalArea()
+      );
+
+      return result;
+    };
+
+  const drawGlyph = function (
+    g,
+    kind,
+    cx,
+    top,
+    color
+  ) {
+    if (kind !== 'local-road') {
+      return previous.glyph.call(
+        this,
+        g,
+        kind,
+        cx,
+        top,
+        color
+      );
+    }
+
+    g.fillStyle(0x1b2530, 0.35)
+      .fillRect(
+        cx - 23,
+        top + 9,
+        52,
+        44
+      );
+
+    g.fillStyle(color, 1)
+      .fillRect(
+        cx - 27,
+        top + 4,
+        52,
+        44
+      );
+
+    g.lineStyle(2, 0x1b2530, 1)
+      .strokeRect(
+        cx - 27,
+        top + 4,
+        52,
+        44
+      );
+
+    g.lineStyle(9, 0x605b54, 1);
+
+    g.lineBetween(
+      cx - 21,
+      top + 40,
+      cx,
+      top + 25
+    );
+
+    g.lineBetween(
+      cx,
+      top + 25,
+      cx + 19,
+      top + 12
+    );
+
+    g.lineStyle(2, 0xf5e6b0, 1);
+
+    g.lineBetween(
+      cx - 17,
+      top + 37,
+      cx - 10,
+      top + 32
+    );
+
+    g.lineBetween(
+      cx - 4,
+      top + 28,
+      cx + 3,
+      top + 23
+    );
+
+    g.lineBetween(
+      cx + 9,
+      top + 19,
+      cx + 16,
+      top + 14
+    );
+
+    g.fillStyle(0x9c3428, 1)
+      .fillCircle(
+        cx + 17,
+        top + 12,
+        5
+      );
+  };
+
   documents.getMail = getMail;
-  documents.renderPagedText = renderPagedText;
+  documents.renderPagedText = paged;
   documents.render = render;
 
-  const destroy = () => {
+  desktop.render = renderDesktop;
+  desktop.drawGlyph = drawGlyph;
+
+  ui.openLocalArea = openLocalArea;
+
+  function destroy() {
     if (destroyed) return;
 
     destroyed = true;
 
-    // Nie przywracamy scen podczas zamykania biura.
-    restoreField = null;
+    map?.destroy();
+    map = null;
 
-    if (documents.getMail === getMail) {
-      documents.getMail = previousGetMail;
+    if (trip) {
+      sessions.delete(trip.id);
+
+      if (
+        gardenShutdown &&
+        game.scene.keys[GARDEN]
+      ) {
+        game.scene
+          .getScene(GARDEN)
+          .events.off(
+            'shutdown',
+            gardenShutdown
+          );
+      }
+
+      trip = null;
     }
 
-    if (documents.renderPagedText === renderPagedText) {
-      documents.renderPagedText = previousPagedText;
+    gardenShutdown = null;
+
+    if (
+      documents.getMail === getMail
+    ) {
+      documents.getMail =
+        previous.getMail;
     }
 
-    if (documents.render === render) {
-      documents.render = previousRender;
+    if (
+      documents.render === render
+    ) {
+      documents.render =
+        previous.render;
     }
 
-    ui.scene.events.off('shutdown', destroy);
-  };
+    if (
+      documents.renderPagedText === paged
+    ) {
+      documents.renderPagedText =
+        previous.paged;
+    }
 
-  ui.scene.events.once('shutdown', destroy);
+    if (
+      desktop.render === renderDesktop
+    ) {
+      desktop.render =
+        previous.desktop;
+    }
+
+    if (
+      desktop.drawGlyph === drawGlyph
+    ) {
+      desktop.drawGlyph =
+        previous.glyph;
+    }
+
+    if (
+      ui.openLocalArea === openLocalArea
+    ) {
+      if (
+        previous.openLocalArea === undefined
+      ) {
+        delete ui.openLocalArea;
+      } else {
+        ui.openLocalArea =
+          previous.openLocalArea;
+      }
+    }
+
+    owner.events.off(
+      'shutdown',
+      destroy
+    );
+  }
+
+  owner.events.once(
+    'shutdown',
+    destroy
+  );
 
   return {
-    destroy
+    destroy,
+    openLocalArea
   };
 }

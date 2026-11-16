@@ -3,8 +3,12 @@ import { HomeCityScene as OriginalHomeCityScene } from './HomeCityScene.js';
 import { PostOfficeScene } from './PostOfficeScene.js';
 import { HospitalScene } from './HospitalScene.js';
 import { BusinessCenterScene } from './BusinessCenterScene.js';
+import { ChurchScene } from './ChurchScene.js';
+import { LombardScene } from './LombardScene.js';
 import { PALETTES } from './homeCity/HomeCityConfig.js';
 import { HomeCityRendererCore } from './homeCity/HomeCityRendererCore.js';
+import { LOMBARD_BUILDING, LOMBARD_PROPS } from './homeCity/HomeCityLombard.js';
+import { CHURCH_BUILDING, CHURCH_CLEARED_PROPS, CHURCH_PROPS, CHURCH_PROP_QUIPS, CHURCH_LABEL_LIFT } from './homeCity/HomeCityChurch.js';
 
 const COLS = 36, ROWS = 22, WORLD_WIDTH = 4125, WORLD_HEIGHT = 2400;
 const EXTRA_BUILDINGS = [
@@ -13,15 +17,17 @@ const EXTRA_BUILDINGS = [
   { id: 'hospital', name: __dialogueText("scenes/HomeCityPostOfficeScene.js", "t_97e9623661f2970acb41"), x: 29, y: 13, w: 4, h: 3,
     color: 0xaebdac, message: '', sceneKey: 'HospitalScene', SceneClass: HospitalScene },
   { id: 'business-center', name: __dialogueText("scenes/HomeCityPostOfficeScene.js", "t_a16572219d4cbc8fe62b"), x: 29, y: 3, w: 4, h: 3,
-    color: 0x8e9b9b, message: '', sceneKey: 'BusinessCenterScene', SceneClass: BusinessCenterScene }
+    color: 0x8e9b9b, message: '', sceneKey: 'BusinessCenterScene', SceneClass: BusinessCenterScene },
+  { ...CHURCH_BUILDING, SceneClass: ChurchScene },
+  { ...LOMBARD_BUILDING, SceneClass: LombardScene }
 ];
 const HOSPITAL_PROPS = [
-  { x: 27, y: 13, kind: 'tree', variant: 0 },
   { x: 34, y: 13, kind: 'tree', variant: 1 },
   { x: 27, y: 16, kind: 'planter' }, { x: 35, y: 16, kind: 'planter' },
   { x: 29, y: 17, kind: 'bench' }, { x: 33, y: 17, kind: 'bench' },
   { x: 28, y: 17, kind: 'lamp' }, { x: 34, y: 17, kind: 'lamp' }
 ];
+const EXTRA_PROPS = [...HOSPITAL_PROPS, ...CHURCH_PROPS, ...LOMBARD_PROPS];
 PALETTES['post-office'] = {
   wall: 0xb98c62, shade: 0x88563f, roof: 0x493c35,
   trim: 0xe1c99e, glass: 0x35494c, accent: 0xd7b16b,
@@ -50,6 +56,7 @@ export class HomeCityScene extends OriginalHomeCityScene {
     super.init(data);
     this.cols = COLS;
     this.rows = ROWS;
+    this.clearChurchSite();
     this.alignTavern();
     this.extraBuildings = EXTRA_BUILDINGS.map(def => ({ ...def,
       door: { x: def.x + Math.floor(def.w / 2), y: def.y + def.h }
@@ -58,7 +65,7 @@ export class HomeCityScene extends OriginalHomeCityScene {
       this.reserveBuilding(building);
       this.buildings.push(building);
     }
-    for (const prop of HOSPITAL_PROPS) {
+    for (const prop of EXTRA_PROPS) {
       if (!this.walkable(prop.x, prop.y)) throw new Error(`[HomeCity] Occupied prop cell: ${prop.x},${prop.y}`);
       this.props.push({ ...prop });
       this.blocked.add(this.cellKey(prop.x, prop.y));
@@ -70,6 +77,10 @@ export class HomeCityScene extends OriginalHomeCityScene {
       }
     }
     this.postalBuilding = this.extraBuildings.find(b => b.id === 'post-office');
+  }
+  // Removes the props that stand on the church footprint (runs before alignTavern rebuilds `blocked`).
+  clearChurchSite() {
+    this.props = this.props.filter(p => !CHURCH_CLEARED_PROPS.some(r => r.kind === p.kind && r.x === p.x && r.y === p.y));
   }
   alignTavern() {
     const tavern = this.buildings.find(b => b.id === 'tavern');
@@ -121,8 +132,21 @@ export class HomeCityScene extends OriginalHomeCityScene {
     this.drawHospitalForecourt();
     this.drawHospitalCross();
     this.drawBusinessCenterDetails();
+    this.liftChurchLabel();
     this.cameras.main.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
     this.cameras.main.centerOn(this.player.x, this.player.y);
+  }
+  liftChurchLabel() {
+    const art = this.cityArt?.buildingArt.get('church');
+    if (!art?.label?.active) return;
+    art.label.y -= CHURCH_LABEL_LIFT;
+    this.cityArt.paintLabel('church');
+  }
+  sayQuip(prop) {
+    const lines = CHURCH_PROP_QUIPS[prop?.kind];
+    if (!lines) return super.sayQuip(prop);
+    const i = this.quipIndex[prop.kind] ?? 0; this.quipIndex[prop.kind] = i + 1;
+    this.say(lines[i % lines.length]);
   }
   extendGround() {
     const art = this.cityArt;

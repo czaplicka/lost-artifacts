@@ -592,6 +592,19 @@
         "city": "tokyo",
         "useMessage": "I wave back. Finally, a friendly exchange with no follow-up questions."
       }
+    },
+    "singaporeMerlion": {
+      "id": "souvenir_singapore_merlion",
+      "name": "Tiny Merlion",
+      "icon": "🦁",
+      "description": "Half lion, half fish. The shopkeeper insists both halves are non-refundable.",
+      "type": "item",
+      "stackable": true,
+      "metadata": {
+        "souvenir": true,
+        "city": "singapore",
+        "useMessage": "I question both halves. Neither talks."
+      }
     }
   },
   "oddities": {

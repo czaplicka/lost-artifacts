@@ -4,6 +4,9 @@ import { gameState } from '../GameData.js';
 import { getPIQuestStatus } from '../managers/PIQuestManager.js';
 import { TAVERN_CONFIG } from '../config/tavernConfig.js';
 import { HomeTownDialogue } from '../ui/HomeTownDialogue.js';
+import { EventBus } from '../EventBus.js';
+import { attachPIClockUI } from '../ui/PIClockUI.js';
+import { getPINpcStatus, getPILocationStatus } from '../managers/PIClockManager.js';
 const KEY='TavernScene',TEXT_KEY='tavernDialogues',EXTRA_KEY='tavernExtras';
 const clone=data=>JSON.parse(JSON.stringify(data));
 export function rollTavernPresence(definitions,random=Math.random){return Object.fromEntries(Object.entries(definitions).map(([id,d])=>[id,d.alwaysPresent===true||random()<d.chance]));}
@@ -18,9 +21,10 @@ export class TavernScene extends BaseScene {
   init(){
     this.disposed=false;this.ready=false;this.navigating=false;this.token=Symbol(KEY);this.panel=null;this.root=null;
     this.spots=[];this.layers=new Map();this.pendingPresence=new Map();this.config=clone(TAVERN_CONFIG);this.hotspotDefs=this.config.hotspots;
-    this.presence=rollTavernPresence(this.config.npcs);this.activeNpcId=null;this.debugMode=false;this.selectedIndex=0;
+    this.presence=Object.fromEntries(Object.keys(this.config.npcs).map(id=>[id,getPINpcStatus(`tavern:${id}`).available]));
+    this.activeNpcId=null;this.debugMode=false;this.selectedIndex=0;
     this.lastBox=null;this.styleElement=null;this.background=null;this.label=null;this.domKey=null;this.statusTimer=null;
-    this.dialogue=null;this.portraitKeys=new Set();
+    this.dialogue=null;this.portraitKeys=new Set();this.piTimeModalOpen=false;this.piClockUI=null;this.piTimeListener=null;
   }
   preload(){
     const assets=[{key:this.config.backgroundKey,url:this.config.backgroundUrl},...Object.values(this.config.npcs)];
@@ -45,12 +49,27 @@ export class TavernScene extends BaseScene {
     this.trackInputEvent(this.scale,'resize',this.layout);this.trackInputEvent(this.input,'drag',this.onHotspotDrag);
     this.domKey=event=>this.onKey(event);window.addEventListener('keydown',this.domKey,true);
     this.ready=true;this.layout();this.refreshHotspots();
+    this.piClockUI=attachPIClockUI(this);
+    this.piTimeListener=()=>this.syncScheduledPresence();EventBus.on('pi:timeChanged',this.piTimeListener);
+    this.syncScheduledPresence();
+    const status=getPILocationStatus('tavern');
+    if(!status.available)this.piClockUI.offerWait({title:'The tavern is closed.',status,onReady:()=>this.syncScheduledPresence(),onLeave:()=>void this.leave()});
+  }
+  syncScheduledPresence(){
+    if(this.disposed||!this.ready)return;
+    for(const id of Object.keys(this.config.npcs)){
+      const present=getPINpcStatus(`tavern:${id}`).available;
+      if(!present&&this.activeNpcId===id&&this.panel)this.pendingPresence.set(id,false);
+      else{this.pendingPresence.delete(id);this.presence[id]=present;this.layers.get(id)?.setVisible(present);}
+    }
+    this.refreshHotspots();
   }
   hideGameplayHud(){
     this.getRegisteredScene('PlayerHudScene')?.closeAllUIPanels?.();this.getRegisteredScene('NewsHud')?.closeMenu?.(true);this.getRegisteredScene('NewsHud')?.setHudVisible?.(false);
     for(const key of['PlayerHudScene','UIScene','NewsHud'])if(this.hasScene(key))this.scene.setVisible(false,key);
     this.styleElement=document.createElement('style');this.styleElement.textContent=CSS;document.head.appendChild(this.styleElement);document.documentElement.classList.add('tavern-active');
   }
+  timedTavernHint(){return this.text('hint')+' | Bartender: 16:00-02:00 | Regular: 18:00-02:00 | Guest: 16:00-22:00';}
   format(value,values={}){return String(value).replace(/\{(\w+)\}/g,(match,key)=>Object.prototype.hasOwnProperty.call(values,key)?String(values[key]):match);}
   text(key,values={}){return this.format(this.textData?.ui?.[key]??`[${key}]`,values);}
   extra(key,values={}){return this.format(this.extraData?.ui?.[key]??`[${key}]`,values);}
@@ -58,20 +77,20 @@ export class TavernScene extends BaseScene {
     this.root=document.createElement('div');this.root.className='la-tavern-ui';const top=document.createElement('div');top.className='top';
     const title=document.createElement('div');title.className='title';title.textContent=this.text('title');const buttons=document.createElement('div');buttons.className='buttons';
     buttons.append(this.button(this.text('backToTown'),()=>{if(!this.debugMode&&!this.panel)void this.leave();}));top.append(title,buttons);
-    this.hint=document.createElement('div');this.hint.className='hint';this.hint.textContent=this.text('hint');
+    this.hint=document.createElement('div');this.hint.className='hint';this.hint.textContent=this.timedTavernHint();
     this.debugText=document.createElement('div');this.debugText.className='debug';this.debugText.hidden=true;
     this.root.append(top,this.hint,this.debugText);document.body.appendChild(this.root);
   }
-  button(text,action){const b=document.createElement('button');b.type='button';b.textContent=text;b.addEventListener('click',event=>{event.stopPropagation();if(!this.disposed&&!this.navigating)action();});return b;}
-  canInteract(){return this.ready&&!this.disposed&&!this.navigating&&!this.panel;}
-  isNpcPresent(id){return Boolean(!this.disposed&&this.presence[id]&&this.layers.has(id));}
-  getNpcPresence(){return{...this.presence};}
+  button(text,action){const b=document.createElement('button');b.type='button';b.textContent=text;b.addEventListener('click',event=>{event.stopPropagation();if(!this.disposed&&!this.navigating&&!this.piTimeModalOpen)action();});return b;}
+  canInteract(){return this.ready&&!this.disposed&&!this.navigating&&!this.panel&&!this.piTimeModalOpen;}
+  isNpcPresent(id){return Boolean(!this.disposed&&this.presence[id]&&getPINpcStatus(`tavern:${id}`).available&&this.layers.has(id));}
+  getNpcPresence(){return Object.fromEntries(Object.keys(this.presence).map(id=>[id,this.isNpcPresent(id)]));}
   setNpcPresent(id,present){
     const def=this.config.npcs[id];if(!this.ready||this.disposed||!def||typeof present!=='boolean')return false;if(def.alwaysPresent&&!present)return false;
     if(!present&&this.activeNpcId===id&&this.panel){this.pendingPresence.set(id,present);return true;}
     this.pendingPresence.delete(id);this.applyPresence(id,present);return true;
   }
-  applyPresence(id,present){this.presence[id]=present;this.layers.get(id)?.setVisible(present);this.label?.setVisible(false);this.refreshHotspots();}
+  applyPresence(id,present){this.presence[id]=present;this.layers.get(id)?.setVisible(present&&getPINpcStatus(`tavern:${id}`).available);this.label?.setVisible(false);this.refreshHotspots();}
   flushPresence(){const pending=[...this.pendingPresence];this.pendingPresence.clear();for(const[id,present]of pending)this.applyPresence(id,present);}
   createHotspot(cfg,index){
     const rect=this.add.rectangle(0,0,1,1,0xffd27d,0).setDepth(100).setInteractive({useHandCursor:true}).setData('hotspotIndex',index);
@@ -105,8 +124,8 @@ export class TavernScene extends BaseScene {
   }
   exportConfig(){console.log('COPY TO config/tavernConfig.js:');console.log('export const TAVERN_CONFIG = '+JSON.stringify(this.config,null,2)+';');this.say(this.extra(__dialogueText("scenes/TavernScene.js", "t_427da8ba22c9532ad803")));}
   onKey(event){
-    if(this.disposed||!this.ready||!this.sys.isActive()||this.navigating||event.ctrlKey||event.metaKey)return;
-    if(event.target?.isContentEditable||['INPUT','TEXTAREA','SELECT'].includes(event.target?.tagName))return;
+    if(this.disposed||!this.ready||!this.sys.isActive()||this.navigating||this.piTimeModalOpen||event.ctrlKey||event.metaKey)return;
+    if(event.target?.isContentEditable||['INPUT','TEXTAREA','SELECT','BUTTON'].includes(event.target?.tagName))return;
     const code=event.code,handled=code===__dialogueText("scenes/TavernScene.js", "t_037c968467aa3fd7c059")||(!this.panel&&code==='KeyD')||(!this.panel&&this.debugMode&&[__dialogueText("scenes/TavernScene.js", "t_90ddf1963abb36c9921c"),'KeyC','KeyN','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(code));
     if(!handled)return;event.preventDefault();event.stopImmediatePropagation();
     if(code===__dialogueText("scenes/TavernScene.js", "t_037c968467aa3fd7c059")){if(event.repeat)return;if(this.panel)this.closePanel();else if(this.debugMode)this.toggleDebug();else void this.leave();return;}
@@ -120,7 +139,7 @@ export class TavernScene extends BaseScene {
     const b=this.game.canvas.getBoundingClientRect();Object.assign(this.root.style,{left:`${b.left}px`,top:`${b.top}px`,width:`${b.width}px`,height:`${b.height}px`,fontSize:`${Math.max(12,Math.min(22,b.width/65))}px`});
   }
   update(){if(this.disposed||!this.root)return;const b=this.game.canvas.getBoundingClientRect(),sig=`${b.left}/${b.top}/${b.width}/${b.height}`;if(sig!==this.lastBox){this.lastBox=sig;this.layout();}}
-  say(text){if(!this.hint)return;this.statusTimer?.remove(false);this.hint.textContent=text;this.statusTimer=this.time.delayedCall(5000,()=>{if(!this.disposed)this.hint.textContent=this.text('hint');this.statusTimer=null;});}
+  say(text){if(!this.hint)return;this.statusTimer?.remove(false);this.hint.textContent=text;this.statusTimer=this.time.delayedCall(5000,()=>{if(!this.disposed)this.hint.textContent=this.timedTavernHint();this.statusTimer=null;});}
   portraitForNpc(id){
     if(!id)return null;const key=`tavern_dialogue_portrait_${id}`;if(this.portraitKeys.has(key)&&this.textures.exists(key))return key;
     const def=this.config.npcs[id],hot=this.hotspotDefs.find(h=>h.npcId===id);
@@ -163,12 +182,14 @@ export class TavernScene extends BaseScene {
   }
   leave(){return this.navigate('HomeCityScene',{entryPoint:'tavern',fromScene:KEY,gameState});}
   async navigate(key,data){
-    if(this.disposed||this.navigating||this.debugMode)return false;const token=this.token;this.navigating=true;this.refreshHotspots();const result=await this.goto(key,data);
+    if(this.disposed||this.navigating||this.debugMode||this.piTimeModalOpen)return false;const token=this.token;this.navigating=true;this.refreshHotspots();const result=await this.goto(key,data);
     if(this.disposed||this.token!==token)return result!==false;this.navigating=false;
     if(result===false&&this.root)this.show(this.text('navigationErrorTitle'),this.text('navigationError'),[]);return result!==false;
   }
   disposeTavern(){
-    if(this.disposed)return;this.disposed=true;this.ready=false;this.token=null;
+    if(this.disposed)return;this.piClockUI?.destroy();this.piClockUI=null;
+    if(this.piTimeListener)EventBus.off('pi:timeChanged',this.piTimeListener);this.piTimeListener=null;
+    this.disposed=true;this.ready=false;this.token=null;
     if(this.domKey)window.removeEventListener('keydown',this.domKey,true);this.domKey=null;this.statusTimer?.remove(false);this.statusTimer=null;this.pendingPresence.clear();
     this.dialogue?.destroy();this.dialogue=null;for(const key of this.portraitKeys)if(this.textures.exists(key))this.textures.remove(key);this.portraitKeys.clear();
     this.root?.remove();this.root=null;this.panel=null;this.styleElement?.remove();this.styleElement=null;document.documentElement.classList.remove('tavern-active');

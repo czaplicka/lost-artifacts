@@ -2127,7 +2127,21 @@
       "image:side_quests__Mom__s__Not__Proud__background",
       "image:pigeon_mural",
       "image:raven_painting",
-      "video:movie1"
+      "video:movie1",
+      "audio:Pavement_Confidential",
+      "image:garbage_o",
+      "image:harbor_o",
+      "image:hotel_maid_o",
+      "image:parking_o",
+      "image:police_hq_o",
+      "image:restaurant_o",
+      "image:photo",
+      "audio:intro",
+      "audio:replacement",
+      "audio:replacement2",
+      "audio:replacement3",
+      "audio:return",
+      "audio:return2"
     ],
     "auto:folder:apartments": [
       "image:apartment_debt_kitchen",
@@ -2596,7 +2610,13 @@
       "image:local__post_office",
       "image:airport_o",
       "image:alley_o",
-      "image:bank_o"
+      "image:bank_o",
+      "image:garbage_o",
+      "image:harbor_o",
+      "image:hotel_maid_o",
+      "image:parking_o",
+      "image:police_hq_o",
+      "image:restaurant_o"
     ],
     "auto:folder:maps": [
       "image:berlin_crime",
@@ -3155,7 +3175,8 @@
       "audio:A_Matchbox_Left_Behind",
       "audio:Rain_Against_the_Windowpane",
       "audio:The_Second_Alibi",
-      "json:tracks"
+      "json:tracks",
+      "audio:Pavement_Confidential"
     ],
     "auto:folder:pi/hospital": [
       "image:no_nurse",
@@ -3243,7 +3264,16 @@
     "auto:folder:side_quests/Mom’s Not Proud": [
       "image:side_quests__Mom__s__Not__Proud__background",
       "image:pigeon_mural",
-      "image:raven_painting"
+      "image:raven_painting",
+      "image:photo"
+    ],
+    "auto:folder:voice/Alex_Murphy": [
+      "audio:intro",
+      "audio:replacement",
+      "audio:replacement2",
+      "audio:replacement3",
+      "audio:return",
+      "audio:return2"
     ]
   }
 }

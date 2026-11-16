@@ -1,4 +1,4 @@
-import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
+import { dialogueText as __dialogueText } from '../dialogues/DialogueText.js';
 import { requestAutosave, saveGameState, flushAutosave } from '../gameStatePersistence.js';
 import { applyGridExclusions, getCaseKey } from './applyGridExclusions.js';
 import { RULED_OUT_EVERYONE_REASON } from './gridConstants.js';
@@ -6,10 +6,11 @@ import { formatCellValue } from './gridHelpers.js';
 import { advanceCrimeTutorial } from '../tutorials/CrimeCityTutorial.js';
 import { playPuzzleSfx } from '../scenes/archive/PuzzleSfx.js';
 import { playDocumentSfx } from '../scenes/archive/DocumentSfx.js';
-function playGridAction(scene,name){
-  if(!scene.gridStarted||scene.gridLeaving||scene.modalOpen)return;
-  try{if(name==='paper')playPuzzleSfx(scene,'paper',0.25);else playDocumentSfx(scene,'click',0.15);}
-  catch(error){console.debug('[SuspectGridScene] Action audio unavailable:',error);}
+const t = id => __dialogueText('suspectsBoard/GridLogic.mixin.js', id);
+function playGridAction(scene, name) {
+  if (!scene.gridStarted || scene.gridLeaving || scene.modalOpen) return;
+  try { if (name === 'paper') playPuzzleSfx(scene, 'paper', .25); else playDocumentSfx(scene, 'click', .15); }
+  catch (error) { console.debug('[SuspectGridScene] Action audio unavailable:', error); }
 }
 export const GridLogicMixin = {
   getPlacedClueIds() { return new Set(Object.values(this.placedCluesByCell)); },
@@ -22,34 +23,34 @@ export const GridLogicMixin = {
   },
   setFeedback(message) { this.feedbackMessage = message || ''; this.feedbackText?.setText(this.feedbackMessage); },
   selectClue(clueId) {
-    const before=this.selectedClueId;
+    const before = this.selectedClueId;
     this.selectedClueId = this.selectedClueId === clueId ? null : clueId;
-    this.setFeedback(this.selectedClueId ? __dialogueText("suspectsBoard/GridLogic.mixin.js", "t_7ef159f58cbf5ae3b054") : ''); this.refreshAll();
-    if(this.selectedClueId!==before)playGridAction(this,'click');
+    this.setFeedback(this.selectedClueId ? t('t_7ef159f58cbf5ae3b054') : ''); this.refreshAll();
+    if (this.selectedClueId !== before) playGridAction(this, 'click');
   },
   onCellClick(target, placedClue) {
     if (placedClue && !this.selectedClueId) { this.removePlacedClue(target, placedClue); return; }
     this.placeSelectedClue(target);
   },
   removePlacedClue(target, clue) {
-    const key=this.getCellKey(target),changed=Object.prototype.hasOwnProperty.call(this.placedCluesByCell,key);
+    const key = this.getCellKey(target), changed = Object.prototype.hasOwnProperty.call(this.placedCluesByCell, key);
     delete this.placedCluesByCell[key]; this.saveGridProgress();
-    this.setFeedback(`${clue.label}${__dialogueText("suspectsBoard/GridLogic.mixin.js", "t_e883dc0c124ecc44d9f3")}`); this.refreshAll();
-    if(changed)playGridAction(this,'paper');
+    this.setFeedback(`${clue.label}${t('t_e883dc0c124ecc44d9f3')}`); this.refreshAll();
+    if (changed) playGridAction(this, 'paper');
   },
   placeSelectedClue(target) {
     const clue = this.clueCards.find(item => item.id === this.selectedClueId);
-    if (!clue) { this.setFeedback(__dialogueText("suspectsBoard/GridLogic.mixin.js", "t_926799f0f634d72f08c1")); return; }
-    if (!this.isTargetForClue(clue, target)) { this.setFeedback(__dialogueText("suspectsBoard/GridLogic.mixin.js", "t_b4779080efd5d07bd7a2")); return; }
+    if (!clue) { this.setFeedback(t('t_926799f0f634d72f08c1')); return; }
+    if (!this.isTargetForClue(clue, target)) { this.setFeedback(t('t_b4779080efd5d07bd7a2')); return; }
     const key = this.getCellKey(target);
-    if (this.placedCluesByCell[key]) { this.setFeedback(__dialogueText("suspectsBoard/GridLogic.mixin.js", "t_1268013213e0749fb537")); return; }
+    if (this.placedCluesByCell[key]) { this.setFeedback(t('t_1268013213e0749fb537')); return; }
     this.placedCluesByCell[key] = clue.id; this.selectedClueId = null; this.saveGridProgress();
-    this.setFeedback(`${clue.label}${__dialogueText("suspectsBoard/GridLogic.mixin.js", "t_45822f54a0d0e030f756")}${formatCellValue(clue.value)}${__dialogueText("suspectsBoard/GridLogic.mixin.js", "t_1d09c4f33391fa4eba81")}`); this.refreshAll();
-    playGridAction(this,'paper');
+    this.setFeedback(`${clue.label}${t('t_45822f54a0d0e030f756')}${formatCellValue(clue.value)}${t('t_1d09c4f33391fa4eba81')}`); this.refreshAll();
+    playGridAction(this, 'paper');
   },
   toggleSuspectMark(suspectId) {
     this.markedUnlikelyBySuspectId[suspectId] = !this.markedUnlikelyBySuspectId[suspectId];
-    this.saveGridProgress(); this.refreshAll();playGridAction(this,'click');
+    this.saveGridProgress(); this.refreshAll(); playGridAction(this, 'click');
   },
   saveGridProgress() {
     const forensics = this.labManager.ensureCaseForensics(); forensics.suspectGrid ??= {};
@@ -71,9 +72,8 @@ export const GridLogicMixin = {
     const remaining = this.getGridRemainingSuspects();
     if (!remaining.length) {
       this.showConfirmModal({
-        title: __dialogueText("suspectsBoard/GridLogic.mixin.js", "t_f91261fca31563851921"),
-        message: __dialogueText("suspectsBoard/GridLogic.mixin.js", "t_a8cda391d19344841dc4"),
-        yesLabel: __dialogueText("suspectsBoard/GridLogic.mixin.js", "t_c4063ca8c142ba1daedc"), noLabel: __dialogueText("suspectsBoard/GridLogic.mixin.js", "t_44674bc70455e9bd676e"), onYes: () => this.failCaseRuledOutEveryone()
+        title: t('t_f91261fca31563851921'), message: t('t_a8cda391d19344841dc4'),
+        yesLabel: t('t_c4063ca8c142ba1daedc'), noLabel: t('t_44674bc70455e9bd676e'), onYes: () => this.failCaseRuledOutEveryone()
       }); return;
     }
     if (!this.isGridShortlistSubmitted()) this.commitGrid(remaining);
@@ -84,7 +84,7 @@ export const GridLogicMixin = {
     Object.assign(forensics.suspectGrid, { completed: true, completedAt: Date.now(), ruledOutEveryone: true, alibiCandidateSuspectIds: [] });
     delete forensics.suspectGrid.remainingSuspectIds; delete forensics.suspectGrid.eliminatedSuspectIds;
     Object.assign(this.gameState, { caseFailed: true, caseResolved: false, isGameActive: false, gameOverReason: RULED_OUT_EVERYONE_REASON });
-    saveGameState(); this.goto('GameOverScene', { title: __dialogueText("suspectsBoard/GridLogic.mixin.js", "t_3f04ff73607035edc1b8"), message: RULED_OUT_EVERYONE_REASON });
+    saveGameState(); this.goto('GameOverScene', { title: t('t_3f04ff73607035edc1b8'), message: RULED_OUT_EVERYONE_REASON });
   },
   commitGrid(remainingSuspects) {
     this.saveGridProgress();
@@ -97,15 +97,14 @@ export const GridLogicMixin = {
     applyGridExclusions({ gameState: this.gameState, cityId: this.cityId, suspectIds: this.suspects.map(suspect => suspect.id), unlikelyById: this.markedUnlikelyBySuspectId });
     const caseKey = getCaseKey(this.gameState, this.cityId);
     this.gameState.alibiInvestigation = { cityId: this.cityId, caseKey, suspectIds: remainingSuspects.map(suspect => suspect.id), unlocked: true };
-    // Leave the HQ tutorial on suspect_grid until the player clicks Return.
-    saveGameState(); this.setFeedback(`${remainingSuspects.length}${__dialogueText("suspectsBoard/GridLogic.mixin.js", "t_0545f3b240f4f6c416f9")}`);
+    saveGameState(); this.setFeedback(`${remainingSuspects.length}${t('t_0545f3b240f4f6c416f9')}`);
   },
   async closeScene({ skipCommit = false } = {}) {
     if (this.gridLeaving || this.modalOpen) return;
     const remaining = this.getGridRemainingSuspects(), tutorial = this.gameState.onboarding?.crimeCity;
     const guided = tutorial && !tutorial.completed && tutorial.step === 'suspect_grid';
-    if (!skipCommit && remaining.length === 2 && !this.isGridShortlistSubmitted()) {
-      if (guided) { this.syncReturnHighlight?.(); this.setFeedback(__dialogueText("suspectsBoard/GridLogic.mixin.js", "t_c32f0cb05a3b89cf187c")); return; }
+    if (!skipCommit && [2, 3].includes(remaining.length) && !this.isGridShortlistSubmitted()) {
+      if (guided) { this.syncReturnHighlight?.(); this.setFeedback(t('t_c32f0cb05a3b89cf187c')); return; }
       this.commitGrid(remaining);
     }
     const submitted = this.isGridShortlistSubmitted();
@@ -124,7 +123,7 @@ export const GridLogicMixin = {
       if (this._cleanupDone) return;
       if (snapshot && this.gameState.onboarding) this.gameState.onboarding.crimeCity = snapshot;
       this.gridLeaving = false; requestAutosave(); this.startCrimeTutorial?.(); this.syncReturnHighlight?.();
-      this.setFeedback(__dialogueText("suspectsBoard/GridLogic.mixin.js", "t_a5d459c5fc757ceac3bb"));
+      this.setFeedback(t('t_a5d459c5fc757ceac3bb'));
       console.error('[SuspectGridScene] Return failed:', error);
     }
   }

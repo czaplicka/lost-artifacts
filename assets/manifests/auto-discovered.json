@@ -3441,6 +3441,118 @@
         "videos"
       ],
       "noAudio": false
+    },
+    {
+      "key": "Pavement_Confidential",
+      "url": "assets/audio/music/Pavement_Confidential.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "garbage_o",
+      "url": "assets/local/garbage_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "harbor_o",
+      "url": "assets/local/harbor_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "hotel_maid_o",
+      "url": "assets/local/hotel_maid_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "parking_o",
+      "url": "assets/local/parking_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "police_hq_o",
+      "url": "assets/local/police_hq_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "restaurant_o",
+      "url": "assets/local/restaurant_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "photo",
+      "url": "assets/side_quests/Mom’s Not Proud/photo.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "intro",
+      "url": "assets/voice/Alex_Murphy/intro.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "replacement",
+      "url": "assets/voice/Alex_Murphy/replacement.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "replacement2",
+      "url": "assets/voice/Alex_Murphy/replacement2.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "replacement3",
+      "url": "assets/voice/Alex_Murphy/replacement3.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "return",
+      "url": "assets/voice/Alex_Murphy/return.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "return2",
+      "url": "assets/voice/Alex_Murphy/return2.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
     }
   ]
 }

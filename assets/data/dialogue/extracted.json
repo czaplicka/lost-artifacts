@@ -16156,7 +16156,25 @@
       "t_e6f0ca8de7cece60c349": "Your report has arrived. The fee has been processed.\n\n",
       "t_ea7a16f2b9f96f5cc56b": "I trust you understand the gravity of this combination.\n\n",
       "t_f5a40efc30b53d6af9f1": "The case or your equipment changed. Check your PI inventory.",
-      "t_fc7e9027839ed1168d90": "This case is not available for observation."
+      "t_fc7e9027839ed1168d90": "This case is not available for observation.",
+      "local_address": "WhateverVille — Olga's garden. Case: The Midnight Gardener.",
+      "local_area_icon": "Local Area",
+      "open_local_map": "OPEN LOCAL MAP",
+      "home_description": "Home Town — your PI office.",
+      "already_home": "You are already home. The pigeon confirms it.",
+      "return_description": "Return to your office in Home Town.",
+      "drive_home": "Drive home",
+      "no_local_case": "No field visit is available here yet. The local pigeon declined to comment.",
+      "case_done": "This case is closed. Olga would appreciate some unsupervised gardening.",
+      "accept_case": "Accept The Midnight Gardener in Classifieds before visiting Olga.",
+      "camera_required": "Bring a camera. Suspicious squinting does not count as photographic evidence.",
+      "ready": "Perkins wants photographs. Olga wants everyone to mind their own business.",
+      "drive_olga": "Drive to WhateverVille",
+      "map_error": "The local map could not be opened. Please try again.",
+      "trip_error": "The trip was interrupted. Check your current town before trying again.",
+      "trip_busy": "A local trip is already running.",
+      "back_completed": "Back at the office. The case is closed; the neighbourhood is still nosy.",
+      "back_office": "Back at the office. Your field notes have been kept."
     },
     "ui/pi-computer/KeywordStyle.js": {
       "t_7b2817bf9b80e66d07f2": "#000000",
@@ -16649,6 +16667,13 @@
       "t_ababed4823ab79d226ba": "Hair",
       "t_b5d80697315d2738b4cd": "No results. The clerk is pretending to look busy.",
       "t_d4bf972585383546b102": "LONG HAIR"
+    },
+    "ui/LocalAreaDestinationsUI.js": {
+      "local_title": "Local Area",
+      "local_subtitle": "Nearby towns. Local cases. No passport required. Dino still packed one.",
+      "locked": "Unavailable",
+      "enter_garden": "Enter Olga's garden",
+      "departure_error": "The car refuses to cooperate. Please try again."
     }
   }
 }
