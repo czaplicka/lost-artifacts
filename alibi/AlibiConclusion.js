@@ -1,341 +1,69 @@
-import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
-
-import {
-  getCaseSuspects
-} from '../suspects/CaseSuspects.js';
-
-import {
-  saveGameState
-} from '../gameStatePersistence.js';
-
-import {
-  progressionManager
-} from '../managers/ProgressionManager.js';
-
-import {
-  allWitnessesVisited,
-  NO_ALIBI_LIAR
-} from './AlibiEncounterSetup.js';
-
-const FINAL = new Set([
-  'confirmed',
-  'contradicted'
-]);
-
-function findContext(caseKey, suspectId) {
-  const data =
-    gameState.caseData
-      ?.alibiCases?.[caseKey]
-      ?.suspects
-      ?.find(
-        entry => entry.suspectId === suspectId
-      );
-
-  const suspect = getCaseSuspects(gameState).find(
-    entry => entry.id === suspectId
-  );
-
-  return {
-    data,
-    suspect
-  };
-}
-
-function getProgressionCaseKey(caseKey) {
-  if (
-    typeof caseKey !== 'string' &&
-    typeof caseKey !== 'number'
-  ) {
-    return null;
-  }
-
-  if (
-    typeof caseKey === 'number' &&
-    !Number.isFinite(caseKey)
-  ) {
-    return null;
-  }
-
-  const key = String(caseKey).trim();
-
-  if (
-    !key ||
-    key === 'default_case' ||
-    key.length > 400
-  ) {
-    return null;
-  }
-
-  return key;
-}
-
-function isAlibiStageComplete(caseKey) {
-  const subjects =
-    gameState.caseData
-      ?.alibiCases?.[caseKey]
-      ?.suspects;
-
-  if (
-    !Array.isArray(subjects) ||
-    subjects.length === 0
-  ) {
-    return false;
-  }
-
-  const suspectIds = subjects.map(
-    entry => entry?.suspectId
-  );
-
-  if (
-    suspectIds.some(
-      id => typeof id !== 'string' || !id.trim()
-    ) ||
-    new Set(suspectIds).size !== suspectIds.length
-  ) {
-    return false;
-  }
-
-  return subjects.every(subject => {
-    if (
-      !allWitnessesVisited(
-        caseKey,
-        subject.suspectId
-      )
-    ) {
-      return false;
-    }
-
-    // Liczy się złożony wniosek gracza.
-    // Nie sprawdzamy ukrytej poprawności odpowiedzi.
-    const filed = subject.playerConclusion;
-
-    return (
-      filed?.locked === true &&
-      FINAL.has(filed.status) &&
-      Array.isArray(filed.timelineIds) &&
-      filed.timelineIds.length === 3 &&
-      new Set(filed.timelineIds).size === 3
-    );
-  });
-}
-
-function grantAlibiCompletionXP(caseKey) {
-  if (!isAlibiStageComplete(caseKey)) {
-    return {
-      success: false,
-      reason: 'alibi_stage_not_finished'
-    };
-  }
-
-  const scopeId = getProgressionCaseKey(caseKey);
-
-  if (!scopeId) {
-    console.warn(
-      '[AlibiConclusion] XP skipped: no stable case key.'
-    );
-
-    return {
-      success: false,
-      reason: 'missing_case_key'
-    };
-  }
-
-  try {
-    return progressionManager.grantReward(
-      'alibi_completed',
-      scopeId,
-      __dialogueText("alibi/AlibiConclusion.js", "t_8020ed3cbb6c6084f493")
-    );
-  } catch (error) {
-    console.error(
-      '[AlibiConclusion] Could not grant alibi XP:',
-      error
-    );
-
-    return {
-      success: false,
-      reason: 'progression_error'
-    };
-  }
-}
-
-export function getFiledAlibiConclusion(
-  caseKey,
-  suspectId
-) {
-  const { data, suspect } = findContext(
-    caseKey,
-    suspectId
-  );
-
-  const filed = data?.playerConclusion;
-
-  if (
-    filed?.locked === true &&
-    FINAL.has(filed.status)
-  ) {
-    return {
-      status: filed.status,
-      choice: filed.choice,
-      timelineIds: [...(filed.timelineIds || [])],
-      locked: true
-    };
-  }
-
-  // Zachowujemy obsługę zakończonych tablic
-  // ze starszych zapisów.
-  const status =
-    suspect?.deductionState?.alibiStatus;
-
-  if (FINAL.has(status)) {
-    return {
-      status,
-      locked: true,
-
-      choice:
-        gameState.alibiAccusations
-          ?.[caseKey]?.[suspectId] || null,
-
-      timelineIds: []
-    };
-  }
-
+import { getCaseSuspects } from '../suspects/CaseSuspects.js';
+import { saveGameState } from '../gameStatePersistence.js';
+import { progressionManager } from '../managers/ProgressionManager.js';
+import { allWitnessesVisited, NO_ALIBI_LIAR } from './AlibiEncounterSetup.js';
+import { getStoredAlibiSubject, validAlibiTimeline, orderedAlibiTimeline, assessAlibiConclusion } from './AlibiConclusionEvidence.js';
+export { getAlibiEvidenceDossier, getAlibiCourtRecord } from './AlibiConclusionEvidence.js';
+const FINAL=new Set(['confirmed','contradicted']);
+function context(caseKey,suspectId){return {data:getStoredAlibiSubject(caseKey,suspectId),suspect:getCaseSuspects(gameState).find(s=>s.id===suspectId)};}
+function publicResult(filed){return {status:filed.status,choice:filed.choice,timelineIds:Array.isArray(filed.timelineIds)?[...filed.timelineIds]:[],locked:true,
+  evidenceStatus:filed.evidenceStatus||'legacy_unverified'};}
+export function getFiledAlibiConclusion(caseKey,suspectId){
+  const {data,suspect}=context(caseKey,suspectId),filed=data?.playerConclusion;
+  if(filed?.locked===true&&FINAL.has(filed.status))return publicResult(filed);
+  if(FINAL.has(suspect?.deductionState?.alibiStatus))return {status:suspect.deductionState.alibiStatus,locked:true,
+    choice:gameState.alibiAccusations?.[caseKey]?.[suspectId]||null,timelineIds:[],evidenceStatus:'legacy_unverified'};
   return null;
 }
-
-export function fileAlibiConclusion(
-  caseKey,
-  suspectId,
-  timelineIds,
-  choice
-) {
-  const previous = getFiledAlibiConclusion(
-    caseKey,
-    suspectId
-  );
-
-  // Ponowne otwarcie lub wysłanie zatwierdzonej
-  // tablicy nie przyznaje nagrody.
-  if (previous) {
-    return {
-      accepted: true,
-      alreadyFiled: true,
-      ...previous
-    };
-  }
-
-  const { data, suspect } = findContext(
-    caseKey,
-    suspectId
-  );
-
-  if (
-    !data ||
-    !suspect ||
-    !allWitnessesVisited(caseKey, suspectId)
-  ) {
-    return {
-      accepted: false,
-      message: __dialogueText("alibi/AlibiConclusion.js", "t_e7af74f607a9e2ff0fc1")
-    };
-  }
-
-  const availableIds = (
-    data.boardCards || []
-  ).map(card => card.id);
-
-  if (
-    !Array.isArray(timelineIds) ||
-    timelineIds.length !== 3 ||
-    availableIds.length !== 3 ||
-    new Set(timelineIds).size !== 3 ||
-    timelineIds.some(
-      id => !availableIds.includes(id)
-    )
-  ) {
-    return {
-      accepted: false,
-      message: __dialogueText("alibi/AlibiConclusion.js", "t_1bbee57186391f2cdb1f")
-    };
-  }
-
-  if (
-    choice !== NO_ALIBI_LIAR &&
-    !data.witnesses.some(
-      witness => witness.npcId === choice
-    )
-  ) {
-    return {
-      accepted: false,
-      message: __dialogueText("alibi/AlibiConclusion.js", "t_30e262c11b8715b55091")
-    };
-  }
-
-  const status =
-    choice === NO_ALIBI_LIAR
-      ? 'confirmed'
-      : 'contradicted';
-
-  const timelineCorrect =
-    (data.trueTimeline || []).length === 3 &&
-    data.trueTimeline.every(
-      (card, index) =>
-        card.id === timelineIds[index]
-    );
-
-  const conclusionCorrect =
-    choice === NO_ALIBI_LIAR
-      ? data.alibiType === 'confirmed'
-      : data.witnesses.some(
-          witness =>
-            witness.npcId === choice &&
-            witness.isLiar === true
-        );
-
-  data.playerConclusion = {
-    version: 1,
-    locked: true,
-    status,
-    choice,
-    timelineIds: [...timelineIds],
-    filedAt: new Date().toISOString(),
-
-    evaluation: {
-      timelineCorrect,
-      conclusionCorrect,
-      correct:
-        timelineCorrect && conclusionCorrect
-    }
-  };
-
-  gameState.alibiAccusations ??= {};
-  gameState.alibiAccusations[caseKey] ??= {};
-
-  gameState.alibiAccusations[
-    caseKey
-  ][suspectId] = choice;
-
-  suspect.deductionState ??= {};
-
-  // To ocena złożona przez gracza,
-  // a nie ujawnienie prawdziwego alibi.
-  suspect.deductionState.alibiStatus = status;
-
-  // Nagroda dopiero po zatwierdzeniu
-  // ostatniej tablicy w całym etapie.
-  const xpResult =
-    grantAlibiCompletionXP(caseKey);
-
-  // Wnioski i odebrana nagroda trafiają
-  // do tego samego zapisu gry.
-  saveGameState();
-
-  return {
-    accepted: true,
-    alreadyFiled: false,
-    status,
-    locked: true,
-    xpResult
-  };
+function grantCompletion(caseKey){
+  const subjects=gameState.caseData?.alibiCases?.[caseKey]?.suspects;
+  if(!Array.isArray(subjects)||!subjects.length||new Set(subjects.map(s=>s.suspectId)).size!==subjects.length||
+    subjects.some(s=>typeof s.suspectId!=='string'||!s.suspectId.trim()||!allWitnessesVisited(caseKey,s.suspectId)||
+      !s.playerConclusion?.locked||!FINAL.has(s.playerConclusion.status)||!validAlibiTimeline(s,s.playerConclusion.timelineIds)))
+    return {success:false,reason:'alibi_stage_not_finished'};
+  if(!['string','number'].includes(typeof caseKey)||(typeof caseKey==='number'&&!Number.isFinite(caseKey)))return {success:false,reason:'missing_case_key'};
+  const scope=String(caseKey).trim();if(!scope||scope==='default_case'||scope.length>400)return {success:false,reason:'missing_case_key'};
+  try{return progressionManager.grantReward('alibi_completed',scope,'Alibi investigation completed');}
+  catch(error){console.error('[AlibiConclusion] XP failed',error);return {success:false,reason:'progression_error'};}
+}
+export function fileAlibiConclusion(caseKey,suspectId,timelineIds,choice,options={}){
+  options=options&&typeof options==='object'?options:{};
+  const previous=getFiledAlibiConclusion(caseKey,suspectId);
+  if(previous)return {accepted:true,alreadyFiled:true,...previous};
+  const {data,suspect}=context(caseKey,suspectId);
+  if(!data||!suspect||!Array.isArray(data.witnesses)||data.witnesses.length!==3||new Set(data.witnesses.map(w=>w?.npcId)).size!==3||!allWitnessesVisited(caseKey,suspectId))return {accepted:false,message:'Record all three witness visits before filing.'};
+  if(!validAlibiTimeline(data,timelineIds))return {accepted:false,message:'Place each of this subject\'s three cards exactly once.'};
+  if(choice!==NO_ALIBI_LIAR&&!data.witnesses.some(w=>w.npcId===choice))return {accepted:false,message:'Select a witness or the no-liar conclusion.'};
+  const assessment=assessAlibiConclusion(caseKey,suspectId,timelineIds,choice,options);
+  if(!assessment.documented&&options.allowRisky!==true)return {accepted:false,requiresRiskConfirmation:true,
+    message:'This conclusion is not fully documented. Confirm explicitly to file it as a risky claim.',riskReasons:[...assessment.reasons]};
+  const status=choice===NO_ALIBI_LIAR?'confirmed':'contradicted';
+  const timelineCorrect=orderedAlibiTimeline(data,timelineIds);
+  const conclusionCorrect=choice===NO_ALIBI_LIAR?data.alibiType==='confirmed':data.witnesses.some(w=>w.npcId===choice&&w.isLiar===true);
+  const filed={version:2,locked:true,status,choice,timelineIds:[...timelineIds],filedAt:new Date().toISOString(),
+    evidenceStatus:assessment.documented?'documented':'risky',
+    evidence:{sources:structuredClone(assessment.sources),comparison:structuredClone(assessment.comparison),
+      confirmation:structuredClone(assessment.confirmation),retraction:assessment.retraction||null,
+      crimeWindow:structuredClone(data.crimeWindow),riskAccepted:!assessment.documented,riskReasons:[...assessment.reasons],
+      timeline:timelineIds.map(id=>{const card=data.boardCards.find(c=>c.id===id),w=data.witnesses.find(w=>w.timelineCard?.id===id);
+        const known=assessment.sources.some(r=>r.npcId===w?.npcId);
+        return {id,role:card.role||w?.role||'Witness',minute:known&&Number.isInteger(card.minute)?card.minute:null,detailsKnown:known};})},
+    evaluation:{timelineCorrect,conclusionCorrect,evidenceSupported:assessment.documented&&timelineCorrect&&conclusionCorrect,
+      correct:timelineCorrect&&conclusionCorrect}};
+  const oldFiled=data.playerConclusion===undefined?undefined:structuredClone(data.playerConclusion);
+  const oldAccusations=gameState.alibiAccusations===undefined?undefined:structuredClone(gameState.alibiAccusations),oldDeduction=suspect.deductionState?structuredClone(suspect.deductionState):undefined;
+  data.playerConclusion=filed;gameState.alibiAccusations??={};gameState.alibiAccusations[caseKey]??={};
+  const oldChoice=gameState.alibiAccusations[caseKey][suspectId];gameState.alibiAccusations[caseKey][suspectId]=choice;
+  suspect.deductionState??={};suspect.deductionState.alibiStatus=status;suspect.deductionState.alibiEvidenceStatus=filed.evidenceStatus;
+  // Persist the claim before granting any completion reward.
+  try{if(saveGameState()===false)throw new Error('Save rejected');}
+  catch(error){if(oldFiled===undefined)delete data.playerConclusion;else data.playerConclusion=oldFiled;
+    if(oldDeduction===undefined)delete suspect.deductionState;else suspect.deductionState=oldDeduction;
+    if(oldAccusations===undefined)delete gameState.alibiAccusations;
+    else gameState.alibiAccusations=oldAccusations;
+    console.error('[AlibiConclusion] Filing save failed',error);return {accepted:false,message:'The conclusion could not be saved. Please try again.'};}
+  const xpResult=grantCompletion(caseKey);let rewardSaved=true;
+  try{if(saveGameState()===false)rewardSaved=false;}catch(error){rewardSaved=false;console.error('[AlibiConclusion] Reward save failed',error);}
+  return {accepted:true,alreadyFiled:false,...publicResult(filed),xpResult,rewardSaved};
 }

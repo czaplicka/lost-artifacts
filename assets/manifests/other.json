@@ -209,102 +209,6 @@
       ]
     },
     {
-      "key": "bankier_a",
-      "url": "assets/npc/bankier_a.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "bankier_b",
-      "url": "assets/npc/bankier_b.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "bankier_h",
-      "url": "assets/npc/bankier_h.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "bankier_w",
-      "url": "assets/npc/bankier_w.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "bum_a",
-      "url": "assets/npc/bum_a.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "bum_b",
-      "url": "assets/npc/bum_b.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "bum_h",
-      "url": "assets/npc/bum_h.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "bum_w",
-      "url": "assets/npc/bum_w.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "chase_courtyard",
-      "url": "assets/chase/chase_courtyard.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "chase_square",
-      "url": "assets/chase/chase_square.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "chase_stairs",
-      "url": "assets/chase/chase_stairs.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "chase_street",
-      "url": "assets/chase/chase_street.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
       "key": "city_clues",
       "url": "assets/data/city-clues.json",
       "type": "json",
@@ -505,38 +409,6 @@
       ]
     },
     {
-      "key": "fence_a",
-      "url": "assets/npc/fence_a.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "fence_b",
-      "url": "assets/npc/fence_b.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "fence_h",
-      "url": "assets/npc/fence_h.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "fence_w",
-      "url": "assets/npc/fence_w.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
       "key": "file",
       "url": "assets/file.webp",
       "type": "image",
@@ -673,75 +545,11 @@
       ]
     },
     {
-      "key": "knajpa_a",
-      "url": "assets/npc/knajpa_a.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "knajpa_b",
-      "url": "assets/npc/knajpa_b.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "knajpa_h",
-      "url": "assets/npc/knajpa_h.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "knajpa_w",
-      "url": "assets/npc/knajpa_w.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
       "key": "locations",
       "url": "assets/data/locations.json",
       "type": "json",
       "groups": [
         "json"
-      ]
-    },
-    {
-      "key": "maid_a",
-      "url": "assets/npc/maid_a.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "maid_b",
-      "url": "assets/npc/maid_b.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "maid_h",
-      "url": "assets/npc/maid_h.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "maid_w",
-      "url": "assets/npc/maid_w.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
       ]
     },
     {
@@ -873,75 +681,11 @@
       ]
     },
     {
-      "key": "parkingowy_a",
-      "url": "assets/npc/parkingowy_a.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "parkingowy_b",
-      "url": "assets/npc/parkingowy_b.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "parkingowy_h",
-      "url": "assets/npc/parkingowy_h.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "parkingowy_w",
-      "url": "assets/npc/parkingowy_w.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
       "key": "pi_spy_shop_background",
       "url": "assets/pi/city/spyshop.webp",
       "type": "image",
       "groups": [
         "backgrounds"
-      ]
-    },
-    {
-      "key": "police_a",
-      "url": "assets/npc/police_a.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "police_b",
-      "url": "assets/npc/police_b.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "police_h",
-      "url": "assets/npc/police_h.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "police_w",
-      "url": "assets/npc/police_w.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
       ]
     },
     {
@@ -1097,38 +841,6 @@
       ]
     },
     {
-      "key": "sailor_a",
-      "url": "assets/npc/sailor_a.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "sailor_b",
-      "url": "assets/npc/sailor_b.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "sailor_h",
-      "url": "assets/npc/sailor_h.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "sailor_w",
-      "url": "assets/npc/sailor_w.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
       "key": "shop",
       "url": "assets/local/shop.webp",
       "type": "image",
@@ -1150,38 +862,6 @@
       "type": "json",
       "groups": [
         "json"
-      ]
-    },
-    {
-      "key": "stewardessa_a",
-      "url": "assets/npc/stewardesa_a.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "stewardessa_b",
-      "url": "assets/npc/stewardesa_b.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "stewardessa_h",
-      "url": "assets/npc/stewardesa_h.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "stewardessa_w",
-      "url": "assets/npc/stewardesa_w.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
       ]
     },
     {

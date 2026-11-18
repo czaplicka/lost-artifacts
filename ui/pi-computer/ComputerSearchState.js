@@ -1,3 +1,4 @@
+import { notebookContact } from './NotebookContactActions.js';
 import {
   STATE_KEY,
   clone,
@@ -91,6 +92,16 @@ export class ComputerSearchState {
     ];
   }
 
+  hasEmailTerms(terms) {
+    if (!Array.isArray(terms)) return false;
+    const definition = this.definition;
+    const original = this.data?.cases.find(item => item.id === definition?.id);
+    const keywords = original?.keywords || definition?.keywords || [];
+    return terms.some(id =>
+      notebookContact(keywords.find(keyword => keyword.id === id))?.kind === 'email'
+    );
+  }
+
   recentSearches(limit) {
     const seen = new Set();
     const recent = [];
@@ -100,6 +111,8 @@ export class ComputerSearchState {
         ...(this.progress.history || [])
       ].reverse()
     ) {
+      if (this.hasEmailTerms(item.terms)) continue;
+
       const terms = (item.terms || []).filter(
         id => this.definition.keywords.some(
           keyword => keyword.id === id
@@ -172,6 +185,7 @@ export class ComputerSearchState {
   }
 
   selectKeyword(id) {
+    if (this.ui?.app === 'search' && this.hasEmailTerms([id])) return;
     if (
       !this.definition?.keywords.some(
         keyword => keyword.id === id
@@ -220,6 +234,7 @@ export class ComputerSearchState {
   }
 
   runQuery(terms) {
+    if (this.hasEmailTerms(terms)) return;
     this.terms = this.validTerms(terms);
     this.search();
   }
@@ -247,6 +262,7 @@ export class ComputerSearchState {
   }
 
   search() {
+    if (this.hasEmailTerms(this.terms)) return;
     this.terms = this.validTerms(this.terms);
 
     if (

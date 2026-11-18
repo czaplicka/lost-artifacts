@@ -1,0 +1,37 @@
+{
+  "runnerVersion": 2,
+  "project": "C:\\Users\\monik\\OneDrive\\Dokumenty\\GitHub\\lost-artifacts",
+  "startedAt": "2026-11-17T05:40:30.634Z",
+  "passed": true,
+  "limitations": [
+    "Real local alibi modules and real FinalCaseCourt.js are executed.",
+    "Game state, persistence, events, effective stats, suspect lookup and progression use isolated adapters.",
+    "Dialogue text is read from the real local extracted.json catalog.",
+    "Non-alibi trial facts are a clean fixture; full world evidence collection and courtRapport.buildCourtFacts are not executed.",
+    "No Phaser rendering, browser storage, audio, actual XP persistence or court UI is tested.",
+    "Project .js files are classified as ESM only inside the test worker; package.json and game files are not modified."
+  ],
+  "status": "passed",
+  "engine": "actual local production FinalCaseCourt.js",
+  "falsePatterns": 12,
+  "truePatterns": 6,
+  "cleanTrials": 48,
+  "weakTrials": 144,
+  "legacyTrials": 2,
+  "boundaryCases": 6,
+  "replayStates": 2686,
+  "assertions": 11749,
+  "sourceFiles": [
+    "alibi/AlibiWitnessData.js",
+    "alibi/AlibiCooperation.js",
+    "alibi/AlibiKnowledge.js",
+    "alibi/AlibiEncounterSetup.js",
+    "alibi/AlibiConclusion.js",
+    "alibi/AlibiConclusionEvidence.js",
+    "alibi/cooperation/AlibiEvidence.js",
+    "systems/AlibiCourtEvidence.js",
+    "systems/FinalCaseCourt.js",
+    "systems/courtRapport.js"
+  ],
+  "finishedAt": "2026-11-17T05:40:31.871Z"
+}

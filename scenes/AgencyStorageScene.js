@@ -1,6 +1,7 @@
 import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { storageRoomDialogues as DIALOGUES } from '../storageRoomDialogueService.js';
 import { BaseScene } from './BaseScene.js';
+import { LiveDialogUI } from '../ui/LiveDialogUI.js';
 import { gameState } from '../GameData.js';
 import { ItemsLoader } from '../ItemsLoader.js';
 import { audioManager } from '../managers/AudioManager.js';
@@ -23,10 +24,9 @@ export class AgencyStorageScene extends BaseScene{
     this._storageDisposed=false;this._storageRunToken=Symbol('storage-run');this._cancelHudWait=null;this._prepareTimer=null;
   }
   preload(){
-    if (!this.textures.exists('back')) {
-      this.load.image('back', 'assets/buttons/back.webp');
-    }
-if(!this.textures.exists(MANAGER_PORTRAIT_KEY))this.load.image(MANAGER_PORTRAIT_KEY,MANAGER_PORTRAIT_URL);}
+    if(!this.textures.exists('back'))this.load.image('back','assets/buttons/back.webp');
+    if(!this.textures.exists(MANAGER_PORTRAIT_KEY))this.load.image(MANAGER_PORTRAIT_KEY,MANAGER_PORTRAIT_URL);
+  }
   create(){
     super.create();audioManager.init(this);this.registry.set('currentSceneKey','AgencyStorageScene');this.registry.set('currentCity','hq');this.registry.set('currentCityId','hq');
     this.registry.set('gameState',this.gameState);this.registry.set('activeMission',this.gameState.currentMission||null);this.cameras.main.setBackgroundColor('#17110e');
@@ -55,42 +55,18 @@ if(!this.textures.exists(MANAGER_PORTRAIT_KEY))this.load.image(MANAGER_PORTRAIT_
       const button=this.add.text(0,0,label,style).setOrigin(origin,1).setDepth(100).setInteractive({useHandCursor:true});
       button.on('pointerdown',callback);button.on('pointerover',()=>button.setColor('#ffffff'));button.on('pointerout',()=>button.setColor('#f2d477'));return button;
     };
-    
-    this.backButton = this.add
-      .image(0, 0, 'back')
-      .setOrigin(0, 1)
-      .setDepth(100)
-      .setInteractive({ useHandCursor: true });
-
-    this.backButton.on('pointerdown', () => {
-      void this.returnToOffice();
-    });
-
-    this.backButton.on('pointerover', () => {
-      this.backButton?.setTint(0xffe4a3);
-    });
-
-    this.backButton.on('pointerout', () => {
-      this.backButton?.clearTint();
-    });
-this.retryButton=make(__dialogueText("scenes/AgencyStorageScene.js", "t_7fb9c96f07064e72471c"),1,()=>{void this.prepareVisit(true);}).setVisible(false);
-    this.timelineButton=make(fourthMissionConfig.buttons.start,0.5,()=>{void this.openTimeline();}).setVisible(false);
-    this.statusText=this.add.text(0,0,'',{...style,align:'center',padding:{x:16,y:12}}).setOrigin(0.5,0).setDepth(110).setVisible(false);
+    this.backButton=this.add.image(0,0,'back').setOrigin(0,1).setDepth(100).setInteractive({useHandCursor:true});
+    this.backButton.on('pointerdown',()=>{void this.returnToOffice();});
+    this.backButton.on('pointerover',()=>{this.backButton?.setTint(0xffe4a3);});
+    this.backButton.on('pointerout',()=>{this.backButton?.clearTint();});
+    this.retryButton=make(__dialogueText("scenes/AgencyStorageScene.js", "t_7fb9c96f07064e72471c"),1,()=>{void this.prepareVisit(true);}).setVisible(false);
+    this.timelineButton=make(fourthMissionConfig.buttons.start,.5,()=>{void this.openTimeline();}).setVisible(false);
+    this.statusText=this.add.text(0,0,'',{...style,align:'center',padding:{x:16,y:12}}).setOrigin(.5,0).setDepth(110).setVisible(false);
   }
   layoutStorage(){
     if(this._storageDisposed)return;const{width,height}=this.scale,compact=width<600;
     this.background?.setDisplaySize(width,height);
-    if (this.backButton) {
-      const buttonWidth = Math.min(
-        width < 600 ? 120 : 160,
-        width * 0.3
-      );
-
-      this.backButton
-        .setScale(buttonWidth / this.backButton.width)
-        .setPosition(16, height - 24);
-    }
-
+    if(this.backButton){const buttonWidth=Math.min(width<600?120:160,width*.3);this.backButton.setScale(buttonWidth/this.backButton.width).setPosition(16,height-24);}
     this.retryButton?.setFontSize(compact?14:22).setPosition(width-16,height-(width<420?82:24));this.timelineButton?.setFontSize(compact?14:22).setPosition(width/2,height-(width<420?145:95));
     this.statusText?.setFontSize(compact?17:22).setPosition(width/2,100).setWordWrapWidth(Math.max(120,Math.min(width-48,760)),true);
   }
@@ -123,8 +99,12 @@ this.retryButton=make(__dialogueText("scenes/AgencyStorageScene.js", "t_7fb9c96f
       await this.ensureOverlayScene('UIScene');if(!this.isCurrent(token)||this.isLeaving)return;
       const hud=await this.restorePlayerHud();if(!this.isCurrent(token)||this.isLeaving)return;if(!hud)throw new Error('PlayerHudScene is unavailable.');
       const ready=await this.waitForHudReady(hud);if(!this.isCurrent(token)||this.isLeaving)return;if(!ready)throw new Error('PlayerHudScene did not finish initialising.');
-      hud.closeAllUIPanels?.();hud.setCurrentGameplayScene?.('AgencyStorageScene');const manager=await hud.ensurePanel('dialogManager');if(!this.isCurrent(token)||this.isLeaving)return;
-      if(!manager?.dialogUI||manager.dialogUI.destroyed)throw new Error('DialogUI could not be created.');this.storageHud=hud;this.storageDialog=manager.dialogUI;
+      hud.closeAllUIPanels?.();hud.setCurrentGameplayScene?.('AgencyStorageScene');
+      if(!this.isCurrent(token)||this.isLeaving)return;
+      if(!this.storageDialog||this.storageDialog.destroyed||this.storageDialog.scene!==hud){
+        this.storageDialog?.destroy();this.storageDialog=new LiveDialogUI(hud);
+      }
+      this.storageHud=hud;
       const news=await this.ensureOverlayScene('NewsHud');if(!this.isCurrent(token)||this.isLeaving)return;
       news?.events?.emit('setNewspaperVisible',false);news?.events?.emit('setTvVisible',false);this.showStorageHud();this.statusText?.setVisible(false);prepared=true;
     }catch(error){if(this.isCurrent(token)&&!this.isLeaving)this.showRecovery(`${__dialogueText("scenes/AgencyStorageScene.js", "t_4ebb2b9b5bc69ce38cef")}${error.message||String(error)}`,error);}finally{if(this._storageRunToken===token)this._preparing=false;}
@@ -188,7 +168,7 @@ this.retryButton=make(__dialogueText("scenes/AgencyStorageScene.js", "t_7fb9c96f
   onWakeOrResume(){if(!this.isCurrent()||this.isLeaving)return;this.showManagerBackground();this.layoutStorage();if(this._timelineOpen)return;if(this._conversationOpen){this.showStorageHud();return;}if(!this._preparing&&!this._finishing)this.schedulePreparation();}
   cleanupStorage(){
     if(this._storageDisposed)return;this._storageDisposed=true;this._storageRunToken=null;this._conversationOpen=false;this._preparing=false;this._finishing=false;this._timelineOpen=false;
-    this._prepareTimer?.remove(false);this._prepareTimer=null;this._cancelHudWait?.();this._cancelHudWait=null;if(this.storageDialog){this.storageDialog.onClose=null;this.storageDialog.close?.();}
+    this._prepareTimer?.remove(false);this._prepareTimer=null;this._cancelHudWait?.();this._cancelHudWait=null;if(this.storageDialog){this.storageDialog.onClose=null;this.storageDialog.destroy();}
     this.scale.off('resize',this.layoutStorage,this);for(const event of[Phaser.Scenes.Events.WAKE,Phaser.Scenes.Events.RESUME])this.events.off(event,this.onWakeOrResume,this);
     this.events.off(Phaser.Scenes.Events.SHUTDOWN,this.cleanupStorage,this);this.events.off(Phaser.Scenes.Events.DESTROY,this.cleanupStorage,this);
     this.backButton?.removeAllListeners();this.retryButton?.removeAllListeners();this.timelineButton?.removeAllListeners();

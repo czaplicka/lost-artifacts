@@ -60,13 +60,34 @@ export class PIOfficeAnimations {
 
   update(_time, delta) {
     if (this.disposed) return;
+
     const scene = this.scene;
-    const visible = Boolean(!scene.disposed && !scene._cleanupDone && !scene.navigating &&
-      !scene.debugMode && !scene.activeDevice && !scene.computerChild && !scene.childLoading &&
-      scene.officeBackground?.active && scene.officeBackground?.visible);
-    for (const g of this.objects) g.setVisible(visible);
+
+    const visible = Boolean(
+      !scene.bigOffice &&
+      !scene.moveIn &&
+      !scene.disposed &&
+      !scene._cleanupDone &&
+      !scene.navigating &&
+      !scene.debugMode &&
+      !scene.activeDevice &&
+      !scene.computerChild &&
+      !scene.childLoading &&
+      scene.officeBackground?.active &&
+      scene.officeBackground?.visible
+    );
+
+    for (const graphics of this.objects) {
+      graphics.setVisible(visible);
+    }
+
     if (!visible) return;
-    this.elapsed += Math.min(Math.max(Number(delta) || 0, 0), 100);
+
+    this.elapsed += Math.min(
+      Math.max(Number(delta) || 0, 0),
+      100
+    );
+
     this.layout();
     this.drawWindows();
     this.drawTV();

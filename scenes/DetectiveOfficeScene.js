@@ -1,7 +1,7 @@
 import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
-
+import { mountOfficeExpansion } from './pi-office/OfficeExpansion.js';
 import {
   OFFICE_CONFIG
 } from '../config/detectiveOfficeConfig.js';
@@ -195,7 +195,7 @@ export class DetectiveOfficeScene extends BaseScene {
     this.createPanels();
     this.bindEvents();
     this.rebuildOffice();
-
+mountOfficeExpansion(this);
     this.hideGameplayHud({ closePanels: true });
 
     if (needsOfficeMoveIn()) {
@@ -573,7 +573,7 @@ export class DetectiveOfficeScene extends BaseScene {
     this.hotspots.push(hotspot);
   }
 
-  createLayer(config, index) {
+    createLayer(config, index) {
     if (!this.textures.exists(config.key)) {
       console.warn(
         '[DetectiveOfficeScene] Layer missing:',
@@ -586,7 +586,18 @@ export class DetectiveOfficeScene extends BaseScene {
     const image = this.add
       .image(0, 0, config.key)
       .setOrigin(0)
-      .setDepth(10 + index);
+      .setDepth(10 + index)
+      .setVisible(ownsOfficeItem(config.id));
+
+    this.layers.push({
+      cfg: config,
+      image
+    });
+
+    // Decorative layers must not intercept device clicks.
+    if (config.decorative === true) {
+      return;
+    }
 
     image.setInteractive({
       useHandCursor: true,
@@ -607,9 +618,9 @@ export class DetectiveOfficeScene extends BaseScene {
       }
     });
 
-    image.on('pointerout', () =>
-      this.tooltip.setVisible(false)
-    );
+    image.on('pointerout', () => {
+      this.tooltip.setVisible(false);
+    });
 
     image.on('pointerdown', pointer => {
       if (
@@ -623,11 +634,6 @@ export class DetectiveOfficeScene extends BaseScene {
       this.tooltip.setVisible(false);
 
       void this.activateAction(config);
-    });
-
-    this.layers.push({
-      cfg: config,
-      image
     });
   }
 

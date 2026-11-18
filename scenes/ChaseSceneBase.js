@@ -34,7 +34,7 @@ import {
   audioManager
 } from '../managers/AudioManager.js';
 
-const VIEW = Object.freeze({
+export const VIEW = Object.freeze({
   width: 1920,
   height: 1080,
   centre: 960,
@@ -47,6 +47,99 @@ const clamp = Phaser.Math.Clamp;
 
 const T = id =>
   __dialogueText('scenes/ChaseScene.js', id);
+
+/* ------------------------------------------------------------------ */
+/*  Visual themes (picked from the saved seed, so a reload keeps it)   */
+/* ------------------------------------------------------------------ */
+const PALETTES = [
+  {
+    name: 'MORNING',
+    skyTop: 0x7fb4d8, skyBottom: 0xe4ecde,
+    sun: 0xfff4c4, sunX: 1480, sunY: 195,
+    far: [0x9fb0b6, 0xa7b2ad, 0x95a5ae],
+    near: [0x8f8a80, 0x9a8b78, 0x7d8584, 0x8a7e73],
+    win: 0x56707c, winOn: 0xf3e2a0, lit: 0.04,
+    ground: 0x888375, road: 0x41464b, curb: 0xc0b49c,
+    lamps: false, overlay: null
+  },
+  {
+    name: 'GOLDEN HOUR',
+    skyTop: 0xe0905a, skyBottom: 0xf8dfa8,
+    sun: 0xfff0b0, sunX: 420, sunY: 222,
+    far: [0xb58a74, 0xb59a80, 0xa88b86],
+    near: [0x8d6a58, 0x9a7a5e, 0x7d6a62, 0x8a6f55],
+    win: 0x5a4440, winOn: 0xffd98a, lit: 0.25,
+    ground: 0x8d7d68, road: 0x4a4440, curb: 0xd0b48a,
+    lamps: true, overlay: { color: 0xff9a4a, alpha: 0.07 }
+  },
+  {
+    name: 'DUSK',
+    skyTop: 0x2d2a4f, skyBottom: 0xd2806a,
+    sun: 0xffd29a, sunX: 1550, sunY: 232,
+    far: [0x5a5470, 0x625a78, 0x544e68],
+    near: [0x3e3a50, 0x4a4258, 0x38364a, 0x443d52],
+    win: 0x2a2838, winOn: 0xffd36e, lit: 0.55,
+    ground: 0x5a5663, road: 0x2d3036, curb: 0x8f8798,
+    lamps: true, overlay: { color: 0x2a2a6a, alpha: 0.12 }
+  }
+];
+
+const TAUNTS_FAR = [
+  'Is that all you\'ve got?',
+  'I do my cardio at crime scenes!',
+  'See you never, detective!',
+  'Nice coat! Does it come in fast?',
+  'Try the stairs next time!'
+];
+
+const TAUNTS_MID = [
+  'Keep up, pal!',
+  'Are those dress shoes?',
+  'This was supposed to be easy!',
+  'Walk faster. I mean, run.'
+];
+
+const TAUNTS_NEAR = [
+  'Oh no oh no oh no...',
+  'Why are you still here?!',
+  'Okay, okay, maybe I stole a thing...',
+  'My knees! My poor knees!'
+];
+
+const INTRO_TIPS = [
+  'Detective rule #1: stretch before crime.',
+  'Rule #2: the dog is never the suspect.',
+  'Rule #3: parked cars are a lifestyle choice.',
+  'Rule #4: if it has a stroller, brake.',
+  'Pro tip: cardio is just crime scenes with extra steps.'
+];
+
+const PIGEON_HITS = [
+  'crowd', 'stroller', 'dog', 'shopper', 'parkedCar', 'carDoor'
+];
+
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = list => list[Math.floor(Math.random() * list.length)];
+
+function mix(a, b, t) {
+  const ar = (a >> 16) & 255, ag = (a >> 8) & 255, ab = a & 255;
+  const br = (b >> 16) & 255, bg = (b >> 8) & 255, bb = b & 255;
+
+  return (
+    (Math.round(ar + (br - ar) * t) << 16) |
+    (Math.round(ag + (bg - ag) * t) << 8) |
+    Math.round(ab + (bb - ab) * t)
+  );
+}
+
+function seeded(seed) {
+  let s = seed >>> 0;
+
+  return () => {
+    s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
 
 export class ChaseScene extends BaseScene {
   constructor() {
@@ -77,6 +170,15 @@ export class ChaseScene extends BaseScene {
 
     this.pageHideHandler = null;
     this.visibilityHandler = null;
+
+    // visual state
+    this.palette = PALETTES[0];
+    this.parts = [];
+    this.shake = 0;
+    this.runTimer = 0;
+    this.prevJump = 0;
+    this.nextTaunt = 0;
+    this.stampKey = '';
   }
 
   create() {
@@ -157,18 +259,27 @@ export class ChaseScene extends BaseScene {
       return;
     }
 
+    this.palette = PALETTES[
+      (Number(this.record.seed) >>> 0) % PALETTES.length
+    ];
+
     this.root = this.add.container();
 
+    this.backdrop = this.add.graphics();
     this.world = this.add.graphics();
     this.actors = this.add.graphics();
     this.effects = this.add.graphics();
 
-    this.root.add([
+    this.layers = [
+      this.backdrop,
       this.world,
       this.actors,
       this.effects
-    ]);
+    ];
 
+    this.root.add(this.layers);
+
+    this.createBackdrop();
     this.createHUD();
     this.createOverlay();
     this.installControls();
@@ -225,6 +336,122 @@ export class ChaseScene extends BaseScene {
     };
   }
 
+  /* ---------------------------------------------------------------- */
+  /*  Static backdrop: sky, sun, skyline, ground (drawn once)           */
+  /* ---------------------------------------------------------------- */
+  createBackdrop() {
+    const g = this.backdrop;
+    const p = this.palette;
+    const rnd = seeded((Number(this.record.seed) >>> 0) + 11);
+    const H = VIEW.horizon;
+
+    g.clear();
+
+    // sky gradient
+    const top = -20;
+    const bands = 26;
+    const bandH = (H + 1 - top) / bands;
+
+    for (let i = 0; i < bands; i++) {
+      g.fillStyle(
+        mix(p.skyTop, p.skyBottom, i / (bands - 1)),
+        1
+      );
+
+      g.fillRect(
+        -20,
+        top + i * bandH,
+        VIEW.width + 40,
+        bandH + 1
+      );
+    }
+
+    // sun
+    g.fillStyle(p.sun, 0.16).fillCircle(p.sunX, p.sunY, 130);
+    g.fillStyle(p.sun, 0.3).fillCircle(p.sunX, p.sunY, 78);
+    g.fillStyle(p.sun, 1).fillCircle(p.sunX, p.sunY, 40);
+
+    // far skyline
+    let x = -40;
+
+    while (x < VIEW.width + 40) {
+      const w = 90 + rnd() * 70;
+      const h = 60 + rnd() * 70;
+
+      g.fillStyle(
+        p.far[Math.floor(rnd() * p.far.length)],
+        0.9
+      );
+
+      g.fillRect(x, H - h, w + 2, h);
+      x += w;
+    }
+
+    // near skyline with windows
+    x = -60;
+
+    let n = 0;
+
+    while (x < VIEW.width + 60) {
+      const w = 120 + rnd() * 70;
+      const h = 90 + rnd() * 100;
+
+      g.fillStyle(p.near[n % p.near.length], 1);
+      g.fillRect(x, H - h, w, h);
+
+      g.fillStyle(0x000000, 0.14);
+      g.fillRect(x, H - h, w, 6);
+
+      for (let wy = H - h + 16; wy < H - 14; wy += 26) {
+        for (let wx = x + 12; wx < x + w - 18; wx += 24) {
+          const lit = rnd() < p.lit;
+
+          g.fillStyle(
+            lit ? p.winOn : p.win,
+            lit ? 0.95 : 0.8
+          );
+
+          g.fillRect(wx, wy, 12, 15);
+        }
+      }
+
+      if (rnd() > 0.7) {
+        g.fillStyle(0x2d2f33, 1);
+        g.fillRect(x + w / 2 - 1, H - h - 26, 3, 26);
+      }
+
+      x += w + rnd() * 14;
+      n++;
+    }
+
+    // sidewalk, road and curbs (extended below the footer for shaking)
+    this.polygon(g, p.ground, [
+      [-20, H], [VIEW.width + 20, H],
+      [VIEW.width + 20, 1100], [-20, 1100]
+    ]);
+
+    this.polygon(g, p.road, [
+      [945, H], [975, H], [1237, 1100], [683, 1100]
+    ]);
+
+    this.polygon(g, p.curb, [
+      [940, H], [945, H], [683, 1100], [660, 1100]
+    ]);
+
+    this.polygon(g, p.curb, [
+      [975, H], [980, H], [1260, 1100], [1237, 1100]
+    ]);
+
+    // haze at the horizon
+    for (let i = 0; i < 4; i++) {
+      g.fillStyle(p.skyBottom, 0.22 - i * 0.05);
+      g.fillRect(-20, H + i * 14, VIEW.width + 40, 14);
+    }
+  }
+
+  /* ---------------------------------------------------------------- */
+  /*  HUD                                                               */
+  /* ---------------------------------------------------------------- */
   createHUD() {
     const header = this.add.rectangle(
       960, 76, 1840, 120, 0x21160f, 0.96
@@ -237,16 +464,18 @@ export class ChaseScene extends BaseScene {
       this.style(22, true)
     );
 
+    this.hudBars = this.add.graphics();
+
     this.distanceText = this.add.text(
-      90, 88, '', this.style(25)
+      380, 88, '', this.style(25)
     );
 
     this.routeText = this.add.text(
-      620, 88, '', this.style(25)
+      900, 88, '', this.style(25)
     );
 
     this.hitsText = this.add.text(
-      1260, 88, '', this.style(25)
+      1330, 88, '', this.style(25)
     );
 
     const pause = this.makeControl(
@@ -271,6 +500,7 @@ export class ChaseScene extends BaseScene {
 
     this.root.add([
       header,
+      this.hudBars,
       title,
       this.distanceText,
       this.routeText,
@@ -342,6 +572,17 @@ export class ChaseScene extends BaseScene {
       'pointerdown',
       (pointer, lx, ly, event) => {
         event?.stopPropagation();
+
+        this.tweens.killTweensOf(root);
+        root.setScale(1);
+
+        this.tweens.add({
+          targets: root,
+          scale: 0.95,
+          duration: 70,
+          yoyo: true
+        });
+
         callback();
       }
     );
@@ -371,8 +612,12 @@ export class ChaseScene extends BaseScene {
       960, 520, 1400, 650, 0x21160f
     ).setStrokeStyle(4, 0xc7ad73);
 
+    const inner = this.add.rectangle(
+      960, 520, 1372, 622
+    ).setStrokeStyle(1, 0xc7ad73, 0.45);
+
     this.overlayTitle = this.add.text(
-      960, 285, '',
+      960, 245, '',
       {
         ...this.style(28, true),
         align: 'center'
@@ -380,28 +625,41 @@ export class ChaseScene extends BaseScene {
     ).setOrigin(0.5);
 
     this.overlayText = this.add.text(
-      960, 490, '',
+      960, 482, '',
       {
-        ...this.style(27),
+        ...this.style(25),
         align: 'center',
-        lineSpacing: 12,
+        lineSpacing: 8,
         wordWrap: { width: 1240 }
       }
     ).setOrigin(0.5);
 
     this.overlayButton = this.makeControl(
-      960, 750, 1050, 85,
+      960, 765, 1050, 85,
       T('t_06f8ac726bb92e4eb9f0'),
       () => this.primary(),
       20
     );
 
+    this.overlayStamp = this.add.text(
+      1400, 250, '',
+      {
+        fontFamily: 'PressStart2P',
+        fontSize: '34px',
+        color: '#7bd88f',
+        stroke: '#10140f',
+        strokeThickness: 6
+      }
+    ).setOrigin(0.5).setAngle(-8).setVisible(false);
+
     this.overlay.add([
       shade,
       panel,
+      inner,
       this.overlayTitle,
       this.overlayText,
-      this.overlayButton
+      this.overlayButton,
+      this.overlayStamp
     ]);
 
     this.root.add(this.overlay);
@@ -511,8 +769,20 @@ export class ChaseScene extends BaseScene {
   }
 
   jump() {
-    if (this.isRunning()) {
-      startJump(this.record);
+    if (this.isRunning() && startJump(this.record)) {
+      const state = this.record.runner;
+
+      const x =
+        VIEW.centre + state.lane * VIEW.laneSpacing;
+
+      this.addDust(x, VIEW.ground - 2, 4, 1.2);
+
+      if (Math.random() < 0.3) {
+        this.popText(
+          'HUP!', x, VIEW.ground - 230,
+          '#f2e6c0', 24, 700
+        );
+      }
     }
   }
 
@@ -552,6 +822,7 @@ export class ChaseScene extends BaseScene {
     if (this.record.phase === 'intro') {
       this.record.phase = 'choice';
       this.accumulator = 0;
+      this.nextTaunt = this.time.now + 3500;
 
       this.setMessage(
         'Avoid people and dogs. Jump over water and hedges.',
@@ -594,6 +865,27 @@ export class ChaseScene extends BaseScene {
     return saved;
   }
 
+  /** Text shown on the intro card. Subclasses may extend it. */
+  introText() {
+    const length = this.record.runner?.length ?? 15;
+
+    const tip =
+      INTRO_TIPS[
+        (Number(this.record.seed) >>> 0) % INTRO_TIPS.length
+      ];
+
+    return (
+      `ROUTE: ${length} m\n\n` +
+      'LEFT / RIGHT: change position. SPACE / UP: jump.\n' +
+      'Avoid people, strollers and dogs.\n' +
+      'Jump over puddles and low hedges.\n\n' +
+      'At the end, get behind the suspect.\n' +
+      'Stay within 7 m to make the arrest.\n' +
+      'Reloading restarts the entire run.\n\n' +
+      `"${tip}"`
+    );
+  }
+
   render() {
     this.drawWorld();
     this.refreshHUD();
@@ -619,18 +911,7 @@ export class ChaseScene extends BaseScene {
       button = 'RESUME';
     } else if (r.phase === 'intro') {
       title = T('t_fb7a3ed06946f007f897');
-
-      const length = r.runner?.length ?? 15;
-
-      text =
-        `ROUTE: ${length} m\n\n` +
-        'LEFT / RIGHT: change position. SPACE / UP: jump.\n' +
-        'Avoid people, strollers and dogs.\n' +
-        'Jump over puddles and low hedges.\n\n' +
-        'At the end, get behind the suspect.\n' +
-        'Stay within 7 m to make the arrest.\n\n' +
-        'Reloading restarts the entire run.';
-
+      text = this.introText();
       button = T('t_06f8ac726bb92e4eb9f0');
     } else if (['caught', 'review'].includes(r.phase)) {
       title = T('t_ab380169a9a0e4c55cb7');
@@ -658,7 +939,45 @@ export class ChaseScene extends BaseScene {
       this.overlayButton.label.setText(button);
     }
 
+    this.updateStamp(r);
+
     this.inputLockUntil = this.time.now + 160;
+  }
+
+  updateStamp(r) {
+    let stamp = '';
+    let colour = '#7bd88f';
+
+    if (chaseFailureCode(r)) {
+      stamp = 'HE GOT AWAY!';
+      colour = '#e0583d';
+    } else if (
+      !this.manualPause &&
+      ['caught', 'review'].includes(r.phase)
+    ) {
+      stamp = 'GOTCHA!';
+    }
+
+    if (stamp === this.stampKey) return;
+
+    this.stampKey = stamp;
+
+    this.overlayStamp
+      .setText(stamp)
+      .setColor(colour)
+      .setVisible(Boolean(stamp));
+
+    if (stamp) {
+      this.tweens.killTweensOf(this.overlayStamp);
+
+      this.tweens.add({
+        targets: this.overlayStamp,
+        scale: { from: 2.4, to: 1 },
+        alpha: { from: 0, to: 1 },
+        duration: 300,
+        ease: 'Back.easeOut'
+      });
+    }
   }
 
   refreshHUD() {
@@ -690,8 +1009,293 @@ export class ChaseScene extends BaseScene {
       r.phase === 'choice' &&
       !this.manualPause
     );
+
+    this.drawBars();
   }
 
+  /** Gap meter (you vs. suspect) and route progress bar. */
+  drawBars() {
+    const g = this.hudBars;
+
+    if (!g) return;
+
+    g.clear();
+
+    const r = this.record;
+    const state = r.runner;
+    const catchDistance = RUNNER_CONFIG.catchDistance;
+
+    // gap meter
+    const gx = 380;
+    const gw = 420;
+    const gy = 33;
+    const gh = 18;
+    const max = 30;
+
+    const ratio = clamp(r.distance / max, 0, 1);
+    const catchX = gx + gw * catchDistance / max;
+
+    g.fillStyle(0x0f0a07, 1).fillRect(gx, gy, gw, gh);
+
+    g.fillStyle(0x7bd88f, 0.3)
+      .fillRect(gx, gy, gw * catchDistance / max, gh);
+
+    g.fillStyle(
+      mix(0x7bd88f, 0xe0583d, clamp(r.distance / 25, 0, 1)),
+      0.9
+    ).fillRect(gx, gy, gw * ratio, gh);
+
+    g.lineStyle(2, 0xc7ad73, 1).strokeRect(gx, gy, gw, gh);
+
+    g.lineStyle(2, 0xf2e6c0, 0.9)
+      .lineBetween(catchX, gy - 4, catchX, gy + gh + 4);
+
+    g.fillStyle(0x344e68, 1).fillCircle(gx, gy + gh / 2, 9);
+
+    g.fillStyle(0x873d35, 1)
+      .fillCircle(gx + gw * ratio, gy + gh / 2, 9);
+
+    // route bar
+    if (!state) return;
+
+    const rx = 900;
+    const rw = 600;
+    const rr = clamp(state.travelled / state.length, 0, 1);
+    const zone = clamp(
+      (state.length - RUNNER_CONFIG.finalZone) / state.length,
+      0,
+      1
+    );
+
+    g.fillStyle(0x0f0a07, 1).fillRect(rx, gy, rw, gh);
+
+    g.fillStyle(0xc7ad73, 0.9)
+      .fillRect(rx, gy, rw * rr, gh);
+
+    g.fillStyle(0xe0583d, 0.4)
+      .fillRect(rx + rw * zone, gy, rw * (1 - zone), gh);
+
+    g.lineStyle(2, 0xc7ad73, 1).strokeRect(rx, gy, rw, gh);
+
+    g.fillStyle(0x344e68, 1)
+      .fillCircle(rx + rw * rr, gy + gh / 2, 9);
+
+    // finish flag
+    g.lineStyle(3, 0xf2e6c0, 1)
+      .lineBetween(rx + rw, gy - 10, rx + rw, gy + gh);
+
+    g.fillStyle(0xe0583d, 1).fillTriangle(
+      rx + rw, gy - 10,
+      rx + rw + 18, gy - 4,
+      rx + rw, gy + 2
+    );
+  }
+
+  /* ---------------------------------------------------------------- */
+  /*  Effects: particles, pop texts, hits                               */
+  /* ---------------------------------------------------------------- */
+  popText(
+    text, x, y,
+    colour = '#ffe9a8',
+    size = 26,
+    duration = 1100
+  ) {
+    if (!this.root) return;
+
+    const label = this.add.text(
+      clamp(x, 200, 1720),
+      y,
+      text,
+      {
+        fontFamily: 'SpecialElite',
+        fontSize: `${size}px`,
+        color: colour,
+        stroke: '#1a110b',
+        strokeThickness: 6,
+        align: 'center',
+        wordWrap: { width: 520 }
+      }
+    ).setOrigin(0.5);
+
+    this.root.add(label);
+
+    this.tweens.add({
+      targets: label,
+      y: y - 70,
+      alpha: 0,
+      duration,
+      ease: 'Cubic.easeOut',
+      onComplete: () => label.destroy()
+    });
+  }
+
+  addDust(x, y, count = 1, power = 1) {
+    for (let i = 0; i < count; i++) {
+      if (this.parts.length > 180) this.parts.shift();
+
+      const life = rand(0.35, 0.75);
+
+      this.parts.push({
+        kind: 'dust',
+        x: x + rand(-20, 20),
+        y,
+        vx: rand(-60, 60) * power,
+        vy: rand(-90, -20) * power,
+        g: 40,
+        life,
+        max: life,
+        r: rand(6, 12),
+        color: this.palette.curb
+      });
+    }
+  }
+
+  addPigeons(x, y, count = 4) {
+    for (let i = 0; i < count; i++) {
+      if (this.parts.length > 180) this.parts.shift();
+
+      const life = rand(0.9, 1.4);
+
+      this.parts.push({
+        kind: 'pigeon',
+        x: x + rand(-60, 60),
+        y,
+        vx: rand(-420, 420),
+        vy: rand(-520, -260),
+        g: 0,
+        life,
+        max: life,
+        r: 0,
+        color: 0x8a9094
+      });
+    }
+  }
+
+  updateParticles(dt) {
+    for (let i = this.parts.length - 1; i >= 0; i--) {
+      const p = this.parts[i];
+
+      p.life -= dt;
+
+      if (p.life <= 0) {
+        this.parts.splice(i, 1);
+        continue;
+      }
+
+      p.vy += p.g * dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+    }
+  }
+
+  drawParticles(fx) {
+    for (const p of this.parts) {
+      const a = clamp(p.life / p.max, 0, 1);
+
+      if (p.kind === 'pigeon') {
+        const flap = Math.sin((p.max - p.life) * 28);
+
+        fx.lineStyle(4, 0x6f7478, a);
+        fx.lineBetween(p.x - 14, p.y - flap * 10, p.x, p.y);
+        fx.lineBetween(p.x + 14, p.y - flap * 10, p.x, p.y);
+
+        fx.fillStyle(p.color, a);
+        fx.fillEllipse(p.x, p.y + 2, 14, 9);
+      } else {
+        fx.fillStyle(p.color, a * 0.55);
+        fx.fillCircle(p.x, p.y, p.r * (1.3 - a * 0.3));
+      }
+    }
+  }
+
+  onHit(kind) {
+    const state = this.record.runner;
+    const definition = OBSTACLES[kind];
+    const penalty = state.lastHit?.penalty ?? 0;
+
+    const x = clamp(
+      VIEW.centre + state.lane * VIEW.laneSpacing,
+      200,
+      1720
+    );
+
+    this.hitFlash = 0.55;
+    this.shake = 0.5;
+
+    if (definition) {
+      this.setMessage(
+        `${definition.message} ` +
+        `Suspect gains ${penalty} m. You slow down.`
+      );
+    }
+
+    this.popText(
+      `+${penalty} m`,
+      x,
+      VIEW.ground - 250,
+      '#ff9b7e',
+      32
+    );
+
+    this.addDust(x, VIEW.ground - 2, 8, 1.6);
+
+    if (PIGEON_HITS.includes(kind)) {
+      this.addPigeons(x, VIEW.ground - 140, 5);
+    }
+  }
+
+  /** Dust trail, landing puffs and the suspect's commentary. */
+  stepEffects(dt) {
+    const state = this.record.runner;
+
+    if (!state) return;
+
+    const x = VIEW.centre + state.lane * VIEW.laneSpacing;
+
+    this.runTimer -= dt;
+
+    if (this.runTimer <= 0 && jumpHeight(state) <= 2) {
+      this.runTimer = state.slow > 0 ? 0.2 : 0.09;
+      this.addDust(x, VIEW.ground - 2, 1, 0.7);
+    }
+
+    if (this.prevJump > 0 && state.jump <= 0) {
+      this.addDust(x, VIEW.ground - 2, 6, 1.3);
+    }
+
+    this.prevJump = state.jump;
+
+    if (this.time.now >= this.nextTaunt) {
+      this.nextTaunt = this.time.now + rand(5000, 8000);
+
+      const distance = this.record.distance;
+
+      const list =
+        distance > 18
+          ? TAUNTS_FAR
+          : distance > RUNNER_CONFIG.catchDistance
+            ? TAUNTS_MID
+            : TAUNTS_NEAR;
+
+      const position = this.project(
+        state.thiefLane,
+        thiefProgress(this.record)
+      );
+
+      this.popText(
+        pick(list),
+        position.x,
+        position.y - 200 * position.scale - 20,
+        '#ffd0c4',
+        22,
+        1900
+      );
+    }
+  }
+
+  /* ---------------------------------------------------------------- */
+  /*  Drawing                                                           */
+  /* ---------------------------------------------------------------- */
   polygon(g, color, points, alpha = 1) {
     g.fillStyle(color, alpha);
     g.beginPath();
@@ -725,6 +1329,7 @@ export class ChaseScene extends BaseScene {
     const g = this.world;
     const a = this.actors;
     const fx = this.effects;
+    const pal = this.palette;
 
     g.clear();
     a.clear();
@@ -732,54 +1337,20 @@ export class ChaseScene extends BaseScene {
 
     const state = this.record.runner;
     const elapsed = state?.elapsed ?? 0;
+    const running = this.isRunning();
 
-    g.fillStyle(0xaab8bd);
-    g.fillRect(0, 0, 1920, 1080);
+    // screen shake + running bob
+    const mag = this.shake * 18;
+    const bob = running ? Math.sin(elapsed * 14) * 1.6 : 0;
 
-    for (let i = 0; i < 14; i++) {
-      const height = 90 + (i % 4) * 29;
-
-      g.fillStyle(
-        [0x7a817d, 0x8a8277, 0x697777][i % 3]
-      );
-
-      g.fillRect(
-        i * 150 - 55,
-        VIEW.horizon - height,
-        155,
-        height
+    for (const layer of this.layers) {
+      layer.setPosition(
+        mag ? (Math.random() - 0.5) * mag : 0,
+        (mag ? (Math.random() - 0.5) * mag : 0) + bob
       );
     }
 
-    this.polygon(g, 0x888375, [
-      [0, VIEW.horizon],
-      [1920, VIEW.horizon],
-      [1920, 950],
-      [0, 950]
-    ]);
-
-    // Droga i krawężniki; bez pasów ruchu.
-    this.polygon(g, 0x41464b, [
-      [945, VIEW.horizon],
-      [975, VIEW.horizon],
-      [1190, 950],
-      [730, 950]
-    ]);
-
-    this.polygon(g, 0xc0b49c, [
-      [940, VIEW.horizon],
-      [945, VIEW.horizon],
-      [730, 950],
-      [712, 950]
-    ]);
-
-    this.polygon(g, 0xc0b49c, [
-      [975, VIEW.horizon],
-      [980, VIEW.horizon],
-      [1208, 950],
-      [1190, 950]
-    ]);
-
+    // scrolling pavement and road texture
     const offset = (elapsed * 0.38) % 1;
 
     for (let i = 0; i < 10; i++) {
@@ -791,8 +1362,44 @@ export class ChaseScene extends BaseScene {
       const right = 975 + 215 * p * p;
 
       g.lineStyle(1 + p * 2, 0x3d3a35, 0.25);
-      g.lineBetween(0, y, left - 20, y);
-      g.lineBetween(right + 20, y, 1920, y);
+      g.lineBetween(-20, y, left - 20, y);
+      g.lineBetween(right + 20, y, 1940, y);
+
+      g.lineStyle(1 + p * 2, 0x000000, 0.09);
+      g.lineBetween(left + 4, y, right - 4, y);
+    }
+
+    // paving joints on the pavements
+    for (const k of [-12, -9, -6, -4, -2, 2, 4, 6, 9, 12]) {
+      g.lineStyle(1, 0x000000, 0.12);
+
+      g.lineBetween(
+        VIEW.centre + k * 14, VIEW.horizon,
+        VIEW.centre + k * 160, 950
+      );
+    }
+
+    // upcoming obstacle warnings (yellow: jump, red: dodge)
+    if (state && this.record.phase === 'choice') {
+      for (const row of visibleRows(this.record)) {
+        if (row.progress > 0.4) continue;
+
+        const alpha = clamp(1 - row.progress / 0.4, 0, 1);
+
+        for (const obstacle of row.obstacles) {
+          const jumpable =
+            OBSTACLES[obstacle.kind].jumpable;
+
+          this.drawWarning(
+            fx,
+            VIEW.centre + obstacle.lane * VIEW.laneSpacing * 0.35,
+            330,
+            jumpable ? 0xf2c14e : 0xe0583d,
+            alpha * 0.9,
+            jumpable
+          );
+        }
+      }
     }
 
     const items = [];
@@ -883,17 +1490,57 @@ export class ChaseScene extends BaseScene {
         );
 
         if (inFinalZone(this.record)) {
-          a.lineStyle(5, 0xe8c36d, 0.9);
+          const ready =
+            this.record.distance <=
+            RUNNER_CONFIG.catchDistance;
+
+          const ringColour = ready ? 0x7bd88f : 0xe8c36d;
+          const pulse =
+            Math.sin(this.time.now / 140) * 6 * position.scale;
+
+          a.lineStyle(5, ringColour, 0.9);
 
           a.strokeEllipse(
             position.x,
             position.y + 4,
-            125 * position.scale,
-            34 * position.scale
+            125 * position.scale + pulse,
+            34 * position.scale + pulse * 0.3
+          );
+
+          // bobbing "arrest here" arrow
+          const top =
+            position.y - 215 * position.scale - 14 * position.scale +
+            pulse;
+
+          a.fillStyle(ringColour, 0.95);
+
+          a.fillTriangle(
+            position.x, top,
+            position.x - 22 * position.scale, top - 34 * position.scale,
+            position.x + 22 * position.scale, top - 34 * position.scale
           );
         }
       } else {
         this.drawPlayer(a, state, elapsed);
+      }
+    }
+
+    // speed lines
+    if (running && state && state.slow <= 0) {
+      for (let i = 0; i < 16; i++) {
+        const angle = (i / 16) * Math.PI * 2 + 0.2;
+        const phase = (elapsed * 0.8 + i * 0.37) % 1;
+        const r0 = 380 + phase * 900;
+        const r1 = r0 + 110 + phase * 160;
+
+        fx.lineStyle(2, 0xffffff, 0.05 * (1 - phase));
+
+        fx.lineBetween(
+          VIEW.centre + Math.cos(angle) * r0,
+          520 + Math.sin(angle) * r0 * 0.55,
+          VIEW.centre + Math.cos(angle) * r1,
+          520 + Math.sin(angle) * r1 * 0.55
+        );
       }
     }
 
@@ -930,31 +1577,71 @@ export class ChaseScene extends BaseScene {
       }
     }
 
+    this.drawParticles(fx);
+
+    if (pal.overlay) {
+      fx.fillStyle(pal.overlay.color, pal.overlay.alpha);
+      fx.fillRect(-20, 136, VIEW.width + 40, 814);
+    }
+
     if (this.hitFlash > 0) {
       fx.fillStyle(
         0xaa3322,
         Math.min(0.18, this.hitFlash * 0.35)
       );
 
-      fx.fillRect(0, 220, 1920, 720);
+      fx.fillRect(-20, 220, VIEW.width + 40, 720);
+    }
+  }
+
+  drawWarning(g, x, y, colour, alpha, jumpable) {
+    g.fillStyle(0x000000, alpha * 0.35);
+
+    g.fillTriangle(
+      x + 3, y - 22 + 4,
+      x - 24 + 3, y + 20 + 4,
+      x + 24 + 3, y + 20 + 4
+    );
+
+    g.fillStyle(colour, alpha);
+
+    g.fillTriangle(
+      x, y - 22,
+      x - 24, y + 20,
+      x + 24, y + 20
+    );
+
+    g.fillStyle(0x1a110b, alpha);
+
+    if (jumpable) {
+      // chevron: jump
+      g.lineStyle(4, 0x1a110b, alpha);
+      g.lineBetween(x - 9, y + 12, x, y + 1);
+      g.lineBetween(x, y + 1, x + 9, y + 12);
+    } else {
+      // exclamation mark: dodge
+      g.fillRect(x - 2.5, y - 8, 5, 15);
+      g.fillCircle(x, y + 13, 3);
     }
   }
 
   drawScenery(g, side, progress, index) {
     const p = clamp(progress, 0, 1.15);
     const s = 0.05 + p;
+    const pal = this.palette;
 
     const x = VIEW.centre + side * 820 * p;
     const y = VIEW.horizon +
       (VIEW.ground - VIEW.horizon) * p * p;
 
-    if ((index + (side > 0 ? 1 : 0)) % 3 === 0) {
+    const kind = (index * 3 + (side > 0 ? 2 : 0)) % 5;
+
+    if (kind === 0) {
+      // townhouse
       const width = 230 * s;
       const height = (260 + index % 3 * 55) * s;
 
-      g.fillStyle(
-        [0x9a7b65, 0x7d8585, 0x9b936d][index % 3]
-      );
+      g.fillStyle(pal.near[index % pal.near.length]);
 
       g.fillRect(
         x - width / 2,
@@ -963,10 +1650,23 @@ export class ChaseScene extends BaseScene {
         height
       );
 
-      g.fillStyle(0x4c555c);
+      g.fillStyle(0x000000, 0.18);
+
+      g.fillRect(
+        x - width / 2 - 6 * s,
+        y - height - 8 * s,
+        width + 12 * s,
+        12 * s
+      );
 
       for (let row = 0; row < 3; row++) {
         for (let column = 0; column < 3; column++) {
+          const lit =
+            (index * 7 + row * 3 + column * 5 +
+              (side > 0 ? 1 : 0)) % 4 < pal.lit * 4;
+
+          g.fillStyle(lit ? pal.winOn : 0x4c555c);
+
           g.fillRect(
             x - width * 0.36 + column * width * 0.27,
             y - height + 35 * s + row * 65 * s,
@@ -984,7 +1684,82 @@ export class ChaseScene extends BaseScene {
         44 * s,
         70 * s
       );
+    } else if (kind === 3) {
+      // shop with a striped awning
+      const width = 250 * s;
+      const height = 210 * s;
+      const x0 = x - width / 2;
+
+      g.fillStyle(pal.near[(index + 1) % pal.near.length]);
+      g.fillRect(x0, y - height, width, height);
+
+      g.fillStyle(pal.lit > 0.2 ? pal.winOn : 0x2f3a40);
+
+      g.fillRect(
+        x0 + 18 * s,
+        y - 85 * s,
+        width - 36 * s,
+        62 * s
+      );
+
+      const stripe = width / 6;
+
+      for (let i = 0; i < 6; i++) {
+        this.polygon(
+          g,
+          i % 2 ? 0xf0e6cf : 0xc2503f,
+          [
+            [x0 + i * stripe, y - 125 * s],
+            [x0 + (i + 1) * stripe, y - 125 * s],
+            [x0 + (i + 1) * stripe + 4 * s, y - 95 * s],
+            [x0 + i * stripe - 4 * s, y - 95 * s]
+          ]
+        );
+      }
+
+      g.fillStyle(0xe8dcc0);
+
+      g.fillRect(
+        x - 55 * s,
+        y - height + 22 * s,
+        110 * s,
+        28 * s
+      );
+
+      g.fillStyle(0x5a3b2a);
+
+      g.fillRect(
+        x - 38 * s,
+        y - height + 30 * s,
+        76 * s,
+        6 * s
+      );
+    } else if (kind === 2) {
+      // street lamp
+      const headX = x - side * 55 * s;
+      const headY = y - 262 * s;
+
+      g.fillStyle(0x2d2f33);
+
+      g.fillRect(
+        x - 5 * s,
+        y - 260 * s,
+        10 * s,
+        260 * s
+      );
+
+      g.lineStyle(Math.max(1, 8 * s), 0x2d2f33);
+      g.lineBetween(x, y - 255 * s, headX, headY);
+
+      if (pal.lamps) {
+        g.fillStyle(0xffe9a8, 0.22);
+        g.fillCircle(headX, headY + 10 * s, 60 * s);
+      }
+
+      g.fillStyle(pal.lamps ? 0xffe9a8 : 0x55595e);
+      g.fillEllipse(headX, headY, 34 * s, 14 * s);
     } else {
+      // tree
       g.fillStyle(0x654c35);
 
       g.fillRect(
@@ -1014,6 +1789,14 @@ export class ChaseScene extends BaseScene {
         x + 43 * s,
         y - 160 * s,
         55 * s
+      );
+
+      g.fillStyle(0xffffff, 0.08);
+
+      g.fillCircle(
+        x - 20 * s,
+        y - 205 * s,
+        40 * s
       );
     }
   }
@@ -1066,8 +1849,10 @@ export class ChaseScene extends BaseScene {
       ? 12
       : Math.sin(elapsed * 15) * 22;
 
+    const flap = Math.sin(elapsed * 15 + 1) * 9 * s;
     const shoulder = foot - 112 * s;
 
+    // legs and shoes
     g.lineStyle(15 * s, 0x25282d);
 
     g.lineBetween(
@@ -1080,6 +1865,25 @@ export class ChaseScene extends BaseScene {
       x + (18 + swing) * s, foot - 5 * s
     );
 
+    g.fillStyle(0x15171a);
+
+    g.fillEllipse(
+      x - (18 + swing) * s, foot, 26 * s, 11 * s
+    );
+
+    g.fillEllipse(
+      x + (18 + swing) * s, foot - 5 * s, 26 * s, 11 * s
+    );
+
+    // coat tails
+    this.polygon(g, coat, [
+      [x - 30 * s, foot - 62 * s],
+      [x + 30 * s, foot - 62 * s],
+      [x + 38 * s + flap, foot - 30 * s],
+      [x - 38 * s + flap, foot - 32 * s]
+    ]);
+
+    // arms
     g.lineStyle(12 * s, coat);
 
     g.lineBetween(
@@ -1094,6 +1898,7 @@ export class ChaseScene extends BaseScene {
       shoulder + (32 - swing * 0.6) * s
     );
 
+    // torso
     g.fillStyle(coat);
 
     g.fillRoundedRect(
@@ -1101,25 +1906,78 @@ export class ChaseScene extends BaseScene {
       64 * s, 72 * s, 8 * s
     );
 
+    if (thief) {
+      g.fillStyle(0x1b1b1f, 0.8);
+
+      for (let i = 0; i < 4; i++) {
+        g.fillRect(
+          x - 32 * s,
+          foot - 114 * s + i * 17 * s,
+          64 * s,
+          6 * s
+        );
+      }
+    } else {
+      g.lineStyle(Math.max(1, 3 * s), 0x1f2a36);
+
+      g.lineBetween(
+        x - 32 * s, foot - 82 * s,
+        x + 32 * s, foot - 82 * s
+      );
+    }
+
+    // head
     g.fillStyle(0xc99673);
     g.fillCircle(x, foot - 147 * s, 23 * s);
 
-    g.fillStyle(thief ? 0x2a211d : 0x433322);
-
-    g.fillEllipse(
-      x, foot - 157 * s,
-      48 * s, 29 * s
-    );
-
     if (thief) {
+      // beanie, eye mask and a very suspicious bag
+      g.fillStyle(0x1f1f24);
+
+      g.fillEllipse(
+        x, foot - 162 * s,
+        50 * s, 28 * s
+      );
+
+      g.fillStyle(0x15151a);
+
+      g.fillRect(
+        x - 19 * s, foot - 153 * s,
+        38 * s, 9 * s
+      );
+
       g.fillStyle(0x38291d);
 
       g.fillRoundedRect(
         x + 23 * s, foot - 88 * s,
         34 * s, 43 * s, 4 * s
       );
+
+      g.fillStyle(0xe8c36d);
+
+      g.fillCircle(
+        x + 40 * s, foot - 66 * s, 8 * s
+      );
     } else {
+      // fedora and collar
+      g.fillStyle(0x2b2320);
+
+      g.fillEllipse(
+        x, foot - 160 * s,
+        68 * s, 14 * s
+      );
+
+      g.fillRoundedRect(
+        x - 19 * s, foot - 188 * s,
+        38 * s, 30 * s, 6 * s
+      );
+
       g.fillStyle(0xc6ab68);
+
+      g.fillRect(
+        x - 19 * s, foot - 168 * s,
+        38 * s, 6 * s
+      );
 
       g.fillRect(
         x - 11 * s, foot - 112 * s,
@@ -1144,14 +2002,32 @@ export class ChaseScene extends BaseScene {
       g.fillStyle(0x1f3949, 0.95);
       g.fillEllipse(x, y, 230 * s, 55 * s);
 
+      g.fillStyle(0x6fa0b4, 0.45);
+      g.fillEllipse(x - 20 * s, y - 6 * s, 120 * s, 18 * s);
+
       g.lineStyle(Math.max(1, 3 * s), 0x90bdc8, 0.9);
       g.strokeEllipse(x, y - 3 * s, 180 * s, 31 * s);
+
+      // rubber duck, because why not
+      if (obstacle.lane === 1) {
+        g.fillStyle(0xf2cf3d);
+        g.fillCircle(x + 40 * s, y - 10 * s, 11 * s);
+        g.fillCircle(x + 50 * s, y - 20 * s, 7 * s);
+
+        g.fillStyle(0xe6812a);
+
+        g.fillTriangle(
+          x + 56 * s, y - 20 * s,
+          x + 66 * s, y - 17 * s,
+          x + 56 * s, y - 15 * s
+        );
+      }
 
       return;
     }
 
     if (kind === 'hedge') {
-      g.fillStyle(0x456b3a);
+      g.fillStyle(0x365a2d);
 
       g.fillRoundedRect(
         x - 100 * s,
@@ -1168,6 +2044,40 @@ export class ChaseScene extends BaseScene {
           x - 80 * s + i * 32 * s,
           y - 55 * s,
           25 * s
+        );
+      }
+
+      g.fillStyle(0x7fae66, 0.6);
+
+      for (let i = 0; i < 5; i++) {
+        g.fillCircle(
+          x - 65 * s + i * 32 * s,
+          y - 62 * s,
+          9 * s
+        );
+      }
+
+      // tiny sign: keep off the grass
+      if (obstacle.lane === -1) {
+        g.lineStyle(Math.max(1, 4 * s), 0x5a3b2a);
+
+        g.lineBetween(
+          x + 70 * s, y - 20 * s,
+          x + 70 * s, y - 95 * s
+        );
+
+        g.fillStyle(0xf0e6cf);
+
+        g.fillRect(
+          x + 50 * s, y - 112 * s,
+          42 * s, 26 * s
+        );
+
+        g.lineStyle(Math.max(1, 2 * s), 0xa8442f);
+
+        g.lineBetween(
+          x + 55 * s, y - 107 * s,
+          x + 87 * s, y - 91 * s
         );
       }
 
@@ -1209,9 +2119,27 @@ export class ChaseScene extends BaseScene {
         x + 27 * s, y
       );
 
+      // wagging tail
+      const wag = Math.sin(this.time.now / 90) * 12;
+
       g.lineBetween(
         x - 45 * s, y - 45 * s,
-        x - 72 * s, y - 77 * s
+        x - (72 + wag * 0.4) * s, (y - 77 * s) + wag * s
+      );
+
+      // collar and tongue
+      g.fillStyle(0xc94f43);
+
+      g.fillRect(
+        x + 28 * s, y - 52 * s,
+        14 * s, 7 * s
+      );
+
+      g.fillStyle(0xe58a95);
+
+      g.fillEllipse(
+        x + 62 * s, y - 52 * s,
+        10 * s, 15 * s
       );
 
       g.fillStyle(0x252321);
@@ -1362,10 +2290,12 @@ export class ChaseScene extends BaseScene {
       return;
     }
 
-    this.hitFlash = Math.max(
-      0,
-      this.hitFlash - delta / 1000
-    );
+    const dt = delta / 1000;
+
+    this.hitFlash = Math.max(0, this.hitFlash - dt);
+    this.shake = Math.max(0, this.shake - dt * 1.8);
+
+    this.updateParticles(dt);
 
     if (!this.isRunning()) {
       this.accumulator = 0;
@@ -1374,10 +2304,7 @@ export class ChaseScene extends BaseScene {
       return;
     }
 
-    this.accumulator += Math.min(
-      delta / 1000,
-      0.1
-    );
+    this.accumulator += Math.min(dt, 0.1);
 
     while (
       this.accumulator >= RUNNER_CONFIG.fixedStep &&
@@ -1391,17 +2318,7 @@ export class ChaseScene extends BaseScene {
       this.accumulator -= RUNNER_CONFIG.fixedStep;
 
       if (hit) {
-        this.hitFlash = 0.55;
-
-        const definition = OBSTACLES[hit];
-        const penalty =
-          this.record.runner.lastHit?.penalty ?? 0;
-
-        this.setMessage(
-          `${definition.message} ` +
-          `Suspect gains ${penalty} m. You slow down.`
-        );
-
+        this.onHit(hit);
         this.save();
       }
 
@@ -1417,6 +2334,10 @@ export class ChaseScene extends BaseScene {
           4000
         );
       }
+    }
+
+    if (this.record.phase === 'choice') {
+      this.stepEffects(dt);
     }
 
     this.saveElapsed += delta;

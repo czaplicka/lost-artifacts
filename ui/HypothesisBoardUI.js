@@ -25,34 +25,22 @@ export class HypothesisBoardUI {
     this.slotLabels = Array.isArray(slotLabels) ? slotLabels : [];
 
     this.buildSlotSentence =
-      typeof buildSlotSentence === 'function'
-        ? buildSlotSentence
-        : null;
+      typeof buildSlotSentence === 'function' ? buildSlotSentence : null;
 
     this.onCardTap =
-      typeof onCardTap === 'function'
-        ? onCardTap
-        : null;
+      typeof onCardTap === 'function' ? onCardTap : null;
 
     this.onSlotTap =
-      typeof onSlotTap === 'function'
-        ? onSlotTap
-        : null;
+      typeof onSlotTap === 'function' ? onSlotTap : null;
 
     this.onSlotRemove =
-      typeof onSlotRemove === 'function'
-        ? onSlotRemove
-        : null;
+      typeof onSlotRemove === 'function' ? onSlotRemove : null;
 
     this.onConfirm =
-      typeof onConfirm === 'function'
-        ? onConfirm
-        : null;
+      typeof onConfirm === 'function' ? onConfirm : null;
 
     this.onClose =
-      typeof onClose === 'function'
-        ? onClose
-        : null;
+      typeof onClose === 'function' ? onClose : null;
 
     this.overlay = null;
     this.panel = null;
@@ -98,7 +86,9 @@ export class HypothesisBoardUI {
 
   _tween(config) {
     const s = this.scene;
+
     if (!s?.tweens || this.isDestroyed) return null;
+
     return typeof s.createTrackedTween === 'function'
       ? s.createTrackedTween(config)
       : s.tweens.add(config);
@@ -106,7 +96,9 @@ export class HypothesisBoardUI {
 
   _kill(target) {
     if (!target) return;
+
     const s = this.scene;
+
     if (typeof s?.killTrackedTweensOf === 'function') {
       s.killTrackedTweensOf(target);
     } else {
@@ -117,10 +109,11 @@ export class HypothesisBoardUI {
   _sfx(key, volume = 0.5) {
     try {
       audioManager.playSfx(key, {
+        gain: volume,
         volume: audioManager.getSfxVolume() * volume
       });
     } catch (e) {
-      // dźwięk nigdy nie powinien wywalać UI
+      // Audio must not interrupt the UI.
     }
   }
 
@@ -135,23 +128,16 @@ export class HypothesisBoardUI {
   }
 
   create() {
-    if (this.isDestroyed) {
-      return;
-    }
+    if (this.isDestroyed) return;
 
     const { width, height } = this.scene.scale;
 
-    /*
-     * Blokuje kliknięcia w scenę pod spodem.
-     * Wszystkie elementy minigry mają większy depth.
-     */
     this.overlay = this.scene.add
       .rectangle(0, 0, width, height, 0x000000, 0.86)
       .setOrigin(0)
       .setDepth(3000)
       .setInteractive();
 
-    // Korkowa tablica śledczego (rysowana w drawBoard)
     this.panel = this.scene.add
       .graphics()
       .setDepth(3001);
@@ -169,9 +155,7 @@ export class HypothesisBoardUI {
       .setDepth(3010);
 
     this.subtitleText = this.scene.add
-      .text(
-        width / 2,
-        0,
+      .text(width / 2, 0,
         __dialogueText("ui/HypothesisBoardUI.js", "t_684c4e0af21b025c6df1"),
         {
           fontFamily: FONT_TEXT,
@@ -197,22 +181,17 @@ export class HypothesisBoardUI {
       .setOrigin(0.5)
       .setDepth(3010);
 
-    // Lupki: jedna na każdą pozostałą próbę
     this.attemptsIcons = this.scene.add
       .graphics()
       .setDepth(3010);
 
-    this._maxAttempts = Math.max(
-      this.state?.attemptsLeft ?? 0,
-      1
-    );
+    this._maxAttempts = Math.max(this.state?.attemptsLeft ?? 0, 1);
 
     this.createQuestionSlots();
     this.createEvidenceCards();
     this.createButtons();
     this.createDeductionControls();
 
-    // Sznurki nad kartkami i slotami
     this.stringGfx = this.scene.add
       .graphics()
       .setDepth(3014);
@@ -236,22 +215,15 @@ export class HypothesisBoardUI {
       .setDepth(3010);
 
     this.resizeHandler = () => {
-      if (this.isDestroyed) {
-        return;
-      }
+      if (this.isDestroyed) return;
 
       this.applyLayout();
       this.refresh();
     };
 
-    this.scene.scale.on(
-      'resize',
-      this.resizeHandler,
-      this
-    );
+    this.scene.scale.on('resize', this.resizeHandler, this);
 
     this._bindKeys();
-
     this.applyLayout();
     this.refresh();
     this._playIntro();
@@ -259,6 +231,7 @@ export class HypothesisBoardUI {
 
   _bindKeys() {
     const kb = this.scene.input?.keyboard;
+
     if (!kb || this._keysBound) return;
 
     kb.on('keydown-ESC', this._onEsc);
@@ -270,15 +243,14 @@ export class HypothesisBoardUI {
     if (!this._keysBound) return;
 
     const kb = this.scene.input?.keyboard;
+
     kb?.off('keydown-ESC', this._onEsc);
     kb?.off('keydown-ENTER', this._onEnter);
     this._keysBound = false;
   }
 
   destroy() {
-    if (this.isDestroyed) {
-      return;
-    }
+    if (this.isDestroyed) return;
 
     this.destroyDeductionControls();
     this.isDestroyed = true;
@@ -286,11 +258,7 @@ export class HypothesisBoardUI {
     this._unbindKeys();
 
     if (this.resizeHandler) {
-      this.scene.scale.off(
-        'resize',
-        this.resizeHandler,
-        this
-      );
+      this.scene.scale.off('resize', this.resizeHandler, this);
     }
 
     Object.values(this._stringHolders).forEach(h => this._kill(h));
@@ -311,7 +279,6 @@ export class HypothesisBoardUI {
 
     this.cardViews.forEach(view => {
       this._kill(view.container);
-
       view.box?.removeAllListeners?.();
       view.container?.destroy?.(true);
     });

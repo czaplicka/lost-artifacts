@@ -1,3 +1,4 @@
+import { notebookContact } from './NotebookContactActions.js';
 import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import {
   ComputerSearch as ComputerSearchCore
@@ -94,7 +95,7 @@ export class ComputerSearch extends ComputerSearchCore {
     return {
       ...definition,
       keywords: definition.keywords.filter(
-        keyword => !isPhoneSearchKeyword(keyword)
+        keyword => !isPhoneSearchKeyword(keyword) && notebookContact(keyword)?.kind !== 'email'
       )
     };
   }
@@ -110,7 +111,7 @@ export class ComputerSearch extends ComputerSearchCore {
 
     const hidden = new Set(
       (definition?.keywords || [])
-        .filter(isPhoneSearchKeyword)
+        .filter(keyword => isPhoneSearchKeyword(keyword) || notebookContact(keyword)?.kind === 'email')
         .map(keyword => keyword.id)
     );
 

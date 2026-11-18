@@ -14,7 +14,11 @@ export const PI_OFFICE_IMAGES = [
   ['notepad', `${ROOT}notepad.webp`],
   ['painting', `${ROOT}painting.webp`],
   ['printer', `${ROOT}printer.webp`],
-  ['pi__office__tv', `${ROOT}tv.webp`]
+  ['pi__office__tv', `${ROOT}tv.webp`],
+    [
+    'pi_office_computer_phone_foreground',
+    `${ROOT}computer-phone.webp`
+  ],
 ];
 
 export const PI_OFFICE_LAYERS = [
@@ -89,6 +93,11 @@ export const PI_OFFICE_LAYERS = [
     key: 'notepad',
     label: __dialogueText("config/piOfficeUpgradeConfig.js", "t_54c2a0df2066284a217f"),
     action: 'notebook'
+  },
+    {
+    id: 'office_case_files',
+    key: 'pi_office_computer_phone_foreground',
+    decorative: true
   }
 ];
 

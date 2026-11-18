@@ -1,5 +1,6 @@
 import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
+import { LiveDialogUI } from '../ui/LiveDialogUI.js';
 import { gameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
 import { audioManager } from '../managers/AudioManager.js';
@@ -27,13 +28,13 @@ export class ArchiveScene extends BaseScene {
       if (this.canInteract()) this.refreshArchive();
     };
   }
-
   init(data = {}) {
     this.gameState = data.gameState ?? gameState;
     this.background = null;
     this._archiveDisposed = false;
     this._archiveRunToken = Symbol('archive-run');
     this._conversationOpen = false;
+    this.archiveDialog = null;
     this._puzzleOpen = false;
     this._refreshing = false;
     this._uiSetupPromise = null;
@@ -42,12 +43,8 @@ export class ArchiveScene extends BaseScene {
     this.isLeaving = false;
     this.frankPresent = false;
   }
-
   preload() {
-    if (!this.textures.exists('back')) {
-      this.load.image('back', 'assets/buttons/back.webp');
-    }
-
+    if (!this.textures.exists('back')) this.load.image('back', 'assets/buttons/back.webp');
     const manifest = this.cache.json.get('assetManifest');
     for (const key of ['archive', 'archivist']) {
       if (this.textures.exists(key)) continue;
@@ -55,7 +52,6 @@ export class ArchiveScene extends BaseScene {
       if (entry?.url) this.load.image(key, entry.url);
     }
   }
-
   create() {
     super.create();
     audioManager.init(this);
@@ -63,15 +59,11 @@ export class ArchiveScene extends BaseScene {
     this.registry.set('currentCityId', 'hq');
     this.registry.set('gameState', this.gameState);
     this.cameras.main.setBackgroundColor('#17110e');
-    this.createFrankHotspot();
-    this.createInterface();
-    this.refreshArchive();
+    this.createFrankHotspot(); this.createInterface(); this.refreshArchive();
     this.onBus('inventory:request-drag-target', this._onDragTarget);
     this.onBus('inventory:item-dropped', this._onItemDrop);
     this.onBus('inventoryUpdated', this._onInventoryUpdated);
-    this.onBus('archive:indexPuzzleCompleted', () => {
-      if (this._puzzleOpen) saveGameState();
-    });
+    this.onBus('archive:indexPuzzleCompleted', () => { if (this._puzzleOpen) saveGameState(); });
     this.scale.on('resize', this.handleResize, this);
     this.events.on(Phaser.Scenes.Events.WAKE, this.onWakeOrResume, this);
     this.events.on(Phaser.Scenes.Events.RESUME, this.onWakeOrResume, this);
@@ -79,16 +71,11 @@ export class ArchiveScene extends BaseScene {
     this.events.once(Phaser.Scenes.Events.DESTROY, this.cleanupArchive, this);
     void this.setupArchiveUiLayers();
   }
-
-  isArchiveActive() {
-    return !this._archiveDisposed && !this.isLeaving && this.sys.isActive();
-  }
-
+  isArchiveActive() { return !this._archiveDisposed && !this.isLeaving && this.sys.isActive(); }
   canInteract() {
     return this.isArchiveActive() && !this._conversationOpen && !this._puzzleOpen &&
       !this.getPlayerHudScene()?.isAnyPanelOpen?.();
   }
-
   refreshArchive() {
     if (this._archiveDisposed || this._refreshing) return;
     this._refreshing = true;
@@ -106,57 +93,45 @@ export class ArchiveScene extends BaseScene {
       this.frankHotspot.input.enabled = this.frankPresent;
       this.frankLabel.setVisible(false);
       const next = canRequestNextMission(this.gameState);
-      this.nextMissionButton.setVisible(next);
-      this.nextMissionButton.input.enabled = next;
+      this.nextMissionButton.setVisible(next); this.nextMissionButton.input.enabled = next;
       const available = this.frankPresent && isReportSubmitted(this.gameState) &&
         MainStoryManager.hasFlag(OFFER) && !MainStoryManager.hasFlag(DONE);
-      this.puzzleButton.setVisible(available);
-      this.puzzleButton.input.enabled = available;
+      this.puzzleButton.setVisible(available); this.puzzleButton.input.enabled = available;
       this.layoutArchive();
       if (report.status === 'full') this.showStatus(dialogue.inventoryFullMessage);
       if (!this.frankPresent) this.showStatus(dialogue.absentMessage);
     } finally { this._refreshing = false; }
   }
-
   createFrankHotspot() {
     this.frankHighlight = this.add.graphics().setDepth(20);
     this.frankHotspot = this.add.zone(0, 0, HOTSPOT.width, HOTSPOT.height)
-      .setOrigin(0).setDepth(21).setName('hotspot-archivist-drebin')
-      .setInteractive({ useHandCursor: true });
+      .setOrigin(0).setDepth(21).setName('hotspot-archivist-drebin').setInteractive({ useHandCursor: true });
     this.frankLabel = this.add.text(0, 0, dialogue.speaker, {
       fontFamily: 'SpecialElite', fontSize: '20px', color: '#ffe29a',
       backgroundColor: '#17110e', padding: { x: 10, y: 6 }
-    }).setOrigin(0.5, 1).setDepth(22).setVisible(false);
+    }).setOrigin(.5, 1).setDepth(22).setVisible(false);
     this.frankHotspot.on('pointerover', () => {
       if (!this.canInteract()) return;
-      this.frankLabel.setVisible(true);
-      this.drawFrankHighlight(true);
+      this.frankLabel.setVisible(true); this.drawFrankHighlight(true);
     });
-    this.frankHotspot.on('pointerout', () => {
-      this.frankLabel.setVisible(false);
-      this.drawFrankHighlight();
-    });
+    this.frankHotspot.on('pointerout', () => { this.frankLabel.setVisible(false); this.drawFrankHighlight(); });
     this.frankHotspot.on('pointerdown', () => this.interactWithFrank());
   }
-
   getFrankHotspotBounds() {
     return { x: this.scale.width / 2 - HOTSPOT.width / 2 + HOTSPOT.offsetX,
       y: this.scale.height / 2 - HOTSPOT.height / 2 + HOTSPOT.offsetY,
       width: HOTSPOT.width, height: HOTSPOT.height };
   }
-
   drawFrankHighlight(hovered = false) {
     this.frankHighlight?.clear();
     if (!this.frankPresent) return;
     const b = this.getFrankHotspotBounds();
-    this.frankHighlight.fillStyle(0xffd54a, hovered ? 0.24 : 0.12);
+    this.frankHighlight.fillStyle(0xffd54a, hovered ? .24 : .12);
     this.frankHighlight.fillRect(b.x, b.y, b.width, b.height);
     this.frankHighlight.lineStyle(hovered ? 4 : 3, 0xffd54a, 1);
     this.frankHighlight.strokeRect(b.x, b.y, b.width, b.height);
   }
-
   pickLine(lines) { return Array.isArray(lines) && lines.length ? Phaser.Utils.Array.GetRandom(lines) : ''; }
-
   interactWithFrank() {
     if (!this.canInteract() || !isArchivistPresent(this.gameState)) return;
     audioManager.playSfx('click_sound');
@@ -166,20 +141,16 @@ export class ArchiveScene extends BaseScene {
     if (!isReportSubmitted(this.gameState)) return this.showStatus(this.pickLine(dialogue.clickReplies));
     if (MainStoryManager.hasFlag(DONE) && !MainStoryManager.hasFlag(DISCUSSED)) {
       this.openConversation(dialogue.duplicateConversation, () => {
-        MainStoryManager.setFlag(DISCUSSED, true);
-        saveGameState();
+        MainStoryManager.setFlag(DISCUSSED, true); saveGameState();
         this.showStatus(dialogue.duplicateDiscussedMessage);
       });
     } else if (!MainStoryManager.hasFlag(DONE)) {
       this.openConversation(dialogue.indexPuzzleOffer, () => {
-        MainStoryManager.setFlag(OFFER, true);
-        saveGameState();
-        this.refreshArchive();
+        MainStoryManager.setFlag(OFFER, true); saveGameState(); this.refreshArchive();
         this.showStatus(dialogue.indexPuzzleAvailableMessage);
       });
     } else this.openConversation(dialogue.afterReportConversation);
   }
-
   async openIndexPuzzle() {
     if (!this.canInteract() || !this.frankPresent || !isReportSubmitted(this.gameState) ||
         !MainStoryManager.hasFlag(OFFER) || MainStoryManager.hasFlag(DONE)) return;
@@ -190,25 +161,19 @@ export class ArchiveScene extends BaseScene {
       if (this._archiveDisposed || token !== this._archiveRunToken) return;
       this.getPlayerHudScene()?.closeAllUIPanels?.();
       this._pausedLayers = ['PlayerHudScene', 'UIScene', 'NewsHud'].filter(key => this.isSceneActive(key));
-      this._pausedLayers.forEach(key => {
-        this.scene.setVisible(false, key);
-        this.scene.pause(key);
-      });
+      this._pausedLayers.forEach(key => { this.scene.setVisible(false, key); this.scene.pause(key); });
       const opened = await this.launchOverlay(PUZZLE, {
         returnSceneKey: 'ArchiveScene', resumeReturnScene: true,
         onFinished: () => this.finishIndexVisit(token)
       });
       if (!opened) throw new Error('Puzzle could not be loaded.');
       if (this._archiveDisposed || token !== this._archiveRunToken) return;
-      this.scene.bringToTop(PUZZLE);
-      this.scene.pause();
+      this.scene.bringToTop(PUZZLE); this.scene.pause();
     } catch (error) {
       console.error('[ArchiveScene] Puzzle launch failed:', error);
-      this.finishIndexVisit(token);
-      this.showStatus(dialogue.puzzleLoadError);
+      this.finishIndexVisit(token); this.showStatus(dialogue.puzzleLoadError);
     }
   }
-
   restorePausedLayers() {
     for (const key of this._pausedLayers) {
       if (!this.hasScene(key)) continue;
@@ -217,25 +182,16 @@ export class ArchiveScene extends BaseScene {
     }
     this._pausedLayers = [];
   }
-
   finishIndexVisit(token) {
     if (this._archiveDisposed || token !== this._archiveRunToken) return;
-    this._puzzleOpen = false;
-    this.restorePausedLayers();
-    saveGameState();
-    this.refreshArchive();
+    this._puzzleOpen = false; this.restorePausedLayers(); saveGameState(); this.refreshArchive();
     void this.setupArchiveUiLayers();
-    if (MainStoryManager.hasFlag(DONE) && !MainStoryManager.hasFlag(DISCUSSED)) {
-      this.showStatus(dialogue.askAboutDuplicateMessage);
-    }
+    if (MainStoryManager.hasFlag(DONE) && !MainStoryManager.hasFlag(DISCUSSED)) this.showStatus(dialogue.askAboutDuplicateMessage);
   }
-
   registerDragTarget(request) {
     if (!this.canInteract() || request.targetSceneKey) return;
-    request.targetSceneKey = 'ArchiveScene';
-    request.targetToken = this._archiveRunToken;
+    request.targetSceneKey = 'ArchiveScene'; request.targetToken = this._archiveRunToken;
   }
-
   handleItemDrop(drop) {
     if (drop.accepted || drop.targetSceneKey !== 'ArchiveScene' ||
         drop.targetToken !== this._archiveRunToken || !this.canInteract()) return;
@@ -249,7 +205,6 @@ export class ArchiveScene extends BaseScene {
     if (item.id !== REPORT_ITEM_ID) return this.showStatus(this.pickLine(dialogue.wrongItemReplies));
     this.startReportConversation(item);
   }
-
   startReportConversation(item) {
     if (!this.canInteract() || !isArchivistPresent(this.gameState)) return;
     if (isReportSubmitted(this.gameState)) return this.showStatus(this.pickLine(dialogue.alreadySubmittedReplies));
@@ -262,18 +217,20 @@ export class ArchiveScene extends BaseScene {
       this.showStatus(result.saved ? dialogue.submittedMessage : dialogue.saveWarning);
     });
   }
-
   openConversation(entry, onClose = null) {
     if (!this.canInteract()) return false;
-    const dialog = this.getPlayerHudScene()?.dialogManager?.dialogUI;
-    if (!dialog || dialog.destroyed || dialog.isOpen || !Array.isArray(entry?.lines)) {
+    const hud = this.getPlayerHudScene();
+    if (!Array.isArray(entry?.lines)) return false;
+    if (!this.archiveDialog || this.archiveDialog.destroyed) {
+      this.archiveDialog = new LiveDialogUI(hud || this);
+    }
+    const dialog = this.archiveDialog;
+    if (dialog.isOpen) {
       this.showStatus(__dialogueText("scenes/ArchiveScene.js", "t_8ed1eb49297a6392d200"));
       return false;
     }
     const token = this._archiveRunToken;
-    this._conversationOpen = true;
-    this.statusText?.setVisible(false);
-    this.frankLabel?.setVisible(false);
+    this._conversationOpen = true; this.statusText?.setVisible(false); this.frankLabel?.setVisible(false);
     try {
       dialog.open({ speaker: dialogue.speaker, portraitKey: dialogue.portraitKey, lines: [...entry.lines] }, {
         onClose: () => {
@@ -290,7 +247,6 @@ export class ArchiveScene extends BaseScene {
       return false;
     }
   }
-
   createInterface() {
     const style = { fontFamily: 'SpecialElite', fontSize: '22px', color: '#f2d477',
       backgroundColor: '#17110e', padding: { x: 14, y: 10 } };
@@ -301,78 +257,47 @@ export class ArchiveScene extends BaseScene {
       object.on('pointerout', () => object.setColor('#f2d477'));
       return object;
     };
-    
-    this.backButton = this.add
-      .image(0, 0, 'back')
-      .setOrigin(0, 1)
-      .setDepth(100)
-      .setInteractive({ useHandCursor: true });
-
-    this.backButton.on('pointerdown', () => {
-      void this.returnToOffice();
-    });
-
-    this.backButton.on('pointerover', () => {
-      this.backButton?.setTint(0xffe4a3);
-    });
-
-    this.backButton.on('pointerout', () => {
-      this.backButton?.clearTint();
-    });
-
+    this.backButton = this.add.image(0, 0, 'back').setOrigin(0, 1).setDepth(100).setInteractive({ useHandCursor: true });
+    this.backButton.on('pointerdown', () => { void this.returnToOffice(); });
+    this.backButton.on('pointerover', () => { this.backButton?.setTint(0xffe4a3); });
+    this.backButton.on('pointerout', () => { this.backButton?.clearTint(); });
     this.nextMissionButton = button(__dialogueText("scenes/ArchiveScene.js", "t_a93851375c3a3646296a"), () => { void this.openNextMission(); }).setOrigin(1, 1).setVisible(false);
-    this.puzzleButton = button(__dialogueText("scenes/ArchiveScene.js", "t_d3f3c4809a994fc829a5"), () => { void this.openIndexPuzzle(); }).setOrigin(0.5, 1).setVisible(false);
-    this.statusText = this.add.text(0, 0, '', { ...style, align: 'center' }).setOrigin(0.5, 0).setDepth(110).setVisible(false);
+    this.puzzleButton = button(__dialogueText("scenes/ArchiveScene.js", "t_d3f3c4809a994fc829a5"), () => { void this.openIndexPuzzle(); }).setOrigin(.5, 1).setVisible(false);
+    this.statusText = this.add.text(0, 0, '', { ...style, align: 'center' }).setOrigin(.5, 0).setDepth(110).setVisible(false);
   }
-
   layoutArchive() {
     if (this._archiveDisposed) return;
     const { width, height } = this.scale;
     this.background?.setDisplaySize(width, height);
     const b = this.getFrankHotspotBounds();
-    this.frankHotspot?.setPosition(b.x, b.y);
-    this.frankLabel?.setPosition(b.x + b.width / 2, b.y - 10);
+    this.frankHotspot?.setPosition(b.x, b.y); this.frankLabel?.setPosition(b.x + b.width / 2, b.y - 10);
     const font = width < 600 ? '14px' : '22px';
-    
     if (this.backButton) {
-      const buttonWidth = Math.min(
-        width < 600 ? 120 : 160,
-        width * 0.3
-      );
-
-      this.backButton
-        .setScale(buttonWidth / this.backButton.width)
-        .setPosition(16, height - 24);
+      const buttonWidth = Math.min(width < 600 ? 120 : 160, width * .3);
+      this.backButton.setScale(buttonWidth / this.backButton.width).setPosition(16, height - 24);
     }
-
     this.nextMissionButton?.setFontSize(font).setPosition(width - 16, height - (width < 400 ? 82 : 24));
     this.puzzleButton?.setFontSize(font).setPosition(width / 2, height - (width < 400 ? 138 : 90));
     this.statusText?.setPosition(width / 2, 100).setWordWrapWidth(Math.max(120, Math.min(width - 48, 760)), true);
     this.drawFrankHighlight();
   }
-
   showStatus(message) {
     if (!message || this._archiveDisposed) return;
-    this._statusTimer?.remove(false);
-    this.statusText.setText(message).setVisible(true);
+    this._statusTimer?.remove(false); this.statusText.setText(message).setVisible(true);
     this._statusTimer = this.time.delayedCall(6500, () => {
       this._statusTimer = null;
       if (!this._archiveDisposed) this.statusText?.setVisible(false);
     });
   }
-
   returnToOffice() { return this.leaveArchive('OfficeScene', { gameState: this.gameState }); }
   openNextMission() {
     if (!canRequestNextMission(this.gameState)) return Promise.resolve(false);
     return this.leaveArchive('AgainScene', { afterReport: true });
   }
-
   async leaveArchive(key, data) {
     if (!this.canInteract()) return false;
     const token = this._archiveRunToken;
-    this.isLeaving = true;
-    audioManager.playSfx('click_sound');
-    saveGameState();
+    this.isLeaving = true; audioManager.playSfx('click_sound'); saveGameState();
     try {
       const result = await this.goto(key, data);
       if (!this._archiveDisposed && token === this._archiveRunToken && this.sys.isActive()) {
@@ -382,11 +307,9 @@ export class ArchiveScene extends BaseScene {
       return result !== false;
     } catch (error) {
       if (!this._archiveDisposed && token === this._archiveRunToken) this.isLeaving = false;
-      console.error('[ArchiveScene] Navigation failed:', error);
-      return false;
+      console.error('[ArchiveScene] Navigation failed:', error); return false;
     }
   }
-
   setupArchiveUiLayers() {
     if (this._archiveDisposed || this._puzzleOpen) return Promise.resolve(false);
     if (this._uiSetupPromise) return this._uiSetupPromise;
@@ -394,49 +317,33 @@ export class ArchiveScene extends BaseScene {
     const current = () => !this._archiveDisposed && !this._puzzleOpen && token === this._archiveRunToken && this.sys.isActive();
     const request = (async () => {
       try {
-        await this.ensureOverlayScene('UIScene');
-        if (!current()) return false;
-        const hud = await this.restorePlayerHud();
-        if (!current()) return false;
-        hud?.closeAllUIPanels?.();
-        hud?.setCurrentGameplayScene?.('ArchiveScene');
-        const news = await this.ensureOverlayScene('NewsHud');
-        if (!current()) return false;
-        news?.events?.emit('setNewspaperVisible', false);
-        news?.events?.emit('setTvVisible', false);
+        await this.ensureOverlayScene('UIScene'); if (!current()) return false;
+        const hud = await this.restorePlayerHud(); if (!current()) return false;
+        hud?.closeAllUIPanels?.(); hud?.setCurrentGameplayScene?.('ArchiveScene');
+        const news = await this.ensureOverlayScene('NewsHud'); if (!current()) return false;
+        news?.events?.emit('setNewspaperVisible', false); news?.events?.emit('setTvVisible', false);
         return true;
-      } catch (error) {
-        console.error('[ArchiveScene] HUD setup failed:', error);
-        return false;
-      }
+      } catch (error) { console.error('[ArchiveScene] HUD setup failed:', error); return false; }
     })();
     this._uiSetupPromise = request;
     void request.finally(() => { if (this._uiSetupPromise === request) this._uiSetupPromise = null; });
     return request;
   }
-
   handleResize() { this.layoutArchive(); }
   onWakeOrResume() {
     if (this._archiveDisposed) return;
-    this.isLeaving = false;
-    this.refreshArchive();
+    this.isLeaving = false; this.refreshArchive();
     if (!this._puzzleOpen) void this.setupArchiveUiLayers();
   }
-
   cleanupArchive() {
     if (this._archiveDisposed) return;
-    this._archiveDisposed = true;
-    this._archiveRunToken = null;
-    this._conversationOpen = false;
-    this._statusTimer?.remove(false);
-    this._statusTimer = null;
-    this.restorePausedLayers();
-    this._uiSetupPromise = null;
+    this._archiveDisposed = true; this._archiveRunToken = null; this._conversationOpen = false;
+    this._statusTimer?.remove(false); this._statusTimer = null;
+    this.archiveDialog?.destroy(); this.archiveDialog = null;
+    this.restorePausedLayers(); this._uiSetupPromise = null;
     EventBus.clearScope(this);
     this.scale.off('resize', this.handleResize, this);
-    for (const event of [Phaser.Scenes.Events.WAKE, Phaser.Scenes.Events.RESUME]) {
-      this.events.off(event, this.onWakeOrResume, this);
-    }
+    for (const event of [Phaser.Scenes.Events.WAKE, Phaser.Scenes.Events.RESUME]) this.events.off(event, this.onWakeOrResume, this);
     this.events.off(Phaser.Scenes.Events.SHUTDOWN, this.cleanupArchive, this);
     this.events.off(Phaser.Scenes.Events.DESTROY, this.cleanupArchive, this);
     for (const object of [this.frankHotspot, this.backButton, this.nextMissionButton, this.puzzleButton]) object?.removeAllListeners();

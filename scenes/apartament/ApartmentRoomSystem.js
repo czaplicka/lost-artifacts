@@ -1,544 +1,236 @@
-import { dialogueText as __dialogueText } from '../../dialogues/DialogueText.js';
-import { gameState } from '../../GameData.js';
-import { markApartmentVisited } from '../../managers/ApartmentVisitRegistry.js';
-
 import {
-  FALLBACK_APARTMENT_PACK_ID,
-  getApartmentRoomPack,
-  drawApartmentRoomPack
-} from './ApartmentRoomPacks.js';
+  ApartmentRoomSystem as ApartmentRoomSystemBase
+} from './ApartmentRoomSystemBase.js';
 
-import {
-  getApartmentRoomLayout,
-  configureApartmentHotspots
-} from './ApartmentRoomLayouts.js';
+import { prepareFamilyApartmentPuzzle } from './FamilyApartmentPuzzle.js';
+import { LUXURY_LISTING } from './ApartmentRoomPacks.js';
 
-import {
-  ApartmentHotspotDebug,
-  apartmentLocalDebugAllowed
-} from './ApartmentHotspotDebug.js';
+const LISTING_SEEN_KEY = 'luxuryListingSeenV1';
 
-import { ApartmentHintUI } from './ApartmentHintUI.js';
-import { DebtApartmentPuzzle } from './DebtApartmentPuzzle.js';
+function wantsLocalLuxury() {
+  if (typeof window === 'undefined') return false;
 
-// Change to false to restore random apartment selection.
-const FORCE_DEBT_APARTMENT = true;
+  const { hostname, search } = window.location;
+  return ['localhost', '127.0.0.1', '[::1]'].includes(hostname) &&
+    new URLSearchParams(search).get('apartment') === 'luxury';
+}
 
-export class ApartmentRoomSystem {
+export class ApartmentRoomSystem extends ApartmentRoomSystemBase {
   constructor(scene) {
-    this.scene = scene;
-    markApartmentVisited(gameState);
+    super(scene);
+    this.listingRoot = null;
 
-    this.destroyed = false;
-    this.background = null;
-    this.navigation = null;
-    this.navigationBackground = null;
-    this.navigationLabel = null;
-    this.roomLabel = null;
-    this.debugger = null;
-    this.hintUI = null;
-    this.newsSnapshot = null;
-    this.layoutConfig = null;
-    this.renderedPackId = null;
-    this.usingFallback = false;
-    this.puzzle = null;
-    this.mountTimer = null;
+    if (wantsLocalLuxury()) {
+      this.localPackOverride = 'luxury';
+      this.packId = 'luxury';
+      this.roomId = 'living_room';
+    }
 
-    this.selectionKey = JSON.stringify([
-      scene.caseKey || scene.missionId,
-      scene.suspectId,
-      scene.mission?.artifactKey ||
-        scene.missionArtifact?.artifactKey ||
-        '',
-      gameState.currentCaseId ?? null,
-      gameState.investigationStartTime ?? null
-    ]);
-
-    const saved = scene.getProgress()
-      .roomPackSelections?.[this.selectionKey];
-
-    this.packId = FORCE_DEBT_APARTMENT
-      ? 'debt'
-      : (
-          typeof saved?.packId === 'string'
-            ? saved.packId
-            : drawApartmentRoomPack().id
-        );
-
-    const pack = getApartmentRoomPack(this.packId);
-    const firstRoomId = Object.keys(pack?.rooms || {})[0] || 'living_room';
-
-    this.roomId = saved?.packId === this.packId &&
-      typeof saved?.roomId === 'string'
-      ? saved.roomId
-      : firstRoomId;
-
-    this.handleResize = () => this.layout();
-
-    this.handleTick = () => {
-      if (this.destroyed || !this.scene.sys.isActive()) return;
-
-      this.hideNewsHud();
-      this.debugger?.update();
-    };
-
-    this.persistSelection();
+    this.closeListingOnResize = () => this.closeListing();
   }
 
   persistSelection() {
-    if (this.destroyed) return;
-
-    this.scene.updateProgress({
-      roomPackSelections: {
-        ...(this.scene.getProgress().roomPackSelections || {}),
-        [this.selectionKey]: {
-          packId: this.packId,
-          roomId: this.roomId
-        }
-      }
-    });
+    if (!wantsLocalLuxury()) super.persistSelection();
   }
 
   preload() {
-    const queued = new Set();
+    super.preload();
 
-    for (const pack of [
-      getApartmentRoomPack(FALLBACK_APARTMENT_PACK_ID),
-      getApartmentRoomPack(this.packId)
-    ]) {
-      for (const room of Object.values(pack?.rooms || {})) {
-        if (
-          !room.path ||
-          queued.has(room.key) ||
-          this.scene.textures.exists(room.key)
-        ) {
-          continue;
-        }
-
-        this.scene.load.image(room.key, room.path);
-        queued.add(room.key);
-      }
+    if (
+      this.packId === 'luxury' &&
+      !this.scene.textures.exists(LUXURY_LISTING.key)
+    ) {
+      this.scene.load.image(LUXURY_LISTING.key, LUXURY_LISTING.path);
     }
-  }
-
-  isComplete(pack) {
-    return Boolean(
-      pack?.layoutId &&
-      getApartmentRoomLayout(pack.layoutId) &&
-      Object.keys(pack.rooms || {}).length &&
-      Object.values(pack.rooms).every(
-        room => room.key && this.scene.textures.exists(room.key)
-      )
-    );
-  }
-
-  resolveVisualPack() {
-    const selected = getApartmentRoomPack(this.packId);
-    const fallback = getApartmentRoomPack(FALLBACK_APARTMENT_PACK_ID);
-    const visual = this.isComplete(selected) ? selected : fallback;
-
-    this.renderedPackId = visual?.id || null;
-    this.usingFallback = this.renderedPackId !== this.packId;
-
-    return visual;
   }
 
   create() {
-    const scene = this.scene;
-    const pack = this.resolveVisualPack();
+    super.create();
 
-    this.visualPack = pack;
-    this.roomIds = Object.keys(pack?.rooms || {});
-    this.layoutConfig = getApartmentRoomLayout(pack?.layoutId);
+    const objects = this.scene.apartmentConfig.objects;
 
-    if (!this.layoutConfig) {
-      throw new Error(`Missing apartment layout for ${pack?.id}`);
+    if (this.renderedPackId === 'family') {
+      prepareFamilyApartmentPuzzle(objects);
+      return;
     }
 
-    if (!this.roomIds.includes(this.roomId)) {
-      this.roomId = this.roomIds[0];
+    if (this.renderedPackId !== 'luxury') return;
+
+    if (!this.scene.textures.exists(LUXURY_LISTING.key)) {
+      console.warn(
+        '[LuxuryApartment] Listing image missing. Evidence stays in its original location:',
+        LUXURY_LISTING.path
+      );
+      return;
     }
 
-    for (const slot of this.layoutConfig.slots) {
-      if (!this.roomIds.includes(slot.roomId)) {
-        throw new Error(`Unknown room in apartment slot: ${slot.id}`);
+    const sculpture = objects.find(
+      entry => entry.layoutSlotId === 'luxury_sculpture'
+    );
+
+    if (!sculpture) return;
+
+    const leads = new Map();
+
+    for (const object of objects) {
+      for (const item of object.unlocks || []) {
+        if (item?.id && item.isEscapeClue === true) {
+          leads.set(item.id, item);
+        }
       }
     }
 
-    this.loadLocalGeometry();
+    if (!leads.size) return;
 
-    scene.apartmentConfig.objects = configureApartmentHotspots(
-      scene.apartmentConfig.objects,
-      this.layoutConfig
+    for (const object of objects) {
+      object.unlocks = (object.unlocks || []).filter(
+        item => !leads.has(item?.id)
+      );
+    }
+
+    sculpture.unlocks = [...leads.values()];
+    sculpture.afterSearchText = 'You already took the document from under the sculpture.';
+
+    this.scene.scale.on('resize', this.closeListingOnResize);
+
+    // ApartmentObject instances are created after the room system.
+    this.luxuryMountTimer = this.scene.time.delayedCall(0, () => {
+      this.luxuryMountTimer = null;
+      if (this.destroyed || !this.scene.sys.isActive()) return;
+      this.mountLuxuryPuzzle();
+    });
+  }
+
+  mountLuxuryPuzzle() {
+    const objects = this.scene.apartmentObjects || [];
+    const catalogue = objects.find(
+      object => object.config.layoutSlotId === 'luxury_catalogue'
+    );
+    const sculpture = objects.find(
+      object => object.config.layoutSlotId === 'luxury_sculpture'
     );
 
-    if (this.renderedPackId === 'debt') {
-      this.puzzle = new DebtApartmentPuzzle(this);
-      this.puzzle.prepare(scene.apartmentConfig.objects);
-    }
+    if (catalogue) {
+      catalogue.onInteract = () => {
+        if (!catalogue.isAvailable()) return;
 
-    this.persistSelection();
-
-    this.roomLabel = scene.add.text(
-      scene.scale.width / 2, 116, '',
-      {
-        fontFamily: 'SpecialElite',
-        fontSize: '18px',
-        color: '#fff3d6',
-        backgroundColor: '#000000aa',
-        padding: { x: 9, y: 5 }
-      }
-    ).setOrigin(0.5, 0).setDepth(120);
-
-    this.navigation = scene.add.container(0, 0).setDepth(150);
-
-    this.navigationBackground = scene.add.rectangle(
-      0, 0, 230, 48, 0x493d30
-    )
-      .setStrokeStyle(2, 0xd4af37)
-      .setInteractive({ useHandCursor: true });
-
-    this.navigationLabel = scene.add.text(0, 0, '', {
-      fontFamily: 'SpecialElite',
-      fontSize: '19px',
-      color: '#fff3d6'
-    }).setOrigin(0.5);
-
-    this.navigation.add([
-      this.navigationBackground,
-      this.navigationLabel
-    ]);
-
-    this.navigationBackground.on('pointerover', () => {
-      this.navigationBackground.setFillStyle(0x65533e);
-    });
-
-    this.navigationBackground.on('pointerout', () => {
-      this.navigationBackground.setFillStyle(0x493d30);
-    });
-
-    this.navigationBackground.on('pointerdown', () => {
-      if (
-        scene.isTransitioning ||
-        scene.leaveDialog ||
-        scene.getPlayerHudScene()?.isAnyPanelOpen()
-      ) {
-        return;
-      }
-
-      this.showRoom(this.nextRoomId());
-    });
-
-    scene.scale.on('resize', this.handleResize);
-    scene.events.on('preupdate', this.handleTick);
-
-    this.debugger = new ApartmentHotspotDebug(this);
-
-    this.hideNewsHud();
-    this.render();
-
-    // The scene creates ApartmentObject instances after createBackground().
-    this.mountTimer = scene.time.delayedCall(0, () => {
-      this.mountTimer = null;
-
-      if (this.destroyed || !scene.sys.isActive()) return;
-
-      this.puzzle?.mount();
-      this.applyObjectVisibility();
-    });
-
-    // Hidden-object hints remain available in other apartment types.
-    if (!this.puzzle) {
-      this.hintUI = new ApartmentHintUI(scene);
-      this.hintUI.create();
-    }
-  }
-
-  nextRoomId() {
-    return this.roomIds[
-      (this.roomIds.indexOf(this.roomId) + 1) % this.roomIds.length
-    ];
-  }
-
-  navigationGoesLeft() {
-    const current = this.roomIds.indexOf(this.roomId);
-    const next = this.roomIds.indexOf(this.nextRoomId());
-
-    return current >= 0 && next >= 0 && next < current;
-  }
-
-  showRoom(id) {
-    if (
-      this.destroyed ||
-      !this.roomIds.includes(id) ||
-      this.scene.isTransitioning ||
-      this.scene.leaveDialog ||
-      this.scene.getPlayerHudScene()?.isAnyPanelOpen()
-    ) {
-      return false;
-    }
-
-    this.hintUI?.clearHintMarker();
-    this.roomId = id;
-    this.persistSelection();
-    this.scene.showDescription('');
-    this.render();
-
-    return true;
-  }
-
-  render() {
-    if (this.destroyed) return;
-
-    const room = this.visualPack.rooms[this.roomId];
-    const { width, height } = this.scene.scale;
-
-    this.background?.destroy();
-
-    if (room?.key && this.scene.textures.exists(room.key)) {
-      this.background = this.scene.add.image(
-        width / 2, height / 2, room.key
-      ).setDisplaySize(width, height).setDepth(0);
-    } else {
-      console.error('[ApartmentRoomSystem] Missing background:', room?.key);
-
-      this.background = this.scene.add.rectangle(
-        width / 2, height / 2, width, height, 0x2c2c2c
-      ).setDepth(0);
-    }
-
-    this.roomLabel.setText(
-      room.label || this.roomId.replaceAll(__dialogueText("scenes/apartament/ApartmentRoomSystem.js", "t_d2e2adf7177b7a8afddb"), __dialogueText("scenes/apartament/ApartmentRoomSystem.js", "t_36a9e7f1c95b82ffb997"))
-    );
-
-    const nextId = this.nextRoomId();
-    const next = this.visualPack.rooms[nextId];
-    const label = next?.label || nextId;
-
-    this.navigationLabel.setText(
-      this.navigationGoesLeft()
-        ? `${__dialogueText(
-            'scenes/apartament/ApartmentRoomSystem.js',
-            't_be6e0938681083fa4b6c'
-          )}${label}`
-        : `${label}${__dialogueText(
-            'scenes/apartament/ApartmentRoomSystem.js',
-            't_31db8c407f903ec137b8'
-          )}`
-    );
-
-    this.navigation.setVisible(this.roomIds.length > 1);
-    this.applyObjectVisibility();
-    this.layout();
-  }
-
-  slotFor(object) {
-    return this.layoutConfig.slots.find(
-      slot => slot.id === object.config?.layoutSlotId
-    );
-  }
-
-  applyGeometry() {
-    if (!this.layoutConfig) return;
-
-    const sx = this.scene.scale.width / this.layoutConfig.width;
-    const sy = this.scene.scale.height / this.layoutConfig.height;
-
-    for (const object of this.scene.apartmentObjects || []) {
-      const slot = this.slotFor(object);
-      if (!slot) continue;
-
-      const x = slot.x * sx;
-      const y = slot.y * sy;
-      const w = slot.w * sx;
-      const h = slot.h * sy;
-
-      object.config.position = { x, y };
-      object.config.size = { w, h };
-
-      object.container?.setPosition(x, y).setDepth(5);
-      object.background?.setPosition(0, 0).setSize(w, h);
-      object.background?.input?.hitArea?.setTo(0, 0, w, h);
-    }
-  }
-
-  applyObjectVisibility() {
-    this.applyGeometry();
-
-    for (const object of this.scene.apartmentObjects || []) {
-      const visible = object.config?.roomId === this.roomId;
-
-      object.container?.setVisible(visible);
-
-      if (object.background?.input) {
-        object.background.input.enabled = visible;
-      }
-    }
-
-    this.debugger?.attach();
-    this.debugger?.draw();
-  }
-
-  layout() {
-    if (this.destroyed) return;
-
-    const { width, height } = this.scene.scale;
-
-    if (this.background?.type === __dialogueText("scenes/apartament/ApartmentRoomSystem.js", "t_1aa4cb0bcca76e92e306")) {
-      this.background
-        .setPosition(width / 2, height / 2)
-        .setDisplaySize(width, height);
-    } else {
-      this.background
-        ?.setPosition(width / 2, height / 2)
-        .setSize(width, height);
-    }
-
-    this.roomLabel?.setPosition(width / 2, 116);
-
-    if (this.navigation) {
-      const buttonWidth = Math.min(230, Math.max(40, width - 24));
-      const left = 12 + buttonWidth / 2;
-      const right = width - 12 - buttonWidth / 2;
-
-      this.navigation
-        .setScale(buttonWidth / 230)
-        .setPosition(
-          this.navigationGoesLeft() ? left : right,
-          Math.max(180, height - 112)
+        catalogue.renderMenu(
+          'Property Catalogue',
+          '“A space of timeless elegance.” Listed three weeks ago.',
+          [['VIEW LISTING PHOTO', () => {
+            catalogue.closeMenu();
+            this.openListing();
+          }, { primary: true }]]
         );
-    }
-
-    this.applyGeometry();
-    this.debugger?.draw();
-  }
-
-  geometryStorageKey() {
-    return 'lost-artifacts:apartment-layout:v1:' + this.renderedPackId;
-  }
-
-  loadLocalGeometry() {
-    if (!apartmentLocalDebugAllowed) return;
-
-    try {
-      const saved = JSON.parse(
-        window.localStorage.getItem(this.geometryStorageKey()) || 'null'
-      );
-
-      if (
-        !saved ||
-        saved.width !== this.layoutConfig.width ||
-        saved.height !== this.layoutConfig.height
-      ) {
-        return;
-      }
-
-      for (const slot of this.layoutConfig.slots) {
-        const value = saved.slots?.find(entry => entry.id === slot.id);
-
-        if (
-          !value ||
-          !['x', 'y', 'w', 'h'].every(
-            key => Number.isFinite(value[key])
-          ) ||
-          value.w < 10 ||
-          value.h < 10
-        ) {
-          continue;
-        }
-
-        for (const key of ['x', 'y', 'w', 'h']) {
-          slot[key] = value[key];
-        }
-      }
-    } catch (error) {
-      console.warn(
-        '[ApartmentRoomSystem] Local layout unavailable:',
-        error
-      );
-    }
-  }
-
-  saveLocalGeometry() {
-    if (!apartmentLocalDebugAllowed) return;
-
-    try {
-      const { width, height, slots } = this.layoutConfig;
-
-      window.localStorage.setItem(
-        this.geometryStorageKey(),
-        JSON.stringify({
-          width,
-          height,
-          slots: slots.map(({ id, x, y, w, h }) => ({
-            id, x, y, w, h
-          }))
-        })
-      );
-    } catch (error) {
-      console.warn(
-        '[ApartmentRoomSystem] Could not save local geometry:',
-        error
-      );
-    }
-  }
-
-  hideNewsHud() {
-    const news = this.scene.scene.manager.keys.NewsHud;
-    if (!news?.sys?.isActive()) return;
-
-    if (!this.newsSnapshot || this.newsSnapshot.scene !== news) {
-      this.newsSnapshot = {
-        scene: news,
-        visible: news.sys.settings.visible,
-        inputEnabled: news.input.enabled
       };
     }
 
-    news.closeMenu?.(true);
-    news.scene.setVisible(false);
-    news.input.enabled = false;
+    if (sculpture) {
+      const originalReveal = sculpture.reveal.bind(sculpture);
+
+      sculpture.reveal = () => {
+        if (
+          catalogue &&
+          !this.scene.getProgress()[LISTING_SEEN_KEY]
+        ) {
+          sculpture.openActions(
+            'It looks like ordinary decor. That property catalogue might show how the room was arranged before.'
+          );
+          return;
+        }
+
+        originalReveal();
+      };
+    }
   }
 
-  restoreNewsHud() {
-    const saved = this.newsSnapshot;
+  openListing() {
+    const scene = this.scene;
 
-    if (saved?.scene?.sys?.isActive()) {
-      saved.scene.scene.setVisible(saved.visible);
-      saved.scene.input.enabled = saved.inputEnabled;
+    if (
+      this.destroyed ||
+      !scene.sys.isActive() ||
+      scene.leaveDialog ||
+      scene.isTransitioning ||
+      !scene.textures.exists(LUXURY_LISTING.key)
+    ) {
+      return;
     }
 
-    this.newsSnapshot = null;
+    const hud = scene.getPlayerHudScene();
+    const host = hud?.sys?.isActive() && hud.isHudReady ? hud : scene;
+
+    if (host === hud) {
+      hud.closeAllUIPanels();
+      hud.scene.setVisible(true);
+      hud.scene.bringToTop();
+    }
+
+    const { width, height } = host.scale;
+    const scale = Math.min((width - 20) / 900, (height - 20) / 620, 1);
+
+    const root = host.add.container(width / 2, height / 2)
+      .setDepth(45000)
+      .setScrollFactor(0);
+
+    this.listingRoot = root;
+    scene.leaveDialog = root;
+
+    const backdrop = host.add.rectangle(0, 0, width, height, 0x000000, 0.85)
+      .setInteractive();
+
+    backdrop.on('pointerdown', () => this.closeListing());
+
+    const panel = host.add.container(0, 0).setScale(scale);
+    const frame = host.add.rectangle(0, 0, 900, 620, 0x241e19)
+      .setStrokeStyle(2, 0xbca06a)
+      .setInteractive();
+
+    const title = host.add.text(0, -280, 'PROPERTY LISTING PHOTO', {
+      fontFamily: 'SpecialElite',
+      fontSize: '26px',
+      color: '#ffd788'
+    }).setOrigin(0.5);
+
+    const photo = host.add.image(0, -12, LUXURY_LISTING.key);
+    photo.setScale(Math.min(840 / photo.width, 470 / photo.height));
+
+    const close = host.add.rectangle(0, 265, 240, 46, 0x59452e)
+      .setStrokeStyle(2, 0xd4af37)
+      .setInteractive({ useHandCursor: true });
+
+    const caption = host.add.text(0, 265, 'BACK TO THE ROOM', {
+      fontFamily: 'SpecialElite',
+      fontSize: '18px',
+      color: '#fff0cc'
+    }).setOrigin(0.5);
+
+    close.on('pointerdown', () => this.closeListing());
+
+    panel.add([frame, title, photo, close, caption]);
+    root.add([backdrop, panel]);
+
+    scene.updateProgress({ [LISTING_SEEN_KEY]: true });
+  }
+
+  closeListing() {
+    const root = this.listingRoot;
+    if (!root) return;
+
+    this.listingRoot = null;
+
+    if (this.scene.leaveDialog === root) {
+      this.scene.leaveDialog = null;
+    }
+
+    root.destroy(true);
   }
 
   destroy() {
-    if (this.destroyed) return;
-
-    this.destroyed = true;
-
-    this.mountTimer?.remove(false);
-    this.mountTimer = null;
-
-    this.puzzle?.destroy();
-    this.puzzle = null;
-
-    this.hintUI?.destroy();
-    this.hintUI = null;
-
-    this.scene.scale.off('resize', this.handleResize);
-    this.scene.events.off('preupdate', this.handleTick);
-
-    this.debugger?.destroy();
-    this.restoreNewsHud();
-
-    this.background?.destroy();
-    this.navigation?.destroy(true);
-    this.roomLabel?.destroy();
-
-    this.background = null;
-    this.navigation = null;
-    this.roomLabel = null;
-    this.navigationBackground = null;
-    this.navigationLabel = null;
+    this.luxuryMountTimer?.remove(false);
+    this.luxuryMountTimer = null;
+    this.closeListing();
+    this.scene.scale.off('resize', this.closeListingOnResize);
+    super.destroy();
   }
 }

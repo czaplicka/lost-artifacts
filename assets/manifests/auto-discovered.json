@@ -313,14 +313,6 @@
       ]
     },
     {
-      "key": "chase_runner_sheet",
-      "url": "assets/chase/chase_runner_sheet.png",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
       "key": "claire_sutton_avatar",
       "url": "assets/side_quests/Reed/web/FaceSpace/claire_sutton_avatar.webp",
       "type": "image",
@@ -2834,38 +2826,6 @@
       ]
     },
     {
-      "key": "bankier_c",
-      "url": "assets/npc/bankier_c.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "bankier_d",
-      "url": "assets/npc/bankier_d.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "bankier_o",
-      "url": "assets/npc/bankier_o.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "bum_o",
-      "url": "assets/npc/bum_o.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
       "key": "alibi_club_contact",
       "url": "assets/side_quests/Alibi/web/alibi_club_contact.webp",
       "type": "image",
@@ -3298,118 +3258,6 @@
       ]
     },
     {
-      "key": "bum_c",
-      "url": "assets/npc/bum_c.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "bum_d",
-      "url": "assets/npc/bum_d.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "fence_c",
-      "url": "assets/npc/fence_c.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "fence_d",
-      "url": "assets/npc/fence_d.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "fence_o",
-      "url": "assets/npc/fence_o.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "knajpa_c",
-      "url": "assets/npc/knajpa_c.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "knajpa_d",
-      "url": "assets/npc/knajpa_d.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "knajpa_o",
-      "url": "assets/npc/knajpa_o.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "maid_c",
-      "url": "assets/npc/maid_c.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "maid_d",
-      "url": "assets/npc/maid_d.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "maid_o",
-      "url": "assets/npc/maid_o.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "parkingowy_c",
-      "url": "assets/npc/parkingowy_c.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "parkingowy_d",
-      "url": "assets/npc/parkingowy_d.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "parkingowy_o",
-      "url": "assets/npc/parkingowy_o.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
       "key": "side_quests__Mom__s__Not__Proud__background",
       "url": "assets/side_quests/Mom’s Not Proud/background.webp",
       "type": "image",
@@ -3552,6 +3400,254 @@
       "type": "audio",
       "groups": [
         "audio"
+      ]
+    },
+    {
+      "key": "rain-and-thunder",
+      "url": "assets/audio/rain-and-thunder.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "librery",
+      "url": "assets/map_locations/librery.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "museum",
+      "url": "assets/map_locations/museum.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "altar",
+      "url": "assets/pi/church/altar.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "ambo",
+      "url": "assets/pi/church/ambo.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "auction-people",
+      "url": "assets/pi/church/auction-people.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "auction",
+      "url": "assets/pi/church/auction.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "candles",
+      "url": "assets/pi/church/candles.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "donation-box",
+      "url": "assets/pi/church/donation-box.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "glass",
+      "url": "assets/pi/church/glass.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "hymn-board",
+      "url": "assets/pi/church/hymn-board.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "lamps",
+      "url": "assets/pi/church/lamps.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "left-glass",
+      "url": "assets/pi/church/left-glass.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "office-empty",
+      "url": "assets/pi/church/office-empty.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "office",
+      "url": "assets/pi/church/office.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "organs",
+      "url": "assets/pi/church/organs.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "peagon",
+      "url": "assets/pi/church/peagon.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "pews",
+      "url": "assets/pi/church/pews.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "pipes",
+      "url": "assets/pi/church/pipes.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "priest",
+      "url": "assets/pi/church/priest.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "right_glass",
+      "url": "assets/pi/church/right_glass.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "rug",
+      "url": "assets/pi/church/rug.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "debt_cabinet_body",
+      "url": "assets/apartments/cabinet/debt_cabinet_body.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "debt_cabinet_fixed",
+      "url": "assets/apartments/cabinet/debt_cabinet_fixed.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "debt_crowbar_in_place",
+      "url": "assets/apartments/cabinet/debt_crowbar_in_place.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "debt_crowbar",
+      "url": "assets/apartments/cabinet/debt_crowbar.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "debt_puzzle_background",
+      "url": "assets/apartments/cabinet/debt_puzzle_background.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "debt_rubber_wedge",
+      "url": "assets/apartments/cabinet/debt_rubber_wedge.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "debt_tool_drawer_background",
+      "url": "assets/apartments/cabinet/debt_tool_drawer_background.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "debt_wedge_in_place",
+      "url": "assets/apartments/cabinet/debt_wedge_in_place.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "apartments__cabinet__paper",
+      "url": "assets/apartments/cabinet/paper.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
       ]
     }
   ]
