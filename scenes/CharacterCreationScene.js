@@ -3,9 +3,10 @@ import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../gameStatePersistence.js';
 import { audioManager } from '../managers/AudioManager.js';
+import { avatarManager } from '../managers/AvatarManager.js';
 import { EventBus } from '../EventBus.js';
 import { createDefaultPlayerData,createRandomIdentity,getProfile,STAT_IDS } from '../ui/characterCreation/CharacterCreationData.js';
-import { getAppearanceSummary } from '../ui/characterCreation/AppearanceControls.js';
+import { getAppearanceSummary,randomAppearance } from '../ui/characterCreation/AppearanceControls.js';
 import { renderCharacterCreationTemplate } from '../ui/characterCreation/CharacterCreationTemplate.js';
 import { preloadMenuActionAudio,playMenuActionAudio } from './archive/MenuActionAudio.js';
 const STEP_COUNT=5,INITIAL_STAT_POINTS=2,MAX_NAME_LENGTH=28;
@@ -31,6 +32,7 @@ export class CharacterCreationScene extends BaseScene {
    this.load.json(key,entry.url);
   }
   preloadMenuActionAudio(this);
+  avatarManager.queueAssets(this);
  }
  create(){
   super.create();audioManager.init(this);EventBus.emit('hideHUD');this.cameras.main.setBackgroundColor('#17120e');
@@ -166,14 +168,17 @@ export class CharacterCreationScene extends BaseScene {
  }
  randomizeIdentity(){
   if(this._isInputBlocked())return;const identity=createRandomIdentity();
-  this.playerData.name=identity.name;this.playerData.alias=identity.alias;this.playerData.appearance={...identity.appearance};
+  this.playerData.name=identity.name;this.playerData.alias=identity.alias;
+  // Only looks whose layer art actually exists (identity.appearance may point at planned art).
+  this.playerData.appearance=randomAppearance();
   this._invalidatePreparedCharacter();this.clearError();this.refresh();
  }
+ // Draws the layered sketch portrait into the licence card.
  updateAvatarPreview(){
-  const avatar=this.getRoot()?.querySelector('[data-avatar-preview]');if(!avatar)return;
-  for(const[category,value]of Object.entries(this.playerData.appearance)){
-   const dataKey=category.replace(/[A-Z]/g,letter=>`-${letter.toLowerCase()}`);avatar.setAttribute(`data-${dataKey}`,value);
-  }
+  const root=this.getRoot();if(!root)return;
+  const canvas=root.querySelector('[data-avatar-canvas]');if(!canvas)return;
+  const drawn=avatarManager.drawToCanvas(canvas,this.playerData.appearance,{height:512,background:null});
+  root.querySelector('[data-avatar-preview]')?.classList.toggle('is-developing',!drawn);
  }
  updateIdentityPreview(){
   const root=this.getRoot();if(!root)return;
@@ -202,10 +207,12 @@ export class CharacterCreationScene extends BaseScene {
     await setupNewGame(suspects,missions,locations,this.playerData.difficulty);
     if(this._runToken!==token||this._cleanupDone)return;
     const profile=getProfile(this.playerData.profile),appearance={...this.playerData.appearance};
+    // Only appearance IDS are saved; the portrait is re-composed from layers on demand
+    // (avatarManager.addPortrait / drawToCanvas).
     gameState.updateState({
      playerName:this.playerData.name.trim(),agentName:this.playerData.name.trim(),playerAlias:this.playerData.alias.trim(),
      detectiveProfile:this.playerData.profile,profileBonus:profile?.bonus??null,detectiveStats:{...this.playerData.stats},
-     appearance,appearanceSummary:getAppearanceSummary(appearance),difficulty:this.playerData.difficulty
+     appearance,appearanceSummary:getAppearanceSummary(appearance),avatarVersion:1,difficulty:this.playerData.difficulty
     });
     this._preparedCharacter=characterSignature;
     const saved=saveGameState();

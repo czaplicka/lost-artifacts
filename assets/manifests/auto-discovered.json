@@ -3649,6 +3649,222 @@
       "groups": [
         "backgrounds"
       ]
+    },
+    {
+      "key": "apartment_collector_kitchen",
+      "url": "assets/apartments/apartment_collector_kitchen.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "apartment_collector_living_room",
+      "url": "assets/apartments/apartment_collector_living_room.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "apartment_family_bathroom",
+      "url": "assets/apartments/apartment_family_bathroom.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "apartment_family_bedroom",
+      "url": "assets/apartments/apartment_family_bedroom.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "apartment_family_kitchen",
+      "url": "assets/apartments/apartment_family_kitchen.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "apartment_family_living_room",
+      "url": "assets/apartments/apartment_family_living_room.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "apartment_luxury_bathroom",
+      "url": "assets/apartments/apartment_luxury_bathroom.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "apartment_luxury_bedroom",
+      "url": "assets/apartments/apartment_luxury_bedroom.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "apartment_luxury_kitchen",
+      "url": "assets/apartments/apartment_luxury_kitchen.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "apartment_luxury_listing",
+      "url": "assets/apartments/apartment_luxury_listing.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "apartment_luxury_living_room",
+      "url": "assets/apartments/apartment_luxury_living_room.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "apartment_research_bathroom",
+      "url": "assets/apartments/apartment_research_bathroom.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "apartment_research_bedroom",
+      "url": "assets/apartments/apartment_research_bedroom.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "museum",
+      "url": "assets/data/dialogue/museum.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "museum_a",
+      "url": "assets/local/museum_a.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "museum_b",
+      "url": "assets/local/museum_b.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "museum_h",
+      "url": "assets/local/museum_h.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "museum_o",
+      "url": "assets/local/museum_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "museum_w",
+      "url": "assets/local/museum_w.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "computer-phone",
+      "url": "assets/pi/office/computer-phone.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "braid",
+      "url": "assets/ui/braid.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "koki",
+      "url": "assets/ui/koki.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "menly",
+      "url": "assets/ui/menly.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "red-glasses",
+      "url": "assets/ui/red-glasses.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "scar-mouth",
+      "url": "assets/ui/scar-mouth.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "scar-right",
+      "url": "assets/ui/scar-right.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "sketch_her",
+      "url": "assets/ui/sketch_her.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
     }
   ]
 }

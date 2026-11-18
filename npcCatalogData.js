@@ -3,6 +3,13 @@ import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 export const NPC_CATALOG = {
   "version": 1,
   "npcs": {
+    "museum_attendant": {
+      "id": "museum_attendant",
+      "role": "Museum Attendant",
+      "displayName": "Museum Attendant",
+      "dialogueId": "museum_attendant",
+      "portraits": {}
+    },
   "librarian": {
   "id": "librarian",
   "role": "Librarian",

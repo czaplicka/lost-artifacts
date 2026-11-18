@@ -1,523 +1,312 @@
-import { dialogueText } from '../../dialogues/DialogueText.js';
-import { gameState } from '../../GameData.js';
-import { markApartmentVisited } from '../../managers/ApartmentVisitRegistry.js';
-
 import {
-  FALLBACK_APARTMENT_PACK_ID,
-  getApartmentRoomPack,
-  drawApartmentRoomPack
-} from './ApartmentRoomPacks.js';
+  ApartmentRoomSystem as ApartmentRoomSystemCore
+} from './ApartmentRoomSystemCore.js';
 
+import { getApartmentRoomPack } from './ApartmentRoomPacks.js';
 import {
-  getApartmentRoomLayout,
-  configureApartmentHotspots
+  APARTMENT_ROOM_LAYOUTS,
+  getApartmentRoomLayout
 } from './ApartmentRoomLayouts.js';
 
-import {
-  ApartmentHotspotDebug,
-  apartmentLocalDebugAllowed
-} from './ApartmentHotspotDebug.js';
+import { COLLECTOR_EXTRA_ROOMS } from './ApartmentCollectorExtraRooms.js';
+import { RESEARCH_EXTRA_ROOMS } from './ApartmentResearchExtraRooms.js';
+import { LUXURY_EXTRA_ROOMS } from './ApartmentLuxuryExtraRooms.js';
 
-import { ApartmentHintUI } from './ApartmentHintUI.js';
-import { DebtApartmentPuzzle } from './DebtApartmentPuzzle.js';
+const WIDTH = 1920;
+const HEIGHT = 1080;
+const ROOM_ORDER = ['living_room', 'bedroom', 'kitchen', 'bathroom'];
 
-const FORCE_DEBT_APARTMENT = false;
-const TEXT_FILE = 'scenes/apartament/ApartmentRoomSystem.js';
-const text = id => dialogueText(TEXT_FILE, id);
+const IDENTITY_HOSTS = [
+  'desk', 'bookshelf', 'nightstand_drawer', 'jewelry_box'
+];
 
-function getLocalPackOverride() {
+const STYLES = {
+  collector: {
+    extraRooms: COLLECTOR_EXTRA_ROOMS,
+    largeStorage: new Set([
+      'collector_wardrobe', 'collector_trunk',
+      'collector_vanity', 'collector_linen'
+    ])
+  },
+  research: {
+    extraRooms: RESEARCH_EXTRA_ROOMS,
+    largeStorage: new Set([
+      'research_cabinet', 'research_case', 'research_pantry'
+    ])
+  },
+  luxury: {
+    extraRooms: LUXURY_EXTRA_ROOMS,
+    largeStorage: new Set([
+      'luxury_sideboard', 'luxury_lower_cabinet', 'luxury_fridge'
+    ])
+  }
+};
+
+function getTestSelection() {
   if (typeof window === 'undefined') return null;
 
   const { hostname, search } = window.location;
-  if (!['localhost', '127.0.0.1', '[::1]'].includes(hostname)) {
-    return null;
-  }
+  if (!['localhost', '127.0.0.1', '[::1]'].includes(hostname)) return null;
 
-  return new URLSearchParams(search).get('apartment') === 'family'
-    ? 'family'
+  const params = new URLSearchParams(search);
+  const style = params.get('apartment');
+  if (!Object.hasOwn(STYLES, style)) return null;
+
+  const requested = (params.get('rooms') || '').split(',');
+  const pair = ROOM_ORDER.filter(roomId => requested.includes(roomId));
+
+  return requested.length === 2 && pair.length === 2
+    ? { style, pair }
     : null;
 }
 
-export class ApartmentRoomSystem {
+function legacyCapacity(slot, largeStorage) {
+  if (largeStorage.has(slot.id)) return ['document', 'small_item', 'artifact'];
+  if (slot.discoveryAction === 'search') return ['document', 'small_item'];
+
+  if (slot.discoveryAction === 'move' &&
+      (slot.sourceId || slot.id === 'research_paper')) {
+    return ['document'];
+  }
+
+  return [];
+}
+
+function buildPair({ style, pair }) {
+  const { extraRooms, largeStorage } = STYLES[style];
+  const originalPack = getApartmentRoomPack(style);
+  const originalLayout = getApartmentRoomLayout(originalPack?.layoutId);
+
+  if (!originalPack || !originalLayout) {
+    throw new Error(`[ApartmentPair] Missing original ${style} pack or layout.`);
+  }
+
+  const rooms = {};
+  const slots = [];
+
+  for (const roomId of pair) {
+    const extra = extraRooms[roomId];
+    const room = extra || originalPack.rooms[roomId];
+
+    if (!room?.key || !room?.path) {
+      throw new Error(`[ApartmentPair] Missing ${style}/${roomId} background.`);
+    }
+
+    rooms[roomId] = { label: room.label, key: room.key, path: room.path };
+
+    const source = extra || originalLayout;
+    const sx = WIDTH / source.width;
+    const sy = HEIGHT / source.height;
+
+    for (const slot of source.slots.filter(entry => entry.roomId === roomId)) {
+      slots.push({
+        ...slot,
+        sourceId: null,
+        x: slot.x * sx,
+        y: slot.y * sy,
+        w: slot.w * sx,
+        h: slot.h * sy,
+        accepts: [...(slot.accepts || legacyCapacity(slot, largeStorage))]
+      });
+    }
+  }
+
+  const layoutId = `${style}_pair_${pair.join('__')}`;
+  const documents = slots.filter(slot => slot.accepts.includes('document'));
+  const movable = documents.find(slot => slot.discoveryAction === 'move');
+
+  if (documents.length < IDENTITY_HOSTS.length + 1) {
+    throw new Error(`[ApartmentPair] Not enough document hotspots: ${layoutId}`);
+  }
+
+  // If neither room has a movable document hotspot, keep five eligible
+  // identity hosts by using a normal searchable one in place of the photo.
+  if (movable) movable.sourceId = 'framed_photo';
+
+  const otherDocuments = documents.filter(slot => slot !== movable);
+
+  IDENTITY_HOSTS.forEach((id, index) => {
+    otherDocuments[index].sourceId = id;
+  });
+
+  for (const slot of slots) {
+    if (!slot.sourceId && slot.accepts.length) {
+      slot.sourceId = `pair_${slot.id}`;
+    }
+  }
+
+  return {
+    pack: { id: style, layoutId, rooms },
+    layout: { width: WIDTH, height: HEIGHT, slots },
+    extraKeys: new Set(Object.values(extraRooms).map(room => room.key))
+  };
+}
+
+function itemKind(item) {
+  if (item.isArtifact || item.type === 'artifact') return 'artifact';
+
+  if (
+    item.type === 'document' ||
+    item.type === 'photo' ||
+    item.isIdentityLead ||
+    item.isEscapeFragment ||
+    (item.isEscapeClue && !item.type)
+  ) {
+    return 'document';
+  }
+
+  return 'small_item';
+}
+
+function hash(value) {
+  let result = 2166136261;
+
+  for (const character of value) {
+    result = Math.imul(result ^ character.charCodeAt(0), 16777619);
+  }
+
+  return result >>> 0;
+}
+
+function distributeItems(originalObjects, layout, seed) {
+  const items = new Map();
+
+  for (const object of originalObjects) {
+    for (const item of object.unlocks || []) {
+      if (item?.id && !items.has(item.id)) items.set(item.id, item);
+    }
+  }
+
+  const storage = layout.slots
+    .filter(slot => slot.sourceId)
+    .map(slot => ({
+      slot,
+      object: {
+        id: slot.sourceId,
+        state: 'open',
+        unlocks: []
+      }
+    }));
+
+  const orderedItems = [...items.values()].sort((a, b) =>
+    String(a.id).localeCompare(String(b.id))
+  );
+
+  for (const item of orderedItems) {
+    const kind = itemKind(item);
+    const compatible = storage.filter(entry => entry.slot.accepts.includes(kind));
+
+    if (!compatible.length) {
+      throw new Error(`[ApartmentPair] No ${kind} hotspot for ${item.id}.`);
+    }
+
+    const leastUsed = Math.min(
+      ...compatible.map(entry => entry.object.unlocks.length)
+    );
+
+    const candidates = compatible.filter(
+      entry => entry.object.unlocks.length === leastUsed
+    );
+
+    candidates[hash(`${seed}:${item.id}`) % candidates.length]
+      .object.unlocks.push(item);
+  }
+
+  return storage.map(entry => entry.object);
+}
+
+export class ApartmentRoomSystem extends ApartmentRoomSystemCore {
   constructor(scene) {
-    this.scene = scene;
-    markApartmentVisited(gameState);
+    super(scene);
 
-    this.destroyed = false;
-    this.background = null;
-    this.navigation = null;
-    this.navigationBackground = null;
-    this.navigationLabel = null;
-    this.roomLabel = null;
-    this.debugger = null;
-    this.hintUI = null;
-    this.newsSnapshot = null;
-    this.layoutConfig = null;
-    this.renderedPackId = null;
-    this.usingFallback = false;
-    this.puzzle = null;
-    this.mountTimer = null;
-    this.localPackOverride = getLocalPackOverride();
+    this.roomPair = null;
+    this.roomPairActive = false;
 
-    this.selectionKey = JSON.stringify([
-      scene.caseKey || scene.missionId,
-      scene.suspectId,
-      scene.mission?.artifactKey || scene.missionArtifact?.artifactKey || '',
-      gameState.currentCaseId ?? null,
-      gameState.investigationStartTime ?? null
-    ]);
+    const selection = getTestSelection();
+    if (!selection) return;
 
-    const saved = scene.getProgress().roomPackSelections?.[this.selectionKey];
-    const selectedPackId = FORCE_DEBT_APARTMENT
-      ? 'debt'
-      : (
-          typeof saved?.packId === 'string'
-            ? saved.packId
-            : drawApartmentRoomPack().id
-        );
+    this.localPackOverride = selection.style;
+    this.packId = selection.style;
 
-    this.packId = this.localPackOverride || selectedPackId;
-
-    const pack = getApartmentRoomPack(this.packId);
-    const firstRoomId = Object.keys(pack?.rooms || {})[0] || 'living_room';
-
-    this.roomId = !this.localPackOverride &&
-      saved?.packId === this.packId && typeof saved?.roomId === 'string'
-      ? saved.roomId
-      : firstRoomId;
-
-    this.handleResize = () => this.layout();
-
-    this.handleTick = () => {
-      if (this.destroyed || !this.scene.sys.isActive()) return;
-      this.hideNewsHud();
-      this.debugger?.update();
-    };
-
-    this.persistSelection();
+    try {
+      this.roomPair = buildPair(selection);
+      this.roomId = selection.pair[0];
+    } catch (error) {
+      console.error('[ApartmentPair] Opening the original room pack.', error);
+    }
   }
 
   persistSelection() {
-    if (this.destroyed || this.localPackOverride) return;
-
-    this.scene.updateProgress({
-      roomPackSelections: {
-        ...(this.scene.getProgress().roomPackSelections || {}),
-        [this.selectionKey]: {
-          packId: this.packId,
-          roomId: this.roomId
-        }
-      }
-    });
+    // This override also runs during the core constructor.
+    if (!getTestSelection()) super.persistSelection();
   }
 
   preload() {
-    const queued = new Set();
+    super.preload();
+    if (!this.roomPair) return;
 
-    for (const pack of [
-      getApartmentRoomPack(FALLBACK_APARTMENT_PACK_ID),
-      getApartmentRoomPack(this.packId)
-    ]) {
-      for (const room of Object.values(pack?.rooms || {})) {
-        if (
-          !room.path ||
-          queued.has(room.key) ||
-          this.scene.textures.exists(room.key)
-        ) {
-          continue;
-        }
-
+    for (const room of Object.values(this.roomPair.pack.rooms)) {
+      if (this.roomPair.extraKeys.has(room.key) &&
+          !this.scene.textures.exists(room.key)) {
         this.scene.load.image(room.key, room.path);
-        queued.add(room.key);
       }
     }
-  }
-
-  isComplete(pack) {
-    return Boolean(
-      pack?.layoutId &&
-      getApartmentRoomLayout(pack.layoutId) &&
-      Object.keys(pack.rooms || {}).length &&
-      Object.values(pack.rooms).every(
-        room => room.key && this.scene.textures.exists(room.key)
-      )
-    );
-  }
-
-  resolveVisualPack() {
-    const selected = getApartmentRoomPack(this.packId);
-    const fallback = getApartmentRoomPack(FALLBACK_APARTMENT_PACK_ID);
-    const visual = this.isComplete(selected) ? selected : fallback;
-
-    this.renderedPackId = visual?.id || null;
-    this.usingFallback = this.renderedPackId !== this.packId;
-
-    if (this.localPackOverride && this.usingFallback) {
-      console.warn(
-        '[ApartmentRoomSystem] Family test fell back to debt. Check both files:',
-        Object.values(selected?.rooms || {}).map(room => room.path)
-      );
-    }
-
-    return visual;
   }
 
   create() {
-    const scene = this.scene;
-    const pack = this.resolveVisualPack();
-
-    this.visualPack = pack;
-    this.roomIds = Object.keys(pack?.rooms || {});
-    this.layoutConfig = getApartmentRoomLayout(pack?.layoutId);
-
-    if (!this.layoutConfig) {
-      throw new Error(`Missing apartment layout for ${pack?.id}`);
+    if (!this.roomPair) {
+      super.create();
+      return;
     }
 
-    if (!this.roomIds.includes(this.roomId)) {
-      this.roomId = this.roomIds[0];
+    const { pack, layout } = this.roomPair;
+    const missing = Object.values(pack.rooms)
+      .filter(room => !this.scene.textures.exists(room.key));
+
+    if (missing.length) {
+      console.warn(
+        '[ApartmentPair] Opening original rooms. Missing textures:',
+        missing.map(room => room.path)
+      );
+      super.create();
+      return;
     }
 
-    for (const slot of this.layoutConfig.slots) {
-      if (!this.roomIds.includes(slot.roomId)) {
-        throw new Error(`Unknown room in apartment slot: ${slot.id}`);
-      }
+    const config = this.scene.apartmentConfig;
+
+    try {
+      config.objects = distributeItems(
+        config.objects,
+        layout,
+        `${this.selectionKey}:${pack.layoutId}`
+      );
+    } catch (error) {
+      console.error('[ApartmentPair] Keeping original rooms and evidence.', error);
+      super.create();
+      return;
     }
 
-    this.loadLocalGeometry();
+    this.roomPairActive = true;
+    APARTMENT_ROOM_LAYOUTS[pack.layoutId] = layout;
 
-    scene.apartmentConfig.objects = configureApartmentHotspots(
-      scene.apartmentConfig.objects,
-      this.layoutConfig
-    );
-
-    if (this.renderedPackId === 'debt') {
-      this.puzzle = new DebtApartmentPuzzle(this);
-      this.puzzle.prepare(scene.apartmentConfig.objects);
-    }
-
-    this.persistSelection();
-
-    this.roomLabel = scene.add.text(scene.scale.width / 2, 116, '', {
-      fontFamily: 'SpecialElite',
-      fontSize: '18px',
-      color: '#fff3d6',
-      backgroundColor: '#000000aa',
-      padding: { x: 9, y: 5 }
-    }).setOrigin(0.5, 0).setDepth(120);
-
-    this.navigation = scene.add.container(0, 0).setDepth(150);
-
-    this.navigationBackground = scene.add.rectangle(
-      0, 0, 230, 48, 0x493d30
-    )
-      .setStrokeStyle(2, 0xd4af37)
-      .setInteractive({ useHandCursor: true });
-
-    this.navigationLabel = scene.add.text(0, 0, '', {
-      fontFamily: 'SpecialElite',
-      fontSize: '19px',
-      color: '#fff3d6'
-    }).setOrigin(0.5);
-
-    this.navigation.add([this.navigationBackground, this.navigationLabel]);
-
-    this.navigationBackground.on('pointerover', () => {
-      this.navigationBackground.setFillStyle(0x65533e);
-    });
-
-    this.navigationBackground.on('pointerout', () => {
-      this.navigationBackground.setFillStyle(0x493d30);
-    });
-
-    this.navigationBackground.on('pointerdown', () => {
-      this.showRoom(this.nextRoomId());
-    });
-
-    scene.scale.on('resize', this.handleResize);
-    scene.events.on('preupdate', this.handleTick);
-
-    this.debugger = new ApartmentHotspotDebug(this);
-    this.hideNewsHud();
-    this.render();
-
-    this.mountTimer = scene.time.delayedCall(0, () => {
-      this.mountTimer = null;
-      if (this.destroyed || !scene.sys.isActive()) return;
-      this.puzzle?.mount();
-      this.applyObjectVisibility();
-    });
-
-    if (!this.puzzle) {
-      this.hintUI = new ApartmentHintUI(scene);
-      this.hintUI.create();
+    try {
+      super.create();
+    } finally {
+      delete APARTMENT_ROOM_LAYOUTS[pack.layoutId];
     }
   }
 
-  nextRoomId() {
-    return this.roomIds[
-      (this.roomIds.indexOf(this.roomId) + 1) % this.roomIds.length
-    ];
-  }
+  resolveVisualPack() {
+    if (!this.roomPairActive) return super.resolveVisualPack();
 
-  navigationGoesLeft() {
-    const current = this.roomIds.indexOf(this.roomId);
-    const next = this.roomIds.indexOf(this.nextRoomId());
-
-    return current >= 0 && next >= 0 && next < current;
-  }
-
-  showRoom(id) {
-    if (
-      this.destroyed ||
-      !this.roomIds.includes(id) ||
-      this.scene.isTransitioning ||
-      this.scene.leaveDialog ||
-      this.scene.getPlayerHudScene()?.isAnyPanelOpen()
-    ) {
-      return false;
-    }
-
-    this.hintUI?.clearHintMarker();
-    this.roomId = id;
-    this.persistSelection();
-    this.scene.showDescription('');
-    this.render();
-
-    return true;
-  }
-
-  render() {
-    if (this.destroyed) return;
-
-    const room = this.visualPack.rooms[this.roomId];
-    const { width, height } = this.scene.scale;
-    this.background?.destroy();
-
-    if (room?.key && this.scene.textures.exists(room.key)) {
-      this.background = this.scene.add.image(
-        width / 2, height / 2, room.key
-      ).setDisplaySize(width, height).setDepth(0);
-    } else {
-      console.error('[ApartmentRoomSystem] Missing background:', room?.key);
-      this.background = this.scene.add.rectangle(
-        width / 2, height / 2, width, height, 0x2c2c2c
-      ).setDepth(0);
-    }
-
-    this.roomLabel.setText(
-      room.label || this.roomId.replaceAll(
-        text('t_d2e2adf7177b7a8afddb'),
-        text('t_36a9e7f1c95b82ffb997')
-      )
-    );
-
-    const nextId = this.nextRoomId();
-    const label = this.visualPack.rooms[nextId]?.label || nextId;
-
-    this.navigationLabel.setText(
-      this.navigationGoesLeft()
-        ? `${text('t_be6e0938681083fa4b6c')}${label}`
-        : `${label}${text('t_31db8c407f903ec137b8')}`
-    );
-
-    this.navigation.setVisible(this.roomIds.length > 1);
-    this.applyObjectVisibility();
-    this.layout();
-  }
-
-  slotFor(object) {
-    return this.layoutConfig.slots.find(
-      slot => slot.id === object.config?.layoutSlotId
-    );
-  }
-
-  applyGeometry() {
-    if (!this.layoutConfig) return;
-
-    const sx = this.scene.scale.width / this.layoutConfig.width;
-    const sy = this.scene.scale.height / this.layoutConfig.height;
-
-    for (const object of this.scene.apartmentObjects || []) {
-      const slot = this.slotFor(object);
-      if (!slot) continue;
-
-      const x = slot.x * sx;
-      const y = slot.y * sy;
-      const w = slot.w * sx;
-      const h = slot.h * sy;
-
-      object.config.position = { x, y };
-      object.config.size = { w, h };
-      object.container?.setPosition(x, y).setDepth(5);
-      object.background?.setPosition(0, 0).setSize(w, h);
-      object.background?.input?.hitArea?.setTo(0, 0, w, h);
-    }
-  }
-
-  applyObjectVisibility() {
-    this.applyGeometry();
-
-    for (const object of this.scene.apartmentObjects || []) {
-      const visible = object.config?.roomId === this.roomId;
-      object.container?.setVisible(visible);
-
-      if (object.background?.input) {
-        object.background.input.enabled = visible;
-      }
-    }
-
-    this.debugger?.attach();
-    this.debugger?.draw();
-  }
-
-  layout() {
-    if (this.destroyed) return;
-
-    const { width, height } = this.scene.scale;
-
-    if (this.background?.type === text('t_1aa4cb0bcca76e92e306')) {
-      this.background
-        .setPosition(width / 2, height / 2)
-        .setDisplaySize(width, height);
-    } else {
-      this.background
-        ?.setPosition(width / 2, height / 2)
-        .setSize(width, height);
-    }
-
-    this.roomLabel?.setPosition(width / 2, 116);
-
-    if (this.navigation) {
-      const buttonWidth = Math.min(230, Math.max(40, width - 24));
-      const left = 12 + buttonWidth / 2;
-      const right = width - 12 - buttonWidth / 2;
-
-      this.navigation
-        .setScale(buttonWidth / 230)
-        .setPosition(
-          this.navigationGoesLeft() ? left : right,
-          Math.max(180, height - 112)
-        );
-    }
-
-    this.applyGeometry();
-    this.debugger?.draw();
+    this.renderedPackId = this.roomPair.pack.id;
+    this.usingFallback = false;
+    return this.roomPair.pack;
   }
 
   geometryStorageKey() {
-    return 'lost-artifacts:apartment-layout:v1:' + this.renderedPackId;
-  }
+    if (!this.roomPairActive) return super.geometryStorageKey();
 
-  loadLocalGeometry() {
-    if (!apartmentLocalDebugAllowed) return;
-
-    try {
-      const saved = JSON.parse(
-        window.localStorage.getItem(this.geometryStorageKey()) || 'null'
-      );
-
-      if (
-        !saved ||
-        saved.width !== this.layoutConfig.width ||
-        saved.height !== this.layoutConfig.height
-      ) {
-        return;
-      }
-
-      for (const slot of this.layoutConfig.slots) {
-        const value = saved.slots?.find(entry => entry.id === slot.id);
-
-        if (
-          !value ||
-          !['x', 'y', 'w', 'h'].every(key => Number.isFinite(value[key])) ||
-          value.w < 10 ||
-          value.h < 10
-        ) {
-          continue;
-        }
-
-        for (const key of ['x', 'y', 'w', 'h']) {
-          slot[key] = value[key];
-        }
-      }
-    } catch (error) {
-      console.warn('[ApartmentRoomSystem] Local layout unavailable:', error);
-    }
-  }
-
-  saveLocalGeometry() {
-    if (!apartmentLocalDebugAllowed) return;
-
-    try {
-      const { width, height, slots } = this.layoutConfig;
-      window.localStorage.setItem(
-        this.geometryStorageKey(),
-        JSON.stringify({
-          width,
-          height,
-          slots: slots.map(({ id, x, y, w, h }) => ({ id, x, y, w, h }))
-        })
-      );
-    } catch (error) {
-      console.warn('[ApartmentRoomSystem] Could not save local layout:', error);
-    }
-  }
-
-  hideNewsHud() {
-    const news = this.scene.scene.manager.keys.NewsHud;
-    if (!news?.sys?.isActive()) return;
-
-    if (!this.newsSnapshot || this.newsSnapshot.scene !== news) {
-      this.newsSnapshot = {
-        scene: news,
-        visible: news.sys.settings.visible,
-        inputEnabled: news.input.enabled
-      };
-    }
-
-    news.closeMenu?.(true);
-    news.scene.setVisible(false);
-    news.input.enabled = false;
-  }
-
-  restoreNewsHud() {
-    const saved = this.newsSnapshot;
-
-    if (saved?.scene?.sys?.isActive()) {
-      saved.scene.scene.setVisible(saved.visible);
-      saved.scene.input.enabled = saved.inputEnabled;
-    }
-
-    this.newsSnapshot = null;
-  }
-
-  destroy() {
-    if (this.destroyed) return;
-    this.destroyed = true;
-
-    this.mountTimer?.remove(false);
-    this.mountTimer = null;
-
-    this.puzzle?.destroy();
-    this.puzzle = null;
-    this.hintUI?.destroy();
-    this.hintUI = null;
-
-    this.scene.scale.off('resize', this.handleResize);
-    this.scene.events.off('preupdate', this.handleTick);
-
-    this.debugger?.destroy();
-    this.restoreNewsHud();
-
-    this.background?.destroy();
-    this.navigation?.destroy(true);
-    this.roomLabel?.destroy();
-
-    this.background = null;
-    this.navigation = null;
-    this.roomLabel = null;
-    this.navigationBackground = null;
-    this.navigationLabel = null;
+    return `lost-artifacts:apartment-layout:v1:${this.roomPair.pack.layoutId}`;
   }
 }

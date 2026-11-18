@@ -4,7 +4,7 @@ import { gameState } from '../GameData.js';
 import { BaseScene } from '../scenes/BaseScene.js';
 import { getEnergyManager } from '../managers/EnergyManager.js';
 import { createHudStanding } from '../ui/HudStanding.js';
-
+import { renderAgentDossierPortrait } from './AgentDossierPortrait.js';
 import {
   getAchievementList,
   hasAchievement
@@ -2012,7 +2012,7 @@ export class UIScene extends BaseScene {
     );
 
     const avatar = modal.querySelector('#pub-avatar');
-
+renderAgentDossierPortrait(this, avatar);
     const appearance = {
       skinTone: 'light',
       hairStyle: 'neat',

@@ -1,0 +1,42 @@
+{
+  "museumClues": {
+    "locationVariants": {
+      "default": {
+        "banter": [
+          "Welcome. If you came to return something, please tell me it's smaller than a sarcophagus.",
+          "The gift shop is straight ahead. The exit is also straight ahead. We prefer not to advertise the difference.",
+          "Please don't lean on the display cases. The last person who did is now part of the exhibition."
+        ],
+        "repeatLines": [
+          [
+            "Back again?",
+            "Excellent. I'll tell the director we finally have a returning visitor."
+          ]
+        ],
+        "falseLeadLines": [
+          [
+            "I haven't seen anyone matching that description.",
+            "The skeleton in Gallery Three is here on a permanent basis."
+          ]
+        ],
+        "topics": {
+          "travel": []
+        },
+        "destinationClues": {
+          "london": "They said their next stop was the British Museum. They wanted to see the stone with three kinds of writing and asked which one was the audio-guide password.",
+          "paris": "They said their next stop had a glass pyramid in a palace courtyard. They asked if the pharaohs had a separate queue.",
+          "berlin": "They said their next stop was an island full of museums on the River Spree. They packed a swimsuit. I didn't have the heart to say anything.",
+          "warsaw": "They said their next stop was POLIN, the museum of the history of Polish Jews. They'd marked the building with the enormous curved hall.",
+          "new_york_city": "They said their next stop was the Met on Fifth Avenue. Apparently, an entire Egyptian temple counts as hand luggage if you're a museum.",
+          "toronto": "They said their next stop was the Royal Ontario Museum. They described the entrance as a giant crystal that had missed the pavement.",
+          "new_delhi": "They said their next stop was Qutb Minar, a tall sandstone tower. They asked if the stairs were included in the ticket. Very optimistic.",
+          "nairobi": "They said their next stop had early human fossils and a snake park next door. They asked which one had the shorter queue.",
+          "islamabad": "They said their next stop was Lok Virsa, to see traditional dress and crafts. They brought a tape measure. I didn't ask.",
+          "kotte": "They said their next stop was the parliament building on an island in Diyawanna Lake. They called the lake a very elaborate moat.",
+          "tokyo": "They said their next stop was the national museum in Ueno Park. They wanted to see samurai armour and asked if there was a fitting room.",
+          "singapore": "They said their next stop was the lotus-shaped museum by Marina Bay. They asked if the flower closed at night. I said the ticket office did."
+        }
+      }
+    }
+  }
+}

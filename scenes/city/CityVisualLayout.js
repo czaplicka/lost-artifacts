@@ -1,4 +1,6 @@
 import { gameState } from '../../GameData.js';
+// PURSUIT_MUSEUM_V1
+import { getPursuitCityContext, normalizePursuitCityId } from '../../managers/PursuitCityContext.js';
 
 function hash(value) {
   let result = 2166136261;
@@ -32,9 +34,17 @@ export function applyCityVisualLayout(scene) {
   const height = scene.scale.height;
   if (!(width > 0 && height > 0)) return;
 
+  const cityPlaces = scene.city.cityPlaces || {};
+  const cityId = normalizePursuitCityId(scene.cityId);
+  const context = getPursuitCityContext(gameState, cityId);
+  const existingMuseum = Object.hasOwn(cityPlaces, 'museum') ||
+    active.some(entry => entry.locationId === 'museum');
+  const addMuseum = Boolean(cityId && cityId !== 'hq' &&
+    !context.isCrimeCity && !existingMuseum);
+
   const seed = hash(scene.cityId);
   const columns = 4;
-  const rows = Math.max(3, Math.ceil((active.length + 2) / columns));
+  const rows = Math.max(3, Math.ceil((active.length + 2 + Number(addMuseum)) / columns));
   const left = width * 0.14;
   const right = width * 0.86;
   const top = height * 0.29;
@@ -59,6 +69,36 @@ export function applyCityVisualLayout(scene) {
     return first < second ? -1 : first > second ? 1 : 0;
   });
   const positions = new Map(sorted.map((entry, index) => [entry, points[order[index + 2]]]));
+
+  const otherPlaces = Object.values(cityPlaces)
+    .filter(place => place && place.enabled !== false)
+    .map(place => ({ x: width * Number(place.x) / 100, y: height * Number(place.y) / 100 }))
+    .filter(point => Number.isFinite(point.x) && Number.isFinite(point.y));
+
+  const freePoints = order.slice(active.length + 2).map(index => points[index]);
+  const museumPoint = addMuseum && (freePoints.find(point =>
+    otherPlaces.every(other =>
+      Math.abs(point.x - other.x) >= 145 || Math.abs(point.y - other.y) >= 165
+    )
+  ) || freePoints[0]);
+
+  if (museumPoint) {
+    scene.city = {
+      ...scene.city,
+      cityPlaces: {
+        ...cityPlaces,
+        museum: {
+          id: 'museum',
+          typeId: 'museum',
+          name: 'Museum',
+          npcId: 'museum_attendant',
+          enabled: true,
+          x: museumPoint.x * 100 / width,
+          y: museumPoint.y * 100 / height
+        }
+      }
+    };
+  }
 
   // Keep cached location definitions unchanged.
   scene.city = {

@@ -2085,7 +2085,34 @@
       "image:debt_rubber_wedge",
       "image:debt_tool_drawer_background",
       "image:debt_wedge_in_place",
-      "image:apartments__cabinet__paper"
+      "image:apartments__cabinet__paper",
+      "image:apartment_collector_kitchen",
+      "image:apartment_collector_living_room",
+      "image:apartment_family_bathroom",
+      "image:apartment_family_bedroom",
+      "image:apartment_family_kitchen",
+      "image:apartment_family_living_room",
+      "image:apartment_luxury_bathroom",
+      "image:apartment_luxury_bedroom",
+      "image:apartment_luxury_kitchen",
+      "image:apartment_luxury_listing",
+      "image:apartment_luxury_living_room",
+      "image:apartment_research_bathroom",
+      "image:apartment_research_bedroom",
+      "json:museum",
+      "image:museum_a",
+      "image:museum_b",
+      "image:museum_h",
+      "image:museum_o",
+      "image:museum_w",
+      "image:computer-phone",
+      "image:braid",
+      "image:koki",
+      "image:menly",
+      "image:red-glasses",
+      "image:scar-mouth",
+      "image:scar-right",
+      "image:sketch_her"
     ],
     "auto:folder:apartments": [
       "image:apartment_debt_kitchen",
@@ -2093,7 +2120,20 @@
       "image:apartment_collector_bathroom",
       "image:apartment_collector_bedroom",
       "image:apartment_research_kitchen",
-      "image:apartment_research_living_room"
+      "image:apartment_research_living_room",
+      "image:apartment_collector_kitchen",
+      "image:apartment_collector_living_room",
+      "image:apartment_family_bathroom",
+      "image:apartment_family_bedroom",
+      "image:apartment_family_kitchen",
+      "image:apartment_family_living_room",
+      "image:apartment_luxury_bathroom",
+      "image:apartment_luxury_bedroom",
+      "image:apartment_luxury_kitchen",
+      "image:apartment_luxury_listing",
+      "image:apartment_luxury_living_room",
+      "image:apartment_research_bathroom",
+      "image:apartment_research_bedroom"
     ],
     "auto:folder:artifacts": [
       "image:artifact_amber_necklace",
@@ -2389,7 +2429,8 @@
       "json:dialogue_stewardess",
       "json:dialog_watson",
       "json:extracted",
-      "json:dialogue_librery"
+      "json:dialogue_librery",
+      "json:museum"
     ],
     "auto:folder:data/newspapers/daily": [
       "json:newspaper_daily_berlin",
@@ -2560,7 +2601,12 @@
       "image:librery_b",
       "image:librery_h",
       "image:librery_o",
-      "image:librery_w"
+      "image:librery_w",
+      "image:museum_a",
+      "image:museum_b",
+      "image:museum_h",
+      "image:museum_o",
+      "image:museum_w"
     ],
     "auto:folder:maps": [
       "image:berlin_crime",
@@ -2682,7 +2728,8 @@
       "image:notepad",
       "image:painting",
       "image:printer",
-      "image:pi__office__tv"
+      "image:pi__office__tv",
+      "image:computer-phone"
     ],
     "scene:DetectiveOfficeScene": [
       "image:printer",
@@ -2697,7 +2744,8 @@
       "image:pi__office__crime-board",
       "image:notepad",
       "image:painting",
-      "image:pi__office__tv"
+      "image:pi__office__tv",
+      "image:computer-phone"
     ],
     "auto:folder:portraits": [
       "image:portrait_CSI",
@@ -2856,7 +2904,14 @@
       "image:sketch_base",
       "image:sketch_eyes",
       "image:sketch_hair",
-      "image:tatoo"
+      "image:tatoo",
+      "image:braid",
+      "image:koki",
+      "image:menly",
+      "image:red-glasses",
+      "image:scar-mouth",
+      "image:scar-right",
+      "image:sketch_her"
     ],
     "auto:folder:ui/pi-cases": [
       "image:terrace"

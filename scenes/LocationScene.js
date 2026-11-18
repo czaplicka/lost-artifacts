@@ -44,7 +44,17 @@ export class LocationScene extends BaseScene {
   this.ensureEncounterMemory();this.reputationAccess=getNpcAccess(this.npcId,{isCrimeCity:this.isCrimeCity});
  }
  preload(){
-  queueLocationIcons(this);const key=NPC_DIALOGUE_KEY_MAP[this.npcId],path=NPC_DIALOGUE_FILE_MAP[this.npcId];
+  queueLocationIcons(this);
+  if (this.locationId === 'museum') {
+   const locations = this.cache.json.get('locations') || [];
+   const city = locations.find(entry => normalizePursuitCityId(entry.id) === this.cityId);
+   for (const key of getLocationBackgroundCandidates('museum', city)) {
+    if (/^museum_[abhow]$/.test(key) && !this.textures.exists(key)) {
+     this.load.image(key, `assets/local/${key}.webp`);
+    }
+   }
+  }
+  const key=NPC_DIALOGUE_KEY_MAP[this.npcId],path=NPC_DIALOGUE_FILE_MAP[this.npcId];
   if(key&&path&&!this.cache.json.exists(key))this.load.json(key,path);
  }
  ensureEncounterMemory(){

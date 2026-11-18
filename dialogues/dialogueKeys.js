@@ -1,5 +1,10 @@
 import { NPC_CATALOG } from '../npcCatalogData.js';
 const definitions = {
+  museum_attendant: {
+    key: 'dialogue_museum',
+    root: 'museumClues',
+    file: 'assets/data/dialogue/museum.json'
+  },
   "librarian": {
   "key": "dialogue_librery",
   "root": "libreryClues",

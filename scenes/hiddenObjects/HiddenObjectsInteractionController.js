@@ -98,7 +98,7 @@ export class HiddenObjectsInteractionController {
 
     audioManager.init(scene);
 
-    scene.playSfx('successsound', {
+    scene.playSfx('correct', {
       gain: 0.45,
       volume: audioManager.getSfxVolume() * 0.45,
       overlap: true
