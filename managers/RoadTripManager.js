@@ -5,13 +5,16 @@ import { moneyManager, MONEY_SOURCE, ECONOMY_CATEGORY } from './MoneyManager.js'
 import { HOME_TOWN_ID, getTown } from '../config/RoadTripTowns.js';
 import { advancePITime } from './PIClockManager.js';
 import { requestAutosave } from '../gameStatePersistence.js';
+
 const KM_PER_MAP_UNIT = 0.2;
 const MINUTES_PER_DENT = 20;
 const AUTOPILOT_EXTRA_MINUTES = 15;
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const appliedOutcomes = new WeakSet();
+
 export function getCurrentTownId() { return gameState.roadTripTownId || HOME_TOWN_ID; }
 export function setCurrentTown(townId) { gameState.roadTripTownId = townId; }
+
 export function getRoadTripQuote(fromId, toId) {
   const fromTown = getTown(fromId ?? getCurrentTownId()), toTown = getTown(toId);
   const dist = Math.hypot(fromTown.map.x - toTown.map.x, fromTown.map.y - toTown.map.y);
@@ -20,6 +23,7 @@ export function getRoadTripQuote(fromId, toId) {
     baseHours: Math.max(1, Math.round(km / 55)), fuelCost: Math.max(5, Math.round(km * 0.15)),
     energyCost: 0, tripLength: clamp(km * 45, 1800, 5600) };
 }
+
 export function canStartRoadTrip(fromId, toId) {
   const quote = getRoadTripQuote(fromId, toId);
   if (quote.fromId === quote.toId) return { ok: false, reason: 'same_town',
@@ -29,6 +33,7 @@ export function canStartRoadTrip(fromId, toId) {
     message: `Fuel costs $${quote.fuelCost}. Cash available: $${cash}.`, quote };
   return { ok: true, reason: null, message: '', quote };
 }
+
 export function computeOutcome(quote, drive = {}) {
   const hits = Math.max(0, drive.hits | 0), coffees = Math.max(0, drive.coffees | 0);
   const coins = Math.max(0, Math.round(drive.coins || 0)), fines = Math.max(0, Math.round(drive.fines || 0));
@@ -39,6 +44,7 @@ export function computeOutcome(quote, drive = {}) {
     minutesLost, totalMinutes, hours: Math.floor(totalMinutes / 60), minutes: totalMinutes % 60,
     energyCost: 0, coffeeEnergy: 0, netEnergy: 0 };
 }
+
 export function applyOutcome(quote, outcome) {
   if (appliedOutcomes.has(outcome)) return outcome;
   const label = `${quote.fromTown.name} → ${quote.toTown.name}`;
@@ -58,14 +64,25 @@ export function applyOutcome(quote, outcome) {
   EventBus.emit('roadTripCompleted', { quote, outcome });
   return outcome;
 }
+
 export async function startRoadTrip(scene, toTownId, options = {}) {
   const fromTownId = options.fromTownId ?? getCurrentTownId();
   const check = canStartRoadTrip(fromTownId, toTownId);
-  if (!check.ok) {
-    EventBus.emit('showDialogue', { speaker: __dialogueText('managers/RoadTripManager.js', 't_6fb86a981cf3ed052b51'), text: check.message });
-    return check;
+  const nextScene = options.nextScene || (check.quote.toId === HOME_TOWN_ID ? 'HomeCityScene' : null);
+  const result = !check.ok ? check : !nextScene ? {
+    ok: false, reason: 'missing_destination',
+    message: `No arrival scene is configured for ${check.quote.toTown.name}.`,
+    quote: check.quote
+  } : null;
+  if (result) {
+    EventBus.emit('showDialogue', {
+      speaker: __dialogueText('managers/RoadTripManager.js', 't_6fb86a981cf3ed052b51'),
+      text: result.message
+    });
+    return result;
   }
-  const ok = await scene.goto('DriveScene', { fromTownId, toTownId,
-    nextScene: options.nextScene, nextData: options.nextData });
+  const ok = await scene.goto('DriveScene', {
+    fromTownId, toTownId: check.quote.toId, nextScene, nextData: options.nextData
+  });
   return { ok, quote: check.quote };
 }

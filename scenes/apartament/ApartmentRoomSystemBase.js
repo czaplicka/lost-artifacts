@@ -11,16 +11,27 @@ import {
 import { COLLECTOR_EXTRA_ROOMS } from './ApartmentCollectorExtraRooms.js';
 import { RESEARCH_EXTRA_ROOMS } from './ApartmentResearchExtraRooms.js';
 import { LUXURY_EXTRA_ROOMS } from './ApartmentLuxuryExtraRooms.js';
+import { DEBT_EXTRA_ROOMS } from './ApartmentDebtExtraRooms.js';
 
 const WIDTH = 1920;
 const HEIGHT = 1080;
 const ROOM_ORDER = ['living_room', 'bedroom', 'kitchen', 'bathroom'];
+const CLASSIC_DEBT = ['living_room', 'kitchen'];
+const DEBT_PAIRS_KEY = 'debtRoomPairsV1';
+
+const DEBT_PAIRS = ROOM_ORDER.flatMap((first, index) =>
+  ROOM_ORDER.slice(index + 1).map(second => [first, second])
+);
 
 const IDENTITY_HOSTS = [
   'desk', 'bookshelf', 'nightstand_drawer', 'jewelry_box'
 ];
 
 const STYLES = {
+  debt: {
+    extraRooms: DEBT_EXTRA_ROOMS,
+    largeStorage: new Set()
+  },
   collector: {
     extraRooms: COLLECTOR_EXTRA_ROOMS,
     largeStorage: new Set([
@@ -42,6 +53,17 @@ const STYLES = {
   }
 };
 
+function normalizePair(requested) {
+  if (!Array.isArray(requested) || requested.length !== 2) return null;
+
+  const pair = ROOM_ORDER.filter(id => requested.includes(id));
+  return pair.length === 2 ? pair : null;
+}
+
+function isClassicDebt(pair) {
+  return pair[0] === CLASSIC_DEBT[0] && pair[1] === CLASSIC_DEBT[1];
+}
+
 function getTestSelection() {
   if (typeof window === 'undefined') return null;
 
@@ -52,12 +74,18 @@ function getTestSelection() {
   const style = params.get('apartment');
   if (!Object.hasOwn(STYLES, style)) return null;
 
-  const requested = (params.get('rooms') || '').split(',');
-  const pair = ROOM_ORDER.filter(roomId => requested.includes(roomId));
+  const pair = normalizePair((params.get('rooms') || '').split(','));
+  return pair ? { style, pair } : null;
+}
 
-  return requested.length === 2 && pair.length === 2
-    ? { style, pair }
-    : null;
+function hash(value) {
+  let result = 2166136261;
+
+  for (const character of value) {
+    result = Math.imul(result ^ character.charCodeAt(0), 16777619);
+  }
+
+  return result >>> 0;
 }
 
 function legacyCapacity(slot, largeStorage) {
@@ -72,7 +100,7 @@ function legacyCapacity(slot, largeStorage) {
   return [];
 }
 
-function buildPair({ style, pair }) {
+function buildPair(style, pair) {
   const { extraRooms, largeStorage } = STYLES[style];
   const originalPack = getApartmentRoomPack(style);
   const originalLayout = getApartmentRoomLayout(originalPack?.layoutId);
@@ -113,18 +141,16 @@ function buildPair({ style, pair }) {
 
   const layoutId = `${style}_pair_${pair.join('__')}`;
   const documents = slots.filter(slot => slot.accepts.includes('document'));
-  const movable = documents.find(slot => slot.discoveryAction === 'move');
+  const photoHost = documents.find(slot => slot.discoveryAction === 'move')
+    || documents[0];
 
   if (documents.length < IDENTITY_HOSTS.length + 1) {
     throw new Error(`[ApartmentPair] Not enough document hotspots: ${layoutId}`);
   }
 
-  // If neither room has a movable document hotspot, keep five eligible
-  // identity hosts by using a normal searchable one in place of the photo.
-  if (movable) movable.sourceId = 'framed_photo';
+  photoHost.sourceId = 'framed_photo';
 
-  const otherDocuments = documents.filter(slot => slot !== movable);
-
+  const otherDocuments = documents.filter(slot => slot !== photoHost);
   IDENTITY_HOSTS.forEach((id, index) => {
     otherDocuments[index].sourceId = id;
   });
@@ -158,17 +184,7 @@ function itemKind(item) {
   return 'small_item';
 }
 
-function hash(value) {
-  let result = 2166136261;
-
-  for (const character of value) {
-    result = Math.imul(result ^ character.charCodeAt(0), 16777619);
-  }
-
-  return result >>> 0;
-}
-
-function distributeItems(originalObjects, layout, seed) {
+function distributeItems(originalObjects, layout, seed, style) {
   const items = new Map();
 
   for (const object of originalObjects) {
@@ -177,15 +193,16 @@ function distributeItems(originalObjects, layout, seed) {
     }
   }
 
+  if (style === 'debt' &&
+      ![...items.values()].some(item => item.isEscapeClue === true)) {
+    throw new Error('[ApartmentPair] Missing debt escape document.');
+  }
+
   const storage = layout.slots
     .filter(slot => slot.sourceId)
     .map(slot => ({
       slot,
-      object: {
-        id: slot.sourceId,
-        state: 'open',
-        unlocks: []
-      }
+      object: { id: slot.sourceId, state: 'open', unlocks: [] }
     }));
 
   const orderedItems = [...items.values()].sort((a, b) =>
@@ -194,7 +211,15 @@ function distributeItems(originalObjects, layout, seed) {
 
   for (const item of orderedItems) {
     const kind = itemKind(item);
-    const compatible = storage.filter(entry => entry.slot.accepts.includes(kind));
+
+    const compatible = storage.filter(({ slot }) => {
+      if (style === 'debt' && item.isEscapeClue === true) {
+        return slot.discoveryAction === 'search' &&
+          slot.accepts.includes('document');
+      }
+
+      return slot.accepts.includes(kind);
+    });
 
     if (!compatible.length) {
       throw new Error(`[ApartmentPair] No ${kind} hotspot for ${item.id}.`);
@@ -217,27 +242,51 @@ function distributeItems(originalObjects, layout, seed) {
 
 export class ApartmentRoomSystem extends ApartmentRoomSystemCore {
   constructor(scene) {
+    const progress = scene.getProgress();
+    const previousSelections = { ...progress.roomPackSelections };
+    const previousDebtPairs = { ...progress[DEBT_PAIRS_KEY] };
+
     super(scene);
 
     this.roomPair = null;
     this.roomPairActive = false;
+    this.debtPairToSave = null;
 
-    const selection = getTestSelection();
+    const test = getTestSelection();
+    let selection = test;
+
+    if (test) {
+      this.localPackOverride = test.style;
+      this.packId = test.style;
+      this.roomId = test.pair[0];
+    } else if (this.packId === 'debt' && !this.localPackOverride) {
+      const saved = normalizePair(previousDebtPairs[this.selectionKey]);
+      const alreadyVisited =
+        previousSelections[this.selectionKey]?.packId === 'debt';
+
+      const pair = saved || (alreadyVisited
+        ? CLASSIC_DEBT
+        : DEBT_PAIRS[hash(`debt-pair-v1:${this.selectionKey}`) % DEBT_PAIRS.length]);
+
+      selection = { style: 'debt', pair };
+      this.debtPairToSave = pair;
+
+      if (!pair.includes(this.roomId)) this.roomId = pair[0];
+    }
+
     if (!selection) return;
-
-    this.localPackOverride = selection.style;
-    this.packId = selection.style;
+    if (selection.style === 'debt' && isClassicDebt(selection.pair)) return;
 
     try {
-      this.roomPair = buildPair(selection);
-      this.roomId = selection.pair[0];
+      this.roomPair = buildPair(selection.style, selection.pair);
     } catch (error) {
       console.error('[ApartmentPair] Opening the original room pack.', error);
+      if (this.debtPairToSave) this.debtPairToSave = CLASSIC_DEBT;
     }
   }
 
   persistSelection() {
-    // This override also runs during the core constructor.
+    // The core also calls this during its constructor.
     if (!getTestSelection()) super.persistSelection();
   }
 
@@ -253,9 +302,29 @@ export class ApartmentRoomSystem extends ApartmentRoomSystemCore {
     }
   }
 
+  saveDebtPair() {
+    if (!this.debtPairToSave || this.renderedPackId !== 'debt') return;
+
+    const saved = this.scene.getProgress()[DEBT_PAIRS_KEY] || {};
+    this.scene.updateProgress({
+      [DEBT_PAIRS_KEY]: {
+        ...saved,
+        [this.selectionKey]: [...this.debtPairToSave]
+      }
+    });
+  }
+
+  openOriginalRooms() {
+    this.roomPairActive = false;
+    if (this.debtPairToSave) this.debtPairToSave = CLASSIC_DEBT;
+    super.create();
+    this.saveDebtPair();
+  }
+
   create() {
     if (!this.roomPair) {
       super.create();
+      this.saveDebtPair();
       return;
     }
 
@@ -268,7 +337,7 @@ export class ApartmentRoomSystem extends ApartmentRoomSystemCore {
         '[ApartmentPair] Opening original rooms. Missing textures:',
         missing.map(room => room.path)
       );
-      super.create();
+      this.openOriginalRooms();
       return;
     }
 
@@ -278,11 +347,12 @@ export class ApartmentRoomSystem extends ApartmentRoomSystemCore {
       config.objects = distributeItems(
         config.objects,
         layout,
-        `${this.selectionKey}:${pack.layoutId}`
+        `${this.selectionKey}:${pack.layoutId}`,
+        pack.id
       );
     } catch (error) {
       console.error('[ApartmentPair] Keeping original rooms and evidence.', error);
-      super.create();
+      this.openOriginalRooms();
       return;
     }
 
@@ -291,6 +361,7 @@ export class ApartmentRoomSystem extends ApartmentRoomSystemCore {
 
     try {
       super.create();
+      this.saveDebtPair();
     } finally {
       delete APARTMENT_ROOM_LAYOUTS[pack.layoutId];
     }
@@ -306,7 +377,6 @@ export class ApartmentRoomSystem extends ApartmentRoomSystemCore {
 
   geometryStorageKey() {
     if (!this.roomPairActive) return super.geometryStorageKey();
-
     return `lost-artifacts:apartment-layout:v1:${this.roomPair.pack.layoutId}`;
   }
 }

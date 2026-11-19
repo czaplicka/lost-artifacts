@@ -1,22 +1,28 @@
 import {
-  CrimeLabAssistantDialog as CrimeLabAssistantDialogBase
-} from './CrimeLabAssistantDialogBase.js';
+  CrimeLabAssistantDialog as CrimeLabAssistantExitDialog,
+} from './CrimeLabAssistantExitDialog.js';
+import { showDialogueBubbles } from '../../ui/DialogueBubbles.js';
 
-import { audioManager } from '../../managers/AudioManager.js';
+export class CrimeLabAssistantDialog extends CrimeLabAssistantExitDialog {
+  open(options = {}) {
+    if (!super.open(options)) return false;
 
-export class CrimeLabAssistantDialog extends CrimeLabAssistantDialogBase {
-  playSfx(key, volume) {
-    if (!key) return;
+    const panel = this.view;
 
-    try {
-      audioManager.init(this.scene);
+    // Wspólny styl dymka; przewijanie i odpowiedzi nadal obsługuje CSI.
+    showDialogueBubbles({
+      L: panel.L,
+      scene: panel.scene,
+      root: panel.root,
+      body: panel.body,
+      pageLabel: { setText() {} },
+      renderTextPage() {},
+    }, [{ speaker: 'npc', text: this.fullText }]);
 
-      audioManager.playSfx(key, {
-        gain: volume,
-        volume: audioManager.getSfxVolume() * volume
-      });
-    } catch (error) {
-      // Dialogue audio is cosmetic; never interrupt a conversation.
-    }
+    // Przeliczamy strony na szerokość dymka, nie starej kolumny.
+    // Dotychczasowe opcje odpowiedzi pozostają w panelu.
+    panel.setText(this.fullText);
+
+    return true;
   }
 }

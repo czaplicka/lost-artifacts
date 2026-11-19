@@ -110,7 +110,6 @@ export class AlexMouthAnimation {
         texture.add(frame, 0, frame * cropWidth, 0, cropWidth, cropHeight);
       }
       texture.refresh();
-      console.info('[AlexMouth] Lip-only frames ready.', { cellWidth, cropX, cropY, cropWidth, cropHeight });
       return true;
     } catch (error) {
       console.warn('[AlexMouth] Could not prepare mouth frames:', error);

@@ -1,6 +1,6 @@
 import { AssetManager } from './managers/AssetManager.js';
 import { BootScene } from './scenes/BootScene.js';
-import { PreloaderScene } from './scenes/PreloaderScene.js';
+import { PreloaderScene } from './scenes/PreloaderSceneWithKitchenAnimations.js';
 import { SettingsScene } from './scenes/SettingsScene.js';
 import { EnterScene } from './scenes/EnterChaseScene.js';
 import { PlayerHudScene } from './scenes/PlayerHudScene.js';
@@ -216,6 +216,8 @@ function installDevTools(game) {
     return;
   }
 
+  window.game = game;
+
   import('./tests/BaseSceneLeakTest.js')
     .then(({ installLeakTest }) => {
       installLeakTest(game);
@@ -262,8 +264,6 @@ const config = {
 };
 
 const game = new Phaser.Game(config);
-
-window.game = game;
 
 game.assets = new AssetManager(game);
 

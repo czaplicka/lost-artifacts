@@ -133,6 +133,8 @@ export class BaseScene extends BaseSceneCore {
   }
 
   cleanup() {
+    if (this._cleanupDone) return;
+
     this.events.off(
       Phaser.Scenes.Events.CREATE,
       this.createPIInventory,
@@ -144,6 +146,8 @@ export class BaseScene extends BaseSceneCore {
 
     super.cleanup();
 
-    this.piInventoryUI?.destroy();
+    const piInventoryUI = this.piInventoryUI;
+    this.piInventoryUI = null;
+    piInventoryUI?.destroy();
   }
 }

@@ -1,21 +1,49 @@
 import { NewsstandScene as ExistingNewsstandScene } from './NewsstandSceneBase.js';
 import { MonthlySpillReader } from '../systems/newsstand/MonthlySpillReader.js';
 import { MONTHLY_SPILL_ISSUE as ISSUE } from '../systems/newsstand/MonthlySpillIssue.js';
-import { NEWSSTAND_HOTSPOTS, isEditableTarget } from '../config/newsstandConfig.js';
-import { prepareNewspaperBackground } from '../ui/NewspaperAssets.js';
+import { isEditableTarget } from '../config/newsstandConfig.js';
+import { NewspaperLayoutConfig } from '../NewspaperLayoutConfig.js';
+import { ensureDailyPaperTexture } from '../ui/NewspaperPaper.js';
 import { moneyManager, MONEY_SOURCE, ECONOMY_CATEGORY } from '../managers/MoneyManager.js';
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { playShopPurchaseAudio } from './shop/ShopPurchaseAudio.js';
 
 const MONTHLY_ID = 'monthly_spill';
-const PAGE_WIDTH = 740;
-const PAGE_HEIGHT = 1000;
-const INK = '#2b211b';
+const PAPER_KEY = 'paper_monthly_spill_clean';
+const RED = 0xa91822;
+const YELLOW = 0xffd943;
+const BLACK = 0x1e1916;
+const WHITE = '#fff8e8';
+const INK = '#211a17';
+const HEADLINE = 'Impact, Arial Black, sans-serif';
 
-class MonthlySpillDailyReader extends MonthlySpillReader {
+class MonthlySpillTabloidReader extends MonthlySpillReader {
+  open() {
+    if (this.isOpen || !ISSUE.pages.length) return;
+
+    this.hudScene = this.scene.game.scene.keys?.PlayerHudScene;
+    this.hudWasVisible = this.hudScene?.sys.isVisible() ?? false;
+    this.hudScene?.sys.setVisible(false);
+
+    try {
+      super.open();
+    } catch (error) {
+      this.dispose();
+      throw error;
+    }
+  }
+
+  dispose() {
+    try {
+      if (this.isOpen) super.dispose();
+    } finally {
+      this.hudScene?.sys.setVisible(this.hudWasVisible);
+      this.hudScene = null;
+    }
+  }
+
   drawPage(parent, x, yOrIndex, explicitIndex) {
-    // Obsługuje zarówno wersję z GitHuba, jak i poprzednią wersję z czatu.
     const index = explicitIndex ?? yOrIndex;
     const y = explicitIndex === undefined ? 0 : yOrIndex;
     const data = ISSUE.pages[index];
@@ -24,89 +52,100 @@ class MonthlySpillDailyReader extends MonthlySpillReader {
     const page = this.scene.add.container(x, y);
     parent.add(page);
 
-    const paperKey = prepareNewspaperBackground(this.scene, 'daily');
-    const paper = this.scene.add.image(0, 0, paperKey)
+    page.add(this.scene.add.image(0, 0, this.paperKey)
       .setOrigin(0)
-      .setDisplaySize(PAGE_WIDTH, PAGE_HEIGHT);
-    page.add(paper);
+      .setDisplaySize(740, 1000));
 
-    const rule = (top, height = 2) => {
-      const line = this.scene.add.rectangle(44, top, 652, height, 0x493b2f)
-        .setOrigin(0);
-      page.add(line);
+    const box = (left, top, w, h, color) => {
+      const shape = this.scene.add.rectangle(left, top, w, h, color).setOrigin(0);
+      page.add(shape);
+      return shape;
     };
 
-    const text = (value, left, top, width, maxHeight, fontSize, color = INK) => {
-      const label = this.scene.add.text(left, top, String(value ?? ''), {
-        fontFamily: 'SpecialElite',
-        fontSize: `${fontSize}px`,
-        color,
-        lineSpacing: 5,
-        wordWrap: { width, useAdvancedWrap: true }
+    const text = (value, left, top, w, h, size, options = {}) => {
+      if (value == null || value === '') return;
+
+      const label = this.scene.add.text(left, top, String(value), {
+        fontFamily: options.headline ? HEADLINE : 'SpecialElite',
+        fontStyle: options.headline ? 'bold' : '',
+        fontSize: `${size}px`,
+        color: options.color || INK,
+        lineSpacing: options.headline ? -2 : 5,
+        wordWrap: { width: w, useAdvancedWrap: true }
       });
 
-      while (label.height > maxHeight && fontSize > 12) {
-        label.setFontSize(--fontSize);
+      while ((label.height > h || label.width > w) && size > 12) {
+        label.setFontSize(--size);
       }
 
-      if (label.height > maxHeight) {
-        label.setScale(maxHeight / label.height);
+      if (label.height > h || label.width > w) {
+        label.setScale(Math.min(h / label.height, w / label.width));
       }
 
+      if (options.center) label.x += (w - label.displayWidth) / 2;
       page.add(label);
       return label;
     };
 
-    const body = Array.isArray(data.body) ? data.body.join('\n\n') : data.body;
+    const banner = (value, left, top, w, color, ink = WHITE) => {
+      box(left, top, w, 37, color);
+      text(value, left + 9, top + 3, w - 18, 31, 24, {
+        headline: true, color: ink, center: true
+      });
+    };
 
-    text(ISSUE.edition, 44, 36, 652, 24, 17);
-    rule(65);
-    text(ISSUE.title.toUpperCase(), 44, 85, 652, 74, 55, '#8e2525');
-    rule(166, 4);
+    const big = (value, left, top, w, h, size) =>
+      text(String(value ?? '').toUpperCase(), left, top, w, h, size, {
+        headline: true
+      });
 
     if (data.type === 'cover') {
-      text('EXCLUSIVE', 44, 204, 652, 32, 24, '#8e2525');
-      text(data.headline, 44, 251, 652, 300, 78);
-      text(data.deck, 44, 568, 652, 135, 31);
-      rule(728);
-      (data.teasers || []).forEach((line, i) => {
-        text(line, 44, 753 + i * 47, 652, 42, 23);
+      text(ISSUE.edition, 34, 23, 672, 25, 17);
+      box(34, 54, 672, 111, RED);
+      text(ISSUE.title.toUpperCase(), 48, 63, 644, 87, 78, {
+        headline: true, color: WHITE, center: true
+      });
+      text(ISSUE.tagline, 34, 180, 672, 40, 23);
+      banner('EXCLUSIVE', 34, 232, 197, YELLOW, INK);
+      big(data.headline, 34, 289, 672, 375, 130);
+      text(data.deck, 34, 682, 672, 120, 30);
+
+      const teasers = (data.teasers || []).slice(0, 3);
+      teasers.forEach((line, i) => {
+        const w = (672 - (teasers.length - 1) * 7) / teasers.length;
+        const left = 34 + i * (w + 7);
+        box(left, 814, w, 120, i % 2 ? YELLOW : RED);
+        text(String(line).toUpperCase(), left + 10, 826, w - 20, 99, 31, {
+          headline: true, color: i % 2 ? INK : WHITE
+        });
       });
     } else {
-      text(data.section, 44, 197, 652, 28, 19, '#8e2525');
-      text(data.headline, 44, 232, 652, 155, 54);
-      text(data.deck, 44, 393, 652, 70, 25);
-      rule(475);
+      banner(data.section || ISSUE.title, 34, 30, 672, RED);
+      big(data.headline, 34, 87, 672, 178, 75);
+      text(data.deck, 34, 269, 672, 72, 26);
 
-      if (data.type === 'horoscope') {
-        const entries = data.entries || [];
-        const rowHeight = Math.min(55, 438 / Math.max(1, entries.length));
+      const body = Array.isArray(data.body) ? data.body.join('\n\n') : data.body;
 
-        entries.forEach(([sign, prediction], i) => {
-          const top = 490 + i * rowHeight;
-          text(sign, 44, top, 142, rowHeight - 3, 20, '#8e2525');
-          text(prediction, 200, top, 496, rowHeight - 3, 21);
-        });
-      } else if (data.type === 'contents') {
-        text(body, 44, 494, 652, 157, 25);
-        if (data.quote) text(`“${data.quote}”`, 44, 665, 652, 57, 22);
+      if (data.type === 'contents') {
+        text(body, 34, 376, 672, 190, 25);
+        if (data.quote) text(`“${data.quote}”`, 34, 580, 672, 85, 28);
+        banner('IN THIS ISSUE', 34, 674, 672, BLACK);
 
         const rows = data.contents || [];
-        const rowHeight = Math.min(38, 195 / Math.max(1, rows.length));
+        const rowHeight = Math.min(42, 215 / Math.max(1, rows.length));
 
         rows.forEach(([number, label], i) => {
-          const top = 737 + i * rowHeight;
-          const zone = this.scene.add.zone(44, top, 652, rowHeight)
-            .setOrigin(0)
+          const top = 719 + i * rowHeight;
+          const hit = box(34, top, 672, rowHeight - 2, i % 2 ? 0xf1e2b7 : YELLOW)
             .setInteractive({ useHandCursor: true });
-          page.add(zone);
 
-          text(label, 44, top + 3, 590, rowHeight - 5, 22);
-          text(number, 649, top + 3, 47, rowHeight - 5, 22, '#8e2525');
+          text(label, 46, top + 4, 586, rowHeight - 8, 23, { headline: true });
+          text(number, 650, top + 4, 46, rowHeight - 8, 23, { headline: true });
 
-          zone.on('pointerup', (_pointer, _x, _y, event) => {
+          hit.on('pointerup', (_pointer, _x, _y, event) => {
             event?.stopPropagation();
             const next = Number(number) - 1;
+
             if (!this.isOpen || this.busy || !Number.isInteger(next) ||
                 next < 0 || next >= ISSUE.pages.length) return;
 
@@ -116,25 +155,42 @@ class MonthlySpillDailyReader extends MonthlySpillReader {
             this.render();
           });
         });
-      } else {
-        const words = String(body ?? '').trim().split(/\s+/);
-        const middle = Math.ceil(words.length / 2);
-        const bodyHeight = data.quote || data.fine ? 300 : 425;
+      } else if (data.type === 'horoscope') {
+        const entries = data.entries || [];
+        const rowHeight = Math.min(57, 556 / Math.max(1, entries.length));
 
-        text(words.slice(0, middle).join(' '), 44, 494, 310, bodyHeight, 25);
-        text(words.slice(middle).join(' '), 386, 494, 310, bodyHeight, 25);
+        entries.forEach(([sign, prediction], i) => {
+          const top = 373 + i * rowHeight;
+          box(34, top, 142, rowHeight - 3, i % 2 ? YELLOW : RED);
+          text(sign, 43, top + 5, 124, rowHeight - 10, 22, {
+            headline: true, color: i % 2 ? INK : WHITE
+          });
+          text(prediction, 190, top + 5, 516, rowHeight - 10, 22);
+        });
+      } else {
+        const copy = String(body ?? '').trim();
+        const middle = Math.floor(copy.length / 2);
+        const before = copy.lastIndexOf(' ', middle);
+        const after = copy.indexOf(' ', middle);
+        const split = before > 0 ? before : after > 0 ? after : copy.length;
+        const left = copy.slice(0, split).trim();
+        const right = copy.slice(split).trim();
+        const bodyHeight = data.quote || data.fine ? 380 : 550;
+
+        text(left, 34, 376, right ? 317 : 672, bodyHeight, 26);
+        if (right) text(right, 389, 376, 317, bodyHeight, 26);
 
         if (data.quote) {
-          rule(810);
-          text(`“${data.quote}”`, 44, 826, 652, 63, 27, '#8e2525');
+          box(34, 774, 672, 106, YELLOW);
+          text(`“${data.quote}”`, 49, 787, 642, 80, 37, { headline: true });
         }
 
-        if (data.fine) text(data.fine, 44, 898, 652, 31, 17);
+        if (data.fine) text(data.fine, 34, 896, 672, 38, 17);
       }
     }
 
-    rule(942);
-    text(index + 1, 655, 957, 42, 26, 19);
+    text(ISSUE.edition, 34, 961, 600, 25, 16);
+    text(index + 1, 661, 959, 45, 28, 21, { headline: true });
   }
 }
 
@@ -146,41 +202,11 @@ export class NewsstandScene extends ExistingNewsstandScene {
 
   create() {
     super.create();
-    this.monthlyReader = new MonthlySpillDailyReader(this);
-
-    if (this.hotspots.configs.some(config => config.id === MONTHLY_ID)) return;
-
-    const time = NEWSSTAND_HOTSPOTS.find(config => config.id === 'time');
-    if (!time) return;
-
-    const monthly = {
-      id: MONTHLY_ID,
-      kind: 'newspaper',
-      type: 'monthly',
-      label: ISSUE.title,
-      x: time.x + time.width + 4,
-      y: time.y,
-      width: 102,
-      height: time.height,
-      price: ISSUE.price,
-      depth: time.depth,
-      labelDepth: time.labelDepth
-    };
-
-    this.hotspots.configs.push(monthly);
-    this.hotspots.createHotspot(monthly);
-
-    const entry = this.hotspots.entries.find(item => item.config === monthly);
-    entry?.priceLabel.setVisible(false);
-    this.hotspots.updateDebug();
+    this.monthlyReader = new MonthlySpillTabloidReader(this);
   }
 
   async buyAndOpenNewspaper(config) {
-    if (config.id === MONTHLY_ID) {
-      this.buyAndOpenMonthly();
-      return;
-    }
-
+    if (config.id === MONTHLY_ID) return this.buyAndOpenMonthly();
     return super.buyAndOpenNewspaper(config);
   }
 
@@ -189,45 +215,52 @@ export class NewsstandScene extends ExistingNewsstandScene {
   }
 
   buyAndOpenMonthly() {
-    if (!this.monthlyReader || this.isPurchaseBlocked()) return;
+    const reader = this.monthlyReader;
+    if (!reader || this.isPurchaseBlocked()) return;
 
     try {
-      prepareNewspaperBackground(this, 'daily');
-    } catch (error) {
-      console.error('[NewsstandScene] Monthly Spill paper unavailable:', error);
-      this.showPurchaseErrorMessage();
-      return;
-    }
+      reader.paperKey = ensureDailyPaperTexture(
+        this,
+        { ...NewspaperLayoutConfig.daily, structure: {} },
+        PAPER_KEY
+      );
 
-    if (gameState.monthlyMagazineAccess?.[ISSUE.id] !== true) {
-      const purchase = moneyManager.spend(ISSUE.price, {
-        source: MONEY_SOURCE.CASH,
-        category: ECONOMY_CATEGORY.NEWSPAPER,
-        description: `Monthly magazine: ${ISSUE.title}, ${ISSUE.edition}`,
-        metadata: {
-          magazineId: ISSUE.id,
-          newspaperType: 'monthly',
-          cityId: this.getActiveCityId()
+      if (!reader.paperKey) {
+        throw new Error('Could not create clean Monthly Spill paper.');
+      }
+
+      if (gameState.monthlyMagazineAccess?.[ISSUE.id] !== true) {
+        const purchase = moneyManager.spend(ISSUE.price, {
+          source: MONEY_SOURCE.CASH,
+          category: ECONOMY_CATEGORY.NEWSPAPER,
+          description: `Monthly magazine: ${ISSUE.title}, ${ISSUE.edition}`,
+          metadata: {
+            magazineId: ISSUE.id,
+            newspaperType: 'monthly',
+            cityId: this.getActiveCityId()
+          }
+        });
+
+        if (!purchase.ok) {
+          this.showNotEnoughMoneyMessage(ISSUE.title, purchase.required, purchase.available);
+          return;
         }
-      });
 
-      if (!purchase.ok) {
-        this.showNotEnoughMoneyMessage(ISSUE.title, purchase.required, purchase.available);
-        return;
+        const access = gameState.monthlyMagazineAccess;
+        if (!access || typeof access !== 'object' || Array.isArray(access)) {
+          gameState.monthlyMagazineAccess = {};
+        }
+
+        gameState.monthlyMagazineAccess[ISSUE.id] = true;
+        requestAutosave();
+        if (ISSUE.price > 0) playShopPurchaseAudio(this);
       }
 
-      if (!gameState.monthlyMagazineAccess ||
-          typeof gameState.monthlyMagazineAccess !== 'object' ||
-          Array.isArray(gameState.monthlyMagazineAccess)) {
-        gameState.monthlyMagazineAccess = {};
-      }
-
-      gameState.monthlyMagazineAccess[ISSUE.id] = true;
-      requestAutosave();
-      if (ISSUE.price > 0) playShopPurchaseAudio(this);
+      reader.open();
+    } catch (error) {
+      console.error('[NewsstandScene] Could not open Monthly Spill:', error);
+      this.showPurchaseErrorMessage();
     }
-
-    this.monthlyReader.open();
   }
 
   handleEscape(event) {
@@ -235,7 +268,6 @@ export class NewsstandScene extends ExistingNewsstandScene {
       if (!isEditableTarget(event)) this.monthlyReader.close();
       return;
     }
-
     super.handleEscape(event);
   }
 

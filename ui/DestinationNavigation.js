@@ -1,5 +1,8 @@
-import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
+import { dialogueText as __dialogueText } from '../dialogues/DialogueText.js';
 import { gameState } from '../GameData.js';
+
+export const PI_RETURN_CITY_KEY = 'piOffice:returnCity';
+
 const NAVIGATION_SCENES = new Set([
   'GameScene', 'OfficeScene', 'CityScene', 'CrimeCityScene',
   'LocationScene', 'HiddenObjectsScene', 'CrimeLabScene', 'HotelScene',
@@ -16,20 +19,29 @@ export class DestinationNavigation {
     const owner = this.scene;
     const manager = owner?.scene?.manager;
     if (!owner?.sys || !manager) return null;
+
     const valid = candidate => Boolean(
       candidate?.sys?.isActive() && !candidate._cleanupDone &&
       NAVIGATION_SCENES.has(candidate.sys.settings.key)
     );
+
     const active = manager.getScenes(true).filter(valid);
     const source = valid(owner) ? owner : active[active.length - 1];
+
     if (!source) {
       console.error('[DestinationsUI] No active navigation scene.');
       return null;
     }
+
     const key = source.sys.settings.key;
     const hud = manager.keys.PlayerHudScene;
+
     owner.registry?.set('currentSceneKey', key);
-    if (hud && hud.currentGameplaySceneKey !== key) hud.setCurrentGameplayScene(key);
+
+    if (hud && hud.currentGameplaySceneKey !== key) {
+      hud.setCurrentGameplayScene(key);
+    }
+
     return source;
   }
 
@@ -40,6 +52,7 @@ export class DestinationNavigation {
   async ensureSceneRegistered(key) {
     const loader = this.scene?.game?.sceneLoader;
     if (loader) await loader.ensure(key);
+
     if (!this.getRegisteredScene(key)) {
       throw new Error(`${key} is not registered. Check sceneRegistry.js.`);
     }
@@ -49,47 +62,81 @@ export class DestinationNavigation {
     if (!sourceScene?.sys?.isActive() || sourceScene._cleanupDone) {
       throw new Error('The source scene is unavailable.');
     }
-    if (typeof sourceScene.goto === 'function') return sourceScene.goto(targetKey, data);
+
+    if (typeof sourceScene.goto === 'function') {
+      return sourceScene.goto(targetKey, data);
+    }
+
     const loader = sourceScene.game?.sceneLoader;
     if (loader) return loader.goto(sourceScene, targetKey, data);
+
     if (!sourceScene.scene.manager.keys[targetKey]) {
       throw new Error(`Scene "${targetKey}" is not registered.`);
     }
+
     sourceScene.scene.start(targetKey, data);
     return true;
   }
 
   async enterOffice() {
-    if (this.isTransitioning || this.isDestroyed || this.committedTravelPayload) return false;
-    const source = this.getNavigationScene();
-    if (!source) {
-      this.showTravelError(__dialogueText("ui/DestinationNavigation.js", "t_9ac14acb1c077fbca660"));
+    if (this.isTransitioning || this.isDestroyed || this.committedTravelPayload) {
       return false;
     }
-    if (source.sys.settings.key === 'DetectiveOfficeScene') {
+
+    const source = this.getNavigationScene();
+
+    if (!source) {
+      this.showTravelError(
+        __dialogueText('ui/DestinationNavigation.js', 't_9ac14acb1c077fbca660')
+      );
+      return false;
+    }
+
+    const sourceKey = source.sys.settings.key;
+
+    if (sourceKey === 'DetectiveOfficeScene') {
       this.close();
       return true;
     }
+
     this.isTransitioning = true;
     this.setConfirmEnabled(false);
     this.updateHQButton();
     this.updateOfficeButton();
+
+    const registry = source.registry;
+    let previousReturnCity;
+    let returnCityWritten = false;
+
     try {
       await this.ensureSceneRegistered('TravelTransitionScene');
       await this.ensureSceneRegistered('DetectiveOfficeScene');
+
       if (this.isDestroyed) return false;
+
       if (!source.sys.isActive() || this.getNavigationScene() !== source) {
         throw new Error('The source location changed before the office return.');
       }
+
       const state = this.gameState || gameState;
+      const fromCityId = state.currentCityId || gameState.currentCityId || null;
+      const fromCity = state.currentCity || gameState.currentCity ||
+        fromCityId || sourceKey;
+
       const payload = {
         returnToPIOffice: true,
         destinationScene: 'DetectiveOfficeScene',
-        fromCity: state.currentCity || gameState.currentCity || source.sys.settings.key,
-        fromCityId: state.currentCityId || gameState.currentCityId || null,
-        toCity: __dialogueText("ui/DestinationNavigation.js", "t_6114b7873f77428c0e51"),
+        fromCity,
+        fromCityId,
+        toCity: __dialogueText(
+          'ui/DestinationNavigation.js',
+          't_6114b7873f77428c0e51'
+        ),
         transportType: 'plane',
-        transportLabel: __dialogueText("ui/DestinationNavigation.js", "t_694c51dc8a11f3ef9506"),
+        transportLabel: __dialogueText(
+          'ui/DestinationNavigation.js',
+          't_694c51dc8a11f3ef9506'
+        ),
         travelHours: 0,
         baseTravelHours: 0,
         moneySpent: 0,
@@ -97,19 +144,58 @@ export class DestinationNavigation {
         isCrimeSceneArrival: false,
         entrySource: 'destinations',
         fromDestinations: true,
-        fromScene: source.sys.settings.key
+        fromScene: sourceKey
       };
+
+      previousReturnCity = registry.get(PI_RETURN_CITY_KEY);
+
+      // Home Town isn't a departure from the agency investigation.
+      if (sourceKey !== 'HomeCityScene') {
+        registry.set(
+          PI_RETURN_CITY_KEY,
+          fromCityId && fromCityId !== 'hq'
+            ? {
+                cityId: fromCityId,
+                cityName: fromCity,
+                sceneKey: sourceKey === 'CrimeCityScene'
+                  ? 'CrimeCityScene'
+                  : 'CityScene'
+              }
+            : null
+        );
+
+        returnCityWritten = true;
+      }
+
       this.close({ restoreHud: false });
-      const opened = await this.navigateFrom(source, 'TravelTransitionScene', payload);
-      if (opened === false) throw new Error('PI office travel transition returned false.');
+
+      const opened = await this.navigateFrom(
+        source,
+        'TravelTransitionScene',
+        payload
+      );
+
+      if (opened === false) {
+        throw new Error('PI office travel transition returned false.');
+      }
+
       return true;
     } catch (error) {
+      if (returnCityWritten) {
+        registry.set(PI_RETURN_CITY_KEY, previousReturnCity ?? null);
+      }
+
       console.error('[DestinationsUI] Failed to enter PI office:', error);
+
       if (!this.isDestroyed && this.scene?.sys?.isActive()) {
         this.isTransitioning = false;
         if (!this.isOpen) this.open(this.gameState || gameState);
-        this.showTravelError(__dialogueText("ui/DestinationNavigation.js", "t_6d2abf6b3f5c4752f743"));
+
+        this.showTravelError(
+          __dialogueText('ui/DestinationNavigation.js', 't_6d2abf6b3f5c4752f743')
+        );
       }
+
       return false;
     } finally {
       if (!this.isDestroyed) {

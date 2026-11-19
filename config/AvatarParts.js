@@ -75,13 +75,15 @@ export const APPEARANCE_OPTIONS = {
         layer('sketch_eyes', `${UI}sketch_eyes.webp`, 'eyes', 'eyes')
       ], { ready: true, quip: 'A face you forget instantly. Ideal for the profession.' }),
       P('square', 'Square Jaw', [art('base', 'square', 'skin'), art('eyes', 'square', 'eyes')],
-        { quip: 'Jaw so square it has its own zoning laws.' }),
+        { ready: true, quip: 'Jaw so square it has its own zoning laws.' }),
       P('round', 'Round', [art('base', 'round', 'skin'), art('eyes', 'round', 'eyes')],
         { quip: 'Trustworthy. Suspiciously so.' }),
       P('long', 'Long', [art('base', 'long', 'skin'), art('eyes', 'long', 'eyes')],
         { quip: 'Looks permanently disappointed. Useful in interrogations.' }),
       P('heart', 'Heart-Shaped', [art('base', 'heart', 'skin'), art('eyes', 'heart', 'eyes')],
-        { quip: 'Cheekbones sold separately. Yours came with the file.' })
+        { ready: true, quip: 'Cheekbones sold separately. Yours came with the file.' }),
+      P('lady', 'Lady-like', [art('base', 'lady', 'skin'), art('eyes', 'lady', 'eyes')],
+        { ready: true, quip: 'Watch out for those eyes.' })
     ]
   },
 
@@ -109,17 +111,19 @@ export const APPEARANCE_OPTIONS = {
         layer('long_hair', `${UI}long_hair.webp`, 'hairBack', 'hair'),
         layer('sketch_hair', `${UI}sketch_hair.webp`, 'hairFront', 'hair')
       ], { ready: true, quip: 'Gets caught in every door. Case-relevant, once.' }),
-      P('messy', 'Messy', [art('hairFront', 'messy', 'hair')], { quip: 'Slept in the office. Again.' }),
+      P('messy', 'Messy', [art('hairFront', 'messy', 'hair')], { ready: true, quip: 'Slept in the office. Again.' }),
       P('bob', 'Bob', [art('hairFront', 'bob', 'hair')], { quip: 'Sharp. Like the questions.' }),
       P('bobBangs', 'Bob With Bangs', [art('hairFront', 'bobBangs', 'hair')], { quip: 'Hides the eyebrow that does all the judging.' }),
       P('pixie', 'Pixie', [art('hairFront', 'pixie', 'hair')], { quip: 'Fast to dry. Faster to disappear.' }),
       P('curly', 'Curly', [art('hairFront', 'curly', 'hair')], { quip: 'Wins every fight with humidity. Loses to hats.' }),
       P('braids', 'Braids', [art('hairBack', 'braids', 'hair'), art('hairFront', 'braids', 'hair')], { quip: 'Ready for anything. Including a long stakeout.' }),
-      P('sideBraid', 'Side Braid', [art('hairBack', 'sideBraid', 'hair'), art('hairFront', 'sideBraid', 'hair')], { quip: 'Neat enough to lie convincingly.' }),
+      P('sideBraid', 'Side Braid', [art('hairFront', 'sideBraid', 'hair'), art('hairFront', 'sideBraid', 'hair')], { ready: true, quip: 'Neat enough to lie convincingly.' }),
       P('highPonytail', 'High Ponytail', [art('hairBack', 'highPonytail', 'hair'), art('hairFront', 'highPonytail', 'hair')], { quip: 'Aerodynamic. Chases suspects better.' }),
       P('lowBun', 'Low Bun', [art('hairBack', 'lowBun', 'hair'), art('hairFront', 'lowBun', 'hair')], { quip: 'Holds a pencil. Possibly two. Possibly evidence.' }),
       P('longWaves', 'Long Waves', [art('hairBack', 'longWaves', 'hair'), art('hairFront', 'longWaves', 'hair')], { quip: 'Noir-approved. Shampoo-commercial-approved too.' }),
-      P('hat', 'Fedora', [art('headwear', 'hat')], { suppress: ['hairFront'], quip: 'Not an archaeologist. Legally.' })
+      P('hat', 'Fedora', [art('headwear', 'hat')], { suppress: ['hairFront'], quip: 'Not an archaeologist. Legally.' }),
+      P('wtf', 'WTF', [art('hairFront', 'wtf', 'hair')], { ready: true, quip: 'I have no clue.' }),
+      P('youngster', 'Youngster', [art('hairFront', 'youngster', 'hair')], { ready: true, quip: 'When I still had hair.' })
     ]
   },
 
@@ -168,8 +172,8 @@ export const APPEARANCE_OPTIONS = {
     label: 'Accessory',
     options: [
       NONE('None'),
-      P('glasses', 'Glasses', [layer('glasses', `${UI}glasses.webp`, 'eyewear')],
-        { ready: true, quip: 'Worn to look smarter. Results vary.' }),
+      P('glasses', 'Glasses', [layer('glasses', `${UI}glasses.webp`, 'eyewear')], { ready: true, quip: 'Worn to look smarter. Results vary.' }),
+              P('red-glasses', 'Red Glasses', [art('eyewear', 'red-glasses')], {ready: true, quip: 'Stolen from a granny.' }),
       P('sunglasses', 'Sunglasses', [art('eyewear', 'sunglasses')], { quip: 'Indoors. At night. Because.' }),
       P('monocle', 'Monocle', [art('eyewear', 'monocle')], { quip: 'Nobody has the heart to tell you.' }),
       P('scarf', 'Scarf', [art('clothing', 'scarf')], { quip: 'Mysterious. Also, the office has no heating.' }),
@@ -197,8 +201,9 @@ export const APPEARANCE_OPTIONS = {
     label: 'Battle Damage',
     options: [
       NONE('Unmarked', 'Hasn\'t seen real action yet.'),
-      P('scar', 'Scar', [layer('scar', `${UI}scar.webp`, 'marks')],
-        { ready: true, quip: 'Bar fight, allegedly. Paper cut, actually.' }),
+      P('scar', 'Left eye Scar', [layer('scar', `${UI}scar.webp`, 'marks')], { ready: true, quip: 'Bar fight, allegedly. Paper cut, actually.' }),
+      P('scar-right', 'Right eye Scar', [art('marks', 'scar-right')], { ready: true, quip: 'Try shaving more carefully.' }),
+      P('scar-mouth', 'Scar on Mouth', [art('marks', 'scar-mouth')], { ready: true, quip: 'You showed that cabinet.' }),
       P('bandage', 'Plaster', [art('marks', 'bandage')], { quip: 'Paper cut. Case closed.' }),
       P('eyepatch', 'Eyepatch', [art('marks', 'eyepatch')], { quip: 'Lost it on a case. Will not say which one.' })
     ]

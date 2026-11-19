@@ -191,7 +191,7 @@ export class ApartmentRoomSystem {
       this.layoutConfig
     );
 
-    if (this.renderedPackId === 'debt') {
+    if (this.renderedPackId === 'debt' && !this.roomPairActive) {
       this.puzzle = new DebtApartmentPuzzle(this);
       this.puzzle.prepare(scene.apartmentConfig.objects);
     }

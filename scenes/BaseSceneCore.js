@@ -1,7 +1,6 @@
 import { EventBus } from '../EventBus.js';
 import { MonologueManager } from '../managers/MonologueManager.js';
 import { inventoryManager } from '../managers/InventoryManager.js';
-import { bindCaseTimeGame } from '../managers/CaseTimeWatcher.js';
 
 export class BaseScene extends Phaser.Scene {
   constructor(config) {
@@ -16,11 +15,10 @@ export class BaseScene extends Phaser.Scene {
 
     this._monologue = null;
 
-    this._sceneLoaderNavInFlight = false;
+    this._sceneLoaderNavInFlight = null;
     this._overlayLoadsInFlight = new Set();
 
     this._cleanupDone = false;
-    bindCaseTimeGame(this.game);
     this._sleepCleanupDone = false;
     this._destroyCleanupDone = false;
   }
@@ -77,7 +75,7 @@ export class BaseScene extends Phaser.Scene {
     this._sleepCleanupDone = false;
     this._destroyCleanupDone = false;
 
-    this._sceneLoaderNavInFlight = false;
+    this._sceneLoaderNavInFlight = null;
 
     if (!(this.activeTweens instanceof Set)) {
       this.activeTweens = new Set(
@@ -513,7 +511,6 @@ export class BaseScene extends Phaser.Scene {
       }
     }
 
-    this._sceneLoaderNavInFlight = false;
   }
 
   handleWake() {
@@ -624,7 +621,7 @@ export class BaseScene extends Phaser.Scene {
       this
     );
 
-    this._sceneLoaderNavInFlight = false;
+    this._sceneLoaderNavInFlight = null;
     this._overlayLoadsInFlight.clear();
   }
 
@@ -1024,15 +1021,18 @@ export class BaseScene extends Phaser.Scene {
       return false;
     }
 
-    this._sceneLoaderNavInFlight = true;
+    const navigation = Symbol('scene-navigation');
+    this._sceneLoaderNavInFlight = navigation;
+    let queued = false;
 
     try {
       if (this.game.sceneLoader) {
-        return await this.game.sceneLoader.goto(
+        queued = await this.game.sceneLoader.goto(
           this,
           key,
           data
         );
+        return queued;
       }
 
       if (!this.hasScene(key)) {
@@ -1040,26 +1040,28 @@ export class BaseScene extends Phaser.Scene {
           `[BaseScene] Cannot start "${key}". ` +
           'Scene is not registered and SceneLoader is unavailable.'
         );
-
         return false;
       }
 
       this.scene.start(key, data);
+      queued = true;
       return true;
     } catch (error) {
       console.error(
         `[BaseScene] goto("${key}") failed:`,
         error
       );
-
       return false;
     } finally {
-      this._sceneLoaderNavInFlight = false;
+      // Po zakolejkowaniu przejścia blokadę zwalnia cleanup().
+      if (!queued && this._sceneLoaderNavInFlight === navigation) {
+        this._sceneLoaderNavInFlight = null;
+      }
     }
   }
 
   safeDisableInteractive(gameObject) {
-    if (!gameObject || gameObject.isDestroyed) {
+    if (!gameObject?.scene || !gameObject.active) {
       return false;
     }
 
@@ -1082,7 +1084,7 @@ export class BaseScene extends Phaser.Scene {
     gameObject,
     config = { useHandCursor: true }
   ) {
-    if (!gameObject || gameObject.isDestroyed) {
+    if (!gameObject?.scene || !gameObject.active) {
       return false;
     }
 

@@ -5,7 +5,7 @@ class ManagedEventBus {
     // owner → Map(listenerId → entry)
     this.registry = new Map();
 
-    // event → Set(entry), obejmuje też listenery bez owner.
+    // event → Set(entry), również dla listenerów bez ownera
     this.eventRegistry = new Map();
 
     this.sceneBindings = new WeakMap();
@@ -51,31 +51,22 @@ class ManagedEventBus {
 
   _track(entry) {
     if (!this.eventRegistry.has(entry.event)) {
-      this.eventRegistry.set(
-        entry.event,
-        new Set()
-      );
+      this.eventRegistry.set(entry.event, new Set());
     }
 
     this.eventRegistry.get(entry.event).add(entry);
 
     if (this._hasOwner(entry.owner)) {
       if (!this.registry.has(entry.owner)) {
-        this.registry.set(
-          entry.owner,
-          new Map()
-        );
+        this.registry.set(entry.owner, new Map());
       }
 
-      this.registry
-        .get(entry.owner)
-        .set(entry.id, entry);
+      this.registry.get(entry.owner).set(entry.id, entry);
     }
   }
 
   _untrack(entry) {
-    const eventEntries =
-      this.eventRegistry.get(entry.event);
+    const eventEntries = this.eventRegistry.get(entry.event);
 
     if (eventEntries) {
       eventEntries.delete(entry);
@@ -86,8 +77,7 @@ class ManagedEventBus {
     }
 
     if (this._hasOwner(entry.owner)) {
-      const ownerEntries =
-        this.registry.get(entry.owner);
+      const ownerEntries = this.registry.get(entry.owner);
 
       if (ownerEntries) {
         ownerEntries.delete(entry.id);
@@ -98,22 +88,14 @@ class ManagedEventBus {
       }
     }
 
-    if (
-      this.emitter.listenerCount(entry.event) <
-      this.warnThreshold
-    ) {
+    if (this.emitter.listenerCount(entry.event) < this.warnThreshold) {
       this.warnedEvents.delete(entry.event);
     }
   }
 
   _removeEntry(entry) {
     entry.active = false;
-
-    this.emitter.off(
-      entry.event,
-      entry.wrapped
-    );
-
+    this.emitter.off(entry.event, entry.wrapped);
     this._untrack(entry);
   }
 
@@ -127,15 +109,7 @@ class ManagedEventBus {
       return this;
     }
 
-    if (
-      this._findDuplicate(
-        event,
-        fn,
-        context,
-        owner,
-        once
-      )
-    ) {
+    if (this._findDuplicate(event, fn, context, owner, once)) {
       return this;
     }
 
@@ -153,37 +127,25 @@ class ManagedEventBus {
     const bus = this;
 
     entry.wrapped = function (...args) {
-      // Chroni przed wywołaniem usuniętego listenera,
-      // który mógł pozostać w trwającej iteracji emitera.
+      // Listener mógł zostać odpięty w trakcie emitowania.
       if (!entry.active) {
         return;
       }
 
       if (entry.once) {
-        // Sprzątamy przed callbackiem, również na wypadek
-        // ponownego emitowania tego samego zdarzenia.
+        // Odepnij przed callbackiem na wypadek ponownego emitowania.
         bus._removeEntry(entry);
       }
 
-      const callbackContext =
-        entry.context === null ||
-        entry.context === undefined
-          ? bus.emitter
-          : entry.context;
+      const callbackContext = entry.context ?? bus.emitter;
 
-      return entry.originalFn.apply(
-        callbackContext,
-        args
-      );
+      return entry.originalFn.apply(callbackContext, args);
     };
 
     this._track(entry);
 
     try {
-      this.emitter.on(
-        event,
-        entry.wrapped
-      );
+      this.emitter.on(event, entry.wrapped);
     } catch (error) {
       entry.active = false;
       this._untrack(entry);
@@ -196,42 +158,34 @@ class ManagedEventBus {
   }
 
   on(event, fn, context = null, owner = null) {
-    return this._add(
-      event,
-      fn,
-      context,
-      owner,
-      false
-    );
+    return this._add(event, fn, context, owner, false);
   }
 
   once(event, fn, context = null, owner = null) {
-    return this._add(
-      event,
-      fn,
-      context,
-      owner,
-      true
-    );
+    return this._add(event, fn, context, owner, true);
   }
 
   /**
-   * Bez fn usuwa wszystkie pasujące listenery zdarzenia.
    * Bez context dopasowuje wszystkie konteksty.
-   * Bez owner dopasowuje wszystkich właścicieli.
-   *
-   * Z owner usuwa wyłącznie rejestracje tego właściciela.
+   * Z owner ogranicza usuwanie do tego właściciela.
+   * Bez fn i owner niczego nie usuwa.
+   * Do globalnego czyszczenia służy removeAllListeners(event).
    */
   off(event, fn, context = null, owner = null) {
-    if (
-      fn !== undefined &&
-      fn !== null &&
-      typeof fn !== 'function'
-    ) {
-      console.warn(
-        '[EventBus] off() called with an invalid function.'
-      );
+    if (fn != null && typeof fn !== 'function') {
+      console.warn('[EventBus] off() called with an invalid function.');
+      return this;
+    }
 
+    const filterByFunction = typeof fn === 'function';
+    const filterByContext = context != null;
+    const filterByOwner = this._hasOwner(owner);
+
+    if (!filterByFunction && !filterByOwner) {
+      console.warn(
+        `[EventBus] off("${String(event)}") requires a callback or an owner. ` +
+        'Use removeAllListeners(event) to remove all listeners for this event.'
+      );
       return this;
     }
 
@@ -240,16 +194,6 @@ class ManagedEventBus {
     if (!entries) {
       return this;
     }
-
-    const filterByFunction =
-      typeof fn === 'function';
-
-    const filterByContext =
-      context !== null &&
-      context !== undefined;
-
-    const filterByOwner =
-      this._hasOwner(owner);
 
     for (const entry of [...entries]) {
       if (
@@ -260,17 +204,11 @@ class ManagedEventBus {
         continue;
       }
 
-      if (
-        filterByContext &&
-        entry.context !== context
-      ) {
+      if (filterByContext && entry.context !== context) {
         continue;
       }
 
-      if (
-        filterByOwner &&
-        entry.owner !== owner
-      ) {
+      if (filterByOwner && entry.owner !== owner) {
         continue;
       }
 
@@ -281,10 +219,7 @@ class ManagedEventBus {
   }
 
   emit(event, ...args) {
-    return this.emitter.emit(
-      event,
-      ...args
-    );
+    return this.emitter.emit(event, ...args);
   }
 
   listenerCount(event) {
@@ -310,7 +245,6 @@ class ManagedEventBus {
       console.warn(
         '[EventBus] bindScene() received an invalid Phaser scene.'
       );
-
       return;
     }
 
@@ -324,11 +258,8 @@ class ManagedEventBus {
     const owner = scene;
     const bus = this;
 
-    const shutdownEvent =
-      Phaser.Scenes.Events.SHUTDOWN;
-
-    const destroyEvent =
-      Phaser.Scenes.Events.DESTROY;
+    const shutdownEvent = Phaser.Scenes.Events.SHUTDOWN;
+    const destroyEvent = Phaser.Scenes.Events.DESTROY;
 
     const cleanup = () => {
       bus.clearScope(owner);
@@ -337,15 +268,8 @@ class ManagedEventBus {
     const detach = () => {
       cleanup();
 
-      scene.events.off(
-        shutdownEvent,
-        cleanup
-      );
-
-      scene.events.off(
-        destroyEvent,
-        detach
-      );
+      scene.events.off(shutdownEvent, cleanup);
+      scene.events.off(destroyEvent, detach);
 
       bus.sceneBindings.delete(scene);
 
@@ -356,43 +280,22 @@ class ManagedEventBus {
 
     const api = {
       on(event, fn, context = scene) {
-        bus.on(
-          event,
-          fn,
-          context,
-          owner
-        );
-
+        bus.on(event, fn, context, owner);
         return api;
       },
 
       once(event, fn, context = scene) {
-        bus.once(
-          event,
-          fn,
-          context,
-          owner
-        );
-
+        bus.once(event, fn, context, owner);
         return api;
       },
 
-      off(event, fn, context = scene) {
-        bus.off(
-          event,
-          fn,
-          context,
-          owner
-        );
-
+      off(event, fn, context = null) {
+        bus.off(event, fn, context, owner);
         return api;
       },
 
       emit(event, ...args) {
-        return bus.emit(
-          event,
-          ...args
-        );
+        return bus.emit(event, ...args);
       },
 
       listenerCount(event) {
@@ -404,37 +307,20 @@ class ManagedEventBus {
       }
     };
 
-    this.sceneBindings.set(scene, {
-      api,
-      cleanup,
-      detach
-    });
-
+    this.sceneBindings.set(scene, { api, cleanup, detach });
     scene.eventBus = api;
 
-    // Jedna stała rejestracja na scenę:
-    // działa również po jej ponownym uruchomieniu.
-    scene.events.on(
-      shutdownEvent,
-      cleanup
-    );
-
-    scene.events.once(
-      destroyEvent,
-      detach
-    );
+    // Jedna rejestracja na scenę, także po ponownym uruchomieniu.
+    scene.events.on(shutdownEvent, cleanup);
+    scene.events.once(destroyEvent, detach);
 
     return api;
   }
 
   _checkListenerCount(event) {
-    const count =
-      this.emitter.listenerCount(event);
+    const count = this.emitter.listenerCount(event);
 
-    if (
-      count >= this.warnThreshold &&
-      !this.warnedEvents.has(event)
-    ) {
+    if (count >= this.warnThreshold && !this.warnedEvents.has(event)) {
       this.warnedEvents.add(event);
 
       console.warn(
@@ -459,9 +345,7 @@ class ManagedEventBus {
 
         events: [
           ...new Set(
-            [...listeners.values()].map(
-              entry => entry.event
-            )
+            [...listeners.values()].map(entry => entry.event)
           )
         ]
       });
@@ -471,14 +355,10 @@ class ManagedEventBus {
   }
 
   removeAllListeners(event = null) {
-    const removeEverything =
-      event === null ||
-      event === undefined;
+    const removeEverything = event === null || event === undefined;
 
     if (removeEverything) {
-      for (const entries of [
-        ...this.eventRegistry.values()
-      ]) {
+      for (const entries of [...this.eventRegistry.values()]) {
         for (const entry of [...entries]) {
           this._removeEntry(entry);
         }
@@ -493,8 +373,7 @@ class ManagedEventBus {
       return this;
     }
 
-    const entries =
-      this.eventRegistry.get(event);
+    const entries = this.eventRegistry.get(event);
 
     if (entries) {
       for (const entry of [...entries]) {

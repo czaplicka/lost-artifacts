@@ -152,7 +152,7 @@ export class PIOfficeComputerUI {
   if (app === 'desktop') {
    this.shell.closeFocused(); this.viewToken++; this.render(); return;
   }
-  if (!['mail', 'ledger', 'classifieds', 'search', 'audio', 'chat', 'thiefdoku'].includes(app)) return;
+  if (!['mail', 'ledger', 'classifieds', 'search', 'audio', 'chat', 'thiefdoku', 'alibi-books'].includes(app)) return;
   this.photoQuest.galleryViewer.active = false;
   this.photoQuest.contactMail.composing = false;
   this.shell.open(app); this.viewToken++; this.render();
