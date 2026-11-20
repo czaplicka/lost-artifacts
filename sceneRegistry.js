@@ -154,7 +154,7 @@ export const sceneRegistry = {
     import('./scenes/DetectiveOfficeSceneWithAnimations.js').then(m => m.DetectiveOfficeScene),
 
   HomeCityScene: () =>
-    import('./scenes/HomeCityPostOfficeScene.js').then(m => m.HomeCityScene),
+    import('./scenes/HomeCityScene.js').then(m => m.HomeCityScene),
 
   PostOfficeScene: () =>
     import('./scenes/PostOfficeScene.js').then(m => m.PostOfficeScene),

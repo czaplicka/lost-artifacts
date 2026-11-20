@@ -1,0 +1,27 @@
+[
+  {
+    "path": "gameSetup.js",
+    "existed": true,
+    "operation": "update"
+  },
+  {
+    "path": "managers/TravelManager.js",
+    "existed": true,
+    "operation": "update"
+  },
+  {
+    "path": "gameState/defaultState.js",
+    "existed": true,
+    "operation": "update"
+  },
+  {
+    "path": "gameState/importExport.js",
+    "existed": true,
+    "operation": "update"
+  },
+  {
+    "path": "managers/UnifiedTravelManager.js",
+    "existed": true,
+    "operation": "delete"
+  }
+]

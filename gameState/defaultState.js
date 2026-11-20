@@ -221,7 +221,7 @@ export const defaultGameState = {
   reconstructedHeist:
     createDefaultReconstructedHeist(),
 
-  unifiedTravelManagerState: null,
+  legacyTravelArchive: null,
   crimeCityProgress: {},
   crimeCityCurrentNodes: {},
 

@@ -1,18 +1,25 @@
-import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
-import { FONT_TEXT, FONT_PIXEL, AMBER, AMBER_CSS, GREEN, GREEN_CSS, FAINT_CSS, SCREEN_W, SCREEN_H } from './PhoneConfig.js';
+import { dialogueText as __dialogueText } from '../../dialogues/DialogueText.js';
+import { FONT_TEXT, FONT_PIXEL, FAINT_CSS, SCREEN_W, SCREEN_H } from './PhoneConfig.js';
 import { bindKeywordStyle, refreshKeywordStyles } from '../pi-computer/KeywordStyle.js';
-import { preparePhoneEvidenceAudio,playPhoneEvidenceAudio } from './PhoneEvidenceAudio.js';
+import { preparePhoneEvidenceAudio, playPhoneEvidenceAudio } from './PhoneEvidenceAudio.js';
+
+const THEMES = {
+ player: {fill:0x263729,edge:0x88b589,text:'#e3f0d7',label:'#9fd9a0'},
+ npc: {fill:0x2a2012,edge:0xb58a42,text:'#f3e7c4',label:'#f0c75e'}
+};
+const themeFor=isYou=>isYou?THEMES.player:THEMES.npc;
+
 export const PhoneTranscript={
  clearLog(){
   this.logItems.forEach(i=>{i.timer?.remove?.(false);this.timers.delete(i.timer);i.container?.destroy?.(true);});this.logItems=[];this.typingItem=null;
  },
  addBubble(speaker,text,isYou){
-  const s=this.scene,maxW=430,container=s.add.container(0,0);
-  const body=s.add.text(0,0,text,{fontFamily:FONT_TEXT,fontSize:'19px',color:isYou?'#ffe6b8':'#d9f5e8',wordWrap:{width:maxW-28}});
+  const s=this.scene,maxW=430,container=s.add.container(0,0),theme=themeFor(isYou);
+  const body=s.add.text(0,0,text,{fontFamily:FONT_TEXT,fontSize:'19px',color:theme.text,wordWrap:{width:maxW-28}});
   const w=Math.min(maxW,Math.ceil(body.width)+28),h=Math.ceil(body.height)+18;body.setText('');
-  const label=s.add.text(0,0,String(speaker).toUpperCase(),{fontFamily:FONT_PIXEL,fontSize:'8px',color:isYou?AMBER_CSS:GREEN_CSS});
+  const label=s.add.text(0,0,String(speaker).toUpperCase(),{fontFamily:FONT_PIXEL,fontSize:'8px',color:theme.label});
   const off=isYou?SCREEN_W-36-w:0;label.setPosition(off+4,0);
-  const bg=s.add.graphics();bg.fillStyle(isYou?0x2a2010:0x14261d,1);bg.fillRoundedRect(off,16,w,h,8);bg.lineStyle(1,isYou?AMBER:GREEN,.6);bg.strokeRoundedRect(off,16,w,h,8);body.setPosition(off+14,25);
+  const bg=s.add.graphics();bg.fillStyle(theme.fill,1);bg.fillRoundedRect(off,16,w,h,8);bg.lineStyle(1,theme.edge,1);bg.strokeRoundedRect(off,16,w,h,8);body.setPosition(off+14,25);
   container.add([bg,label,body]);this.logContainer.add(container);
   const line=this.lines?.[this.lineIndex],fragments=line?.text===text&&Array.isArray(line.fragments)?JSON.parse(JSON.stringify(line.fragments)):null;
   const item={container,body,full:text,height:16+h+8,typing:false,timer:null,fragments,richDrawn:false,isYou,bg,bubbleWidth:w,bubbleOffset:off};
@@ -24,18 +31,19 @@ export const PhoneTranscript={
   const caseId=this.investigation.active.caseId,run=this.run;
   const s=this.scene;preparePhoneEvidenceAudio(s);
   const probe=s.add.text(0,0,'',{fontFamily:FONT_TEXT,fontSize:'19px'}).setVisible(false),measure=v=>{probe.setText(v);return probe.width;};
-  probe.setText(__dialogueText("ui/pi-phone/PhoneTranscript.js", "t_468415f0e1128f85022b"));const width=402,lineHeight=Math.max(19,Math.ceil(probe.height));
+  probe.setText(__dialogueText('ui/pi-phone/PhoneTranscript.js','t_468415f0e1128f85022b'));const width=402,lineHeight=Math.max(19,Math.ceil(probe.height));
   const root=s.add.container(item.body.x,item.body.y);item.container.add(root);let x=0,y=0;
+  const theme=themeFor(item.isYou);
   try{
    for(const part of item.fragments){const id=typeof part==='object'?part.keywordId:null,value=typeof part==='string'?part:part.text;
     for(const token of value.split(/(\n|[^\S\n]+)/).filter(Boolean)){
      if(token==='\n'){x=0;y+=lineHeight;continue;}if(/^\s+$/.test(token)){if(x)x+=measure(token);continue;}
      let chunks=[],chunk='';for(const ch of token){if(chunk&&measure(chunk+ch)>width){chunks.push(chunk);chunk='';}chunk+=ch;}if(chunk)chunks.push(chunk);
      for(const word of chunks){const tw=measure(word);if(x&&x+tw>width){x=0;y+=lineHeight;}
-      const normal=item.isYou?'#ffe6b8':'#d9f5e8';
+      const normal=theme.text;
       const t=s.add.text(x,y,word,{fontFamily:FONT_TEXT,fontSize:'19px',color:normal});root.add(t);
       if(id){
-       bindKeywordStyle(s,t,{isKnown:()=>this.investigation.known(caseId).includes(id),surface:item.isYou?0x2a2010:0x14261d,normalText:normal});
+       bindKeywordStyle(s,t,{isKnown:()=>this.investigation.known(caseId).includes(id),surface:theme.fill,normalText:normal});
        t.setInteractive({useHandCursor:true}).on('pointerdown',(pointer,lx,ly,event)=>{
         event?.stopPropagation();
         if(this.destroyed||!this.isOpen||this.directoryOpen||this.run!==run||!s.sys.isActive()||t.active===false||!t.scene||this.investigation?.active?.caseId!==caseId)return;
@@ -50,7 +58,7 @@ export const PhoneTranscript={
     }
    }
   }finally{probe.destroy();}
-  item.richDrawn=true;item.body.setVisible(false);item.height=Math.max(item.height,y+lineHeight+42);const h=item.height-24;item.bg.clear();item.bg.fillStyle(item.isYou?0x2a2010:0x14261d,1);item.bg.fillRoundedRect(item.bubbleOffset,16,item.bubbleWidth,h,8);item.bg.lineStyle(1,item.isYou?AMBER:GREEN,.6);item.bg.strokeRoundedRect(item.bubbleOffset,16,item.bubbleWidth,h,8);this.layoutLog();
+  item.richDrawn=true;item.body.setVisible(false);item.height=Math.max(item.height,y+lineHeight+42);const h=item.height-24;item.bg.clear();item.bg.fillStyle(theme.fill,1);item.bg.fillRoundedRect(item.bubbleOffset,16,item.bubbleWidth,h,8);item.bg.lineStyle(1,theme.edge,1);item.bg.strokeRoundedRect(item.bubbleOffset,16,item.bubbleWidth,h,8);this.layoutLog();
  },
  addSystemNote(text){
   const s=this.scene,container=s.add.container(0,0),body=s.add.text((SCREEN_W-36)/2,6,text,{fontFamily:FONT_TEXT,fontSize:'15px',color:FAINT_CSS,align:'center',wordWrap:{width:SCREEN_W-70}}).setOrigin(.5,0);

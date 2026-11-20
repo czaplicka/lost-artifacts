@@ -6,6 +6,75 @@ import { alexRecoveryData as DATA, getAlexRecoveryStory, storeAlexRecovery } fro
 import { normalizeAlexRecovery, selectRecoveryDiscrepancy, advanceAlexRecovery } from './storage/AlexRecoveryModel.js';
 
 const T = id => __dialogueText('scenes/AlexRecoveryInquiryScene.js', id);
+
+function styleRecoveryConversation(view, speaker) {
+  const npc = speaker === storageRoomDialogues.speaker;
+  const frame = view.scene.add.graphics();
+  view.root.addAt(frame, view.root.getIndex(view.text));
+  view.clearPortrait();
+  view.portraitFrame.setVisible(false);
+  view.nameText = view.makeText(0, 0, speaker || '', 10, npc ? '#f0c75e' : '#9fd9a0', true);
+  view.renderSpeaker = () => {
+    if (!view.isOpen) return;
+    const L = view.layout;
+    view.nameText.setText(view.speaker.name || speaker || '')
+      .setPosition(L.textX, L.panelY + 22).setFontSize(L.width < 700 ? 8 : 10)
+      .setWordWrapWidth(L.textWidth, true);
+  };
+  const renderPage = view.renderPage.bind(view);
+  view.renderPage = (instant = false) => {
+    if (!view.isOpen) return;
+    const L = view.layout;
+    frame.clear().fillStyle(npc ? 0x2a2012 : 0x263729, 1)
+      .fillRoundedRect(L.textX - 10, L.panelY + 48, L.textWidth + 20, L.panelHeight - 102, 8)
+      .lineStyle(1, npc ? 0xb58a42 : 0x88b589, 1)
+      .strokeRoundedRect(L.textX - 10, L.panelY + 48, L.textWidth + 20, L.panelHeight - 102, 8);
+    view.text.setColor(npc ? '#f3e7c4' : '#e3f0d7');
+    renderPage(instant);
+  };
+  const repaginate = view.repaginate.bind(view);
+  view.repaginate = (offset = 0) => {
+    const height = view.layout.panelHeight;
+    view.layout.panelHeight = height - 42;
+    try { repaginate(offset); } finally { view.layout.panelHeight = height; }
+  };
+  view.relayout = () => {
+    if (!view.isOpen) return;
+    const offset = view.textPages[view.textPage]?.start || 0;
+    const { width: w, height: h } = view.scene.scale;
+    const small = w < 700, ph = Math.min(h, small ? 340 : 272), y = h - ph;
+    const pad = small ? 18 : 26;
+    const menu = Math.min(view.options.menuWidth, small ? Math.max(116, w * .35) : w * .28);
+    const divider = w - menu - 20;
+    const areaWidth = Math.max(16, divider - pad - 34);
+    const textWidth = Math.max(16, areaWidth * .88);
+    const textX = npc ? pad + 10 : divider - 24 - textWidth;
+    view.layout = { width: w, height: h, panelHeight: ph, panelY: y,
+      portraitSize: 0, portraitX: pad, portraitY: y + 12, centerX: pad, centerY: y + 12,
+      textX, textEndX: divider, menuWidth: menu, menuX: divider + 16,
+      textWidth, font: small ? 17 : 22 };
+    view.overlay.setSize(w, h);
+    view.background.setPosition(0, y).setSize(w, ph);
+    view.border.clear().lineStyle(4, 0xd4af37, 1)
+      .strokeRect(6, y + 6, Math.max(1, w - 12), Math.max(1, ph - 12))
+      .lineStyle(1, 0x8a6d1f, .9)
+      .strokeRect(12, y + 12, Math.max(1, w - 24), Math.max(1, ph - 24));
+    view.border.lineBetween(divider, y + 16, divider, h - 16);
+    view.portraitFrame.clear().setVisible(false);
+    view.text.setPosition(textX, y + 58).setFontSize(view.layout.font)
+      .setWordWrapWidth(textWidth, true).setScale(1);
+    view.footer.setPosition(textX, h - 72).setFontSize(small ? 9 : 11).setWordWrapWidth(textWidth, true);
+    view.previousText.setPosition(pad + 10, h - 37);
+    view.pageLabel.setPosition(pad + 38, h - 37);
+    view.nextText.setPosition(divider - 24, h - 37);
+    view.leaveButton.setPosition(divider + 16, h - 37).setFontSize(small ? 16 : 18)
+      .setText(view.options.leaveLabel);
+    view.leaveButton.setScale(Math.min(1, Math.max(1, menu - 18) / Math.max(1, view.leaveButton.width)));
+    view.renderSpeaker(); view.repaginate(offset); view.renderPage(true); view.renderTopics();
+  };
+  view.relayout();
+}
+
 export class AlexRecoveryInquiryScene extends BaseScene {
   constructor() { super({ key: 'AlexRecoveryInquiryScene' }); }
   init(data = {}) {
@@ -109,6 +178,7 @@ export class AlexRecoveryInquiryScene extends BaseScene {
       onLeave: () => this.closeVisit(), onAdvance: () => this.commitConfessionLine()
     });
     this.conversationPanel = panel;
+    styleRecoveryConversation(panel, line.speaker);
     panel.setSpeaker({ name: line.speaker, portrait: {
       kind: 'texture', key: line.speaker === storageRoomDialogues.speaker ? 'portrait_magazine' : 'portrait_fallback'
     } });

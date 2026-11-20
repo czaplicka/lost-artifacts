@@ -325,7 +325,7 @@ export const DriveCockpit = {
   floatText(text, color = '#ffd84d') {
     const t = this.add.text(this.W / 2, this.dashTop - this.H * 0.08, text, {
       fontFamily: 'PressStart2P', fontSize: this.px(20), color,
-      stroke: __dialogueText("scenes/DriveScene.js", "t_7b2817bf9b80e66d07f2"), strokeThickness: 4
+      stroke: "#000000", strokeThickness: 4
     }).setOrigin(0.5).setDepth(260);
 
     this.createTrackedTween({

@@ -1,3 +1,4 @@
+import { migrateLegacyTravelState } from './legacyTravelMigration.js';
 import { RouteManager } from '../managers/RouteManager.js';
 import { GAME_VERSION } from '../config/gameVersion.js';
 import {
@@ -86,6 +87,7 @@ export function normalizeImportedState(source) {
       : {})
   };
 
+  migrateLegacyTravelState(state);
   normalizeCaseSuspects(state);
   state.caseDirector = null;
   state.routeManager = restoreRouteManager(source.routeManager);

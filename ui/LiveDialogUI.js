@@ -15,8 +15,99 @@ function getVoiceMode(entry) {
   }) || null;
 }
 
-// Reuses only DialogUI's existing audio-loading/voice lifecycle.
-// Face-to-face visuals are exclusively rendered by LocationDialoguePanel.
+class LiveBubblePanel extends LocationDialoguePanel {
+  constructor(scene, options) {
+    super(scene, options);
+    this.clearPortrait();
+    this.nameText = this.makeText(0, 0, '', 10, '#ffd86b', true);
+    this.bubble = scene.add.graphics();
+    this.choiceFrames = scene.add.graphics();
+    this.root.addAt(this.bubble, this.root.getIndex(this.text));
+    this.root.addAt(this.choiceFrames, this.root.getIndex(this.text));
+    this.bubbleStyleReady = true;
+    this.relayout();
+  }
+  renderSpeaker() {
+    if (!this.bubbleStyleReady) { super.renderSpeaker(); return; }
+    if (!this.isOpen) return;
+    const L = this.layout;
+    this.nameText.setText(this.speaker.name || '').setPosition(L.textX, L.panelY + 22)
+      .setFontSize(L.width < 700 ? 8 : 10).setWordWrapWidth(L.textWidth, true);
+  }
+  relayout() {
+    if (!this.bubbleStyleReady) { super.relayout(); return; }
+    if (!this.isOpen) return;
+    const offset = this.textPages[this.textPage]?.start || 0;
+    const { width: w, height: h } = this.scene.scale;
+    const small = w < 700, ph = Math.min(h, small ? 340 : 272), y = h - ph;
+    const pad = small ? 18 : 26;
+    const menu = Math.min(this.options.menuWidth, small ? Math.max(116, w * .35) : w * .28);
+    const divider = w - menu - 20, textX = pad + 10;
+    this.layout = { width: w, height: h, panelHeight: ph, panelY: y,
+      portraitSize: 0, portraitX: pad, portraitY: y + 12, centerX: pad, centerY: y + 12,
+      textX, textEndX: divider, menuWidth: menu, menuX: divider + 16,
+      textWidth: Math.max(16, (divider - textX - 24) * .88), font: small ? 17 : 22 };
+    this.overlay.setSize(w, h);
+    this.background.setPosition(0, y).setSize(w, ph);
+    this.border.clear().lineStyle(4, 0xd4af37, 1)
+      .strokeRect(6, y + 6, Math.max(1, w - 12), Math.max(1, ph - 12))
+      .lineStyle(1, 0x8a6d1f, .9)
+      .strokeRect(12, y + 12, Math.max(1, w - 24), Math.max(1, ph - 24));
+    this.border.lineBetween(divider, y + 16, divider, h - 16);
+    this.portraitFrame.clear().setVisible(false);
+    this.text.setPosition(textX, y + 58).setFontSize(this.layout.font)
+      .setWordWrapWidth(this.layout.textWidth, true).setScale(1);
+    this.footer.setPosition(textX, h - 72).setFontSize(small ? 9 : 11)
+      .setWordWrapWidth(this.layout.textWidth, true);
+    this.previousText.setPosition(textX, h - 37);
+    this.pageLabel.setPosition(textX + 28, h - 37);
+    this.nextText.setPosition(divider - 24, h - 37);
+    this.leaveButton.setPosition(divider + 16, h - 37).setFontSize(small ? 16 : 18)
+      .setText(this.options.leaveLabel);
+    this.leaveButton.setScale(Math.min(1, Math.max(1, menu - 18) / Math.max(1, this.leaveButton.width)));
+    this.renderSpeaker(); this.repaginate(offset); this.renderPage(true); this.renderTopics();
+  }
+  repaginate(offset = 0) {
+    if (!this.bubbleStyleReady) { super.repaginate(offset); return; }
+    const height = this.layout.panelHeight;
+    this.layout.panelHeight = height - 42;
+    try { super.repaginate(offset); } finally { this.layout.panelHeight = height; }
+  }
+  renderPage(instant = false) {
+    if (this.bubbleStyleReady && this.isOpen) {
+      const L = this.layout;
+      this.bubble.clear().fillStyle(0x2a2012, 1)
+        .fillRoundedRect(L.textX - 10, L.panelY + 48, L.textWidth + 20, Math.max(1, L.panelHeight - 102), 8)
+        .lineStyle(1, 0xb58a42, 1)
+        .strokeRoundedRect(L.textX - 10, L.panelY + 48, L.textWidth + 20, Math.max(1, L.panelHeight - 102), 8);
+      this.text.setColor('#f3e7c4');
+    }
+    super.renderPage(instant);
+  }
+  clearTopics() {
+    this.choiceFrames?.clear();
+    super.clearTopics();
+  }
+  renderTopics() {
+    super.renderTopics();
+    if (!this.bubbleStyleReady || !this.isOpen) return;
+    this.choiceFrames.clear();
+    this.pageTopics.forEach((topic, index) => {
+      const label = this.topicObjects[index];
+      if (!label) return;
+      const muted = this.topicsLocked() || topic.state === 'used' || topic.state === 'disabled';
+      const x = label.x - 5, y = label.y - 2;
+      const width = Math.min(this.layout.menuWidth - 12, Math.max(20, label.displayWidth + 10));
+      const height = label.displayHeight + 4;
+      this.choiceFrames.fillStyle(muted ? 0x242821 : 0x263729, 1)
+        .fillRoundedRect(x, y, width, height, 4)
+        .lineStyle(1, muted ? 0x53604e : 0x88b589, 1)
+        .strokeRoundedRect(x, y, width, height, 4);
+    });
+  }
+}
+
+// Existing audio lifecycle and dialogue flow are retained.
 export class LiveDialogUI extends DialogUI {
   create() {
     this.view = null;
@@ -52,7 +143,7 @@ export class LiveDialogUI extends DialogUI {
     this.showingChoices = false;
     this.isOpen = true;
     try {
-      this.view = new LocationDialoguePanel(this.scene, {
+      this.view = new LiveBubblePanel(this.scene, {
         depth: 6000, modal: true, keyboard: true, lockTopicsUntilRead: false,
         leaveLabel: 'Continue', onLeave: () => this.advance(),
         onAdvance: () => this.nextLine(), onTextComplete: () => this.updateControls()
@@ -110,7 +201,6 @@ export class LiveDialogUI extends DialogUI {
     }
     this.updateControls();
   }
-  // Invoked by the shared panel only after its last text page is complete.
   nextLine() {
     if (!this.isOpen || this.destroyed || this.showingChoices) return;
     if (this.voiceBusy) {

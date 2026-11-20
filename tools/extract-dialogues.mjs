@@ -4,1000 +4,375 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { parse } from 'acorn';
 
-const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.resolve(SCRIPT_DIR, '..');
-
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const WRITE = process.argv.includes('--write');
-
-const CATALOG_PATH = 'assets/data/dialogue/extracted.json';
-const RUNTIME_PATH = 'dialogues/DialogueText.js';
-const REPORT_PATH = 'dialogue-migration-report.json';
-
-const EXCLUDED_DIRS = new Set([
-  '.git',
-  '.github',
-  'node_modules',
-  'tools',
-  'scripts',
-  'tests',
-  'test',
-  'admin',
-  'supabase',
-  'dist',
-  'build',
-  'coverage',
-  'output',
-  'manifest-backups',
-  'alex-dialogue-backups',
-  'dialogue-json-backups'
+const REPAIR = process.argv.includes('--repair-known');
+const CATALOG = 'assets/data/dialogue/extracted.json';
+const RUNTIME = 'dialogues/DialogueText.js';
+const EXCLUDED = new Set([
+  '.git', '.github', 'node_modules', 'tools', 'scripts', 'tests', 'test',
+  'admin', 'supabase', 'dist', 'build', 'coverage', 'output',
+  'manifest-backups', 'alex-dialogue-backups', 'dialogue-json-backups'
 ]);
-
-const TEXT_FIELDS = new Set([
-  'text',
-  'speaker',
-  'lines',
-  'body',
-  'subject',
-  'from',
-  'greeting',
-  'fallback',
-  'fallbackVariants',
-  'choicePrompt',
-  'prompt',
-  'question',
-  'answer',
-  'answers',
-  'message',
-  'messages',
-  'reply',
-  'replies',
-  'response',
-  'responses',
-  'title',
-  'subtitle',
-  'label',
-  'description',
-  'summary',
-  'snippet',
-  'brand',
-  'caption',
-  'tooltip',
-  'hint',
-  'hints',
-  'fragments',
-  'blocks',
-  'paragraphs',
-  'transcript',
-  'transcripts',
-  'dialogue',
-  'dialog',
-  'quips'
+const TEMPLATE = 'ui/characterCreation/CharacterCreationTemplate.js';
+const DOSSIER = 'ui/characterCreation/DossierView.js';
+const SKETCH = 'ui/warrant/WarrantSketch.js';
+const CHARACTER = 'scenes/CharacterCreationScene.js';
+const KEEP_VISIBLE = new Map([
+  [TEMPLATE, new Set([
+    't_bf176ca19ce9488e44b0', 't_5d593ea2e52a52ec9500',
+    't_fdc8132ab0482f7e188d', 't_468fa2488adbaa75e25d',
+    't_74445f140db83027f3f5', 't_0ee6d25a70ffefd83541',
+    't_6b7b806bd4d818b98a18'
+  ])],
+  [DOSSIER, new Set([
+    't_803b7246d0b19ce1283c', 't_fbc956c208e6e60b20c1',
+    't_b19e02e9502bbe5ac59d', 't_d696a35bdd1883da07a8',
+    't_7ca366b05bf258c6d43c', 't_3907fa7f80722a6fc58c',
+    't_f3ba306d86066cb50bef'
+  ])]
 ]);
-
-const TECHNICAL_FIELDS = new Set([
-  'id',
-  'caseId',
-  'questId',
-  'topicId',
-  'threadId',
-  'pageId',
-  'cloudId',
-  'keywordId',
-  'contactId',
-  'dialogueId',
-  'portraitKey',
-  'imageKey',
-  'backgroundKey',
-  'textureKey',
-  'cacheKey',
-  'sceneKey',
-  'returnScene',
-  'sourceScene',
-  'key',
-  'url',
-  'src',
-  'path',
-  'type',
-  'mode',
-  'status',
-  'phase',
-  'effect',
-  'effects',
-  'number',
-  'terms',
-  'flags',
-  'grantFlags',
-  'requiresFlags',
-  'grantKeywords',
-  'initialKeywords',
-  'requiresKeyword',
-  'requires',
-  'all',
-  'none',
-  'fontFamily',
-  'fontSize',
-  'color',
-  'backgroundColor',
-  'align',
-  'ease',
-  'event',
-  'eventName',
-  'contentId'
+const TECHNICAL = new Set([
+  'stroke', 'strokeThickness', 'fontStyle', 'fontFamily', 'fontSize',
+  'color', 'backgroundColor', 'align', 'className', 'id', 'key', 'type',
+  'sceneKey', 'textureKey', 'portraitKey', 'url', 'src', 'path',
+  'selector', 'style', 'styles', 'css', 'html', 'innerHTML',
+  'event', 'eventName', 'flag', 'flags', 'effects', 'when', 'showIf'
 ]);
-
-const DISPLAY_CALLS = new Set([
-  'openHolmes',
-  'showMessage',
-  'showToast',
-  'say',
-  'setText',
-  'setTitle',
-  'setSubtitle',
-  'finishCall'
-]);
-
 const report = {
-  version: 1,
   mode: WRITE ? 'write' : 'preview',
-  changedFiles: [],
-  review: [],
-  totals: {
-    scannedModules: 0,
-    changedModules: 0,
-    extractedOccurrences: 0,
-    newCatalogEntries: 0
-  }
+  operation: REPAIR ? 'repair-known' : 'extract-visible',
+  changedFiles: [], review: [], repaired: 0, extracted: 0, newEntries: 0
 };
+const posix = value => value.split(path.sep).join('/');
+const literal = node => node?.type === 'Literal' && typeof node.value === 'string';
+const member = node => node?.type === 'MemberExpression' && !node.computed
+  ? node.property.name : null;
+const property = node => !node.computed
+  ? node.key?.name ?? node.key?.value : null;
+const objectRecord = value => value && typeof value === 'object' && !Array.isArray(value);
 
-const runtimeSource = `const CATALOG_URL = new URL(
-  '../assets/data/dialogue/extracted.json',
-  import.meta.url
-);
-
-async function loadCatalog() {
-  const response = await fetch(CATALOG_URL, {
-    cache: 'no-cache'
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      '[DialogueText] Cannot load extracted.json: HTTP ' +
-      response.status
-    );
-  }
-
-  const data = await response.json();
-
-  if (
-    data?.version !== 1 ||
-    !data.sources ||
-    typeof data.sources !== 'object' ||
-    Array.isArray(data.sources)
-  ) {
-    throw new Error('[DialogueText] Invalid dialogue catalog.');
-  }
-
-  for (const [source, entries] of Object.entries(data.sources)) {
-    if (
-      !entries ||
-      typeof entries !== 'object' ||
-      Array.isArray(entries)
-    ) {
-      throw new Error(
-        '[DialogueText] Invalid source section: ' + source
-      );
-    }
-
-    for (const [id, value] of Object.entries(entries)) {
-      if (typeof value !== 'string') {
-        throw new Error(
-          '[DialogueText] Expected a string: ' + source + '/' + id
-        );
-      }
-    }
-
-    Object.freeze(entries);
-  }
-
-  Object.freeze(data.sources);
-
-  return Object.freeze(data);
-}
-
-const catalog = await loadCatalog();
-
-export function dialogueText(source, id) {
-  const entries = Object.hasOwn(catalog.sources, source)
-    ? catalog.sources[source]
-    : null;
-
-  if (!entries || !Object.hasOwn(entries, id)) {
-    throw new Error(
-      '[DialogueText] Missing text: ' + source + '/' + id
-    );
-  }
-
-  return entries[id];
-}
-`;
-
-function posix(value) {
-  return value.split(path.sep).join('/');
-}
-
-function parseSource(source, file) {
+function ast(source, file, comments = []) {
   try {
     return parse(source, {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
-      allowHashBang: true,
-      locations: true
+      ecmaVersion: 'latest', sourceType: 'module', allowHashBang: true,
+      locations: true, onComment: comments
     });
   } catch (error) {
-    throw new Error(
-      `${file}:${error.loc?.line ?? '?'}: ${error.message}`
-    );
+    throw new Error(`${file}:${error.loc?.line ?? '?'}: ${error.message}`);
   }
 }
 
-function walk(node, visit, ancestors = []) {
-  if (!node || typeof node.type !== 'string') {
-    return;
-  }
-
-  if (visit(node, ancestors) === false) {
-    return;
-  }
-
-  const nextAncestors = [...ancestors, node];
-
+function walk(node, visit, parents = []) {
+  if (!node || typeof node.type !== 'string') return;
+  if (visit(node, parents) === false) return;
   for (const [key, value] of Object.entries(node)) {
-    if (
-      key === 'loc' ||
-      key === 'start' ||
-      key === 'end'
-    ) {
-      continue;
-    }
-
-    if (Array.isArray(value)) {
-      for (const child of value) {
-        if (child && typeof child.type === 'string') {
-          walk(child, visit, nextAncestors);
-        }
-      }
-    } else if (value && typeof value.type === 'string') {
-      walk(value, visit, nextAncestors);
+    if (['loc', 'start', 'end'].includes(key)) continue;
+    for (const child of Array.isArray(value) ? value : [value]) {
+      if (child && typeof child.type === 'string') walk(child, visit, [...parents, node]);
     }
   }
 }
 
-function propertyName(node) {
-  if (!node || node.computed) {
-    return null;
-  }
-
-  if (node.key?.type === 'Identifier') {
-    return node.key.name;
-  }
-
-  if (
-    node.key?.type === 'Literal' &&
-    typeof node.key.value === 'string'
-  ) {
-    return node.key.value;
-  }
-
-  return null;
-}
-
-function callName(node) {
-  if (
-    node.type !== 'CallExpression' &&
-    node.type !== 'NewExpression'
-  ) {
-    return null;
-  }
-
-  const callee = node.callee;
-
-  if (callee?.type === 'Identifier') {
-    return callee.name;
-  }
-
-  if (
-    callee?.type === 'MemberExpression' &&
-    !callee.computed &&
-    callee.property?.type === 'Identifier'
-  ) {
-    return callee.property.name;
-  }
-
-  return null;
-}
-
-function isTechnicalContext(ancestors) {
-  for (let i = ancestors.length - 1; i >= 0; i--) {
-    const ancestor = ancestors[i];
-
-    if (
-      ancestor.type === 'Property' ||
-      ancestor.type === 'PropertyDefinition'
-    ) {
-      const name = propertyName(ancestor);
-
-      if (TECHNICAL_FIELDS.has(name)) {
-        return true;
-      }
-
-      if (TEXT_FIELDS.has(name)) {
-        return false;
-      }
-    }
-  }
-
-  return false;
-}
-
-function isDisplayContext(ancestors) {
-  for (let i = ancestors.length - 1; i >= 0; i--) {
-    const ancestor = ancestors[i];
-
-    if (
-      ancestor.type === 'Property' ||
-      ancestor.type === 'PropertyDefinition'
-    ) {
-      const name = propertyName(ancestor);
-
-      if (TECHNICAL_FIELDS.has(name)) {
-        return false;
-      }
-
-      if (TEXT_FIELDS.has(name)) {
-        return true;
-      }
-    }
-
-    const name = callName(ancestor);
-
-    if (DISPLAY_CALLS.has(name)) {
-      return true;
-    }
-
-    // Phaser: scene.add.text(x, y, text, style).
-    if (
-      name === 'text' &&
-      ancestor.callee?.type === 'MemberExpression'
-    ) {
-      const object = ancestor.callee.object;
-
-      if (
-        object?.type === 'MemberExpression' &&
-        !object.computed &&
-        object.property?.name === 'add'
-      ) {
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
-
-function isDiagnosticContext(ancestors) {
-  return ancestors.some(node => {
-    if (node.type === 'ThrowStatement') {
-      return true;
-    }
-
-    if (node.type !== 'CallExpression') {
-      return false;
-    }
-
-    const callee = node.callee;
-
-    return (
-      callee?.type === 'MemberExpression' &&
-      callee.object?.type === 'Identifier' &&
-      callee.object.name === 'console'
-    );
-  });
-}
-
-function looksLikeText(value) {
-  if (
-    typeof value !== 'string' ||
-    !value.trim() ||
-    !/[A-Za-zÀ-ž]/u.test(value)
-  ) {
-    return false;
-  }
-
-  if (
-    /^(https?:|data:|blob:)/i.test(value) ||
-    /^[./]*[A-Za-z0-9_./-]+\.(js|mjs|json|png|jpg|jpeg|webp|mp3|ogg|wav)$/i.test(
-      value
-    )
-  ) {
-    return false;
-  }
-
-  return (
-    /\s/.test(value) ||
-    /[.!?…]/u.test(value) ||
-    /^[A-Z][a-z]{2,}$/.test(value) ||
-    /^(yes|no|okay|ok|hello|goodbye|thanks)$/i.test(value)
-  );
-}
-
-function shouldExtract(value, ancestors) {
-  if (
-    typeof value !== 'string' ||
-    value.length === 0 ||
-    isTechnicalContext(ancestors) ||
-    isDiagnosticContext(ancestors)
-  ) {
-    return false;
-  }
-
-  return isDisplayContext(ancestors) || looksLikeText(value);
-}
-
-function isSyntaxString(node, parent) {
-  if (!parent) {
-    return false;
-  }
-
-  if (
-    (
-      parent.type === 'ImportDeclaration' ||
-      parent.type === 'ExportNamedDeclaration' ||
-      parent.type === 'ExportAllDeclaration'
-    ) &&
-    parent.source === node
-  ) {
-    return true;
-  }
-
-  if (
-    parent.type === 'ImportSpecifier' ||
-    parent.type === 'ExportSpecifier' ||
-    parent.type === 'ImportAttribute'
-  ) {
-    return true;
-  }
-
-  if (
-    parent.type === 'ExpressionStatement' &&
-    parent.directive
-  ) {
-    return true;
-  }
-
-  return (
-    (
-      parent.type === 'Property' ||
-      parent.type === 'MethodDefinition' ||
-      parent.type === 'PropertyDefinition'
-    ) &&
-    parent.key === node &&
-    !parent.computed
-  );
-}
-
-async function listSources(directory = ROOT) {
+async function filesAt(directory = ROOT) {
   const result = [];
-
-  for (const entry of await fs.readdir(directory, {
-    withFileTypes: true
-  })) {
-    if (entry.name.startsWith('.')) {
-      continue;
-    }
-
+  for (const entry of await fs.readdir(directory, { withFileTypes: true })) {
+    if (entry.name.startsWith('.')) continue;
     const absolute = path.join(directory, entry.name);
-
     if (entry.isDirectory()) {
-      if (
-        EXCLUDED_DIRS.has(entry.name) ||
-        /backup/i.test(entry.name)
-      ) {
-        continue;
+      if (!EXCLUDED.has(entry.name) && !/backup/i.test(entry.name)) {
+        result.push(...await filesAt(absolute));
       }
-
-      result.push(...await listSources(absolute));
-    } else if (
-      entry.isFile() &&
-      /\.(js|mjs)$/.test(entry.name) &&
-      !/\.(test|spec)\.(js|mjs)$/.test(entry.name)
-    ) {
-      const relative = posix(path.relative(ROOT, absolute));
-
-      if (relative !== RUNTIME_PATH) {
-        result.push(relative);
-      }
+    } else if (entry.isFile() && /\.(js|mjs)$/.test(entry.name) &&
+      !/\.(test|spec)\.(js|mjs)$/.test(entry.name)) {
+      const file = posix(path.relative(ROOT, absolute));
+      if (file !== RUNTIME) result.push(file);
     }
   }
-
   return result.sort();
 }
 
-async function exists(relative) {
-  try {
-    await fs.access(path.join(ROOT, relative));
-    return true;
-  } catch {
-    return false;
+function editSource(source, edits) {
+  const sorted = [...edits].sort((a, b) => a.start - b.start);
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i].start < sorted[i - 1].end) throw new Error('Overlapping edits.');
   }
+  for (const edit of sorted.reverse()) {
+    source = source.slice(0, edit.start) + edit.text + source.slice(edit.end);
+  }
+  return source;
 }
 
-async function loadCatalog() {
-  if (!await exists(CATALOG_PATH)) {
-    return {
-      version: 1,
-      sources: {}
-    };
+function readerPath(file) {
+  const relative = posix(path.relative(path.dirname(file), RUNTIME));
+  return relative.startsWith('.') ? relative : './' + relative;
+}
+
+function readers(tree, file) {
+  const names = new Set();
+  for (const node of tree.body) {
+    if (node.type !== 'ImportDeclaration' || node.source.value !== readerPath(file)) continue;
+    for (const spec of node.specifiers) {
+      if (spec.type === 'ImportSpecifier' &&
+          (spec.imported.name ?? spec.imported.value) === 'dialogueText') {
+        names.add(spec.local.name);
+      }
+    }
   }
+  return names;
+}
 
-  const data = JSON.parse(
-    await fs.readFile(path.join(ROOT, CATALOG_PATH), 'utf8')
-  );
-
-  if (
-    data?.version !== 1 ||
-    !data.sources ||
-    typeof data.sources !== 'object' ||
-    Array.isArray(data.sources)
-  ) {
-    throw new Error(
-      `Existing ${CATALOG_PATH} has an unsupported format.`
-    );
+function catalogValue(catalog, source, id) {
+  const entries = Object.hasOwn(catalog.sources, source) ? catalog.sources[source] : null;
+  if (!entries || !Object.hasOwn(entries, id) || typeof entries[id] !== 'string') {
+    throw new Error(`Missing original literal: ${source}/${id}. No files were written.`);
   }
+  return entries[id];
+}
 
-  for (const entries of Object.values(data.sources)) {
-    if (
-      !entries ||
-      typeof entries !== 'object' ||
-      Array.isArray(entries) ||
-      Object.values(entries).some(value => typeof value !== 'string')
-    ) {
-      throw new Error(
-        `Existing ${CATALOG_PATH} contains invalid entries.`
-      );
+function cleanUnusedReader(source, file) {
+  const tree = ast(source, file);
+  const names = readers(tree, file);
+  const edits = [];
+  for (const node of tree.body) {
+    if (node.type !== 'ImportDeclaration' || node.source.value !== readerPath(file)) continue;
+    const unused = node.specifiers.filter(spec => names.has(spec.local.name)).filter(spec => {
+      let used = false;
+      walk(tree, candidate => {
+        if (candidate.type === 'ImportDeclaration') return false;
+        if (candidate.type === 'Identifier' && candidate.name === spec.local.name) used = true;
+      });
+      return !used;
+    });
+    // Nie przebudowujemy importów z innymi eksportami.
+    if (unused.length && unused.length === node.specifiers.length) {
+      edits.push({ start: node.start, end: node.end, text: '' });
+    }
+  }
+  return editSource(source, edits);
+}
+
+function repairKnown(file, source, catalog) {
+  const drive = file === 'scenes/DriveScene.js' || file.startsWith('scenes/drive/');
+  if (!drive && ![TEMPLATE, DOSSIER, SKETCH, CHARACTER].includes(file)) return source;
+  const tree = ast(source, file);
+  const names = readers(tree, file);
+  const localTemplate = KEEP_VISIBLE.has(file);
+
+  if (localTemplate) {
+    const sourceBinding = tree.body.some(node => node.type === 'VariableDeclaration' &&
+      node.declarations.some(d => d.id.name === 'SOURCE' && literal(d.init) && d.init.value === file));
+    const helperBinding = tree.body.some(node => node.type === 'VariableDeclaration' &&
+      node.declarations.some(d => d.id.name === 'text' &&
+        d.init?.type === 'ArrowFunctionExpression' && d.init.params.length === 1 &&
+        d.init.params[0].type === 'Identifier' && d.init.body.type === 'CallExpression' &&
+        names.has(d.init.body.callee.name) && d.init.body.arguments.length === 2 &&
+        d.init.body.arguments[0].name === 'SOURCE' &&
+        d.init.body.arguments[1].name === d.init.params[0].name));
+    if (!sourceBinding || !helperBinding) {
+      throw new Error(`${file}: unexpected text/SOURCE binding. Manual review required.`);
     }
   }
 
-  return data;
+  const edits = [];
+  walk(tree, (node, parents) => {
+    if (node.type !== 'CallExpression' || node.callee.type !== 'Identifier') return;
+    const parent = parents.at(-1);
+    let sourceKey, id, restore = false;
+    if (names.has(node.callee.name) && node.arguments.length === 2 && node.arguments.every(literal)) {
+      [sourceKey, id] = node.arguments.map(arg => arg.value);
+      restore = drive && parent?.type === 'Property' && parent.value === node &&
+        ['stroke', 'fontStyle'].includes(property(parent));
+      restore ||= file === SKETCH && parent?.type === 'BinaryExpression' &&
+        ['===', '!==', '==', '!='].includes(parent.operator) &&
+        (parent.left.name === 'feature' || parent.right.name === 'feature');
+      restore ||= file === CHARACTER && parent?.type === 'CallExpression' &&
+        member(parent.callee) === 'querySelector' && parent.arguments[0] === node;
+    } else if (localTemplate && node.callee.name === 'text' &&
+      node.arguments.length === 1 && literal(node.arguments[0])) {
+      sourceKey = file;
+      id = node.arguments[0].value;
+      restore = !KEEP_VISIBLE.get(file).has(id);
+      if (!restore && /[<>]/.test(catalogValue(catalog, sourceKey, id))) {
+        throw new Error(`${file}/${id}: visible-text allowlist contains HTML.`);
+      }
+    }
+    if (!restore) return;
+    edits.push({ start: node.start, end: node.end,
+      text: JSON.stringify(catalogValue(catalog, sourceKey, id)) });
+    return false;
+  });
+  report.repaired += edits.length;
+  return edits.length ? cleanUnusedReader(editSource(source, edits), file) : source;
 }
 
-function textId(value) {
-  return 't_' + crypto
-    .createHash('sha256')
-    .update(value)
-    .digest('hex')
-    .slice(0, 20);
+function syntaxString(node, parents) {
+  const parent = parents.at(-1);
+  return parents.some(p => p.type.startsWith('Import') || p.type === 'ExportSpecifier') ||
+    (parent?.source === node) ||
+    (['Property', 'MethodDefinition', 'PropertyDefinition'].includes(parent?.type) && parent.key === node) ||
+    (parent?.type === 'ExpressionStatement' && parent.directive);
+}
+
+function displayValue(node, parents) {
+  // Wyłącznie bezpośredni argument tekstowy. Nigdy cały poddrzewo add.text().
+  let child = node;
+  for (let i = parents.length - 1; i >= 0; i--) {
+    const parent = parents[i];
+    if (parent.type === 'ArrayExpression' && parent.elements.includes(child)) {
+      child = parent; continue;
+    }
+    if (parent.type === 'ConditionalExpression' &&
+        (parent.consequent === child || parent.alternate === child)) {
+      child = parent; continue;
+    }
+    if (parent.type !== 'CallExpression') return false;
+    const name = member(parent.callee);
+    const object = parent.callee.object;
+    if (name === 'text' && member(object) === 'add') return parent.arguments[2] === child;
+    return ['setText', 'setTitle', 'setSubtitle'].includes(name) &&
+      parent.arguments[0] === child;
+  }
+  return false;
+}
+
+function blocked(parents) {
+  return parents.some(node =>
+    node.type === 'ThrowStatement' ||
+    node.type === 'TaggedTemplateExpression' ||
+    ((node.type === 'Property' || node.type === 'PropertyDefinition') && TECHNICAL.has(property(node))) ||
+    (node.type === 'CallExpression' &&
+      (['querySelector', 'querySelectorAll', 'matches', 'closest', 'setAttribute'].includes(member(node.callee)) ||
+       node.callee.object?.name === 'console'))
+  );
 }
 
 function addText(catalog, file, value) {
-  catalog.sources[file] ??= {};
-
+  if (!Object.hasOwn(catalog.sources, file)) catalog.sources[file] = Object.create(null);
   const entries = catalog.sources[file];
-  const baseId = textId(value);
-
-  let id = baseId;
-  let suffix = 1;
-
-  while (
-    Object.hasOwn(entries, id) &&
-    entries[id] !== value
-  ) {
-    id = `${baseId}_${suffix++}`;
-  }
-
-  if (!Object.hasOwn(entries, id)) {
-    entries[id] = value;
-    report.totals.newCatalogEntries++;
-  }
-
+  const base = 't_' + crypto.createHash('sha256').update(value).digest('hex').slice(0, 20);
+  let id = base, suffix = 1;
+  while (Object.hasOwn(entries, id) && entries[id] !== value) id = `${base}_${suffix++}`;
+  if (!Object.hasOwn(entries, id)) { entries[id] = value; report.newEntries++; }
   return id;
 }
 
-function helperImportPath(file) {
-  let relative = posix(
-    path.relative(
-      path.dirname(file),
-      RUNTIME_PATH
-    )
-  );
-
-  if (!relative.startsWith('.')) {
-    relative = './' + relative;
-  }
-
-  return relative;
-}
-
-function findReaderAlias(tree, file) {
-  const importPath = helperImportPath(file);
-
-  for (const node of tree.body) {
-    if (
-      node.type !== 'ImportDeclaration' ||
-      node.source.value !== importPath
-    ) {
-      continue;
-    }
-
-    const specifier = node.specifiers.find(item => (
-      item.type === 'ImportSpecifier' &&
-      (
-        item.imported.name === 'dialogueText' ||
-        item.imported.value === 'dialogueText'
-      )
-    ));
-
-    if (specifier) {
-      return {
-        name: specifier.local.name,
-        existing: true
-      };
-    }
-  }
-
+function extractVisible(file, source, catalog) {
+  const comments = [];
+  const tree = ast(source, file, comments);
+  if (!tree.body.some(node => node.type === 'ImportDeclaration' || node.type.startsWith('Export'))) return source;
+  const existing = readers(tree, file);
   const identifiers = new Set();
+  walk(tree, node => { if (node.type === 'Identifier') identifiers.add(node.name); });
+  let reader = existing.values().next().value;
+  if (!reader) {
+    reader = '__dialogueText';
+    let n = 1;
+    while (identifiers.has(reader)) reader = `__dialogueText${n++}`;
+  }
+  const edits = [];
+  const annotated = node => comments.some(c => c.type === 'Block' &&
+    c.value.trim() === '@dialogue' && c.end <= node.start &&
+    /^\s*$/.test(source.slice(c.end, node.start)));
+  const lookup = value => `${reader}(${JSON.stringify(file)}, ${JSON.stringify(addText(catalog, file, value))})`;
 
-  walk(tree, node => {
-    if (node.type === 'Identifier') {
-      identifiers.add(node.name);
+  walk(tree, (node, parents) => {
+    if (node.type === 'CallExpression' && existing.has(node.callee.name)) return false;
+    if (node.type !== 'Literal' && node.type !== 'TemplateLiteral') return;
+    if (node.type === 'Literal' && !literal(node)) return;
+    if (syntaxString(node, parents) || blocked(parents)) return;
+    if (!displayValue(node, parents) && !annotated(node)) return;
+    const values = node.type === 'Literal' ? [node.value] : node.quasis.map(q => q.value.cooked);
+    if (values.some(value => typeof value !== 'string' || /[<>]/.test(value))) {
+      report.review.push({ file, line: node.loc.start.line,
+        reason: 'HTML/markup or unsupported template: keep structure in JS; mark visible leaf text manually.' });
+      return false;
     }
+    if (node.type === 'Literal') {
+      if (!node.value.trim()) return;
+      edits.push({ start: node.start, end: node.end, text: lookup(node.value) });
+    } else {
+      for (const quasi of node.quasis) {
+        if (!quasi.value.cooked.trim()) continue;
+        edits.push({ start: quasi.start, end: quasi.end, text: '${' + lookup(quasi.value.cooked) + '}' });
+      }
+    }
+    // Nie ekstraktujemy literałów technicznych z ${wyrażeń}.
+    return false;
   });
-
-  let name = '__dialogueText';
-  let suffix = 1;
-
-  while (identifiers.has(name)) {
-    name = `__dialogueText${suffix++}`;
+  if (!edits.length) return source;
+  report.extracted += edits.length;
+  let result = editSource(source, edits);
+  if (!existing.has(reader)) {
+    const statement = `import { dialogueText as ${reader} } from ${JSON.stringify(readerPath(file))};\n`;
+    const insert = source.startsWith('#!') ? result.indexOf('\n') + 1 : 0;
+    if (source.startsWith('#!') && insert === 0) throw new Error(`Invalid hashbang in ${file}.`);
+    result = result.slice(0, insert) + statement + result.slice(insert);
   }
-
-  return {
-    name,
-    existing: false
-  };
-}
-
-function applyEdits(source, edits) {
-  const ascending = [...edits].sort(
-    (a, b) => a.start - b.start || a.end - b.end
-  );
-
-  for (let i = 1; i < ascending.length; i++) {
-    if (ascending[i].start < ascending[i - 1].end) {
-      throw new Error('Overlapping migration edits detected.');
-    }
-  }
-
-  let result = source;
-
-  for (const edit of ascending.reverse()) {
-    result =
-      result.slice(0, edit.start) +
-      edit.text +
-      result.slice(edit.end);
-  }
-
   return result;
 }
 
-function sourceExcerpt(source, node) {
-  return source
-    .slice(node.start, node.end)
-    .replace(/\s+/g, ' ')
-    .slice(0, 180);
-}
-
-function migrateModule(file, source, catalog) {
-  const tree = parseSource(source, file);
-
-  const moduleFile = tree.body.some(node => (
-    node.type === 'ImportDeclaration' ||
-    node.type.startsWith('Export')
-  ));
-
-  if (!moduleFile) {
-    report.review.push({
-      file,
-      reason: 'Classic script without import/export; left unchanged.'
-    });
-
-    return null;
-  }
-
-  report.totals.scannedModules++;
-
-  const reader = findReaderAlias(tree, file);
-  const edits = [];
-
-  function lookup(value) {
-    const id = addText(catalog, file, value);
-
-    return (
-      `${reader.name}(` +
-      `${JSON.stringify(file)}, ${JSON.stringify(id)}` +
-      ')'
-    );
-  }
-
-  walk(tree, (node, ancestors) => {
-    const parent = ancestors[ancestors.length - 1];
-
-    // Nie migruj ponownie argumentów już wygenerowanych odczytów.
-    if (
-      node.type === 'CallExpression' &&
-      node.callee?.type === 'Identifier' &&
-      node.callee.name === reader.name
-    ) {
-      return false;
-    }
-
-    if (
-      node.type === 'Literal' &&
-      typeof node.value === 'string'
-    ) {
-      if (
-        !isSyntaxString(node, parent) &&
-        shouldExtract(node.value, ancestors)
-      ) {
-        edits.push({
-          start: node.start,
-          end: node.end,
-          text: lookup(node.value)
-        });
-      }
-
-      return;
-    }
-
-    if (node.type !== 'TemplateLiteral') {
-      return;
-    }
-
-    const tagged = (
-      parent?.type === 'TaggedTemplateExpression' &&
-      parent.quasi === node
-    );
-
-    const relevant = node.quasis.some(quasi => (
-      shouldExtract(
-        quasi.value.cooked ?? quasi.value.raw,
-        ancestors
-      )
-    ));
-
-    if (!relevant) {
-      return;
-    }
-
-    if (tagged) {
-      report.review.push({
-        file,
-        line: node.loc.start.line,
-        reason: 'Tagged template: requires manual review.',
-        excerpt: sourceExcerpt(source, node)
-      });
-
-      return;
-    }
-
-    // Przenosimy wyłącznie fragmenty tekstu.
-    // Oryginalne ${wyrażenia} pozostają w JS.
-    for (const quasi of node.quasis) {
-      const value = quasi.value.cooked;
-
-      if (typeof value !== 'string' || value.length === 0) {
-        continue;
-      }
-
-      edits.push({
-        start: quasi.start,
-        end: quasi.end,
-        text: '${' + lookup(value) + '}'
-      });
-    }
-  });
-
-  if (!edits.length) {
-    return null;
-  }
-
-  let migrated = applyEdits(source, edits);
-
-  if (!reader.existing) {
-    const statement =
-      `import { dialogueText as ${reader.name} } from ` +
-      `${JSON.stringify(helperImportPath(file))};\n`;
-
-    if (migrated.startsWith('#!')) {
-      const newline = migrated.indexOf('\n');
-
-      if (newline === -1) {
-        throw new Error(`Cannot insert import into ${file}.`);
-      }
-
-      migrated =
-        migrated.slice(0, newline + 1) +
-        statement +
-        migrated.slice(newline + 1);
-    } else {
-      migrated = statement + migrated;
-    }
-  }
-
-  // Błąd składni zatrzyma cały przebieg przed zapisem.
-  parseSource(migrated, file);
-
-  report.changedFiles.push({
-    file,
-    extractedOccurrences: edits.length,
-    catalogSection: file
-  });
-
-  report.totals.changedModules++;
-  report.totals.extractedOccurrences += edits.length;
-
-  return migrated;
-}
-
-function orderedCatalog(catalog) {
-  const sources = {};
-
-  for (const file of Object.keys(catalog.sources).sort()) {
-    sources[file] = Object.fromEntries(
-      Object.entries(catalog.sources[file]).sort(
-        ([a], [b]) => a.localeCompare(b)
-      )
-    );
-  }
-
-  return {
-    version: 1,
-    sources
-  };
-}
-
 async function writeWithBackup(changes) {
-  const stamp = new Date()
-    .toISOString()
-    .replace(/[:.]/g, '-');
-
-  const backupRoot = path.join(
-    ROOT,
-    'dialogue-json-backups',
-    stamp
-  );
-
-  const manifest = {
-    version: 1,
-    createdAt: new Date().toISOString(),
-    files: []
-  };
-
-  // Najpierw kompletna kopia, dopiero potem zmiany.
-  for (const relative of changes.keys()) {
-    const absolute = path.join(ROOT, relative);
-    const existed = await exists(relative);
-
-    manifest.files.push({
-      path: relative,
-      existed
-    });
-
-    if (existed) {
-      const backup = path.join(backupRoot, relative);
-
-      await fs.mkdir(path.dirname(backup), {
-        recursive: true
-      });
-
-      await fs.copyFile(absolute, backup);
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-') + '-' + crypto.randomBytes(3).toString('hex');
+  const backup = path.join(ROOT, 'dialogue-json-backups', stamp);
+  const manifest = [];
+  // Wszystkie pliki najpierw odczytane, sprawdzone i skopiowane.
+  for (const [file] of changes) {
+    const absolute = path.join(ROOT, file);
+    let exists = true;
+    try { await fs.access(absolute); } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+      exists = false;
+    }
+    manifest.push({ path: file, existed: exists });
+    if (exists) {
+      await fs.mkdir(path.dirname(path.join(backup, file)), { recursive: true });
+      await fs.copyFile(absolute, path.join(backup, file));
     }
   }
-
-  await fs.mkdir(backupRoot, {
-    recursive: true
-  });
-
-  await fs.writeFile(
-    path.join(backupRoot, 'manifest.json'),
-    JSON.stringify(manifest, null, 2) + '\n',
-    'utf8'
-  );
-
-  for (const [relative, content] of changes) {
-    const absolute = path.join(ROOT, relative);
-
-    await fs.mkdir(path.dirname(absolute), {
-      recursive: true
-    });
-
-    await fs.writeFile(absolute, content, 'utf8');
+  await fs.mkdir(backup, { recursive: true });
+  await fs.writeFile(path.join(backup, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
+  for (const [file, content] of changes) {
+    await fs.mkdir(path.dirname(path.join(ROOT, file)), { recursive: true });
+    await fs.writeFile(path.join(ROOT, file), content, 'utf8');
   }
-
-  return posix(path.relative(ROOT, backupRoot));
+  return posix(path.relative(ROOT, backup));
 }
 
 async function main() {
-  const catalog = await loadCatalog();
-  const files = await listSources();
-
+  let catalog;
+  try { catalog = JSON.parse(await fs.readFile(path.join(ROOT, CATALOG), 'utf8')); }
+  catch (error) {
+    if (error.code !== 'ENOENT' || REPAIR) throw error;
+    catalog = { version: 1, sources: Object.create(null) };
+  }
+  if (catalog.version !== 1 || !objectRecord(catalog.sources) ||
+      Object.values(catalog.sources).some(entries => !objectRecord(entries) ||
+        Object.values(entries).some(value => typeof value !== 'string'))) {
+    throw new Error('Invalid existing catalog. No files were written.');
+  }
   const changes = new Map();
-
-  for (const file of files) {
-    const source = await fs.readFile(
-      path.join(ROOT, file),
-      'utf8'
-    );
-
-    const migrated = migrateModule(file, source, catalog);
-
-    if (migrated !== null) {
-      changes.set(file, migrated);
+  for (const file of await filesAt()) {
+    const original = await fs.readFile(path.join(ROOT, file), 'utf8');
+    const updated = REPAIR ? repairKnown(file, original, catalog) : extractVisible(file, original, catalog);
+    if (updated !== original) {
+      ast(updated, file);
+      changes.set(file, updated);
+      report.changedFiles.push(file);
     }
   }
-
-  const finalCatalog = orderedCatalog(catalog);
-
-  parseSource(runtimeSource, RUNTIME_PATH);
-
-  const catalogContent =
-    JSON.stringify(finalCatalog, null, 2) + '\n';
-
-  // Sprawdzenie, czy wynik jest poprawnym JSON-em.
-  JSON.parse(catalogContent);
-
-  if (changes.size > 0) {
-    changes.set(CATALOG_PATH, catalogContent);
-    changes.set(RUNTIME_PATH, runtimeSource);
-  }
-
-  const reportContent =
-    JSON.stringify(report, null, 2) + '\n';
-
+  // Naprawa zachowuje katalog: stare wpisy mogą mieć innych użytkowników.
+  // Ekstraktor NIGDY nie zapisuje DialogueText.js.
+  if (!REPAIR && report.newEntries) changes.set(CATALOG, JSON.stringify(catalog, null, 2) + '\n');
+  if (changes.has(RUNTIME)) throw new Error('Refusing to overwrite dialogue runtime.');
+  console.log(JSON.stringify(report, null, 2));
   if (!WRITE) {
-    console.log('PREVIEW — no game files changed.');
-    console.log(JSON.stringify(report, null, 2));
-    console.log(
-      '\nTo apply: node tools/extract-dialogues.mjs --write'
-    );
-
+    console.log('PREVIEW: no files changed. Add --write to apply.');
     return;
   }
-
-  changes.set(REPORT_PATH, reportContent);
-
-  const backup = await writeWithBackup(changes);
-
-  console.log(
-    `Updated modules: ${report.totals.changedModules}`
-  );
-
-  console.log(
-    `Extracted occurrences: ${report.totals.extractedOccurrences}`
-  );
-
-  console.log(
-    `New JSON entries: ${report.totals.newCatalogEntries}`
-  );
-
-  console.log(
-    `Review items: ${report.review.length}`
-  );
-
-  console.log(`Backup: ${backup}`);
-  console.log(`Report: ${REPORT_PATH}`);
-
-  if (report.totals.changedModules > 0) {
-    console.log(`Dialogue catalog: ${CATALOG_PATH}`);
-  }
+  if (!changes.size) { console.log('No changes needed.'); return; }
+  changes.set('dialogue-migration-report.json', JSON.stringify(report, null, 2) + '\n');
+  console.log('Backup: ' + await writeWithBackup(changes));
 }
 
 main().catch(error => {

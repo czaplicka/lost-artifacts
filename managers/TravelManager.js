@@ -80,7 +80,7 @@ export function calculateTravelValues(distance, type) {
   if (!config) throw new Error(`Unknown transport type: ${type}`);
   const baseTravelHours = Math.max(config.minHours, Math.round(config.minHours + distance * config.hoursPerMapPixel));
   return { baseTravelHours, moneySpent: Math.round(config.baseCost + baseTravelHours * config.costPerHour),
-    estimatedEnergyChange: -Math.max(2, Math.round(baseTravelHours * config.energyPerHour)) };
+    estimatedEnergyChange: -getEnergyManager().getTravelCost(type) };
 }
 export function rollTravelEncounter(type) {
   if (Math.random() >= TRAVEL_ENCOUNTER_CHANCE) return null;

@@ -18,6 +18,92 @@ import { LocationDialoguePanel } from '../ui/LocationDialoguePanel.js';
 const T=id=>__dialogueText('scenes/LocationScene.js',id);
 const LOCATION_SOUND_MAP={alley:'alleysound',bank:'banksound',hotel:'hotelsound',parking:'parkingsound',policehq:'policesound',restaurant:'restaurantsound'};
 const TOPIC_LABELS={features:T('t_5697d03daef4de9cf8db'),accent:T('t_a5c6fb18c9af89b22a79'),hair:T('t_ababed4823ab79d226ba'),eyes:T('t_a39e9d9816a99fc02aa4'),skills:T('t_66d0f523a379b2de6f8d'),habitus:T('t_41243237651096193ccc'),currency:T('t_5ccc2e8715d7a17c3110'),travel:T('t_3e11abc63158d2afedac'),motive:T('t_59b1224dd97e71c0f8d8'),flight:T('t_26b4c6679365904b7971'),dish:T('t_4c53a089c88344b172cb'),cars:T('t_e287548a9db2e48f049f'),findings:T('t_e171c2ff25b55e5a2d63'),banter:T('t_124478a6674d3cb814fc')};
+
+// Styling is local to this scene. Other LocationDialoguePanel users are unchanged.
+function stylePursuitDialogue(view) {
+ const scene=view.scene;
+ const bubble=scene.add.graphics();
+ view.root.addAt(bubble,view.root.getIndex(view.text));
+ const choiceFrames=scene.add.graphics();
+ view.root.addAt(choiceFrames,view.root.getIndex(view.text));
+ view.clearPortrait();
+ view.portraitFrame.clear().setVisible(false);
+ view.nameText=view.makeText(0,0,'',10,'#ffd86b',true);
+ view.renderSpeaker=()=>{
+  if(!view.isOpen)return;
+  view.nameText.setText(view.speaker.name||'').setPosition(view.layout.textX,view.layout.panelY+21)
+   .setFontSize(view.layout.width<700?8:10).setWordWrapWidth(view.layout.textWidth,true);
+ };
+ const renderPage=view.renderPage.bind(view);
+ view.renderPage=(instant=false)=>{
+  if(!view.isOpen)return;
+  const L=view.layout;
+  bubble.clear().fillStyle(0x2a2012,1)
+   .fillRoundedRect(L.textX-10,L.panelY+48,L.textWidth+20,L.panelHeight-102,8)
+   .lineStyle(1,0xb58a42,1)
+   .strokeRoundedRect(L.textX-10,L.panelY+48,L.textWidth+20,L.panelHeight-102,8);
+  view.text.setColor('#f3e7c4');
+  renderPage(instant);
+ };
+ const renderTopics=view.renderTopics.bind(view);
+ view.renderTopics=()=>{
+  choiceFrames.clear();
+  renderTopics();
+  if(!view.isOpen)return;
+  view.pageTopics.forEach((topic,index)=>{
+   const label=view.topicObjects[index];
+   if(!label)return;
+   const used=topic.state==='used'||topic.state==='disabled';
+   const x=label.x-5,y=label.y-2;
+   const width=Math.min(view.layout.menuWidth-12,Math.max(20,label.displayWidth+10));
+   const height=label.displayHeight+4;
+   choiceFrames.fillStyle(used?0x242821:0x263729,1).fillRoundedRect(x,y,width,height,4)
+    .lineStyle(1,used?0x53604e:0x88b589,1).strokeRoundedRect(x,y,width,height,4);
+  });
+ };
+ view.relayout=()=>{
+  if(!view.isOpen)return;
+  const oldOffset=view.textPages[view.textPage]?.start||0;
+  const {width:w,height:h}=scene.scale;
+  const small=w<700;
+  const ph=Math.min(h,small?340:272),y=h-ph;
+  const pad=small?18:26;
+  const menu=Math.min(view.options.menuWidth,small?Math.max(116,w*.35):w*.28);
+  const divider=w-menu-20;
+  const textX=pad+10;
+  view.layout={width:w,height:h,panelHeight:ph,panelY:y,portraitSize:0,portraitX:pad,
+   portraitY:y+12,centerX:pad,centerY:y+12,textX,textEndX:divider,menuWidth:menu,
+   menuX:divider+16,textWidth:Math.max(16,divider-textX-24),font:small?17:22};
+  view.overlay.setSize(w,h);
+  view.background.setPosition(0,y).setSize(w,ph);
+  view.border.clear().lineStyle(4,0xd4af37,1)
+   .strokeRect(6,y+6,Math.max(1,w-12),Math.max(1,ph-12))
+   .lineStyle(1,0x8a6d1f,.9)
+   .strokeRect(12,y+12,Math.max(1,w-24),Math.max(1,ph-24));
+  view.border.lineBetween(divider,y+16,divider,h-16);
+  view.portraitFrame.clear().setVisible(false);
+  view.text.setPosition(textX,y+58).setFontSize(view.layout.font)
+   .setWordWrapWidth(view.layout.textWidth,true).setScale(1);
+  view.footer.setPosition(textX,h-72).setFontSize(small?9:11)
+   .setWordWrapWidth(view.layout.textWidth,true);
+  view.previousText.setPosition(textX,h-37);
+  view.pageLabel.setPosition(textX+28,h-37);
+  view.nextText.setPosition(divider-24,h-37);
+  view.leaveButton.setPosition(divider+16,h-37).setFontSize(small?16:18)
+   .setText(view.options.leaveLabel);
+  view.leaveButton.setScale(Math.min(1,Math.max(1,menu-18)/Math.max(1,view.leaveButton.width)));
+  view.renderSpeaker();view.repaginate(oldOffset);view.renderPage(true);view.renderTopics();
+ };
+ const repaginate=view.repaginate.bind(view);
+ view.repaginate=(offset=0)=>{
+  // Reserve the speaker header and bubble padding without changing pagination logic.
+  const height=view.layout.panelHeight;
+  view.layout.panelHeight=height-42;
+  try{repaginate(offset);}finally{view.layout.panelHeight=height;}
+ };
+ view.relayout();
+}
+
 export class LocationScene extends BaseScene {
  constructor(){
   super({key:'LocationScene'});this.topicButtons=[];this.generatedNotes=[];this.askedTopics=new Set();
@@ -45,13 +131,11 @@ export class LocationScene extends BaseScene {
  }
  preload(){
   queueLocationIcons(this);
-  if (this.locationId === 'museum') {
-   const locations = this.cache.json.get('locations') || [];
-   const city = locations.find(entry => normalizePursuitCityId(entry.id) === this.cityId);
-   for (const key of getLocationBackgroundCandidates('museum', city)) {
-    if (/^museum_[abhow]$/.test(key) && !this.textures.exists(key)) {
-     this.load.image(key, `assets/local/${key}.webp`);
-    }
+  if(this.locationId==='museum'){
+   const locations=this.cache.json.get('locations')||[];
+   const city=locations.find(entry=>normalizePursuitCityId(entry.id)===this.cityId);
+   for(const key of getLocationBackgroundCandidates('museum',city)){
+    if(/^museum_[abhow]$/.test(key)&&!this.textures.exists(key))this.load.image(key,`assets/local/${key}.webp`);
    }
   }
   const key=NPC_DIALOGUE_KEY_MAP[this.npcId],path=NPC_DIALOGUE_FILE_MAP[this.npcId];
@@ -74,7 +158,6 @@ export class LocationScene extends BaseScene {
   this.entryEnergyPaid=true;saveGameState();return true;
  }
  create(){
-  // Validate before charging energy or encounter time.
   if(typeof LocationDialoguePanel.prototype.advance!=='function')throw new Error('LocationScene requires LocationDialoguePanel from dialogue migration stage 1.');
   super.create();this.events.once(Phaser.Scenes.Events.SHUTDOWN,this.handleShutdown,this);
   this.events.once(Phaser.Scenes.Events.DESTROY,this.handleShutdown,this);
@@ -142,8 +225,8 @@ export class LocationScene extends BaseScene {
   this.sharedDialogue?.destroy();
   const view=new LocationDialoguePanel(this,{depth:10,menuWidth:205,keyboard:false,
    leaveLabel:T('t_fc6e4a408d56be9670c1'),onLeave:()=>{void this.finishEncounter();}});
+  stylePursuitDialogue(view);
   this.sharedDialogue=view;
-  // Keep tutorial-facing object references current after menu paging and resize.
   const renderTopics=view.renderTopics.bind(view);
   view.renderTopics=()=>{renderTopics();if(this.sharedDialogue===view)this.syncDialogueAliases();};
   this.expectedLocationIconKey=getLocationIconKey(this.locationId,this.cityData,this.npcId);
@@ -167,8 +250,6 @@ export class LocationScene extends BaseScene {
   this.panelBorder=view.border;this.portraitFrame=view.portraitFrame;this.portraitImage=view.portraitObjects[0]||null;
   this.leaveButton=view.leaveButton;this.dialogueMaxHeight=view.dialogueMaxHeight;
   this.topicButtons=view.pageTopics.map((topic,index)=>({topicId:topic.id,text:view.topicObjects[index]})).filter(button=>button.text);
-  // ChaseTutorial reads topicButtons. If unasked topics are on another page,
-  // highlight the real next-page control instead of incorrectly suggesting Leave.
   const visiblePending=this.topicButtons.some(button=>button.topicId!=='banter'&&!this.askedTopics.has(button.topicId));
   const hiddenPending=view.topics.find(topic=>topic.id!=='banter'&&!this.askedTopics.has(topic.id)&&!view.pageTopics.includes(topic));
   if(!visiblePending&&hiddenPending&&view.pageTopics.length<view.topics.length){

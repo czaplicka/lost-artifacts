@@ -1,0 +1,26 @@
+[
+  {
+    "path": "scenes/CharacterCreationScene.js",
+    "existed": true
+  },
+  {
+    "path": "scenes/drive/DriveCockpit.js",
+    "existed": true
+  },
+  {
+    "path": "ui/characterCreation/CharacterCreationTemplate.js",
+    "existed": true
+  },
+  {
+    "path": "ui/characterCreation/DossierView.js",
+    "existed": true
+  },
+  {
+    "path": "ui/warrant/WarrantSketch.js",
+    "existed": true
+  },
+  {
+    "path": "dialogue-migration-report.json",
+    "existed": true
+  }
+]

@@ -4,6 +4,91 @@ import { normalizeWarsaw, advanceWarsaw } from './pi-office/WarsawMeetingModel.j
 import { LocationDialoguePanel } from '../ui/LocationDialoguePanel.js';
 
 const T = id => __dialogueText('scenes/WarsawMeetingScene.js', id);
+
+function styleWarsawConversation(view) {
+  const scene = view.scene;
+  const bubble = scene.add.graphics();
+  view.root.addAt(bubble, view.root.getIndex(view.text));
+  const choiceFrames = scene.add.graphics();
+  view.root.addAt(choiceFrames, view.root.getIndex(view.text));
+  view.clearPortrait();
+  view.portraitFrame.setVisible(false);
+  view.nameText = view.makeText(0, 0, '', 10, '#ffd86b', true);
+  view.renderSpeaker = () => {
+    if (!view.isOpen) return;
+    const L = view.layout;
+    view.nameText.setText(view.speaker.name || '').setPosition(L.textX, L.panelY + 22)
+      .setFontSize(L.width < 700 ? 8 : 10).setWordWrapWidth(L.textWidth, true);
+  };
+  const renderPage = view.renderPage.bind(view);
+  view.renderPage = (instant = false) => {
+    if (!view.isOpen) return;
+    const L = view.layout;
+    bubble.clear().fillStyle(0x2a2012, 1)
+      .fillRoundedRect(L.textX - 10, L.panelY + 48, L.textWidth + 20, Math.max(1, L.panelHeight - 102), 8)
+      .lineStyle(1, 0xb58a42, 1)
+      .strokeRoundedRect(L.textX - 10, L.panelY + 48, L.textWidth + 20, Math.max(1, L.panelHeight - 102), 8);
+    view.text.setColor('#f3e7c4');
+    renderPage(instant);
+  };
+  const renderTopics = view.renderTopics.bind(view);
+  view.renderTopics = () => {
+    choiceFrames.clear();
+    renderTopics();
+    if (!view.isOpen) return;
+    view.pageTopics.forEach((topic, index) => {
+      const label = view.topicObjects[index];
+      if (!label) return;
+      const note = topic.id === 'source';
+      const muted = topic.state === 'disabled' || topic.state === 'used';
+      const x = label.x - 5, y = label.y - 2;
+      const width = Math.min(view.layout.menuWidth - 12, Math.max(20, label.displayWidth + 10));
+      const height = label.displayHeight + 4;
+      choiceFrames.fillStyle(note ? 0x201c17 : muted ? 0x242821 : 0x263729, 1)
+        .fillRoundedRect(x, y, width, height, 4)
+        .lineStyle(1, note ? 0x776953 : muted ? 0x53604e : 0x88b589, 1)
+        .strokeRoundedRect(x, y, width, height, 4);
+    });
+  };
+  const repaginate = view.repaginate.bind(view);
+  view.repaginate = (offset = 0) => {
+    const height = view.layout.panelHeight;
+    view.layout.panelHeight = height - 42;
+    try { repaginate(offset); } finally { view.layout.panelHeight = height; }
+  };
+  view.relayout = () => {
+    if (!view.isOpen) return;
+    const offset = view.textPages[view.textPage]?.start || 0;
+    const { width: w, height: h } = scene.scale;
+    const small = w < 700, ph = Math.min(h, small ? 340 : 272), y = h - ph;
+    const pad = small ? 18 : 26;
+    const menu = Math.min(view.options.menuWidth, small ? Math.max(116, w * .35) : w * .28);
+    const divider = w - menu - 20, textX = pad + 10;
+    view.layout = { width: w, height: h, panelHeight: ph, panelY: y,
+      portraitSize: 0, portraitX: pad, portraitY: y + 12, centerX: pad, centerY: y + 12,
+      textX, textEndX: divider, menuWidth: menu, menuX: divider + 16,
+      textWidth: Math.max(16, (divider - textX - 24) * .88), font: small ? 17 : 22 };
+    view.overlay.setSize(w, h);
+    view.background.setPosition(0, y).setSize(w, ph);
+    view.border.clear().lineStyle(4, 0xd4af37, 1)
+      .strokeRect(6, y + 6, Math.max(1, w - 12), Math.max(1, ph - 12))
+      .lineStyle(1, 0x8a6d1f, .9)
+      .strokeRect(12, y + 12, Math.max(1, w - 24), Math.max(1, ph - 24));
+    view.border.lineBetween(divider, y + 16, divider, h - 16);
+    view.portraitFrame.clear().setVisible(false);
+    view.text.setPosition(textX, y + 58).setFontSize(view.layout.font)
+      .setWordWrapWidth(view.layout.textWidth, true).setScale(1);
+    view.footer.setPosition(textX, h - 72).setFontSize(small ? 9 : 11).setWordWrapWidth(view.layout.textWidth, true);
+    view.previousText.setPosition(textX, h - 37);
+    view.pageLabel.setPosition(textX + 28, h - 37);
+    view.nextText.setPosition(divider - 24, h - 37);
+    view.leaveButton.setPosition(divider + 16, h - 37).setFontSize(small ? 16 : 18).setText(view.options.leaveLabel);
+    view.leaveButton.setScale(Math.min(1, Math.max(1, menu - 18) / Math.max(1, view.leaveButton.width)));
+    view.renderSpeaker(); view.repaginate(offset); view.renderPage(true); view.renderTopics();
+  };
+  view.relayout();
+}
+
 export class WarsawMeetingScene extends Phaser.Scene {
   constructor(config = { key: 'WarsawMeetingScene' }) { super(config); }
   init(data = {}) {
@@ -97,6 +182,7 @@ export class WarsawMeetingScene extends Phaser.Scene {
       onLeave: () => this.closeVisit(), onAdvance: () => this.commitMeetingLine()
     });
     this.conversationPanel = panel;
+    styleWarsawConversation(panel);
     panel.setSpeaker({ name: phase === 'meeting' ? 'JOHN' : 'MESSAGE DESK',
       portrait: { kind: 'texture', key: 'portrait_fallback' } });
     const speech = phase === 'contact' ? DATA.contactPrompt : phase === 'verification'

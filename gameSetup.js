@@ -12,7 +12,7 @@ import { inventoryManager } from './managers/InventoryManager.js';
 import { CaseDirector } from './CaseDirector.js';
 import { loadJson } from './config/loadJson.js';
 import { CrimeLabManager } from './scenes/CSI/CrimeLabManager.js';
-import { createUnifiedTravelManager } from './managers/UnifiedTravelManager.js';
+
 import { drawMotive, getMotiveById } from './motiveService.js';
 import {
   HQ_CITY, HQ_ID, ESCAPE_ROUTE_LENGTH, SUSPECT_DATA_URL,
@@ -428,7 +428,7 @@ export async function setupNewGame(
   const energy = getEnergyManager();
   energy.init(difficulty);
   difficulty = energy.difficulty;
-  createUnifiedTravelManager().init();
+  
   getRankManager().init();
 
   const { caseDirector, template } = buildCaseDirector(0);

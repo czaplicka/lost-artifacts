@@ -8,6 +8,84 @@ import { GordonHotspotDebug } from './gordon/GordonHotspotDebug.js';
 import { installGordonEthicsInterview } from './gordon/GordonEthicsUI.js';
 
 const T = id => __dialogueText('scenes/GordonInterviewScene.js', id);
+
+function styleGordonConversation(view) {
+  const scene = view.scene;
+  const frame = scene.add.graphics();
+  view.root.addAt(frame, view.root.getIndex(view.text));
+  view.clearPortrait();
+  view.portraitFrame.setVisible(false);
+  view.nameText = view.makeText(0, 0, '', 10, '#ffd86b', true);
+  const playerName = T('t_1e954e77ee4e5253c6c5');
+  const theme = () => {
+    if (view.speaker.name === playerName) return { player: true, fill: 0x263729, edge: 0x88b589, text: '#e3f0d7', name: '#9fd9a0' };
+    if (view.speaker.name === DATA.speaker) return { player: false, fill: 0x2a2012, edge: 0xb58a42, text: '#f3e7c4', name: '#f0c75e' };
+    return { player: false, fill: 0x201c17, edge: 0x776953, text: '#dfcfac', name: '#dfcfac' };
+  };
+  view.renderSpeaker = () => {
+    if (!view.isOpen) return;
+    const L = view.layout, colors = theme();
+    view.nameText.setText(view.speaker.name || '').setPosition(L.textX, L.panelY + 22)
+      .setFontSize(L.width < 700 ? 8 : 10).setColor(colors.name).setWordWrapWidth(L.textWidth, true);
+  };
+  const renderPage = view.renderPage.bind(view);
+  view.renderPage = (instant = false) => {
+    if (!view.isOpen) return;
+    const L = view.layout, colors = theme();
+    frame.clear().fillStyle(colors.fill, 1)
+      .fillRoundedRect(L.textX - 10, L.panelY + 48, L.textWidth + 20, Math.max(1, L.panelHeight - 102), 8)
+      .lineStyle(1, colors.edge, 1)
+      .strokeRoundedRect(L.textX - 10, L.panelY + 48, L.textWidth + 20, Math.max(1, L.panelHeight - 102), 8);
+    view.text.setColor(colors.text);
+    renderPage(instant);
+  };
+  const repaginate = view.repaginate.bind(view);
+  view.repaginate = (offset = 0) => {
+    const height = view.layout.panelHeight;
+    view.layout.panelHeight = height - 42;
+    try { repaginate(offset); } finally { view.layout.panelHeight = height; }
+  };
+  view.relayout = () => {
+    if (!view.isOpen) return;
+    const offset = view.textPages[view.textPage]?.start || 0;
+    const { width: w, height: h } = scene.scale;
+    const small = w < 700, ph = Math.min(h, small ? 340 : 272), y = h - ph;
+    const pad = small ? 18 : 26;
+    const menu = Math.min(view.options.menuWidth, small ? Math.max(116, w * .35) : w * .28);
+    const divider = w - menu - 20;
+    const textWidth = Math.max(16, (divider - pad - 34) * .88);
+    const textX = theme().player ? divider - 24 - textWidth : pad + 10;
+    view.layout = { width: w, height: h, panelHeight: ph, panelY: y,
+      portraitSize: 0, portraitX: pad, portraitY: y + 12, centerX: pad, centerY: y + 12,
+      textX, textEndX: divider, menuWidth: menu, menuX: divider + 16,
+      textWidth, font: small ? 17 : 22 };
+    view.overlay.setSize(w, h);
+    view.background.setPosition(0, y).setSize(w, ph);
+    view.border.clear().lineStyle(4, 0xd4af37, 1)
+      .strokeRect(6, y + 6, Math.max(1, w - 12), Math.max(1, ph - 12))
+      .lineStyle(1, 0x8a6d1f, .9)
+      .strokeRect(12, y + 12, Math.max(1, w - 24), Math.max(1, ph - 24));
+    view.border.lineBetween(divider, y + 16, divider, h - 16);
+    view.portraitFrame.clear().setVisible(false);
+    view.text.setPosition(textX, y + 58).setFontSize(view.layout.font)
+      .setWordWrapWidth(textWidth, true).setScale(1);
+    view.footer.setPosition(textX, h - 72).setFontSize(small ? 9 : 11).setWordWrapWidth(textWidth, true);
+    view.previousText.setPosition(pad + 10, h - 37);
+    view.pageLabel.setPosition(pad + 38, h - 37);
+    view.nextText.setPosition(divider - 24, h - 37);
+    view.leaveButton.setPosition(divider + 16, h - 37).setFontSize(small ? 16 : 18).setText(view.options.leaveLabel);
+    view.leaveButton.setScale(Math.min(1, Math.max(1, menu - 18) / Math.max(1, view.leaveButton.width)));
+    view.renderSpeaker(); view.repaginate(offset); view.renderPage(true); view.renderTopics();
+  };
+  const setSpeaker = view.setSpeaker.bind(view);
+  view.setSpeaker = (speaker = {}) => {
+    if (!view.isOpen) return;
+    setSpeaker(speaker);
+    view.relayout();
+  };
+  view.relayout();
+}
+
 export class GordonInterviewScene extends BaseScene {
   constructor() { super({ key: 'GordonInterviewScene' }); }
   init(data = {}) {
@@ -148,13 +226,13 @@ export class GordonInterviewScene extends BaseScene {
   portraitFor(speaker, key = null) {
     return { kind: 'texture', key: key || (speaker === DATA.speaker ? DATA.portraitKey : null) || 'portrait_fallback' };
   }
-  // Common renderer, outside the scaled 1920x1080 background root.
   openChoicePanel({ text = '', topics = [], onLeave = null, speaker = DATA.speaker } = {}) {
     if (this.blocked() || this.hotspotDebug?.enabled) return null;
     this.requireSharedPanel();
     const view = new LocationDialoguePanel(this, { depth: 6000, modal: true, keyboard: false,
       leaveLabel: 'Leave', onLeave: onLeave || (() => this.closeModal()) });
     this.modal = view;
+    styleGordonConversation(view);
     view.setSpeaker({ name: speaker, portrait: this.portraitFor(speaker) });
     view.setText(text); view.setTopics(topics); this.tooltip?.setVisible(false);
     return view;
@@ -203,6 +281,7 @@ export class GordonInterviewScene extends BaseScene {
     this.requireSharedPanel();
     const view = new LocationDialoguePanel(this, { depth: 6000, modal: true, keyboard: false,
       leaveLabel: 'Leave', onLeave: () => this.abortDialogue(), onAdvance: () => this.completeDialogueLine() });
+    styleGordonConversation(view);
     this.dialogue = { view, container: view.root, lines: lines.map(line => ({ ...line })),
       index: 0, finalLabel, onComplete };
     this.renderDialogueLine(); this.tooltip?.setVisible(false);

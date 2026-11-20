@@ -14,12 +14,13 @@ export class IncomingCallDialogUI {
       .setOrigin(.5).setDepth(4000).setVisible(false).setInteractive();
     this.container = scene.add.container(0, 0).setDepth(4001).setVisible(false);
     this.background = scene.add.graphics();
-    this.speakerText = scene.add.text(0, 0, '', { fontFamily: 'PressStart2P', fontSize: '14px', color: '#9bbc0f' });
+    this.bubble = scene.add.graphics();
+    this.speakerText = scene.add.text(0, 0, '', { fontFamily: 'PressStart2P', fontSize: '14px', color: '#f0c75e' });
     this.bodyText = scene.add.text(0, 0, '', { fontFamily: 'SpecialElite', fontSize: '22px',
-      color: '#e6edce', lineSpacing: 7 });
-    this.hint = scene.add.text(0, 0, '', { fontFamily: 'SpecialElite', fontSize: '16px', color: '#9bbc0f' });
-    this.counter = scene.add.text(0, 0, '', { fontFamily: 'SpecialElite', fontSize: '15px', color: '#899679' }).setOrigin(1, 0);
-    this.container.add([this.background, this.speakerText, this.bodyText, this.hint, this.counter]);
+      color: '#f3e7c4', lineSpacing: 7 });
+    this.hint = scene.add.text(0, 0, '', { fontFamily: 'SpecialElite', fontSize: '16px', color: '#d4af37' });
+    this.counter = scene.add.text(0, 0, '', { fontFamily: 'SpecialElite', fontSize: '15px', color: '#b5a585' }).setOrigin(1, 0);
+    this.container.add([this.background, this.bubble, this.speakerText, this.bodyText, this.hint, this.counter]);
     this.overlay.on('pointerdown', (_p, _x, _y, event) => { event?.stopPropagation(); this.advance(); });
     this.resize = () => this.layout();
     this.shutdown = () => this.destroy();
@@ -52,13 +53,23 @@ export class IncomingCallDialogUI {
     const font = width < 550 || height < 350 ? 17 : 22;
     this.overlay.setPosition(width / 2, height / 2).setSize(width, height);
     this.container.setPosition(width / 2, height / 2);
-    this.background.clear().fillStyle(0x141b16, 1).fillRoundedRect(-w / 2, -h / 2, w, h, 10);
-    this.background.lineStyle(3, 0x52683d, 1).strokeRoundedRect(-w / 2, -h / 2, w, h, 10);
+    this.background.clear().fillStyle(0x17110a, .98).fillRoundedRect(-w / 2, -h / 2, w, h, 10);
+    this.background.lineStyle(3, 0xd4af37, 1).strokeRoundedRect(-w / 2, -h / 2, w, h, 10);
+    this.background.lineStyle(1, 0x7d6620, 1)
+      .strokeRoundedRect(-w / 2 + 6, -h / 2 + 6, Math.max(1, w - 12), Math.max(1, h - 12), 6);
     this.speakerText.setPosition(-w / 2 + pad, -h / 2 + pad)
       .setFontSize(width < 550 ? 10 : 14).setWordWrapWidth(Math.max(1, w - pad * 2));
     const top = -h / 2 + pad + this.speakerText.height + 20;
     const maxHeight = Math.max(font + 7, h / 2 - pad - 35 - top);
-    this.bodyText.setPosition(-w / 2 + pad, top).setFontSize(font).setWordWrapWidth(Math.max(1, w - pad * 2));
+    const bubbleWidth = Math.max(1, (w - pad * 2) * .88);
+    const innerPad = Math.min(14, Math.max(2, bubbleWidth * .04));
+    const bubbleX = -w / 2 + pad;
+    this.bubble.clear().fillStyle(0x2a2012, 1)
+      .fillRoundedRect(bubbleX, top - 8, bubbleWidth, maxHeight + 16, 8)
+      .lineStyle(1, 0xb58a42, 1)
+      .strokeRoundedRect(bubbleX, top - 8, bubbleWidth, maxHeight + 16, 8);
+    this.bodyText.setPosition(bubbleX + innerPad, top).setFontSize(font)
+      .setWordWrapWidth(Math.max(1, bubbleWidth - innerPad * 2));
     this.hint.setPosition(-w / 2 + pad, h / 2 - pad - 18).setFontSize(width < 550 ? 13 : 16);
     this.counter.setPosition(w / 2 - pad, h / 2 - pad - 18);
     this.pages = [];

@@ -1,8 +1,26 @@
 import { BaseScene } from './BaseScene.js';
-import { dialogueText as __dialogueText } from '../dialogues/DialogueText.js';
-import { BIOMES, FLAVOUR, HOME_TOWN_ID } from '../config/RoadTripTowns.js';
-import { getRoadTripQuote } from '../managers/RoadTripManager.js';
-import { Z0, rand } from './drive/DriveShared.js';
+
+import {
+  dialogueText as __dialogueText
+} from '../dialogues/DialogueText.js';
+
+import {
+  BIOMES,
+  FLAVOUR,
+  HOME_TOWN_ID
+} from '../config/RoadTripTowns.js';
+
+import {
+  getRoadTripQuote,
+  beginRoadTrip,
+  showRoadTripError
+} from '../managers/RoadTripManager.js';
+
+import {
+  Z0,
+  rand
+} from './drive/DriveShared.js';
+
 import { DriveTextures } from './drive/DriveTextures.js';
 import { DriveScenery } from './drive/DriveScenery.js';
 import { DriveCockpit } from './drive/DriveCockpit.js';
@@ -16,9 +34,12 @@ export class DriveScene extends BaseScene {
   }
 
   init(data = {}) {
-    this.driveData = { toTownId: HOME_TOWN_ID, ...data };
+    this.driveData = {
+      toTownId: HOME_TOWN_ID,
+      ...data
+    };
 
-    this.state = 'driving'; // driving | arriving | summary | leaving
+    this.state = 'driving';
     this.ready = false;
 
     this.pos = 0;
@@ -44,34 +65,77 @@ export class DriveScene extends BaseScene {
 
     this.objects = [];
     this.drops = [];
-    this.stats = { hits: 0, coffees: 0, coins: 0, fines: 0, autopilot: false };
+
+    this.stats = {
+      hits: 0,
+      coffees: 0,
+      coins: 0,
+      fines: 0,
+      autopilot: false
+    };
+
+    this.tripId = data.tripId ?? null;
+    this.fineSequence = 0;
+    this.pendingFine = null;
+    this.pendingArrival = false;
+    this.settlementError = null;
 
     this.outcome = null;
     this.applied = false;
     this.summaryReady = false;
     this.gate = null;
     this.clouds = [];
-    this.stationIndex = Math.floor(Math.random() * FLAVOUR.radio.length);
+
+    this.stationIndex =
+      Math.floor(Math.random() * FLAVOUR.radio.length);
   }
 
   create() {
     super.create();
 
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onSceneShutdown, this);
+    this.events.once(
+      Phaser.Scenes.Events.SHUTDOWN,
+      this.onSceneShutdown,
+      this
+    );
 
     const data = this.driveData;
-    this.quote = data.quote || getRoadTripQuote(data.fromTownId, data.toTownId);
-    this.destination = data.nextScene || (this.quote.toId === HOME_TOWN_ID ? 'HomeCityScene' : null);
+
+    this.quote = getRoadTripQuote(
+      data.fromTownId,
+      data.toTownId
+    );
+
+    this.destination =
+      data.nextScene ||
+      (this.quote.toId === HOME_TOWN_ID
+        ? 'HomeCityScene'
+        : null);
+
     if (!this.destination) {
-      this.add.text(32, 32, 'No arrival scene configured for this town.', {
-        fontFamily: 'SpecialElite', fontSize: '24px', color: '#ffffff'
-      });
+      showRoadTripError(
+        this,
+        'No arrival scene is configured for this town.'
+      );
+      return;
+    }
+
+    try {
+      this.tripId = beginRoadTrip(
+        this.quote,
+        this.tripId
+      );
+    } catch (error) {
+      showRoadTripError(this, error.message);
       return;
     }
 
     this.hideTravelUi();
 
-    const { width: W, height: H } = this.scale.gameSize;
+    const {
+      width: W,
+      height: H
+    } = this.scale.gameSize;
 
     this.W = W;
     this.H = H;
@@ -80,12 +144,25 @@ export class DriveScene extends BaseScene {
 
     this.horizonY = H * 0.40;
     this.dashTop = H * 0.66;
-    this.step = Math.max(3, Math.round(4 * H / 1080));
-    this.rowCount = Math.ceil((H - this.horizonY) / this.step);
-    this.rowCx = new Float32Array(this.rowCount + 2);
+    this.step = Math.max(
+      3,
+      Math.round(4 * H / 1080)
+    );
+
+    this.rowCount = Math.ceil(
+      (H - this.horizonY) / this.step
+    );
+
+    this.rowCx = new Float32Array(
+      this.rowCount + 2
+    );
+
     this.curveK = 0.05 * (W / 1920);
 
-    const uDash = (this.dashTop - this.horizonY) / (H - this.horizonY);
+    const uDash =
+      (this.dashTop - this.horizonY) /
+      (H - this.horizonY);
+
     this.cullDz = (Z0 / uDash) * 0.92;
     this.hitDz = this.cullDz * 1.12;
 
@@ -109,7 +186,13 @@ export class DriveScene extends BaseScene {
     this.buildDash();
     this.buildHud();
     this.buildInput();
-    this.trackInputEvent(this.scale, Phaser.Scale.Events.RESIZE, this.fitDriveCamera);
+
+    this.trackInputEvent(
+      this.scale,
+      Phaser.Scale.Events.RESIZE,
+      this.fitDriveCamera
+    );
+
     this.fitDriveCamera();
 
     this.cameras.main.fadeIn(450, 0, 0, 0);
@@ -118,18 +201,39 @@ export class DriveScene extends BaseScene {
     this.ready = true;
 
     this.time.delayedCall(900, () => {
-      this.say(`${__dialogueText("scenes/DriveScene.js", "t_b3eb5ad3c68f84659ba7")}${this.town.name}${__dialogueText("scenes/DriveScene.js", "t_8dccf256f6d5783e62bb")}${this.town.tagline}`, 4200, true);
+      if (!this.ready || this._cleanupDone) return;
+
+      this.say(
+        `${__dialogueText("scenes/DriveScene.js", "t_b3eb5ad3c68f84659ba7")}` +
+        `${this.town.name}` +
+        `${__dialogueText("scenes/DriveScene.js", "t_8dccf256f6d5783e62bb")}` +
+        `${this.town.tagline}`,
+        4200,
+        true
+      );
     });
   }
 
   fitDriveCamera() {
     const { width, height } = this.scale.gameSize;
+
     if (!width || !height) return;
-    const zoom = Math.min(width / this.W, height / this.H);
+
+    const zoom = Math.min(
+      width / this.W,
+      height / this.H
+    );
+
     const w = this.W * zoom;
     const h = this.H * zoom;
+
     this.cameras.main
-      .setViewport((width - w) / 2, (height - h) / 2, w, h)
+      .setViewport(
+        (width - w) / 2,
+        (height - h) / 2,
+        w,
+        h
+      )
       .setZoom(zoom)
       .centerOn(this.W / 2, this.H / 2);
   }
@@ -139,23 +243,42 @@ export class DriveScene extends BaseScene {
   }
 
   update(time, delta) {
-    if (!this.ready || this._cleanupDone) {
+    if (
+      !this.ready ||
+      this._cleanupDone ||
+      this.settlementError
+    ) {
       return;
     }
 
     const dt = Math.min(delta / 1000, 0.05);
+
     this.clock += dt;
 
-    if (this.state === 'driving' || this.state === 'arriving') {
+    if (
+      this.state === 'driving' ||
+      this.state === 'arriving'
+    ) {
       this.stepDrive(dt);
       this.spawnAhead();
     }
 
     this.drawRoad();
     this.updateObjects(dt);
+
+    if (this.settlementError) return;
+
     this.updateScenery(dt);
     this.updateDashboard(dt);
   }
 }
 
-Object.assign(DriveScene.prototype, DriveTextures, DriveScenery, DriveCockpit, DriveRoad, DriveControls, DriveTrip);
+Object.assign(
+  DriveScene.prototype,
+  DriveTextures,
+  DriveScenery,
+  DriveCockpit,
+  DriveRoad,
+  DriveControls,
+  DriveTrip
+);

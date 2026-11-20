@@ -1,23 +1,125 @@
+const PIXEL_FONT = '"Press Start 2P", "PressStart2P", monospace';
+const TEXT_FONT = '"Special Elite", "SpecialElite", monospace';
+const NPC_TITLES = new Set(['Reception', 'Caretaker']);
+
 export class TableForThreePanel {
-  constructor(scene){
-    this.scene=scene;
-    this.root=document.createElement('section');
-    Object.assign(this.root.style,{position:'fixed',zIndex:'9000',overflow:'auto',background:'#15212d',color:'#eee3cd',padding:'24px',boxSizing:'border-box',fontFamily:'SpecialElite, monospace'});
-    this.resize=()=>{const r=scene.game.canvas.getBoundingClientRect();Object.assign(this.root.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});};
-    document.body.append(this.root);this.resize();scene.scale.on('resize',this.resize);
-    scene.events.once('shutdown',()=>this.destroy());
+  constructor(scene) {
+    this.scene = scene;
+    this.destroyed = false;
+    this.root = document.createElement('section');
+    this.root.setAttribute('aria-label', 'Table for Three');
+    Object.assign(this.root.style, {
+      position: 'fixed', zIndex: '9000', overflow: 'auto',
+      background: 'rgba(17, 14, 10, 0.98)', color: '#eee3cd',
+      padding: 'clamp(12px, 3vw, 32px)', boxSizing: 'border-box',
+      fontFamily: TEXT_FONT, border: '3px solid #d4af37',
+      boxShadow: 'inset 0 0 0 4px #17110a, inset 0 0 0 5px #7d6620',
+      colorScheme: 'dark'
+    });
+    this.resize = () => {
+      if (!this.root || this.destroyed) return;
+      const r = scene.game.canvas.getBoundingClientRect();
+      Object.assign(this.root.style, {
+        left: r.left + 'px', top: r.top + 'px',
+        width: r.width + 'px', height: r.height + 'px'
+      });
+    };
+    this.shutdown = () => this.destroy();
+    document.body.append(this.root);
+    this.resize();
+    scene.scale.on('resize', this.resize);
+    scene.events.once('shutdown', this.shutdown);
   }
-  render(title,body,choices=[]){
+
+  render(title, body, choices = []) {
+    if (this.destroyed || !this.root) return;
     this.root.replaceChildren();
-    const heading=document.createElement('h1');heading.textContent=title;heading.style.fontSize='24px';
-    const text=document.createElement('p');text.textContent=body;Object.assign(text.style,{whiteSpace:'pre-wrap',fontSize:'20px',lineHeight:'1.5',maxWidth:'950px'});
-    this.root.append(heading,text);
-    const row=document.createElement('div');Object.assign(row.style,{display:'flex',gap:'12px',flexWrap:'wrap'});this.root.append(row);
-    for(const [label,action,disabled] of choices){
-      const b=document.createElement('button');b.textContent=label;b.disabled=!!disabled;
-      Object.assign(b.style,{fontFamily:'SpecialElite, monospace',fontSize:'18px',padding:'12px',background:'#324b5d',color:'#fff0d1',border:'1px solid #a99368',cursor:'pointer'});
-      b.onclick=()=>{if(!b.disabled)Promise.resolve().then(action).catch(e=>{console.error('[TableForThree]',e);this.render('Could not continue',e.message,[['BACK',()=>this.scene.menu?.()]]);});};row.append(b);
+    const isNpc = NPC_TITLES.has(title);
+
+    const content = document.createElement('div');
+    Object.assign(content.style, {
+      width: '100%', maxWidth: '1120px', minHeight: '100%',
+      margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '22px'
+    });
+    this.root.append(content);
+
+    const heading = document.createElement('h1');
+    heading.textContent = title;
+    Object.assign(heading.style, {
+      fontFamily: PIXEL_FONT, fontSize: 'clamp(12px, 2vw, 20px)',
+      color: '#f0c75e', lineHeight: '1.8', margin: '0',
+      overflowWrap: 'anywhere', fontWeight: 'normal'
+    });
+    content.append(heading);
+
+    const text = document.createElement('p');
+    text.textContent = body;
+    Object.assign(text.style, {
+      whiteSpace: 'pre-wrap', fontSize: 'clamp(17px, 2.2vw, 22px)',
+      lineHeight: '1.55', width: isNpc ? '88%' : '100%',
+      maxWidth: '950px', minWidth: '0', alignSelf: 'flex-start',
+      margin: '0', padding: 'clamp(12px, 2vw, 22px)',
+      boxSizing: 'border-box', overflowWrap: 'anywhere',
+      background: isNpc ? '#2a2012' : '#201c17',
+      color: isNpc ? '#f3e7c4' : '#dfcfac',
+      border: `1px solid ${isNpc ? '#b58a42' : '#776953'}`,
+      borderRadius: '8px', boxShadow: '3px 4px 0 rgba(0,0,0,0.25)'
+    });
+    content.append(text);
+
+    const row = document.createElement('div');
+    Object.assign(row.style, {
+      display: 'flex', flexDirection: 'column', gap: '12px',
+      width: '100%', maxWidth: '680px', alignSelf: 'flex-end',
+      paddingBottom: '8px'
+    });
+    content.append(row);
+
+    for (const [label, action, disabled] of choices) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = label;
+      b.disabled = !!disabled;
+      Object.assign(b.style, {
+        fontFamily: TEXT_FONT, fontSize: 'clamp(16px, 2vw, 20px)',
+        lineHeight: '1.45', padding: '12px 18px', minHeight: '46px',
+        width: '100%', textAlign: 'left', boxSizing: 'border-box',
+        whiteSpace: 'normal', overflowWrap: 'anywhere', borderRadius: '6px',
+        background: b.disabled ? '#20231d' : '#263729',
+        color: b.disabled ? '#8b907d' : '#e3f0d7',
+        border: `1px solid ${b.disabled ? '#555b48' : '#88b589'}`,
+        cursor: b.disabled ? 'not-allowed' : 'pointer',
+        boxShadow: '2px 3px 0 rgba(0,0,0,0.25)'
+      });
+      let hovered = false;
+      let focused = false;
+      const paint = () => {
+        if (b.disabled) return;
+        b.style.background = hovered || focused ? '#354b36' : '#263729';
+        b.style.borderColor = hovered || focused ? '#d4af37' : '#88b589';
+        b.style.outline = focused ? '2px solid #d4af37' : '';
+        b.style.outlineOffset = focused ? '2px' : '';
+      };
+      b.onpointerenter = () => { hovered = true; paint(); };
+      b.onpointerleave = () => { hovered = false; paint(); };
+      b.onfocus = () => { focused = true; paint(); };
+      b.onblur = () => { focused = false; paint(); };
+      b.onclick = () => {
+        if (!b.disabled) Promise.resolve().then(action).catch(e => {
+          console.error('[TableForThree]', e);
+          this.render('Could not continue', e.message, [['BACK', () => this.scene.menu?.()]]);
+        });
+      };
+      row.append(b);
     }
   }
-  destroy(){this.scene.scale.off('resize',this.resize);this.root?.remove();this.root=null;}
+
+  destroy() {
+    if (this.destroyed) return;
+    this.destroyed = true;
+    this.scene.scale.off('resize', this.resize);
+    this.scene.events.off('shutdown', this.shutdown);
+    this.root?.remove();
+    this.root = null;
+  }
 }

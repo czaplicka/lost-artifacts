@@ -15,7 +15,8 @@ export class ArchiveCrashFollowupScene extends BaseScene{
     const story=getCrashFollowupStory();this.allowed=this.preview||story.eligible;
     this.progress=normalizeFollowup(DATA,this.preview?null:story);
     this.root=this.add.container(0,0);this.root.add(this.add.rectangle(720,500,1440,1000,0x000000,0.82).setInteractive());
-    this.root.add(this.add.rectangle(720,500,1320,780,0xeee2c4).setStrokeStyle(4,0xa28a56));
+    this.root.add(this.add.rectangle(720,500,1320,780,0x17110a).setStrokeStyle(3,0xd4af37));
+    this.root.add(this.add.rectangle(720,500,1308,768,0,0).setStrokeStyle(1,0x7d6620));
     this.text(690,65,__dialogueText("scenes/ArchiveCrashFollowupScene.js", "t_2cf0c88991621323d1aa"),22,1100,'#ffe2ae',this.root,'PressStart2P');
     this.button(1260,65,__dialogueText("scenes/ArchiveCrashFollowupScene.js", "t_01244bcb87769b89d93f"),()=>this.closeVisit(),this.root);
     this.content=this.add.container(0,0);this.root.add(this.content);
@@ -29,12 +30,23 @@ export class ArchiveCrashFollowupScene extends BaseScene{
     });
     this.suspendBackground();this.events.once(Phaser.Scenes.Events.SHUTDOWN,()=>{this.restoreBackground();this.onFinished=null;});
   }
-  text(x,y,value,size=27,width=1160,color='#342d23',parent=this.content,font='SpecialElite'){
-    const object=this.add.text(x,y,value,{fontFamily:`${font}, monospace`,fontSize:`${size}px`,color,align:'center',wordWrap:{width},lineSpacing:7}).setOrigin(0.5);parent.add(object);return object;
+  text(x,y,value,size=27,width=1160,color=null,parent=this.content,font='SpecialElite'){
+    const resolvedColor=color??(this.view==='document'?'#342d23':'#f3e7c4');
+    const object=this.add.text(x,y,value,{fontFamily:`${font}, monospace`,fontSize:`${size}px`,color:resolvedColor,align:'center',wordWrap:{width},lineSpacing:7}).setOrigin(0.5);parent.add(object);return object;
   }
   button(x,y,label,callback,parent=this.content){
-    const object=this.add.text(x,y,label,{fontFamily:'SpecialElite',fontSize:'24px',color:'#ffe2ae',backgroundColor:'#294331',padding:{x:20,y:12},align:'center'}).setOrigin(0.5).setInteractive({useHandCursor:true});
+    const object=this.add.text(x,y,label,{fontFamily:'SpecialElite',fontSize:'24px',color:'#e3f0d7',backgroundColor:'#263729',padding:{x:20,y:12},align:'center'}).setOrigin(0.5).setInteractive({useHandCursor:true});
+    object.on('pointerover',()=>object.setBackgroundColor('#354b36').setColor('#ffffff'));
+    object.on('pointerout',()=>object.setBackgroundColor('#263729').setColor('#e3f0d7'));
     object.on('pointerdown',(p,localX,localY,event)=>{event?.stopPropagation();if(!this.closing&&this.time.now>=this.inputLockedUntil){this.inputLockedUntil=this.time.now+180;callback();}});parent.add(object);return object;
+  }
+  renderFrankLine(value,label){
+    this.text(140,230,__dialogueText("scenes/ArchiveCrashFollowupScene.js", "t_a74fe164691ed886ba61"),22,1050,'#f0c75e',this.content,'PressStart2P').setOrigin(0,0).setAlign('left');
+    this.content.add(this.add.rectangle(140,310,1000,360,0x2a2012).setOrigin(0).setStrokeStyle(2,0xb58a42));
+    const body=this.text(166,340,value,31,948,'#f3e7c4').setOrigin(0,0).setAlign('left');
+    let size=31;
+    while(body.height>300&&size>14){size--;body.setFontSize(size);}
+    this.button(1290,790,label,()=>this.advance()).setOrigin(1,0.5);
   }
   persist(){
     if(this.preview||!this.allowed)return;
@@ -45,8 +57,7 @@ export class ArchiveCrashFollowupScene extends BaseScene{
     this.content.removeAll(true);this.footer.setText(this.preview?__dialogueText("scenes/ArchiveCrashFollowupScene.js", "t_76c671c06fe86d039604"):this.savedOk===false?DATA.messages.saveFailed:__dialogueText("scenes/ArchiveCrashFollowupScene.js", "t_0e8489cf73d5d2873176"));
     if(this.view==='locked'){this.text(720,470,__dialogueText("scenes/ArchiveCrashFollowupScene.js", "t_e73664b76f25684ba4b1"),30);return;}
     if(this.view==='intro'){
-      this.text(720,230,__dialogueText("scenes/ArchiveCrashFollowupScene.js", "t_a74fe164691ed886ba61"),29,1100,'#635132');this.text(720,470,DATA.intro[this.progress.introLine],31);
-      this.button(720,790,this.progress.introLine===DATA.intro.length-1?__dialogueText("scenes/ArchiveCrashFollowupScene.js", "t_8dbd0d932670313c3729"):'CONTINUE',()=>this.advance());return;
+      this.renderFrankLine(DATA.intro[this.progress.introLine],this.progress.introLine===DATA.intro.length-1?__dialogueText("scenes/ArchiveCrashFollowupScene.js", "t_8dbd0d932670313c3729"):'CONTINUE');return;
     }
     if(this.view==='menu'){
       this.text(720,195,__dialogueText("scenes/ArchiveCrashFollowupScene.js", "t_f4c92470e048c6091aa2"),29);
@@ -55,14 +66,14 @@ export class ArchiveCrashFollowupScene extends BaseScene{
       else this.text(720,780,__dialogueText("scenes/ArchiveCrashFollowupScene.js", "t_ab54526745eabc90adae"),23);return;
     }
     if(this.view==='document'){
+      this.content.add(this.add.rectangle(720,500,1302,762,0xeee2c4).setStrokeStyle(1,0xa28a56));
       const doc=DATA.documents.find(doc=>doc.id===this.selectedDocument);
       this.text(720,185,`${doc.reference} / ${doc.title}`,28);
       this.text(720,490,doc.text,25,1160);this.button(480,825,__dialogueText("scenes/ArchiveCrashFollowupScene.js", "t_72c3788f313c660da7a2"),()=>{this.view='menu';this.render();});
       this.button(960,825,__dialogueText("scenes/ArchiveCrashFollowupScene.js", "t_b684630f23f6e03e7730"),()=>{this.progress=acknowledgeFollowupDocument(DATA,this.progress,doc.id);this.persist();this.view='menu';this.render();});return;
     }
     if(this.view==='discussion'){
-      this.text(720,230,__dialogueText("scenes/ArchiveCrashFollowupScene.js", "t_a74fe164691ed886ba61"),29,1100,'#635132');this.text(720,470,DATA.discussion[this.progress.discussionLine],31);
-      this.button(720,790,this.progress.discussionLine===DATA.discussion.length-1?__dialogueText("scenes/ArchiveCrashFollowupScene.js", "t_e8088c12ac0235618d67"):'CONTINUE',()=>this.advance());return;
+      this.renderFrankLine(DATA.discussion[this.progress.discussionLine],this.progress.discussionLine===DATA.discussion.length-1?__dialogueText("scenes/ArchiveCrashFollowupScene.js", "t_e8088c12ac0235618d67"):'CONTINUE');return;
     }
     this.text(720,215,__dialogueText("scenes/ArchiveCrashFollowupScene.js", "t_7f9c3c6f6cf2f295928b"),30);
     this.text(720,460,__dialogueText("scenes/ArchiveCrashFollowupScene.js", "t_bc0a62d41b4b38f7cef3"),29);

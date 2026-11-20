@@ -1,13 +1,15 @@
-import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
+import { dialogueText as __dialogueText } from '../dialogues/DialogueText.js';
+import { GAME_VERSION } from '../config/gameVersion.js';
 import { audioManager } from '../managers/AudioManager.js';
 import { BaseScene } from './BaseScene.js';
-
 import { EventBus } from '../EventBus.js';
-
 import {
   loadSuspectData,
   setSuspectData
 } from '../suspects/suspectDataProvider.js';
+
+const FILE = 'scenes/PreloaderScene.js';
+const BUILD_INFO_URL = new URL('../build-info.json', import.meta.url);
 
 const IMAGE_GROUPS = [
   'backgrounds',
@@ -27,6 +29,8 @@ export class PreloaderScene extends BaseScene {
     super({ key: 'PreloaderScene' });
 
     this._runToken = null;
+    this._versionLabel = null;
+    this._buildRequest = null;
     this._resetLoadingState();
   }
 
@@ -60,7 +64,6 @@ export class PreloaderScene extends BaseScene {
     this._loadingFailed = false;
 
     this.newspaperImagesQueued = false;
-
     this._queuedAssets = new Map();
     this._unlockHandler = null;
   }
@@ -76,29 +79,13 @@ export class PreloaderScene extends BaseScene {
     this.load.on('filecomplete', this._onFileComplete, this);
     this.load.on('complete', this._onLoadComplete, this);
 
-    this.events.off(
+    for (const event of [
       Phaser.Scenes.Events.SHUTDOWN,
-      this._cleanupPreloader,
-      this
-    );
-
-    this.events.off(
-      Phaser.Scenes.Events.DESTROY,
-      this._cleanupPreloader,
-      this
-    );
-
-    this.events.once(
-      Phaser.Scenes.Events.SHUTDOWN,
-      this._cleanupPreloader,
-      this
-    );
-
-    this.events.once(
-      Phaser.Scenes.Events.DESTROY,
-      this._cleanupPreloader,
-      this
-    );
+      Phaser.Scenes.Events.DESTROY
+    ]) {
+      this.events.off(event, this._cleanupPreloader, this);
+      this.events.once(event, this._cleanupPreloader, this);
+    }
 
     const { width, height } = this.scale;
     const centerX = width / 2;
@@ -116,23 +103,23 @@ export class PreloaderScene extends BaseScene {
       height
     );
 
+    this._showKitchenVersion(width, height);
+
     const manifest = this.cache.json.get('assetManifest');
 
     if (!manifest) {
       this._manifestMissing = true;
-
       this._showLoadingError(
-        __dialogueText("scenes/PreloaderScene.js", "t_df5719785e811ef521d3")
+        __dialogueText(FILE, 't_df5719785e811ef521d3')
       );
-
-      console.error(
-        '[PreloaderScene] assetManifest is missing.'
-      );
-
+      console.error('[PreloaderScene] assetManifest is missing.');
       return;
     }
 
-    if (!manifest.startup) throw new Error('[PreloaderScene] Missing startup manifest.');
+    if (!manifest.startup) {
+      throw new Error('[PreloaderScene] Missing startup manifest.');
+    }
+
     this._loadAssetsFromManifest(manifest.startup);
   }
 
@@ -145,26 +132,22 @@ export class PreloaderScene extends BaseScene {
     audioManager.init(this);
     this._setupAudioUnlock();
 
-    if (this._manifestMissing) {
-      return;
-    }
+    if (this._manifestMissing) return;
 
     if (this.loadErrors.length > 0) {
       console.warn(
         `[PreloaderScene] ${this.loadErrors.length} asset(s) failed to load.`,
         this.loadErrors
       );
-    }
-
-    if (this.loadErrors.length > 0) {
-      this._showLoadingError(__dialogueText("scenes/PreloaderScene.js", "t_de43e1c8bcdc1bb41bdf"));
+      this._showLoadingError(
+        __dialogueText(FILE, 't_de43e1c8bcdc1bb41bdf')
+      );
       return;
     }
 
     this._validateLoadingTexts();
     this._refreshTipFromCache();
     this._refreshRandomStatus(true);
-
     this.onNewspaperJsonsLoaded();
 
     try {
@@ -177,26 +160,15 @@ export class PreloaderScene extends BaseScene {
           '[PreloaderScene] suspectData is missing from cache. ' +
           'Trying the provider fallback.'
         );
-
         await loadSuspectData('assets/data/suspectData.json');
       }
 
-      if (
-        this._runToken !== token ||
-        this._cleanupDone
-      ) {
-        return;
-      }
+      if (this._runToken !== token || this._cleanupDone) return;
 
       this._providerReady = true;
       this.finishLoading();
     } catch (error) {
-      if (
-        this._runToken !== token ||
-        this._cleanupDone
-      ) {
-        return;
-      }
+      if (this._runToken !== token || this._cleanupDone) return;
 
       console.error(
         '[PreloaderScene] Suspect data initialization failed:',
@@ -204,18 +176,83 @@ export class PreloaderScene extends BaseScene {
       );
 
       this._showLoadingError(
-        __dialogueText("scenes/PreloaderScene.js", "t_5900bfcf6e24f2d39985")
+        __dialogueText(FILE, 't_5900bfcf6e24f2d39985')
       );
     }
   }
 
+  _showKitchenVersion(width, height) {
+    this._clearKitchenVersion();
+
+    const label = this.add.text(
+      width - 24,
+      height - 24,
+      `GAME v${GAME_VERSION}\nBUILD —`,
+      {
+        fontFamily: 'monospace',
+        fontSize: `${Math.max(18, Math.round(height * 0.022))}px`,
+        color: '#fff1d6',
+        backgroundColor: '#211812',
+        align: 'right',
+        padding: { x: 12, y: 8 }
+      }
+    )
+      .setOrigin(1, 1)
+      .setScrollFactor(0)
+      .setDepth(10000);
+
+    const request = new AbortController();
+
+    this._versionLabel = label;
+    this._buildRequest = request;
+
+    void this._loadKitchenBuild(label, request);
+  }
+
+  async _loadKitchenBuild(label, request) {
+    try {
+      const response = await fetch(BUILD_INFO_URL, {
+        cache: 'no-store',
+        signal: request.signal
+      });
+
+      if (!response.ok) return;
+
+      const build = await response.json();
+      const branch = build?.branch;
+      const commit = build?.commit;
+
+      if (
+        typeof branch !== 'string' ||
+        !branch.trim() ||
+        typeof commit !== 'string' ||
+        !/^[0-9a-f]{7,40}$/i.test(commit)
+      ) {
+        return;
+      }
+
+      if (!request.signal.aborted && this._versionLabel === label && label.active) {
+        label.setText(`GAME v${GAME_VERSION}\nBUILD ${branch.trim()}@${commit}`);
+      }
+    } catch {
+      // Build metadata is optional and must not block startup.
+    } finally {
+      if (this._buildRequest === request) {
+        this._buildRequest = null;
+      }
+    }
+  }
+
+  _clearKitchenVersion() {
+    this._buildRequest?.abort();
+    this._buildRequest = null;
+    this._versionLabel?.destroy();
+    this._versionLabel = null;
+  }
+
   _reserveAsset(type, key, url) {
     if (!key || !url) {
-      console.warn(
-        `[PreloaderScene] Invalid ${type} entry:`,
-        { key, url }
-      );
-
+      console.warn(`[PreloaderScene] Invalid ${type} entry:`, { key, url });
       return false;
     }
 
@@ -224,17 +261,10 @@ export class PreloaderScene extends BaseScene {
     if (this._queuedAssets.has(id)) {
       const previousUrl = this._queuedAssets.get(id);
 
-      if (
-        JSON.stringify(previousUrl) !==
-        JSON.stringify(url)
-      ) {
+      if (JSON.stringify(previousUrl) !== JSON.stringify(url)) {
         console.warn(
-          `[PreloaderScene] Conflicting URLs for "${id}". ` +
-          'Keeping the first entry.',
-          {
-            previousUrl,
-            ignoredUrl: url
-          }
+          `[PreloaderScene] Conflicting URLs for "${id}". Keeping the first entry.`,
+          { previousUrl, ignoredUrl: url }
         );
       }
 
@@ -260,26 +290,18 @@ export class PreloaderScene extends BaseScene {
 
   _loadImageGroup(assets = []) {
     for (const { key, url } of assets) {
-      if (
-        !this._reserveAsset('image', key, url) ||
-        this.textures.exists(key)
-      ) {
+      if (!this._reserveAsset('image', key, url) || this.textures.exists(key)) {
         continue;
       }
-
       this.load.image(key, url);
     }
   }
 
   _loadAudioGroup(assets = []) {
     for (const { key, url } of assets) {
-      if (
-        !this._reserveAsset('audio', key, url) ||
-        this.cache.audio.exists(key)
-      ) {
+      if (!this._reserveAsset('audio', key, url) || this.cache.audio.exists(key)) {
         continue;
       }
-
       this.load.audio(key, url);
     }
   }
@@ -288,23 +310,16 @@ export class PreloaderScene extends BaseScene {
     const priorityKeys = new Set(['tips', 'statuses']);
 
     for (const { key, url } of assets) {
-      if (priorityKeys.has(key)) {
-        this._queueJson(key, url);
-      }
+      if (priorityKeys.has(key)) this._queueJson(key, url);
     }
 
     for (const { key, url } of assets) {
-      if (!priorityKeys.has(key)) {
-        this._queueJson(key, url);
-      }
+      if (!priorityKeys.has(key)) this._queueJson(key, url);
     }
   }
 
   _queueJson(key, url) {
-    if (
-      !this._reserveAsset('json', key, url) ||
-      this.cache.json.exists(key)
-    ) {
+    if (!this._reserveAsset('json', key, url) || this.cache.json.exists(key)) {
       return false;
     }
 
@@ -314,68 +329,52 @@ export class PreloaderScene extends BaseScene {
 
   _loadTilemapGroup(assets = []) {
     for (const { key, url } of assets) {
-      if (
-        !this._reserveAsset('tilemap', key, url) ||
-        this.cache.tilemap.exists(key)
-      ) {
+      if (!this._reserveAsset('tilemap', key, url) || this.cache.tilemap.exists(key)) {
         continue;
       }
-
       this.load.tilemapTiledJSON(key, url);
     }
   }
 
   _loadVideoGroup(assets = []) {
     for (const { key, url, noAudio = false } of assets) {
-      if (!this._reserveAsset('video', key, url) || this.cache.video.exists(key)) continue;
+      if (!this._reserveAsset('video', key, url) || this.cache.video.exists(key)) {
+        continue;
+      }
       this.load.video(key, url, noAudio);
     }
   }
 
   _loadCssGroup(assets = []) {
     for (const { key, url } of assets) {
-      if (!this._reserveAsset('css', key, url)) {
-        continue;
-      }
+      if (!this._reserveAsset('css', key, url)) continue;
 
-      const absoluteUrl =
-        new URL(url, document.baseURI).href;
-
+      const absoluteUrl = new URL(url, document.baseURI).href;
       const alreadyLinked = [
-        ...document.querySelectorAll(
-          'link[rel~="stylesheet"][href]'
-        )
+        ...document.querySelectorAll('link[rel~="stylesheet"][href]')
       ].some(link => link.href === absoluteUrl);
 
-      if (alreadyLinked) {
-        continue;
-      }
-
-      this.load.css(key, url);
+      if (!alreadyLinked) this.load.css(key, url);
     }
   }
 
   _loadHtmlGroup(assets = []) {
     for (const { key, url } of assets) {
-      if (
-        !this._reserveAsset('html', key, url) ||
-        this.cache.html.exists(key)
-      ) {
+      if (!this._reserveAsset('html', key, url) || this.cache.html.exists(key)) {
         continue;
       }
-
       this.load.html(key, url);
     }
   }
 
   preloadNewspapers() {
-    for (const [type, config] of Object.entries(
-      NEWSPAPER_CONFIG
-    )) {
+    for (const [type, config] of Object.entries(NEWSPAPER_CONFIG)) {
       for (const cityId of config.cities) {
         this._queueJson(
           `newspaper_${type}_${cityId}`,
-          `${__dialogueText("scenes/PreloaderScene.js", "t_18dd30d370992894d75d")}${type}${__dialogueText("scenes/PreloaderScene.js", "t_8a5edab282632443219e")}${cityId}${__dialogueText("scenes/PreloaderScene.js", "t_12157ab04ed2c6accc3d")}`
+          `${__dialogueText(FILE, 't_18dd30d370992894d75d')}${type}` +
+          `${__dialogueText(FILE, 't_8a5edab282632443219e')}${cityId}` +
+          __dialogueText(FILE, 't_12157ab04ed2c6accc3d')
         );
       }
     }
@@ -384,18 +383,13 @@ export class PreloaderScene extends BaseScene {
   collectNewspaperItems() {
     const items = [];
 
-    for (const [type, config] of Object.entries(
-      NEWSPAPER_CONFIG
-    )) {
+    for (const [type, config] of Object.entries(NEWSPAPER_CONFIG)) {
       for (const cityId of config.cities) {
         const key = `newspaper_${type}_${cityId}`;
         const data = this.cache.json.get(key);
 
         if (!data) {
-          console.warn(
-            `[PreloaderScene] Missing newspaper JSON: ${key}`
-          );
-
+          console.warn(`[PreloaderScene] Missing newspaper JSON: ${key}`);
           continue;
         }
 
@@ -405,9 +399,7 @@ export class PreloaderScene extends BaseScene {
           items.push(data.missionLead);
         }
 
-        if (Array.isArray(data.articles)) {
-          items.push(...data.articles);
-        }
+        if (Array.isArray(data.articles)) items.push(...data.articles);
       }
     }
 
@@ -420,52 +412,27 @@ export class PreloaderScene extends BaseScene {
   }
 
   _onLoadError(file) {
-    const entry = {
-      key: file?.key,
-      url: file?.url
-    };
-
+    const entry = { key: file?.key, url: file?.url };
     this.loadErrors.push(entry);
-
-    console.error(
-      '[PreloaderScene] Failed to load:',
-      entry
-    );
+    console.error('[PreloaderScene] Failed to load:', entry);
   }
 
   _onProgress(value) {
-    const progress = Phaser.Math.Clamp(
-      Number(value) || 0,
-      0,
-      1
-    );
+    const progress = Phaser.Math.Clamp(Number(value) || 0, 0, 1);
+    const combined = this._phase === 'newspaper-images'
+      ? 0.85 + progress * 0.15
+      : progress * 0.85;
 
-    const combined =
-      this._phase === 'newspaper-images'
-        ? 0.85 + progress * 0.15
-        : progress * 0.85;
-
-    this.fillingLevel = Math.max(
-      this.fillingLevel,
-      combined
-    );
+    this.fillingLevel = Math.max(this.fillingLevel, combined);
 
     this.updateCoffeeMask(this.fillingLevel);
     this._refreshLoadingTitle();
   }
 
   _onFileComplete(key, type) {
-    if (
-      this._finishing ||
-      this._loadingFailed ||
-      this._cleanupDone
-    ) {
-      return;
-    }
+    if (this._finishing || this._loadingFailed || this._cleanupDone) return;
 
-    if (type === 'json' && key === 'tips') {
-      this._refreshTipFromCache();
-    }
+    if (type === 'json' && key === 'tips') this._refreshTipFromCache();
 
     if (type === 'json' && key === 'statuses') {
       this._refreshRandomStatus(true);
@@ -476,9 +443,7 @@ export class PreloaderScene extends BaseScene {
   }
 
   _onLoadComplete() {
-    if (this._phase !== 'newspaper-images') {
-      return;
-    }
+    if (this._phase !== 'newspaper-images') return;
 
     this._assetsReady = true;
     this.finishLoading();
@@ -492,16 +457,11 @@ export class PreloaderScene extends BaseScene {
   }
 
   _getTextList(cacheKey, property) {
-    const data = this.cache.json.get(cacheKey);
-    const list = data?.[property];
+    const list = this.cache.json.get(cacheKey)?.[property];
 
-    if (!Array.isArray(list)) {
-      return [];
-    }
-
-    return list.filter(
-      text => typeof text === 'string' && text.trim().length > 0
-    );
+    return Array.isArray(list)
+      ? list.filter(text => typeof text === 'string' && text.trim().length > 0)
+      : [];
   }
 
   _validateLoadingTexts() {
@@ -523,27 +483,14 @@ export class PreloaderScene extends BaseScene {
   _refreshTipFromCache() {
     const tipText = this.uiRefs?.tipText;
 
-    if (
-      !tipText?.active ||
-      this._finishing ||
-      this._loadingFailed ||
-      this._cleanupDone
-    ) {
+    if (!tipText?.active || this._finishing || this._loadingFailed || this._cleanupDone) {
       return;
     }
 
-    const tips = this._getTextList('tips', 'tips');
-
-    if (!tips.length) {
-      return;
-    }
+    if (!this._getTextList('tips', 'tips').length) return;
 
     this.killTrackedTweensOf(tipText);
-
-    tipText
-      .setText(this.getNextTip())
-      .setAlpha(1)
-      .setY(this.uiRefs.tipY);
+    tipText.setText(this.getNextTip()).setAlpha(1).setY(this.uiRefs.tipY);
   }
 
   _refreshRandomStatus(force = false, file = null) {
@@ -557,16 +504,10 @@ export class PreloaderScene extends BaseScene {
     }
 
     const now = this.time.now;
-
-    if (!force && now - this._lastStatusAt < 2400) {
-      return;
-    }
+    if (!force && now - this._lastStatusAt < 2400) return;
 
     const nextStatus = this.getLoadingStatus(file);
-
-    if (nextStatus === this.lastLoadingStatus) {
-      return;
-    }
+    if (nextStatus === this.lastLoadingStatus) return;
 
     this._lastStatusAt = now;
     this.lastLoadingStatus = nextStatus;
@@ -574,25 +515,13 @@ export class PreloaderScene extends BaseScene {
   }
 
   getLoadingStatus(file) {
-    const statuses = this._getTextList(
-      'statuses',
-      'statuses'
-    );
+    const statuses = this._getTextList('statuses', 'statuses');
 
     if (statuses.length) {
-      let index = Phaser.Math.Between(
-        0,
-        statuses.length - 1
-      );
+      let index = Phaser.Math.Between(0, statuses.length - 1);
 
-      if (
-        statuses.length > 1 &&
-        index === this.statusIndex
-      ) {
-        index = (
-          index +
-          Phaser.Math.Between(1, statuses.length - 1)
-        ) % statuses.length;
+      if (statuses.length > 1 && index === this.statusIndex) {
+        index = (index + Phaser.Math.Between(1, statuses.length - 1)) % statuses.length;
       }
 
       this.statusIndex = index;
@@ -603,46 +532,26 @@ export class PreloaderScene extends BaseScene {
     const type = String(file?.type || '');
 
     if (key.startsWith('newspaper_')) {
-      return __dialogueText("scenes/PreloaderScene.js", "t_86a5c8851496e1c2b727");
+      return __dialogueText(FILE, 't_86a5c8851496e1c2b727');
     }
-
-    if (type === 'audio') {
-      return __dialogueText("scenes/PreloaderScene.js", "t_a38acf50636681850624");
-    }
-
-    if (type === 'json') {
-      return __dialogueText("scenes/PreloaderScene.js", "t_98845cf8ff16248a93a7");
-    }
-
+    if (type === 'audio') return __dialogueText(FILE, 't_a38acf50636681850624');
+    if (type === 'json') return __dialogueText(FILE, 't_98845cf8ff16248a93a7');
     if (type.toLowerCase().includes('tilemap')) {
-      return __dialogueText("scenes/PreloaderScene.js", "t_a6ecc353ff5c1a93fb63");
+      return __dialogueText(FILE, 't_a6ecc353ff5c1a93fb63');
     }
-
-    if (type === 'video') {
-      return __dialogueText("scenes/PreloaderScene.js", "t_91856c5b75a292384b61");
-    }
-
-    if (type === 'image') {
-      return __dialogueText("scenes/PreloaderScene.js", "t_d3e0614f00433aae5005");
-    }
-
+    if (type === 'video') return __dialogueText(FILE, 't_91856c5b75a292384b61');
+    if (type === 'image') return __dialogueText(FILE, 't_d3e0614f00433aae5005');
     if (type === 'html' || type === 'css') {
-      return __dialogueText("scenes/PreloaderScene.js", "t_19ed387564e060f570ea");
+      return __dialogueText(FILE, 't_19ed387564e060f570ea');
     }
-
-    return __dialogueText("scenes/PreloaderScene.js", "t_75459bafc792b7effe16");
+    return __dialogueText(FILE, 't_75459bafc792b7effe16');
   }
 
   _createPreloadBackground(width, height) {
     if (this.textures.exists('cozyBackground')) {
-      this.add.image(
-        width / 2,
-        height / 2,
-        'cozyBackground'
-      )
+      this.add.image(width / 2, height / 2, 'cozyBackground')
         .setDisplaySize(width, height)
         .setDepth(-10);
-
       return;
     }
 
@@ -653,12 +562,7 @@ export class PreloaderScene extends BaseScene {
     const key = `preloader_scanlines_${width}_${height}`;
 
     if (!this.textures.exists(key)) {
-      const graphics = this.make.graphics({
-        x: 0,
-        y: 0,
-        add: false
-      });
-
+      const graphics = this.make.graphics({ x: 0, y: 0, add: false });
       graphics.fillStyle(0x000000, 0.05);
 
       for (let y = 0; y < height; y += 4) {
@@ -669,67 +573,28 @@ export class PreloaderScene extends BaseScene {
       graphics.destroy();
     }
 
-    return this.add.image(0, 0, key)
-      .setOrigin(0)
-      .setAlpha(0.22);
+    return this.add.image(0, 0, key).setOrigin(0).setAlpha(0.22);
   }
 
-  _setupLoadingUI(
-    centerX,
-    centerY,
-    cupX,
-    cupY,
-    width,
-    height
-  ) {
-    const shadow = this.add.ellipse(
-      cupX,
-      cupY + 50,
-      90,
-      20,
-      0x000000,
-      0.28
-    );
+  _setupLoadingUI(centerX, centerY, cupX, cupY, width, height) {
+    const shadow = this.add.ellipse(cupX, cupY + 50, 90, 20, 0x000000, 0.28);
 
-    const vignetteTop = this.add.rectangle(
-      centerX,
-      0,
-      width,
-      120,
-      0x000000,
-      0.22
-    ).setOrigin(0.5, 0);
+    const vignetteTop = this.add.rectangle(centerX, 0, width, 120, 0x000000, 0.22)
+      .setOrigin(0.5, 0);
 
-    const vignetteBottom = this.add.rectangle(
-      centerX,
-      height,
-      width,
-      150,
-      0x000000,
-      0.24
-    ).setOrigin(0.5, 1);
+    const vignetteBottom = this.add.rectangle(centerX, height, width, 150, 0x000000, 0.24)
+      .setOrigin(0.5, 1);
 
-    const scanlineOverlay =
-      this._createScanlines(width, height);
+    const scanlineOverlay = this._createScanlines(width, height);
 
-    this.fullCupImage = this.add.image(
-      cupX + 20,
-      cupY + 10,
-      'cup_coffee'
-    );
-
+    this.fullCupImage = this.add.image(cupX + 20, cupY + 10, 'cup_coffee');
     this.updateCoffeeMask(0);
-
-    this.add.image(
-      cupX + 20,
-      cupY + 10,
-      'cup_outline'
-    );
+    this.add.image(cupX + 20, cupY + 10, 'cup_outline');
 
     const titleText = this.add.text(
       centerX,
       centerY - 145,
-      __dialogueText("scenes/PreloaderScene.js", "t_22a2ee1d3bc0d63d53ea"),
+      __dialogueText(FILE, 't_22a2ee1d3bc0d63d53ea'),
       {
         fontFamily: '"PressStart2P", monospace',
         fontSize: '28px',
@@ -739,20 +604,13 @@ export class PreloaderScene extends BaseScene {
     ).setOrigin(0.5);
 
     const statusPanel = this.add.rectangle(
-      centerX,
-      centerY - 82,
-      Math.min(width * 0.72, 920),
-      66,
-      0x101010,
-      0.72
-    )
-      .setStrokeStyle(2, 0xc9aa70, 0.8)
-      .setOrigin(0.5);
+      centerX, centerY - 82, Math.min(width * 0.72, 920), 66, 0x101010, 0.72
+    ).setStrokeStyle(2, 0xc9aa70, 0.8).setOrigin(0.5);
 
     const statusLabel = this.add.text(
       centerX,
       centerY - 103,
-      __dialogueText("scenes/PreloaderScene.js", "t_152e43fcde284e420543"),
+      __dialogueText(FILE, 't_152e43fcde284e420543'),
       {
         fontFamily: '"PressStart2P", monospace',
         fontSize: '12px',
@@ -764,15 +622,13 @@ export class PreloaderScene extends BaseScene {
     this.loadingStatusText = this.add.text(
       centerX,
       centerY - 75,
-      __dialogueText("scenes/PreloaderScene.js", "t_75459bafc792b7effe16"),
+      __dialogueText(FILE, 't_75459bafc792b7effe16'),
       {
         fontFamily: '"SpecialElite", monospace',
         fontSize: '24px',
         color: '#f4ebd9',
         align: 'center',
-        wordWrap: {
-          width: Math.min(width * 0.64, 820)
-        }
+        wordWrap: { width: Math.min(width * 0.64, 820) }
       }
     ).setOrigin(0.5);
 
@@ -785,9 +641,7 @@ export class PreloaderScene extends BaseScene {
         fontSize: '24px',
         color: '#f4ebd9',
         align: 'center',
-        wordWrap: {
-          width: width * 0.72
-        },
+        wordWrap: { width: width * 0.72 },
         lineSpacing: 8
       }
     ).setOrigin(0.5);
@@ -810,40 +664,24 @@ export class PreloaderScene extends BaseScene {
     this.tipTimer = this.time.addEvent({
       delay: 3200,
       loop: true,
-
       callback: () => {
-        if (
-          !tipText.active ||
-          this._finishing ||
-          this._loadingFailed ||
-          this._cleanupDone
-        ) {
+        if (!tipText.active || this._finishing || this._loadingFailed || this._cleanupDone) {
           return;
         }
 
-        if (!this._getTextList('tips', 'tips').length) {
-          return;
-        }
+        if (!this._getTextList('tips', 'tips').length) return;
 
         this.createTrackedTween({
           targets: tipText,
           alpha: 0,
           y: tipY - 8,
           duration: 180,
-
           onComplete: () => {
-            if (
-              !tipText.active ||
-              this._finishing ||
-              this._loadingFailed ||
-              this._cleanupDone
-            ) {
+            if (!tipText.active || this._finishing || this._loadingFailed || this._cleanupDone) {
               return;
             }
 
-            tipText
-              .setText(this.getNextTip())
-              .setY(tipY + 8);
+            tipText.setText(this.getNextTip()).setY(tipY + 8);
 
             this.createTrackedTween({
               targets: tipText,
@@ -860,22 +698,14 @@ export class PreloaderScene extends BaseScene {
     this.statusTimer = this.time.addEvent({
       delay: 2600,
       loop: true,
-
-      callback: () => {
-        this._refreshRandomStatus();
-      }
+      callback: () => this._refreshRandomStatus()
     });
 
     this.dotsTimer = this.time.addEvent({
       delay: 350,
       loop: true,
-
       callback: () => {
-        this._dots =
-          this._dots.length >= 3
-            ? ''
-            : `${this._dots}.`;
-
+        this._dots = this._dots.length >= 3 ? '' : `${this._dots}.`;
         this._refreshLoadingTitle();
       }
     });
@@ -883,38 +713,24 @@ export class PreloaderScene extends BaseScene {
 
   _refreshLoadingTitle() {
     const title = this.uiRefs?.titleText;
-
-    if (!title?.active) {
-      return;
-    }
+    if (!title?.active) return;
 
     title.setText(
-      `${__dialogueText("scenes/PreloaderScene.js", "t_fd4ca58cadd9f8f8a193")}${this._dots}${__dialogueText("scenes/PreloaderScene.js", "t_36a9e7f1c95b82ffb997")}` +
-      `${Math.round(this.fillingLevel * 100)}${__dialogueText("scenes/PreloaderScene.js", "t_bbf3f11cb5b43e700273")}`
+      `${__dialogueText(FILE, 't_fd4ca58cadd9f8f8a193')}${this._dots}` +
+      `${__dialogueText(FILE, 't_36a9e7f1c95b82ffb997')}` +
+      `${Math.round(this.fillingLevel * 100)}` +
+      __dialogueText(FILE, 't_bbf3f11cb5b43e700273')
     );
   }
 
   updateCoffeeMask(fillLevel) {
-    if (!this.fullCupImage?.active) {
-      return;
-    }
+    if (!this.fullCupImage?.active) return;
 
-    const fill = Phaser.Math.Clamp(
-      Number(fillLevel) || 0,
-      0,
-      1
-    );
-
-    const width = this.fullCupImage.width;
-    const height = this.fullCupImage.height;
+    const fill = Phaser.Math.Clamp(Number(fillLevel) || 0, 0, 1);
+    const { width, height } = this.fullCupImage;
     const visibleHeight = height * fill;
 
-    this.fullCupImage.setCrop(
-      0,
-      height - visibleHeight,
-      width,
-      visibleHeight
-    );
+    this.fullCupImage.setCrop(0, height - visibleHeight, width, visibleHeight);
   }
 
   finishLoading() {
@@ -939,13 +755,11 @@ export class PreloaderScene extends BaseScene {
 
     if (this.loadingStatusText?.active) {
       this.loadingStatusText.setText(
-        __dialogueText("scenes/PreloaderScene.js", "t_ec2576ffac36f09e7dd4")
+        __dialogueText(FILE, 't_ec2576ffac36f09e7dd4')
       );
     }
 
-    const targets = Object.values(
-      this.uiRefs ?? {}
-    ).filter(target => target?.active);
+    const targets = Object.values(this.uiRefs ?? {}).filter(target => target?.active);
 
     for (const target of targets) {
       this.killTrackedTweensOf(target);
@@ -961,21 +775,15 @@ export class PreloaderScene extends BaseScene {
       alpha: 0,
       duration: 650,
       ease: 'Quad.out',
-
       onComplete: () => {
-        if (this._cleanupDone) {
-          return;
-        }
+        if (this._cleanupDone) return;
 
         for (const target of targets) {
-          if (target.active) {
-            target.destroy();
-          }
+          if (target.active) target.destroy();
         }
 
         this.uiRefs = null;
         this.loadingStatusText = null;
-
         this.tryShowStartButton();
       }
     });
@@ -986,16 +794,12 @@ export class PreloaderScene extends BaseScene {
     this._clearLoadingTimers();
 
     if (this.loadingStatusText?.active) {
-      this.loadingStatusText
-        .setText(message)
-        .setColor('#ffb4a2');
+      this.loadingStatusText.setText(message).setColor('#ffb4a2');
     }
   }
 
   _setupAudioUnlock() {
-    if (this.audioArmed || this._unlockHandler) {
-      return;
-    }
+    if (this.audioArmed || this._unlockHandler) return;
 
     if (!this.sound.locked) {
       this.audioArmed = true;
@@ -1005,65 +809,38 @@ export class PreloaderScene extends BaseScene {
     this._unlockHandler = () => {
       this.sound.unlock?.();
       this.audioArmed = !this.sound.locked;
-
       this._removeAudioUnlockListeners();
     };
 
-    this.trackInputEvent(
-      this.input,
-      'pointerdown',
-      this._unlockHandler
-    );
+    this.trackInputEvent(this.input, 'pointerdown', this._unlockHandler);
 
     if (this.input.keyboard) {
-      this.trackInputEvent(
-        this.input.keyboard,
-        'keydown',
-        this._unlockHandler
-      );
+      this.trackInputEvent(this.input.keyboard, 'keydown', this._unlockHandler);
     }
   }
 
   _removeAudioUnlockListeners() {
-    if (!this._unlockHandler) {
-      return;
-    }
+    if (!this._unlockHandler) return;
 
-    this.offTrackedInputEvent(
-      this.input,
-      'pointerdown',
-      this._unlockHandler
-    );
+    this.offTrackedInputEvent(this.input, 'pointerdown', this._unlockHandler);
 
     if (this.input.keyboard) {
-      this.offTrackedInputEvent(
-        this.input.keyboard,
-        'keydown',
-        this._unlockHandler
-      );
+      this.offTrackedInputEvent(this.input.keyboard, 'keydown', this._unlockHandler);
     }
 
     this._unlockHandler = null;
   }
 
   tryShowStartButton() {
-    if (
-      this._cleanupDone ||
-      !this.loadingReady ||
-      this.startBtn
-    ) {
-      return;
-    }
+    if (this._cleanupDone || !this.loadingReady || this.startBtn) return;
 
     if (!this.textures.exists('btnStart')) {
-      console.error(
-        '[PreloaderScene] btnStart is missing.'
-      );
+      console.error('[PreloaderScene] btnStart is missing.');
 
       this.add.text(
         this.scale.width / 2,
         this.scale.height * 0.8,
-        __dialogueText("scenes/PreloaderScene.js", "t_787ad970ef58fcebd770"),
+        __dialogueText(FILE, 't_787ad970ef58fcebd770'),
         {
           fontFamily: 'SpecialElite',
           fontSize: '24px',
@@ -1084,27 +861,15 @@ export class PreloaderScene extends BaseScene {
       .setScale(0.8);
 
     this.addHoverEffect(this.startBtn, 0.8, 0.9);
-
-    this.startBtn.on(
-      'pointerdown',
-      this._handleStart,
-      this
-    );
+    this.startBtn.on('pointerdown', this._handleStart, this);
   }
 
   async _handleStart() {
     const button = this.startBtn;
 
-    if (
-      this._cleanupDone ||
-      !button?.active ||
-      !button.input?.enabled
-    ) {
-      return;
-    }
+    if (this._cleanupDone || !button?.active || !button.input?.enabled) return;
 
     const token = this._runToken;
-
     button.disableInteractive();
     this.sound.unlock?.();
 
@@ -1114,105 +879,59 @@ export class PreloaderScene extends BaseScene {
       try {
         await mobileFS.enterFullscreenLandscape();
       } catch (error) {
-        console.warn(
-          '[PreloaderScene] Fullscreen unavailable. Continuing.',
-          error
-        );
+        console.warn('[PreloaderScene] Fullscreen unavailable. Continuing.', error);
       }
     }
 
-    if (
-      this._runToken !== token ||
-      this._cleanupDone
-    ) {
-      return;
-    }
+    if (this._runToken !== token || this._cleanupDone) return;
 
     this.startThemeMusic();
 
     const started = await this.goto('EnterScene');
 
-    if (
-      !started &&
-      this._runToken === token &&
-      !this._cleanupDone &&
-      button.active
-    ) {
-      button.setInteractive({
-        useHandCursor: true
-      });
+    if (!started && this._runToken === token && !this._cleanupDone && button.active) {
+      button.setInteractive({ useHandCursor: true });
     }
   }
 
   startThemeMusic() {
-    if (audioManager.isMusicPlaying('themeMusic')) {
-      return;
-    }
-
-    audioManager.fadeInMusic(
-      'themeMusic',
-      { loop: true },
-      600
-    );
+    if (audioManager.isMusicPlaying('themeMusic')) return;
+    audioManager.fadeInMusic('themeMusic', { loop: true }, 600);
   }
 
   getNextTip() {
     const tips = this._getTextList('tips', 'tips');
 
     if (!tips.length) {
-      return __dialogueText("scenes/PreloaderScene.js", "t_0b05e4064d34d14c06cb");
+      return __dialogueText(FILE, 't_0b05e4064d34d14c06cb');
     }
 
-    let index = Phaser.Math.Between(
-      0,
-      tips.length - 1
-    );
+    let index = Phaser.Math.Between(0, tips.length - 1);
 
-    if (
-      tips.length > 1 &&
-      index === this.tipIndex
-    ) {
-      index = (
-        index +
-        Phaser.Math.Between(1, tips.length - 1)
-      ) % tips.length;
+    if (tips.length > 1 && index === this.tipIndex) {
+      index = (index + Phaser.Math.Between(1, tips.length - 1)) % tips.length;
     }
 
     this.tipIndex = index;
     return tips[index];
   }
 
-  addHoverEffect(
-    button,
-    baseScale = 0.8,
-    hoverScale = 0.9
-  ) {
+  addHoverEffect(button, baseScale = 0.8, hoverScale = 0.9) {
     button.on('pointerover', () => {
-      if (button.active) {
-        button.setScale(hoverScale);
-      }
+      if (button.active) button.setScale(hoverScale);
     });
 
     button.on('pointerout', () => {
-      if (button.active) {
-        button.setScale(baseScale);
-      }
+      if (button.active) button.setScale(baseScale);
     });
   }
 
   createCoffeeTextures() {
     if (!this.textures.exists('cup_outline')) {
-      const graphics = this.make.graphics({
-        x: 0,
-        y: 0,
-        add: false
-      });
+      const graphics = this.make.graphics({ x: 0, y: 0, add: false });
 
       graphics.fillStyle(0xffffff, 0.08);
-      graphics.fillRoundedRect(
-        10, 10, 80, 90,
-        { tl: 6, tr: 6, bl: 24, br: 24 }
-      );
+      graphics.fillRoundedRect(10, 10, 80, 90, { tl: 6, tr: 6, bl: 24, br: 24 });
 
       graphics.lineStyle(4, 0xe2f1f8, 0.5);
       graphics.strokeCircle(95, 55, 17);
@@ -1221,74 +940,42 @@ export class PreloaderScene extends BaseScene {
       graphics.strokeCircle(94, 53, 15);
 
       graphics.lineStyle(3, 0xd8ecf8, 0.75);
-      graphics.strokeRoundedRect(
-        10, 10, 80, 90,
-        { tl: 6, tr: 6, bl: 24, br: 24 }
-      );
+      graphics.strokeRoundedRect(10, 10, 80, 90, { tl: 6, tr: 6, bl: 24, br: 24 });
 
       graphics.lineStyle(2, 0xffffff, 0.9);
-      graphics.strokeRoundedRect(
-        10, 8, 80, 8, 4
-      );
+      graphics.strokeRoundedRect(10, 8, 80, 8, 4);
 
       graphics.fillStyle(0xffffff, 0.35);
-      graphics.fillRoundedRect(
-        16, 18, 5, 72, 2
-      );
+      graphics.fillRoundedRect(16, 18, 5, 72, 2);
 
       graphics.fillStyle(0xffffff, 0.2);
-      graphics.fillRoundedRect(
-        82, 60, 3, 30, 1
-      );
+      graphics.fillRoundedRect(82, 60, 3, 30, 1);
 
-      graphics.generateTexture(
-        'cup_outline',
-        125,
-        110
-      );
-
+      graphics.generateTexture('cup_outline', 125, 110);
       graphics.destroy();
     }
 
     if (!this.textures.exists('cup_coffee')) {
-      const graphics = this.make.graphics({
-        x: 0,
-        y: 0,
-        add: false
-      });
+      const graphics = this.make.graphics({ x: 0, y: 0, add: false });
 
       graphics.fillStyle(0x3d2314, 0.95);
-      graphics.fillRoundedRect(
-        14, 20, 72, 78,
-        { tl: 2, tr: 2, bl: 20, br: 20 }
-      );
+      graphics.fillRoundedRect(14, 20, 72, 78, { tl: 2, tr: 2, bl: 20, br: 20 });
 
       graphics.fillStyle(0x5a351e, 0.9);
       graphics.fillRect(14, 20, 72, 35);
 
       graphics.fillStyle(0xd7a15c, 1);
-      graphics.fillRoundedRect(
-        14, 18, 72, 10, 5
-      );
+      graphics.fillRoundedRect(14, 18, 72, 10, 5);
 
       graphics.fillStyle(0xf7e8d3, 0.9);
-      graphics.fillRoundedRect(
-        30, 19, 40, 6, 3
-      );
+      graphics.fillRoundedRect(30, 19, 40, 6, 3);
 
       graphics.fillStyle(0xfff7ed, 1);
       graphics.fillCircle(45, 21, 5);
       graphics.fillCircle(55, 21, 5);
-      graphics.fillTriangle(
-        39, 22, 61, 22, 50, 29
-      );
+      graphics.fillTriangle(39, 22, 61, 22, 50, 29);
 
-      graphics.generateTexture(
-        'cup_coffee',
-        125,
-        110
-      );
-
+      graphics.generateTexture('cup_coffee', 125, 110);
       graphics.destroy();
     }
   }
@@ -1306,21 +993,13 @@ export class PreloaderScene extends BaseScene {
   _cleanupPreloader() {
     this._runToken = null;
 
+    this._clearKitchenVersion();
     this._clearLoadingTimers();
     this._removeLoaderListeners();
     this._removeAudioUnlockListeners();
 
-    this.events.off(
-      Phaser.Scenes.Events.SHUTDOWN,
-      this._cleanupPreloader,
-      this
-    );
-
-    this.events.off(
-      Phaser.Scenes.Events.DESTROY,
-      this._cleanupPreloader,
-      this
-    );
+    this.events.off(Phaser.Scenes.Events.SHUTDOWN, this._cleanupPreloader, this);
+    this.events.off(Phaser.Scenes.Events.DESTROY, this._cleanupPreloader, this);
 
     this.fullCupImage = null;
     this.uiRefs = null;

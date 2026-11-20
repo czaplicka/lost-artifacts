@@ -1,4 +1,4 @@
-import { MargeHRFloorScene } from './scenes/MargeHRFloorScene.js';
+import { MargeHRScene } from './scenes/MargeHRScene.js';
 import { gameState } from './GameData.js';
 
 export function openMargeHR(game=window.game,{preview=true,returnSceneKey=null,onFinished=null}={}) {
@@ -9,7 +9,7 @@ export function openMargeHR(game=window.game,{preview=true,returnSceneKey=null,o
     throw new Error('HR is on the upper floor. Use the elevator after four solved cases.');
   const key='MargeHRScene';
   if(game.scene.isActive(key)||game.scene.isPaused(key)||game.scene.isSleeping(key))return false;
-  if(game.scene.keys[key]&&!(game.scene.keys[key] instanceof MargeHRFloorScene))game.scene.remove(key);
-  if(!game.scene.keys[key])game.scene.add(key,MargeHRFloorScene,false);
+  if(game.scene.keys[key]&&!(game.scene.keys[key] instanceof MargeHRScene))game.scene.remove(key);
+  if(!game.scene.keys[key])game.scene.add(key,MargeHRScene,false);
   game.scene.start(key,{preview,returnSceneKey:parent,onFinished});game.scene.bringToTop(key);return true;
 }

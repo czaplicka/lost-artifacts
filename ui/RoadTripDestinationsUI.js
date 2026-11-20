@@ -21,7 +21,7 @@ import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 
 import { EventBus } from '../EventBus.js';
 import { getDestinationTheme } from './DestinationMeta.js';
-import { getEnergyManager } from '../managers/EnergyManager.js';
+
 import { moneyManager, MONEY_SOURCE } from '../managers/MoneyManager.js';
 import {
   ROAD_TRIP_TOWN_LIST,
@@ -682,8 +682,7 @@ export class RoadTripDestinationsUI {
 
   getPurse() {
     return {
-      cash: moneyManager.getBalance(MONEY_SOURCE.CASH),
-      energy: getEnergyManager().getCurrentEnergy()
+      cash: moneyManager.getBalance(MONEY_SOURCE.CASH)
     };
   }
 
@@ -719,9 +718,9 @@ export class RoadTripDestinationsUI {
       .setText(__dialogueText("ui/RoadTripDestinationsUI.js", "t_5c9d49f9d9f177474dd7"));
 
     this.infoTravel.setText(
-      `${__dialogueText("ui/RoadTripDestinationsUI.js", "t_d4f0c98a7ca933680de3")}${quote.km}${__dialogueText("ui/RoadTripDestinationsUI.js", "t_436130357b07e861a60f")}` +
-      `${__dialogueText("ui/RoadTripDestinationsUI.js", "t_accf5ff1416a08bfb95b")}${quote.fuelCost}${__dialogueText("ui/RoadTripDestinationsUI.js", "t_41d1981991e7116a2849")}${quote.energyCost}${__dialogueText("ui/RoadTripDestinationsUI.js", "t_01ba4719c80b6fe911b0")}` +
-      `${__dialogueText("ui/RoadTripDestinationsUI.js", "t_0b51cd3cd5f2e8f345fb")}${purse.cash}${__dialogueText("ui/RoadTripDestinationsUI.js", "t_4a70ec10b250d882dd0d")}${purse.energy}`
+      `Distance: ${quote.km} km\n` +
+      `Fuel: $${quote.fuelCost}\n` +
+      `Cash available: $${purse.cash}`
     );
 
     this.infoHours.setText(`${__dialogueText("ui/RoadTripDestinationsUI.js", "t_d659ad85ef58eb97435d")}${quote.baseHours}${__dialogueText("ui/RoadTripDestinationsUI.js", "t_90f4dc4589c0dfbb0574")}`);
@@ -1041,7 +1040,7 @@ export class RoadTripDestinationsUI {
       this.isTransitioning = false;
 
       if (!this.isOpen) {
-        this.open();
+        this._restoreAfterFailedRoadTrip(town);
       }
 
       this.showError(result?.message || __dialogueText("ui/RoadTripDestinationsUI.js", "t_e7ff5eaaab1d87f153f5"));
@@ -1180,5 +1179,26 @@ export class RoadTripDestinationsUI {
     this.isOpen = false;
     this.isTransitioning = false;
     this.canConfirm = false;
+  }
+
+  // open() nadal resetuje mapę przy zwykłym otwarciu.
+  // Po nieudanym starcie odtwarzamy wybór i trasę przed pokazaniem błędu.
+  _restoreAfterFailedRoadTrip(town) {
+    if (this.isDestroyed) return;
+
+    this.open();
+
+    if (this.isDestroyed || !this.isOpen || !town) return;
+
+    const pin = this.pins.find(item => item.town.id === town.id);
+
+    if (pin) {
+      this.selectTown(pin.town, pin);
+    } else {
+      this.selectedTown = town;
+      this.selectedPin = null;
+      this.refreshInfoPanel(town);
+      this.previewRoute(town);
+    }
   }
 }

@@ -4,6 +4,69 @@ import { LocationDialoguePanel } from '../ui/LocationDialoguePanel.js';
 import { hollyFinaleData as DATA, getHollyFinale, performHollyFinale } from '../hollyFinaleService.js';
 import { normalizeFinale, finaleAction } from './pi-office/HollyFinaleModel.js';
 const T=id=>dialogueText('scenes/HollyFinaleScene.js',id);
+
+class FinalePanel extends LocationDialoguePanel {
+ constructor(scene,options){
+  super(scene,options);this.clearPortrait();
+  this.nameText=this.makeText(0,0,'',10,'#ffd86b',true);
+  this.bubble=scene.add.graphics();this.root.addAt(this.bubble,this.root.getIndex(this.text));
+  this.bubbleStyleReady=true;this.relayout();
+ }
+ get playerSpeaking(){return this.speaker.name==='DETECTIVE';}
+ renderSpeaker(){
+  if(!this.bubbleStyleReady){super.renderSpeaker();return;}
+  if(!this.isOpen)return;
+  const L=this.layout;
+  this.nameText.setText(this.speaker.name||'').setPosition(L.textX,L.panelY+22)
+   .setFontSize(L.width<700?8:10).setColor(this.playerSpeaking?'#9fd9a0':'#f0c75e')
+   .setWordWrapWidth(L.textWidth,true);
+ }
+ setSpeaker(speaker={}){
+  super.setSpeaker(speaker);if(this.bubbleStyleReady&&this.isOpen)this.relayout();
+ }
+ relayout(){
+  if(!this.bubbleStyleReady){super.relayout();return;}
+  if(!this.isOpen)return;
+  const offset=this.textPages[this.textPage]?.start||0;
+  const{width:w,height:h}=this.scene.scale;
+  const small=w<700,ph=Math.min(h,small?340:272),y=h-ph,pad=small?18:26;
+  const menu=Math.min(this.options.menuWidth,small?Math.max(116,w*.35):w*.28);
+  const divider=w-menu-20,textWidth=Math.max(16,(divider-pad-34)*.88);
+  const textX=this.playerSpeaking?divider-24-textWidth:pad+10;
+  this.layout={width:w,height:h,panelHeight:ph,panelY:y,portraitSize:0,portraitX:pad,
+   portraitY:y+12,centerX:pad,centerY:y+12,textX,textEndX:divider,menuWidth:menu,
+   menuX:divider+16,textWidth,font:small?17:22};
+  this.overlay.setSize(w,h);this.background.setPosition(0,y).setSize(w,ph);
+  this.border.clear().lineStyle(4,0xd4af37,1)
+   .strokeRect(6,y+6,Math.max(1,w-12),Math.max(1,ph-12)).lineStyle(1,0x8a6d1f,.9)
+   .strokeRect(12,y+12,Math.max(1,w-24),Math.max(1,ph-24));
+  this.border.lineBetween(divider,y+16,divider,h-16);this.portraitFrame.clear().setVisible(false);
+  this.text.setPosition(textX,y+58).setFontSize(this.layout.font).setWordWrapWidth(textWidth,true).setScale(1);
+  this.footer.setPosition(textX,h-72).setFontSize(small?9:11).setWordWrapWidth(textWidth,true);
+  this.previousText.setPosition(pad+10,h-37);this.pageLabel.setPosition(pad+38,h-37);
+  this.nextText.setPosition(divider-24,h-37);
+  this.leaveButton.setPosition(divider+16,h-37).setFontSize(small?16:18).setText(this.options.leaveLabel);
+  this.leaveButton.setScale(Math.min(1,Math.max(1,menu-18)/Math.max(1,this.leaveButton.width)));
+  this.renderSpeaker();this.repaginate(offset);this.renderPage(true);this.renderTopics();
+ }
+ repaginate(offset=0){
+  if(!this.bubbleStyleReady){super.repaginate(offset);return;}
+  const height=this.layout.panelHeight;this.layout.panelHeight=height-42;
+  try{super.repaginate(offset);}finally{this.layout.panelHeight=height;}
+ }
+ renderPage(instant=false){
+  if(this.bubbleStyleReady&&this.isOpen){
+   const L=this.layout,p=this.playerSpeaking;
+   this.bubble.clear().fillStyle(p?0x263729:0x2a2012,1)
+    .fillRoundedRect(L.textX-10,L.panelY+48,L.textWidth+20,Math.max(1,L.panelHeight-102),8)
+    .lineStyle(1,p?0x88b589:0xb58a42,1)
+    .strokeRoundedRect(L.textX-10,L.panelY+48,L.textWidth+20,Math.max(1,L.panelHeight-102),8);
+   this.text.setColor(p?'#e3f0d7':'#f3e7c4');
+  }
+  super.renderPage(instant);
+ }
+}
+
 export class HollyFinaleScene extends WarsawMeetingScene {
  constructor(){super({key:'HollyFinaleScene'});}
  init(data={}){super.init(data);this.documentId=null;this.confirmExit=false;this.conversationPanel=null;}
@@ -73,7 +136,7 @@ export class HollyFinaleScene extends WarsawMeetingScene {
  makeFinalPanel(text,{speaker='DETECTIVE',portraitKey=null,topics=[],onAdvance=null}={}){
   if(typeof LocationDialoguePanel.prototype.advance!=='function')throw new Error('Install LocationDialoguePanel from dialogue migration stage 1.');
   let view=null;
-  view=new LocationDialoguePanel(this,{depth:6000,modal:true,keyboard:false,leaveLabel:'Leave',
+  view=new FinalePanel(this,{depth:6000,modal:true,keyboard:false,leaveLabel:'Leave',
    onLeave:()=>{if(this.conversationPanel===view)this.requestBack();},
    onAdvance:()=>{if(this.conversationPanel===view)onAdvance?.();}});
   this.conversationPanel=view;

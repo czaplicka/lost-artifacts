@@ -32,26 +32,26 @@ function renderStepNavigation(currentStep) {
     const complete = index < currentStep;
 
     return [
-      text('t_b110373fbbda7cff9559'),
-      active ? text('t_08f12cfa45e5c91b34ca') : '',
-      complete ? text('t_b92798465c5b9abda95e') : '',
-      text('t_e2b2e4ecdebcac5a9f44'),
+      "\n          <button\n            class=\"character-step-marker",
+      active ? " is-active" : '',
+      complete ? " is-complete" : '',
+      "\"\n            type=\"button\"\n            data-step=\"",
       index,
-      text('t_33410b9aeec60f0f8776'),
+      "\"\n            data-step-marker\n            data-step-number=\"",
       index + 1,
-      text('t_0780dbc784655a107b28'),
+      "\"\n            aria-current=\"",
       active ? 'step' : 'false',
-      text('t_2347314cecdf287ebbdf'),
+      "\"\n          >\n            <span class=\"character-step-icon\" aria-hidden=\"true\">",
       step.icon,
-      text('t_411fdb22d8d9298e5d32'),
+      "</span>",
       text(step.label),
-      text('t_0a00379b41df90cbfd34')
+      "\n          </button>\n        "
     ].join('');
   }).join('');
 
-  return text('t_5e00a5ef64e171a6480e') +
+  return "\n    <nav\n      class=\"character-creation-steps\"\n      aria-label=\"Character creation steps\"\n    >\n      " +
     buttons +
-    text('t_cf4e80b4f9b2534f2bbf');
+    "\n    </nav>\n  ";
 }
 
 function getFooterHint(currentStep, remainingPoints) {
@@ -73,17 +73,17 @@ function renderFooter({ currentStep, remainingPoints, isStartingGame }) {
   const lastStep = currentStep === STEPS.length - 1;
 
   return [
-    text('t_302c934584cf390052d7'),
+    "\n    <footer class=\"character-creation-footer\">\n      <button\n        class=\"character-button\"\n        type=\"button\"\n        data-action=\"back\"\n        data-back-button\n        ",
     currentStep === 0 ? 'hidden' : '',
-    text('t_0cf3e78deea853259d53'),
+    "\n      >\n        ← Back\n      </button>\n\n      <p\n        class=\"character-footer-hint\"\n        data-footer-hint\n      >\n        ",
     getFooterHint(currentStep, remainingPoints),
-    text('t_66b31b24043ce1b75155'),
+    "\n      </p>\n\n      <div class=\"character-footer-actions\">\n        <button\n          class=\"character-button character-button--primary\"\n          type=\"button\"\n          data-action=\"next\"\n          data-next-button\n          ",
     isStartingGame ? 'disabled' : '',
-    text('t_22f7be008aeabe25bd90'),
+    "\n        >\n          ",
     lastStep
       ? text('t_0ee6d25a70ffefd83541')
       : text('t_6b7b806bd4d818b98a18'),
-    text('t_fb9f705ded75d14500c8')
+    "\n        </button>\n      </div>\n    </footer>\n  "
   ].join('');
 }
 
@@ -98,22 +98,22 @@ export function renderCharacterCreationTemplate({
     ? currentStep
     : 0;
 
-  const openPanel = text('t_5161485a66a57ff87d6d').replace(
+  const openPanel = "\n          </p>\n\n          ".replace(
     /\bdata-step-panel\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/g,
     `data-step-panel="${step}"`
   );
 
   return [
-    text('t_853b06e0aefb88945acd'),
+    "\n    <div id=\"character-creation-root\">\n      <form\n        class=\"character-creation-shell\"\n        id=\"character-creation-form\"\n        novalidate\n      >\n        <header class=\"character-creation-header\">\n          <div class=\"character-creation-brand\">\n            <h1>MARK AGENCY</h1>\n            <p>Personnel Intake Form — Temporary / Probably Legal</p>\n          </div>\n\n          <div class=\"character-creation-stamp\">\n            Pending<br>\n            Regret\n          </div>\n        </header>\n\n        ",
     renderStepNavigation(step),
-    text('t_cf9875b8b3698789b31e'),
-    errorMessage ? text('t_26326ed8a19277646b1a') : '',
-    text('t_6bef9aa89483be1dec05'),
+    "\n\n        <main class=\"character-creation-content\">\n          <p\n            class=\"character-form-error",
+    errorMessage ? " is-visible" : '',
+    "\"\n            data-character-error\n            role=\"alert\"\n          >\n            ",
     escapeHtml(errorMessage),
     openPanel,
     STEPS[step].render(playerData, remainingPoints),
-    text('t_358145b7533fde5fe6fe'),
+    "\n        </main>\n\n        ",
     renderFooter({ currentStep: step, remainingPoints, isStartingGame }),
-    text('t_d19c024daf7ff436f290')
+    "\n      </form>\n    </div>\n  "
   ].join('');
 }
