@@ -204,6 +204,17 @@ export class InventoryUI {
     if(!this.hasLiveView() || !this.isVisible || this.discardDialog || this.dragController?.isPending())return;
     const selected=inventoryManager.getSelectedItem();if(!selected || !canUseItem(selected))return;
     recordEnvelopeViewed(selected);
+    if(selected.id==='detective_monthly'){
+      if(this._monthlyOpening)return;
+      this._monthlyOpening=true;
+      import('./DetectiveMonthlyReader.js').then(({openDetectiveMonthly})=>{
+        if(this.hasLiveView() && this.isVisible && inventoryManager.hasItem(selected.id))openDetectiveMonthly(this.scene);
+      }).catch(error=>{
+        console.error('[Detective Monthly]',error);
+        if(!this._destroyed)say(error.message || 'Could not open Detective Monthly.');
+      }).finally(()=>{this._monthlyOpening=false;});
+      return;
+    }
     const result=useItem(selected.id);if(result?.message)say(result.message);this.scheduleRender();
   }
   selectItem(item) {

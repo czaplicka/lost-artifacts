@@ -1,0 +1,23 @@
+{
+  "bundles": {
+    "scene:SpyShopScene": [
+      "image:pi_spy_shop_background"
+    ],
+    "scene:DetectiveOfficeScene": [
+      "image:printer",
+      "image:artifact",
+      "image:bigger-office-ad",
+      "image:bigger-office-reality",
+      "image:bigger-office",
+      "image:books",
+      "image:case-files",
+      "image:chairs",
+      "image:coffee",
+      "image:pi__office__crime-board",
+      "image:notepad",
+      "image:painting",
+      "image:pi__office__tv",
+      "image:computer-phone"
+    ]
+  }
+}

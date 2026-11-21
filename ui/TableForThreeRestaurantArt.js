@@ -1,3 +1,4 @@
+import { attachTableForThreeEvidenceViewer } from './TableForThreeEvidenceViewer.js';
 export const ART_WIDTH=960,ART_HEIGHT=540;
 // Version 1 is deliberately stable: saved crops reconstruct this exact test set.
 export function paintTableForThree(ctx,beat='idle'){
@@ -46,4 +47,5 @@ export function cropTableForThree(canvas,record){
   paintTableForThree(full.getContext('2d'),record.beat);
   const r=record.frame;canvas.width=Math.max(1,Math.round(r.w*ART_WIDTH));canvas.height=Math.max(1,Math.round(r.h*ART_HEIGHT));
   canvas.getContext('2d').drawImage(full,r.x*ART_WIDTH,r.y*ART_HEIGHT,r.w*ART_WIDTH,r.h*ART_HEIGHT,0,0,canvas.width,canvas.height);
+  attachTableForThreeEvidenceViewer(canvas,record);
 }

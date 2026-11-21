@@ -165,7 +165,9 @@ export class GameStateManager {
       if (getEntryId(entry) === id) return entry;
     }
     const needsRebuild = !indexIsObject || Object.keys(index).length !== collection.length || hasOwn(index, lookup);
-    if (!needsRebuild) return null;
+    // Equal lengths do not prove the index is current: callers may replace an
+    // entry or change its ID through an existing array/object reference.
+    if (!needsRebuild && !collection.some(entry => getEntryId(entry) === id)) return null;
     rebuildCollectionIndex(this.state, collectionKey);
     const repairedIndex = this.state[config.indexKey];
     if (!hasOwn(repairedIndex, lookup)) return null;
@@ -353,7 +355,7 @@ export class GameStateManager {
 
   restoreCheckpoint() {
     if (!this.saveCheckpoint) { console.warn('[GameState] No checkpoint available.'); return false; }
-    return this.importFromSave(this.saveCheckpoint);
+    return this.importFromSave(this.saveCheckpoint, { preserveCheckpoint: true });
   }
 
   validateSave(saveData) {
@@ -383,8 +385,11 @@ export class GameStateManager {
     };
   }
 
-  importFromSave(saveData) {
+  importFromSave(saveData, options = {}) {
     try {
+      // Only an explicit restoration of the current checkpoint may retain it.
+      const preserveCheckpoint = options?.preserveCheckpoint === true &&
+        saveData === this.saveCheckpoint;
       const source = unwrapImportedState(saveData);
       if (!source) return false;
       const imported = cloneGameData(source);
@@ -394,6 +399,8 @@ export class GameStateManager {
       const nextState = normalizeImportedState(imported);
       this.state = nextState;
       this.dirty = false;
+      // Do not discard a valid checkpoint when validation/migration fails.
+      if (!preserveCheckpoint) this.saveCheckpoint = null;
       return true;
     } catch (error) {
       console.error('[GameState] Save import failed:', error);

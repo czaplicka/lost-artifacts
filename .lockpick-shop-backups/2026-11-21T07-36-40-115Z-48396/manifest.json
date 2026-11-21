@@ -1,0 +1,10 @@
+[
+  {
+    "path": "config/spyShopStock.js",
+    "existed": true
+  },
+  {
+    "path": "config/piLockpickProduct.js",
+    "existed": false
+  }
+]

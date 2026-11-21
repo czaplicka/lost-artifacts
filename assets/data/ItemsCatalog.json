@@ -95,19 +95,6 @@
     }
   },
   "evidence": {
-    "lockpick": {
-      "id": "evidence_lockpick",
-      "name": "Lockpick Set",
-      "icon": "🔓",
-      "description": "Professional burglary tools.",
-      "type": "evidence",
-      "stackable": false,
-      "metadata": {
-        "crimeSkill": "lockpicking",
-        "relevance": "high",
-        "useMessage": "A lockpick needs a lock. Otherwise I'm just threatening the air."
-      }
-    },
     "disguise": {
       "id": "evidence_disguise",
       "name": "Museum Disguise",
@@ -788,6 +775,19 @@
       "metadata": {
         "purpose": "video_recording",
         "useMessage": "I could film a documentary about this case. So far, it would mostly be waiting."
+      }
+    },
+    "lockpick": {
+      "id": "evidence_lockpick",
+      "name": "Lockpick Set",
+      "icon": "🔓",
+      "description": "Professional burglary tools.",
+      "type": "tool",
+      "stackable": false,
+      "metadata": {
+        "crimeSkill": "lockpicking",
+        "relevance": "high",
+        "useMessage": "A lockpick needs a lock. Otherwise I'm just threatening the air."
       }
     }
   }

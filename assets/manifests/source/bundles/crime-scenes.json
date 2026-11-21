@@ -1,0 +1,39 @@
+{
+  "bundles": {
+    "crime:louvre": [
+      "json:objects-data:louvre",
+      "tilemap:louvre",
+      "image:louvre_bg"
+    ],
+    "crime:tower": [
+      "json:objects-data:tower",
+      "tilemap:tower",
+      "image:tower_bg"
+    ],
+    "crime:castle": [
+      "json:objects-data:castle",
+      "tilemap:castle",
+      "image:castle_bg"
+    ],
+    "crime:dockyard": [
+      "json:objects-data:dockyard",
+      "tilemap:dockyard",
+      "image:dockyard_bg"
+    ],
+    "crime:auction_house": [
+      "json:objects-data:auction_house",
+      "tilemap:auction_house",
+      "image:auction_house_bg"
+    ],
+    "crime:havela": [
+      "json:objects-data:havela",
+      "tilemap:havela",
+      "image:havela_bg"
+    ],
+    "crime:tokyo_museum": [
+      "tilemap:tokyo_museum",
+      "image:tokyo_museum_bg",
+      "json:objects-data:tokyo_museum"
+    ]
+  }
+}

@@ -1,6 +1,7 @@
 import { dialogueText as __dialogueText } from './dialogues/DialogueText.js';
 import { gameState, createDefaultReconstructedHeist } from './GameData.js';
 import { saveGameState, requestAutosave } from './gameStatePersistence.js';
+import { getCrimeSceneVisitKey } from './crimeSceneVisitKey.js';
 
 function toClueSlug(value) {
   return String(value).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'unknown';
@@ -10,24 +11,32 @@ function isRecord(value) { return Boolean(value && typeof value === 'object' && 
 export class HiddenObjectsState {
   constructor(sceneContext) { this.scene = sceneContext; }
 
-  ensureStateStructure() {
-    for (const key of ['specialScenesVisited', 'specialScenesCompleted', 'crimeBoardData']) {
-      if (!isRecord(gameState[key])) gameState[key] = {};
+  ensureStateStructure({ autosave = true } = {}) {
+    const updates = {};
+    for (const key of ['specialScenesVisited', 'specialScenesCompleted']) {
+      if (!isRecord(gameState[key])) updates[key] = {};
     }
-    if (!Array.isArray(gameState.hiddenObjectHistory)) gameState.hiddenObjectHistory = [];
-    if (!Array.isArray(gameState.cluesCollected)) gameState.cluesCollected = [];
-    if (!Array.isArray(gameState.crimeBoardData.visitedCrimeScenes)) gameState.crimeBoardData.visitedCrimeScenes = [];
-    if (!Array.isArray(gameState.crimeBoardData.sceneFoundObjects)) gameState.crimeBoardData.sceneFoundObjects = [];
-    if (!isRecord(gameState.reconstructedHeist)) gameState.reconstructedHeist = createDefaultReconstructedHeist();
+    if (!Array.isArray(gameState.hiddenObjectHistory)) updates.hiddenObjectHistory = [];
+    if (!Array.isArray(gameState.cluesCollected)) updates.cluesCollected = [];
+    if (!isRecord(gameState.reconstructedHeist)) updates.reconstructedHeist = createDefaultReconstructedHeist();
+
+    const board = isRecord(gameState.crimeBoardData) ? gameState.crimeBoardData : {};
+    const repairPhotos = !Array.isArray(board.visitedCrimeScenes);
+    const repairObjects = !Array.isArray(board.sceneFoundObjects);
+    if (!isRecord(gameState.crimeBoardData) || repairPhotos || repairObjects) {
+      updates.crimeBoardData = {
+        ...board,
+        visitedCrimeScenes: repairPhotos ? [] : board.visitedCrimeScenes,
+        sceneFoundObjects: repairObjects ? [] : board.sceneFoundObjects
+      };
+    }
+    if (!Object.keys(updates).length) return false;
+    const changed = gameState.updateState(updates);
+    if (changed && autosave) requestAutosave();
+    return changed;
   }
 
-  getVisitKey() {
-    const missionId = gameState.currentMission?.id;
-    const missionCity = gameState.currentMission?.city || this.scene.cityId || 'unknown';
-    const artifact = gameState.currentMission?.artifact || gameState.currentArtifact || 'artifact';
-    if (missionId) return `${this.scene.sceneId}_${missionId}`;
-    return `${this.scene.sceneId}_${missionCity}_${artifact}`;
-  }
+  getVisitKey() { return getCrimeSceneVisitKey(gameState); }
 
   isQuestAlreadyDone() {
     return Boolean(isRecord(gameState.specialScenesCompleted) && gameState.specialScenesCompleted[this.getVisitKey()]);
@@ -35,7 +44,8 @@ export class HiddenObjectsState {
 
   storeHiddenObjectClue(itemData, clueType = 'soft_clue') {
     if (!itemData || itemData.id === undefined || itemData.id === null) return;
-    this.ensureStateStructure();
+    // This operation requests its own autosave once all changes are complete.
+    this.ensureStateStructure({ autosave: false });
     const itemId = String(itemData.id);
     const alreadyStoredObject = gameState.hiddenObjectHistory.some(entry => entry && String(entry.id) === itemId &&
       entry.scene === this.scene.sceneId && entry.cityId === this.scene.cityId);
@@ -64,7 +74,10 @@ export class HiddenObjectsState {
 
   saveFoundObjectsToCrimeBoard() {
     this.ensureStateStructure();
-    const scene = this.scene, objects = gameState.crimeBoardData.sceneFoundObjects;
+    const scene = this.scene;
+    const board = gameState.crimeBoardData;
+    const objects = [...board.sceneFoundObjects];
+    let changed = false;
     scene.foundItems.forEach(rawItemId => {
       const itemId = String(rawItemId), itemData = scene.itemsById[itemId];
       if (!itemData) return;
@@ -77,37 +90,51 @@ export class HiddenObjectsState {
         isMissionRelevant: scene.missionRelevantItemIds.has(itemId),
         clueType: itemData.clueType || 'soft_clue', foundAt: Date.now()
       });
+      changed = true;
     });
+    if (changed) gameState.updateState({ crimeBoardData: { ...board, sceneFoundObjects: objects } });
   }
 
   saveCrimeBoardPhoto(success = false) {
     this.ensureStateStructure();
     const scene = this.scene, visitKey = this.getVisitKey(), completed = Boolean(success);
-    const photos = gameState.crimeBoardData.visitedCrimeScenes;
-    const existingPhoto = photos.find(entry => entry?.visitKey === visitKey);
-    if (existingPhoto) {
-      existingPhoto.success = existingPhoto.success === true || completed;
+    const board = gameState.crimeBoardData;
+    const photos = board.visitedCrimeScenes;
+    const index = photos.findIndex(entry => entry?.visitKey === visitKey);
+    if (index >= 0) {
+      const nextSuccess = photos[index].success === true || completed;
+      if (photos[index].success === nextSuccess) return;
+      gameState.updateState({ crimeBoardData: {
+        ...board,
+        visitedCrimeScenes: photos.map((entry, i) => i === index ? { ...entry, success: nextSuccess } : entry)
+      } });
       return;
     }
-    photos.push({
-      visitKey, sceneId: scene.sceneId, cityId: scene.cityId, displayName: scene.title,
-      assetKey: scene.backgroundKey, imagePath: scene.backgroundPath,
-      missionId: gameState.currentMission?.id || null, success: completed, visitedAt: Date.now()
-    });
+    gameState.updateState({ crimeBoardData: {
+      ...board,
+      visitedCrimeScenes: [...photos, {
+        visitKey, sceneId: scene.sceneId, cityId: scene.cityId, displayName: scene.title,
+        assetKey: scene.backgroundKey, imagePath: scene.backgroundPath,
+        missionId: gameState.currentMission?.id || null, success: completed, visitedAt: Date.now()
+      }]
+    } });
   }
 
   markSceneVisited(success = false, { save = true } = {}) {
-    this.ensureStateStructure();
+    // The caller owns the final save, including when repairs were necessary.
+    this.ensureStateStructure({ autosave: false });
     const visitKey = this.getVisitKey(), completed = Boolean(success);
-    gameState.specialScenesVisited[visitKey] = true;
-    if (completed) gameState.specialScenesCompleted[visitKey] = true;
-    this.saveCrimeBoardPhoto(completed); this.saveFoundObjectsToCrimeBoard();
-    // Standalone callers retain their previous immediate-save behaviour.
+    const updates = { specialScenesVisited: { ...gameState.specialScenesVisited, [visitKey]: true } };
+    if (completed) updates.specialScenesCompleted = { ...gameState.specialScenesCompleted, [visitKey]: true };
+    gameState.updateState(updates);
+    this.saveCrimeBoardPhoto(completed);
+    this.saveFoundObjectsToCrimeBoard();
     if (save) saveGameState();
   }
 
   saveReconstructionCards(reconstructionData) {
     if (!isRecord(reconstructionData)) throw new Error('[HiddenObjectsState] Reconstruction data must be an object.');
-    gameState.reconstructedHeist = reconstructionData; saveGameState();
+    gameState.updateState({ reconstructedHeist: reconstructionData });
+    saveGameState();
   }
 }

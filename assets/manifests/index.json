@@ -2129,7 +2129,15 @@
       "image:avatar__marks__scar-mouth",
       "image:avatar__marks__scar-right",
       "video:drama",
-      "video:romance"
+      "video:romance",
+      "image:astrolabe",
+      "image:fan",
+      "image:goblet",
+      "image:music-box",
+      "image:reel",
+      "image:royal_observatory_chronometer",
+      "image:spotlight",
+      "json:detectiveMonthly"
     ],
     "auto:folder:apartments": [
       "image:apartment_debt_kitchen",
@@ -2162,7 +2170,14 @@
       "image:artifact_mona_lisa",
       "image:artifact_mughal_dagger",
       "image:artifact_royal_seal",
-      "image:artifact_great_wave"
+      "image:artifact_great_wave",
+      "image:astrolabe",
+      "image:fan",
+      "image:goblet",
+      "image:music-box",
+      "image:reel",
+      "image:royal_observatory_chronometer",
+      "image:spotlight"
     ],
     "auto:folder:audio": [
       "audio:ad_jingle",
@@ -2424,7 +2439,8 @@
       "json:margeTrust",
       "json:npcs",
       "json:personnelWitnesses",
-      "json:storageRoomDialogues"
+      "json:storageRoomDialogues",
+      "json:detectiveMonthly"
     ],
     "auto:folder:data/dialogue": [
       "json:dialog_accounting",

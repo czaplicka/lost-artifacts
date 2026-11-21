@@ -4003,6 +4003,70 @@
         "videos"
       ],
       "noAudio": false
+    },
+    {
+      "key": "astrolabe",
+      "url": "assets/artifacts/astrolabe.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "fan",
+      "url": "assets/artifacts/fan.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "goblet",
+      "url": "assets/artifacts/goblet.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "music-box",
+      "url": "assets/artifacts/music-box.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "reel",
+      "url": "assets/artifacts/reel.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "royal_observatory_chronometer",
+      "url": "assets/artifacts/royal_observatory_chronometer.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "spotlight",
+      "url": "assets/artifacts/spotlight.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "detectiveMonthly",
+      "url": "assets/data/detectiveMonthly.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
     }
   ]
 }

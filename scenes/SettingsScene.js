@@ -1,4 +1,4 @@
-import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
+import { dialogueText as __dialogueText } from '../dialogues/DialogueText.js';
 import { audioManager } from '../managers/AudioManager.js';
 import { UISlider } from '../ui/UISlider.js';
 import { BaseScene } from './BaseScene.js';
@@ -25,43 +25,39 @@ export class SettingsScene extends BaseScene {
     this.childBinding = null;
     this.input.enabled = true;
     audioManager.init(this);
-
     const hud = document.getElementById('hud-container');
     this.restoreHudOnClose = Boolean(hud && window.getComputedStyle(hud).display !== 'none');
     this.events.once('shutdown', this.handleSettingsShutdown, this);
     EventBus.emit('hideHUD');
-
     const bg = this.textures.exists('backgroundset')
       ? this.add.image(0, 0, 'backgroundset').setOrigin(0).setDisplaySize(1920, 1080)
       : this.add.rectangle(0, 0, 1920, 1080, 0x0d1320).setOrigin(0);
     bg.setDepth(0).setInteractive();
     bg.on('pointerdown', (_p, _x, _y, event) => event.stopPropagation());
-
     const cx = 960, cy = 540, pw = 760;
-    const ph = this.restoreHudOnClose ? 760 : 620;
+    const ph = this.restoreHudOnClose ? 860 : 700;
     const top = cy - ph / 2;
     const panel = this.add.graphics().setDepth(10);
     panel.fillStyle(0x1a1a2e, 0.94);
     panel.fillRoundedRect(cx - pw / 2, top, pw, ph, 12);
     panel.lineStyle(3, 0xc9a227, 1);
     panel.strokeRoundedRect(cx - pw / 2, top, pw, ph, 12);
-
-    this.add.text(cx, top + 60, "SETTINGS", {
+    this.add.text(cx, top + 60, 'SETTINGS', {
       fontFamily: 'PressStart2P', fontSize: '28px', color: '#c9a227'
     }).setOrigin(0.5).setDepth(20);
-
     this.sfxSlider = new UISlider(this, cx - 280, top + 130, 560,
-      __dialogueText("scenes/SettingsScene.js", "t_3befee2005977f36475c"), audioManager.getSfxVolume(), value => audioManager.setSfxVolume(value));
+      __dialogueText('scenes/SettingsScene.js', 't_3befee2005977f36475c'), audioManager.getSfxVolume(), value => audioManager.setSfxVolume(value));
     this.musicSlider = new UISlider(this, cx - 280, top + 230, 560,
       'MUSIC', audioManager.getMusicVolume(), value => audioManager.setMusicVolume(value));
     this.createMuteToggle(cx, top + 350);
-
-    // Extra navigation belongs to the settings opened from the in-game HUD.
+    let navigationY = top + 455;
     if (this.restoreHudOnClose) {
-      this.createButton(cx, top + 455, 'JUKEBOX', () => this.openChild('JukeboxScene'));
-      this.createButton(cx, top + 535, 'HIGHSCORES', () => this.openChild('HighscoreScene'));
+      this.createButton(cx, navigationY, 'JUKEBOX', () => this.openChild('JukeboxScene'));
+      navigationY += 80;
+      this.createButton(cx, navigationY, 'HIGHSCORES', () => this.openChild('HighscoreScene'));
+      navigationY += 80;
     }
-
+    this.createButton(cx, navigationY, 'CREDITS', () => this.openChild('CreditsScene'));
     this.errorLabel = this.add.text(cx, top + ph - 130, '', {
       fontFamily: 'SpecialElite', fontSize: '18px', color: '#ffb7a6',
       align: 'center', wordWrap: { width: 650 }
@@ -80,10 +76,11 @@ export class SettingsScene extends BaseScene {
     let child = null;
     let onShutdown = null;
     try {
-      if (key === 'JukeboxScene') {
-        const { JukeboxScene } = await import('./JukeboxScene.js');
+      if (key === 'JukeboxScene' || key === 'CreditsScene') {
+        const module = key === 'CreditsScene'
+          ? await import('./CreditsScene.js') : await import('./JukeboxScene.js');
         if (session !== this.session || this._cleanupDone || this.isClosing) return;
-        if (!this.game.scene.keys[key]) this.game.scene.add(key, JukeboxScene, false);
+        if (!this.game.scene.keys[key]) this.game.scene.add(key, module[key], false);
       } else if (!this.game.scene.keys[key]) {
         if (!this.game.sceneLoader?.ensure) throw new Error('SceneLoader is unavailable.');
         await this.game.sceneLoader.ensure(key);
@@ -94,13 +91,12 @@ export class SettingsScene extends BaseScene {
       if (child.sys.isActive() || child.sys.isSleeping() || child.sys.isPaused()) {
         throw new Error('This screen is already open. Close it before opening it from settings.');
       }
-
       onShutdown = () => this.restoreAfterChild(key, session);
       this.childBinding = { key, child, onShutdown };
       child.events.once('shutdown', onShutdown);
       let opened = true;
-      if (key === 'JukeboxScene') {
-        this.scene.launch(key);
+      if (key === 'JukeboxScene' || key === 'CreditsScene') {
+        this.scene.launch(key, { openedFromSettings: true });
       } else {
         opened = await this.launchOverlay(key, { openedFromSettings: true });
       }
@@ -110,12 +106,12 @@ export class SettingsScene extends BaseScene {
       this.scene.setVisible(false);
       this.scene.bringToTop(key);
     } catch (error) {
-      child?.events.off('shutdown', onShutdown);
+      if (child && onShutdown) child.events.off('shutdown', onShutdown);
       if (session === this.session && !this._cleanupDone) {
         this.childBinding = null;
         this.input.enabled = true;
         this.scene.setVisible(true);
-        this.errorLabel?.setText(__dialogueText("scenes/SettingsScene.js", "t_f5e4fd0f93bf919e029a"));
+        this.errorLabel?.setText(__dialogueText('scenes/SettingsScene.js', 't_f5e4fd0f93bf919e029a'));
         console.error('[SettingsScene]', error);
       }
     } finally {
@@ -163,7 +159,7 @@ export class SettingsScene extends BaseScene {
   }
 
   createMuteToggle(x, y) {
-    this.add.text(x - 200, y, "SOUND:", {
+    this.add.text(x - 200, y, 'SOUND:', {
       fontFamily: 'PressStart2P', fontSize: '14px', color: '#e8d5a3'
     }).setOrigin(0, 0.5).setDepth(20);
     this.muteLabel = this.add.text(x + 80, y, '', {
@@ -180,7 +176,7 @@ export class SettingsScene extends BaseScene {
   }
 
   refreshMuteLabel(muted) {
-    this.muteLabel?.setText(muted ? __dialogueText("scenes/SettingsScene.js", "t_379eace1d690c5e70700") : __dialogueText("scenes/SettingsScene.js", "t_91fa99a7916fd10fe8e4"));
+    this.muteLabel?.setText(muted ? __dialogueText('scenes/SettingsScene.js', 't_379eace1d690c5e70700') : __dialogueText('scenes/SettingsScene.js', 't_91fa99a7916fd10fe8e4'));
     this.muteLabel?.setColor(muted ? '#8b6914' : '#c9a227');
   }
 

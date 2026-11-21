@@ -1,0 +1,89 @@
+{
+  "bundles": {
+    "scene:IntroScene": [
+      "image:intro"
+    ],
+    "scene:GameScene": [
+      "image:background2",
+      "video:detectiveIntro",
+      "audio:detective-intro",
+      "json:dialogue",
+      "image:intro"
+    ],
+    "scene:HollyIntroScene": [
+      "image:holly",
+      "json:dialogue"
+    ],
+    "scene:ApartmentScene": [
+      "image:apartment_debt_living_room",
+      "image:apartment_debt_kitchen"
+    ],
+    "scene:TvBroadcastScene": [
+      "image:television",
+      "image:tv_news_studio",
+      "image:tv_anchor_generic",
+      "image:tv_anchor_genericf",
+      "audio:tv1",
+      "audio:tv2",
+      "audio:ad_jingle"
+    ],
+    "scene:CrimeCityScene": [
+      "json:objects-data",
+      "json:reconstruction_questions"
+    ],
+    "scene:NewspaperOverlayScene": [
+      "image:comix1",
+      "image:comix2"
+    ],
+    "scene:PreloaderScene": [],
+    "scene:EnterScene": [
+      "image:hotel"
+    ],
+    "scene:UIScene": [
+      "image:archivist"
+    ],
+    "scene:DifficultyScene": [
+      "image:archive"
+    ],
+    "scene:CharacterCreationScene": [
+      "image:archivist"
+    ],
+    "scene:ArrestSelectionScene": [
+      "image:intro"
+    ],
+    "scene:ChaseScene": [
+      "image:intro"
+    ],
+    "scene:AgainScene": [
+      "image:background2"
+    ],
+    "optional-video:in": [
+      "video:in"
+    ],
+    "optional-video:out": [
+      "video:out"
+    ],
+    "quest:dead_mail": [
+      "image:dead_mail_administration",
+      "image:dead_mail_camera",
+      "image:dead_mail_cemetery_day",
+      "image:dead_mail_cemetery_night",
+      "image:dead_mail_chapel_interior",
+      "image:dead_mail_delivery_photo",
+      "image:dead_mail_edwin",
+      "image:dead_mail_florence",
+      "image:dead_mail_gate_collection",
+      "image:dead_mail_ghost",
+      "image:dead_mail_milo",
+      "image:dead_mail_parcel",
+      "image:dead_mail_rose",
+      "image:dead_mail_shed_interior",
+      "image:dead_mail_tessa",
+      "image:dead_mail_vale_reveal"
+    ],
+    "quest:reed": [
+      "image:Reed_conference",
+      "image:Reed_terrace"
+    ]
+  }
+}

@@ -12,6 +12,7 @@ import { inventoryManager } from './managers/InventoryManager.js';
 import { CaseDirector } from './CaseDirector.js';
 import { loadJson } from './config/loadJson.js';
 import { CrimeLabManager } from './scenes/CSI/CrimeLabManager.js';
+import { drawArtifactCase } from './artifactDraw.js';
 
 import { drawMotive, getMotiveById } from './motiveService.js';
 import {
@@ -204,24 +205,14 @@ function startInvestigationClock() {
   startCaseClock(gameState);
 }
 
-function selectCase(suspectsData, missionsData, locationsData, retry = false) {
+function selectCase(suspectsData, missionsData, locationsData, retry = false, fresh = false) {
   const thieves = retry
     ? differentPool(suspectsData, gameState.currentThief?.id ?? gameState.currentThiefId)
     : suspectsData;
   const thief = getRandomItem(thieves);
-  const crimeCities = locationsData.filter(location => location.isCrimeCity === true);
-  let eligible = missionsData.filter(mission =>
-    crimeCities.some(city => city.city === mission.city)
+  const { mission, crimeCityData } = drawArtifactCase(
+    missionsData, locationsData, gameState, { fresh }
   );
-  if (retry) {
-    eligible = differentPool(
-      eligible,
-      gameState.currentMission?.id ?? gameState.currentMission?.missionId,
-      mission => mission.id ?? mission.missionId
-    );
-  }
-  const mission = getRandomItem(eligible);
-  const crimeCityData = crimeCities.find(city => city.city === mission?.city);
   if (!thief || !mission || !crimeCityData) {
     throw new Error('Could not create a valid case.');
   }
@@ -415,7 +406,7 @@ export async function setupNewGame(
   suspectsData, missionsData, locationsData, difficulty = 'field'
 ) {
   validateSetupData(suspectsData, missionsData, locationsData);
-  const selectedCase = selectCase(suspectsData, missionsData, locationsData);
+  const selectedCase = selectCase(suspectsData, missionsData, locationsData, false, true);
   const hq = locationsData.find(location => location.id === HQ_ID || location.city === HQ_CITY);
   if (!hq) throw new Error('Headquarters city data is missing.');
 
@@ -428,7 +419,7 @@ export async function setupNewGame(
   const energy = getEnergyManager();
   energy.init(difficulty);
   difficulty = energy.difficulty;
-  
+
   getRankManager().init();
 
   const { caseDirector, template } = buildCaseDirector(0);

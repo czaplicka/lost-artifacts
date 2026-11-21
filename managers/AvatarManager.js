@@ -1,25 +1,20 @@
 // managers/AvatarManager.js
-// API required by CharacterCreationScene and WarrantSketch:
-// bind(), isSceneUsable(), ensureLoaded() -> { ok, cancelled, failed, missing, reason }.
 import {
   AVATAR_CONFIG, LAYER_ORDER, APPEARANCE_OPTIONS, DEFAULT_APPEARANCE,
   normalizeAppearance, findOption, collectPlannedArt
 } from '../config/AvatarParts.js';
-
-const TINT_SOURCE = { skin: 'skinTone', hair: 'hairColor', eyes: 'eyeColor' };
+const TINT_SOURCE = { skin: 'skinTone', hair: 'hairColor', eyes: 'eyeColor', blush: 'blush', lips: 'makeup' };
 const REGISTRIES = new WeakMap();
 const DEFAULT_LOAD_TIMEOUT_MS = 30000;
 const toCss = value => `#${(value >>> 0).toString(16).padStart(6, '0').slice(-6)}`;
 const sceneClosed = scene => !scene?.sys ||
   scene.sys.settings?.status >= (globalThis.Phaser?.Scenes?.SHUTDOWN ?? 8);
-
 function makeCanvas(width, height) {
   const canvas = document.createElement('canvas');
   canvas.width = Math.max(1, Math.round(width));
   canvas.height = Math.max(1, Math.round(height));
   return canvas;
 }
-
 function registryFor(textures) {
   let registry = REGISTRIES.get(textures);
   if (!registry) {
@@ -28,7 +23,6 @@ function registryFor(textures) {
   }
   return registry;
 }
-
 function loaderFile(loader, key) {
   for (const collection of [loader.list, loader.inflight, loader.queue]) {
     const entries = Array.isArray(collection?.entries) ? collection.entries : [];
@@ -37,10 +31,8 @@ function loaderFile(loader, key) {
   }
   return null;
 }
-
 function makeJob(scene, textures, registry, key, timeoutMs) {
-  const loader = scene.load;
-  const events = scene.events;
+  const loader = scene.load, events = scene.events;
   let resolve;
   const promise = new Promise(done => { resolve = done; });
   const job = { key, scene, loader, promise, done: false, settle: null };
@@ -52,7 +44,6 @@ function makeJob(scene, textures, registry, key, timeoutMs) {
   const onComplete = () => job.settle(textures.exists(key) ? 'loaded' : 'failed', 'loader_complete');
   const onShutdown = () => job.settle('cancelled', 'owner_shutdown');
   const onDestroy = () => job.settle('cancelled', 'owner_destroyed');
-
   job.settle = (status, reason) => {
     if (job.done) return;
     job.done = true;
@@ -83,7 +74,6 @@ function makeJob(scene, textures, registry, key, timeoutMs) {
   timer = setTimeout(() => job.settle('failed', 'timeout'), timeoutMs);
   return job;
 }
-
 function waitForScene(scene, jobs) {
   if (sceneClosed(scene)) return Promise.resolve({ cancelled: true });
   if (!jobs.length) return Promise.resolve({ cancelled: false, results: [] });
@@ -104,18 +94,15 @@ function waitForScene(scene, jobs) {
     if (sceneClosed(scene)) cancelled();
   });
 }
-
 export class AvatarManager {
   constructor({ context = null, assetBaseURL = null, loadTimeoutMs = DEFAULT_LOAD_TIMEOUT_MS } = {}) {
     this.textures = null;
     this.failed = new Set();
     this._crop = null;
     this.assetBaseURL = assetBaseURL;
-    this.loadTimeoutMs = Number.isFinite(loadTimeoutMs) && loadTimeoutMs > 0
-      ? loadTimeoutMs : DEFAULT_LOAD_TIMEOUT_MS;
+    this.loadTimeoutMs = Number.isFinite(loadTimeoutMs) && loadTimeoutMs > 0 ? loadTimeoutMs : DEFAULT_LOAD_TIMEOUT_MS;
     if (context) this.bind(context);
   }
-
   bind(context) {
     const textures = context?.textures ?? context?.sys?.game?.textures ??
       (typeof context?.exists === 'function' ? context : null);
@@ -125,9 +112,7 @@ export class AvatarManager {
     this.failed = registryFor(textures).failed;
     return this;
   }
-
   isSceneUsable(scene) { return !sceneClosed(scene); }
-
   _assetMap() {
     const assets = new Map();
     for (const group of Object.values(APPEARANCE_OPTIONS)) {
@@ -137,16 +122,13 @@ export class AvatarManager {
     }
     return assets;
   }
-
   _assetURL(file) {
     return new URL(file, this.assetBaseURL || new URL('../', import.meta.url).href).href;
   }
-
   queueAssets(scene) {
     this.bind(scene);
     if (sceneClosed(scene) || !scene.load || !scene.events || !scene.textures) return 0;
-    const textures = scene.textures, loader = scene.load;
-    const registry = registryFor(textures);
+    const textures = scene.textures, loader = scene.load, registry = registryFor(textures);
     let queued = 0;
     for (const [key, file] of this._assetMap()) {
       if (textures.exists(key)) { registry.failed.delete(key); continue; }
@@ -156,11 +138,8 @@ export class AvatarManager {
       if (existing) continue;
       try {
         const ImageFile = globalThis.Phaser?.Loader?.FileTypes?.ImageFile;
-        if (!ImageFile || typeof loader.addFile !== 'function') {
-          throw new Error('Phaser ImageFile/addFile API is unavailable.');
-        }
+        if (!ImageFile || typeof loader.addFile !== 'function') throw new Error('Phaser ImageFile/addFile API is unavailable.');
         const image = new ImageFile(loader, key, this._assetURL(file), { timeout: this.loadTimeoutMs });
-        // Restore the canonical key before insertion without changing loader settings.
         image.key = key;
         loader.addFile(image);
         queued++;
@@ -171,7 +150,6 @@ export class AvatarManager {
     }
     return queued;
   }
-
   async ensureLoaded(scene) {
     this.bind(scene);
     if (sceneClosed(scene) || !scene.load || !scene.events || !scene.textures) {
@@ -185,8 +163,7 @@ export class AvatarManager {
       const loaders = new Set(jobs.map(job => job.loader).filter(Boolean));
       for (const loader of loaders) {
         const owned = jobs.filter(job => job.loader === loader);
-        const preloading = owned.some(job => job.scene?.sys?.settings?.status ===
-          (globalThis.Phaser?.Scenes?.LOADING ?? 3));
+        const preloading = owned.some(job => job.scene?.sys?.settings?.status === (globalThis.Phaser?.Scenes?.LOADING ?? 3));
         if (preloading || loader.isLoading()) continue;
         try { loader.start(); }
         catch (error) {
@@ -202,41 +179,33 @@ export class AvatarManager {
       break;
     }
     const missing = [...this._assetMap().keys()].filter(key => !textures.exists(key));
-    return {
-      ok: missing.length === 0, cancelled: false,
+    return { ok: missing.length === 0, cancelled: false,
       failed: missing.filter(key => registry.failed.has(key)), missing,
-      reason: missing.length ? 'assets_unavailable' : null
-    };
+      reason: missing.length ? 'assets_unavailable' : null };
   }
-
   hasTexture(key, context = null) {
     if (context) this.bind(context);
     const available = Boolean(this.textures?.exists(key));
     if (available) this.failed.delete(key);
     return available;
   }
-
   isOptionAvailable(category, id) {
     const option = findOption(category, id);
     return Boolean(option?.ready) && option.art.every(entry => this.hasTexture(entry.key));
   }
-
   availableOptions(category) {
     return APPEARANCE_OPTIONS[category]?.options.filter(option => this.isOptionAvailable(category, option.id)) ?? [];
   }
-
   getArtTodo() {
     const todo = collectPlannedArt();
     if (console.table) console.table(todo);
     return todo;
   }
-
   _image(key) {
     if (!this.hasTexture(key)) return null;
     const image = this.textures.get(key)?.getSourceImage?.();
     return image && (image.naturalWidth || image.width) ? image : null;
   }
-
   _getCrop() {
     if (this._crop) return this._crop;
     const image = this._image(AVATAR_CONFIG.CROP_KEY);
@@ -268,18 +237,15 @@ export class AvatarManager {
     this._crop = { W, H, x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
     return this._crop;
   }
-
   getAspect() {
     const crop = this._getCrop();
     return crop ? crop.w / crop.h : null;
   }
-
   _tintColor(entry, appearance) {
     if (!entry.tint) return null;
     const category = TINT_SOURCE[entry.tint];
     return findOption(category, appearance[category])?.color ?? null;
   }
-
   resolveLayers(appearance) {
     const normalized = normalizeAppearance(appearance), picked = [], suppressed = new Set();
     for (const category of Object.keys(APPEARANCE_OPTIONS)) {
@@ -301,7 +267,6 @@ export class AvatarManager {
       appearance: normalized
     };
   }
-
   compose(appearance, { height = AVATAR_CONFIG.OUTPUT_HEIGHT, background = null, scene = null } = {}) {
     if (scene) this.bind(scene);
     const crop = this._getCrop();
@@ -320,11 +285,17 @@ export class AvatarManager {
       tint.globalCompositeOperation = 'source-over';
       tint.clearRect(0, 0, crop.w, crop.h);
       tint.drawImage(image, ox, oy);
-      tint.globalCompositeOperation = 'multiply';
-      tint.fillStyle = toCss(color);
-      tint.fillRect(0, 0, crop.w, crop.h);
-      tint.globalCompositeOperation = 'destination-in';
-      tint.drawImage(image, ox, oy);
+      if (entry.tint === 'blush' || entry.tint === 'lips') {
+        tint.globalCompositeOperation = 'source-in';
+        tint.fillStyle = toCss(color);
+        tint.fillRect(0, 0, crop.w, crop.h);
+      } else {
+        tint.globalCompositeOperation = 'multiply';
+        tint.fillStyle = toCss(color);
+        tint.fillRect(0, 0, crop.w, crop.h);
+        tint.globalCompositeOperation = 'destination-in';
+        tint.drawImage(image, ox, oy);
+      }
       tint.globalCompositeOperation = 'source-over';
       context.drawImage(temporary, 0, 0);
     }
@@ -336,7 +307,6 @@ export class AvatarManager {
     target.drawImage(stage, 0, 0, crop.w, crop.h, 0, 0, outW, outH);
     return output;
   }
-
   drawToCanvas(canvas, appearance, options = {}) {
     if (!canvas) return false;
     const composed = this.compose(appearance, options);
@@ -347,7 +317,6 @@ export class AvatarManager {
     context.drawImage(composed, 0, 0);
     return true;
   }
-
   getTexture(scene, appearance, {
     key = AVATAR_CONFIG.TEXTURE_KEY, height = AVATAR_CONFIG.OUTPUT_HEIGHT, background = AVATAR_CONFIG.PAPER
   } = {}) {
@@ -369,7 +338,6 @@ export class AvatarManager {
     texture.refresh();
     return key;
   }
-
   addPortrait(scene, x, y, appearance, {
     height = 220, key = AVATAR_CONFIG.TEXTURE_KEY, background = AVATAR_CONFIG.PAPER
   } = {}) {
@@ -381,7 +349,6 @@ export class AvatarManager {
     return image;
   }
 }
-
 export const avatarManager = new AvatarManager();
 export function getAvatarManager(context = null) {
   if (context) avatarManager.bind(context);

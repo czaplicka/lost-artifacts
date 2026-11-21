@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "id": "issue_01",
+  "title": "DETECTIVE MONTHLY",
+  "subtitle": "Issue 01 / Professional suspicion. Amateur salaries.",
+  "articles": [
+    {
+      "id": "equipment",
+      "title": "The Invisible Work of Keeping Detectives Equipped",
+      "deck": "An investigation into who replaces the batteries.",
+      "paragraphs": [
+        "Every celebrated detective stands on the shoulders of someone who remembered to order evidence bags.",
+        "Our survey found that agents describe a working flashlight as \"standard equipment\" and a broken one as \"a personal betrayal\". Neither group could name the person who bought the batteries.",
+        "Before your next operation, check your kit, return what you borrowed, and thank the person at the counter. They cannot guarantee your survival. They can, however, stop you investigating a cellar with a stapler."
+      ],
+      "prompt": "Show Alex the article about equipment staff.",
+      "alex": {
+        "delta": 2,
+        "lines": [
+          "They interviewed thirty detectives before discovering batteries come from somewhere. Outstanding investigative work.",
+          "People remember who signed out the gun. Nobody remembers who checked the torch, replaced the strap and found the missing charger.",
+          "You read the bit about returning things? Good. Keep that part. You can underline it."
+        ],
+        "recall": [
+          "Still got that article? Good. Every time you return something with all its pieces, I consider it a favourable review."
+        ]
+      }
+    },
+    {
+      "id": "paperwork",
+      "title": "Your Filing System May Be a Cry for Help",
+      "deck": "The floor is not an archive. We checked.",
+      "paragraphs": [
+        "There are three popular filing systems: alphabetical, chronological, and \"I saw it here a minute ago\".",
+        "The third system offers excellent exercise and poor results in court. Experts recommend putting a date on documents, keeping versions distinct, and resisting the urge to label every folder FINAL.",
+        "If a colleague asks whether you have seen a missing report, \"Define missing\" is not considered a constructive response."
+      ],
+      "prompt": "Ask Alex about the filing article.",
+      "alex": {
+        "delta": 0,
+        "lines": [
+          "A magazine has finally discovered folders. Next month: shelves.",
+          "My inventory is filed. The things people insist they already returned are filed separately. Under \"No\"."
+        ],
+        "recall": [
+          "The floor is still not an archive. I am pleased the magazine and I remain in agreement."
+        ]
+      }
+    },
+    {
+      "id": "coats",
+      "title": "Twelve Coats You Cannot Afford",
+      "deck": "Dress for the case you want. Expense the coat you actually own.",
+      "paragraphs": [
+        "This season, the discerning detective is wearing charcoal, regret, and a price tag facing inward.",
+        "Our premium model includes a storm flap, secret pockets, and the confidence of someone who has never submitted an expense claim.",
+        "Budget alternative: keep your current coat. Turn up the collar. Look as if the weather owes you money."
+      ],
+      "prompt": "Show Alex the expensive coats.",
+      "alex": {
+        "delta": 0,
+        "lines": [
+          "That one costs more than the shelving. The shelving holds more detectives' belongings and complains less.",
+          "Buy whatever coat you like. I am not issuing a replacement because the first one went out of fashion."
+        ],
+        "recall": [
+          "Did you buy the coat? No? Sensible. It still would not count as a field kit."
+        ]
+      }
+    }
+  ]
+}

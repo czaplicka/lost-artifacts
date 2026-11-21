@@ -1,0 +1,664 @@
+{
+  "scope": "Actual local pure modules: case model, capture policy, report policy and lock model. NOT browser E2E or service integration.",
+  "limitations": [
+    "Travel/payment/inventory contexts are supplied fixtures, not executed side effects.",
+    "JSON round-trips test serializable data, not actual autosave or Continue.",
+    "Quest-manager completion, scenes, DOM, shop, rendering, timing and persistence are not exercised.",
+    "Guard fallback tests model compatibility, not UI/security-service enforcement."
+  ],
+  "generatedAt": "2026-11-21T07:37:10.656Z",
+  "sources": [
+    {
+      "path": "managers/TableForThreeModel.js",
+      "sha256": "99d697a33543f83260149428ef51ea87f41b958306d2f8e447c0eba0a19a0fb2"
+    },
+    {
+      "path": "managers/TableForThreeCapturePolicy.js",
+      "sha256": "9853ef867224fd047fcaee92c5fb38c047ebea8d31cd29fae2d1bb639c639014"
+    },
+    {
+      "path": "managers/TableForThreeLockModel.js",
+      "sha256": "15624cd7d76c4cf92eac0d3997fc831c0e3079f6ac332c5d6901ef8c466b03d3"
+    },
+    {
+      "path": "managers/TableForThreeReportPolicy.js",
+      "sha256": "fd72fdcadcf68207c8b5bf9400b65d1f8171daee4af7d7357974c1ec2fbfd00d"
+    }
+  ],
+  "passed": 158,
+  "failed": 0,
+  "results": [
+    {
+      "name": "appointment / no unearned office access",
+      "ok": true
+    },
+    {
+      "name": "appointment / briefing",
+      "ok": true
+    },
+    {
+      "name": "appointment / reception",
+      "ok": true
+    },
+    {
+      "name": "appointment / appointment",
+      "ok": true
+    },
+    {
+      "name": "appointment / employee leaves",
+      "ok": true
+    },
+    {
+      "name": "appointment / enter",
+      "ok": true
+    },
+    {
+      "name": "appointment / card requires calendar",
+      "ok": true
+    },
+    {
+      "name": "appointment / calendar",
+      "ok": true
+    },
+    {
+      "name": "appointment / card",
+      "ok": true
+    },
+    {
+      "name": "appointment / wrong appointment rejected",
+      "ok": true
+    },
+    {
+      "name": "appointment / next meeting",
+      "ok": true
+    },
+    {
+      "name": "appointment / arrival requires drive context",
+      "ok": true
+    },
+    {
+      "name": "appointment / recorded arrival",
+      "ok": true
+    },
+    {
+      "name": "appointment / camera required",
+      "ok": true
+    },
+    {
+      "name": "appointment / camera check",
+      "ok": true
+    },
+    {
+      "name": "appointment / no early intervention",
+      "ok": true
+    },
+    {
+      "name": "appointment / original kiss photograph",
+      "ok": true
+    },
+    {
+      "name": "appointment / dessert information",
+      "ok": true
+    },
+    {
+      "name": "appointment / plan intervention",
+      "ok": true
+    },
+    {
+      "name": "appointment / unpaid ring rejected",
+      "ok": true
+    },
+    {
+      "name": "appointment / paid delivered ring context",
+      "ok": true
+    },
+    {
+      "name": "appointment / wrong table rejected",
+      "ok": true
+    },
+    {
+      "name": "appointment / ring transfer context required",
+      "ok": true
+    },
+    {
+      "name": "appointment / table six transfer",
+      "ok": true
+    },
+    {
+      "name": "appointment / no dessert before vantage",
+      "ok": true
+    },
+    {
+      "name": "appointment / vantage",
+      "ok": true
+    },
+    {
+      "name": "appointment / dessert",
+      "ok": true
+    },
+    {
+      "name": "appointment / reaction requires ring photo",
+      "ok": true
+    },
+    {
+      "name": "appointment / arranged dessert photograph",
+      "ok": true
+    },
+    {
+      "name": "appointment / reaction",
+      "ok": true
+    },
+    {
+      "name": "appointment / face photograph",
+      "ok": true
+    },
+    {
+      "name": "appointment / report evidence verified",
+      "ok": true
+    },
+    {
+      "name": "appointment / missing crop rejected",
+      "ok": true
+    },
+    {
+      "name": "appointment / intervention must be disclosed",
+      "ok": true
+    },
+    {
+      "name": "appointment / report sent",
+      "ok": true
+    },
+    {
+      "name": "appointment / report describes own intervention",
+      "ok": true
+    },
+    {
+      "name": "appointment / read reply",
+      "ok": true
+    },
+    {
+      "name": "appointment / model closed and objectives complete",
+      "ok": true
+    },
+    {
+      "name": "appointment / closed model rejects replay",
+      "ok": true
+    },
+    {
+      "name": "maintenance / no unearned office access",
+      "ok": true
+    },
+    {
+      "name": "maintenance / briefing",
+      "ok": true
+    },
+    {
+      "name": "maintenance / no free maintenance pass",
+      "ok": true
+    },
+    {
+      "name": "maintenance / solve maintenance",
+      "ok": true
+    },
+    {
+      "name": "maintenance / delivery",
+      "ok": true
+    },
+    {
+      "name": "maintenance / enter",
+      "ok": true
+    },
+    {
+      "name": "maintenance / card requires calendar",
+      "ok": true
+    },
+    {
+      "name": "maintenance / calendar",
+      "ok": true
+    },
+    {
+      "name": "maintenance / card",
+      "ok": true
+    },
+    {
+      "name": "maintenance / wrong appointment rejected",
+      "ok": true
+    },
+    {
+      "name": "maintenance / next meeting",
+      "ok": true
+    },
+    {
+      "name": "maintenance / arrival requires drive context",
+      "ok": true
+    },
+    {
+      "name": "maintenance / recorded arrival",
+      "ok": true
+    },
+    {
+      "name": "maintenance / camera required",
+      "ok": true
+    },
+    {
+      "name": "maintenance / camera check",
+      "ok": true
+    },
+    {
+      "name": "maintenance / no early intervention",
+      "ok": true
+    },
+    {
+      "name": "maintenance / original kiss photograph",
+      "ok": true
+    },
+    {
+      "name": "maintenance / dessert information",
+      "ok": true
+    },
+    {
+      "name": "maintenance / plan intervention",
+      "ok": true
+    },
+    {
+      "name": "maintenance / unpaid ring rejected",
+      "ok": true
+    },
+    {
+      "name": "maintenance / paid delivered ring context",
+      "ok": true
+    },
+    {
+      "name": "maintenance / wrong table rejected",
+      "ok": true
+    },
+    {
+      "name": "maintenance / ring transfer context required",
+      "ok": true
+    },
+    {
+      "name": "maintenance / table six transfer",
+      "ok": true
+    },
+    {
+      "name": "maintenance / no dessert before vantage",
+      "ok": true
+    },
+    {
+      "name": "maintenance / vantage",
+      "ok": true
+    },
+    {
+      "name": "maintenance / dessert",
+      "ok": true
+    },
+    {
+      "name": "maintenance / reaction requires ring photo",
+      "ok": true
+    },
+    {
+      "name": "maintenance / arranged dessert photograph",
+      "ok": true
+    },
+    {
+      "name": "maintenance / reaction",
+      "ok": true
+    },
+    {
+      "name": "maintenance / face photograph",
+      "ok": true
+    },
+    {
+      "name": "maintenance / report evidence verified",
+      "ok": true
+    },
+    {
+      "name": "maintenance / missing crop rejected",
+      "ok": true
+    },
+    {
+      "name": "maintenance / intervention must be disclosed",
+      "ok": true
+    },
+    {
+      "name": "maintenance / report sent",
+      "ok": true
+    },
+    {
+      "name": "maintenance / report describes own intervention",
+      "ok": true
+    },
+    {
+      "name": "maintenance / read reply",
+      "ok": true
+    },
+    {
+      "name": "maintenance / model closed and objectives complete",
+      "ok": true
+    },
+    {
+      "name": "maintenance / closed model rejects replay",
+      "ok": true
+    },
+    {
+      "name": "lockpick / no unearned office access",
+      "ok": true
+    },
+    {
+      "name": "lockpick / briefing",
+      "ok": true
+    },
+    {
+      "name": "lockpick / wait",
+      "ok": true
+    },
+    {
+      "name": "lockpick / lock requires gear",
+      "ok": true
+    },
+    {
+      "name": "lockpick / solve real lock model",
+      "ok": true
+    },
+    {
+      "name": "lockpick / enter",
+      "ok": true
+    },
+    {
+      "name": "lockpick / card requires calendar",
+      "ok": true
+    },
+    {
+      "name": "lockpick / calendar",
+      "ok": true
+    },
+    {
+      "name": "lockpick / card",
+      "ok": true
+    },
+    {
+      "name": "lockpick / wrong appointment rejected",
+      "ok": true
+    },
+    {
+      "name": "lockpick / next meeting",
+      "ok": true
+    },
+    {
+      "name": "lockpick / arrival requires drive context",
+      "ok": true
+    },
+    {
+      "name": "lockpick / recorded arrival",
+      "ok": true
+    },
+    {
+      "name": "lockpick / camera required",
+      "ok": true
+    },
+    {
+      "name": "lockpick / camera check",
+      "ok": true
+    },
+    {
+      "name": "lockpick / no early intervention",
+      "ok": true
+    },
+    {
+      "name": "lockpick / original kiss photograph",
+      "ok": true
+    },
+    {
+      "name": "lockpick / dessert information",
+      "ok": true
+    },
+    {
+      "name": "lockpick / plan intervention",
+      "ok": true
+    },
+    {
+      "name": "lockpick / unpaid ring rejected",
+      "ok": true
+    },
+    {
+      "name": "lockpick / paid delivered ring context",
+      "ok": true
+    },
+    {
+      "name": "lockpick / wrong table rejected",
+      "ok": true
+    },
+    {
+      "name": "lockpick / ring transfer context required",
+      "ok": true
+    },
+    {
+      "name": "lockpick / table six transfer",
+      "ok": true
+    },
+    {
+      "name": "lockpick / no dessert before vantage",
+      "ok": true
+    },
+    {
+      "name": "lockpick / vantage",
+      "ok": true
+    },
+    {
+      "name": "lockpick / dessert",
+      "ok": true
+    },
+    {
+      "name": "lockpick / reaction requires ring photo",
+      "ok": true
+    },
+    {
+      "name": "lockpick / arranged dessert photograph",
+      "ok": true
+    },
+    {
+      "name": "lockpick / reaction",
+      "ok": true
+    },
+    {
+      "name": "lockpick / face photograph",
+      "ok": true
+    },
+    {
+      "name": "lockpick / report evidence verified",
+      "ok": true
+    },
+    {
+      "name": "lockpick / missing crop rejected",
+      "ok": true
+    },
+    {
+      "name": "lockpick / intervention must be disclosed",
+      "ok": true
+    },
+    {
+      "name": "lockpick / report sent",
+      "ok": true
+    },
+    {
+      "name": "lockpick / report describes own intervention",
+      "ok": true
+    },
+    {
+      "name": "lockpick / read reply",
+      "ok": true
+    },
+    {
+      "name": "lockpick / model closed and objectives complete",
+      "ok": true
+    },
+    {
+      "name": "lockpick / closed model rejects replay",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / no unearned office access",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / briefing",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / wait",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / lock detection persists as data",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / no free maintenance pass",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / solve maintenance",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / delivery",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / enter",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / card requires calendar",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / calendar",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / card",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / wrong appointment rejected",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / next meeting",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / arrival requires drive context",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / recorded arrival",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / camera required",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / camera check",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / no early intervention",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / original kiss photograph",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / dessert information",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / plan intervention",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / unpaid ring rejected",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / paid delivered ring context",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / wrong table rejected",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / ring transfer context required",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / table six transfer",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / no dessert before vantage",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / vantage",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / dessert",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / reaction requires ring photo",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / arranged dessert photograph",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / reaction",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / face photograph",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / report evidence verified",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / missing crop rejected",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / intervention must be disclosed",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / report sent",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / report describes own intervention",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / read reply",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / model closed and objectives complete",
+      "ok": true
+    },
+    {
+      "name": "guard-fallback / closed model rejects replay",
+      "ok": true
+    }
+  ]
+}

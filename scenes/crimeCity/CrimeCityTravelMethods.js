@@ -2,8 +2,9 @@ import { dialogueText as __dialogueText } from '../../dialogues/DialogueText.js'
 import { gameState } from '../../GameData.js';
 import { getEnergyManager } from '../../managers/EnergyManager.js';
 import { saveGameState } from '../../gameStatePersistence.js';
+import { getCrimeCityLocalTravelCost } from './CrimeCityLocalTravelCosts.js';
 
-const SHOP_TAXI_ENERGY = 3;
+const getShopTravelEnergy = () => getCrimeCityLocalTravelCost('shop', getEnergyManager()).energy;
 const LOCAL_ACTIVITY_BY_NODE = Object.freeze({
   crime_scene: 'crime_scene', crime_lab: 'csi_lab', apartment: 'apartment_visit'
 });
@@ -37,7 +38,7 @@ export const crimeCityTravelMethods = {
 
   visitShop() {
     if (this.isTransitioning || this._cleanupDone || !this.sys.isActive()) return false;
-    if (getEnergyManager().getCurrentEnergy() < SHOP_TAXI_ENERGY) {
+    if (getEnergyManager().getCurrentEnergy() < getShopTravelEnergy()) {
       this.showNoEnergyPopup(); return false;
     }
     this.closeAllUIPanels(); this.isTransitioning = true;
@@ -50,18 +51,23 @@ export const crimeCityTravelMethods = {
       if (this._cleanupDone || !this.sys.isActive()) return false;
       if (!this.hasScene('ShopScene')) throw new Error('ShopScene is not registered.');
       const energy = getEnergyManager();
-      if (energy.getCurrentEnergy() < SHOP_TAXI_ENERGY) { this.showNoEnergyPopup(); return false; }
+      if (energy.getCurrentEnergy() < getShopTravelEnergy()) { this.showNoEnergyPopup(); return false; }
       const opened = await this.launchOverlay('ShopScene', { cityId: this.cityId, returnScene: 'CrimeCityScene' });
       if (this._cleanupDone || !this.sys.isActive()) return false;
       if (!opened) {
         this.showMessage(__dialogueText('scenes/crimeCity/CrimeCityTravelMethods.js', 't_d353443b02f69822ebb5'), 2800, __dialogueText('scenes/crimeCity/CrimeCityTravelMethods.js', 't_f27f7bc32875ed02b2fc'));
         return false;
       }
-      if (energy.getCurrentEnergy() < SHOP_TAXI_ENERGY) {
+      const travelEnergy = getShopTravelEnergy();
+      if (energy.getCurrentEnergy() < travelEnergy) {
         this.scene.stop('ShopScene'); this.showNoEnergyPopup();
         void this.setupCrimeCityUi(); return false;
       }
-      energy.consumeCustom(SHOP_TAXI_ENERGY, __dialogueText('scenes/crimeCity/CrimeCityTravelMethods.js', 't_75c02d2cc7f1977fe289'));
+      const payment = energy.consumeCustom(travelEnergy, __dialogueText('scenes/crimeCity/CrimeCityTravelMethods.js', 't_75c02d2cc7f1977fe289'), { requireFullAmount: true });
+      if (!payment?.success) {
+        this.scene.stop('ShopScene'); this.showNoEnergyPopup();
+        void this.setupCrimeCityUi(); return false;
+      }
       saveGameState(); this.getSceneIfActive('UIScene')?.updateEnergy?.();
       this.scene.pause(); return true;
     } catch (error) {
@@ -95,8 +101,6 @@ export const crimeCityTravelMethods = {
     }
     if (!this.canAffordLocalActivity('crime_scene')) return;
     if (!this.moveToCrimeCityNode('crime_scene')) return;
-    // Travel is paid by moveToCrimeCityNode. Entry itself is paid only after
-    // HiddenObjectsScene has successfully built its data, UI and zones.
     this.closeAllUIPanels();
     this.transitionTo('HiddenObjectsScene', {
       sceneId: mission.scene, mapKey: mission.scene,

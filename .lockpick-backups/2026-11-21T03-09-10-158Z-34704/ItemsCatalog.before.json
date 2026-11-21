@@ -1,0 +1,794 @@
+{
+  "clues": {
+    "blackHair": {
+      "id": "clue_black_hair",
+      "name": "Black Hair",
+      "icon": "🧵",
+      "description": "Found at crime scene. Can help narrow down suspects.",
+      "type": "clue",
+      "stackable": true,
+      "metadata": {
+        "source": "crime_scene",
+        "relevance": "high",
+        "useMessage": "I'm not putting that on my head. My hairline has enough problems."
+      }
+    },
+    "mudFootprint": {
+      "id": "clue_mud_footprint",
+      "name": "Mud Footprint (Size 10)",
+      "icon": "👟",
+      "description": "Distinctive boot print. Size 10, work boots.",
+      "type": "clue",
+      "stackable": false,
+      "metadata": {
+        "source": "crime_scene",
+        "relevance": "high",
+        "useMessage": "I resist stepping in it. One mysterious footprint is quite enough."
+      }
+    },
+    "fabricFiber": {
+      "id": "clue_fabric_fiber",
+      "name": "Fabric Fiber",
+      "icon": "📄",
+      "description": "Black wool fiber. Could match clothing.",
+      "type": "clue",
+      "stackable": true,
+      "metadata": {
+        "source": "crime_scene",
+        "relevance": "medium",
+        "useMessage": "Not enough for a sweater. Too much for my sandwich."
+      }
+    },
+    "goldEarring": {
+      "id": "clue_gold_earring",
+      "name": "Gold Earring",
+      "icon": "✨",
+      "description": "Fragment of jewelry. Could belong to suspect.",
+      "type": "clue",
+      "stackable": false,
+      "metadata": {
+        "source": "crime_scene",
+        "relevance": "high",
+        "useMessage": "Tempting, but 'accessorising with evidence' isn't covered by the dress code."
+      }
+    },
+    "partialFingerprint": {
+      "id": "clue_partial_fingerprint",
+      "name": "Partial Fingerprint",
+      "icon": "👆",
+      "description": "Incomplete print. Red herring.",
+      "type": "clue",
+      "stackable": false,
+      "metadata": {
+        "source": "crime_scene",
+        "relevance": "low",
+        "isRedHerring": true,
+        "useMessage": "I'll avoid adding my own fingerprint. This one already has commitment issues."
+      }
+    },
+    "coin": {
+      "id": "clue_coin",
+      "name": "Antique Coin",
+      "icon": "🪙",
+      "description": "Old currency. Could be red herring.",
+      "type": "clue",
+      "stackable": true,
+      "metadata": {
+        "source": "crime_scene",
+        "relevance": "low",
+        "isRedHerring": true,
+        "useMessage": "The vending machine would reject it. We have that in common."
+      }
+    },
+    "necklaceFragment": {
+      "id": "clue_necklace_fragment",
+      "name": "Necklace Fragment",
+      "icon": "⛓️",
+      "description": "Broken jewelry piece. May indicate struggle.",
+      "type": "clue",
+      "stackable": false,
+      "metadata": {
+        "source": "crime_scene",
+        "relevance": "high",
+        "useMessage": "Too short for a necklace. Too important for a craft project."
+      }
+    }
+  },
+  "evidence": {
+    "lockpick": {
+      "id": "evidence_lockpick",
+      "name": "Lockpick Set",
+      "icon": "🔓",
+      "description": "Professional burglary tools.",
+      "type": "evidence",
+      "stackable": false,
+      "metadata": {
+        "crimeSkill": "lockpicking",
+        "relevance": "high",
+        "useMessage": "A lockpick needs a lock. Otherwise I'm just threatening the air."
+      }
+    },
+    "disguise": {
+      "id": "evidence_disguise",
+      "name": "Museum Disguise",
+      "icon": "🎭",
+      "description": "Uniform similar to museum staff.",
+      "type": "evidence",
+      "stackable": false,
+      "metadata": {
+        "crimeSkill": "infiltration",
+        "relevance": "high",
+        "useMessage": "I'll leave it bagged. Undercover work shouldn't start with contaminating the evidence."
+      }
+    },
+    "rope": {
+      "id": "evidence_rope",
+      "name": "Climbing Rope",
+      "icon": "🧗",
+      "description": "Professional climbing equipment.",
+      "type": "evidence",
+      "stackable": false,
+      "metadata": {
+        "crimeSkill": "climbing",
+        "relevance": "high",
+        "useMessage": "I consider a dramatic rope entrance. My knees request a second opinion."
+      }
+    },
+    "jemmyBar": {
+      "id": "evidence_jemmy_bar",
+      "name": "Crowbar",
+      "icon": "⚒️",
+      "description": "Tool for forcing locks and doors.",
+      "type": "evidence",
+      "stackable": false,
+      "metadata": {
+        "crimeSkill": "forcing",
+        "relevance": "high",
+        "useMessage": "The universal key. Universally unpopular with door owners."
+      }
+    },
+    "flashlight": {
+      "id": "evidence_flashlight",
+      "name": "Night Vision Flashlight",
+      "icon": "🔦",
+      "description": "High-tech equipment.",
+      "type": "evidence",
+      "stackable": false,
+      "metadata": {
+        "crimeSkill": "surveillance",
+        "relevance": "medium",
+        "useMessage": "Finally, a bright idea I can hold."
+      }
+    },
+    "lockSmithKit": {
+      "id": "evidence_locksmith_kit",
+      "name": "Locksmith Kit",
+      "icon": "🔧",
+      "description": "Professional lock manipulation tools.",
+      "type": "evidence",
+      "stackable": false,
+      "metadata": {
+        "crimeSkill": "lockpicking",
+        "relevance": "high",
+        "useMessage": "I could open a locksmith business. The invoices would be less emotionally complicated."
+      }
+    }
+  },
+  "keys": {
+    "museumKey": {
+      "id": "key_museum",
+      "name": "Museum Master Key",
+      "icon": "🔑",
+      "description": "Access to all museum areas.",
+      "type": "key",
+      "stackable": false,
+      "metadata": {
+        "access": "museum_all",
+        "unlocksArea": "museum",
+        "useMessage": "A master key. Still needs a door. Leadership has its limits."
+      }
+    },
+    "officeMasterKey": {
+      "id": "key_office_master",
+      "name": "Office Master Key",
+      "icon": "🔑",
+      "description": "Access to all office areas.",
+      "type": "key",
+      "stackable": false,
+      "metadata": {
+        "access": "office_all",
+        "unlocksArea": "office",
+        "useMessage": "Access to the office. Sadly, not access to a higher salary."
+      }
+    },
+    "lockboxKey": {
+      "id": "key_lockbox",
+      "name": "Lockbox Key",
+      "icon": "🔑",
+      "description": "Opens suspect's lockbox.",
+      "type": "key",
+      "stackable": false,
+      "metadata": {
+        "access": "lockbox",
+        "unlocksArea": "apartment",
+        "useMessage": "I turn it in the air. The air remains unlocked."
+      }
+    },
+    "carKey": {
+      "id": "key_car",
+      "name": "Car Key",
+      "icon": "🚗",
+      "description": "Start and access vehicle.",
+      "type": "key",
+      "stackable": false,
+      "metadata": {
+        "access": "car",
+        "unlocksArea": "travel",
+        "useMessage": "I practise looking like someone who knows where they parked."
+      }
+    }
+  },
+  "documents": {
+    "planeTicket": {
+      "id": "doc_plane_ticket",
+      "name": "Plane Ticket",
+      "icon": "✈️",
+      "description": "Paris to Cairo. Departure date: Tomorrow.",
+      "type": "document",
+      "stackable": false,
+      "metadata": {
+        "infoType": "travel",
+        "destination": "Cairo",
+        "useMessage": "Waving this around won't make a plane arrive. I've tried less sensible things."
+      }
+    },
+    "bankStatement": {
+      "id": "doc_bank_statement",
+      "name": "Bank Statement",
+      "icon": "💳",
+      "description": "Large withdrawal 50,000€. Suspicious activity.",
+      "type": "document",
+      "stackable": false,
+      "metadata": {
+        "infoType": "financial",
+        "value": 50000,
+        "useMessage": "I check the numbers. Still not my money. A consistent disappointment."
+      }
+    },
+    "letterFromWife": {
+      "id": "doc_letter_wife",
+      "name": "Letter from Wife",
+      "icon": "💌",
+      "description": "Threatening letter. \"You'll pay for what you did.\"",
+      "type": "document",
+      "stackable": false,
+      "metadata": {
+        "infoType": "motivation",
+        "reveals": "motive",
+        "useMessage": "I consider replying 'unsubscribe'. Probably not legally binding."
+      }
+    },
+    "agencyMissionReport": {
+      "id": "agency_mission_report",
+      "name": "Mission Report",
+      "icon": "📄",
+      "description": "A completed Mark Agency mission report. Submit it to Lieutenant Frank Drebin in the archive.",
+      "type": "document",
+      "stackable": false,
+      "metadata": {
+        "source": "office",
+        "purpose": "archive_submission",
+        "recipientNpcId": "archivist_drebin",
+        "useMessage": "This needs to go to Drebin in the archive. Apparently filing it in my pocket doesn't count."
+      }
+    },
+    "photograph": {
+      "id": "doc_photograph",
+      "name": "Family Photograph",
+      "icon": "📷",
+      "description": "Couple photo. Recently defaced.",
+      "type": "document",
+      "stackable": false,
+      "metadata": {
+        "infoType": "personal",
+        "relevance": "high",
+        "useMessage": "I study the photograph. Saying 'enhance' achieves absolutely nothing."
+      }
+    },
+    "artCertificate": {
+      "id": "doc_art_certificate",
+      "name": "Art Certificate",
+      "icon": "📜",
+      "description": "Authentication for stolen artifact.",
+      "type": "document",
+      "stackable": false,
+      "metadata": {
+        "infoType": "evidence",
+        "value": 1000000,
+        "useMessage": "A certificate of authenticity. I wonder who certifies the certificate."
+      }
+    },
+    "hotelReservation": {
+      "id": "doc_hotel_reservation",
+      "name": "Hotel Reservation",
+      "icon": "🏨",
+      "description": "Booking in Vienna under false name.",
+      "type": "document",
+      "stackable": false,
+      "metadata": {
+        "infoType": "travel",
+        "destination": "Vienna",
+        "useMessage": "I consider room service. Then I remember whose reservation this is."
+      }
+    },
+    "securityKeycard": {
+      "id": "doc_security_card",
+      "name": "Security Keycard",
+      "icon": "🎟️",
+      "description": "Access badge for restricted area.",
+      "type": "document",
+      "stackable": false,
+      "metadata": {
+        "infoType": "access",
+        "unlocksArea": "vault",
+        "useMessage": "I hold it authoritatively. Sadly, doors prefer an actual card reader."
+      }
+    },
+    "agencyFieldManual": {
+      "id": "agency_field_manual",
+      "name": "Agency Field Manual",
+      "icon": "📕",
+      "description": "The official Mark Agency Field Manual. Covers evidence, travel, paperwork, and other occupational hazards. Also recommended for stabilising wobbly desks.",
+      "type": "document",
+      "stackable": false,
+      "metadata": {
+        "source": "agency_storage",
+        "issuedBy": "Alex Murphy",
+        "purpose": "agent_training",
+        "useMessage": "Evidence handling. Travel procedures. Expense claims. Somehow, the chapter on surviving paperwork is the longest."
+      }
+    },
+    "detectiveMonthly": {
+      "id": "detective_monthly",
+      "name": "Detective Monthly",
+      "icon": "📰",
+      "description": "The magazine for private investigators. This month: 'Is Your Alibi Working Hard Enough?' and twelve coats you cannot afford.",
+      "type": "document",
+      "stackable": false,
+      "metadata": {
+        "purpose": "reading",
+        "useMessage": "I turn to 'Ten Signs You Are Being Followed'. Someone has already bookmarked it."
+      }
+    }
+  },
+  "consumables": {
+    "coffee": {
+      "id": "coffee",
+      "name": "Coffee",
+      "icon": "☕",
+      "description": "Strong coffee. Your sleep schedule has already filed a complaint.",
+      "type": "item",
+      "stackable": true,
+      "metadata": {
+        "consumable": true,
+        "effect": {
+          "energy": 8
+        },
+        "useMessage": "That's better. My hands have stopped negotiating with each other."
+      }
+    },
+    "energyDrink": {
+      "id": "energy_drink",
+      "name": "Energy Drink",
+      "icon": "🥤",
+      "description": "Neon liquid with a warning label longer than your case file. Wings not included.",
+      "type": "item",
+      "stackable": true,
+      "metadata": {
+        "consumable": true,
+        "effect": {
+          "energy": 25
+        },
+        "useMessage": "I can taste the warning label. I think I can hear it, too."
+      }
+    },
+    "sandwich": {
+      "id": "sandwich",
+      "name": "Sandwich",
+      "icon": "🥪",
+      "description": "Two slices of bread, one slice of hope. Classic detective dinner.",
+      "type": "item",
+      "stackable": true,
+      "metadata": {
+        "consumable": true,
+        "effect": {
+          "energy": 15
+        },
+        "useMessage": "Lunch. I'll keep the mayonnaise away from the witness statements."
+      }
+    },
+    "mysteryPie": {
+      "id": "mystery_pie",
+      "name": "Mystery Meat Pie",
+      "icon": "🥧",
+      "description": "Sold from a van that left immediately. Nobody knows what's inside, including the pie.",
+      "type": "item",
+      "stackable": true,
+      "metadata": {
+        "consumable": true,
+        "effect": {
+          "energy": 30
+        },
+        "useMessage": "Delicious. I withdraw all further questions about the ingredients."
+      }
+    }
+  },
+  "souvenirs": {
+    "postcard": {
+      "id": "postcard",
+      "name": "Postcard",
+      "icon": "✉️",
+      "description": "Wish you were here. Preferably with an alibi.",
+      "type": "item",
+      "stackable": true,
+      "metadata": {
+        "souvenir": true,
+        "cityVariant": true,
+        "useMessage": "Dear everyone: the weather is lovely, the suspects less so."
+      }
+    },
+    "snowGlobe": {
+      "id": "souvenir_snow_globe",
+      "name": "Souvenir Snow Globe",
+      "icon": "🔮",
+      "description": "A tiny landmark in a snowstorm. Possibly from this city. Possibly from a catalogue.",
+      "type": "item",
+      "stackable": true,
+      "metadata": {
+        "souvenir": true,
+        "cityVariant": true,
+        "useMessage": "I give it a little shake. At least one city is having a worse day than mine."
+      }
+    },
+    "parisTower": {
+      "id": "souvenir_paris_tower",
+      "name": "Tiny Iron Tower",
+      "icon": "🗼",
+      "description": "Mini lattice tower. Made somewhere that is definitely not Paris.",
+      "type": "item",
+      "stackable": true,
+      "metadata": {
+        "souvenir": true,
+        "city": "paris",
+        "useMessage": "I hold it at arm's length. Budget sightseeing."
+      }
+    },
+    "londonGuardHat": {
+      "id": "souvenir_london_guard_hat",
+      "name": "Tiny Guard Hat",
+      "icon": "💂",
+      "description": "Fuzzy hat, no guard inside. Stands perfectly still on your desk, just like the real ones.",
+      "type": "item",
+      "stackable": true,
+      "metadata": {
+        "souvenir": true,
+        "city": "london",
+        "useMessage": "Too small for my head. Too formal for my thumb."
+      }
+    },
+    "berlinWallChunk": {
+      "id": "souvenir_berlin_wall_chunk",
+      "name": "Wall Chunk (Certified*)",
+      "icon": "🧱",
+      "description": "*Certified by a guy named Dieter. Suspiciously similar to a garden brick.",
+      "type": "item",
+      "stackable": true,
+      "metadata": {
+        "souvenir": true,
+        "city": "berlin",
+        "useMessage": "I contemplate building something. At this rate, a house will cost several million souvenirs."
+      }
+    },
+    "nycFoamCrown": {
+      "id": "souvenir_nyc_foam_crown",
+      "name": "Foam Liberty Crown",
+      "icon": "🗽",
+      "description": "Makes you 4% more tourist and 100% easier to tail.",
+      "type": "item",
+      "stackable": true,
+      "metadata": {
+        "souvenir": true,
+        "city": "new_york_city",
+        "useMessage": "I try it on. Liberty has never looked so underpaid."
+      }
+    },
+    "warsawMermaid": {
+      "id": "souvenir_warsaw_mermaid",
+      "name": "Mermaid Magnet",
+      "icon": "🧜",
+      "description": "She holds a sword and a shield. Your fridge is now safer than your office.",
+      "type": "item",
+      "stackable": true,
+      "metadata": {
+        "souvenir": true,
+        "city": "warsaw",
+        "useMessage": "I could deputise her. She brought more equipment than I did."
+      }
+    },
+    "delhiSpiceSachet": {
+      "id": "souvenir_delhi_spice_sachet",
+      "name": "Spice Sachet",
+      "icon": "🌶️",
+      "description": "Smells like an entire market. Your evidence bags will never forget it.",
+      "type": "item",
+      "stackable": true,
+      "metadata": {
+        "souvenir": true,
+        "city": "new_delhi",
+        "useMessage": "I'll keep it sealed. The case has enough heat without seasoning the evidence."
+      }
+    },
+    "kotteElephant": {
+      "id": "souvenir_kotte_elephant",
+      "name": "Tiny Wooden Elephant",
+      "icon": "🐘",
+      "description": "Hand-carved. Trunk up for luck, which your case file badly needs.",
+      "type": "item",
+      "stackable": true,
+      "metadata": {
+        "souvenir": true,
+        "city": "kotte",
+        "useMessage": "I ask it for luck. It maintains a professional silence."
+      }
+    },
+    "torontoMaple": {
+      "id": "souvenir_toronto_maple",
+      "name": "Maple Syrup Shot",
+      "icon": "🍁",
+      "description": "Sweet, sticky, and extremely sorry about it.",
+      "type": "item",
+      "stackable": true,
+      "metadata": {
+        "souvenir": true,
+        "city": "toronto",
+        "useMessage": "I'll keep the seal intact. My pockets are not equipped for a syrup incident."
+      }
+    },
+    "nairobiGiraffe": {
+      "id": "souvenir_nairobi_giraffe",
+      "name": "Carved Giraffe",
+      "icon": "🦒",
+      "description": "Tall, silent, sees everything. Excellent witness, terrible at giving statements.",
+      "type": "item",
+      "stackable": true,
+      "metadata": {
+        "souvenir": true,
+        "city": "nairobi",
+        "useMessage": "I ask it to keep an eye out. It has a considerable advantage."
+      }
+    },
+    "islamabadTruck": {
+      "id": "souvenir_islamabad_truck",
+      "name": "Truck Art Keychain",
+      "icon": "🚚",
+      "description": "Painted brighter than your entire case file. Horn not included.",
+      "type": "item",
+      "stackable": true,
+      "metadata": {
+        "souvenir": true,
+        "city": "islamabad",
+        "useMessage": "I make a tiny truck noise. Strictly for investigative purposes."
+      }
+    },
+    "tokyoLuckyCat": {
+      "id": "souvenir_tokyo_lucky_cat",
+      "name": "Lucky Cat",
+      "icon": "🐱",
+      "description": "Waves at you nonstop. Silently judges your finances.",
+      "type": "item",
+      "stackable": true,
+      "metadata": {
+        "souvenir": true,
+        "city": "tokyo",
+        "useMessage": "I wave back. Finally, a friendly exchange with no follow-up questions."
+      }
+    },
+    "singaporeMerlion": {
+      "id": "souvenir_singapore_merlion",
+      "name": "Tiny Merlion",
+      "icon": "🦁",
+      "description": "Half lion, half fish. The shopkeeper insists both halves are non-refundable.",
+      "type": "item",
+      "stackable": true,
+      "metadata": {
+        "souvenir": true,
+        "city": "singapore",
+        "useMessage": "I question both halves. Neither talks."
+      }
+    }
+  },
+  "oddities": {
+    "inflatableAlibi": {
+      "id": "inflatable_alibi",
+      "name": "Inflatable Alibi",
+      "icon": "🎈",
+      "description": "Looks like a person from a distance. Do not use near cacti.",
+      "type": "item",
+      "stackable": false,
+      "metadata": {
+        "oddity": true,
+        "useMessage": "I consider inflating my alibi. It already has more holes than I'd like."
+      }
+    },
+    "rubberDuck": {
+      "id": "rubber_duck",
+      "name": "Rubber Duck",
+      "icon": "🦆",
+      "description": "Waterproof. Unflappable. Has never cracked under questioning.",
+      "type": "item",
+      "stackable": false,
+      "metadata": {
+        "oddity": true,
+        "useMessage": "Squeak. Finally, a witness with a consistent story."
+      }
+    }
+  },
+  "misc": {
+    "notebook": {
+      "id": "misc_notebook",
+      "name": "Detective's Notebook",
+      "icon": "📓",
+      "description": "Your investigation notes.",
+      "type": "misc",
+      "stackable": false,
+      "metadata": {
+        "purpose": "notes",
+        "editable": true,
+        "useMessage": "I check my notes. Past me was very optimistic about future me understanding these."
+      }
+    },
+    "photo": {
+      "id": "misc_photo",
+      "name": "Suspect Photo",
+      "icon": "📸",
+      "description": "Picture of main suspect.",
+      "type": "misc",
+      "stackable": true,
+      "metadata": {
+        "purpose": "identification",
+        "useMessage": "I show the photo to myself. Yes, officer, I have seen this person. In this photo."
+      }
+    },
+    "businessCard": {
+      "id": "misc_business_card",
+      "name": "Business Card",
+      "icon": "🃏",
+      "description": "Contact information.",
+      "type": "misc",
+      "stackable": true,
+      "metadata": {
+        "purpose": "contact",
+        "useMessage": "I admire the card. It would be more useful with a telephone involved."
+      }
+    },
+    "medal": {
+      "id": "misc_medal",
+      "name": "Agency Medal",
+      "icon": "🏆",
+      "description": "Proof of past achievement.",
+      "type": "misc",
+      "stackable": false,
+      "metadata": {
+        "purpose": "achievement",
+        "unlocks": "reputation",
+        "useMessage": "I polish it with a look. Actual polishing sounds like work."
+      }
+    },
+    "map": {
+      "id": "misc_map",
+      "name": "City Map",
+      "icon": "🗺️",
+      "description": "Navigate crime scenes.",
+      "type": "misc",
+      "stackable": false,
+      "metadata": {
+        "purpose": "navigation",
+        "useMessage": "I rotate the map. Now I'm lost in a different direction."
+      }
+    },
+    "piBadge": {
+      "id": "pi_badge",
+      "name": "PI Badge",
+      "icon": "🪪",
+      "description": "A private investigator badge. Looks official. Does not make you the police.",
+      "type": "misc",
+      "stackable": false,
+      "metadata": {
+        "purpose": "identification",
+        "useMessage": "Private investigator. Very private. Extremely investigator. Still not the police."
+      }
+    },
+    "fieldKit": {
+      "id": "misc_field_kit",
+      "name": "Field Kit",
+      "icon": "🧰",
+      "description": "Emergency investigation supplies. Slightly legal.",
+      "type": "tool",
+      "stackable": true,
+      "metadata": {
+        "source": "holly_intro_choice",
+        "usableFor": [
+          "crime_scene",
+          "forensics",
+          "investigation"
+        ],
+        "useMessage": "I'll save the supplies for an actual investigation task. Opening the kit dramatically isn't one."
+      },
+      "quantity": 2
+    },
+    "pigeonFeed": {
+      "id": "pigeon_feed",
+      "name": "Pigeon Feed",
+      "icon": "🌾",
+      "description": "Premium pigeon feed. Payment in advance. Findings not guaranteed.",
+      "type": "item",
+      "stackable": true,
+      "metadata": {
+        "purpose": "pigeon_feeding",
+        "pigeonFeed": true,
+        "portionsPerUnit": 1,
+        "useMessage": "For the pigeons. My detective work is questionable enough without eating the payroll."
+      }
+    }
+  },
+  "equipment": {
+    "camera": {
+      "id": "camera",
+      "name": "Camera",
+      "icon": "📷",
+      "description": "A compact camera. Captures evidence, awkward moments, and your thumb.",
+      "type": "tool",
+      "stackable": false,
+      "metadata": {
+        "purpose": "photography",
+        "useMessage": "A camera needs a subject. My shoes have declined to comment."
+      }
+    },
+    "mobilePhone": {
+      "id": "mobile_phone",
+      "name": "Mobile Phone",
+      "icon": "📱",
+      "description": "A mobile phone. For calls that cannot wait until you get back to the office.",
+      "type": "tool",
+      "stackable": false,
+      "metadata": {
+        "purpose": "communication",
+        "useMessage": "I'll need a number and a reason to call. Heavy breathing isn't a business model."
+      }
+    },
+    "coolSpyGadget": {
+      "id": "cool_spy_gadget",
+      "name": "Cool Spy Gadget",
+      "icon": "📡",
+      "description": "A very impressive device with several blinking lights. The manual refers to its function as classified.",
+      "type": "tool",
+      "stackable": false,
+      "metadata": {
+        "purpose": "spy_gadget",
+        "useMessage": "I press the impressive-looking button. A light blinks. I feel briefly qualified."
+      }
+    },
+    "videoCamera": {
+      "id": "video_camera",
+      "name": "Video Camera",
+      "icon": "📹",
+      "description": "A portable video camera. Records moving evidence and remarkably stationary stakeouts.",
+      "type": "tool",
+      "stackable": false,
+      "metadata": {
+        "purpose": "video_recording",
+        "useMessage": "I could film a documentary about this case. So far, it would mostly be waiting."
+      }
+    }
+  }
+}

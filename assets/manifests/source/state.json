@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "lastIndexHash": "f61f897475353cfdda0c3a61a88368cca8d1818bdfaa3f1e742f0db9d7234ac6",
+  "allowedMissing": [
+    "assets/cutscenes/arrest-agents.png",
+    "assets/data/web/missions/dead-men-calling/pages/businesses.json",
+    "assets/data/web/missions/dead-men-calling/pages/news.json",
+    "assets/local/doctor.webp",
+    "assets/local/no_doctor.webp",
+    "assets/newspapers/tabloid/hq_coffee_machine_photo.jpg",
+    "assets/newspapers/tabloid/hq_gold_stapler_photo.jpg",
+    "assets/newspapers/tabloid/hq_sunglasses_photo.jpg",
+    "assets/newspapers/tabloid/hq_window_chair_photo.jpg",
+    "assets/pi/city/bartender.webp",
+    "assets/pi/city/tavern.webp",
+    "assets/pi/city/tavern_empty.webp",
+    "assets/side_quests/Alibi/cooper_spoon.webp",
+    "assets/ui/braid.webp",
+    "assets/ui/computer/search/logo.webp",
+    "assets/ui/computer/search/logo_small.webp",
+    "assets/ui/computer/search/magnifier.webp",
+    "assets/ui/computer/search/owl.webp",
+    "assets/ui/computer/search/owl_lost.webp",
+    "assets/ui/koki.webp",
+    "assets/ui/menly.webp",
+    "assets/ui/pi-cases/terrace.png",
+    "assets/ui/pi-search/FaceSpace.webp",
+    "assets/ui/pi-search/MPA.webp",
+    "assets/ui/pi-search/Mystery-pedia.webp",
+    "assets/ui/red-glasses.webp",
+    "assets/ui/scar-mouth.webp",
+    "assets/ui/scar-right.webp",
+    "assets/ui/sketch_her.webp",
+    "assets/video/movie1.mp4"
+  ],
+  "protectedTools": {
+    "tools/scan-assets.cjs": "7e61a00fbd99378d2f59debe282dc6071d266a9df541d37398d0c97f8a069995",
+    "tools/audit-assets.cjs": "1f5d8587bed688befb7740009f999f19da7c79a400ba3974219ad56cf4dcb0f6"
+  }
+}

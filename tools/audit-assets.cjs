@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 'use strict';
+// MANIFEST_WORKSPACE_GUARD
+if (require('node:fs').existsSync(require('node:path').join(__dirname, '../assets/manifests/source/project.json'))) {
+  throw new Error('Manifest workspace active. Use node tools/manifest-workspace.cjs scan/check/build. Legacy tool blocked to protect generated index.');
+}
+
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const GROUP={image:'backgrounds',audio:'audio',json:'json',tilemap:'tilemaps',video:'videos',css:'css',html:'html'};
 const IG=new Set(['backgrounds','sidequests','npcPortraits','ui','artifacts','newspapers','suspects','wantedPosters','suspectThumbnails','csi','portraits']);
