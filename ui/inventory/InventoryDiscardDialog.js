@@ -16,16 +16,16 @@ export class InventoryDiscardDialog {
     this.root.setScale(Math.max(0.01,Math.min(1,(width-24)/620,(height-24)/350)));
     const panel=scene.add.rectangle(0,0,620,350,0x20151b).setStrokeStyle(3,0xffb36b).setInteractive();
     panel.on('pointerdown',stop);panel.on('pointerup',stop);
-    const title=scene.add.text(0,-140,__dialogueText("ui/inventory/InventoryDiscardDialog.js", "t_7850ec17321a0c2e50d6"),{fontFamily:'PressStart2P',fontSize:'20px',color:'#ffce93'})
+    const title=scene.add.text(0,-140,"DISCARD ITEM?",{fontFamily:'PressStart2P',fontSize:'20px',color:'#ffce93'})
       .setOrigin(0.5);
-    const name=scene.add.text(0,-94,`${this.request.name}${__dialogueText("ui/inventory/InventoryDiscardDialog.js", "t_fec1386c518c57741cb8")}${this.request.quantity}`,{
+    const name=scene.add.text(0,-94,`${this.request.name}${"  × "}${this.request.quantity}`,{
       fontFamily:'SpecialElite',fontSize:'22px',color:'#ffffff',align:'center',wordWrap:{width:560}
     }).setOrigin(0.5);
     const warning=scene.add.text(0,-12,
-      __dialogueText("ui/inventory/InventoryDiscardDialog.js", "t_f362cb45326aba7a24bc"),{
+      "Discarding evidence or quest items can make a case or quest impossible to finish. The item may be unrecoverable. There is no undo.",{
         fontFamily:'SpecialElite',fontSize:'20px',color:'#ffe3d1',align:'center',wordWrap:{width:550},lineSpacing:4
       }).setOrigin(0.5);
-    const joke=scene.add.text(0,56,__dialogueText("ui/inventory/InventoryDiscardDialog.js", "t_087a21f3b6fa13500a91"),{
+    const joke=scene.add.text(0,56,"The bin is not an alternative evidence locker.",{
       fontFamily:'SpecialElite',fontSize:'17px',color:'#bfa8b3',align:'center'
     }).setOrigin(0.5);
     this.root.add([panel,title,name,warning,joke]);

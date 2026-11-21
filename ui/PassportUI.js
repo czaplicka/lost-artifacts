@@ -424,12 +424,12 @@ export class PassportUI {
       this.scene.add.text(
         0,
         -COVER_HEIGHT / 2 + 26,
-        __dialogueText("ui/PassportUI.js", "t_02bc6c3992cd863da0d8"),
+        "PASSPORT",
         {
           fontFamily: FONT_PIXEL,
           fontSize: '18px',
           color: '#d8c48a',
-          stroke: __dialogueText("ui/PassportUI.js", "t_e00a579669b77dab4a01"),
+          stroke: "#1a0e05",
           strokeThickness: 4
         }
       ).setOrigin(0.5)
@@ -438,7 +438,7 @@ export class PassportUI {
     const close = this.scene.add.text(
       COVER_WIDTH / 2 - 26,
       -COVER_HEIGHT / 2 + 22,
-      __dialogueText("ui/PassportUI.js", "t_4b68ab3847feda7d6c62"),
+      "X",
       {
         fontFamily: FONT_PIXEL,
         fontSize: '14px',
@@ -456,8 +456,8 @@ export class PassportUI {
     this.pagesGroup = this.scene.add.container(0, 10);
     this.container.add(this.pagesGroup);
 
-    this.prevBtn = this._navButton(-285, 247, __dialogueText("ui/PassportUI.js", "t_86af811671fe29fad1d2"), -1);
-    this.nextBtn = this._navButton(285, 247, __dialogueText("ui/PassportUI.js", "t_58b85f2ea88bf1a9ba16"), 1);
+    this.prevBtn = this._navButton(-285, 247, "< PREV", -1);
+    this.nextBtn = this._navButton(285, 247, "NEXT >", 1);
 
     this.pageCounterText = this.scene.add.text(
       0, 247, '',
@@ -781,7 +781,7 @@ export class PassportUI {
 
     this.pagesGroup.add(
       this.scene.add.text(
-        photoX + 45, photoY + 55, __dialogueText("ui/PassportUI.js", "t_149d3daf03e0a37fb210"),
+        photoX + 45, photoY + 55, "🕵",
         { fontSize: '44px' }
       ).setOrigin(0.5).setAlpha(0.55)
     );
@@ -796,7 +796,7 @@ export class PassportUI {
     this.pagesGroup.add(
       this.scene.add.text(
         photoX + 45, photoY + 55,
-        __dialogueText("ui/PassportUI.js", "t_b83c7778c23a8d199def"),
+        "REDACTED",
         {
           fontFamily: FONT_PIXEL,
           fontSize: '9px',
@@ -806,7 +806,7 @@ export class PassportUI {
     );
 
     const countries = manager.getVisitedCountries().filter(
-      country => country && country !== __dialogueText("ui/PassportUI.js", "t_2ee34ccaadf588da063b")
+      country => country && country !== "Unknown Country"
     ).length;
 
     const sideFields = [
@@ -882,7 +882,7 @@ export class PassportUI {
       this.scene.add.text(
         centerX,
         RIGHT_PAGE.y + 10,
-        __dialogueText("ui/PassportUI.js", "t_0debeba5df69acd54ea8"),
+        "VISAS & ENTRIES",
         {
           fontFamily: FONT_PIXEL,
           fontSize: '9px',
@@ -916,7 +916,7 @@ export class PassportUI {
         this.scene.add.text(
           centerX,
           0,
-          __dialogueText("ui/PassportUI.js", "t_58cd64a1c00534be6825"),
+          "No stamps yet.\nGo catch a flight, detective.",
           {
             fontFamily: FONT_TYPE,
             fontSize: '15px',
@@ -1046,7 +1046,7 @@ export class PassportUI {
         this.scene.add.text(
           radius - 10,
           -radius + 10,
-          `${__dialogueText("ui/PassportUI.js", "t_2d711642b726b0440162")}${stamp.visitNumber}`,
+          `${"x"}${stamp.visitNumber}`,
           {
             fontFamily: FONT_PIXEL,
             fontSize: '10px',
@@ -1067,7 +1067,7 @@ export class PassportUI {
         fontSize: '12px',
         color: '#5a4a30',
         align: 'center',
-        fontStyle: __dialogueText("ui/PassportUI.js", "t_db2365bb7a376f09d1dd"),
+        fontStyle: "italic",
         wordWrap: { width: 200, useAdvancedWrap: true }
       }
     ).setOrigin(0.5, 0);

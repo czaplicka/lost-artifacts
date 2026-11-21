@@ -240,7 +240,7 @@ export class InventoryView {
       .setLineSpacing(3);
 
     this.detailsPrevious = text(
-      __dialogueText("ui/inventory/InventoryView.js", "t_86af811671fe29fad1d2"),
+      "< PREV",
       14,
       this.colors.border
     )
@@ -256,7 +256,7 @@ export class InventoryView {
       .setPosition(this.cardX + this.cardW / 2, 346);
 
     this.detailsNext = text(
-      __dialogueText("ui/inventory/InventoryView.js", "t_58b85f2ea88bf1a9ba16"),
+      "NEXT >",
       14,
       this.colors.border
     )
@@ -559,7 +559,7 @@ export class InventoryView {
     const barY = 46;
 
     this.counterText
-      .setText(`${current}${__dialogueText("ui/inventory/InventoryView.js", "t_005e1574a2b5c8163046")}${max}`)
+      .setText(`${current}${" / "}${max}`)
       .setColor(style.css);
 
     this.capGfx.clear();
@@ -894,7 +894,7 @@ export class InventoryView {
         .text(
           (this.cols * (S + this.slotPadding) - this.slotPadding) / 2,
           (this.rows * (S + this.slotPadding) - this.slotPadding) / 2,
-          __dialogueText("ui/inventory/InventoryView.js", "t_69639c105fb56dc0eb57"),
+          "Nothing here.\nNot even a clue.",
           {
             fontFamily: 'SpecialElite',
             fontSize: '22px',
@@ -1032,7 +1032,7 @@ export class InventoryView {
       .text(
         cx,
         y + 34,
-        item.icon || __dialogueText("ui/inventory/InventoryView.js", "t_e68ebc94437caf84f78c"),
+        item.icon || "📦",
         { fontSize: '32px' }
       )
       .setOrigin(0.5)
@@ -1146,7 +1146,7 @@ export class InventoryView {
     }
 
     this.useButton
-      .setText(__dialogueText("ui/inventory/InventoryView.js", "t_b3c2ed23b44e753d6bfc"))
+      .setText("USE")
       .setColor(
         this._usable
           ? this.colors.use

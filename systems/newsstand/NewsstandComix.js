@@ -1,4 +1,4 @@
-import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
+
 import { preloadDocumentSfx, playDocumentSfx } from '../../scenes/archive/DocumentSfx.js';
 import { audioManager } from '../../managers/AudioManager.js';
 
@@ -25,7 +25,7 @@ export class NewsstandComix {
     this.blocker.on('pointerup', () => this.close());
     this.container = scene.add.container(width / 2, height / 2).setAlpha(0).setScale(0.9);
     this.image = scene.add.image(0, 0, '__WHITE').setOrigin(0.5);
-    this.closeButton = scene.add.text(0, 0, __dialogueText("systems/newsstand/NewsstandComix.js", "t_4b68ab3847feda7d6c62"), {
+    this.closeButton = scene.add.text(0, 0, "X", {
       fontFamily: 'PressStart2P', fontSize: '12px', color: '#ffffff',
       backgroundColor: '#111111', padding: { x: 8, y: 6 }
     }).setOrigin(1, 0).setInteractive({ useHandCursor: true });

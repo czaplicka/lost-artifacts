@@ -202,8 +202,8 @@ export class BootScene extends BaseScene {
       this.bootErrorText = this.add.text(
         this.scale.width / 2,
         this.scale.height / 2,
-        `${__dialogueText("scenes/BootScene.js", "t_017320f072d1a1955ffd")}${error.message}${__dialogueText("scenes/BootScene.js", "t_75a11da44c802486bc6f")}` +
-        __dialogueText("scenes/BootScene.js", "t_6b07f0a3cd8ab013aa0a"),
+        `${"CASE FILE ERROR\n\n"}${error.message}${"\n\n"}` +
+        "Check the manifests and reload.",
         {
           fontFamily: 'monospace',
           fontSize: '20px',
@@ -581,7 +581,7 @@ export class BootScene extends BaseScene {
       );
     }
 
-    const monogram = this.add.text(2, 3, __dialogueText("scenes/BootScene.js", "t_6b23c0d5f35d1b11f9b6"), {
+    const monogram = this.add.text(2, 3, "C", {
       fontFamily: FONT_PIXEL,
       fontSize: '40px',
       color: '#e6c687'
@@ -607,7 +607,7 @@ export class BootScene extends BaseScene {
       { x: -5, y: 0 }
     ], true);
 
-    const presents = this.add.text(0, 112, __dialogueText("scenes/BootScene.js", "t_513b0d230cf60ed71986"), {
+    const presents = this.add.text(0, 112, "P R E S E N T S", {
       fontFamily: FONT_TYPE,
       fontSize: '20px',
       color: '#c9aa70'

@@ -1,4 +1,4 @@
-import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
+
 import { FONT_PIXEL, FONT_TYPE, PAL } from './config.js';
 
 export const zoomMethods = {
@@ -47,7 +47,7 @@ export const zoomMethods = {
       .text(
         width / 2,
         height - 38,
-        __dialogueText("scenes/arrestSelection/zoom.js", "t_e8825e41e8f3c18554f4"),
+        "CLICK ANYWHERE TO CLOSE",
         {
           fontFamily: FONT_PIXEL,
           fontSize: '14px',

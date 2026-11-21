@@ -145,7 +145,7 @@ export function executeTravel({ fromCityName, toCityName, locations, transportTy
     const ticketBlock = getTicketTravelBlock(destinationId);
     if (ticketBlock) {
       if (ticketBlock === 'ticket_analysis_required') EventBus.emit('showDialogue', {
-        speaker: __dialogueText("managers/TravelManager.js", "t_2653ceeec1fd951707a3"), text: __dialogueText("managers/TravelManager.js", "t_5f1b486230e750718fd4")
+        speaker: "Detective", text: "The damaged ticket needs a lab analysis before I can follow the thief."
       });
       return { ok: false, success: false, reason: ticketBlock, payment: null, energy: null };
     }

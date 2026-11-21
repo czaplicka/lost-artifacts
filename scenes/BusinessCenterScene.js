@@ -29,7 +29,7 @@ export class BusinessCenterScene extends BaseScene{
   this.events.once('shutdown',this.disposeCenter,this);this.events.once('destroy',this.disposeCenter,this);
   this.hideGameplayHud();this.cameras.main.setBackgroundColor('#101722');
   this.dialogue=new HomeTownDialogue(this,()=>this.closePanel(false));
-  this.exitButton=this.add.text(18,16,__dialogueText("scenes/BusinessCenterScene.js", "t_05a9505481b14d636cc5"),{
+  this.exitButton=this.add.text(18,16,"< Back to town",{
    fontFamily:'SpecialElite, monospace',fontSize:20,color:'#ffe0a0',backgroundColor:'#24352e',padding:{x:12,y:10}
   }).setDepth(100).setInteractive({useHandCursor:true});
   this.exitButton.on('pointerdown',()=>void this.leave());

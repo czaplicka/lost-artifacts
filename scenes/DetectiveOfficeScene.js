@@ -245,14 +245,14 @@ mountOfficeExpansion(this);
     const x = touch?.clientX ?? event?.clientX;
     const y = touch?.clientY ?? event?.clientY;
 
-    if (event?.target?.closest?.(__dialogueText("scenes/DetectiveOfficeScene.js", "t_ac41b924aa2755fb032c"))) {
+    if (event?.target?.closest?.(".pcn")) {
       return true;
     }
 
     return Boolean(
       Number.isFinite(x) &&
       Number.isFinite(y) &&
-      document.elementFromPoint(x, y)?.closest?.(__dialogueText("scenes/DetectiveOfficeScene.js", "t_ac41b924aa2755fb032c"))
+      document.elementFromPoint(x, y)?.closest?.(".pcn")
     );
   }
 
@@ -768,10 +768,10 @@ mountOfficeExpansion(this);
     if (!this.canUseOffice()) return;
 
     const handle =
-      document.querySelector(__dialogueText("scenes/DetectiveOfficeScene.js", "t_986f4ab9a5ec85d629ec"));
+      document.querySelector(".pcn .pcn-handle");
 
     const paper =
-      document.querySelector(__dialogueText("scenes/DetectiveOfficeScene.js", "t_2e02c20641dc0d86904f"));
+      document.querySelector(".pcn .pcn-paper");
 
     if (!handle || !paper) {
       this.showFeedback(
@@ -1062,7 +1062,7 @@ mountOfficeExpansion(this);
     this.retryButton = this.add.text(
       width / 2,
       height / 2,
-      __dialogueText("scenes/DetectiveOfficeScene.js", "t_7456d88f80aaeb4025e7"),
+      "RETRY MOVE-IN",
       this.style(22)
     )
       .setOrigin(0.5)
@@ -1168,7 +1168,7 @@ mountOfficeExpansion(this);
       ['INPUT', 'TEXTAREA', 'SELECT'].includes(
         target?.tagName
       ) ||
-      target?.closest?.(__dialogueText("scenes/DetectiveOfficeScene.js", "t_ac41b924aa2755fb032c")) ||
+      target?.closest?.(".pcn") ||
       event.ctrlKey ||
       event.metaKey
     ) {
@@ -1176,7 +1176,7 @@ mountOfficeExpansion(this);
     }
 
     if (
-      event.code === __dialogueText("scenes/DetectiveOfficeScene.js", "t_037c968467aa3fd7c059") &&
+      event.code === "Escape" &&
       this.canUseOffice()
     ) {
       event.preventDefault();

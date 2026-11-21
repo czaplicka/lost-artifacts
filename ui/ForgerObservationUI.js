@@ -176,7 +176,7 @@ export class ForgerObservationUI {
     this.text(
       70,
       58,
-      __dialogueText("ui/ForgerObservationUI.js", "t_40d5a52451a2b89ddaf4"),
+      "PASSPORT TO SOMEWHERE",
       30,
       null,
       '#ffdb90'

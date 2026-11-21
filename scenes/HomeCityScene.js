@@ -214,8 +214,8 @@ export class HomeCityScene extends BaseScene {
         this.path = this.path.slice(0, 1); this.destinationBuilding = null; this.movementMode = 'keyboard';
         this.targetMarker.setVisible(false); this.cityArt.clearRoute(); this.cityArt.selectBuilding();
       }
-    } else if (event.code === __dialogueText("scenes/HomeCityScene.js", "t_037c968467aa3fd7c059")) { event.preventDefault(); this.cancelWalking(); }
-    else if (event.code === __dialogueText("scenes/HomeCityScene.js", "t_dc8659db6d416dc32fca") && !event.repeat) { event.preventDefault(); this.enterNearbyBuilding(); }
+    } else if (event.code === "Escape") { event.preventDefault(); this.cancelWalking(); }
+    else if (event.code === "Enter" && !event.repeat) { event.preventDefault(); this.enterNearbyBuilding(); }
   }
   onCityKeyUp(event) { this.heldArrows.delete(event.code); }
   onCityBlur() { this.heldArrows.clear(); if (!this.disposed && !this.navigating) this.cancelWalking(); }

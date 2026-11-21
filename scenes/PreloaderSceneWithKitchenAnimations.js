@@ -1,4 +1,3 @@
-import { dialogueText as __dialogueText } from '../dialogues/DialogueText.js';
 import { GAME_VERSION } from '../config/gameVersion.js';
 import { PreloaderScene as OriginalPreloaderScene } from './PreloaderScene.js';
 import { KitchenAmbientAnimations } from './kitchen/KitchenAmbientAnimations.js';
@@ -13,12 +12,7 @@ export class PreloaderScene extends OriginalPreloaderScene {
     super._createPreloadBackground(width, height);
 
     const background = [...this.children.list].reverse().find(
-      item =>
-        item.type === __dialogueText(
-          'scenes/PreloaderSceneWithKitchenAnimations.js',
-          't_1aa4cb0bcca76e92e306'
-        ) &&
-        item.texture?.key === 'cozyBackground'
+      item => item.texture?.key === 'cozyBackground'
     );
 
     if (background?.active) {
@@ -28,72 +22,117 @@ export class PreloaderScene extends OriginalPreloaderScene {
       );
     }
 
-    this._showKitchenVersion(width, height);
+    // The base preload() calls _showKitchenVersion() after creating the UI.
   }
 
-  _showKitchenVersion(width, height) {
+  _showKitchenVersion() {
     this._clearKitchenVersion();
 
-    const label = this.add.text(
-      width - 16,
-      height - 16,
-      `GAME v${GAME_VERSION}\nBUILD —`,
-      {
-        fontFamily: 'SpecialElite, monospace',
-        fontSize: `${Math.max(12, Math.round(height * 0.016))}px`,
-        color: '#f6e9d3',
-        backgroundColor: '#211812',
-        align: 'right',
-        padding: { x: 10, y: 7 }
-      }
-    ).setOrigin(1, 1).setDepth(10000);
+    const element = document.createElement('div');
+    element.id = 'mark-agency-kitchen-version';
+    element.textContent = `GAME v${GAME_VERSION}\nBUILD —`;
+
+    Object.assign(element.style, {
+      position: 'fixed',
+      right: '18px',
+      bottom: '18px',
+      zIndex: '2147483647',
+      display: 'block',
+      visibility: 'visible',
+      opacity: '1',
+      pointerEvents: 'none',
+      whiteSpace: 'pre',
+      textAlign: 'right',
+      fontFamily: 'monospace',
+      fontSize: '16px',
+      lineHeight: '1.5',
+      color: '#fff1d6',
+      background: 'rgba(33, 24, 18, 0.94)',
+      padding: '8px 12px',
+      border: '1px solid #c9aa70',
+      borderRadius: '4px'
+    });
+
+    document.body.appendChild(element);
 
     const request = new AbortController();
-    this.kitchenVersionLabel = label;
-    this.kitchenBuildRequest = request;
 
-    void this._loadKitchenBuild(label, request);
+    this._kitchenVersionElement = element;
+    this._kitchenVersionRequest = request;
+
+    void this._readKitchenBuild(element, request);
   }
 
-  async _loadKitchenBuild(label, request) {
+  async _readKitchenBuild(element, request) {
+    const timeout = window.setTimeout(() => request.abort(), 5000);
+
     try {
       const response = await fetch(BUILD_INFO_URL, {
         cache: 'no-store',
         signal: request.signal
       });
 
-      if (!response.ok) return;
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
 
-      const { branch, commit } = await response.json();
+      const build = await response.json();
 
       if (
-        typeof branch !== 'string' ||
-        !branch.trim() ||
-        typeof commit !== 'string' ||
-        !/^[0-9a-f]{7,40}$/i.test(commit)
+        typeof build?.branch !== 'string' ||
+        !build.branch.trim() ||
+        typeof build?.commit !== 'string' ||
+        !/^[0-9a-f]{7,40}$/i.test(build.commit)
       ) {
-        return;
+        throw new Error('Invalid build-info.json');
       }
 
-      if (this.kitchenVersionLabel === label && label.active) {
-        label.setText(`GAME v${GAME_VERSION}\nBUILD ${branch}@${commit}`);
+      if (
+        this._kitchenVersionElement === element &&
+        element.isConnected
+      ) {
+        element.textContent =
+          `GAME v${GAME_VERSION}\n` +
+          `BUILD ${build.branch.trim()}@${build.commit}`;
       }
-    } catch {
-      // Missing build metadata must not interrupt game startup.
+    } catch (error) {
+      if (
+        this._kitchenVersionElement === element &&
+        element.isConnected
+      ) {
+        element.textContent =
+          `GAME v${GAME_VERSION}\nBUILD unavailable`;
+
+        console.warn(
+          '[KitchenVersion] Could not read build-info.json:',
+          error
+        );
+      }
+    } finally {
+      window.clearTimeout(timeout);
+
+      if (this._kitchenVersionRequest === request) {
+        this._kitchenVersionRequest = null;
+      }
     }
   }
 
   _clearKitchenVersion() {
-    this.kitchenBuildRequest?.abort();
-    this.kitchenBuildRequest = null;
-    this.kitchenVersionLabel?.destroy();
-    this.kitchenVersionLabel = null;
+    this._kitchenVersionRequest?.abort();
+    this._kitchenVersionRequest = null;
+
+    this._kitchenVersionElement?.remove();
+    this._kitchenVersionElement = null;
+
+    // Also clears any label created by the base implementation.
+    super._clearKitchenVersion();
   }
 
   _cleanupPreloader() {
-    this._clearKitchenVersion();
     this.kitchenAmbientAnimations?.destroy();
     this.kitchenAmbientAnimations = null;
+
+    // The base cleanup calls our _clearKitchenVersion().
     super._cleanupPreloader();
   }
 }

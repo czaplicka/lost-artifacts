@@ -57,7 +57,7 @@ const ARROW =
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
-const CSS = `${__dialogueText("ui/PlayerCloudNotebook.js", "t_f2ef25f01965faeefc46")}${PIXEL}${__dialogueText("ui/PlayerCloudNotebook.js", "t_a5ff6b7b87656a624534")}${NOISE}${__dialogueText("ui/PlayerCloudNotebook.js", "t_3387cfad93a7adda95b9")}${PIXEL}${__dialogueText("ui/PlayerCloudNotebook.js", "t_634cc66c086b37877235")}${ARROW}${__dialogueText("ui/PlayerCloudNotebook.js", "t_d5faea46fd7954af6fe6")}${PIXEL}${__dialogueText("ui/PlayerCloudNotebook.js", "t_03f9f435c23740c2c2d6")}${CHECK}${__dialogueText("ui/PlayerCloudNotebook.js", "t_04228e6ac3dba6d5b6b3")}${PIXEL}${__dialogueText("ui/PlayerCloudNotebook.js", "t_f3b5310cfc53102b0cce")}`;
+const CSS = `${"\n.pcn{\n  /* fluid type scale: 15px on phones -> 19px on big screens */\n  --fs:clamp(15px,.75vw + 8.5px,19px);\n  --lh:calc(var(--fs)*2);\n  --paper:#efe5bd;--paper-hi:#f8f0d0;--paper-lo:#d8c995;\n  --ink:#1d3a4a;--ink-soft:#4a6673;--red:#9b2f22;\n  --gold:#d4af37;--gold-dk:#8a6a16;--brass:#a89560;\n  --leather:#2b1a0e;--leather-hi:#4a2f1b;--rule:rgba(60,100,120,.28);\n  position:fixed;z-index:11000;left:8px;right:8px;bottom:0;\n  font-family:SpecialElite,'Special Elite',monospace;color:var(--ink);\n  font-size:var(--fs);line-height:1.3;\n  pointer-events:none\n}\n.pcn *{box-sizing:border-box}\n.pcn [hidden]{display:none!important}\n.pcn button,.pcn select,.pcn input{font:inherit;touch-action:manipulation}\n\n/* ---------- base button (low specificity so every variant can override) */\n:where(.pcn) button{\n  border:1px solid #8f8050;border-bottom-width:3px;border-radius:3px;\n  background:linear-gradient(#f9f0cf,#e5d8a2);color:var(--ink);\n  padding:.35em .8em .3em;min-height:2.3em;cursor:pointer;font-size:.78em;\n  letter-spacing:.05em;text-transform:uppercase;\n  box-shadow:inset 0 1px 0 rgba(255,255,255,.65);\n  transition:transform .08s,background .12s\n}\n:where(.pcn) button:hover:not(:disabled){\n  background:linear-gradient(#fffbe4,#efe3b0);transform:translateY(-1px)\n}\n:where(.pcn) button:active:not(:disabled){\n  transform:translateY(1px);border-bottom-width:1px\n}\n.pcn button:focus-visible{outline:2px solid var(--red);outline-offset:1px}\n.pcn button:disabled{opacity:.4;cursor:default}\n\n/* ---------- handle: leather tab sticking out of the notebook */\n.pcn .pcn-handle{\n  display:block;position:relative;margin:auto;pointer-events:auto;\n  min-width:15em;min-height:2.6em;padding:.8em 1.6em .7em;\n  border:2px solid var(--gold-dk);border-bottom:0;\n  border-radius:9px 9px 0 0;\n  background:linear-gradient(#5a3a22,var(--leather));\n  color:var(--gold);font-family:"}${PIXEL}${__dialogueText("ui/PlayerCloudNotebook.js", "t_a5ff6b7b87656a624534")}${NOISE}${__dialogueText("ui/PlayerCloudNotebook.js", "t_3387cfad93a7adda95b9")}${PIXEL}${__dialogueText("ui/PlayerCloudNotebook.js", "t_634cc66c086b37877235")}${ARROW}${__dialogueText("ui/PlayerCloudNotebook.js", "t_d5faea46fd7954af6fe6")}${PIXEL}${";font-size:calc(var(--fs)*.58);font-weight:normal;\n  color:#6b4f12;line-height:var(--lh)\n}\n.pcn .pcn-count{\n  font-family:SpecialElite,'Special Elite',monospace;font-size:var(--fs);\n  line-height:1.3;padding:0 .5em;border-radius:1em;\n  background:var(--ink);color:var(--gold)\n}\n.pcn .pcn-bank-head button{\n  margin-left:auto;min-height:0;height:calc(var(--lh) - 6px);\n  padding:0 .6em;font-size:.68em\n}\n.pcn .pcn-words{display:flex;flex-direction:column;gap:0}\n\n.pcn .pcn-word{\n  display:flex;align-items:flex-start;gap:.5em;min-height:var(--lh);\n  padding:0 .3em;font-size:1em;line-height:var(--lh);border-radius:2px\n}\n.pcn .pcn-word > span{flex:1;min-width:0;overflow-wrap:anywhere}\n.pcn label.pcn-word{cursor:pointer}\n.pcn label.pcn-word:hover{background:rgba(212,175,55,.2)}\n.pcn .pcn-word:has(input:checked){background:rgba(212,175,55,.34)}\n\n/* custom checkbox: tick it with red pencil */\n.pcn .pcn-word input{\n  appearance:none;-webkit-appearance:none;width:1.05em;height:1.05em;\n  margin:calc((var(--lh) - 1.05em)/2) 0 0;flex-shrink:0;cursor:pointer;\n  border:2px solid var(--ink);border-radius:2px;\n  background:#fdf7dc center/80% no-repeat\n}\n.pcn .pcn-word input:checked{background-image:"}${CHECK}${"}\n.pcn .pcn-word input:focus-visible{outline:2px solid var(--red);outline-offset:2px}\n\n/* buttons inside word rows (use-words mode, e-mails) */\n.pcn .pcn-word button{\n  display:inline-flex;align-items:baseline;gap:.4em;flex:1;min-width:0;\n  min-height:0;padding:0 .25em;border:0;border-radius:2px;\n  background:transparent;box-shadow:none;transform:none;text-align:left;\n  text-transform:none;letter-spacing:0;font-size:1em;line-height:inherit;\n  overflow-wrap:anywhere\n}\n.pcn .pcn-word button:hover:not(:disabled){\n  background:rgba(212,175,55,.26);transform:none\n}\n.pcn .pcn-word button:active:not(:disabled){transform:none}\n/* \"use words\" mode: marker-pen highlighted leads */\n.pcn .pcn-lead button{\n  background:linear-gradient(transparent 55%,rgba(212,175,55,.5) 55%)\n}\n.pcn .pcn-lead button:hover:not(:disabled){background:rgba(212,175,55,.65)}\n.pcn .pcn-word .pcn-email{\n  color:#12406e;text-decoration:underline;text-underline-offset:3px\n}\n.pcn .pcn-word .pcn-email::before{\n  content:'\\2709';flex:none;text-decoration:none\n}\n.pcn .pcn-word .pcn-email:hover,.pcn .pcn-word .pcn-email:focus-visible{\n  color:#8a3d26\n}\n\n.pcn .pcn-empty{\n  margin:.4em .3em;font-size:.9em;line-height:1.4;font-style:italic;\n  color:var(--ink-soft)\n}\n\n/* ---------- clouds */\n.pcn .pcn-board{min-height:0;min-width:0;overflow:auto}\n.pcn .pcn-clouds{\n  position:relative;display:grid;align-items:start;\n  grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));\n  gap:2.6em 2.4em;padding:1.4em .9em 2.6em\n}\n.pcn .pcn-clouds > .pcn-empty{grid-column:1/-1}\n\n/* red-pencil arrows between linked clouds (drawn behind the cards) */\n.pcn .pcn-strings{\n  position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;\n  pointer-events:none;overflow:visible\n}\n\n.pcn .pcn-cloud{\n  --lh:calc(var(--fs)*1.8);\n  position:relative;z-index:1;display:flex;flex-direction:column;\n  justify-content:center;min-height:9em;padding:1.3em 14% 1.8em;\n  border:2.5px solid var(--ink);\n  border-radius:50% 47% 52% 50% / 46% 52% 50% 54%;\n  background:radial-gradient(ellipse at 35% 25%,\n    rgba(255,252,234,.97),rgba(248,238,202,.95) 78%);\n  box-shadow:0 3px 0 rgba(70,55,20,.18),0 10px 16px rgba(60,40,10,.14);\n  transition:transform .15s,box-shadow .15s\n}\n.pcn .pcn-cloud:nth-child(odd){transform:rotate(-.5deg)}\n.pcn .pcn-cloud:nth-child(even){transform:rotate(.4deg)}\n.pcn .pcn-cloud:hover{transform:rotate(0) translateY(-2px)}\n.pcn .pcn-cloud.pcn-pick{cursor:pointer}\n.pcn .pcn-cloud.pcn-active{\n  border-color:var(--red);\n  background:radial-gradient(ellipse at 35% 25%,#fffdea,#faf0c4 78%);\n  box-shadow:0 0 0 4px rgba(212,175,55,.6),0 12px 20px rgba(60,40,10,.25)\n}\n.pcn .pcn-cloud.pcn-active::before{\n  content:'SELECTED';position:absolute;top:-.9em;left:50%;\n  transform:translateX(-50%) rotate(-2deg);padding:.15em .7em .05em;\n  font-size:.6em;letter-spacing:.14em;white-space:nowrap;\n  background:var(--red);color:#fff4d0;border-radius:2px;\n  box-shadow:0 1px 2px rgba(0,0,0,.3)\n}\n.pcn .pcn-cloud-title{\n  display:block;width:100%;min-height:0;padding:.1em .3em .3em;\n  border:0;border-bottom:1.5px dotted var(--ink-soft);border-radius:0;\n  background:transparent;box-shadow:none;transform:none;color:var(--ink);\n  font-size:1.15em;line-height:1.25;text-align:center;\n  text-transform:none;letter-spacing:0;text-shadow:.4px 0 0 currentColor;\n  overflow-wrap:anywhere\n}\n.pcn .pcn-cloud-title:hover:not(:disabled){\n  background:rgba(212,175,55,.22);transform:none\n}\n.pcn .pcn-cloud.pcn-active .pcn-cloud-title{color:var(--red)}\n.pcn .pcn-cloud-words{\n  display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;\n  gap:0 1.1em;margin-top:.4em\n}\n.pcn .pcn-cloud .pcn-word{\n  flex:0 1 auto;display:inline-flex;max-width:100%;font-size:1em\n}\n.pcn .pcn-cloud .pcn-word > span{flex:0 1 auto}\n.pcn .pcn-cloud .pcn-word button{flex:0 1 auto}\n.pcn .pcn-cloud .pcn-empty{margin:.5em 0 0;text-align:center;font-size:.85em}\n/* linked-cloud caption */\n.pcn .pcn-cloud small{\n  display:block;margin-top:.5em;padding-top:.3em;font-size:.78em;\n  line-height:1.3;text-align:center;color:var(--red);\n  border-top:1px dashed rgba(155,47,34,.5)\n}\n\n/* ---------- tools strip */\n.pcn .pcn-tools{\n  display:flex;flex-wrap:wrap;align-items:center;gap:.45em;margin-top:.5em;\n  padding:.6em 0 0;border-top:3px double var(--brass);font-size:.9em\n}\n.pcn .pcn-tools button{min-height:2.3em;padding:.3em .7em .25em;font-size:.76em}\n.pcn .pcn-tools select{min-height:2.3em;max-width:11em;font-size:.82em}\n.pcn .pcn-tools .pcn-label{\n  font-size:.78em;letter-spacing:.08em;color:var(--ink-soft);margin-left:.6em\n}\n.pcn .pcn-tools button.pcn-primary{\n  background:linear-gradient(#ecce63,#c9a02c);border-color:#7a5d12;\n  color:var(--leather)\n}\n.pcn .pcn-tools button.pcn-primary:hover:not(:disabled){\n  background:linear-gradient(#f5da7c,#d6ac36)\n}\n.pcn .pcn-tools button.pcn-danger{color:var(--red);border-color:#8a3a2c}\n.pcn .pcn-tools .pcn-sel{\n  margin-left:auto;font-size:.82em;opacity:.85;white-space:nowrap\n}\n\n.pcn .pcn-status{\n  min-height:1.4em;margin-top:.4em;font-size:.82em;line-height:1.35;\n  font-style:italic;color:var(--ink-soft)\n}\n.pcn .pcn-status::before{content:'\\25B8  ';color:var(--red);font-style:normal}\n\n/* ---------- name-cloud dialog: a taped slip of paper */\n.pcn .pcn-dialog{\n  position:absolute;left:50%;top:50%;z-index:3;\n  width:min(560px,calc(100% - 40px));padding:1.6em 1.4em 1.2em;\n  transform:translate(-50%,-50%) rotate(-.4deg);\n  background:var(--paper-hi);border:2px solid var(--ink-soft);\n  box-shadow:0 14px 30px rgba(0,0,0,.45)\n}\n.pcn .pcn-dialog::before{\n  content:'';position:absolute;top:-11px;left:50%;width:96px;height:22px;\n  margin-left:-48px;transform:rotate(-2deg);background:rgba(222,196,120,.78);\n  box-shadow:0 1px 2px rgba(0,0,0,.2)\n}\n.pcn .pcn-dialog h3{\n  margin:0 0 .7em;font-family:"}${PIXEL}${";font-size:calc(var(--fs)*.62);\n  line-height:1.5;font-weight:normal;color:#6b4f12\n}\n.pcn .pcn-dialog p{margin:0;font-size:.9em}\n.pcn .pcn-names{\n  display:flex;flex-wrap:wrap;gap:.5em;margin:1em 0;max-height:10em;overflow:auto\n}\n.pcn .pcn-dialog > button{margin-right:.4em}\n\n@media(max-width:650px){\n  .pcn .pcn-paper{height:66vh;min-height:300px;padding:.5em .5em .4em 34px}\n  .pcn.pcn-big .pcn-paper{height:92vh}\n  .pcn .pcn-paper::before{width:22px;background-size:22px 40px,auto}\n  .pcn .pcn-work{\n    grid-template-columns:1fr;grid-template-rows:minmax(80px,34%) 1fr;gap:.4em\n  }\n  .pcn .pcn-bank{border-right:0;border-bottom:3px double var(--brass)}\n  .pcn .pcn-clouds{grid-template-columns:1fr;gap:2.2em 1em}\n  .pcn .pcn-top select{max-width:11em}\n  .pcn .pcn-title,.pcn .pcn-stamp{display:none}\n  .pcn .pcn-tools .pcn-sel{margin-left:0;white-space:normal}\n}\n@media(prefers-reduced-motion:reduce){\n  .pcn,.pcn *{animation:none!important;transition:none!important}\n  .pcn .pcn-cloud:nth-child(odd),.pcn .pcn-cloud:nth-child(even),\n  .pcn .pcn-cloud:hover{transform:none}\n}\n"}`;
 
 function el(tag, text, cls) {
   const node = document.createElement(tag);
@@ -308,7 +308,7 @@ export function installPlayerCloudNotebook(ui) {
   root.addEventListener('keydown', event => {
     event.stopPropagation();
 
-    if (event.key === __dialogueText("ui/PlayerCloudNotebook.js", "t_037c968467aa3fd7c059")) {
+    if (event.key === "Escape") {
       event.preventDefault();
 
       if (dialogId) {
@@ -344,7 +344,7 @@ export function installPlayerCloudNotebook(ui) {
       node.title = `${__dialogueText("ui/PlayerCloudNotebook.js", "t_7b2dea14b4d040ccebb6")}${contact.value}`;
       node.setAttribute(
         'aria-label',
-        `${__dialogueText("ui/PlayerCloudNotebook.js", "t_cf78be8f5f67d2612336")}${contact.value}`
+        `${"Write an email to "}${contact.value}`
       );
     }
 
@@ -363,7 +363,7 @@ export function installPlayerCloudNotebook(ui) {
     const input = document.createElement('input');
     input.type = 'checkbox';
     input.checked = selection.has(word.id);
-    input.setAttribute('aria-label', `${__dialogueText("ui/PlayerCloudNotebook.js", "t_e79fd9446c45e47e61cb")}${word.label}`);
+    input.setAttribute('aria-label', `${"Select note: "}${word.label}`);
 
     input.onchange = () => {
       if (input.checked) selection.add(word.id);
@@ -446,12 +446,12 @@ export function installPlayerCloudNotebook(ui) {
 
   // Red-pencil arrows between linked clouds, drawn behind the cards.
   function drawStrings(grid, progress) {
-    grid.querySelector(__dialogueText("ui/PlayerCloudNotebook.js", "t_2196dde62ab4ec738ba4"))?.remove();
+    grid.querySelector(".pcn-strings")?.remove();
 
     if (!progress.links.length) return;
 
     const cards = new Map(
-      [...grid.querySelectorAll(__dialogueText("ui/PlayerCloudNotebook.js", "t_d36b902f13663c3bf353"))].map(
+      [...grid.querySelectorAll(".pcn-cloud")].map(
         node => [node.dataset.cloud, node]
       )
     );
@@ -472,7 +472,7 @@ export function installPlayerCloudNotebook(ui) {
     marker.setAttribute('orient', 'auto-start-reverse');
 
     const tip = document.createElementNS(SVG_NS, 'path');
-    tip.setAttribute('d', __dialogueText("ui/PlayerCloudNotebook.js", "t_b3beac49fec379ebe7c2"));
+    tip.setAttribute('d', "M0 0L10 5L0 10z");
     tip.setAttribute('fill', '#9b2f22');
 
     marker.append(tip);
@@ -525,7 +525,7 @@ export function installPlayerCloudNotebook(ui) {
       const cy = (y1 + y2) / 2 + ux * bend;
 
       const path = document.createElementNS(SVG_NS, 'path');
-      path.setAttribute('d', `${__dialogueText("ui/PlayerCloudNotebook.js", "t_08f271887ce94707da82")}${x1}${__dialogueText("ui/PlayerCloudNotebook.js", "t_36a9e7f1c95b82ffb997")}${y1}${__dialogueText("ui/PlayerCloudNotebook.js", "t_102338cae9e82092bb21")}${cx}${__dialogueText("ui/PlayerCloudNotebook.js", "t_36a9e7f1c95b82ffb997")}${cy}${__dialogueText("ui/PlayerCloudNotebook.js", "t_36a9e7f1c95b82ffb997")}${x2}${__dialogueText("ui/PlayerCloudNotebook.js", "t_36a9e7f1c95b82ffb997")}${y2}`);
+      path.setAttribute('d', `${"M"}${x1}${" "}${y1}${" Q"}${cx}${" "}${cy}${" "}${x2}${" "}${y2}`);
       path.setAttribute('fill', 'none');
       path.setAttribute('stroke', '#9b2f22');
       path.setAttribute('stroke-width', '2.6');
@@ -596,11 +596,11 @@ export function installPlayerCloudNotebook(ui) {
     const keepScroll = scrollCaseId === caseId;
 
     const bankTop = keepScroll
-      ? paper.querySelector(__dialogueText("ui/PlayerCloudNotebook.js", "t_49bd80dd3ae04b3cf345"))?.scrollTop || 0
+      ? paper.querySelector(".pcn-bank")?.scrollTop || 0
       : 0;
 
     const boardTop = keepScroll
-      ? paper.querySelector(__dialogueText("ui/PlayerCloudNotebook.js", "t_503238a31e25c8ab2691"))?.scrollTop || 0
+      ? paper.querySelector(".pcn-board")?.scrollTop || 0
       : 0;
 
     scrollCaseId = caseId;
@@ -618,7 +618,7 @@ export function installPlayerCloudNotebook(ui) {
     top.append(heading, el('span', undefined, 'pcn-grow'));
 
     const select = document.createElement('select');
-    select.setAttribute('aria-label', __dialogueText("ui/PlayerCloudNotebook.js", "t_15f86e24ed25aed15493"));
+    select.setAttribute('aria-label', "Case");
 
     for (const entry of available) {
       const option = el('option', entry.title);
@@ -886,7 +886,7 @@ export function installPlayerCloudNotebook(ui) {
 
       if (active && progress.clouds.length > 1) {
         const targets = document.createElement('select');
-        targets.setAttribute('aria-label', __dialogueText("ui/PlayerCloudNotebook.js", "t_ad09ed0e1e0f372573ce"));
+        targets.setAttribute('aria-label', "Link another cloud");
 
         for (const cloud of progress.clouds.filter(
           entry => entry.id !== activeId
@@ -966,7 +966,7 @@ export function installPlayerCloudNotebook(ui) {
 
       const dialog = el('section', undefined, 'pcn-dialog');
       dialog.setAttribute('role', 'dialog');
-      dialog.setAttribute('aria-label', __dialogueText("ui/PlayerCloudNotebook.js", "t_5d47c2f8ee6d615e052a"));
+      dialog.setAttribute('aria-label', "Name cloud");
 
       dialog.append(
         el('h3', __dialogueText("ui/PlayerCloudNotebook.js", "t_c62cf0275f5632e126b0")),

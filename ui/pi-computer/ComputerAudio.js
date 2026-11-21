@@ -55,7 +55,7 @@ export class ComputerAudio{
  panel(kind,title,items,selected,x,y,w,h){
   const d=this.ui.drawing;d.rectangle(x,y,w,h,0x15251e);d.text(x+10,y+8,title,16,'#f0d386',w-20);
   if(!items.length){d.text(x+10,y+40,__dialogueText("ui/pi-computer/ComputerAudio.js", "t_bfb50011f1a49aa91f9a"),14,'#c8d0bc',w-20);return;}
-  const end=this.buttonFlow(items.map((source,index)=>({label:kind===__dialogueText("ui/pi-computer/ComputerAudio.js", "t_034a7e52c5c9534b709d")?`${__dialogueText("ui/pi-computer/ComputerAudio.js", "t_b2c73f0821600884e08d")}${index+1}`:`${__dialogueText("ui/pi-computer/ComputerAudio.js", "t_f1cb38668b33bd5a6448")}${String.fromCharCode(65+index)}`,selected:source.id===selected,action:()=>this.select(kind,source.id)})),x+10,y+36,w-20);
+  const end=this.buttonFlow(items.map((source,index)=>({label:kind==="recent"?`${__dialogueText("ui/pi-computer/ComputerAudio.js", "t_b2c73f0821600884e08d")}${index+1}`:`${__dialogueText("ui/pi-computer/ComputerAudio.js", "t_f1cb38668b33bd5a6448")}${String.fromCharCode(65+index)}`,selected:source.id===selected,action:()=>this.select(kind,source.id)})),x+10,y+36,w-20);
   const source=items.find(item=>item.id===selected),bodyY=end+14;
   if(!source){d.text(x+10,bodyY,__dialogueText("ui/pi-computer/ComputerAudio.js", "t_2bd32fffea2614ff27f6"),14,'#c8d0bc',w-20);return;}
   this.paged(source.body,x+10,bodyY,w-20,Math.max(45,y+h-bodyY-10),kind);

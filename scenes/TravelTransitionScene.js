@@ -371,7 +371,7 @@ export class TravelTransitionScene extends BaseScene {
   projectLegPoint(leg, side) {
     const lonLat = resolveTravelLonLat(
       leg?.[`${side}Id`],
-      leg?.[`${side}${__dialogueText("scenes/TravelTransitionScene.js", "t_fc33f73246f48295702f")}`],
+      leg?.[`${side}${"City"}`],
       this.getLocations()
     );
 
@@ -663,7 +663,7 @@ export class TravelTransitionScene extends BaseScene {
       });
 
       this.continueHint
-        ?.setText(__dialogueText("scenes/TravelTransitionScene.js", "t_09850b4b25801c17abf6"))
+        ?.setText("Close passport, then click to continue")
         .setColor('#f4e7c1');
     } catch (error) {
       console.error(
@@ -675,7 +675,7 @@ export class TravelTransitionScene extends BaseScene {
       this.travelPassport = null;
 
       this.continueHint
-        ?.setText(__dialogueText("scenes/TravelTransitionScene.js", "t_d5a436f27838b6f6b09a"))
+        ?.setText("Click to continue")
         .setColor('#f4e7c1');
     } finally {
       this.passportPresentationPending = false;
@@ -729,8 +729,8 @@ export class TravelTransitionScene extends BaseScene {
     this.continueHint
       ?.setText(
         showPassport
-          ? __dialogueText("scenes/TravelTransitionScene.js", "t_6528f01be828b9c62637")
-          : __dialogueText("scenes/TravelTransitionScene.js", "t_d5a436f27838b6f6b09a")
+          ? "Passport inspection..."
+          : "Click to continue"
       )
       .setColor('#f4e7c1');
 
@@ -746,7 +746,7 @@ export class TravelTransitionScene extends BaseScene {
     this.continueHint = this.add.text(
       width / 2,
       height - 40 * U,
-      __dialogueText("scenes/TravelTransitionScene.js", "t_2dfd888fdd5e8018cee8"),
+      "Please wait...",
       {
         fontFamily: 'SpecialElite',
         fontSize: fs(U, 22),

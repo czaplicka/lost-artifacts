@@ -1,7 +1,7 @@
 import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 const INSTALLED=Symbol.for(__dialogueText("ui/pi-computer/CommonRoomTemplate.js", "t_35ef36884a4d9098afd5"));
 const PHOTO_PROFILES=['claire_social','nora_social'];
-const privatePage=page=>Boolean(page&&(/\/login(?:[/?#]|$)/i.test(page.address||'')||/_private$/.test(page.id)||page.heading===__dialogueText("ui/pi-computer/CommonRoomTemplate.js", "t_a5f7678d4bddda547efd")));
+const privatePage=page=>Boolean(page&&(/\/login(?:[/?#]|$)/i.test(page.address||'')||/_private$/.test(page.id)||page.heading==="Members-only content"));
 
 export function isCommonRoomPage(page){
   return Boolean(page&&page.layout!=='default'&&(String(page.brand||'').toLowerCase()==='commonroom'||page.template==='commonroom'));

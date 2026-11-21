@@ -51,7 +51,7 @@ export class HighscoreScene extends BaseScene {
         .setInteractive({ useHandCursor: true }).setScale(0.7).setDepth(30);
       this.addHoverEffect(backBtn, 0.7, 0.8);
     } else {
-      backBtn = this.add.text(width * 0.12, height * 0.90, __dialogueText("scenes/HighscoreScene.js", "t_639807a2e01886a2236b"), {
+      backBtn = this.add.text(width * 0.12, height * 0.90, "BACK", {
         fontFamily: 'PressStart2P', fontSize: '20px', color: '#91d18b'
       }).setOrigin(0.5).setDepth(30).setInteractive({ useHandCursor: true });
       this.addHoverEffect(backBtn, 1, 1.1);
@@ -76,10 +76,10 @@ export class HighscoreScene extends BaseScene {
       fontFamily: 'PressStart2P', color: '#0ea333', fontStyle: 'bold',
       shadow: { offsetX: 3, offsetY: 3, color: '#000000', blur: 0, fill: true }
     };
-    this.add.text(width / 2, height * 0.12, __dialogueText("scenes/HighscoreScene.js", "t_0158b1bb93eb7214b40f"), {
+    this.add.text(width / 2, height * 0.12, "INTERPOL DATABASE", {
       ...style, fontSize: '22px'
     }).setOrigin(0.5).setDepth(20);
-    this.add.text(width / 2, height * 0.18, __dialogueText("scenes/HighscoreScene.js", "t_c14a6570c6292c00466d"), {
+    this.add.text(width / 2, height * 0.18, "MARK AGENCY CLEARANCE RECORDS", {
       ...style, fontSize: '14px', color: '#6ee77d'
     }).setOrigin(0.5).setDepth(20);
   }
@@ -116,15 +116,15 @@ export class HighscoreScene extends BaseScene {
       const score = scores[index];
       const rowY = rowStartY + index * 39;
       const rowColor = index < 3 ? ranking.accent : '#cce5c9';
-      const rank = this.add.text(-width / 2 + 18, rowY, `${index + 1}${__dialogueText("scenes/HighscoreScene.js", "t_cdb4ee2aea69cc6a8333")}`, {
+      const rank = this.add.text(-width / 2 + 18, rowY, `${index + 1}${"."}`, {
         fontFamily: 'PressStart2P', fontSize: '10px', color: rowColor
       }).setOrigin(0, 0.5);
-      const name = this.add.text(-width / 2 + 46, rowY, score?.name || __dialogueText("scenes/HighscoreScene.js", "t_bda050585a00f0f6cb50"), {
+      const name = this.add.text(-width / 2 + 46, rowY, score?.name || "—", {
         fontFamily: 'PressStart2P', fontSize: '9px', color: '#e6f3e0',
         wordWrap: { width: width * 0.48 }
       }).setOrigin(0, 0.5);
       const points = this.add.text(width / 2 - 18, rowY,
-        Number.isFinite(score?.points) ? score.points.toLocaleString(__dialogueText("scenes/HighscoreScene.js", "t_5c49f88dafe66e0ecdca")) : __dialogueText("scenes/HighscoreScene.js", "t_bda050585a00f0f6cb50"), {
+        Number.isFinite(score?.points) ? score.points.toLocaleString("en-US") : "—", {
           fontFamily: 'PressStart2P', fontSize: '9px', color: rowColor
         }).setOrigin(1, 0.5);
       container.add([rank, name, points]);

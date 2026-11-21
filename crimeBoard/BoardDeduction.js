@@ -12,25 +12,25 @@ export const BoardDeduction = {
     this._deductionBusy = false;
     this.deductionPanel = document.createElement('section');
     this.deductionPanel.className = 'crime-board-deduction';
-    this.deductionPanel.setAttribute('aria-label', __dialogueText("crimeBoard/BoardDeduction.js", "t_5976bec1e6c7d4ba080e"));
+    this.deductionPanel.setAttribute('aria-label', "Deduction checks");
     Object.assign(this.deductionPanel.style, {
       padding: '12px', margin: '8px', background: '#332519',
-      color: '#f5e6c5', border: __dialogueText("crimeBoard/BoardDeduction.js", "t_3bada4de257c0720512f"), borderRadius: '6px',
+      color: '#f5e6c5', border: "2px solid #a78b51", borderRadius: '6px',
       fontFamily: 'SpecialElite, serif', position: 'relative', zIndex: '5'
     });
     this.deductionSummary = document.createElement('p');
-    this.deductionSummary.style.margin = __dialogueText("crimeBoard/BoardDeduction.js", "t_492fea136c1567324613");
+    this.deductionSummary.style.margin = "0 0 8px";
     this.deductionCheckButton = document.createElement('button');
     this.deductionCheckButton.type = 'button';
     this.deductionCheckButton.className = 'crime-board-btn';
     Object.assign(this.deductionCheckButton.style, {
-      padding: __dialogueText("crimeBoard/BoardDeduction.js", "t_8193b8b5eb6be9a659f7"), background: '#dbc17e', color: '#21190e',
-      cursor: 'pointer', border: __dialogueText("crimeBoard/BoardDeduction.js", "t_0637a01a896c9cecc798"), font: 'inherit'
+      padding: "10px 14px", background: '#dbc17e', color: '#21190e',
+      cursor: 'pointer', border: "1px solid #a78b51", font: 'inherit'
     });
     this.deductionMessage = document.createElement('p');
     this.deductionMessage.setAttribute('role', 'status');
     this.deductionMessage.setAttribute('aria-live', 'polite');
-    this.deductionMessage.style.margin = __dialogueText("crimeBoard/BoardDeduction.js", "t_6475ac0f763e3c21b8d4");
+    this.deductionMessage.style.margin = "8px 0 0";
     this.deductionMessage.textContent = __dialogueText("crimeBoard/BoardDeduction.js", "t_5f4e56bfe5ae31cc0ee1");
     this._onDeductionClick = event => {
       event.preventDefault();
@@ -39,7 +39,7 @@ export const BoardDeduction = {
     };
     this.deductionCheckButton.addEventListener('click', this._onDeductionClick);
     this.deductionPanel.append(this.deductionSummary, this.deductionCheckButton, this.deductionMessage);
-    const host = this.root.closest(__dialogueText("crimeBoard/BoardDeduction.js", "t_5f4a8917bd85d04d9691")) || this.root.parentElement || this.root;
+    const host = this.root.closest(".crime-board-app") || this.root.parentElement || this.root;
     host.prepend(this.deductionPanel);
     this._onDeductionChanged = () => this.refreshDeductionPanel();
     EventBus.on(DEDUCTION_CHANGED, this._onDeductionChanged);

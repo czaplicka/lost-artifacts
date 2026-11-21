@@ -1,85 +1,240 @@
 import { gameState } from './GameData.js';
 import { EventBus } from './EventBus.js';
 import { MainStoryManager } from './managers/MainStoryManager.js';
-import { inventoryManager } from './managers/InventoryManager.js';
-import { createCaseDirectorFromState } from './restoreCaseDirector.js';
-import { captureInvestigationAudit } from './systems/InvestigationAudit.js';
-const SAVE_KEY='detectiveSaveData',AUTOSAVE_DELAY_MS=500;
-let persistenceBusy=false,storageAvailable=null,automaticSaveBlocked=false,autosaveTimer=null,autosavePending=false;
-function isPlainObject(value){if(!value||typeof value!=='object')return false;const proto=Object.getPrototypeOf(value);return proto===Object.prototype||proto===null;}
-function canUseLocalStorage(){
- if(storageAvailable!==null)return storageAvailable;const key=`__detective_storage_test_${Date.now()}_${Math.random()}`;
- try{window.localStorage.setItem(key,'1');window.localStorage.removeItem(key);storageAvailable=true;}
- catch(error){storageAvailable=false;console.warn('[Persistence] localStorage unavailable:',error);}return storageAvailable;
+import { captureInvestigationAudit, theoryWorkspaceKey } from './systems/InvestigationAudit.js';
+import {
+  exportCurrentGameState, restoreSavedGameState, isStateRestoreInProgress
+} from './gameState/saveRestore.js';
+
+const SAVE_KEY = 'detectiveSaveData', AUTOSAVE_DELAY_MS = 500;
+const WARNING_ID = 'game-persistence-warning';
+let persistenceBusy = false, automaticSaveBlocked = false;
+let autosaveTimer = null, autosavePending = false;
+let failedRaw = null, failedRawKnown = false, rollbackUnsafe = false;
+let lastError = null, lastRecoveryKey = null, lastTheorySignature = null;
+let domWarningScheduled = false;
+const errorText = error => error?.message || String(error);
+function emitStatus() {
+  try { EventBus.emit('persistence:status', getPersistenceStatus()); }
+  catch (error) { console.warn('[Persistence] Status listener failed:', error); }
 }
-function getSavedField(data,key){if(Object.prototype.hasOwnProperty.call(data,key))return data[key];if(isPlainObject(data.state))return data.state[key];return undefined;}
-function syncCaseTemplate(){const director=gameState.caseDirector;if(typeof director?.serialize!=='function')return;const template=director.serialize();if(template!=null)gameState.caseTemplate=structuredClone(template);}
-function cancelPendingAutosave(){if(autosaveTimer!==null){clearTimeout(autosaveTimer);autosaveTimer=null;}autosavePending=false;}
-function captureAudit(){
- try{captureInvestigationAudit(gameState);}catch(error){console.error('[Persistence] Investigation audit capture failed:',error);}
+export function getPersistenceStatus() {
+  return { busy: persistenceBusy, automaticSaveBlocked, rollbackUnsafe,
+    error: lastError, recoveryKey: lastRecoveryKey, autosavePending };
 }
-export function saveGameState(){
- if(persistenceBusy||automaticSaveBlocked)return false;
- // Capture even when storage is unavailable: do not discard the in-memory history.
- captureAudit();if(!canUseLocalStorage())return false;persistenceBusy=true;
- try{
-  gameState.mainStory=MainStoryManager.serialize();gameState.inventory=inventoryManager.exportState();syncCaseTemplate();
-  window.localStorage.setItem(SAVE_KEY,JSON.stringify(gameState.exportForSave()));return true;
- }catch(error){console.error('[Persistence] Failed to save game:',error);return false;}finally{persistenceBusy=false;}
+function storage() {
+  if (typeof window === 'undefined' || !window.localStorage) throw new Error('Browser storage is unavailable.');
+  return window.localStorage;
 }
-export function requestAutosave(){
- if(automaticSaveBlocked)return;
- // Take the semantic snapshot now, not 500 ms later: A -> B -> A must survive debounce.
- if(!persistenceBusy)captureAudit();
- autosavePending=true;if(autosaveTimer!==null)clearTimeout(autosaveTimer);
- autosaveTimer=setTimeout(()=>{autosaveTimer=null;if(!autosavePending)return;autosavePending=false;saveGameState();},AUTOSAVE_DELAY_MS);
+function hideWarning() {
+  if (typeof document !== 'undefined') document.getElementById(WARNING_ID)?.remove();
 }
-export function flushAutosave(){
- if(autosaveTimer!==null){clearTimeout(autosaveTimer);autosaveTimer=null;}if(!autosavePending)return false;autosavePending=false;return saveGameState();
-}
-export function loadGameState(){
- if(persistenceBusy||!canUseLocalStorage())return false;cancelPendingAutosave();persistenceBusy=true;
- let previous=null,stateImported=false,storyAttempted=false,inventoryAttempted=false;
- try{
-  const raw=window.localStorage.getItem(SAVE_KEY);if(!raw){automaticSaveBlocked=false;return false;}
-  const data=JSON.parse(raw);if(!isPlainObject(data))throw new Error('Autosave must be a plain object.');
-  previous={state:gameState.getState(),story:MainStoryManager.serialize(),inventory:inventoryManager.exportState(),
-   dirty:gameState.dirty,checkpoint:gameState.saveCheckpoint,director:gameState.caseDirector};
-  if(!gameState.importFromSave(data))throw new Error('Game state rejected.');stateImported=true;
-  gameState.caseDirector=createCaseDirectorFromState(gameState.state);storyAttempted=true;
-  const story=getSavedField(data,'mainStory');if(story==null)MainStoryManager.resetProgress({silent:true});
-  else if(MainStoryManager.deserialize(story)!==true)throw new Error('Story rejected.');
-  inventoryAttempted=true;const inventory=getSavedField(data,'inventory');
-  if(!inventoryManager.importState(inventory===undefined?{version:1,items:[]}:inventory))throw new Error('Inventory rejected.');
-  gameState.mainStory=MainStoryManager.serialize();gameState.inventory=inventoryManager.exportState();
-  gameState.dirty=false;gameState.saveCheckpoint=null;automaticSaveBlocked=false;return true;
- }catch(error){
-  automaticSaveBlocked=true;
-  if(previous){
-   if(stateImported)try{
-    if(!gameState.importFromSave(previous.state))throw new Error('State rollback rejected.');
-    gameState.caseDirector=previous.director;gameState.saveCheckpoint=previous.checkpoint;gameState.dirty=previous.dirty;
-   }catch(e){console.error('[Persistence] State rollback failed:',e);}
-   if(storyAttempted)try{
-    if(previous.story==null)MainStoryManager.resetProgress({silent:true});
-    else if(MainStoryManager.deserialize(previous.story)!==true)throw new Error('Story rollback rejected.');
-   }catch(e){console.error('[Persistence] Story rollback failed:',e);}
-   if(inventoryAttempted)try{if(!inventoryManager.importState(previous.inventory))throw new Error('Inventory rollback rejected.');}
-   catch(e){console.error('[Persistence] Inventory rollback failed:',e);}
+function showWarning() {
+  if (typeof document === 'undefined' || !automaticSaveBlocked) return;
+  if (!document.body) {
+    if (!domWarningScheduled) {
+      domWarningScheduled = true;
+      document.addEventListener('DOMContentLoaded', () => { domWarningScheduled = false; showWarning(); }, { once: true });
+    }
+    return;
   }
-  console.error('[Persistence] Load failed. Autosave unchanged; automatic saving blocked.',error);return false;
- }finally{persistenceBusy=false;}
+  let root = document.getElementById(WARNING_ID);
+  if (!root) {
+    root = document.createElement('section');
+    root.id = WARNING_ID;
+    root.setAttribute('role', 'alert');
+    root.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;z-index:2147483647;padding:14px;background:#37251b;color:#fff1d0;border:2px solid #d4af37;font:16px/1.5 monospace;max-height:45vh;overflow:auto;';
+    document.body.appendChild(root);
+  }
+  root.replaceChildren();
+  const message = document.createElement('p');
+  message.textContent = rollbackUnsafe
+    ? 'Loading failed and recovery was incomplete. Automatic saving is paused. Reload a known-good save before continuing.'
+    : 'The autosave could not be loaded. Automatic saving is paused to protect it. Retry loading, or back it up before enabling saving for the current game.';
+  const detail = document.createElement('p');
+  detail.textContent = lastError || '';
+  root.append(message, detail);
+  const button = (label, action, disabled = false) => {
+    const element = document.createElement('button');
+    element.type = 'button'; element.textContent = label; element.disabled = disabled;
+    element.style.cssText = 'margin:4px;padding:8px 12px;cursor:pointer;font:inherit;';
+    element.addEventListener('click', action); root.appendChild(element);
+  };
+  button('Retry loading autosave', () => { loadGameState(); });
+  button('Download unreadable autosave', () => {
+    try {
+      if (!failedRawKnown || failedRaw === null) throw new Error('No autosave data could be read. Retry loading first.');
+      const url = URL.createObjectURL(new Blob([failedRaw], { type: 'application/json' }));
+      const link = document.createElement('a');
+      link.href = url; link.download = 'unreadable-autosave.json';
+      document.body.appendChild(link); link.click(); link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (error) { lastError = errorText(error); showWarning(); }
+  }, !failedRawKnown || failedRaw === null);
+  button('Back up autosave & enable saving', () => { resumeAutomaticSaving(); }, rollbackUnsafe);
 }
-export function clearSavedGame(){
- if(persistenceBusy)return false;cancelPendingAutosave();persistenceBusy=true;
- try{
-  MainStoryManager.resetProgress({silent:true});gameState.mainStory=MainStoryManager.serialize();
-  if(!canUseLocalStorage())return false;window.localStorage.removeItem(SAVE_KEY);automaticSaveBlocked=false;return true;
- }catch(error){console.error('[Persistence] Failed to clear autosave:',error);return false;}finally{persistenceBusy=false;}
+function blockSaving(error, raw, rawKnown) {
+  automaticSaveBlocked = true;
+  failedRaw = raw; failedRawKnown = rawKnown;
+  rollbackUnsafe = rollbackUnsafe || Boolean(error?.rollbackErrors?.length);
+  lastError = errorText(error);
+  showWarning(); emitStatus();
 }
-function saveAfterMainStoryChange(){
- if(persistenceBusy)return;gameState.mainStory=MainStoryManager.serialize();
- if(gameState.isGameActive&&!automaticSaveBlocked)requestAutosave();
+function unblockSaving() {
+  automaticSaveBlocked = false; failedRaw = null; failedRawKnown = false;
+  rollbackUnsafe = false; lastError = null;
+  hideWarning(); emitStatus();
 }
-for(const event of ['mainStory:stageAdvanced','mainStory:flagSet','mainStory:sideClueSet','mainStory:reset'])EventBus.on(event,saveAfterMainStoryChange);
-if(typeof document!=='undefined')document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushAutosave();});
+function cancelPendingAutosave() {
+  if (autosaveTimer !== null) clearTimeout(autosaveTimer);
+  autosaveTimer = null; autosavePending = false;
+}
+// Only the small theory selection is inspected on routine autosave requests.
+// Full evidence/procedure/alibi scans occur at actual save time, or on a theory edge.
+function theorySignature() {
+  const key = theoryWorkspaceKey(gameState);
+  const draft = gameState.caseTheories?.[key];
+  const sections = draft ? Object.entries(draft.sections || {}).map(([field, value]) => [field, {
+    answerId: value?.answerId ?? '', skillIds: value?.skillIds ?? [], evidenceIds: value?.evidenceIds ?? []
+  }]) : null;
+  return JSON.stringify([gameState.currentCaseId ?? null, gameState._createdAt ?? null, key, sections]);
+}
+function captureAudit() {
+  try {
+    captureInvestigationAudit(gameState);
+    lastTheorySignature = theorySignature();
+  } catch (error) { console.error('[Persistence] Investigation audit capture failed:', error); }
+}
+function captureTheoryEdgeIfNeeded() {
+  try { if (theorySignature() !== lastTheorySignature) captureAudit(); }
+  catch (error) { console.error('[Persistence] Could not inspect theory selection:', error); }
+}
+export function saveGameState() {
+  if (persistenceBusy || automaticSaveBlocked || isStateRestoreInProgress()) return false;
+  persistenceBusy = true;
+  try {
+    captureAudit();
+    storage().setItem(SAVE_KEY, JSON.stringify(exportCurrentGameState()));
+    lastError = null; hideWarning();
+    return true;
+  } catch (error) {
+    console.error('[Persistence] Failed to save game:', error);
+    lastError = errorText(error); emitStatus();
+    // A write failure needs a visible warning too, but must not unlock an unread save.
+    if (typeof document !== 'undefined') {
+      let root = document.getElementById(WARNING_ID);
+      if (!root && document.body) {
+        root = document.createElement('div'); root.id = WARNING_ID; root.setAttribute('role', 'alert');
+        root.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;z-index:2147483647;padding:14px;background:#37251b;color:#fff1d0;border:2px solid #d4af37;font:16px/1.5 monospace;';
+        document.body.appendChild(root);
+      }
+      if (root) root.textContent = 'The game could not be saved. Check browser storage and save again. ' + lastError;
+    }
+    return false;
+  } finally { persistenceBusy = false; emitStatus(); }
+}
+export function requestAutosave() {
+  if (isStateRestoreInProgress()) return;
+  // Do not lose A -> B -> A between debounced disk writes.
+  if (!persistenceBusy) captureTheoryEdgeIfNeeded();
+  if (automaticSaveBlocked) return;
+  autosavePending = true;
+  if (autosaveTimer !== null) clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(() => {
+    autosaveTimer = null;
+    if (!autosavePending) return;
+    autosavePending = false; saveGameState();
+  }, AUTOSAVE_DELAY_MS);
+}
+export function flushAutosave() {
+  if (autosaveTimer !== null) clearTimeout(autosaveTimer);
+  autosaveTimer = null;
+  if (!autosavePending) return false;
+  autosavePending = false;
+  return saveGameState();
+}
+export function loadGameState() {
+  if (persistenceBusy || isStateRestoreInProgress()) return false;
+  cancelPendingAutosave(); persistenceBusy = true;
+  let raw = null, rawKnown = false;
+  try {
+    raw = storage().getItem(SAVE_KEY); rawKnown = true;
+    if (raw === null) {
+      if (rollbackUnsafe) throw new Error('Recovery was incomplete. Load a known-good slot before enabling saving.');
+      lastTheorySignature = null; unblockSaving(); return false;
+    }
+    const data = JSON.parse(raw);
+    restoreSavedGameState(data);
+    lastTheorySignature = null;
+    unblockSaving();
+    return true;
+  } catch (error) {
+    blockSaving(error, raw, rawKnown);
+    console.error('[Persistence] Load failed. Autosave unchanged; saving paused pending recovery.', error);
+    return false;
+  } finally { persistenceBusy = false; emitStatus(); }
+}
+function archiveFailedAutosave() {
+  if (!failedRawKnown) throw new Error('Retry loading first: browser storage could not be read.');
+  const store = storage();
+  if (store.getItem(SAVE_KEY) !== failedRaw) throw new Error('The autosave has changed. Retry loading it before enabling saving.');
+  if (failedRaw === null) return null;
+  const key = `${SAVE_KEY}:recovery:${Date.now()}:${Math.random().toString(36).slice(2)}`;
+  store.setItem(key, failedRaw);
+  if (store.getItem(key) !== failedRaw) throw new Error('The backup could not be verified. Automatic saving remains paused.');
+  lastRecoveryKey = key;
+  return key;
+}
+export function resumeAutomaticSaving() {
+  if (persistenceBusy || isStateRestoreInProgress()) return false;
+  if (!automaticSaveBlocked) return true;
+  if (rollbackUnsafe) {
+    lastError = 'Recovery was incomplete. Load a known-good slot or retry loading successfully first.';
+    showWarning(); emitStatus(); return false;
+  }
+  try {
+    archiveFailedAutosave();
+    unblockSaving(); lastTheorySignature = null;
+    requestAutosave();
+    return true;
+  } catch (error) { lastError = errorText(error); showWarning(); emitStatus(); return false; }
+}
+export function clearSavedGame() {
+  if (persistenceBusy || isStateRestoreInProgress()) return false;
+  cancelPendingAutosave(); persistenceBusy = true;
+  try {
+    const store = storage();
+    if (automaticSaveBlocked) archiveFailedAutosave();
+    store.removeItem(SAVE_KEY);
+    if (store.getItem(SAVE_KEY) !== null) throw new Error('Autosave deletion could not be verified.');
+    MainStoryManager.resetProgress({ silent: true });
+    gameState.mainStory = MainStoryManager.serialize();
+    lastTheorySignature = null; unblockSaving(); return true;
+  } catch (error) { console.error('[Persistence] Failed to clear autosave:', error); lastError = errorText(error); showWarning(); emitStatus(); return false; }
+  finally { persistenceBusy = false; emitStatus(); }
+}
+function afterSlotRestored() {
+  cancelPendingAutosave(); lastTheorySignature = null;
+  // A successful slot restoration repairs any earlier failed rollback.
+  rollbackUnsafe = false;
+  if (automaticSaveBlocked) resumeAutomaticSaving();
+}
+function saveAfterMainStoryChange() {
+  if (persistenceBusy || isStateRestoreInProgress()) return;
+  gameState.mainStory = MainStoryManager.serialize();
+  if (gameState.isGameActive) requestAutosave();
+}
+for (const event of ['mainStory:stageAdvanced', 'mainStory:flagSet', 'mainStory:sideClueSet', 'mainStory:reset']) {
+  EventBus.on(event, saveAfterMainStoryChange);
+}
+EventBus.on('gameState:restored', afterSlotRestored);
+EventBus.on('gameState:restoreFailed', ({ error } = {}) => {
+  if (!error?.rollbackErrors?.length) return;
+  cancelPendingAutosave();
+  let raw = null, rawKnown = false;
+  try { raw = storage().getItem(SAVE_KEY); rawKnown = true; } catch { /* Keep saving paused. */ }
+  blockSaving(error, raw, rawKnown);
+});
+if (typeof document !== 'undefined') document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') flushAutosave();
+});

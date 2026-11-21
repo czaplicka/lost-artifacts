@@ -26,15 +26,15 @@ function renderDifficultyCard(difficulty, index, selectedDifficultyId) {
   const selected = difficulty.id === selectedDifficultyId;
   const content = DIFFICULTY_DETAILS[difficulty.id];
 
-  return `${__dialogueText("ui/characterCreation/DifficultyCards.js", "t_5e2281f74643e8ff3b13")}${selected ? __dialogueText("ui/characterCreation/DifficultyCards.js", "t_dad1545efbcffe484e06") : ''}${__dialogueText("ui/characterCreation/DifficultyCards.js", "t_05ee7f75041f2a3070c9")}${selected}${__dialogueText("ui/characterCreation/DifficultyCards.js", "t_0c8b6e773568e8fa7705")}${difficulty.id}${__dialogueText("ui/characterCreation/DifficultyCards.js", "t_a78c6271b6a8e789b288")}${index + 1}${__dialogueText("ui/characterCreation/DifficultyCards.js", "t_72872111bac6132cc43f")}${toTitleCase(difficulty.name)}${__dialogueText("ui/characterCreation/DifficultyCards.js", "t_b93a4a153ed2abaa0675")}${content.subtitle}${__dialogueText("ui/characterCreation/DifficultyCards.js", "t_b54defc6992964f5e068")}${content.details}${__dialogueText("ui/characterCreation/DifficultyCards.js", "t_43abc80c2d120cd6dfa4")}`;
+  return `${"\n    <button\n      class=\"character-difficulty-card"}${selected ? __dialogueText("ui/characterCreation/DifficultyCards.js", "t_dad1545efbcffe484e06") : ''}${__dialogueText("ui/characterCreation/DifficultyCards.js", "t_05ee7f75041f2a3070c9")}${selected}${__dialogueText("ui/characterCreation/DifficultyCards.js", "t_0c8b6e773568e8fa7705")}${difficulty.id}${"\"\n    >\n      <span class=\"character-difficulty-number\">"}${index + 1}${"</span>\n      <span class=\"character-difficulty-name\">"}${toTitleCase(difficulty.name)}${"</span>\n      <span class=\"character-difficulty-subtitle\">"}${content.subtitle}${"</span>\n      <span class=\"character-difficulty-details\">"}${content.details}${"</span>\n    </button>\n  "}`;
 }
 
 export function renderDifficultyStep(playerData) {
-  return `${__dialogueText("ui/characterCreation/DifficultyCards.js", "t_6fc2e2a818ba0396feba")}${DIFFICULTIES.map((difficulty, index) => (
+  return `${"\n    <section\n      class=\"character-step-panel\"\n      data-step-panel=\"3\"\n    >\n      <h2 class=\"character-section-title\">CASE PRESSURE</h2>\n\n      <p class=\"character-section-intro\">\n        How much chaos would you like professionally documented?\n      </p>\n\n      <div\n        class=\"character-difficulty-list\"\n        role=\"radiogroup\"\n        aria-label=\"Case difficulty\"\n      >\n        "}${DIFFICULTIES.map((difficulty, index) => (
           renderDifficultyCard(
             difficulty,
             index,
             playerData.difficulty,
           )
-        )).join('')}${__dialogueText("ui/characterCreation/DifficultyCards.js", "t_dc209e3df250d373f0a4")}`;
+        )).join('')}${"\n      </div>\n    </section>\n  "}`;
 }

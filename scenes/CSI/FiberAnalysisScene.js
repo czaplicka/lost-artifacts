@@ -173,7 +173,7 @@ export class FiberAnalysisScene extends BaseScene {
     const session = this._fiberSession;
     this.padTexts = PADS.map((pad, index) => {
       const text = this.add.text(centerX + (index - 1.5) * 150, centerY,
-        `${__dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_36a9e7f1c95b82ffb997")}${pad.label}${__dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_36a9e7f1c95b82ffb997")}`, {
+        `${" "}${pad.label}${" "}`, {
           fontFamily: '"PressStart2P"', fontSize: '18px', color: TERM.dark,
           backgroundColor: pad.color, padding: { x: 14, y: 14 }
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
@@ -188,9 +188,9 @@ export class FiberAnalysisScene extends BaseScene {
     const terminal = this.term;
     const session = this._fiberSession;
     const printed = await this.printLines(session, terminal, [
-      [__dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_81ecbd9afa3cd6ed1e61")],
-      [__dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_81cd115aacaef9bc316b")],
-      [__dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_84018f92eda6f1207478"), { color: TERM.amber }]
+      ["> FIBER SAMPLE LOADED. DO NOT SNEEZE."],
+      ["> REAGENTS MUST BE ADDED IN THE SHOWN ORDER."],
+      ["> WATCH. REMEMBER. REPEAT. LIKE KARAOKE, BUT SCIENCE.", { color: TERM.amber }]
     ]);
     if (printed && !this.finished) this.showReadyScreen();
   }
@@ -219,15 +219,15 @@ export class FiberAnalysisScene extends BaseScene {
       Math.min(width - 40, 760), 390, 0x111827, 1)
       .setStrokeStyle(3, 0x7df9ff).setDepth(5001);
     const title = this.add.text(width / 2, height / 2 - 130,
-      __dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_dcd16a8798982c7590e0"), {
+      "FIBER MATCHING PROTOCOL", {
         fontFamily: 'PressStart2P', fontSize: '16px', color: '#7df9ff', align: 'center'
       }).setOrigin(0.5).setDepth(5002);
     const briefing = this.add.text(width / 2, height / 2 - 20,
-      __dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_3d6a49126f053aeef8e4"), {
+      "Watch the fiber scanner carefully.\n\nRepeat the color sequence exactly.\n\nThe machine is dramatic, impatient,\nand legally classified as a diva.", {
         fontFamily: 'SpecialElite', fontSize: '25px', color: '#fff4c7', align: 'center',
         wordWrap: { width: Math.min(width - 110, 650) }
       }).setOrigin(0.5).setDepth(5002);
-    const startButton = this.add.text(width / 2, height / 2 + 145, __dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_50285600a6b1bb268eb8"), {
+    const startButton = this.add.text(width / 2, height / 2 + 145, "[ I AM FOCUSED ]", {
       fontFamily: 'PressStart2P', fontSize: '13px', color: '#39ff14',
       backgroundColor: '#000000', padding: { left: 16, right: 16, top: 12, bottom: 12 }
     }).setOrigin(0.5).setDepth(5002).setInteractive({ useHandCursor: true });
@@ -262,7 +262,7 @@ export class FiberAnalysisScene extends BaseScene {
       () => Phaser.Math.Between(0, PADS.length - 1));
     try {
       const printed = await this.terminalAction(session, terminal, () => terminal.print(
-        `${__dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_6c7104e7f95bef677adf")}${this.round + 1}${__dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_8a5edab282632443219e")}${ROUNDS.length}${__dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_4d4eda0da33142ae5f06")}${sequenceLength}`));
+        `${"> ROUND "}${this.round + 1}${__dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_8a5edab282632443219e")}${ROUNDS.length}${__dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_4d4eda0da33142ae5f06")}${sequenceLength}`));
       if (!printed || this.finished || !this.gameStarted) return;
       const played = await this.playSequence();
       if (played && this.isCurrentSession(session, terminal) &&
@@ -345,7 +345,7 @@ export class FiberAnalysisScene extends BaseScene {
       return;
     }
     const printed = await this.terminalAction(session, terminal,
-      () => terminal.print(__dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_49f629edec4cfe6c1322")));
+      () => terminal.print("> SEQUENCE ACCEPTED. THE MACHINE PURRS."));
     if (!printed || this.finished || !this.gameStarted) return;
     this.scheduleNextRound(600);
   }
@@ -367,7 +367,7 @@ export class FiberAnalysisScene extends BaseScene {
     this.mistakes += 1;
     this.score = Math.max(0, this.score - 15);
     const printed = await this.terminalAction(session, terminal, () => terminal.print(
-      __dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_0ff86f944898b8113647"),
+      "> WRONG REAGENT. SMALL EXPLOSION. EVERYONE IS FINE. (-15 PTS)",
       { color: TERM.red }));
     if (!printed || this.finished || !this.gameStarted) return;
     this.scheduleNextRound(800);
@@ -387,13 +387,13 @@ export class FiberAnalysisScene extends BaseScene {
 
   getReportLines() {
     const lines = [
-      [`${__dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_aeef2e02de04a3930138")}${this.reportLabel.toUpperCase()}${__dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_cdb4ee2aea69cc6a8333")}`],
+      [`${"> RESULT: "}${this.reportLabel.toUpperCase()}${__dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_cdb4ee2aea69cc6a8333")}`],
       [`> ${this.clue.text}`]
     ];
     if (this.evidenceConfig.isRedHerring) {
-      lines.push([__dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_54dddc32295cf5d888c8"), { color: TERM.amber }]);
+      lines.push(["> THIS TRACE ALONE DOES NOT IDENTIFY A SUSPECT.", { color: TERM.amber }]);
     }
-    lines.push([__dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_10528a68abe1b6f81398")]);
+    lines.push(["> THE SPECTROGRAPH IS VERY PROUD ANYWAY."]);
     return lines;
   }
 
@@ -414,9 +414,9 @@ export class FiberAnalysisScene extends BaseScene {
     if (!analyzed) return;
     const lines = this.getReportLines();
     if (timeBonus > 0) {
-      lines.push([`${__dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_12af905b2e0dd06cb1dd")}${timeBonus}${__dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_eeb98a5625408b801794")}`, { color: TERM.amber }]);
+      lines.push([`${"> SPEED BONUS: +"}${timeBonus}${__dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_eeb98a5625408b801794")}`, { color: TERM.amber }]);
     }
-    lines.push([__dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_5fe75d0a88dfe79b974d"), { color: TERM.amber }]);
+    lines.push(["> CLUE READY FOR CASE FILE.", { color: TERM.amber }]);
     const printed = await this.printLines(session, terminal, lines);
     if (!printed) return;
     terminal.button(__dialogueText("scenes/CSI/FiberAnalysisScene.js", "t_d8c6f6bc46d3b7948ad7"), TERM.green, () => {

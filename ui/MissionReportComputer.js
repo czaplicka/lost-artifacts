@@ -34,13 +34,13 @@ export class MissionReportComputer {
     this.previousFocus = document.activeElement;
     this.root = document.createElement('div'); this.root.className = 'mr-terminal';
     this.root.setAttribute('role', 'dialog'); this.root.setAttribute('aria-modal', 'true');
-    this.root.setAttribute('aria-label', __dialogueText("ui/MissionReportComputer.js", "t_c116321bcc5f84e8ab23"));
+    this.root.setAttribute('aria-label', "Mission report computer");
     const style = document.createElement('style'); style.textContent = CSS; this.root.append(style);
     this.panel = document.createElement('section'); this.panel.className = 'mr-monitor'; this.root.append(this.panel);
     this.root.addEventListener('keydown', event => {
       event.stopPropagation();
-      if (event.key === __dialogueText("ui/MissionReportComputer.js", "t_037c968467aa3fd7c059")) { event.preventDefault(); this.close(); }
-      if (event.key === __dialogueText("ui/MissionReportComputer.js", "t_90ddf1963abb36c9921c")) {
+      if (event.key === "Escape") { event.preventDefault(); this.close(); }
+      if (event.key === "Tab") {
         const focusable = [...this.panel.querySelectorAll('button:not([disabled])')];
         const first = focusable[0], last = focusable[focusable.length - 1];
         if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
@@ -78,7 +78,7 @@ export class MissionReportComputer {
       }
       this.active = field.id; this.render(); this.panel.querySelector(`[data-slot="${field.id}"]`)?.focus();
     }, this.form.printed || this.form.submitted);
-    button.className = 'mr-slot' + (this.errors.has(field.id) ? __dialogueText("ui/MissionReportComputer.js", "t_defa1d718f85180e724c") : ''); button.dataset.slot = field.id;
+    button.className = 'mr-slot' + (this.errors.has(field.id) ? " mr-error" : ''); button.dataset.slot = field.id;
     button.setAttribute('aria-pressed', String(this.active === field.id));
     button.setAttribute('aria-label', `${field.hint}: ${option?.label ?? 'blank'}`); return button;
   }
@@ -132,7 +132,7 @@ export class MissionReportComputer {
     else if (result.reason === 'conflict') this.message = __dialogueText("ui/MissionReportComputer.js", "t_a3ea1e7a3519129da937");
     else this.message = result.error || __dialogueText("ui/MissionReportComputer.js", "t_a537e2ab9aa37cae4dc3");
     if (result.saved === false) this.message += __dialogueText("ui/MissionReportComputer.js", "t_519ddc601bc6b19c03b9");
-    this.render(); this.panel.querySelector(__dialogueText("ui/MissionReportComputer.js", "t_6c420b5470a69a556a5a"))?.focus();
+    this.render(); this.panel.querySelector(".mr-actions button")?.focus();
   }
   close({ save = true } = {}) {
     stopMissionReportAudio(this);
@@ -147,7 +147,7 @@ export class MissionReportComputer {
 export function installReportComputerButton(scene) {
   if (scene._reportComputerInstalled) return; scene._reportComputerInstalled = true;
   const computer = new MissionReportComputer(scene);
-  const button = scene.add.text(24, 290, __dialogueText("ui/MissionReportComputer.js", "t_77dc4c650af15511a631"), { fontFamily: 'SpecialElite', fontSize: '22px', color: '#f2d477',
+  const button = scene.add.text(24, 290, "COMPUTER >", { fontFamily: 'SpecialElite', fontSize: '22px', color: '#f2d477',
     backgroundColor: '#17110e', padding: { x: 14, y: 10 } }).setScrollFactor(0).setDepth(100).setInteractive({ useHandCursor: true });
   let opening = false;
   button.on('pointerdown', async pointer => {
@@ -157,7 +157,7 @@ export function installReportComputerButton(scene) {
     try { await computer.open(); }
     catch (error) {
       console.error('[MissionReportComputer] Open failed:', error); computer.close({ save: false });
-      scene.showOfficeStatusMessage(__dialogueText("ui/MissionReportComputer.js", "t_ee3b7e0e49591cf79f9a"));
+      scene.showOfficeStatusMessage("The report terminal could not be opened. Please try again.");
     } finally { opening = false; }
   });
   button.on('pointerover', () => button.setColor('#ffffff')); button.on('pointerout', () => button.setColor('#f2d477'));

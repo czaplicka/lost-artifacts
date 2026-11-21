@@ -50,30 +50,30 @@ export class MobileFullscreen {
     const overlay = document.createElement('div');
     overlay.id = 'rotate-overlay';
     overlay.style.cssText = [
-      __dialogueText("mobileFullscreen.js", "t_e35e69deda74936bc156"),
-      __dialogueText("mobileFullscreen.js", "t_897290051b5d15fc0d07"),
-      __dialogueText("mobileFullscreen.js", "t_eecb70e2dde260792be2"),
-      __dialogueText("mobileFullscreen.js", "t_65d1f1c3d796b67c546f"),
-      __dialogueText("mobileFullscreen.js", "t_f2a1c75e3e8386d3bdb5"),
-      __dialogueText("mobileFullscreen.js", "t_b21ee0ed56c521bb3b77"),
-      __dialogueText("mobileFullscreen.js", "t_993be35f5b69f4cd9b04"),
-      __dialogueText("mobileFullscreen.js", "t_dc2bb7a1b800a0cd04db"),
-      __dialogueText("mobileFullscreen.js", "t_7d3e38a0ebf1a06fc501"),
-      __dialogueText("mobileFullscreen.js", "t_6ff97e4b2cf9ca841e10"),
-      __dialogueText("mobileFullscreen.js", "t_63dbf5319ae59f537c68"),
-      __dialogueText("mobileFullscreen.js", "t_b3036313023d45a1ab9f"),
-      __dialogueText("mobileFullscreen.js", "t_318500e7f22242fc8176"),
-      __dialogueText("mobileFullscreen.js", "t_d794ea98bd5c6cba8c5c"),
-      __dialogueText("mobileFullscreen.js", "t_98044e920ea4f4ebdf28")
+      "position: fixed",
+      "inset: 0",
+      "z-index: 99999",
+      "display: none",
+      "align-items: center",
+      "justify-content: center",
+      "flex-direction: column",
+      "background: #1a1a2e",
+      "color: #e0c068",
+      "font-family: 'PressStart2P', 'SpecialElite', monospace",
+      "text-align: center",
+      "padding: 40px",
+      "user-select: none",
+      "-webkit-user-select: none",
+      "touch-action: none"
     ].join('; ');
 
     const icon = document.createElement('div');
-    icon.style.cssText = __dialogueText("mobileFullscreen.js", "t_0afa9545da2d960a99e2");
+    icon.style.cssText = "font-size: 64px; margin-bottom: 30px; animation: mobileRotateHint 2s ease-in-out infinite;";
     icon.textContent = '\uD83D\uDCF1';
 
     const text = document.createElement('div');
-    text.style.cssText = __dialogueText("mobileFullscreen.js", "t_08eb5317df1c189815e6");
-    text.innerHTML = __dialogueText("mobileFullscreen.js", "t_447a9bddef4dba5014d5");
+    text.style.cssText = "font-size: 14px; line-height: 1.8;";
+    text.innerHTML = "OBRÓĆ TELEFON<br>DO POZIOMU";
 
     overlay.appendChild(icon);
     overlay.appendChild(text);

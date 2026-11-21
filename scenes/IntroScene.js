@@ -177,7 +177,7 @@ export class IntroScene extends BaseScene {
     this.skipHint = this.add.text(
       width - 20,
       height - this.layout.barH / 2,
-      __dialogueText("scenes/IntroScene.js", "t_b06e6ec1e5423436da0e"),
+      "CLICK OR PRESS ANY KEY TO SKIP ►",
       {
         fontFamily: FONT_PIXEL,
         fontSize: '9px',
@@ -409,14 +409,14 @@ export class IntroScene extends BaseScene {
       .setAlpha(0);
 
 
-    const titleShadow = this.add.text(3, 3, __dialogueText("scenes/IntroScene.js", "t_9246fca97ffafae56410"), {
+    const titleShadow = this.add.text(3, 3, "MARK AGENCY", {
       fontFamily: FONT_PIXEL,
       fontSize: `${fontSize}px`,
       color: '#1a0d00'
     }).setOrigin(0.5);
 
 
-    const titleText = this.add.text(0, 0, __dialogueText("scenes/IntroScene.js", "t_9246fca97ffafae56410"), {
+    const titleText = this.add.text(0, 0, "MARK AGENCY", {
       fontFamily: FONT_PIXEL,
       fontSize: `${fontSize}px`,
       color: '#e6c687'
@@ -448,14 +448,14 @@ export class IntroScene extends BaseScene {
     ], true);
 
 
-    const subTitle = this.add.text(0, fontSize * 1.2, __dialogueText("scenes/IntroScene.js", "t_a7c9184f69bd6b7bd34c"), {
+    const subTitle = this.add.text(0, fontSize * 1.2, "- THE LOST ARTIFACT -", {
       fontFamily: FONT_TYPE,
       fontSize: `${Math.floor(fontSize * 0.45)}px`,
       color: '#d4af37'
     }).setOrigin(0.5);
 
 
-    const licensed = this.add.text(0, fontSize * 1.72, __dialogueText("scenes/IntroScene.js", "t_b77f4c689bd6ae2f63d1"), {
+    const licensed = this.add.text(0, fontSize * 1.72, "Licensed. Mostly.", {
       fontFamily: FONT_TYPE,
       fontSize: `${Math.max(11, Math.floor(fontSize * 0.28))}px`,
       color: '#8c7a55'
@@ -779,14 +779,14 @@ export class IntroScene extends BaseScene {
     const fontSize = Math.min(36, Math.floor(width * 0.075));
 
 
-    const text = this.add.text(0, -8, __dialogueText("scenes/IntroScene.js", "t_ab040306c78a1998ae0d"), {
+    const text = this.add.text(0, -8, "NOW HIRING!", {
       fontFamily: FONT_PIXEL,
       fontSize: `${fontSize}px`,
       color: '#c8281e'
     }).setOrigin(0.5);
 
 
-    const sub = this.add.text(0, fontSize * 0.95, __dialogueText("scenes/IntroScene.js", "t_d410ea895bac2e5844e5"), {
+    const sub = this.add.text(0, fontSize * 0.95, "Apply within. Bring your own magnifying glass.", {
       fontFamily: FONT_TYPE,
       fontSize: `${Math.max(13, Math.floor(fontSize * 0.45))}px`,
       color: '#e6c687'

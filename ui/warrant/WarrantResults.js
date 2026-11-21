@@ -510,7 +510,7 @@ export class WarrantResults {
     const text = s.add.text(
       0,
       0,
-      __dialogueText("ui/warrant/WarrantResults.js", "t_82a09b27dbadc43df54a"),
+      "ISSUED",
       {
         fontFamily: FONT,
         fontSize: '60px',

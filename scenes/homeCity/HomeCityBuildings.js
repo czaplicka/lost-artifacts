@@ -338,8 +338,8 @@ export class HomeCityBuildings extends HomeCityGround {
     const key = this.bake(`banner_${b.id}`, w, h, ctx => {
       ctx.save(); ctx.translate(A.x, A.y); ctx.transform(1, 0.5, 0, 1, 0, 0);
       rect(ctx, 1, 3, wpx, 20, __dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_78eab87e6186882af78f")); rect(ctx, 0, 0, wpx, 20, 0x2e231b); ctx.strokeStyle = css(0xd7b16b); ctx.lineWidth = 1.5; ctx.strokeRect(1.5, 1.5, wpx - 3, 17);
-      let size = 13; ctx.font = `${size}${__dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_2e0dd9220c0e7b7f0e34")}${FONT_UI}`;
-      while (ctx.measureText(text).width > wpx - 16 && size > 8) { size -= 1; ctx.font = `${size}${__dialogueText("scenes/homeCity/HomeCityBuildings.js", "t_2e0dd9220c0e7b7f0e34")}${FONT_UI}`; }
+      let size = 13; ctx.font = `${size}${"px "}${FONT_UI}`;
+      while (ctx.measureText(text).width > wpx - 16 && size > 8) { size -= 1; ctx.font = `${size}${"px "}${FONT_UI}`; }
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = css(0xf1e2b6); ctx.fillText(text, wpx / 2, 11); ctx.restore();
     }, left, top);
     if (key) s.add.image(left, top, key).setOrigin(0, 0).setDepth((b.door.x + front) * 100 + 100.5);

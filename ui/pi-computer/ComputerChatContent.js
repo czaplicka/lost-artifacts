@@ -13,10 +13,10 @@ export function normalise(value){return String(value||'').toLowerCase().replace(
 export function chiefReply(message){
  const q=normalise(message);
  if(/name appears to be classified|redacted|black bar/.test(q))return __dialogueText("ui/pi-computer/ComputerChatContent.js", "t_043c75b6dc028f78cd52");
- if(/not interested|no thanks|decline|refuse|maybe later/.test(q)||q===__dialogueText("ui/pi-computer/ComputerChatContent.js", "t_9390298f3fb0c5b16049"))return thiefdokuService.isInstalled()
+ if(/not interested|no thanks|decline|refuse|maybe later/.test(q)||q==="no")return thiefdokuService.isInstalled()
  ?__dialogueText("ui/pi-computer/ComputerChatContent.js", "t_a769398cb866a2711b16")+__dialogueText("ui/pi-computer/ComputerChatContent.js", "t_e1de4a60dfc75f89bd12")
  :__dialogueText("ui/pi-computer/ComputerChatContent.js", "t_65253d48894b099f6bda")+__dialogueText("ui/pi-computer/ComputerChatContent.js", "t_a11346f97fb5317f0163");
- if(/\baccept\b|\binstall\b|sign me up|i am in|im in/.test(q)||[__dialogueText("ui/pi-computer/ComputerChatContent.js", "t_8a798890fe93817163b1"),__dialogueText("ui/pi-computer/ComputerChatContent.js", "t_2689367b205c16ce32ed"),__dialogueText("ui/pi-computer/ComputerChatContent.js", "t_6a581ee901185606598b"),'deal'].includes(q)){
+ if(/\baccept\b|\binstall\b|sign me up|i am in|im in/.test(q)||["yes","ok","okay",'deal'].includes(q)){
   if(!thiefdokuService.install())return __dialogueText("ui/pi-computer/ComputerChatContent.js", "t_9f1fc751294e21de4fd1")+__dialogueText("ui/pi-computer/ComputerChatContent.js", "t_5c2ca30d31b27c8d4678");
   return __dialogueText("ui/pi-computer/ComputerChatContent.js", "t_aed307a21ada2106782f")+__dialogueText("ui/pi-computer/ComputerChatContent.js", "t_5649988f10c0d2b3aa21")+__dialogueText("ui/pi-computer/ComputerChatContent.js", "t_dc4459fd129e180e5a5c")+__dialogueText("ui/pi-computer/ComputerChatContent.js", "t_c8679abe498aa476cd89")+__dialogueText("ui/pi-computer/ComputerChatContent.js", "t_089a06fa0b66df5e317d");
  }

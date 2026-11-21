@@ -349,7 +349,7 @@ export const GridDataMixin = {
         clue.text ||
         clue.description ||
         (
-          type === __dialogueText("suspectsBoard/GridData.mixin.js", "t_4b2daddd496aa58de719")
+          type === "crime_scene_fact"
             ? `${__dialogueText("suspectsBoard/GridData.mixin.js", "t_c777a76f9374d856ab8e")}${fieldLabel(field)}${__dialogueText("suspectsBoard/GridData.mixin.js", "t_81afb10b461acd8f2b7e")}${value}${__dialogueText("suspectsBoard/GridData.mixin.js", "t_cdb4ee2aea69cc6a8333")}`
             : `${this.getSuspectDisplayName(suspect)}${__dialogueText("suspectsBoard/GridData.mixin.js", "t_45822f54a0d0e030f756")}${fieldLabel(field)}${__dialogueText("suspectsBoard/GridData.mixin.js", "t_81afb10b461acd8f2b7e")}${value}${__dialogueText("suspectsBoard/GridData.mixin.js", "t_cdb4ee2aea69cc6a8333")}`
         )
@@ -408,7 +408,7 @@ export const GridDataMixin = {
         field,
         value: resultLabel(field, resolvedValue),
 
-        label: field === __dialogueText("suspectsBoard/GridData.mixin.js", "t_f8326ff535e4b036f70b")
+        label: field === "dust_profile"
           ? __dialogueText("suspectsBoard/GridData.mixin.js", "t_18213d067a58bdb27f29")
           : __dialogueText("suspectsBoard/GridData.mixin.js", "t_417cac3597812e93560c"),
 

@@ -9,8 +9,8 @@ export function editorialKind(page) {
     if (page.template) return Object.hasOwn(STYLES, page.template) ? page.template : null;
     if (['tabloid','gossip'].includes(page.theme)) return null;
     if (page.theme === 'news' || page.theme === 'lifestyle') return page.theme;
-    if (page.brand === __dialogueText("ui/pi-computer/EditorialPageTemplate.js", "t_9364bc83c985db0cc349")) return 'news';
-    if (page.brand === __dialogueText("ui/pi-computer/EditorialPageTemplate.js", "t_e523b8783bfe3be6e1cc")) return 'lifestyle';
+    if (page.brand === "COMMUNITY LEDGER") return 'news';
+    if (page.brand === "THE EVERYDAY EDIT") return 'lifestyle';
     return null;
 }
 export function installEditorialPages(ui) {

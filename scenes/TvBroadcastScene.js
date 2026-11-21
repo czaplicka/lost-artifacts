@@ -1,1034 +1,462 @@
-import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
-import { gameState } from "../GameData.js";
-import { getTVBroadcast } from "../tvBroadcastData.js";
-import { getTimeChangedPayload } from "../CaseTimeHelper.js";
-import { EventBus } from "../EventBus.js";
-import { audioManager } from "../managers/AudioManager.js";
-import { BaseScene } from "./BaseScene.js";
-import { createTvBroadcastLayout } from "./tv/TvBroadcastLayout.js";
-import { TvBroadcastEffects } from "./tv/TvBroadcastEffects.js";
-import { TvBroadcastView } from "./tv/TvBroadcastView.js";
-import { TvBroadcastControls } from "./tv/TvBroadcastControls.js";
-import { TvBroadcastAudio } from "./tv/TvBroadcastAudio.js";
-import { preloadTVEditorialAssets } from "./tv/TvEditorialPreload.js";
-import { TvMoviePlayer } from "./tv/TvMoviePlayer.js";
+import { dialogueText as __dialogueText } from '../dialogues/DialogueText.js';
+import { gameState } from '../GameData.js';
+import { getTVBroadcast, getCityAds } from '../tvBroadcastData.js';
+import { getTimeChangedPayload } from '../CaseTimeHelper.js';
+import { EventBus } from '../EventBus.js';
+import { audioManager } from '../managers/AudioManager.js';
+import { BaseScene } from './BaseScene.js';
+import { createTvBroadcastLayout } from './tv/TvBroadcastLayout.js';
+import { TvBroadcastEffects } from './tv/TvBroadcastEffects.js';
+import { TvBroadcastView } from './tv/TvBroadcastView.js';
+import { TvBroadcastControls } from './tv/TvBroadcastControls.js';
+import { TvBroadcastAudio } from './tv/TvBroadcastAudio.js';
+import { preloadTVEditorialAssets } from './tv/TvEditorialPreload.js';
+import { TvMoviePlayer } from './tv/TvMoviePlayer.js';
 
-const SOURCE = "scenes/TvBroadcastScene.js";
-
+const SOURCE = 'scenes/TvBroadcastScene.js';
 const text = id => __dialogueText(SOURCE, id);
-
 const VOLUME_LEVELS = [1, 0.5, 0];
-
-const MOVIE_URL = new URL(
-  __dialogueText("scenes/TvBroadcastScene.js", "t_95f300e5ffc5f8db2c3f"),
-  import.meta.url
-).href;
-
-const TUNE_MESSAGES = [
-  text("t_1ae73fb1d9e04eac430b"),
-  text("t_2299be719d40b3ac2056"),
-  text("t_91884dd7fc40f11f7581"),
-  text("t_da32567853eb31493946"),
-  text("t_f1d655eec45d5b9e5f0e")
+const CHANNELS = [
+  { id:'aurora', name:'Aurora One', number:'01', movie:'drama',
+    label:'DRAMA', title:'Aurora Cinema',
+    url:new URL('../assets/video/tv/drama.mp4', import.meta.url).href },
+  { id:'velvet', name:'Velvet TV', number:'02', movie:'romance',
+    label:'ROMANCE', title:'Velvet Picture House',
+    url:new URL('../assets/video/tv/romance.mp4', import.meta.url).href }
 ];
 
 export class TvBroadcastScene extends BaseScene {
-  constructor() {
-    super({ key: "TvBroadcastScene" });
-    this.resetState();
-  }
+  constructor() { super({ key:'TvBroadcastScene' }); this.resetState(); }
 
   resetState() {
-    this.returnSceneKey = null;
-    this.pauseBelowScene = true;
-    this.onClose = null;
-
-    this.segmentQueue = [];
-    this.currentSegmentIndex = 0;
-    this.currentLineIndex = 0;
-    this.currentCharIndex = 0;
-
-    this.typingEvent = null;
-    this.advanceEvent = null;
-    this.clockEvent = null;
-    this.startupFallback = null;
-    this.closeFallback = null;
-    this.transitionEvent = null;
-
-    this.isTyping = false;
-    this.isTransitioning = false;
-    this.isBroadcastPaused = false;
-    this.isClosing = false;
-    this.hasStarted = false;
-    this.closeCompleted = false;
-
-    this.currentLineFullText = "";
-    this.currentLinePrefix = "";
-    this.currentSegment = null;
-
-    this.layout = null;
-    this.tvView = null;
-    this.tvEffects = null;
-    this.tvControls = null;
-    this.tvAudio = null;
-    this.moviePlayer = null;
-
-    this.anchorTextureKey = null;
-    this.anchorDisplayName = "";
-
-    this.hasPausedReturnScene = false;
-    this.hudSleptByTv = false;
-
-    this.minimumSegmentHold = 5000;
-    this.volumeIndex = 0;
+    Object.assign(this, {
+      returnSceneKey:null, pauseBelowScene:true, onClose:null,
+      segmentQueue:[], currentSegmentIndex:0, currentLineIndex:0, currentCharIndex:0,
+      typingEvent:null, advanceEvent:null, clockEvent:null, startupFallback:null,
+      closeFallback:null, transitionEvent:null, isTyping:false, isTransitioning:false,
+      isBroadcastPaused:false, isClosing:false, hasStarted:false, closeCompleted:false,
+      currentLineFullText:'', currentLinePrefix:'', currentSegment:null,
+      layout:null, tvView:null, tvEffects:null, tvControls:null, tvAudio:null,
+      moviePlayer:null, anchorTextureKey:null, anchorDisplayName:'',
+      hasPausedReturnScene:false, hudSleptByTv:false, minimumSegmentHold:5000,
+      volumeIndex:0, channelIndex:0, lastAdId:null, channelOsdPending:false,
+      lastChannelIndex:null
+    });
   }
 
   init(data = {}) {
     this.resetState();
-
     this.returnSceneKey = data.returnSceneKey || null;
-
-    this.pauseBelowScene =
-      data.pauseBelowScene !== undefined
-        ? Boolean(data.pauseBelowScene)
-        : true;
-
-    this.onClose =
-      typeof data.onClose === "function"
-        ? data.onClose
-        : null;
+    this.pauseBelowScene = data.pauseBelowScene !== undefined ? Boolean(data.pauseBelowScene) : true;
+    this.onClose = typeof data.onClose === 'function' ? data.onClose : null;
   }
 
-  preload() {
-    preloadTVEditorialAssets(this);
-  }
+  preload() { preloadTVEditorialAssets(this); }
 
   create() {
     super.create();
-
-    EventBus.emit("hideHUD");
+    EventBus.emit('hideHUD');
     audioManager.init(this);
-
-    this.events.once(
-      Phaser.Scenes.Events.SHUTDOWN,
-      this.handleShutdown,
-      this
-    );
-
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.handleShutdown, this);
     this.setupSceneState();
     this.selectBroadcastAnchor();
-
     this.tvAudio = new TvBroadcastAudio(this);
-
     this.createTvInterface();
     this.createTvControls();
-
     this.moviePlayer = new TvMoviePlayer(this);
-
-    const broadcast = getTVBroadcast(
-      gameState,
-      this.cache.json.get("tv-config") || {}
-    );
-
-    this.segmentQueue = [
-      ...(broadcast.segments || []),
-      {
-        id: "feature-movie-1",
-        type: "movie",
-        title: __dialogueText("scenes/TvBroadcastScene.js", "t_9e2d75f650f4aafab40c"),
-        label: __dialogueText("scenes/TvBroadcastScene.js", "t_8c733dc668925ff77581"),
-        badge: "FEATURE",
-        videoUrl: MOVIE_URL,
-        lines: []
-      }
-    ];
-
+    this.buildChannelQueue();
     this.hideUnderlyingHud();
-
-    this.tvView.onScreenClick = () => {
-      this.onAdvancePressed();
-    };
-
+    this.tvView.onScreenClick = () => this.onAdvancePressed();
     this.updateClock();
-
-    this.clockEvent = this.time.addEvent({
-      delay: 1000,
-      loop: true,
-      callback: () => this.updateClock()
-    });
-
+    this.clockEvent = this.time.addEvent({ delay:1000, loop:true, callback:() => this.updateClock() });
     this.playOpenAnimation();
   }
 
+  getChannel() { return CHANNELS[this.channelIndex]; }
+
+  buildChannelQueue() {
+    const config = this.cache.json.get('tv-config') || {};
+    const broadcast = getTVBroadcast(gameState, config);
+    const channel = this.getChannel();
+    const station = `CH ${channel.number} · ${channel.name.toUpperCase()}`;
+    const news = (broadcast.segments || []).filter(s => s.type === 'news');
+    if (!news.length) news.push({
+      id:'quiet-news', type:'news', title:'News Bulletin', label:'NEWS',
+      lines:['No breaking news. The newsroom is treating this as a developing story.']
+    });
+    const ads = getCityAds(broadcast.cityId, config);
+    const pickAd = slot => {
+      const alternatives = ads.filter(ad => String(ad.id || ad.title) !== this.lastAdId);
+      const pool = alternatives.length ? alternatives : ads;
+      const ad = pool.length ? pool[Math.floor(Math.random() * pool.length)] : {
+        title:'Your Advertisement Here', label:'ADVERTISEMENT', badge:'PAID FOR',
+        lines:['Reach dozens of viewers. Some of them awake.', 'Ask your local broadcaster about our suspiciously affordable rates.'],
+        hold:6500
+      };
+      this.lastAdId = String(ad.id || ad.title);
+      return { ...ad, id:`${channel.id}-ad-${slot}-${ad.id || 'house'}`, type:'ad', channel:station };
+    };
+    this.segmentQueue = [
+      ...news.map(s => ({ ...s, channel:station })),
+      pickAd('before'),
+      { id:`${channel.id}-${channel.movie}`, type:'movie', title:channel.title,
+        label:channel.label, badge:'FEATURE', channel:station, videoUrl:channel.url, lines:[] },
+      pickAd('after')
+    ];
+  }
+
   setupSceneState() {
-    if (
-      this.pauseBelowScene &&
-      this.returnSceneKey &&
-      this.isSceneActive(this.returnSceneKey)
-    ) {
+    if (this.pauseBelowScene && this.returnSceneKey && this.isSceneActive(this.returnSceneKey)) {
       this.scene.pause(this.returnSceneKey);
       this.hasPausedReturnScene = true;
     }
-
-    this.layout = createTvBroadcastLayout(this, {
-      televisionTextureKey: "television"
-    });
-
+    this.layout = createTvBroadcastLayout(this, { televisionTextureKey:'television' });
     const bindings = [
-      ["keydown-SPACE", this.onAdvancePressed],
-      ["keydown-ENTER", this.onAdvancePressed],
-      ["keydown-RIGHT", this.onAdvancePressed],
-      ["keydown-LEFT", this.onPrevPressed],
-      ["keydown-X", this.onSkipPressed],
-      ["keydown-P", this.toggleBroadcastPause],
-      ["keydown-ESC", this.onClosePressed]
+      ['keydown-SPACE',this.onAdvancePressed], ['keydown-ENTER',this.onAdvancePressed],
+      ['keydown-RIGHT',this.onAdvancePressed], ['keydown-LEFT',this.onPrevPressed],
+      ['keydown-X',this.onSkipPressed], ['keydown-P',this.toggleBroadcastPause],
+      ['keydown-ESC',this.onClosePressed], ['keydown-ONE',this.onChannelOne],
+      ['keydown-TWO',this.onChannelTwo], ['keydown-NUMPAD_ONE',this.onChannelOne],
+      ['keydown-NUMPAD_TWO',this.onChannelTwo]
     ];
-
-    for (const [event, handler] of bindings) {
-      this.trackInputEvent(
-        this.input.keyboard,
-        event,
-        handler
-      );
-    }
+    for (const [event, handler] of bindings) this.trackInputEvent(this.input.keyboard, event, handler);
   }
+
+  onChannelOne() { this.switchChannel(0); }
+  onChannelTwo() { this.switchChannel(1); }
 
   createTvInterface() {
     this.tvView = new TvBroadcastView(this, this.layout);
     this.tvView.create(this.anchorTextureKey);
-
     this.tvEffects = new TvBroadcastEffects(this);
-
-    const effects = this.tvEffects.create(
-      this.layout.screenWidth,
-      this.layout.screenHeight
-    );
-
-    this.tvView.addScreenEffects(effects);
-
-    this.tvEffects.setJitterTarget(
-      this.tvView.ui.screenInner
-    );
-
+    this.tvView.addScreenEffects(this.tvEffects.create(this.layout.screenWidth, this.layout.screenHeight));
+    this.tvEffects.setJitterTarget(this.tvView.ui.screenInner);
     this.tvEffects.start();
   }
 
   createTvControls() {
     this.tvControls = new TvBroadcastControls(this, {
-      onClose: () => this.onClosePressed(),
-      onSkip: () => this.onSkipPressed(),
-      onNext: () => this.onAdvancePressed(),
-      onPauseToggle: () => this.toggleBroadcastPause(),
-      onVolume: () => this.onVolumeKnob(),
-      onTune: () => this.onTuneKnob(),
-
-      isActionAllowed: () =>
-        !this.isTransitioning && !this.isClosing,
-
-      isBroadcastPaused: () =>
-        this.isBroadcastPaused,
-
-      getTooltip: id =>
-        this.getControlTooltip(id)
+      onClose:() => this.onClosePressed(), onSkip:() => this.onSkipPressed(),
+      onNext:() => this.onAdvancePressed(), onPauseToggle:() => this.toggleBroadcastPause(),
+      onVolume:() => this.onVolumeKnob(), onTune:() => this.onTuneKnob(),
+      isActionAllowed:() => !this.isTransitioning && !this.isClosing,
+      isBroadcastPaused:() => this.isBroadcastPaused,
+      getTooltip:id => this.getControlTooltip(id)
     });
-
     this.tvControls.create(this.layout);
   }
 
   getControlTooltip(id) {
     switch (id) {
-      case "close":
-        return text("t_00b2bafbfd97d0bf28fb");
-
-      case "skip":
-        return this.currentSegment?.type === "movie"
-          ? __dialogueText("scenes/TvBroadcastScene.js", "t_75dcb793497f033be67b")
-          : text("t_88a76d8c3c671ce5915a");
-
-      case "next":
-        return this.currentSegment?.type === "movie"
-          ? __dialogueText("scenes/TvBroadcastScene.js", "t_44755f81bf9fe80a0ff2")
-          : text("t_60642d51c6f0682ea60a");
-
-      case "pause":
-        return this.isBroadcastPaused
-          ? text("t_1d810bcefcad2a8ebffa")
-          : text("t_c73efbf5d1d879789a4e");
-
-      case "volume": {
-        const level = VOLUME_LEVELS[this.volumeIndex];
-
-        return level === 0
-          ? text("t_d3c69d47b833f4ffc3c0")
-          : (
-            text("t_95884bf300be12097277") +
-            Math.round(level * 100) +
-            text("t_bbf3f11cb5b43e700273")
-          );
-      }
-
-      case "tune":
-        return "TUNE";
-
-      default:
-        return "";
+      case 'close': return 'Switch off TV [Esc]';
+      case 'skip': return 'Jump to the next news bulletin [X]';
+      case 'next': return this.currentSegment?.type === 'movie' ? 'Skip film [Right]' : 'Continue [Space / Right]';
+      case 'pause': return this.isBroadcastPaused ? 'Resume [P]' : 'Pause [P]';
+      case 'volume': return VOLUME_LEVELS[this.volumeIndex] === 0 ? 'Muted' : `Volume ${Math.round(VOLUME_LEVELS[this.volumeIndex] * 100)}%`;
+      case 'tune': return `Change channel · ${this.getChannel().name} [1 / 2]`;
+      default: return '';
     }
   }
 
   hideUnderlyingHud() {
-    const hud = this.getRegisteredScene("PlayerHudScene");
-
-    if (!hud) {
-      return;
-    }
-
-    hud.closeAllUIPanels?.();
-    hud.playerMenu?.close?.();
-
-    if (this.isSceneActive("PlayerHudScene")) {
-      this.scene.sleep("PlayerHudScene");
-      this.hudSleptByTv = true;
+    const hud = this.getRegisteredScene('PlayerHudScene');
+    if (!hud) return;
+    hud.closeAllUIPanels?.(); hud.playerMenu?.close?.();
+    if (this.isSceneActive('PlayerHudScene')) {
+      this.scene.sleep('PlayerHudScene'); this.hudSleptByTv = true;
     }
   }
 
   restoreUnderlyingHud() {
     if (this.hudSleptByTv) {
       this.hudSleptByTv = false;
-
-      if (this.isSceneSleeping("PlayerHudScene")) {
-        this.scene.wake("PlayerHudScene");
-      }
+      if (this.isSceneSleeping('PlayerHudScene')) this.scene.wake('PlayerHudScene');
     }
-
-    this.getRegisteredScene("PlayerHudScene")
-      ?.scene?.setVisible?.(true);
-
-    EventBus.emit("showHUD");
+    this.getRegisteredScene('PlayerHudScene')?.scene?.setVisible?.(true);
+    EventBus.emit('showHUD');
   }
 
   selectBroadcastAnchor() {
     const selected = Phaser.Utils.Array.GetRandom([
-      {
-        textureKey: "tv_anchor_generic",
-        name: text("t_817a58ee3aa71139fbcd")
-      },
-      {
-        textureKey: "tv_anchor_genericf",
-        name: text("t_3d432f9901a7d461f45e")
-      }
+      { textureKey:'tv_anchor_generic', name:text('t_817a58ee3aa71139fbcd') },
+      { textureKey:'tv_anchor_genericf', name:text('t_3d432f9901a7d461f45e') }
     ]);
-
     this.anchorTextureKey = selected.textureKey;
     this.anchorDisplayName = selected.name;
   }
 
   getClockText() {
     try {
-      const payload = getTimeChangedPayload(gameState);
-      const pad = value => String(value).padStart(2, "0");
-
-      return (
-        text("t_eb7444abbca4a79ed61b") +
-        payload.day +
-        text("t_6c179f21e6f62b629055") +
-        pad(payload.hour) +
-        text("t_e7ac0786668e0ff0f02b") +
-        pad(payload.minute)
-      );
-    } catch {
-      return "";
-    }
+      const p = getTimeChangedPayload(gameState), pad = n => String(n).padStart(2, '0');
+      return text('t_eb7444abbca4a79ed61b') + p.day + text('t_6c179f21e6f62b629055')
+        + pad(p.hour) + text('t_e7ac0786668e0ff0f02b') + pad(p.minute);
+    } catch { return ''; }
   }
 
   getDeadlineText() {
     try {
-      const payload = getTimeChangedPayload(gameState);
-
-      if (
-        !payload.caseClockValid ||
-        payload.caseTimeRemaining === null
-      ) {
-        return null;
-      }
-
-      const minutes = Math.floor(
-        payload.caseTimeRemaining / 60
-      );
-
-      if (minutes <= 0) {
-        return text("t_ee8351916c641b8ae78f");
-      }
-
-      return (
-        text("t_07052aa16fd8ebd499ca") +
-        Math.floor(minutes / 1440) +
-        text("t_f0a768c6fe5fff5a5d19") +
-        Math.floor((minutes % 1440) / 60) +
-        text("t_0befe6f9c9330c84c378")
-      );
-    } catch {
-      return null;
-    }
+      const p = getTimeChangedPayload(gameState);
+      if (!p.caseClockValid || p.caseTimeRemaining === null) return null;
+      const minutes = Math.floor(p.caseTimeRemaining / 60);
+      if (minutes <= 0) return text('t_ee8351916c641b8ae78f');
+      return text('t_07052aa16fd8ebd499ca') + Math.floor(minutes / 1440)
+        + text('t_f0a768c6fe5fff5a5d19') + Math.floor((minutes % 1440) / 60)
+        + text('t_0befe6f9c9330c84c378');
+    } catch { return null; }
   }
 
-  updateClock() {
-    this.tvView?.setClock(this.getClockText());
-  }
+  updateClock() { this.tvView?.setClock(this.getClockText()); }
 
   playOpenAnimation() {
     const { root, backdrop } = this.tvView.ui;
-
-    this.addTrackedTween(this.tweens.add({
-      targets: backdrop,
-      alpha: 1,
-      duration: 150,
-      ease: "Quad.Out"
-    }));
-
+    this.addTrackedTween(this.tweens.add({ targets:backdrop, alpha:1, duration:150, ease:'Quad.Out' }));
     this.isTransitioning = true;
-
-    this.addTrackedTween(this.tweens.add({
-      targets: root,
-      alpha: 1,
-      duration: 180,
-      ease: "Quad.Out",
-      onComplete: () => this.runStartupSequence()
-    }));
-
-    this.startupFallback = this.time.delayedCall(
-      3000,
-      () => this.startFirstSegment()
-    );
+    this.addTrackedTween(this.tweens.add({ targets:root, alpha:1, duration:180,
+      ease:'Quad.Out', onComplete:() => this.runStartupSequence() }));
+    this.startupFallback = this.time.delayedCall(3000, () => this.startFirstSegment());
   }
 
   runStartupSequence() {
-    if (!this.sys.isActive() || this.isClosing) {
-      return;
-    }
-
+    if (!this.sys.isActive() || this.isClosing || this.hasStarted) return;
     this.tvAudio?.powerOn();
-
     this.tvEffects?.powerOn(() => {
-      if (!this.sys.isActive() || this.isClosing) {
-        return;
-      }
-
+      if (!this.sys.isActive() || this.isClosing || this.hasStarted) return;
       this.tvAudio?.beep(1000, 0.28);
-
       this.tvEffects?.showBars(420, () => {
-        if (!this.sys.isActive() || this.isClosing) {
-          return;
-        }
-
-        this.tvEffects?.burst(160);
-        this.tvAudio?.staticBurst(0.16);
-
-        this.time.delayedCall(
-          140,
-          () => this.startFirstSegment()
-        );
+        if (!this.sys.isActive() || this.isClosing || this.hasStarted) return;
+        this.tvEffects?.burst(160); this.tvAudio?.staticBurst(0.16);
+        this.time.delayedCall(140, () => this.startFirstSegment());
       });
     });
   }
 
   startFirstSegment() {
-    if (
-      this.hasStarted ||
-      !this.sys.isActive() ||
-      this.isClosing
-    ) {
-      return;
-    }
-
-    this.hasStarted = true;
-    this.isTransitioning = false;
-
-    this.startupFallback?.remove?.(false);
-    this.startupFallback = null;
-
-    this.tvAudio?.startHum();
-
+    if (this.hasStarted || !this.sys.isActive() || this.isClosing) return;
+    this.hasStarted = true; this.isTransitioning = false;
+    this.startupFallback?.remove?.(false); this.startupFallback = null;
+    this.tvAudio?.startHum(); this.channelOsdPending = true;
     this.playSegment(0);
-
-    this.tvView?.showHint(
-      text("t_fdf307bd6adc9394b139"),
-      3200
-    );
+    this.tvView?.showHint('TUNE: change channel · 1 / 2: select · X: news · P: pause', 4000);
   }
 
-  getSegmentHoldDuration(segment) {
-    return Math.max(
-      segment?.hold || 0,
-      this.minimumSegmentHold
-    );
-  }
+  getSegmentHoldDuration(segment) { return Math.max(segment?.hold || 0, this.minimumSegmentHold); }
 
   scheduleSegmentAdvance(segment) {
-    if (segment?.type === "movie") {
-      return;
-    }
-
+    if (segment?.type === 'movie') return;
     this.advanceEvent?.remove?.(false);
-
     const duration = this.getSegmentHoldDuration(segment);
-
     this.tvView?.startProgress(duration);
-
-    this.advanceEvent = this.time.delayedCall(
-      duration,
-      () => {
-        if (
-          this.sys.isActive() &&
-          !this.isBroadcastPaused &&
-          !this.isClosing
-        ) {
-          this.advanceSegment();
-        }
-      }
-    );
-
+    this.advanceEvent = this.time.delayedCall(duration, () => {
+      if (this.sys.isActive() && !this.isBroadcastPaused && !this.isClosing) this.advanceSegment();
+    });
     this.advanceEvent.paused = this.isBroadcastPaused;
   }
 
   playSegment(index) {
-    if (
-      this.isClosing ||
-      !this.segmentQueue.length ||
-      index < 0 ||
-      index >= this.segmentQueue.length
-    ) {
-      this.finishBroadcast();
-      return;
-    }
-
-    this.clearTimers();
-    this.moviePlayer?.stop();
-
+    if (this.isClosing || !this.segmentQueue.length) return;
+    if (index < 0 || index >= this.segmentQueue.length) return;
+    this.clearTimers(); this.moviePlayer?.stop(); this.tvAudio?.stopSegment();
     this.isBroadcastPaused = false;
-    this.tvView?.setPaused(false);
-    this.tvControls?.refreshPauseVisual?.();
-
-    this.currentSegmentIndex = index;
-    this.currentSegment = this.segmentQueue[index];
-
-    this.currentLineIndex = 0;
-    this.currentCharIndex = 0;
-    this.currentLinePrefix = "";
-    this.currentLineFullText = "";
-
-    this.isTyping = false;
-    this.isTransitioning = false;
-
-    const segment = this.currentSegment;
-    const deadline = this.getDeadlineText();
-
+    this.tvView?.setPaused(false); this.tvControls?.refreshPauseVisual?.();
+    this.currentSegmentIndex = index; this.currentSegment = this.segmentQueue[index];
+    this.currentLineIndex = 0; this.currentCharIndex = 0;
+    this.currentLinePrefix = ''; this.currentLineFullText = '';
+    this.isTyping = false; this.isTransitioning = false;
+    const segment = this.currentSegment, deadline = this.getDeadlineText();
     this.tvView.applySegment(segment, {
-      anchorTextureKey: this.anchorTextureKey,
-      anchorDisplayName: this.anchorDisplayName,
-      isFirstSegment: index === 0,
-      tickerExtras: deadline ? [deadline] : []
+      anchorTextureKey:this.anchorTextureKey, anchorDisplayName:this.anchorDisplayName,
+      isFirstSegment:index === 0, tickerExtras:deadline ? [deadline] : []
     });
-
-    this.tvView.setSegmentIndicator(
-      index,
-      this.segmentQueue.length
-    );
-
-    this.tvView.setBodyText("");
-
-    if (segment.type === "movie") {
-      this.tvAudio?.stopSegment();
+    this.tvView.setSegmentIndicator(index, this.segmentQueue.length);
+    this.tvView.setBodyText('');
+    if (segment.type === 'movie') {
       this.tvAudio?.stopHum();
-
       this.moviePlayer.start(segment.videoUrl, () => {
-        if (
-          this.sys.isActive() &&
-          !this.isClosing &&
-          this.currentSegment === segment
-        ) {
-          this.advanceSegment();
-        }
+        if (this.sys.isActive() && !this.isClosing && this.currentSegment === segment) this.advanceSegment();
       });
-
-      return;
+    } else {
+      this.tvAudio?.startHum();
+      if (segment.instant) {
+        this.tvView.setBodyText((segment.lines || []).join('\n'));
+        this.scheduleSegmentAdvance(segment);
+      } else this.typeNextLine();
     }
-
-    this.tvAudio?.startHum();
-
-    if (segment.instant) {
-      this.tvView.setBodyText(
-        (segment.lines || []).join("\n")
-      );
-
-      this.scheduleSegmentAdvance(segment);
-      return;
+    if (this.channelOsdPending) {
+      this.channelOsdPending = false;
+      const c = this.getChannel();
+      this.tvView.showOsd(`CH ${c.number} · ${c.name.toUpperCase()}`, 2400);
     }
-
-    this.typeNextLine();
   }
 
   typeNextLine() {
-    if (
-      this.isClosing ||
-      this.isBroadcastPaused ||
-      !this.currentSegment ||
-      this.currentSegment.type === "movie" ||
-      !this.tvView?.isBodyTextActive()
-    ) {
-      return;
-    }
-
+    if (this.isClosing || this.isBroadcastPaused || !this.currentSegment
+      || this.currentSegment.type === 'movie' || !this.tvView?.isBodyTextActive()) return;
     const lines = this.currentSegment.lines || [];
-
-    if (this.currentLineIndex >= lines.length) {
-      this.scheduleSegmentAdvance(this.currentSegment);
-      return;
-    }
-
-    this.currentLineFullText = lines[this.currentLineIndex];
-
+    if (this.currentLineIndex >= lines.length) { this.scheduleSegmentAdvance(this.currentSegment); return; }
+    this.currentLineFullText = String(lines[this.currentLineIndex]);
     const existing = this.tvView.getBodyText().trim();
-
-    this.currentLinePrefix = existing
-      ? `${existing}\n`
-      : "";
-
-    this.currentCharIndex = 0;
-    this.isTyping = true;
-
-    const typingEvent = this.time.addEvent({
-      delay: this.currentSegment.charDelay || 20,
-      loop: true,
-
-      callback: () => {
-        if (
-          !this.sys.isActive() ||
-          this.isClosing ||
-          this.isBroadcastPaused ||
-          !this.currentSegment ||
-          !this.tvView?.isBodyTextActive() ||
-          this.typingEvent !== typingEvent
-        ) {
-          return;
-        }
-
+    this.currentLinePrefix = existing ? `${existing}\n` : '';
+    this.currentCharIndex = 0; this.isTyping = true;
+    const event = this.time.addEvent({ delay:this.currentSegment.charDelay || 20, loop:true,
+      callback:() => {
+        if (!this.sys.isActive() || this.isClosing || this.isBroadcastPaused
+          || !this.currentSegment || !this.tvView?.isBodyTextActive() || this.typingEvent !== event) return;
         this.currentCharIndex++;
-
-        this.tvView.setBodyText(
-          this.currentLinePrefix +
-          this.currentLineFullText.slice(
-            0,
-            this.currentCharIndex
-          )
-        );
-
-        if (
-          this.currentCharIndex <
-          this.currentLineFullText.length
-        ) {
-          return;
-        }
-
-        typingEvent.remove(false);
-
-        if (this.typingEvent === typingEvent) {
-          this.typingEvent = null;
-        }
-
-        this.isTyping = false;
-        this.currentLineIndex++;
-
-        this.scheduleNextLine();
+        this.tvView.setBodyText(this.currentLinePrefix + this.currentLineFullText.slice(0, this.currentCharIndex));
+        if (this.currentCharIndex < this.currentLineFullText.length) return;
+        event.remove(false);
+        if (this.typingEvent === event) this.typingEvent = null;
+        this.isTyping = false; this.currentLineIndex++; this.scheduleNextLine();
       }
     });
-
-    typingEvent.paused = this.isBroadcastPaused;
-    this.typingEvent = typingEvent;
+    event.paused = this.isBroadcastPaused; this.typingEvent = event;
   }
 
   scheduleNextLine() {
     this.advanceEvent?.remove?.(false);
-
-    this.advanceEvent = this.time.delayedCall(
-      this.currentSegment?.linePause || 250,
-      () => {
-        if (
-          this.sys.isActive() &&
-          !this.isBroadcastPaused &&
-          !this.isClosing
-        ) {
-          this.typeNextLine();
-        }
-      }
-    );
+    this.advanceEvent = this.time.delayedCall(this.currentSegment?.linePause || 250, () => {
+      if (this.sys.isActive() && !this.isBroadcastPaused && !this.isClosing) this.typeNextLine();
+    });
+    this.advanceEvent.paused = this.isBroadcastPaused;
   }
 
   onAdvancePressed() {
-    if (
-      this.isClosing ||
-      this.isTransitioning ||
-      this.isBroadcastPaused
-    ) {
-      return;
-    }
-
-    if (
-      this.currentSegment?.type === "movie" &&
-      this.moviePlayer?.blocked
-    ) {
-      this.moviePlayer.tryPlay();
-      return;
-    }
-
-    if (this.isTyping) {
-      this.finishCurrentLine();
-      return;
-    }
-
-    this.advanceEvent?.remove?.(false);
-    this.advanceEvent = null;
-
+    if (this.isClosing || this.isTransitioning || this.isBroadcastPaused) return;
+    if (this.currentSegment?.type === 'movie' && this.moviePlayer?.blocked) { this.moviePlayer.tryPlay(); return; }
+    if (this.isTyping) { this.finishCurrentLine(); return; }
     this.advanceSegment();
   }
 
   onPrevPressed() {
-    if (
-      this.isClosing ||
-      this.isTransitioning ||
-      this.isBroadcastPaused ||
-      this.currentSegmentIndex <= 0
-    ) {
-      return;
-    }
-
-    this.transitionToSegment(
-      this.currentSegmentIndex - 1
-    );
+    if (this.isClosing || this.isTransitioning || this.isBroadcastPaused) return;
+    this.transitionToSegment((this.currentSegmentIndex - 1 + this.segmentQueue.length) % this.segmentQueue.length);
   }
 
   onSkipPressed() {
-    if (
-      this.isClosing ||
-      this.isTransitioning ||
-      this.isBroadcastPaused
-    ) {
-      return;
-    }
-
-    if (this.currentSegment?.type === "movie") {
-      this.advanceSegment();
-      return;
-    }
-
-    const newsIndex = this.segmentQueue.findIndex(
-      segment => segment.type === "news"
-    );
-
-    if (
-      newsIndex === -1 ||
-      (
-        newsIndex === this.currentSegmentIndex &&
-        !this.isTyping
-      )
-    ) {
-      const movieIndex = this.segmentQueue.findIndex(
-        segment => segment.type === "movie"
-      );
-
-      if (movieIndex >= 0) {
-        this.transitionToSegment(movieIndex);
-      } else {
-        this.finishBroadcast();
-      }
-
-      return;
-    }
-
-    this.transitionToSegment(newsIndex);
-  }
-
-  onClosePressed() {
-    if (!this.isTransitioning && !this.isClosing) {
-      this.finishBroadcast();
+    if (this.isClosing || this.isTransitioning || this.isBroadcastPaused) return;
+    for (let offset = 1; offset <= this.segmentQueue.length; offset++) {
+      const index = (this.currentSegmentIndex + offset) % this.segmentQueue.length;
+      if (this.segmentQueue[index].type === 'news') { this.transitionToSegment(index); return; }
     }
   }
+
+  onClosePressed() { if (!this.isClosing) this.finishBroadcast(); }
 
   onVolumeKnob() {
-    this.volumeIndex =
-      (this.volumeIndex + 1) % VOLUME_LEVELS.length;
-
+    this.volumeIndex = (this.volumeIndex + 1) % VOLUME_LEVELS.length;
     const level = VOLUME_LEVELS[this.volumeIndex];
-
-    this.tvAudio?.setLevel(level);
-    this.moviePlayer?.syncVolume();
-    this.tvAudio?.click();
-
-    const label = level === 0
-      ? text("t_d3c69d47b833f4ffc3c0")
-      : (
-        text("t_95884bf300be12097277") +
-        "|".repeat(Math.round(level * 10)) +
-        text("t_36a9e7f1c95b82ffb997") +
-        Math.round(level * 100) +
-        text("t_bbf3f11cb5b43e700273")
-      );
-
-    this.tvView?.showOsd(label);
+    this.tvAudio?.setLevel(level); this.moviePlayer?.syncVolume(); this.tvAudio?.click();
+    this.tvView?.showOsd(level === 0 ? 'MUTED' : `VOLUME ${Math.round(level * 100)}%`);
   }
 
-  onTuneKnob() {
-    this.tvEffects?.burst(220, 1);
-    this.tvEffects?.glitch();
-    this.tvAudio?.staticBurst(0.22, 0.6);
+  onTuneKnob() { this.switchChannel((this.channelIndex + 1) % CHANNELS.length); }
 
-    this.tvView?.showOsd(
-      Phaser.Utils.Array.GetRandom(TUNE_MESSAGES),
-      1600
-    );
+  switchChannel(index) {
+    if (!this.hasStarted || this.isClosing || this.isTransitioning
+      || !Number.isInteger(index) || !CHANNELS[index]) return;
+    if (index === this.channelIndex) {
+      const c = this.getChannel();
+      this.tvView?.showOsd(`CH ${c.number} · ${c.name.toUpperCase()}`, 1800); return;
+    }
+    this.isBroadcastPaused = false;
+    this.tvView?.setPaused(false); this.tvControls?.refreshPauseVisual?.();
+    this.channelIndex = index;
+    this.lastAdId = null;
+    this.buildChannelQueue();
+    this.channelOsdPending = true;
+    this.transitionToSegment(0);
   }
 
   toggleBroadcastPause() {
-    if (this.isClosing || this.isTransitioning) {
-      return;
-    }
-
+    if (this.isClosing || this.isTransitioning) return;
     this.isBroadcastPaused = !this.isBroadcastPaused;
-
-    if (this.typingEvent) {
-      this.typingEvent.paused = this.isBroadcastPaused;
-    }
-
-    if (this.advanceEvent) {
-      this.advanceEvent.paused = this.isBroadcastPaused;
-    }
-
-    this.moviePlayer?.setPaused(
-      this.isBroadcastPaused
-    );
-
-    this.tvAudio?.click();
-
-    this.tvView?.setPaused(
-      this.isBroadcastPaused
-    );
-
+    if (this.typingEvent) this.typingEvent.paused = this.isBroadcastPaused;
+    if (this.advanceEvent) this.advanceEvent.paused = this.isBroadcastPaused;
+    this.moviePlayer?.setPaused(this.isBroadcastPaused);
+    this.tvAudio?.click(); this.tvView?.setPaused(this.isBroadcastPaused);
     this.tvControls?.refreshPauseVisual?.();
   }
 
   finishCurrentLine() {
-    if (
-      this.isClosing ||
-      this.isBroadcastPaused ||
-      !this.currentSegment ||
-      !this.tvView?.isBodyTextActive()
-    ) {
-      return;
-    }
-
-    this.typingEvent?.remove?.(false);
-    this.typingEvent = null;
-
-    this.tvView.setBodyText(
-      this.currentLinePrefix + this.currentLineFullText
-    );
-
-    this.isTyping = false;
-    this.currentLineIndex++;
-
-    this.scheduleNextLine();
+    if (this.isClosing || this.isBroadcastPaused || !this.currentSegment || !this.tvView?.isBodyTextActive()) return;
+    this.typingEvent?.remove?.(false); this.typingEvent = null;
+    this.tvView.setBodyText(this.currentLinePrefix + this.currentLineFullText);
+    this.isTyping = false; this.currentLineIndex++; this.scheduleNextLine();
   }
 
   advanceSegment() {
-    if (this.isClosing || this.isBroadcastPaused) {
-      return;
-    }
-
+    if (this.isClosing || this.isBroadcastPaused || this.isTransitioning) return;
     const next = this.currentSegmentIndex + 1;
-
     if (next >= this.segmentQueue.length) {
-      this.finishBroadcast();
-      return;
-    }
-
-    this.transitionToSegment(next);
+      this.buildChannelQueue(); this.transitionToSegment(0);
+    } else this.transitionToSegment(next);
   }
 
   transitionToSegment(index) {
-    if (
-      this.isClosing ||
-      this.isBroadcastPaused ||
-      this.isTransitioning
-    ) {
-      return;
-    }
-
-    this.clearTimers();
-    this.moviePlayer?.stop();
-
+    if (this.isClosing || this.isBroadcastPaused || this.isTransitioning) return;
+    this.clearTimers(); this.moviePlayer?.stop();
+    this.tvAudio?.stopSegment(); this.tvAudio?.stopHum();
     this.isTransitioning = true;
-
-    this.tvEffects?.burst(170, 1);
-    this.tvAudio?.staticBurst(0.16);
-
-    this.transitionEvent = this.time.delayedCall(
-      140,
-      () => {
-        this.transitionEvent = null;
-
-        if (!this.sys.isActive() || this.isClosing) {
-          return;
-        }
-
-        this.isTransitioning = false;
-        this.playSegment(index);
-      }
-    );
+    this.tvEffects?.burst(170, 1); this.tvAudio?.staticBurst(0.16);
+    this.transitionEvent = this.time.delayedCall(140, () => {
+      this.transitionEvent = null;
+      if (!this.sys.isActive() || this.isClosing) return;
+      this.isTransitioning = false; this.playSegment(index);
+    });
   }
 
   finishBroadcast() {
-    if (this.isClosing) {
-      return;
-    }
-
+    if (this.isClosing) return;
     this.isClosing = true;
-
-    this.clearTimers();
-    this.moviePlayer?.stop();
-
-    this.transitionEvent?.remove?.(false);
-    this.transitionEvent = null;
-
-    this.tvView?.stopProgress();
-    this.tvAudio?.stopHum();
-    this.tvAudio?.powerOff();
-
-    this.closeFallback = this.time.delayedCall(
-      1200,
-      () => this.completeClose()
-    );
-
+    this.clearTimers(); this.moviePlayer?.stop();
+    this.transitionEvent?.remove?.(false); this.transitionEvent = null;
+    this.startupFallback?.remove?.(false); this.startupFallback = null;
+    this.tvAudio?.stopSegment(); this.tvAudio?.stopHum(); this.tvAudio?.powerOff();
+    this.closeFallback = this.time.delayedCall(1200, () => this.completeClose());
     const fade = () => {
-      const view = this.tvView;
-
-      if (!view?.ui?.root) {
-        this.completeClose();
-        return;
-      }
-
-      this.addTrackedTween(this.tweens.add({
-        targets: [
-          view.ui.root,
-          view.ui.backdrop
-        ],
-        alpha: 0,
-        duration: 160,
-        ease: "Quad.In",
-        onComplete: () => this.completeClose()
-      }));
+      if (!this.tvView?.ui?.root) { this.completeClose(); return; }
+      this.addTrackedTween(this.tweens.add({ targets:[this.tvView.ui.root, this.tvView.ui.backdrop],
+        alpha:0, duration:160, ease:'Quad.In', onComplete:() => this.completeClose() }));
     };
-
-    if (this.tvEffects) {
-      this.tvEffects.powerOff(fade);
-    } else {
-      fade();
-    }
+    if (this.tvEffects) this.tvEffects.powerOff(fade); else fade();
   }
 
   completeClose() {
-    if (this.closeCompleted) {
-      return;
-    }
-
+    if (this.closeCompleted) return;
     this.closeCompleted = true;
-
-    this.closeFallback?.remove?.(false);
-    this.closeFallback = null;
-
-    this.restoreReturnScene();
-    this.showNewsHudButtons?.();
-
-    this.onClose?.({
-      missionId: gameState.currentMission?.id || null,
-      watched: true,
-      lastSegmentType: this.currentSegment?.type || null
-    });
-
+    this.closeFallback?.remove?.(false); this.closeFallback = null;
+    this.restoreReturnScene(); this.showNewsHudButtons?.();
+    this.onClose?.({ missionId:gameState.currentMission?.id || null, watched:true,
+      lastSegmentType:this.currentSegment?.type || null });
     this.restoreUnderlyingHud();
-
-    if (this.sys.isActive()) {
-      this.scene.stop();
-    }
+    if (this.sys.isActive()) this.scene.stop();
   }
 
   restoreReturnScene() {
-    if (
-      !this.hasPausedReturnScene ||
-      !this.returnSceneKey ||
-      !this.hasScene(this.returnSceneKey)
-    ) {
-      return;
-    }
-
-    if (this.isScenePaused(this.returnSceneKey)) {
-      this.scene.resume(this.returnSceneKey);
-    } else if (
-      this.isSceneSleeping(this.returnSceneKey)
-    ) {
-      this.scene.wake(this.returnSceneKey);
-    }
-
+    if (!this.hasPausedReturnScene || !this.returnSceneKey || !this.hasScene(this.returnSceneKey)) return;
+    if (this.isScenePaused(this.returnSceneKey)) this.scene.resume(this.returnSceneKey);
+    else if (this.isSceneSleeping(this.returnSceneKey)) this.scene.wake(this.returnSceneKey);
     this.hasPausedReturnScene = false;
   }
 
   clearTimers() {
-    this.typingEvent?.remove?.(false);
-    this.typingEvent = null;
-
-    this.advanceEvent?.remove?.(false);
-    this.advanceEvent = null;
-
-    this.tvView?.stopProgress();
-    this.isTyping = false;
+    this.typingEvent?.remove?.(false); this.typingEvent = null;
+    this.advanceEvent?.remove?.(false); this.advanceEvent = null;
+    this.tvView?.stopProgress(); this.isTyping = false;
   }
 
   handleShutdown() {
     this.clearTimers();
-
-    this.clockEvent?.remove?.(false);
-    this.clockEvent = null;
-
-    this.startupFallback?.remove?.(false);
-    this.startupFallback = null;
-
-    this.closeFallback?.remove?.(false);
-    this.closeFallback = null;
-
-    this.transitionEvent?.remove?.(false);
-    this.transitionEvent = null;
-
-    this.moviePlayer?.destroy();
-    this.moviePlayer = null;
-
-    this.tvEffects?.destroy?.();
-    this.tvEffects = null;
-
-    this.tvControls?.destroy?.();
-    this.tvControls = null;
-
-    this.tvView?.destroy?.();
-    this.tvView = null;
-
-    this.tvAudio?.destroy?.();
-    this.tvAudio = null;
-
-    this.restoreReturnScene();
-    this.restoreUnderlyingHud();
-    this.showNewsHudButtons?.();
-
-    this.layout = null;
-    this.isTyping = false;
-    this.isTransitioning = false;
-    this.isBroadcastPaused = false;
-    this.isClosing = false;
+    for (const key of ['clockEvent','startupFallback','closeFallback','transitionEvent']) {
+      this[key]?.remove?.(false); this[key] = null;
+    }
+    this.moviePlayer?.destroy(); this.moviePlayer = null;
+    this.tvEffects?.destroy?.(); this.tvEffects = null;
+    this.tvControls?.destroy?.(); this.tvControls = null;
+    this.tvView?.destroy?.(); this.tvView = null;
+    this.tvAudio?.destroy?.(); this.tvAudio = null;
+    this.restoreReturnScene(); this.restoreUnderlyingHud(); this.showNewsHudButtons?.();
+    this.layout = null; this.isTyping = false; this.isTransitioning = false;
+    this.isBroadcastPaused = false; this.isClosing = false;
   }
 }

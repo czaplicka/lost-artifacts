@@ -81,14 +81,14 @@ export class ShreddedReportScene extends BaseScene {
     c.strokeStyle = '#8e7959'; c.lineWidth = 3; c.strokeRect(24, 24, PW - 48, PH - 48);
     c.strokeStyle = '#ad9671'; c.lineWidth = 1; c.strokeRect(32, 32, PW - 64, PH - 64);
     c.strokeStyle = __dialogueText("scenes/ShreddedReportScene.js", "t_7651d189b77ed6a8e673"); c.beginPath(); c.moveTo(61, 142); c.lineTo(61, 564); c.stroke();
-    c.fillStyle = '#3c342a'; c.font = __dialogueText("scenes/ShreddedReportScene.js", "t_4b473bb6ca49434a541d"); c.fillText(__dialogueText("scenes/ShreddedReportScene.js", "t_9246fca97ffafae56410"), 78, 77);
-    c.font = __dialogueText("scenes/ShreddedReportScene.js", "t_47f5b6bcb99464322f8f"); c.fillText(__dialogueText("scenes/ShreddedReportScene.js", "t_912fa181fa373fd5c572"), 78, 112);
-    c.font = __dialogueText("scenes/ShreddedReportScene.js", "t_70cfb904694a563693e0"); c.fillText('JM-041', 756, 76);
+    c.fillStyle = '#3c342a'; c.font = "bold 35px SpecialElite, monospace"; c.fillText(__dialogueText("scenes/ShreddedReportScene.js", "t_9246fca97ffafae56410"), 78, 77);
+    c.font = "22px SpecialElite, monospace"; c.fillText(__dialogueText("scenes/ShreddedReportScene.js", "t_912fa181fa373fd5c572"), 78, 112);
+    c.font = "bold 27px SpecialElite, monospace"; c.fillText('JM-041', 756, 76);
     c.strokeStyle = '#77664c'; c.lineWidth = 2; c.beginPath(); c.moveTo(55, 140); c.lineTo(905, 140); c.stroke();
     const lines = [[__dialogueText("scenes/ShreddedReportScene.js", "t_aa645106510d2e42de16"), 180], [__dialogueText("scenes/ShreddedReportScene.js", "t_95b3c06f22a210784305"), 228],
       [__dialogueText("scenes/ShreddedReportScene.js", "t_e3be67d24250adddd642"), 276], [__dialogueText("scenes/ShreddedReportScene.js", "t_9e5a2dfb8dc267737fd5"), 324],
       [__dialogueText("scenes/ShreddedReportScene.js", "t_c667e82fbc744f54f158"), 372]];
-    c.font = __dialogueText("scenes/ShreddedReportScene.js", "t_9a87e164fe39d4b696d6");
+    c.font = "24px SpecialElite, monospace";
     for (const [text, y] of lines) {
       c.fillStyle = '#44392c'; c.fillText(text, 80, y); c.strokeStyle = __dialogueText("scenes/ShreddedReportScene.js", "t_88a9c622b39495e65f67");
       c.lineWidth = 1; c.beginPath(); c.moveTo(77, y + 12); c.lineTo(890, y + 12); c.stroke();
@@ -97,15 +97,15 @@ export class ShreddedReportScene extends BaseScene {
     c.strokeStyle = __dialogueText("scenes/ShreddedReportScene.js", "t_bc7d91d10c21064bef99"); c.fillStyle = __dialogueText("scenes/ShreddedReportScene.js", "t_bc7d91d10c21064bef99"); c.lineWidth = 5;
     c.beginPath(); c.ellipse(0, 0, 150, 85, 0, 0, Math.PI * 2); c.stroke();
     c.lineWidth = 2; c.beginPath(); c.ellipse(0, 0, 138, 74, 0, 0, Math.PI * 2); c.stroke();
-    c.textAlign = 'center'; c.font = __dialogueText("scenes/ShreddedReportScene.js", "t_19462f73c92c0cf0a2e2"); c.fillText('RESTRICTED', 0, -5);
-    c.font = __dialogueText("scenes/ShreddedReportScene.js", "t_59f88630d6b461d5a376"); c.fillText(__dialogueText("scenes/ShreddedReportScene.js", "t_9246fca97ffafae56410"), 0, 25); c.restore();
-    c.fillStyle = '#453b31'; c.font = __dialogueText("scenes/ShreddedReportScene.js", "t_e1766effa5478d47605c");
+    c.textAlign = 'center'; c.font = "bold 29px monospace"; c.fillText('RESTRICTED', 0, -5);
+    c.font = "19px monospace"; c.fillText(__dialogueText("scenes/ShreddedReportScene.js", "t_9246fca97ffafae56410"), 0, 25); c.restore();
+    c.fillStyle = '#453b31'; c.font = "21px SpecialElite, monospace";
     c.fillText(__dialogueText("scenes/ShreddedReportScene.js", "t_cd94210c96fe9983d78a"), 80, 465); c.fillText(__dialogueText("scenes/ShreddedReportScene.js", "t_e5a6ec5e1b288161d67b"), 80, 520);
     c.save(); c.translate(361, 520); c.rotate(-0.045); c.fillStyle = '#324c69';
-    c.font = __dialogueText("scenes/ShreddedReportScene.js", "t_ef8d19f390031e10ef48"); c.fillText(__dialogueText("scenes/ShreddedReportScene.js", "t_245536acb08b0958f1aa"), 0, 0);
+    c.font = "italic 43px cursive"; c.fillText(__dialogueText("scenes/ShreddedReportScene.js", "t_245536acb08b0958f1aa"), 0, 0);
     c.strokeStyle = '#324c69'; c.lineWidth = 2; c.beginPath(); c.moveTo(-12, 10);
     c.bezierCurveTo(58, -3, 107, 26, 199, 3); c.stroke(); c.restore();
-    c.fillStyle = '#5d5141'; c.font = __dialogueText("scenes/ShreddedReportScene.js", "t_fce64cbc91446ed9650a");
+    c.fillStyle = '#5d5141'; c.font = "17px SpecialElite, monospace";
     c.fillText(__dialogueText("scenes/ShreddedReportScene.js", "t_ed0aec725c697f6d79ca"), 80, 557);
     c.strokeStyle = __dialogueText("scenes/ShreddedReportScene.js", "t_96333cf0ac275aeae875"); c.lineWidth = 3;
     c.beginPath(); c.ellipse(844, 220, 43, 49, 0.2, 0, Math.PI * 2); c.stroke();

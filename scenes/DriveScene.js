@@ -12,8 +12,7 @@ import {
 
 import {
   getRoadTripQuote,
-  beginRoadTrip,
-  showRoadTripError
+  beginRoadTrip
 } from '../managers/RoadTripManager.js';
 
 import {
@@ -41,6 +40,14 @@ export class DriveScene extends BaseScene {
 
     this.state = 'driving';
     this.ready = false;
+    this.quote = null;
+    this.destination = null;
+    this._driveRun = Symbol('drive-run');
+    this._driveStartupPanel = null;
+    this._driveStartupMessage = null;
+    this._driveStartupButton = null;
+    this._driveStartupExitPending = false;
+    this._bubbleTimer = null;
 
     this.pos = 0;
     this.speed = 0;
@@ -101,32 +108,21 @@ export class DriveScene extends BaseScene {
 
     const data = this.driveData;
 
-    this.quote = getRoadTripQuote(
-      data.fromTownId,
-      data.toTownId
-    );
-
-    this.destination =
-      data.nextScene ||
-      (this.quote.toId === HOME_TOWN_ID
-        ? 'HomeCityScene'
-        : null);
-
-    if (!this.destination) {
-      showRoadTripError(
-        this,
-        'No arrival scene is configured for this town.'
-      );
-      return;
-    }
-
     try {
-      this.tripId = beginRoadTrip(
-        this.quote,
-        this.tripId
-      );
+      this.quote = getRoadTripQuote(data.fromTownId, data.toTownId);
+      this.destination = data.nextScene ||
+        (this.quote.toId === HOME_TOWN_ID ? 'HomeCityScene' : null);
+
+      if (typeof this.destination !== 'string' || !this.destination.trim()) {
+        throw new Error('No arrival scene is configured for this town.');
+      }
+      if (this.destination === 'DriveScene') {
+        throw new Error('The arrival scene cannot be DriveScene itself.');
+      }
+
+      this.tripId = beginRoadTrip(this.quote, this.tripId);
     } catch (error) {
-      showRoadTripError(this, error.message);
+      this.showDriveStartupError(error);
       return;
     }
 
@@ -214,6 +210,93 @@ export class DriveScene extends BaseScene {
     });
   }
 
+  showDriveStartupError(error) {
+    if (this._cleanupDone || !this.sys.isActive()) return;
+    console.error('[DriveScene] Could not start:', error);
+    this.ready = false;
+    this.state = 'startup-error';
+    this.uiHeld = false;
+    const message = error?.message || String(error || 'The road trip could not start.');
+    if (this._driveStartupPanel?.scene) {
+      this._driveStartupMessage?.setText(message);
+      return;
+    }
+
+    const background = this.add.rectangle(0, 0, 1, 1, 0x15111c, 1)
+      .setOrigin(0).setInteractive();
+    const text = this.add.text(0, 0, message, {
+      fontFamily: 'SpecialElite', fontSize: '24px', color: '#fff1d0',
+      align: 'center'
+    }).setOrigin(0.5);
+    const button = this.add.text(0, 0, 'RETURN TO MENU (ESC)', {
+      fontFamily: 'PressStart2P', fontSize: '14px', color: '#d4af37',
+      backgroundColor: '#3b2d20', padding: { x: 18, y: 18 }, align: 'center'
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+    this._driveStartupMessage = text;
+    this._driveStartupButton = button;
+    this._driveStartupPanel = this.add.container(0, 0, [background, text, button])
+      .setDepth(20000).setScrollFactor(0);
+
+    const layout = () => {
+      if (!this._driveStartupPanel?.scene || this._cleanupDone) return;
+      const { width, height } = this.scale.gameSize;
+      this.cameras.main.setViewport(0, 0, width, height).setZoom(1).setScroll(0, 0);
+      background.setSize(width, height);
+      text.setPosition(width / 2, height * 0.38)
+        .setWordWrapWidth(Math.max(120, width * 0.84), true);
+      button.setPosition(width / 2, height * 0.68)
+        .setFontSize(Math.max(8, Math.min(14, Math.floor((width - 48) / 24))));
+    };
+    this.trackInputEvent(this.scale, Phaser.Scale.Events.RESIZE, layout);
+    layout();
+    this.cameras.main.fadeIn(150, 0, 0, 0);
+
+    this.trackInputEvent(button, 'pointerdown', (pointer, _x, _y, event) => {
+      event?.stopPropagation?.();
+      if (pointer?.event?.button > 0) return;
+      void this.returnFromDriveStartupError();
+    });
+    this.trackInputEvent(this.input.keyboard, 'keydown-ESC', event => {
+      if (event?.repeat || event?.defaultPrevented || event?.ctrlKey || event?.metaKey || event?.altKey) return;
+      event?.preventDefault?.();
+      void this.returnFromDriveStartupError();
+    });
+  }
+
+  async returnFromDriveStartupError() {
+    if (this.state !== 'startup-error' || this._driveStartupExitPending ||
+        this._cleanupDone || !this.sys.isActive()) return false;
+    const run = this._driveRun;
+    this._driveStartupExitPending = true;
+    this._driveStartupButton?.setAlpha(0.5);
+    try {
+      // Menu is neutral: do not change town, refund fuel, or complete the trip.
+      const moved = await this.goto('EnterScene');
+      if (moved) return true;
+      throw new Error('The menu could not be opened. Click RETURN TO MENU or press ESC to retry.');
+    } catch (error) {
+      console.error('[DriveScene] Emergency return failed:', error);
+      if (this._driveRun === run && !this._cleanupDone && this.sys.isActive()) {
+        this._driveStartupExitPending = false;
+        this._driveStartupButton?.setAlpha(1);
+        this._driveStartupMessage?.setText(error?.message || 'The menu could not be opened. Please retry.');
+      }
+      return false;
+    }
+  }
+
+  cleanup() {
+    if (this._cleanupDone) return;
+    this.clearDriveBubble();
+    if (this._driveStartupPanel?.scene) this._driveStartupPanel.destroy(true);
+    this._driveStartupPanel = null;
+    this._driveStartupMessage = null;
+    this._driveStartupButton = null;
+    this._driveStartupExitPending = true;
+    super.cleanup();
+  }
+
   fitDriveCamera() {
     const { width, height } = this.scale.gameSize;
 
@@ -273,12 +356,34 @@ export class DriveScene extends BaseScene {
   }
 }
 
-Object.assign(
-  DriveScene.prototype,
-  DriveTextures,
-  DriveScenery,
-  DriveCockpit,
-  DriveRoad,
-  DriveControls,
-  DriveTrip
-);
+// Validate the entire composition before changing the prototype.
+export function applyDriveMixins(prototype, entries) {
+  const owners = new Map(
+    Reflect.ownKeys(prototype).map(key => [key, 'DriveScene'])
+  );
+  const pending = [];
+  for (const [name, mixin] of entries) {
+    const descriptors = Object.getOwnPropertyDescriptors(mixin);
+    for (const key of Reflect.ownKeys(descriptors)) {
+      if (owners.has(key)) {
+        throw new Error(
+          `[DriveScene] Mixin collision: "${String(key)}" in ${name}; already defined by ${owners.get(key)}.`
+        );
+      }
+      owners.set(key, name);
+      pending.push([key, descriptors[key]]);
+    }
+  }
+  for (const [key, descriptor] of pending) {
+    Object.defineProperty(prototype, key, descriptor);
+  }
+}
+
+applyDriveMixins(DriveScene.prototype, [
+  ['DriveTextures', DriveTextures],
+  ['DriveScenery', DriveScenery],
+  ['DriveCockpit', DriveCockpit],
+  ['DriveRoad', DriveRoad],
+  ['DriveControls', DriveControls],
+  ['DriveTrip', DriveTrip]
+]);

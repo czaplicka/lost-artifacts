@@ -82,7 +82,7 @@ export class AgainScene extends BaseScene {
       this.backBtn = this.add.image(200, 70, 'back').setScale(0.5).setDepth(30).setInteractive({ useHandCursor: true });
       this.addHoverEffect(this.backBtn, 0.5, 0.6);
     } else {
-      this.backBtn = this.add.text(24, 24, __dialogueText("scenes/AgainScene.js", "t_d325d6af9f47d2ef9d00"), { fontFamily: 'SpecialElite', fontSize: '24px', color: '#ffffff' }).setDepth(30).setInteractive({ useHandCursor: true });
+      this.backBtn = this.add.text(24, 24, "< BACK", { fontFamily: 'SpecialElite', fontSize: '24px', color: '#ffffff' }).setDepth(30).setInteractive({ useHandCursor: true });
     }
     this.backBtn.on('pointerdown', () => { void this.returnToEntry(); });
   }

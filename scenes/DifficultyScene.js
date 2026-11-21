@@ -27,16 +27,16 @@ export class DifficultyScene extends BaseScene {
         const bg = this.add.image(centerX, height / 2, 'archive');
         const scaleX = width / bg.width, scaleY = height / bg.height, scale = Math.max(scaleX, scaleY);
         bg.setScale(scale).setScrollFactor(0);
-        this.add.text(centerX, height * 0.12, __dialogueText("scenes/DifficultyScene.js", "t_897c3417811fe8b81cf5"), {
-            fontFamily: 'SpecialElite, monospace', fontSize: '36px', color: '#f3c870', stroke: __dialogueText("scenes/DifficultyScene.js", "t_23761c2acfe2c2c7a3cc"), strokeThickness: 6,
+        this.add.text(centerX, height * 0.12, "CLASSIFIED CASE FILE", {
+            fontFamily: 'SpecialElite, monospace', fontSize: '36px', color: '#f3c870', stroke: "#120e08", strokeThickness: 6,
             shadow: { offsetX: 2, offsetY: 3, color: '#000000', blur: 2, fill: true }
         }).setOrigin(0.5).setDepth(200).setScrollFactor(0);
-        this.add.text(centerX, height * 0.18, __dialogueText("scenes/DifficultyScene.js", "t_b297c39fba51ea6a9707"), {
-            fontFamily: 'SpecialElite, monospace', fontSize: '26px', color: '#e5d4a6', stroke: __dialogueText("scenes/DifficultyScene.js", "t_23761c2acfe2c2c7a3cc"), strokeThickness: 4,
+        this.add.text(centerX, height * 0.18, "SELECT YOUR CLEARANCE LEVEL, DETECTIVE.", {
+            fontFamily: 'SpecialElite, monospace', fontSize: '26px', color: '#e5d4a6', stroke: "#120e08", strokeThickness: 4,
             shadow: { offsetX: 1, offsetY: 2, color: '#000000', blur: 2, fill: true }
         }).setOrigin(0.5).setDepth(200).setScrollFactor(0);
-        this.add.text(centerX, height * 0.23, __dialogueText("scenes/DifficultyScene.js", "t_d639b2477262180afe0e"), {
-            fontFamily: 'SpecialElite, monospace', fontSize: '22px', color: '#c8b98e', stroke: __dialogueText("scenes/DifficultyScene.js", "t_23761c2acfe2c2c7a3cc"), strokeThickness: 3
+        this.add.text(centerX, height * 0.23, "Higher clearance means fewer second chances.", {
+            fontFamily: 'SpecialElite, monospace', fontSize: '22px', color: '#c8b98e', stroke: "#120e08", strokeThickness: 3
         }).setOrigin(0.5).setDepth(200).setScrollFactor(0);
         const btnRookie = this.add.image(centerX, height * 0.44, 'btnRookie').setOrigin(0.5).setInteractive({ useHandCursor: true });
         const btnOfficer = this.add.image(centerX, height * 0.64, 'btnOfficer').setOrigin(0.5).setInteractive({ useHandCursor: true });
@@ -46,7 +46,7 @@ export class DifficultyScene extends BaseScene {
         btnOfficer.on('pointerdown', () => { this.selectDifficulty('field'); });
         btnCaptain.on('pointerdown', () => { this.selectDifficulty('master'); });
         this.statusMessage = this.add.text(centerX, height * 0.30, '', {
-            fontFamily: 'SpecialElite, monospace', fontSize: '17px', color: '#ff9d78', align: 'center', stroke: __dialogueText("scenes/DifficultyScene.js", "t_23761c2acfe2c2c7a3cc"), strokeThickness: 4,
+            fontFamily: 'SpecialElite, monospace', fontSize: '17px', color: '#ff9d78', align: 'center', stroke: "#120e08", strokeThickness: 4,
             wordWrap: { width: width * 0.7 }
         }).setOrigin(0.5).setDepth(300).setScrollFactor(0);
     }

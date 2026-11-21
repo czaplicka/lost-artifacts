@@ -589,10 +589,10 @@ export function collectPigeonFind(id) {
       ok: true,
       find: clone(find),
       message:
-        find.kind === __dialogueText("managers/PigeonManager.js", "t_ef875a1705a5fdac206b")
+        find.kind === "junk"
           ? `${find.name}${__dialogueText("managers/PigeonManager.js", "t_45822f54a0d0e030f756")}${find.description}${__dialogueText("managers/PigeonManager.js", "t_3a10bf8281679f9343c0")}`
           : `${find.name}${__dialogueText("managers/PigeonManager.js", "t_3f7634658a37e802376a")}${
-              find.kind === __dialogueText("managers/PigeonManager.js", "t_fa7496e4ae840306df41")
+              find.kind === "collection"
                 ? __dialogueText("managers/PigeonManager.js", "t_92140299973b6abcd241")
                 : __dialogueText("managers/PigeonManager.js", "t_4dccd757d0eca2f1f5e5")
             }${__dialogueText("managers/PigeonManager.js", "t_cdb4ee2aea69cc6a8333")}`

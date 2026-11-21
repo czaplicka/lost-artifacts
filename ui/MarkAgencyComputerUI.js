@@ -35,8 +35,8 @@ export class MarkAgencyComputerUI {
       if(!this.isOpen||this.destroyed||event.ctrlKey||event.metaKey||event.altKey)return;
       event.stopPropagation();
       if(this.nextAssignmentBusy){event.preventDefault();return;}
-      if(event.code===__dialogueText("ui/MarkAgencyComputerUI.js", "t_037c968467aa3fd7c059")&&!event.repeat){event.preventDefault();if(this.menuOpen){this.menuOpen=false;this.render();}else if(this.app!=='desktop')this.openApp('desktop');else this.close();}
-      else if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',__dialogueText("ui/MarkAgencyComputerUI.js", "t_20eac5aae274985fd886"),'KeyB','KeyL'].includes(event.code))event.preventDefault();
+      if(event.code==="Escape"&&!event.repeat){event.preventDefault();if(this.menuOpen){this.menuOpen=false;this.render();}else if(this.app!=='desktop')this.openApp('desktop');else this.close();}
+      else if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',"Space",'KeyB','KeyL'].includes(event.code))event.preventDefault();
     };
     scene.scale.on('resize',this.onResize);window.addEventListener('lost-artifacts:money-changed',this.onMoney);
     scene.events.once('shutdown',this.destroy,this);scene.events.once('destroy',this.destroy,this);
@@ -137,7 +137,7 @@ export class MarkAgencyComputerUI {
     this.createIcon(x+424,y+10,128,__dialogueText("ui/MarkAgencyComputerUI.js", "t_b0eae702830c382ba1d9"),'ledger',0x9bc6b8,()=>this.openApp('ledger'));
     const unread=this.getMail().filter(item=>!this.isRead(item.id)).length;
     this.drawing.text(x+22,y+132,`${unread}${__dialogueText("ui/MarkAgencyComputerUI.js", "t_669634a162538855e5b3")}${unread===1?'':'s'}`,15,'#eadcae');
-    if(canOpenNextAssignment(this.state))this.drawing.button(x+24,y+460,__dialogueText("ui/MarkAgencyComputerUI.js", "t_25b0fb759c5e45203e2f"),()=>{void this.openNextAssignment();},!this.nextAssignmentBusy);
+    if(canOpenNextAssignment(this.state))this.drawing.button(x+24,y+460,"NEXT ASSIGNMENT >",()=>{void this.openNextAssignment();},!this.nextAssignmentBusy);
   }
   createIcon(x,y,width,label,kind,color,callback){
     const d=this.drawing,scene=this.scene,cx=x+width/2,highlight=d.rectangle(x+4,y,width-8,118,0x2b6b7a,0),key=this.shell.iconKey(ICON_ART[kind]||kind);
@@ -167,7 +167,7 @@ export class MarkAgencyComputerUI {
       const ry=b.y+125+i*49;d.rectangle(b.x+14,ry,b.w-28,46,i%2?0xe4e3d0:0xf1eddc);
       const title=d.text(b.x+24,ry+4,entry.description||entry.category||__dialogueText("ui/MarkAgencyComputerUI.js", "t_e977570a360f400260c2"),16,'#283f46');d.fit(title,title.text,b.w-270);
       const date=new Date(entry.createdAt);d.text(b.x+24,ry+26,`${entry.accountLabel} / ${Number.isFinite(date.getTime())?date.toLocaleString('en-GB'):__dialogueText("ui/MarkAgencyComputerUI.js", "t_f332fef6195ab3d8d86a")}`,12,'#6b7568');
-      d.text(b.x+b.w-24,ry+13,`${entry.prefix}${this.money(entry.displayAmount)}`,16,entry.prefix===__dialogueText("ui/MarkAgencyComputerUI.js", "t_0aa8c9f301e65c4456f7")?'#a33430':'#244f40').setOrigin(1,0);
+      d.text(b.x+b.w-24,ry+13,`${entry.prefix}${this.money(entry.displayAmount)}`,16,entry.prefix==="DEBT +"?'#a33430':'#244f40').setOrigin(1,0);
     });
     const step=delta=>{this.ledgerPage=(this.ledgerPage+delta+pages)%pages;this.render();};
     d.button(b.x+18,b.y+b.h-46,'<',()=>step(-1),pages>1);d.text(b.x+80,b.y+b.h-35,`${this.ledgerPage+1}/${pages}`,14,'#29454a');d.button(b.x+150,b.y+b.h-46,'>',()=>step(1),pages>1);

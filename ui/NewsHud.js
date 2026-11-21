@@ -149,25 +149,25 @@ export class NewsHud extends Phaser.Scene {
     this.menuPanel=this.add.container(hiddenX,this.panelY).setDepth(9995);
     const panelBackground=this.add.rectangle(this.panelWidth/2,panelHeight/2,this.panelWidth,panelHeight,0x17120f,0.95)
       .setStrokeStyle(3,0xd4af37,0.9);
-    const title=this.add.text(this.panelWidth/2,17,__dialogueText("ui/NewsHud.js", "t_f8f0541e225c4388616c"),{
+    const title=this.add.text(this.panelWidth/2,17,"LOCAL NEWS",{
       fontFamily:'PressStart2P',fontSize:'10px',color:'#f6dc8c'
     }).setOrigin(0.5,0);
     const divider=this.add.rectangle(this.panelWidth/2,42,this.panelWidth-20,2,0xd4af37,0.6).setOrigin(0.5);
     const iconSize=Math.round(this.panelWidth*0.35);
     this.newspaperButton=this.add.image(this.panelWidth*0.28,panelHeight*0.61,'news')
       .setOrigin(0.5).setDisplaySize(iconSize,iconSize).setInteractive({useHandCursor:true});
-    this.newspaperLabel=this.add.text(this.panelWidth*0.28,panelHeight*0.84,__dialogueText("ui/NewsHud.js", "t_c87f290656e4b4d73c43"),{
+    this.newspaperLabel=this.add.text(this.panelWidth*0.28,panelHeight*0.84,"PAPER",{
       fontFamily:'PressStart2P',fontSize:'8px',color:'#ffffff'
     }).setOrigin(0.5);
     this.tvButton=this.add.image(this.panelWidth*0.72,panelHeight*0.61,'tv')
       .setOrigin(0.5).setDisplaySize(iconSize,iconSize).setInteractive({useHandCursor:true});
-    this.tvLabel=this.add.text(this.panelWidth*0.72,panelHeight*0.84,__dialogueText("ui/NewsHud.js", "t_ca62d5e073f52f3ceb83"),{
+    this.tvLabel=this.add.text(this.panelWidth*0.72,panelHeight*0.84,"TV",{
       fontFamily:'PressStart2P',fontSize:'8px',color:'#ffffff'
     }).setOrigin(0.5);
     this.menuPanel.add([panelBackground,title,divider,this.newspaperButton,this.newspaperLabel,this.tvButton,this.tvLabel]);
-    this.menuTab=this.add.text(0,this.panelY+24,__dialogueText("ui/NewsHud.js", "t_e582aa5d5e578d02d100"),{
+    this.menuTab=this.add.text(0,this.panelY+24,"NEWS\n▶",{
       fontFamily:'PressStart2P',fontSize:'10px',color:'#f6dc8c',backgroundColor:'#17120f',
-      padding:{left:10,right:9,top:11,bottom:11},align:'center',stroke:__dialogueText("ui/NewsHud.js", "t_7b2817bf9b80e66d07f2"),strokeThickness:3
+      padding:{left:10,right:9,top:11,bottom:11},align:'center',stroke:"#000000",strokeThickness:3
     }).setOrigin(0,0).setDepth(10000).setInteractive({useHandCursor:true});
     this.menuTab.on('pointerup',()=>this.toggleMenu());
     this.newspaperButton.on('pointerover',()=>this.newspaperLabel?.setColor('#ffe066'));

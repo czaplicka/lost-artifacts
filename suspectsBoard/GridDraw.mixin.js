@@ -144,7 +144,7 @@ export const GridDrawMixin = {
     this.uiRoot.add(cornerBrackets(this, 8, 6, width - 16, 72, { len: 14, alpha: 0.45 }));
 
     const title = this.add
-      .text(width / 2, 8, __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_a90fb599d8cf71821729"), {
+      .text(width / 2, 8, "EVIDENCE GRID", {
         fontFamily: 'SpecialElite',
         fontSize: '28px',
         color: '#f5e7c6'
@@ -156,7 +156,7 @@ export const GridDrawMixin = {
       .text(
         width / 2,
         44,
-        __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_f9987d68584a73ffec28"),
+        "Pick a clue card, then click the glowing cell. Compare the crime scene row with each suspect.",
         { fontFamily: 'SpecialElite', fontSize: '13px', color: '#d9c998' }
       )
       .setOrigin(0.5, 0);
@@ -221,7 +221,7 @@ export const GridDrawMixin = {
       this.add.rectangle(s.x + 2, s.y + 2, s.w - 4, 28, 0x2b2018, 1).setOrigin(0),
       this.add.rectangle(s.x + 2, s.y + 30, s.w - 4, 2, THEME.gold, 0.7).setOrigin(0),
       this.add
-        .text(s.x + 12, s.y + 11, `${__dialogueText("suspectsBoard/GridDraw.mixin.js", "t_4827219e37f419978d97")}${clues.length}${__dialogueText("suspectsBoard/GridDraw.mixin.js", "t_ba5ec51d07a4ac0e9516")}`, {
+        .text(s.x + 12, s.y + 11, `${"CLUE CARDS ("}${clues.length}${")"}`, {
           fontFamily: 'PressStart2P',
           fontSize: '9px',
           color: '#ffdc73'
@@ -242,7 +242,7 @@ export const GridDrawMixin = {
 
     if (!clues.length) {
       const done = this.add
-        .text(listW / 2, 30, __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_099807993ab11a49f0db"), {
+        .text(listW / 2, 30, "All clue cards are on the board.", {
           fontFamily: 'SpecialElite',
           fontSize: '16px',
           color: '#c6b58d',
@@ -251,7 +251,7 @@ export const GridDrawMixin = {
         })
         .setOrigin(0.5, 0);
       const joke = this.add
-        .text(listW / 2, done.y + done.height + 12, __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_2cf84d0fb9da1322790c"), {
+        .text(listW / 2, done.y + done.height + 12, "Not bad, detective. Not bad at all.", {
           fontFamily: 'SpecialElite',
           fontSize: '13px',
           color: '#8f7f60',
@@ -281,7 +281,7 @@ export const GridDrawMixin = {
     if (this.minClueScroll < 0) {
       this.uiRoot.add(
         this.add
-          .text(s.x + s.w - 12, s.y + 12, __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_8fdbadc3bcfa716f8e86"), {
+          .text(s.x + s.w - 12, s.y + 12, "SCROLL", {
             fontFamily: 'PressStart2P',
             fontSize: '6px',
             color: '#aa9263'
@@ -311,7 +311,7 @@ export const GridDrawMixin = {
     const container = this.add.container(6, y);
 
     const badgeText = this.add
-      .text(padL + 6, 11, isScene ? __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_149dbafdfa19fa96352e") : __dialogueText("suspectsBoard/GridDraw.mixin.js", "t_edfa2c31b6de69133e64"), {
+      .text(padL + 6, 11, isScene ? "CRIME SCENE" : "SUSPECT", {
         fontFamily: 'PressStart2P',
         fontSize: '6px',
         color: '#15100a'

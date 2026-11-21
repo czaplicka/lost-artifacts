@@ -459,19 +459,19 @@ export class ChemicalResidueScene extends BaseForensicMinigame {
         width / 2,
         (145 + height - 190) / 2,
         [
-          __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_319aec83947878015de3"),
+          "ANALYSIS COMPLETE",
           '',
           this.previewMode
-            ? __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_97069b6989a2b31fee4d")
+            ? "TRAINING SAMPLE"
             : displayValue.toUpperCase(),
           '',
-          `${__dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_eebf182f506a9cc5f009")}`,
-          `${__dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_3732cd148466f1bea431")}${this.mistakes}`,
+          `${"Protocol: 6/6 accepted"}`,
+          `${"Mistakes: "}${this.mistakes}`,
           '',
           this.previewMode
-            ? __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_2eaee54c13d6a4a701fd")
-            : __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_8be848b158628703b1c3")
-        ].join(__dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_01ba4719c80b6fe911b0")),
+            ? "Preview only. Nothing will be added to the case."
+            : "Result ready. Add it to the case file."
+        ].join("\n"),
         {
           fontFamily: FONT_DOC,
           fontSize: '21px',
@@ -577,7 +577,7 @@ export class ChemicalResidueScene extends BaseForensicMinigame {
     const close = this.add.text(
       width / 2,
       height - 48,
-      __dialogueText("scenes/CSI/ChemicalResidueScene.js", "t_014b3cb291da1d46ce8e"),
+      "[ CLOSE / ESC ]",
       {
         fontFamily: FONT_UI,
         fontSize: '11px',

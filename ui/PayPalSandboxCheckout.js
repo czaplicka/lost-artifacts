@@ -44,9 +44,9 @@ export function openPayPalSandbox(scene) {
   if (current) { current.focus(); return; }
   const host = document.createElement('div');
   host.style.cssText = 'position:fixed;inset:0;z-index:100000;background:#000b;display:grid;place-items:center;padding:16px;box-sizing:border-box;pointer-events:auto';
-  host.innerHTML = `${__dialogueText("ui/PayPalSandboxCheckout.js", "t_2dcaad9d74d3aebba2d0")}`;
+  host.innerHTML = `${"\n    <section role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"paypal-test-title\" tabindex=\"-1\"\n      style=\"box-sizing:border-box;width:min(540px,100%);max-height:90dvh;overflow:auto;background:#dac69d;color:#30271e;padding:28px;border:4px solid #59442e;box-shadow:0 12px 70px #000;font-family:SpecialElite,monospace\">\n      <h2 id=\"paypal-test-title\" style=\"margin:0 0 16px\">PAYPAL SANDBOX TEST</h2>\n      <p>Test Expansion — Sandbox Only</p>\n      <p style=\"font-size:25px\">1.00 EUR — test funds only</p>\n      <p>No mission is included. This test does not unlock Dead Mail.</p>\n      <p data-status role=\"status\" aria-live=\"polite\" style=\"white-space:pre-wrap;min-height:65px\">Checking your account…</p>\n      <div data-pay hidden><paypal-button></paypal-button></div>\n      <button data-retry hidden type=\"button\">Retry confirmation — same order</button>\n      <button data-refresh type=\"button\">Refresh status</button>\n      <button data-close type=\"button\">Back to store</button>\n    </section>"}`;
   for (const b of host.querySelectorAll('button')) {
-    b.style.cssText=__dialogueText("ui/PayPalSandboxCheckout.js", "t_1fe39d44946650479d1b");
+    b.style.cssText="font:inherit;padding:12px;margin:8px 8px 0 0;cursor:pointer";
   }
   document.body.appendChild(host);
   const panel = host.querySelector('section');
@@ -103,12 +103,12 @@ export function openPayPalSandbox(scene) {
   };
   const onShutdown = () => dispose(true);
   function onKey(event) {
-    if (event.key === __dialogueText("ui/PayPalSandboxCheckout.js", "t_037c968467aa3fd7c059")) {
+    if (event.key === "Escape") {
       event.preventDefault(); event.stopImmediatePropagation();
       dispose();
     }
-    if (event.key === __dialogueText("ui/PayPalSandboxCheckout.js", "t_90ddf1963abb36c9921c")) {
-      const nodes = [...panel.querySelectorAll(__dialogueText("ui/PayPalSandboxCheckout.js", "t_bc3b62f3e3ca296201b1"))]
+    if (event.key === "Tab") {
+      const nodes = [...panel.querySelectorAll("button:not([hidden]):not(:disabled), paypal-button")]
         .filter(node => node.getClientRects().length);
       if (!nodes.length) { event.preventDefault(); panel.focus(); return; }
       if (event.shiftKey && (document.activeElement === nodes[0] || document.activeElement === panel)) {
@@ -244,7 +244,7 @@ export function openPayPalSandbox(scene) {
       payButton.addEventListener('click', async () => {
         if (busy || owned || disposed) return;
         setBusy(true);
-        say(__dialogueText("ui/PayPalSandboxCheckout.js", "t_aab545b20e7c355ab442"));
+        say("Opening PayPal Sandbox…");
         try {
           await paymentSession.start({ presentationMode: 'popup' }, createOrResumeOrder());
         } catch (error) { fail(error); }

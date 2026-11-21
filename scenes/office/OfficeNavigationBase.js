@@ -200,7 +200,7 @@ export class OfficeNavigation {
         fontFamily: FONT_TITLE,
         fontSize: '9px',
         color: '#f0e6b8',
-        stroke: __dialogueText("scenes/office/OfficeNavigationBase.js", "t_7b2817bf9b80e66d07f2"),
+        stroke: "#000000",
         strokeThickness: 4,
         align: 'center'
       })
@@ -319,7 +319,7 @@ export class OfficeNavigation {
       .text(
         0,
         0,
-        `${__dialogueText("scenes/office/OfficeNavigationBase.js", "t_6a92c78056aa5ae92ec3")}${keysText}${__dialogueText("scenes/office/OfficeNavigationBase.js", "t_cdb4ee2aea69cc6a8333")}`,
+        `${"Explore the office. Click a room below"}${keysText}${"."}`,
         {
           fontFamily: FONT_BODY,
           fontSize: '18px',

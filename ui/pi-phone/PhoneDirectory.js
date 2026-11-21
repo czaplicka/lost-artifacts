@@ -47,7 +47,7 @@ export const PhoneDirectory={
   const hit=s.add.rectangle(250,50,780,620,0xffffff,0).setOrigin(0).setInteractive();this.dir.add([blocker,book,hit]);
   this.t(this.dir,318,92,__dialogueText("ui/pi-phone/PhoneDirectory.js", "t_07a52e214ab235c90b14"),34,'#2a2118',FONT_TEXT);
   this.t(this.dir,320,138,__dialogueText("ui/pi-phone/PhoneDirectory.js", "t_2187720a4f4703e7ec3d"),15,'#6b5a3a',FONT_TEXT);
-  this.t(this.dir,884,88,__dialogueText("ui/pi-phone/PhoneDirectory.js", "t_368d075bc49762386ec9"),14,'#7a1f1f',FONT_PIXEL).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.closeDirectory());
+  this.t(this.dir,884,88,"[ CLOSE ]",14,'#7a1f1f',FONT_PIXEL).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.closeDirectory());
   const contacts=directoryContacts(this),pages=Math.max(1,Math.ceil(contacts.length/7));this.directoryPage=Math.max(0,Math.min(this.directoryPage||0,pages-1));
   contacts.slice(this.directoryPage*7,(this.directoryPage+1)*7).forEach((contact,index)=>{
    const y=160+index*58;
@@ -62,6 +62,6 @@ export const PhoneDirectory={
   this.t(this.dir,318,600,'<',24,'#2a2118',FONT_PIXEL).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.turnDirectory(-1));
   this.t(this.dir,380,604,`${this.directoryPage+1} / ${pages}`,18,'#2a2118',FONT_TEXT);
   this.t(this.dir,470,600,'>',24,'#2a2118',FONT_PIXEL).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.turnDirectory(1));
-  this.t(this.dir,980,606,__dialogueText("ui/pi-phone/PhoneDirectory.js", "t_3411b766f8f5614adc29"),14,'#5a4a30',FONT_TEXT).setOrigin(1,0).setAlign('right');
+  this.t(this.dir,980,606,"Click a name to note its number.\nUnlisted numbers can be dialled manually.",14,'#5a4a30',FONT_TEXT).setOrigin(1,0).setAlign('right');
  }
 };

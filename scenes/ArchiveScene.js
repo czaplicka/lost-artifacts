@@ -261,8 +261,8 @@ export class ArchiveScene extends BaseScene {
     this.backButton.on('pointerdown', () => { void this.returnToOffice(); });
     this.backButton.on('pointerover', () => { this.backButton?.setTint(0xffe4a3); });
     this.backButton.on('pointerout', () => { this.backButton?.clearTint(); });
-    this.nextMissionButton = button(__dialogueText("scenes/ArchiveScene.js", "t_a93851375c3a3646296a"), () => { void this.openNextMission(); }).setOrigin(1, 1).setVisible(false);
-    this.puzzleButton = button(__dialogueText("scenes/ArchiveScene.js", "t_d3f3c4809a994fc829a5"), () => { void this.openIndexPuzzle(); }).setOrigin(.5, 1).setVisible(false);
+    this.nextMissionButton = button("NEXT MISSION >", () => { void this.openNextMission(); }).setOrigin(1, 1).setVisible(false);
+    this.puzzleButton = button("SORT INDEX CARDS", () => { void this.openIndexPuzzle(); }).setOrigin(.5, 1).setVisible(false);
     this.statusText = this.add.text(0, 0, '', { ...style, align: 'center' }).setOrigin(.5, 0).setDepth(110).setVisible(false);
   }
   layoutArchive() {

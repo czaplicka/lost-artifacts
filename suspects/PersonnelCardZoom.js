@@ -13,7 +13,7 @@ function installStyles() {
   if (document.getElementById(STYLE_ID)) return;
   const style = document.createElement('style');
   style.id = STYLE_ID;
-  style.textContent = `${__dialogueText("suspects/PersonnelCardZoom.js", "t_d1e12721e34a10117d00")}`;
+  style.textContent = `${"\n    .personnel-zoom-shell{position:relative;min-width:0;display:grid;align-self:stretch}\n    .personnel-zoom-shell>.personnel-card{width:100%;height:100%;margin:0}\n    .personnel-roster .personnel-zoom-open{position:absolute;right:5px;top:5px;z-index:60;display:grid;place-items:center;width:36px;height:36px;min-height:36px;padding:6px;border:2px solid #725439;border-radius:4px;background:#fff4d9;color:#493322;box-shadow:1px 2px 4px #0005;cursor:zoom-in}\n    .personnel-zoom-open svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2}\n    dialog.personnel-zoom-dialog:not([open]){display:none!important}\n    dialog.personnel-zoom-dialog[open]{position:fixed;inset:0;box-sizing:border-box;margin:auto;width:min(680px,calc(100vw - 24px));height:min(850px,calc(100dvh - 24px));max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px);padding:16px;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:12px;overflow:hidden;border:4px solid #62432d;border-radius:5px;background:#e9d9b4;color:#302016;font-family:SpecialElite,monospace;box-shadow:0 12px 70px #0009;pointer-events:auto}\n    .personnel-zoom-dialog::backdrop{background:#100c0be8}\n    .personnel-zoom-dialog .personnel-zoom-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;min-width:0}\n    .personnel-zoom-dialog h2{margin:0 0 7px;font-size:27px;overflow-wrap:anywhere}\n    .personnel-zoom-dialog .personnel-zoom-facts{margin:0;color:#614a33;font-size:21px;line-height:1.35;overflow-wrap:anywhere}\n    .personnel-zoom-dialog button{font:inherit;cursor:pointer;min-height:42px;padding:9px 14px;background:#f8edcf;color:#3b291d;border:2px solid #866747;border-radius:3px;pointer-events:auto}\n    .personnel-zoom-dialog button:focus-visible{outline:3px solid #9b352b;outline-offset:3px}\n    .personnel-zoom-dialog button[aria-pressed=true]{background:#64372e;color:#fff1d4}\n    .personnel-zoom-dialog .personnel-zoom-stage{position:relative;min-height:0;overflow:hidden;background:radial-gradient(ellipse,#9ba59a,#4a584c);border:2px solid #836848}\n    .personnel-zoom-dialog .personnel-zoom-stage>.agency-id-avatar{position:absolute!important;left:50%!important;top:50%!important;right:auto!important;bottom:auto!important;width:280px!important;min-width:280px!important;max-width:none!important;height:310px!important;min-height:310px!important;max-height:310px!important;transform-origin:0 0!important;margin:0!important;transition:none!important;filter:none!important;opacity:1!important;--noir-gold:#b28e46;--noir-crimson:#7a1f22;--radius-sm:0px}\n    .personnel-zoom-dialog .personnel-zoom-controls{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;flex-shrink:0}\n    @media(max-width:600px){dialog.personnel-zoom-dialog[open]{padding:10px;gap:9px}.personnel-zoom-dialog h2{font-size:22px}.personnel-zoom-dialog .personnel-zoom-facts{font-size:18px}.personnel-zoom-dialog button{padding:8px 10px;font-size:16px}}\n  "}`;
   document.head.append(style);
 }
 
@@ -50,7 +50,7 @@ export class PersonnelCardZoom {
 
   decorate() {
     if (this.destroyed || !this.root) return;
-    for (const card of this.root.querySelectorAll(__dialogueText("suspects/PersonnelCardZoom.js", "t_b4b62f0307e77c4a0150"))) {
+    for (const card of this.root.querySelectorAll("[data-grid] [data-person]")) {
       if (card.parentElement?.hasAttribute('data-personnel-zoom-shell')) continue;
       const shell = document.createElement('div');
       shell.className = 'personnel-zoom-shell';
@@ -61,8 +61,8 @@ export class PersonnelCardZoom {
       button.className = 'personnel-zoom-open';
       button.dataset.personnelZoom = card.dataset.person;
       button.title = __dialogueText("suspects/PersonnelCardZoom.js", "t_b2fdb565624af9effe0e");
-      button.setAttribute('aria-label', `${__dialogueText("suspects/PersonnelCardZoom.js", "t_33d6b113411331818ed1")}${person?.name || ''}`);
-      button.innerHTML = __dialogueText("suspects/PersonnelCardZoom.js", "t_3b9830a00ee2cc97ddbc");
+      button.setAttribute('aria-label', `${"Inspect portrait: "}${person?.name || ''}`);
+      button.innerHTML = "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"10\" r=\"7\"/><path d=\"m15 15 7 7M10 6v8M6 10h8\"/></svg>";
       card.parentNode.insertBefore(shell, card);
       shell.append(card, button);
     }
@@ -75,7 +75,7 @@ export class PersonnelCardZoom {
     event.stopImmediatePropagation();
     if (this.view.help?.modal) return;
     const person = this.view.roster.people.find(p => String(p.id) === button.dataset.personnelZoom);
-    const source = button.parentElement.querySelector(__dialogueText("suspects/PersonnelCardZoom.js", "t_a5e53f66ec7869ec7086"));
+    const source = button.parentElement.querySelector("[data-person] .agency-id-avatar");
     if (person && source) this.open(person, source, button);
   }
 
@@ -85,9 +85,9 @@ export class PersonnelCardZoom {
     this.trigger = trigger;
     this.face = false;
     const dialog = document.createElement('dialog');
-    dialog.className = __dialogueText("suspects/PersonnelCardZoom.js", "t_0fd3635f428c553cd734");
-    dialog.setAttribute('aria-label', __dialogueText("suspects/PersonnelCardZoom.js", "t_ff1a53683dabda2ad531"));
-    dialog.innerHTML = `${__dialogueText("suspects/PersonnelCardZoom.js", "t_7d0f9df4e99598b0d675")}`;
+    dialog.className = "personnel-roster personnel-zoom-dialog";
+    dialog.setAttribute('aria-label', "Personnel portrait inspection");
+    dialog.innerHTML = `${"\n      <header class=\"personnel-zoom-heading\"><div><h2 data-zoom-name></h2><p class=\"personnel-zoom-facts\" data-zoom-facts></p></div><button type=\"button\" data-zoom-close aria-label=\"Close portrait\">Close</button></header>\n      <div class=\"personnel-zoom-stage\" data-zoom-stage></div>\n      <div class=\"personnel-zoom-controls\"><button type=\"button\" data-zoom-mode=\"portrait\" aria-pressed=\"true\">Full portrait</button><button type=\"button\" data-zoom-mode=\"face\" aria-pressed=\"false\">Face close-up</button></div>"}`;
     dialog.querySelector('[data-zoom-name]').textContent = person.name || '';
     const facts = [person.occupation];
     if (Number.isInteger(person.floor)) facts.push(person.floor === 0 ? __dialogueText("suspects/PersonnelCardZoom.js", "t_18c409c5e785af2146fc") : `${__dialogueText("suspects/PersonnelCardZoom.js", "t_909b27736dd17677b186")}${person.floor}`);

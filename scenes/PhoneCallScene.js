@@ -53,12 +53,12 @@ export class PhoneCallScene extends BaseScene {
     const screenBorder=this.add.rectangle(cx,cy-110,302,292).setStrokeStyle(2,0x306230).setDepth(2002);
     const signalText=this.add.text(cx-135,cy-245,__dialogueText("scenes/PhoneCallScene.js", "t_d13c8ecee55104d8936a"),{fontFamily:'PressStart2P',fontSize:'12px',color:'#0f380f'}).setDepth(2003);
     const batteryText=this.add.text(cx+85,cy-245,__dialogueText("scenes/PhoneCallScene.js", "t_c8c2b203b9eef66f484e"),{fontFamily:'PressStart2P',fontSize:'12px',color:'#0f380f'}).setDepth(2003);
-    const title=this.add.text(cx,cy-200,__dialogueText("scenes/PhoneCallScene.js", "t_1f429f907feda571844d"),{fontFamily:'PressStart2P',fontSize:'14px',color:'#0f380f'}).setOrigin(.5).setDepth(2003);
-    const phoneIcon=this.add.text(cx,cy-150,__dialogueText("scenes/PhoneCallScene.js", "t_1a1bad4a8593d279e3ab"),{fontSize:'42px',color:'#0f380f'}).setOrigin(.5).setDepth(2003);
-    const caller=this.add.text(cx,cy-90,__dialogueText("scenes/PhoneCallScene.js", "t_258648f8498aa3aecd7c"),{fontFamily:'PressStart2P',fontSize:'13px',color:'#0f380f',align:'center',wordWrap:{width:280}}).setOrigin(.5).setDepth(2003);
-    const ringing=this.add.text(cx,cy-35,__dialogueText("scenes/PhoneCallScene.js", "t_c5ae7a15b80d96573375"),{fontFamily:'PressStart2P',fontSize:'10px',color:'#306230',align:'center'}).setOrigin(.5).setDepth(2003);
-    const answerBtn=this.add.text(cx-70,cy+18,__dialogueText("scenes/PhoneCallScene.js", "t_569571744c7853c81c52"),{fontFamily:'PressStart2P',fontSize:'11px',color:'#0f380f',backgroundColor:'#9bbc0f',padding:{left:8,right:8,top:6,bottom:6}}).setOrigin(.5).setDepth(2003).setInteractive({useHandCursor:true});
-    const laterBtn=this.add.text(cx+70,cy+18,__dialogueText("scenes/PhoneCallScene.js", "t_3d71a7b1b5f2153ff09e"),{fontFamily:'PressStart2P',fontSize:'11px',color:'#0f380f',backgroundColor:'#9bbc0f',padding:{left:8,right:8,top:6,bottom:6}}).setOrigin(.5).setDepth(2003).setInteractive({useHandCursor:true});
+    const title=this.add.text(cx,cy-200,"INCOMING CALL",{fontFamily:'PressStart2P',fontSize:'14px',color:'#0f380f'}).setOrigin(.5).setDepth(2003);
+    const phoneIcon=this.add.text(cx,cy-150,"☎",{fontSize:'42px',color:'#0f380f'}).setOrigin(.5).setDepth(2003);
+    const caller=this.add.text(cx,cy-90,"DETECTIVE BUREAU",{fontFamily:'PressStart2P',fontSize:'13px',color:'#0f380f',align:'center',wordWrap:{width:280}}).setOrigin(.5).setDepth(2003);
+    const ringing=this.add.text(cx,cy-35,"LINE ACTIVE...",{fontFamily:'PressStart2P',fontSize:'10px',color:'#306230',align:'center'}).setOrigin(.5).setDepth(2003);
+    const answerBtn=this.add.text(cx-70,cy+18,"[ ANSWER ]",{fontFamily:'PressStart2P',fontSize:'11px',color:'#0f380f',backgroundColor:'#9bbc0f',padding:{left:8,right:8,top:6,bottom:6}}).setOrigin(.5).setDepth(2003).setInteractive({useHandCursor:true});
+    const laterBtn=this.add.text(cx+70,cy+18,"[ IGNORE ]",{fontFamily:'PressStart2P',fontSize:'11px',color:'#0f380f',backgroundColor:'#9bbc0f',padding:{left:8,right:8,top:6,bottom:6}}).setOrigin(.5).setDepth(2003).setInteractive({useHandCursor:true});
     const keypadGroup=this.drawKeypad(cx,cy+180);
     const phoneObjects=[phoneBody,phoneInnerFrame,speaker,screenBg,screenBorder,signalText,batteryText,title,phoneIcon,caller,ringing,answerBtn,laterBtn,...keypadGroup];
     this.ui.push(overlay,...phoneObjects);

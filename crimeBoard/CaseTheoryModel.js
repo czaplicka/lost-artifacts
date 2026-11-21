@@ -14,7 +14,7 @@ export const THEORY_OPTIONS={opportunity:[
 ]};
 export function normalizeSkillId(value){
  const id=String(value??'').trim().toLowerCase().replace(/[_-]+/g,' ').replace(/\s+/g,' ');
- return ['pickpocket','pickpocketing',__dialogueText("crimeBoard/CaseTheoryModel.js", "t_fdb3d1ed938473e1e4ae")].includes(id)?'pickpocket':id;
+ return ['pickpocket','pickpocketing',"pick pocketing"].includes(id)?'pickpocket':id;
 }
 const strings=values=>[...new Set((Array.isArray(values)?values:[])
  .filter(value=>typeof value==='string'&&value.trim()).map(value=>value.trim()))];

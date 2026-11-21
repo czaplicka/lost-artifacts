@@ -218,7 +218,7 @@ export class PIInventoryScene extends Phaser.Scene {
         }
 
         if (
-          event.code === __dialogueText("ui/PIInventoryUI.js", "t_037c968467aa3fd7c059") ||
+          event.code === "Escape" ||
           event.code === 'KeyI'
         ) {
           event.preventDefault();
@@ -364,7 +364,7 @@ export function installPIInventory(scene) {
 
   button.setAttribute(
     'aria-label',
-    __dialogueText("ui/PIInventoryUI.js", "t_82f25bfbfc1c3f232079")
+    "Open PI inventory"
   );
 
   button.setAttribute('aria-keyshortcuts', 'I');

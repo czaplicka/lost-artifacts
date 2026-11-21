@@ -142,10 +142,10 @@ export function installDeadMenTopicPhone(phone){
   phone.state='ringing';phone.status=__dialogueText("managers/DeadMenPhoneTopics.js", "t_5f04ae9ed6a865bb382c");phone.render();
   void load().then(()=>{
    if(dead||phone.destroyed||!phone.isOpen||phone.run!==token||phone.number!==number||phone.state!=='ringing')return;
-   if(!active()||!isDeadMenWebContactVisible({number})){phone.finishCall(__dialogueText("managers/DeadMenPhoneTopics.js", "t_d522ca397bcb18c64c69"));return;}
-   phone.status=__dialogueText("managers/DeadMenPhoneTopics.js", "t_f402468f7b8874bf7b48");phone.startRing();phone.render();
+   if(!active()||!isDeadMenWebContactVisible({number})){phone.finishCall("The call is no longer available.");return;}
+   phone.status="Ringing...";phone.startRing();phone.render();
    phone.later(3000,()=>{if(!dead&&active()&&isDeadMenWebContactVisible({number})&&phone.number===number&&phone.state==='ringing')phone.connect(contact(number));});
-  }).catch(error=>{if(!dead&&!phone.destroyed&&phone.isOpen&&phone.run===token){console.error('[Dead Men topics]',error);phone.finishCall(__dialogueText("managers/DeadMenPhoneTopics.js", "t_3100ae59b65c424f875d"));}});
+  }).catch(error=>{if(!dead&&!phone.destroyed&&phone.isOpen&&phone.run===token){console.error('[Dead Men topics]',error);phone.finishCall("The conversation could not be loaded. Hang up and try again.");}});
  });
  wrap(phone,'connect',original=>c=>{
   if(!contact(c?.number)||!active())return original(c);

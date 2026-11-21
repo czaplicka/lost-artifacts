@@ -1136,7 +1136,7 @@ export class GrandConspiracyScene extends Phaser.Scene {
         x, y, entry.label, entry.action
       );
 
-      if (entry.label === __dialogueText("scenes/GrandConspiracyScene.js", "t_4f0872ab8f825e8ae4b4")) {
+      if (entry.label === "CAMERA: ON") {
         button.setBackgroundColor('#7a2a22');
       }
 

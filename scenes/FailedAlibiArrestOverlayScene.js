@@ -606,7 +606,7 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
     this.statusText = this.label(
       W / 2,
       670,
-      __dialogueText("scenes/FailedAlibiArrestOverlayScene.js", "t_930ac80c51318b0a4a84"),
+      "ARREST TEAM DISPATCHED",
       {
         fontFamily: 'PressStart2P',
         fontSize: '18px',
@@ -618,7 +618,7 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
     this.caption = this.label(
       W / 2,
       724,
-      __dialogueText("scenes/FailedAlibiArrestOverlayScene.js", "t_8757184cfa09b54f1df5"),
+      "Two agents. One address. What could possibly go wrong?",
       {
         fontSize: '27px',
         align: 'center',
@@ -657,8 +657,8 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
       this.label(
         W / 2,
         360,
-        __dialogueText("scenes/FailedAlibiArrestOverlayScene.js", "t_24915589c207610a3247") +
-        __dialogueText("scenes/FailedAlibiArrestOverlayScene.js", "t_a2306a577db31a466efe"),
+        "Agent artwork could not be loaded.\n" +
+        "The operation will still finish.",
         {
           fontSize: '26px',
           align: 'center',

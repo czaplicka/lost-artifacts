@@ -137,7 +137,7 @@ function tagLayout(ui, value, caseId) {
 
 function normalizeNotebook(ui) {
   const paper = ui.root?.list?.find(item => Array.isArray(item.list) &&
-    item.list.some(child => child.text === __dialogueText("ui/pi-computer/KeywordStyle.js", "t_bbc638660cdde9fbfde6")));
+    item.list.some(child => child.text === "PRIVATE INVESTIGATIONS"));
   if (!paper?.visible) return;
   const definitions = ui.search?.data?.cases || [];
   const titles = new Set(paper.list.map(item => item.text));

@@ -54,7 +54,7 @@ export class ChaseTutorialOverlay {
     };
 
     this.panel = element('section', 'la-chase-panel');
-    this.panel.setAttribute('aria-label', __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_6deaf40ea7a803c16e10"));
+    this.panel.setAttribute('aria-label', "Investigation tutorial");
     this.portrait = element('div', 'la-chase-portrait');
     const frame = element('div', 'la-chase-portrait-frame');
     this.portraitImage = document.createElement('img');
@@ -82,7 +82,7 @@ export class ChaseTutorialOverlay {
     };
     const skip = document.createElement('button');
     skip.type = 'button';
-    skip.textContent = __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_e8395936de2e1c809b3e");
+    skip.textContent = "SKIP TUTORIAL >";
     skip.onclick = () => onSkip();
     controls.append(this.collapseButton, skip);
     this.footer = element('div', 'la-chase-footer');
@@ -110,7 +110,7 @@ export class ChaseTutorialOverlay {
     this.footer.hidden = this.collapsed;
     this.portrait.hidden = this.collapsed || this.panel.classList.contains('is-narrow');
     this.collapseButton.textContent = this.collapsed ? '+' : '–';
-    this.collapseButton.setAttribute('aria-label', this.collapsed ? __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_5df71120277eb959617f") : __dialogueText("tutorials/chase/ChaseTutorialOverlay.js", "t_11e7003f1f92b4f1387e"));
+    this.collapseButton.setAttribute('aria-label', this.collapsed ? "Expand tutorial" : "Minimise tutorial");
     this.collapseButton.setAttribute('aria-expanded', String(!this.collapsed));
   }
 

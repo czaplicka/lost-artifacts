@@ -124,10 +124,10 @@ export class CityPresentation {
       width / 2,
       height / 2 - 50,
       [
-        __dialogueText("scenes/city/CityPresentation.js", "t_3a9c3073a340ea9e1d33"),
-        `${__dialogueText("scenes/city/CityPresentation.js", "t_377de36aed83402230d5")}${allowed}`,
-        `${__dialogueText("scenes/city/CityPresentation.js", "t_f1560699839571d33e6b")}${this.formatCityClock(clock)}${__dialogueText("scenes/city/CityPresentation.js", "t_4f5a2ada1166172aa174")}${this.getPartOfDayForHour(clock.hour)}${__dialogueText("scenes/city/CityPresentation.js", "t_ba5ec51d07a4ac0e9516")}`
-      ].join(__dialogueText("scenes/city/CityPresentation.js", "t_01ba4719c80b6fe911b0")),
+        "Location is currently closed.",
+        `${"Open: "}${allowed}`,
+        `${"Current: "}${this.formatCityClock(clock)}${" ("}${this.getPartOfDayForHour(clock.hour)}${")"}`
+      ].join("\n"),
       {
         fontFamily: 'SpecialElite',
         fontSize: '20px',
@@ -159,7 +159,7 @@ export class CityPresentation {
     const cancelBtn = this.add.text(
       width / 2,
       height / 2 + 80,
-      __dialogueText("scenes/city/CityPresentation.js", "t_6b0143d03864993fdf69"),
+      "Return",
       {
         fontFamily: 'SpecialElite',
         fontSize: '22px',
@@ -228,7 +228,7 @@ export class CityPresentation {
 
       if (minutesToWait === null) {
         warningText.setText(
-          __dialogueText("scenes/city/CityPresentation.js", "t_4c5ea29c71818b9a73ce")
+          "No opening time is available for this location."
         );
         return;
       }
@@ -268,9 +268,9 @@ export class CityPresentation {
           cleanupPopup();
 
           this.showMessage(
-            __dialogueText("scenes/city/CityPresentation.js", "t_f0f6601cc0893dd3e172"),
+            "Waiting could not be completed.\nCheck the clock before trying again.",
             4000,
-            __dialogueText("scenes/city/CityPresentation.js", "t_f27f7bc32875ed02b2fc")
+            "#8b0000"
           );
         }
       }

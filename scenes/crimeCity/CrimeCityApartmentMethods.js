@@ -31,7 +31,7 @@ export const crimeCityApartmentMethods = {
     if (this.isTransitioning || this.isVisitingApartment || this._cleanupDone || !this.sys.isActive()) return false;
     const target = this.resolveApartmentTarget(suspectId);
     if (!target.valid) {
-      this.showMessage(target.reason === __dialogueText("scenes/crimeCity/CrimeCityApartmentMethods.js", "t_7d569cfc7cd9cee508f7")
+      this.showMessage(target.reason === "missing_selection"
         ? __dialogueText("scenes/crimeCity/CrimeCityApartmentMethods.js", "t_1846c3a864ebf99d7d99")
         : __dialogueText("scenes/crimeCity/CrimeCityApartmentMethods.js", "t_8d4ee84b5f99a01f381d"), 3000, __dialogueText("scenes/crimeCity/CrimeCityApartmentMethods.js", "t_e09afad9b0dfcb2294f9"));
       return false;

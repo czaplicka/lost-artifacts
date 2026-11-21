@@ -170,7 +170,7 @@ export class ApartmentOccupantController {
     this.button = scene.add.text(
       scene.scale.width - 12,
       118,
-      `${__dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_ed81c0632a204569bc64")}${this.occupant.role.toUpperCase()}${__dialogueText("scenes/apartament/ApartmentOccupantController.js", "t_fe13f4313ea0880d091d")}`,
+      `${"[ TALK: "}${this.occupant.role.toUpperCase()}${" ]"}`,
       {
         fontFamily: 'SpecialElite',
         fontSize: '18px',

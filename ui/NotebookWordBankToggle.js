@@ -5,11 +5,11 @@ import { requestAutosave } from '../gameStatePersistence.js';
 const INSTALLED = Symbol('notebook-word-bank-toggle');
 let nextId = 0;
 
-const CSS = `${__dialogueText("ui/NotebookWordBankToggle.js", "t_13447fd3d47046648852")}`;
+const CSS = `${"\n.pcn.pcn-bank-hidden .pcn-work{\n  grid-template-columns:minmax(0,1fr)!important;\n  grid-template-rows:minmax(0,1fr)!important;\n}\n.pcn.pcn-bank-hidden .pcn-work > .pcn-bank{display:none!important}\n.pcn.pcn-bank-hidden .pcn-board{width:100%;min-width:0}\n.pcn .pcn-bank-toggle{font-size:.7em;white-space:nowrap}\n.pcn .pcn-bank-toggle:focus-visible{outline:2px solid var(--red);outline-offset:2px}\n@media(max-width:650px){\n  .pcn .pcn-bank-toggle{font-size:.65em;padding:.35em .55em}\n}\n"}`;
 
 export function installNotebookWordBankToggle(ui, notebook, previousRoots = new Set()) {
   if (!notebook || notebook[INSTALLED]) return notebook?.[INSTALLED] || null;
-  const roots = [...document.querySelectorAll(__dialogueText("ui/NotebookWordBankToggle.js", "t_ac41b924aa2755fb032c"))];
+  const roots = [...document.querySelectorAll(".pcn")];
   const root = roots.find(node => !previousRoots.has(node)) ||
     (roots.length === 1 ? roots[0] : null);
   if (!root) return null;
@@ -28,8 +28,8 @@ export function installNotebookWordBankToggle(ui, notebook, previousRoots = new 
 
   function sync() {
     if (dead) return;
-    const top = root.querySelector(__dialogueText("ui/NotebookWordBankToggle.js", "t_9ee8898a5a3f008070a5"));
-    const bank = root.querySelector(__dialogueText("ui/NotebookWordBankToggle.js", "t_49bd80dd3ae04b3cf345"));
+    const top = root.querySelector(".pcn-top");
+    const bank = root.querySelector(".pcn-bank");
     root.classList.toggle('pcn-bank-hidden', hidden);
     if (bank && bank.id !== bankId) bank.id = bankId;
     const label = hidden ? __dialogueText("ui/NotebookWordBankToggle.js", "t_d531b1ee18e36f2b0885") : __dialogueText("ui/NotebookWordBankToggle.js", "t_a8e5b2188d477b018f37");

@@ -48,7 +48,7 @@ export class OfficeDeductionScene extends BaseScene {
     const H = this.cameras.main.height;
     this.add.rectangle(W / 2, H / 2, W, H, 0x2a1f1a);
 
-    this.add.text(W / 2, 34, __dialogueText("scenes/OfficeDeductionScene.js", "t_f25ee126875dd3d8b1e7"), {
+    this.add.text(W / 2, 34, "ELIASZ'S OFFICE", {
       fontFamily: FONT_UI, fontSize: '20px', color: '#ffd75e',
     }).setOrigin(0.5);
 
@@ -136,7 +136,7 @@ export class OfficeDeductionScene extends BaseScene {
     this.board.add(this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.85).setInteractive());
     this.board.add(this.add.rectangle(W / 2, H / 2, W - 120, H - 100, 0xf1ead8).setStrokeStyle(4, 0x8a7f5c));
 
-    this.board.add(this.add.text(W / 2, 60, __dialogueText("scenes/OfficeDeductionScene.js", "t_05fb53694341807b6a54"), {
+    this.board.add(this.add.text(W / 2, 60, "DEDUCTION BOARD", {
       fontFamily: FONT_UI, fontSize: '18px', color: '#2b2b2b',
     }).setOrigin(0.5));
 
@@ -175,7 +175,7 @@ export class OfficeDeductionScene extends BaseScene {
       .setStrokeStyle(3, 0x1a5a3a)
       .setInteractive({ useHandCursor: true });
     this.board.add(this.checkButton);
-    this.board.add(this.add.text(W / 2, H - 80, __dialogueText("scenes/OfficeDeductionScene.js", "t_9f90766c9ecaebce382b"), {
+    this.board.add(this.add.text(W / 2, H - 80, "CHECK DEDUCTIONS", {
       fontFamily: FONT_UI, fontSize: '12px', color: '#fff',
     }).setOrigin(0.5));
     this.checkButton.on('pointerdown', () => this.checkDeductions());
@@ -185,7 +185,7 @@ export class OfficeDeductionScene extends BaseScene {
       .setStrokeStyle(2, 0x8a2a2a)
       .setInteractive({ useHandCursor: true });
     this.board.add(this.closeButton);
-    this.board.add(this.add.text(W - 100, 60, __dialogueText("scenes/OfficeDeductionScene.js", "t_f13a1ed0cf3c4197ec8f"), {
+    this.board.add(this.add.text(W - 100, 60, "CLOSE", {
       fontFamily: FONT_UI, fontSize: '10px', color: '#fff',
     }).setOrigin(0.5));
     this.closeButton.on('pointerdown', () => this.toggleDeductionBoard());
@@ -231,7 +231,7 @@ export class OfficeDeductionScene extends BaseScene {
       bg.on('dragend', (pointer) => {
         // Sprawdź czy upuszczono na blank
         const dropped = this.sentenceContainers.some(({ container, sent }) => {
-          const blanks = container.list.filter(c => c.type === __dialogueText("scenes/OfficeDeductionScene.js", "t_0306996228eb0b748da4") && c.input?.dropZone);
+          const blanks = container.list.filter(c => c.type === "Rectangle" && c.input?.dropZone);
           return blanks.some(blank => {
             const bounds = blank.getBounds();
             if (bounds.contains(pointer.x, pointer.y)) {
@@ -262,7 +262,7 @@ export class OfficeDeductionScene extends BaseScene {
     let incorrect = 0;
 
     this.sentenceContainers.forEach(({ container, sent }) => {
-      const blanks = container.list.filter(c => c.type === __dialogueText("scenes/OfficeDeductionScene.js", "t_0306996228eb0b748da4") && c.input?.dropZone);
+      const blanks = container.list.filter(c => c.type === "Rectangle" && c.input?.dropZone);
       const filled = blanks.map(b => b.getData('filledWith'));
       const expected = sent.blanks;
 

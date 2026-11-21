@@ -136,7 +136,7 @@ export class OfficeDustScene extends BaseScene{
   const empty=DATA.traces.find(trace=>trace.objectId===null);
   return{id:'missing_footprint',instructions,text:__dialogueText("scenes/OfficeDustScene.js", "t_d9d405e236447b995095"),targets:[this.traces.find(item=>item.id===empty.id)?.box].filter(Boolean)};
  }
- setDialogue(text){this.message.setText(`${__dialogueText("scenes/OfficeDustScene.js", "t_e0e94082545fdad681ba")}${text}`).setFontSize(18);}
+ setDialogue(text){this.message.setText(`${"HINT: "}${text}`).setFontSize(18);}
  persist(){
   if(this.preview)return;
   MainStoryManager.setSideClue(STATE_KEY,{version:1,placements:{...this.placements},missingTrace:this.missingTrace,checks:this.checks,completed:this.finished,missingObjectId:null});
@@ -160,7 +160,7 @@ export class OfficeDustScene extends BaseScene{
   try{
    if(!this.preview){
     try{this.xpGranted=this.grantCompletionXP();}
-    catch(error){console.error('[OfficeDust] XP settlement failed:',error);this.message.setText(__dialogueText("scenes/OfficeDustScene.js", "t_897bbe8dfb407e12712c")).setFontSize(22);return;}
+    catch(error){console.error('[OfficeDust] XP settlement failed:',error);this.message.setText("Reconstruction correct, but XP could not be recorded. Click CHECK DESK again to retry.").setFontSize(22);return;}
    }
    this.finished=true;this.selectedObject=null;this.selectedTrace=null;this.persist();this.showSuccess();playOfficeDustAudio(this,'success');
    if(!this.preview)this.emitBus('mainStory:officeDustCompleted',{flag:FLAG,missingObjectId:null});

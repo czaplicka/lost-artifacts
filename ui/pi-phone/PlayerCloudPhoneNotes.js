@@ -39,9 +39,9 @@ export function renderReedCloudPhoneNotes(){
  this.notePage=Math.max(0,Math.min(chunks.length-1,this.notePage||0));
  for(const entry of chunks[this.notePage])button(30,entry.y,entry.label,entry.action,choosing&&!p.directoryOpen);
  if(!entries.length)text(30,top,active?__dialogueText("ui/pi-phone/PlayerCloudPhoneNotes.js", "t_4bbb5041488b86ba4ff3"):__dialogueText("ui/pi-phone/PlayerCloudPhoneNotes.js", "t_14b5fd6c115670a7ad16"),17,'#786b53');
- button(30,h-82,__dialogueText("ui/pi-phone/PlayerCloudPhoneNotes.js", "t_d463afc6ea8f75cc6b55"),()=>{inv.notePage--;p.render();},this.notePage>0);
+ button(30,h-82,"< PAGE",()=>{inv.notePage--;p.render();},this.notePage>0);
  text(w/2,h-80,`${this.notePage+1}/${chunks.length}`,14);
- button(w-108,h-82,__dialogueText("ui/pi-phone/PlayerCloudPhoneNotes.js", "t_8188caf087609e305acc"),()=>{inv.notePage++;p.render();},this.notePage<chunks.length-1);
+ button(w-108,h-82,"PAGE >",()=>{inv.notePage++;p.render();},this.notePage<chunks.length-1);
  button(30,h-40,active?__dialogueText("ui/pi-phone/PlayerCloudPhoneNotes.js", "t_9e905f09f84609111358"):__dialogueText("ui/pi-phone/PlayerCloudPhoneNotes.js", "t_a1129ed66b026c7ba94c"),()=>{inv.playerTopicCloudId=null;inv.notePage=0;p.render();},choosing);
  button(190,h-40,__dialogueText("ui/pi-phone/PlayerCloudPhoneNotes.js", "t_57122ddcbe5aaddde50a"),()=>inv.replay(),choosing&&(phoneCaseProgress(definition.id).transcripts||[]).length>0);
  if(choosing){p.logContainer.setVisible(false);p.prompt.setVisible(false);p.statusText.setVisible(true).setText(__dialogueText("ui/pi-phone/PlayerCloudPhoneNotes.js", "t_90c1a393d4e412163ab2"));}

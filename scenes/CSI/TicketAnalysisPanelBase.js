@@ -77,7 +77,7 @@ export class TicketAnalysisPanel {
     this.highlight = scene.add.rectangle(0, 0, 230, 410, 0x39ff14, 0.10)
       .setOrigin(0).setStrokeStyle(3, 0x39ff14, 0.9)
       .setScrollFactor(0).setDepth(65).setVisible(false);
-    this.dropLabel = scene.add.text(0, 0, __dialogueText("scenes/CSI/TicketAnalysisPanelBase.js", "t_3986d462fb7b06a2550e"), {
+    this.dropLabel = scene.add.text(0, 0, "Give evidence", {
       fontFamily: 'SpecialElite', fontSize: '20px', color: '#b9ff8f',
       backgroundColor: '#07111b', padding: { x: 8, y: 5 }
     }).setOrigin(0.5, 1).setScrollFactor(0).setDepth(66).setVisible(false);

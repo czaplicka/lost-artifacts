@@ -57,7 +57,7 @@ export class ArchiveIndexPuzzleScene extends BaseScene {
     this.progress = this.label(640, 123, '', 20, '#bbccb2');
     this.message = this.label(640, 782, __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_cab6cfda8df2ae9c4605"), 22);
     this.label(485, 850, this.preview ? __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_db1d7313ec962ed15287") : __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_e1122d1fc2343ed7d3d2"), 20, '#bbaa94');
-    const back = this.add.text(1080, 850, __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_639807a2e01886a2236b"), { fontFamily: 'SpecialElite, monospace', fontSize: '23px',
+    const back = this.add.text(1080, 850, "BACK", { fontFamily: 'SpecialElite, monospace', fontSize: '23px',
       color: '#f1d89d', backgroundColor: '#4a3933', padding: { x: 24, y: 13 } }).setOrigin(0.5).setInteractive({ useHandCursor: true });
     this.root.add(back); back.on('pointerdown', () => this.closePuzzle());
     if (this.finished) this.showDiscovery(); else this.buildCards();
@@ -84,7 +84,7 @@ export class ArchiveIndexPuzzleScene extends BaseScene {
         color: '#352c29', wordWrap: { width: 208 } }).setOrigin(0, 0.5);
       const body = this.add.text(-73, 17, data.body, { fontFamily: 'SpecialElite, monospace', fontSize: '16px',
         color: '#4d4339', lineSpacing: 2, wordWrap: { width: 208 } }).setOrigin(0, 0.5);
-      const stamp = this.add.text(85, 49, __dialogueText("scenes/ArchiveIndexPuzzleScene.js", "t_fbf6cd7473b41ac36799"), { fontFamily: 'SpecialElite, monospace', fontSize: '19px',
+      const stamp = this.add.text(85, 49, "FILED", { fontFamily: 'SpecialElite, monospace', fontSize: '19px',
         color: '#245f3e', backgroundColor: '#d3d8bc', padding: { x: 4, y: 1 } }).setOrigin(0.5).setAngle(-10).setVisible(false);
       item.add([paper, type, badge, icon, title, body, stamp]); this.root.add(item);
       const card = { ...data, item, paper, stamp, matched: this.matched.has(data.pairId) }; this.cards.push(card);

@@ -103,8 +103,8 @@ export class InventoryDragController {
         if (item) this.callbacks.clicked(item);
       } else {
         EventBus.emit('showDialogue', {
-          speaker: __dialogueText("ui/inventory/InventoryDragController.js", "t_2653ceeec1fd951707a3"),
-          text: __dialogueText("ui/inventory/InventoryDragController.js", "t_b77c73e5a429f52bdd87")
+          speaker: "Detective",
+          text: "No available target. Close any conversation before handing over evidence."
         });
       }
       this.callbacks.finished();
@@ -127,8 +127,8 @@ export class InventoryDragController {
     if (!drop.accepted) {
       this.callbacks.cancelled(true);
       EventBus.emit('showDialogue', {
-        speaker: __dialogueText("ui/inventory/InventoryDragController.js", "t_2653ceeec1fd951707a3"),
-        text: __dialogueText("ui/inventory/InventoryDragController.js", "t_35c62aac1988162ba3eb")
+        speaker: "Detective",
+        text: "Not handed over. Drop the evidence inside the highlighted target."
       });
     }
     this.callbacks.finished();

@@ -67,11 +67,11 @@ function refreshProfile(){
   const modal=document.getElementById('profile-modal');if(!modal)return;
   let row=modal.querySelector('#profile-police-medals-row');
   if(!row){
-    const anchor=modal.querySelector('#profile-points')?.closest(__dialogueText("systems/thiefdoku/ThiefdokuService.js", "t_cbb7dea0f80093a3742b"));if(!anchor)return;
+    const anchor=modal.querySelector('#profile-points')?.closest(".profile-info");if(!anchor)return;
     row=document.createElement('p');row.id='profile-police-medals-row';row.className='profile-info';
     const label=document.createElement('strong');label.textContent=__dialogueText("systems/thiefdoku/ThiefdokuService.js", "t_b4b749c892439d4b707e");
     const value=document.createElement('span');value.id='profile-police-medals';
-    value.style.marginLeft=__dialogueText("systems/thiefdoku/ThiefdokuService.js", "t_a060496df3948316330d");value.style.color='#aa7d24';
+    value.style.marginLeft="0.45em";value.style.color='#aa7d24';
     value.title=__dialogueText("systems/thiefdoku/ThiefdokuService.js", "t_8143c7f0aabe5b5aee80");
     row.append(label,document.createTextNode(' '),value);anchor.insertAdjacentElement('afterend',row);
   }
@@ -163,7 +163,7 @@ export function installThiefdokuIntegration(ui){
   if(ui.dailyThiefdokuIntegration)return ui.dailyThiefdokuIntegration;
   const originalOpenApp=ui.openApp,originalCreateIcon=ui.desktop.createIcon;
   const wrappedCreateIcon=function(x,y,width,label,kind,color,callback){
-    if(label===__dialogueText("systems/thiefdoku/ThiefdokuService.js", "t_5cf46358ab38145b427c")&&!thiefdokuService.isInstalled())return;
+    if(label==="Thiefdoku"&&!thiefdokuService.isInstalled())return;
     return originalCreateIcon.call(this,x,y,width,label,kind,color,callback);
   };
   const wrappedOpenApp=function(app){

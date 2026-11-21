@@ -359,7 +359,7 @@ export class RoadTripDestinationsUI {
     this.buildMap();
 
     this.closeBtn = scene.add
-      .text(width - 100, 75, __dialogueText("ui/RoadTripDestinationsUI.js", "t_be64f28a8d0a6257b2af"), {
+      .text(width - 100, 75, "✕", {
         fontFamily: 'SpecialElite',
         fontSize: '48px',
         color: this.theme.closeColor
@@ -565,13 +565,13 @@ export class RoadTripDestinationsUI {
   buildTitles() {
     const s = this.scene;
 
-    this.title = makeText(s, DW / 2, 66, __dialogueText("ui/RoadTripDestinationsUI.js", "t_aa9de920bf8baec13de9"), {
+    this.title = makeText(s, DW / 2, 66, "County Road Map", {
       fontFamily: 'SpecialElite', fontSize: '40px', color: '#3b2a18'
     }).setOrigin(0.5);
 
     this.subtitle = makeText(
       s, DW / 2, 102,
-      __dialogueText("ui/RoadTripDestinationsUI.js", "t_4f39e606e59eb1394303"),
+      "Scale: roughly. Accuracy: optimistic. Dino navigates.",
       { fontFamily: 'SpecialElite', fontSize: '18px', color: '#7a5c35' }
     ).setOrigin(0.5);
 
@@ -645,7 +645,7 @@ export class RoadTripDestinationsUI {
       .setStrokeStyle(2, t.confirmStroke)
       .setInteractive({ useHandCursor: true });
 
-    this.confirmLabel = text(190, 350, __dialogueText("ui/RoadTripDestinationsUI.js", "t_6eb9e7d4fa3e6d2e8a9d"), 17, t.confirmText).setOrigin(0.5);
+    this.confirmLabel = text(190, 350, "Pick a town", 17, t.confirmText).setOrigin(0.5);
 
     this.confirmButton.on('pointerdown', () => {
       void this.confirm();
@@ -817,7 +817,7 @@ export class RoadTripDestinationsUI {
     ring.arc(0, 0, 28, 0.5, Math.PI * 2 - 0.2, false);
     ring.strokePath();
 
-    const note = makeText(s, 0, -58, __dialogueText("ui/RoadTripDestinationsUI.js", "t_b0b52ce074f3c6d015bb"), {
+    const note = makeText(s, 0, -58, "You are here", {
       fontFamily: 'SpecialElite', fontSize: '22px', color: '#8b2a1d'
     }).setOrigin(0.5).setAngle(-6);
 

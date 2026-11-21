@@ -81,7 +81,7 @@ export class RadioSpliceScene extends BaseScene {
         .setInteractive({ useHandCursor: true });
       const title = this.add.text(x, y - 34, clip.label, { fontFamily: 'SpecialElite', fontSize: '20px',
         color: '#3f3126' }).setOrigin(.5);
-      const text = this.add.text(x, y + 12, clip.text.length > 76 ? clip.text.slice(0, 73) + __dialogueText("scenes/RadioSpliceScene.js", "t_ab5df625bc76dbd4e163") : clip.text,
+      const text = this.add.text(x, y + 12, clip.text.length > 76 ? clip.text.slice(0, 73) + "..." : clip.text,
         { fontFamily: 'SpecialElite', fontSize: '18px', color: '#534636', align: 'center',
           wordWrap: { width: 300 } }).setOrigin(.5);
       this.root.add([box, title, text]);
@@ -163,7 +163,7 @@ export class RadioSpliceScene extends BaseScene {
       Number.isInteger(h.slotIndex) ? this.slotObjects[h.slotIndex]?.box : null,
       h.conclusionId ? this.conclusionButtons.find(c => c.id === h.conclusionId)?.button : null].filter(Boolean) };
   }
-  setDialogue(text) { this.message?.setText(`${__dialogueText("scenes/RadioSpliceScene.js", "t_e0e94082545fdad681ba")}${text}`).setFontSize(18); }
+  setDialogue(text) { this.message?.setText(`${"HINT: "}${text}`).setFontSize(18); }
   persist() { if (!this.preview && this.allowed) this.savedOk = storeRadioSplice(this.progress).saved; }
   check() {
     if (this.finished || this.blocked()) return;
@@ -179,7 +179,7 @@ export class RadioSpliceScene extends BaseScene {
     this.timelineHelp?.hintButton?.setVisible(false); this.conclusionButtons.forEach(c => c.button.disableInteractive());
     this.sourceTitle.setText(__dialogueText("scenes/RadioSpliceScene.js", "t_3022bf9302ef1caeb2c4"));
     this.sourceBody.setText(DATA.success);
-    this.message.setText(this.preview ? __dialogueText("scenes/RadioSpliceScene.js", "t_a03d734f160f3ebabcdd") : this.savedOk === false ?
+    this.message.setText(this.preview ? "Assembly complete / preview only." : this.savedOk === false ?
       DATA.messages.saveFailed : DATA.messages.complete).setFontSize(20); this.refreshBoard();
   }
   makeModal() {

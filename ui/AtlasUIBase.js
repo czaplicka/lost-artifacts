@@ -442,8 +442,8 @@ export class AtlasUI {
         this.createTexts();
         this.createStamp();
 
-        this.prevBtn = this.button(-520, 355, __dialogueText("ui/AtlasUI.js", "t_86af811671fe29fad1d2"), () => this.previousPage());
-        this.nextBtn = this.button(520, 355, __dialogueText("ui/AtlasUI.js", "t_58b85f2ea88bf1a9ba16"), () => this.nextPage());
+        this.prevBtn = this.button(-520, 355, "< PREV", () => this.previousPage());
+        this.nextBtn = this.button(520, 355, "NEXT >", () => this.nextPage());
         this.closeBtn = this.button(632, -414, 'X', () => this.close());
         this.countryBtn = this.button(155, 283, 'COUNTRY', () => {
             const page = this.getCurrentPage();
@@ -586,7 +586,7 @@ export class AtlasUI {
         this.neighbourLabels = this.labelPool(8, 12, '#6d7258', 0.9);
         this.compassN = this.text(-98, -253, 'N', 13).setOrigin(0.5);
 
-        this.mapMessage = this.text(MAP_CX, -20, __dialogueText("ui/AtlasUI.js", "t_31009eb54797f5306ede"), 18, {
+        this.mapMessage = this.text(MAP_CX, -20, "Loading map...", 18, {
             align: 'center', wordWrap: { width: 370 }, color: '#706b55'
         }).setOrigin(0.5);
         this.markerLabel = this.text(0, 0, '', 16, {
@@ -634,7 +634,7 @@ export class AtlasUI {
         this.pageLeftNumber = this.text(-322, 355, '', 15, { color: '#7c725b' }).setOrigin(0.5);
         this.pageRightLabel = this.text(320, 355, '', 15, { color: '#7c725b' }).setOrigin(0.5);
         this.hintText = this.text(0, 415,
-            __dialogueText("ui/AtlasUI.js", "t_0c507a9063bde90769b0"), 13, {
+            "LEFT / RIGHT: TURN PAGE     A / ESC: CLOSE", 13, {
                 color: '#dfd4b4'
             }).setOrigin(0.5);
     }
@@ -817,7 +817,7 @@ export class AtlasUI {
 
     polygonsOf(geometry) {
         if (!geometry) return [];
-        if (geometry.type === __dialogueText("ui/AtlasUI.js", "t_0ef705dd99da0ae4b601")) return [geometry.coordinates];
+        if (geometry.type === "Polygon") return [geometry.coordinates];
         if (geometry.type === 'MultiPolygon') return geometry.coordinates;
         return [];
     }
@@ -876,7 +876,7 @@ export class AtlasUI {
         const page = this.getCurrentPage();
         if (!page || this.mapState !== 'ready') {
             this.mapMessage.setVisible(true).setText(!page ? __dialogueText("ui/AtlasUI.js", "t_eec3780e3f31766310c2") :
-                this.mapState === __dialogueText("ui/AtlasUI.js", "t_ca00fccfb408989eddc4") ?
+                this.mapState === "error" ?
                     __dialogueText("ui/AtlasUI.js", "t_021a555760554c4e20be") :
                     __dialogueText("ui/AtlasUI.js", "t_985ed8633d43dd8eed88"));
             this.drawNeatline(top, [], []);
@@ -1136,7 +1136,7 @@ export class AtlasUI {
         });
         this.pulse.setPosition(point.x, point.y).setVisible(true);
 
-        this.markerLabel.setText(page.type === __dialogueText("ui/AtlasUI.js", "t_11a62c23412b77477a71") ? page.entry.name : page.country.capital || '')
+        this.markerLabel.setText(page.type === "city" ? page.entry.name : page.country.capital || '')
             .setVisible(true);
         this.markerLabel.setPosition(
             Math.max(FRAME.l + 10, Math.min(point.x + 14, FRAME.r - 10 - this.markerLabel.width)),

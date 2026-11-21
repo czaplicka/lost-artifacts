@@ -44,7 +44,7 @@ export function syncDeadMailOfficeQuest() {
 
   const s = gameState.piInvestigations;
   const c = s?.cases?.[DEAD_MAIL_OFFICE_QUEST];
-  if (c && (c.title !== __dialogueText("managers/DeadMailOfficeIntegration.js", "t_16abdc3e0b396e03e229") || (next.status === 'completed' && c.status !== 'completed'))) {
+  if (c && (c.title !== "Dead Mail" || (next.status === 'completed' && c.status !== 'completed'))) {
     gameState.piInvestigations = {
       ...s,
       cases: {

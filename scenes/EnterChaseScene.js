@@ -7,6 +7,7 @@ import {
 } from '../systems/chasePersistence.js';
 import { courtResumeTarget } from '../systems/courtLogic.js';
 import { validCourt } from '../systems/courtRapport.js';
+import { EnterRewardsPanel } from '../ui/EnterRewardsPanel.js';
 
 const sameId = (a, b) =>
   a != null && b != null && String(a) === String(b);
@@ -15,6 +16,24 @@ export class EnterScene extends OriginalEnterScene {
   async create() {
     this.chaseLoadSource = null;
     await super.create();
+  }
+
+  _buildBackground(width, height) {
+    super._buildBackground(width, height);
+    this.enterRewardsPanel?.destroy();
+    this.enterRewardsPanel = new EnterRewardsPanel(this);
+    this.enterRewardsPanel.setUser(this.currentUser);
+  }
+
+  updateEntryButtons() {
+    super.updateEntryButtons();
+    this.enterRewardsPanel?.setUser(this.currentUser);
+  }
+
+  cleanupScene() {
+    this.enterRewardsPanel?.destroy();
+    this.enterRewardsPanel = null;
+    super.cleanupScene();
   }
 
   async loadSelectedSlot(slotKey, authMode, source, root) {

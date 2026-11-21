@@ -28,7 +28,7 @@ export const SuspectBoardUIMixin = {
     const { width } = this.scale;
 
     this.headerText = this.add
-      .text(width / 2, 18, __dialogueText("suspectsBoard/SuspectBoardUI.mixin.js", "t_12ec4a08916995241dee"), {
+      .text(width / 2, 18, "SUSPECT FILES", {
         fontFamily: 'SpecialElite',
         fontSize: '34px',
         color: '#f5e7c6',

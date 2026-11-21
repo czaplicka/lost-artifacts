@@ -287,8 +287,8 @@ export class ShopScene extends BaseScene {
     g.fillStyle(COLOR.brass, 1); g.fillRoundedRect(2, 2, W - 4, H - 4, 5);
     g.fillStyle(0x0d0a07, 1); g.fillRoundedRect(6, 6, W - 12, H - 12, 3);
     g.lineStyle(1, COLOR.goldLight, 0.25); g.strokeRoundedRect(6, 6, W - 12, H - 12, 3);
-    const label = this.add.text(16, H / 2, __dialogueText("scenes/ShopScene.js", "t_49ee8852597743dd1c84"), { fontFamily: FONT.pixel, fontSize: '9px', color: '#a07a34' }).setOrigin(0, 0.5);
-    this.cashText = this.add.text(W - 16, H / 2 + 1, __dialogueText("scenes/ShopScene.js", "t_ce66470e18f3579ac766"), { fontFamily: FONT.pixel, fontSize: '16px', color: '#ffd966' }).setOrigin(1, 0.5);
+    const label = this.add.text(16, H / 2, "CASH", { fontFamily: FONT.pixel, fontSize: '9px', color: '#a07a34' }).setOrigin(0, 0.5);
+    this.cashText = this.add.text(W - 16, H / 2 + 1, "$0", { fontFamily: FONT.pixel, fontSize: '16px', color: '#ffd966' }).setOrigin(1, 0.5);
     this.cashText.setShadow(0, 0, '#ff9d1a', 8, false, true);
     this.moneyText = this.cashText;
     c.add([g, label, this.cashText]);
@@ -478,7 +478,7 @@ export class ShopScene extends BaseScene {
     g.fillStyle(0xe8a0a0, 1); g.fillRect(x + W * 0.3 + 28, y + H - 5, 14, 5);
     bc.add(g);
 
-    const title = this.add.text(x + W / 2, y + 26, __dialogueText("scenes/ShopScene.js", "t_30a77c462c50bccd4cdd"), { fontFamily: FONT.pixel, fontSize: '14px', color: '#d4af37' }).setOrigin(0.5);
+    const title = this.add.text(x + W / 2, y + 26, "TODAY'S STOCK", { fontFamily: FONT.pixel, fontSize: '14px', color: '#d4af37' }).setOrigin(0.5);
     title.setShadow(0, 0, '#d4af37', 5, false, true);
     bc.add(title);
 
@@ -506,10 +506,10 @@ export class ShopScene extends BaseScene {
     });
 
     const footY = y + HEAD + visible.length * ROW + 10;
-    bc.add(this.add.text(x + W / 2, footY + 8, __dialogueText("scenes/ShopScene.js", "t_f6cd33ba79d1ec991230"), { fontFamily: FONT.body, fontSize: '12px', color: '#9aa594' }).setOrigin(0.5));
+    bc.add(this.add.text(x + W / 2, footY + 8, "Fresh stock every day. Allegedly.", { fontFamily: FONT.body, fontSize: '12px', color: '#9aa594' }).setOrigin(0.5));
 
     if (pages > 1) {
-      bc.add(this.add.text(x + W / 2, footY + 38, `${this.stockPage + 1}${__dialogueText("scenes/ShopScene.js", "t_8a5edab282632443219e")}${pages}`, { fontFamily: FONT.pixel, fontSize: '10px', color: '#f2ecd8' }).setOrigin(0.5));
+      bc.add(this.add.text(x + W / 2, footY + 38, `${this.stockPage + 1}${"/"}${pages}`, { fontFamily: FONT.pixel, fontSize: '10px', color: '#f2ecd8' }).setOrigin(0.5));
       for (const [label, bx, delta] of [['<', x + 40, -1], ['>', x + W - 40, 1]]) {
         const rect = this.add.rectangle(bx, footY + 38, 36, 24, 0x000000, 0.25).setStrokeStyle(1, 0xf2ecd8, 0.5).setInteractive({ useHandCursor: true });
         const txt = this.add.text(bx, footY + 38, label, { fontFamily: FONT.pixel, fontSize: '12px', color: '#f2ecd8' }).setOrigin(0.5);
@@ -543,12 +543,12 @@ export class ShopScene extends BaseScene {
   applyRowState(row) {
     if (!row?.label?.active || !row.price?.active) return;
     const state = this.getBuyState(row.cfg);
-    const dim = state.code !== __dialogueText("scenes/ShopScene.js", "t_2689367b205c16ce32ed");
+    const dim = state.code !== "ok";
     row.label.setColor(dim ? '#7f8a7c' : '#f2ecd8');
     if (state.code === 'owned') {
-      row.price.setFontFamily(FONT.pixel).setFontSize(9).setColor(__dialogueText("scenes/ShopScene.js", "t_3e460c859a6d70ad8b91")).setText(__dialogueText("scenes/ShopScene.js", "t_93fc6ec560dce84a1f6e"));
+      row.price.setFontFamily(FONT.pixel).setFontSize(9).setColor("#8fd18f").setText(__dialogueText("scenes/ShopScene.js", "t_93fc6ec560dce84a1f6e"));
     } else {
-      row.price.setFontFamily(FONT.body).setFontSize(17).setColor(dim ? __dialogueText("scenes/ShopScene.js", "t_e1b35464c2979a104b9a") : __dialogueText("scenes/ShopScene.js", "t_5bed14c43b7bdc7e0093")).setText(`${__dialogueText("scenes/ShopScene.js", "t_09fc96082d34c2dfc129")}${row.cfg.price}`);
+      row.price.setFontFamily(FONT.body).setFontSize(17).setColor(dim ? "#d9786a" : "#ffd966").setText(`${__dialogueText("scenes/ShopScene.js", "t_09fc96082d34c2dfc129")}${row.cfg.price}`);
     }
     // kropki prowadzące między nazwą a ceną
     const d = row.dots; d.clear();
@@ -646,7 +646,7 @@ export class ShopScene extends BaseScene {
   createStamp(hs) {
     const { cfg } = hs;
     const c = this.add.container(cfg.x, cfg.y + cfg.h / 2 - 16).setDepth(12).setAngle(-9).setAlpha(0.9);
-    const t = this.add.text(0, 1, __dialogueText("scenes/ShopScene.js", "t_68c47195c04106b62b6d"), { fontFamily: FONT.pixel, fontSize: '11px', color: '#ff5a4d' }).setOrigin(0.5);
+    const t = this.add.text(0, 1, "SOLD", { fontFamily: FONT.pixel, fontSize: '11px', color: '#ff5a4d' }).setOrigin(0.5);
     const r = this.add.rectangle(0, 0, t.width + 18, t.height + 14, COLOR.leather, 0.65).setStrokeStyle(2, COLOR.red, 1);
     c.add([r, t]);
     return c;
@@ -723,7 +723,7 @@ export class ShopScene extends BaseScene {
     const W = 470, PAD = 18, TEXT_X = -W / 2 + PAD + 46;
     const accent = kind === 'success' ? COLOR.green : kind === 'error' ? COLOR.red : COLOR.brass;
     const accentHex = kind === 'success' ? '#2f7d32' : kind === 'error' ? '#9a2b2b' : '#8b6b2f';
-    const head = this.add.text(TEXT_X, 14, kind === __dialogueText("scenes/ShopScene.js", "t_aee408847d35e44e9943") ? __dialogueText("scenes/ShopScene.js", "t_4b304cbbb823bedd4f85") : kind === __dialogueText("scenes/ShopScene.js", "t_ca00fccfb408989eddc4") ? __dialogueText("scenes/ShopScene.js", "t_efac12f92667900c0d3a") : __dialogueText("scenes/ShopScene.js", "t_dfb14fbb9e7d095209ec"),
+    const head = this.add.text(TEXT_X, 14, kind === "success" ? __dialogueText("scenes/ShopScene.js", "t_4b304cbbb823bedd4f85") : kind === "error" ? __dialogueText("scenes/ShopScene.js", "t_efac12f92667900c0d3a") : __dialogueText("scenes/ShopScene.js", "t_dfb14fbb9e7d095209ec"),
       { fontFamily: FONT.pixel, fontSize: '9px', color: accentHex });
     const msg = this.add.text(TEXT_X, 32, text, { fontFamily: FONT.body, fontSize: '18px', color: '#2b2118', wordWrap: { width: W - PAD * 2 - 52 } });
     const subText = sub ? this.add.text(W / 2 - PAD, 32 + msg.height + 8, sub, { fontFamily: FONT.pixel, fontSize: '12px', color: accentHex }).setOrigin(1, 0) : null;
@@ -768,8 +768,8 @@ export class ShopScene extends BaseScene {
   purchaseEffects(cfg) {
     if (!this.sys?.isActive()) return;
     const x = cfg.x, y = cfg.y;
-    const floater = this.add.text(x, y - cfg.h / 2, `${__dialogueText("scenes/ShopScene.js", "t_95f2bcb8660f18a2da71")}${cfg.price}`, { fontFamily: FONT.pixel, fontSize: '16px', color: '#ffd966',
-      stroke: __dialogueText("scenes/ShopScene.js", "t_235a6458fcc0b8e2e639"), strokeThickness: 4 }).setOrigin(0.5).setDepth(260);
+    const floater = this.add.text(x, y - cfg.h / 2, `${"-$"}${cfg.price}`, { fontFamily: FONT.pixel, fontSize: '16px', color: '#ffd966',
+      stroke: "#15110d", strokeThickness: 4 }).setOrigin(0.5).setDepth(260);
     this.tweens.add({ targets: floater, y: floater.y - 80, alpha: 0, duration: 1100, ease: 'Cubic.easeOut',
       onComplete: () => { if (floater.active) floater.destroy(); } });
     for (let i = 0; i < 12; i++) {
@@ -809,7 +809,7 @@ export class ShopScene extends BaseScene {
     if (!this.debugMode) return;
     if (event.code === 'KeyC') { if (!event.repeat) this.printConfig(); return; }
     if (!this.hotspots.length) return;
-    if (event.code === __dialogueText("scenes/ShopScene.js", "t_90ddf1963abb36c9921c")) {
+    if (event.code === "Tab") {
       event.preventDefault(); const delta = event.shiftKey ? -1 : 1;
       this.selectedIndex = (this.selectedIndex + delta + this.hotspots.length) % this.hotspots.length; this.updateDebug(); return;
     }

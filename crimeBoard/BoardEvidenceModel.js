@@ -6,7 +6,7 @@ const list = value => Array.isArray(value) ? value : [];
 const text = value => typeof value === 'string' ? value.trim() : '';
 const skill = value => {
   const id = text(value).toLowerCase().replace(/[_-]+/g,' ').replace(/\s+/g,' ');
-  return ['pickpocket','pickpocketing',__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_fdb3d1ed938473e1e4ae")].includes(id) ? 'pickpocket' : id;
+  return ['pickpocket','pickpocketing',"pick pocketing"].includes(id) ? 'pickpocket' : id;
 };
 const token = value => encodeURIComponent(String(value));
 export function getBoardEvidenceRecord(state) {

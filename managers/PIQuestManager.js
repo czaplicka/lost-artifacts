@@ -114,7 +114,7 @@ export function acceptPIQuestFromAdvert(scene, advertId) {
     return {
       ok: false,
       message:
-        existing.status === __dialogueText("managers/PIQuestManager.js", "t_4ddb3e96801a1ee2b77d")
+        existing.status === "completed"
           ? __dialogueText("managers/PIQuestManager.js", "t_4a207eadb4718fe05908")
           : __dialogueText("managers/PIQuestManager.js", "t_e81a898dcba96dbe2fc2")
     };
@@ -239,7 +239,7 @@ export function acceptPIQuestFromAdvert(scene, advertId) {
     ok: true,
     questId: quest.id,
     message: quest.requiresBoard
-      ? __dialogueText("managers/PIQuestManager.js", "t_17ffe08dc2566e0f45c1")
+      ? "Job accepted. Added to Investigations > Side Cases."
       : __dialogueText("managers/PIQuestManager.js", "t_9007c074a4b90d41a266")
   };
 }

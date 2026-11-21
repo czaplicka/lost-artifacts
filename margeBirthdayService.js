@@ -9,7 +9,7 @@ function read(){
   const saved=MainStoryManager.getSideClue(KEY),valid=new Set(margeBirthdayData.clues.map(clue=>clue.id));
   // Preserve the old discarded-note clue when migrating from the earlier data file.
   const clues=[...new Set((Array.isArray(saved?.clues)?saved.clues:[]).map(id=>id==='bin'?'note':id).filter(id=>valid.has(id)))];
-  return{version:2,clues,answers:saved?.answers&&typeof saved.answers===__dialogueText("margeBirthdayService.js", "t_2958d416d08aa5a472d7")&&!Array.isArray(saved.answers)?{...saved.answers}:{},completed:MainStoryManager.hasFlag(F.deduced)};
+  return{version:2,clues,answers:saved?.answers&&typeof saved.answers==="object"&&!Array.isArray(saved.answers)?{...saved.answers}:{},completed:MainStoryManager.hasFlag(F.deduced)};
 }
 export function getMargeBirthdayState(){
   const state=read(),unlocked=MainStoryManager.hasFlag(margeBirthdayData.requiredFlag),refused=MainStoryManager.hasFlag(F.refusal);

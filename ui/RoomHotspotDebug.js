@@ -17,7 +17,7 @@ export class RoomHotspotDebug{
     if(e.code==='KeyD'&&!e.repeat){e.preventDefault();this.setEnabled(!this.enabled);return;}if(!this.canEdit())return;
     if(e.code==='KeyB'&&!e.repeat){e.preventDefault();this.scene.toggleDebugBackground?.();return;}
     if(e.code==='KeyC'&&!e.repeat){e.preventDefault();console.log(`COPY INTO ${this.path} -> hotspots`,JSON.stringify(this.hotspots.map(h=>h.def),null,2));return;}
-    if(e.code===__dialogueText("ui/RoomHotspotDebug.js", "t_90ddf1963abb36c9921c")){e.preventDefault();this.index=(this.index+(e.shiftKey?-1:1)+this.hotspots.length)%this.hotspots.length;this.draw();return;}
+    if(e.code==="Tab"){e.preventDefault();this.index=(this.index+(e.shiftKey?-1:1)+this.hotspots.length)%this.hotspots.length;this.draw();return;}
     if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.code))return;e.preventDefault();const h=this.hotspots[this.index],horizontal=['ArrowLeft','ArrowRight'].includes(e.code),direction=['ArrowLeft','ArrowUp'].includes(e.code)?-1:1,key=e.shiftKey?(horizontal?'w':'h'):(horizontal?'x':'y');
     h.def[key]+=direction*(e.altKey?1:5);h.def.w=Math.max(10,h.def.w);h.def.h=Math.max(10,h.def.h);this.sync(h);this.draw();
   }

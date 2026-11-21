@@ -2,14 +2,6131 @@
   "mode": "write",
   "operation": "repair-known",
   "changedFiles": [
-    "scenes/CharacterCreationScene.js",
+    "CrimeBoard.js",
+    "crimeBoard/BoardDeduction.js",
+    "crimeBoard/BoardEditor.js",
+    "crimeBoard/BoardEvidenceModel.js",
+    "crimeBoard/BoardRendering.js",
+    "crimeBoard/BoardWorkspace.js",
+    "crimeBoard/CaseTheory.js",
+    "crimeBoard/CaseTheoryModel.js",
+    "dialogues/DestinationClueText.js",
+    "escapeTimelineLauncher.js",
+    "gordonAccessPanelLauncher.js",
+    "managers/AchievementManager.js",
+    "managers/AgencyManualService.js",
+    "managers/AlibiResolutionService.js",
+    "managers/DeadMailOfficeIntegration.js",
+    "managers/DeadMenPhoneTopics.js",
+    "managers/EnergyManager.js",
+    "managers/PIQuestManager.js",
+    "managers/PigeonManager.js",
+    "managers/PostOfficeManager.js",
+    "managers/ReedContactService.js",
+    "managers/ScoreManager.js",
+    "managers/TravelManager.js",
+    "margeBirthdayService.js",
+    "margeDisclosureModel.js",
+    "mobileFullscreen.js",
+    "scenes/AgainScene.js",
+    "scenes/ApartmentScene.js",
+    "scenes/ArchiveCrashFollowupScene.js",
+    "scenes/ArchiveIndexPuzzleScene.js",
+    "scenes/ArchiveScene.js",
+    "scenes/ArchiveSceneWithAnimations.js",
+    "scenes/BootScene.js",
+    "scenes/BusinessCenterScene.js",
+    "scenes/CSI/BaseForensicMinigame.js",
+    "scenes/CSI/BloodAnalysisScene.js",
+    "scenes/CSI/ChemicalResidueScene.js",
+    "scenes/CSI/CrimeLabHUD.js",
+    "scenes/CSI/CrimeLabScene.js",
+    "scenes/CSI/DnaGenderScene.js",
+    "scenes/CSI/FiberAnalysisScene.js",
+    "scenes/CSI/FingerprintPatternScene.js",
+    "scenes/CSI/FingerprintScene.js",
+    "scenes/CSI/HairAnalysisScene.js",
+    "scenes/CSI/MaterialAnalysisScene.js",
+    "scenes/CSI/ShoeprintScene.js",
+    "scenes/CSI/TicketAnalysisPanelBase.js",
+    "scenes/CSI/ToolmarkAnalysisScene.js",
+    "scenes/CityPlaceScene.js",
+    "scenes/CityScene.js",
+    "scenes/CitySceneWithAnimations.js",
+    "scenes/CourtScene.js",
+    "scenes/CrashTimelineScene.js",
+    "scenes/DetectiveOfficeScene.js",
+    "scenes/DifficultyScene.js",
+    "scenes/EnterScene.js",
+    "scenes/EscapeTimelineScene.js",
+    "scenes/FailedAlibiArrestOverlayScene.js",
+    "scenes/GameOverScene.js",
+    "scenes/GordonSearchScene.js",
+    "scenes/GrandConspiracyScene.js",
+    "scenes/HighscoreScene.js",
+    "scenes/HomeCityScene.js",
+    "scenes/HospitalScene.js",
+    "scenes/HotelScene.js",
+    "scenes/IntroScene.js",
+    "scenes/JohnAccountReviewScene.js",
+    "scenes/JohnIncidentFilesScene.js",
+    "scenes/JohnPrimaryRecordsScene.js",
+    "scenes/JukeboxScene.js",
+    "scenes/LoadingOverlayScene.js",
+    "scenes/MedicalReviewScene.js",
+    "scenes/MediumOfficeScene.js",
+    "scenes/MicrofilmScene.js",
+    "scenes/NewspaperOverlayScene.js",
+    "scenes/OfficeDeductionScene.js",
+    "scenes/OfficeDustScene.js",
+    "scenes/PhoneCallScene.js",
+    "scenes/PigeonLoftScene.js",
+    "scenes/RadioSpliceScene.js",
+    "scenes/RecoveredArtifactsScene.js",
+    "scenes/SettingsScene.js",
+    "scenes/ShopScene.js",
+    "scenes/ShopSceneWithAnimations.js",
+    "scenes/ShreddedReportScene.js",
+    "scenes/SpyShopScene.js",
+    "scenes/SpyShopSceneWithAnimations.js",
+    "scenes/SuccessScene.js",
+    "scenes/TavernScene.js",
+    "scenes/TheoryResultCallScene.js",
+    "scenes/TravelTransitionScene.js",
+    "scenes/TypewriterComparisonScene.js",
+    "scenes/alarm/AlarmPanelHelpController.js",
+    "scenes/alarm/AlarmPanelModel.js",
+    "scenes/apartament/ApartmentHintUI.js",
+    "scenes/apartament/ApartmentHotspotDebug.js",
+    "scenes/apartament/ApartmentIdentityEvidence.js",
+    "scenes/apartament/ApartmentObject.js",
+    "scenes/apartament/ApartmentOccupantController.js",
+    "scenes/archive/OfficeDustHelpController.js",
+    "scenes/archive/TimelineHelpController.js",
+    "scenes/archive/TypewriterHelpController.js",
+    "scenes/arrestSelection/config.js",
+    "scenes/arrestSelection/confirmation.js",
+    "scenes/arrestSelection/controls.js",
+    "scenes/arrestSelection/dossier.js",
+    "scenes/arrestSelection/folder.js",
+    "scenes/arrestSelection/zoom.js",
+    "scenes/city/CityEncounters.js",
+    "scenes/city/CityLifecycle.js",
+    "scenes/city/CityMapDebug.js",
+    "scenes/city/CityPlaces.js",
+    "scenes/city/CityPresentation.js",
+    "scenes/crimeCity/CrimeCityApartmentMethods.js",
+    "scenes/crimeCity/CrimeCityMapUI.js",
+    "scenes/crimeCity/CrimeCityNpcManager.js",
     "scenes/drive/DriveCockpit.js",
-    "ui/characterCreation/CharacterCreationTemplate.js",
-    "ui/characterCreation/DossierView.js",
-    "ui/warrant/WarrantSketch.js"
+    "scenes/gordon/GordonConfrontationController.js",
+    "scenes/gordon/GordonHotspotDebug.js",
+    "scenes/gordon/GordonSafeController.js",
+    "scenes/hiddenObjects/HiddenObjectsPresentation.js",
+    "scenes/homeCity/HomeCityAmbient.js",
+    "scenes/homeCity/HomeCityBuildings.js",
+    "scenes/homeCity/HomeCityExtras.js",
+    "scenes/homeCity/HomeCityGround.js",
+    "scenes/hotel/HotelHotspots.js",
+    "scenes/hotel/HotelSleep.js",
+    "scenes/hr/MargeHRHelpController.js",
+    "scenes/medical/MedicalTestsController.js",
+    "scenes/office/ChapterTwoDeskEntry.js",
+    "scenes/office/OfficeDoorsigns.js",
+    "scenes/office/OfficeElevatorAnimations.js",
+    "scenes/office/OfficeHotspotManager.js",
+    "scenes/office/OfficeNavigationBase.js",
+    "scenes/pi-office/OfficeMoveIn.js",
+    "scenes/storage/AlexMouthAnimation.js",
+    "scenes/travel/TravelSeaLife.js",
+    "scenes/travel/TravelTicketUI.js",
+    "scenes/travel/TravelTransitionEffects.js",
+    "scenes/tv/TvBroadcastControls.js",
+    "scenes/tv/TvBroadcastView.js",
+    "scenes/wanted-database/WantedDatabaseCards.js",
+    "scenes/wanted-database/WantedDatabaseDetails.js",
+    "scenes/wanted-database/WantedDatabaseDetailsView.js",
+    "scenes/wanted-database/WantedDatabaseFilters.js",
+    "scenes/wanted-database/WantedDatabaseNavigation.js",
+    "scenes/wanted-database/WantedDatabaseUi.js",
+    "suspects/PersonnelCardZoom.js",
+    "suspects/PersonnelRoster.js",
+    "suspects/PersonnelRosterFlow.js",
+    "suspectsBoard/GridCells.mixin.js",
+    "suspectsBoard/GridData.mixin.js",
+    "suspectsBoard/GridDraw.mixin.js",
+    "suspectsBoard/SuspectBoardUI.mixin.js",
+    "suspectsBoard/SuspectCards.mixin.js",
+    "suspectsBoard/SuspectDetails.mixin.js",
+    "systems/CityWeatherManager.js",
+    "systems/DeadCasesWorldOutcomes.js",
+    "systems/WorldNpcReactionModel.js",
+    "systems/chaseLogic.js",
+    "systems/newsstand/NewsstandBackground.js",
+    "systems/newsstand/NewsstandComix.js",
+    "systems/thiefdoku/ThiefdokuPuzzle.js",
+    "systems/thiefdoku/ThiefdokuService.js",
+    "tutorials/CrimeCityTutorial.js",
+    "tutorials/FirstCaseTutorial.js",
+    "tutorials/chase/ChaseTutorialOverlay.js",
+    "ui/AgencyLedgerUI.js",
+    "ui/AgencyManualReader.js",
+    "ui/AlibiCloudModel.js",
+    "ui/AtlasUIBase.js",
+    "ui/CaseCloudNotebook.js",
+    "ui/ColdCaseUI.js",
+    "ui/CrimeBoardUI.js",
+    "ui/DestinationMapPainter.js",
+    "ui/DestinationPanel.js",
+    "ui/DestinationTravel.js",
+    "ui/DestinationWorldMap.js",
+    "ui/DestinationsUI.js",
+    "ui/DialogUI.js",
+    "ui/EscapeTimeCallUI.js",
+    "ui/ForgerObservationUI.js",
+    "ui/HiddenObjectsUI.js",
+    "ui/HollyChapterOneCallUI.js",
+    "ui/HudStanding.js",
+    "ui/HypothesisBoardUI.js",
+    "ui/InventoryUI.js",
+    "ui/LegacyCaseCloudNotebook.js",
+    "ui/MarkAgencyComputerUI.js",
+    "ui/MissionReportComputer.js",
+    "ui/NewsHud.js",
+    "ui/NewspaperTimeCover.js",
+    "ui/NotebookWordBankToggle.js",
+    "ui/NotesUI.js",
+    "ui/OfficeSaveUI.js",
+    "ui/PICrimeBoardUI.js",
+    "ui/PIInventoryUI.js",
+    "ui/PIOfficeComputerUI.js",
+    "ui/PIOfficeNotebookIntegration.js",
+    "ui/PIOfficePhoneUI.js",
+    "ui/PassportUI.js",
+    "ui/PayPalSandboxCheckout.js",
+    "ui/PhonebookBaseUI.js",
+    "ui/PlayerCloudNotebook.js",
+    "ui/PlayerMenuUI.js",
+    "ui/RoadTripDestinationsUI.js",
+    "ui/RoomHotspotDebug.js",
+    "ui/UIScene.js",
+    "ui/WarrantUI.js",
+    "ui/WorldPoliceReactionHooks.js",
+    "ui/WorldReactionInspector.js",
+    "ui/WorldReceptionReactionHooks.js",
+    "ui/characterCreation/DifficultyCards.js",
+    "ui/characterCreation/ProfileCards.js",
+    "ui/characterCreation/StatControls.js",
+    "ui/hypothesisBoard/BoardElements.js",
+    "ui/inventory/InventoryDiscardDialog.js",
+    "ui/inventory/InventoryDragController.js",
+    "ui/inventory/InventoryGraphics.js",
+    "ui/inventory/InventoryView.js",
+    "ui/mark-agency/ReportIncidentUI.js",
+    "ui/pi-computer/AlibiAdvertEmailFlow.js",
+    "ui/pi-computer/AlibiReportUI.js",
+    "ui/pi-computer/BorrowedAlibiMail.js",
+    "ui/pi-computer/BusinessPageTemplate.js",
+    "ui/pi-computer/CommonRoomTemplate.js",
+    "ui/pi-computer/ComputerAudio.js",
+    "ui/pi-computer/ComputerChatContent.js",
+    "ui/pi-computer/ComputerDocumentsBase.js",
+    "ui/pi-computer/ComputerSearch.js",
+    "ui/pi-computer/ComputerSearchHome.js",
+    "ui/pi-computer/ComputerSearchWidgets.js",
+    "ui/pi-computer/ComputerThiefdoku.js",
+    "ui/pi-computer/ComputerThiefdokuArt.js",
+    "ui/pi-computer/DeadMailAttachment.js",
+    "ui/pi-computer/EditorialPageTemplate.js",
+    "ui/pi-computer/ForumPageTemplate.js",
+    "ui/pi-computer/KeywordStyle.js",
+    "ui/pi-computer/NotebookContactActions.js",
+    "ui/pi-computer/OrganisationPageTemplate.js",
+    "ui/pi-computer/OwlAudioAvailability.js",
+    "ui/pi-computer/PhotoHotspotEditor.js",
+    "ui/pi-computer/QuestHintPurchase.js",
+    "ui/pi-computer/ReedReportUI.js",
+    "ui/pi-computer/SocialProfileTemplate.js",
+    "ui/pi-phone/AlibiCloudPhoneNotes.js",
+    "ui/pi-phone/DeadMenCloudPhoneNotes.js",
+    "ui/pi-phone/LegacyPhoneFieldNotes.js",
+    "ui/pi-phone/PhoneDirectory.js",
+    "ui/pi-phone/PhoneDisplay.js",
+    "ui/pi-phone/PhoneInvestigationBase.js",
+    "ui/pi-phone/PlayerCloudPhoneNotes.js",
+    "ui/warrant/WarrantResults.js"
   ],
   "review": [],
-  "repaired": 42,
+  "repaired": 1173,
+  "keywordRepairs": 0,
   "extracted": 0,
-  "newEntries": 0
+  "newEntries": 0,
+  "before": [
+    {
+      "file": "CrimeBoard.js",
+      "line": 13,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "CrimeBoard.js",
+      "line": 14,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "CrimeBoard.js",
+      "line": 42,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/BoardDeduction.js",
+      "line": 15,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/BoardDeduction.js",
+      "line": 18,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/BoardDeduction.js",
+      "line": 22,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/BoardDeduction.js",
+      "line": 27,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/BoardDeduction.js",
+      "line": 28,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/BoardDeduction.js",
+      "line": 33,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/BoardDeduction.js",
+      "line": 42,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/BoardEditor.js",
+      "line": 133,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardEditor.js",
+      "line": 133,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardEditor.js",
+      "line": 133,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardEditor.js",
+      "line": 133,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardEditor.js",
+      "line": 139,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardEditor.js",
+      "line": 139,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/BoardEditor.js",
+      "line": 139,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardEditor.js",
+      "line": 139,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardEditor.js",
+      "line": 139,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardEditor.js",
+      "line": 139,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardEditor.js",
+      "line": 144,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardEditor.js",
+      "line": 144,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardEditor.js",
+      "line": 144,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardEditor.js",
+      "line": 144,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardEvidenceModel.js",
+      "line": 9,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 35,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 93,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 93,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 93,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 93,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 93,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 93,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 93,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 93,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 98,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 98,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 98,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 98,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 98,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 98,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 98,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 98,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 98,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 98,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 98,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 102,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 102,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 102,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 102,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 102,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 102,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 102,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 102,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardRendering.js",
+      "line": 215,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/BoardWorkspace.js",
+      "line": 42,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/BoardWorkspace.js",
+      "line": 44,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/BoardWorkspace.js",
+      "line": 186,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardWorkspace.js",
+      "line": 208,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/BoardWorkspace.js",
+      "line": 211,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/BoardWorkspace.js",
+      "line": 237,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/BoardWorkspace.js",
+      "line": 245,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/BoardWorkspace.js",
+      "line": 257,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/BoardWorkspace.js",
+      "line": 274,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/CaseTheory.js",
+      "line": 23,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/CaseTheory.js",
+      "line": 38,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "crimeBoard/CaseTheory.js",
+      "line": 40,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/CaseTheory.js",
+      "line": 51,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/CaseTheory.js",
+      "line": 96,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/CaseTheory.js",
+      "line": 117,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/CaseTheory.js",
+      "line": 120,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/CaseTheory.js",
+      "line": 124,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/CaseTheory.js",
+      "line": 244,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/CaseTheory.js",
+      "line": 244,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/CaseTheory.js",
+      "line": 245,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/CaseTheory.js",
+      "line": 245,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "crimeBoard/CaseTheoryModel.js",
+      "line": 17,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "dialogues/DestinationClueText.js",
+      "line": 8,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "escapeTimelineLauncher.js",
+      "line": 20,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "gordonAccessPanelLauncher.js",
+      "line": 30,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/AchievementManager.js",
+      "line": 94,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/AchievementManager.js",
+      "line": 94,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/AchievementManager.js",
+      "line": 94,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/AgencyManualService.js",
+      "line": 47,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/AlibiResolutionService.js",
+      "line": 481,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/AlibiResolutionService.js",
+      "line": 485,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/DeadMailOfficeIntegration.js",
+      "line": 47,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/DeadMenPhoneTopics.js",
+      "line": 145,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/DeadMenPhoneTopics.js",
+      "line": 146,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/DeadMenPhoneTopics.js",
+      "line": 148,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/EnergyManager.js",
+      "line": 81,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/EnergyManager.js",
+      "line": 248,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/EnergyManager.js",
+      "line": 279,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/EnergyManager.js",
+      "line": 279,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/EnergyManager.js",
+      "line": 318,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/EnergyManager.js",
+      "line": 321,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/EnergyManager.js",
+      "line": 321,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/EnergyManager.js",
+      "line": 353,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/PIQuestManager.js",
+      "line": 117,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/PIQuestManager.js",
+      "line": 242,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "managers/PigeonManager.js",
+      "line": 592,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/PigeonManager.js",
+      "line": 595,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/PostOfficeManager.js",
+      "line": 358,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/ReedContactService.js",
+      "line": 59,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/ReedContactService.js",
+      "line": 82,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/ScoreManager.js",
+      "line": 84,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/ScoreManager.js",
+      "line": 84,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/TravelManager.js",
+      "line": 148,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "managers/TravelManager.js",
+      "line": 148,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "margeBirthdayService.js",
+      "line": 12,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "margeDisclosureModel.js",
+      "line": 10,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "mobileFullscreen.js",
+      "line": 53,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "mobileFullscreen.js",
+      "line": 54,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "mobileFullscreen.js",
+      "line": 55,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "mobileFullscreen.js",
+      "line": 56,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "mobileFullscreen.js",
+      "line": 57,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "mobileFullscreen.js",
+      "line": 58,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "mobileFullscreen.js",
+      "line": 59,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "mobileFullscreen.js",
+      "line": 60,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "mobileFullscreen.js",
+      "line": 61,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "mobileFullscreen.js",
+      "line": 62,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "mobileFullscreen.js",
+      "line": 63,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "mobileFullscreen.js",
+      "line": 64,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "mobileFullscreen.js",
+      "line": 65,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "mobileFullscreen.js",
+      "line": 66,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "mobileFullscreen.js",
+      "line": 67,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "mobileFullscreen.js",
+      "line": 71,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "mobileFullscreen.js",
+      "line": 75,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "mobileFullscreen.js",
+      "line": 76,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/AgainScene.js",
+      "line": 85,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/ApartmentScene.js",
+      "line": 491,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ApartmentScene.js",
+      "line": 506,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ApartmentScene.js",
+      "line": 507,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ApartmentScene.js",
+      "line": 508,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ApartmentScene.js",
+      "line": 522,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ApartmentScene.js",
+      "line": 1051,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ApartmentScene.js",
+      "line": 1083,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ApartmentScene.js",
+      "line": 1110,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ApartmentScene.js",
+      "line": 1220,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ApartmentScene.js",
+      "line": 1503,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ArchiveCrashFollowupScene.js",
+      "line": 28,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ArchiveCrashFollowupScene.js",
+      "line": 29,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ArchiveCrashFollowupScene.js",
+      "line": 29,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ArchiveCrashFollowupScene.js",
+      "line": 44,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ArchiveIndexPuzzleScene.js",
+      "line": 60,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ArchiveIndexPuzzleScene.js",
+      "line": 87,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ArchiveScene.js",
+      "line": 264,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/ArchiveScene.js",
+      "line": 265,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ArchiveSceneWithAnimations.js",
+      "line": 19,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/ArchiveSceneWithAnimations.js",
+      "line": 19,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/BootScene.js",
+      "line": 205,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/BootScene.js",
+      "line": 205,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/BootScene.js",
+      "line": 206,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/BootScene.js",
+      "line": 584,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/BootScene.js",
+      "line": 610,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/BusinessCenterScene.js",
+      "line": 32,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/BaseForensicMinigame.js",
+      "line": 128,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BaseForensicMinigame.js",
+      "line": 379,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 238,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 248,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 284,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 383,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 383,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 383,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 392,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 392,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 402,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 408,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 414,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 414,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 414,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 419,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 419,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 482,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 512,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 527,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 588,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 595,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 595,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 595,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 596,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 596,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 596,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 597,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 597,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 597,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 598,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 598,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 598,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 599,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 607,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/BloodAnalysisScene.js",
+      "line": 627,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/ChemicalResidueScene.js",
+      "line": 462,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/ChemicalResidueScene.js",
+      "line": 465,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/ChemicalResidueScene.js",
+      "line": 468,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/ChemicalResidueScene.js",
+      "line": 469,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/ChemicalResidueScene.js",
+      "line": 472,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/ChemicalResidueScene.js",
+      "line": 473,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/ChemicalResidueScene.js",
+      "line": 474,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/ChemicalResidueScene.js",
+      "line": 580,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/CrimeLabHUD.js",
+      "line": 32,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/CrimeLabScene.js",
+      "line": 243,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/CrimeLabScene.js",
+      "line": 304,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/CrimeLabScene.js",
+      "line": 305,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/CrimeLabScene.js",
+      "line": 308,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/CrimeLabScene.js",
+      "line": 459,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/CrimeLabScene.js",
+      "line": 533,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/DnaGenderScene.js",
+      "line": 199,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/DnaGenderScene.js",
+      "line": 221,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/DnaGenderScene.js",
+      "line": 290,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/DnaGenderScene.js",
+      "line": 302,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/DnaGenderScene.js",
+      "line": 303,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/DnaGenderScene.js",
+      "line": 402,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/DnaGenderScene.js",
+      "line": 516,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/DnaGenderScene.js",
+      "line": 519,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/DnaGenderScene.js",
+      "line": 531,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/DnaGenderScene.js",
+      "line": 537,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/DnaGenderScene.js",
+      "line": 548,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/DnaGenderScene.js",
+      "line": 549,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/DnaGenderScene.js",
+      "line": 614,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/DnaGenderScene.js",
+      "line": 654,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/DnaGenderScene.js",
+      "line": 664,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/DnaGenderScene.js",
+      "line": 675,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/DnaGenderScene.js",
+      "line": 676,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/DnaGenderScene.js",
+      "line": 676,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/DnaGenderScene.js",
+      "line": 677,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/DnaGenderScene.js",
+      "line": 686,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/DnaGenderScene.js",
+      "line": 712,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/DnaGenderScene.js",
+      "line": 728,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/FiberAnalysisScene.js",
+      "line": 176,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/FiberAnalysisScene.js",
+      "line": 176,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/FiberAnalysisScene.js",
+      "line": 191,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/FiberAnalysisScene.js",
+      "line": 192,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/FiberAnalysisScene.js",
+      "line": 193,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/FiberAnalysisScene.js",
+      "line": 222,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/FiberAnalysisScene.js",
+      "line": 226,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/FiberAnalysisScene.js",
+      "line": 230,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/FiberAnalysisScene.js",
+      "line": 265,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/FiberAnalysisScene.js",
+      "line": 348,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/FiberAnalysisScene.js",
+      "line": 370,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/FiberAnalysisScene.js",
+      "line": 390,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/FiberAnalysisScene.js",
+      "line": 394,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/FiberAnalysisScene.js",
+      "line": 396,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/FiberAnalysisScene.js",
+      "line": 417,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/FiberAnalysisScene.js",
+      "line": 419,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/FingerprintPatternScene.js",
+      "line": 77,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/FingerprintPatternScene.js",
+      "line": 85,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/FingerprintPatternScene.js",
+      "line": 130,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/FingerprintScene.js",
+      "line": 272,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/FingerprintScene.js",
+      "line": 276,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/FingerprintScene.js",
+      "line": 288,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/FingerprintScene.js",
+      "line": 356,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/FingerprintScene.js",
+      "line": 406,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/FingerprintScene.js",
+      "line": 410,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/FingerprintScene.js",
+      "line": 417,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/FingerprintScene.js",
+      "line": 423,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/FingerprintScene.js",
+      "line": 465,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/FingerprintScene.js",
+      "line": 475,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/HairAnalysisScene.js",
+      "line": 98,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/HairAnalysisScene.js",
+      "line": 105,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/HairAnalysisScene.js",
+      "line": 144,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/HairAnalysisScene.js",
+      "line": 151,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/HairAnalysisScene.js",
+      "line": 192,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/HairAnalysisScene.js",
+      "line": 207,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/HairAnalysisScene.js",
+      "line": 229,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/HairAnalysisScene.js",
+      "line": 238,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/MaterialAnalysisScene.js",
+      "line": 26,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/MaterialAnalysisScene.js",
+      "line": 27,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/MaterialAnalysisScene.js",
+      "line": 28,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/MaterialAnalysisScene.js",
+      "line": 40,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/MaterialAnalysisScene.js",
+      "line": 43,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/MaterialAnalysisScene.js",
+      "line": 47,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/MaterialAnalysisScene.js",
+      "line": 63,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/MaterialAnalysisScene.js",
+      "line": 65,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/MaterialAnalysisScene.js",
+      "line": 66,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/MaterialAnalysisScene.js",
+      "line": 66,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/ShoeprintScene.js",
+      "line": 251,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/ShoeprintScene.js",
+      "line": 256,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/ShoeprintScene.js",
+      "line": 261,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/ShoeprintScene.js",
+      "line": 599,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/ShoeprintScene.js",
+      "line": 998,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/ShoeprintScene.js",
+      "line": 1002,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/ShoeprintScene.js",
+      "line": 1002,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/ShoeprintScene.js",
+      "line": 1002,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/ShoeprintScene.js",
+      "line": 1014,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/ShoeprintScene.js",
+      "line": 1018,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/ShoeprintScene.js",
+      "line": 1022,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/ShoeprintScene.js",
+      "line": 1087,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/ShoeprintScene.js",
+      "line": 1124,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/ShoeprintScene.js",
+      "line": 1205,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/ShoeprintScene.js",
+      "line": 1209,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/ShoeprintScene.js",
+      "line": 1215,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/ShoeprintScene.js",
+      "line": 1218,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/ShoeprintScene.js",
+      "line": 1282,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/ShoeprintScene.js",
+      "line": 1288,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/ShoeprintScene.js",
+      "line": 1315,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/TicketAnalysisPanelBase.js",
+      "line": 80,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/ToolmarkAnalysisScene.js",
+      "line": 33,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/ToolmarkAnalysisScene.js",
+      "line": 49,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/ToolmarkAnalysisScene.js",
+      "line": 67,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/ToolmarkAnalysisScene.js",
+      "line": 67,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/ToolmarkAnalysisScene.js",
+      "line": 68,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/ToolmarkAnalysisScene.js",
+      "line": 69,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/ToolmarkAnalysisScene.js",
+      "line": 70,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/ToolmarkAnalysisScene.js",
+      "line": 71,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/ToolmarkAnalysisScene.js",
+      "line": 79,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CSI/ToolmarkAnalysisScene.js",
+      "line": 114,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/ToolmarkAnalysisScene.js",
+      "line": 117,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/ToolmarkAnalysisScene.js",
+      "line": 132,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/ToolmarkAnalysisScene.js",
+      "line": 132,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/ToolmarkAnalysisScene.js",
+      "line": 134,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/ToolmarkAnalysisScene.js",
+      "line": 135,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CSI/ToolmarkAnalysisScene.js",
+      "line": 136,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/CityPlaceScene.js",
+      "line": 32,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CityScene.js",
+      "line": 104,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CityScene.js",
+      "line": 114,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CitySceneWithAnimations.js",
+      "line": 13,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CourtScene.js",
+      "line": 599,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CourtScene.js",
+      "line": 808,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CourtScene.js",
+      "line": 969,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CourtScene.js",
+      "line": 1016,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CrashTimelineScene.js",
+      "line": 124,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/CrashTimelineScene.js",
+      "line": 198,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/DetectiveOfficeScene.js",
+      "line": 248,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/DetectiveOfficeScene.js",
+      "line": 255,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/DetectiveOfficeScene.js",
+      "line": 771,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/DetectiveOfficeScene.js",
+      "line": 774,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/DetectiveOfficeScene.js",
+      "line": 1065,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/DetectiveOfficeScene.js",
+      "line": 1171,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/DetectiveOfficeScene.js",
+      "line": 1179,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/DifficultyScene.js",
+      "line": 30,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/DifficultyScene.js",
+      "line": 31,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/DifficultyScene.js",
+      "line": 34,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/DifficultyScene.js",
+      "line": 35,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/DifficultyScene.js",
+      "line": 38,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/DifficultyScene.js",
+      "line": 39,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/DifficultyScene.js",
+      "line": 49,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/EnterScene.js",
+      "line": 250,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/EnterScene.js",
+      "line": 257,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/EnterScene.js",
+      "line": 328,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/EnterScene.js",
+      "line": 407,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/EnterScene.js",
+      "line": 499,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/EnterScene.js",
+      "line": 503,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/EscapeTimelineScene.js",
+      "line": 685,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/EscapeTimelineScene.js",
+      "line": 715,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/EscapeTimelineScene.js",
+      "line": 717,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/FailedAlibiArrestOverlayScene.js",
+      "line": 609,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/FailedAlibiArrestOverlayScene.js",
+      "line": 621,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/FailedAlibiArrestOverlayScene.js",
+      "line": 660,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/FailedAlibiArrestOverlayScene.js",
+      "line": 661,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/GameOverScene.js",
+      "line": 85,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/GordonSearchScene.js",
+      "line": 30,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/GordonSearchScene.js",
+      "line": 48,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/GordonSearchScene.js",
+      "line": 49,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/GordonSearchScene.js",
+      "line": 50,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/GordonSearchScene.js",
+      "line": 52,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/GordonSearchScene.js",
+      "line": 56,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/GrandConspiracyScene.js",
+      "line": 1139,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/HighscoreScene.js",
+      "line": 54,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/HighscoreScene.js",
+      "line": 79,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/HighscoreScene.js",
+      "line": 82,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/HighscoreScene.js",
+      "line": 119,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/HighscoreScene.js",
+      "line": 122,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/HighscoreScene.js",
+      "line": 127,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/HighscoreScene.js",
+      "line": 127,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/HomeCityScene.js",
+      "line": 217,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/HomeCityScene.js",
+      "line": 218,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/HospitalScene.js",
+      "line": 48,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/HospitalScene.js",
+      "line": 66,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/HotelScene.js",
+      "line": 280,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/HotelScene.js",
+      "line": 286,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/HotelScene.js",
+      "line": 296,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/HotelScene.js",
+      "line": 302,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/HotelScene.js",
+      "line": 314,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/HotelScene.js",
+      "line": 374,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/HotelScene.js",
+      "line": 375,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/HotelScene.js",
+      "line": 388,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/HotelScene.js",
+      "line": 405,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/HotelScene.js",
+      "line": 496,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/IntroScene.js",
+      "line": 180,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/IntroScene.js",
+      "line": 412,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/IntroScene.js",
+      "line": 419,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/IntroScene.js",
+      "line": 451,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/IntroScene.js",
+      "line": 458,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/IntroScene.js",
+      "line": 782,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/IntroScene.js",
+      "line": 789,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/JohnAccountReviewScene.js",
+      "line": 11,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/JohnIncidentFilesScene.js",
+      "line": 13,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/JohnPrimaryRecordsScene.js",
+      "line": 13,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/JukeboxScene.js",
+      "line": 16,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/JukeboxScene.js",
+      "line": 18,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/JukeboxScene.js",
+      "line": 19,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/JukeboxScene.js",
+      "line": 41,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/JukeboxScene.js",
+      "line": 42,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/JukeboxScene.js",
+      "line": 42,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/JukeboxScene.js",
+      "line": 44,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/JukeboxScene.js",
+      "line": 47,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/JukeboxScene.js",
+      "line": 79,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/JukeboxScene.js",
+      "line": 79,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/JukeboxScene.js",
+      "line": 79,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/LoadingOverlayScene.js",
+      "line": 355,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/LoadingOverlayScene.js",
+      "line": 389,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/LoadingOverlayScene.js",
+      "line": 416,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/LoadingOverlayScene.js",
+      "line": 500,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/LoadingOverlayScene.js",
+      "line": 532,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/LoadingOverlayScene.js",
+      "line": 720,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/LoadingOverlayScene.js",
+      "line": 720,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/MedicalReviewScene.js",
+      "line": 17,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/MedicalReviewScene.js",
+      "line": 18,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/MediumOfficeScene.js",
+      "line": 76,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/MediumOfficeScene.js",
+      "line": 228,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/MediumOfficeScene.js",
+      "line": 229,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/MicrofilmScene.js",
+      "line": 18,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/MicrofilmScene.js",
+      "line": 19,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/MicrofilmScene.js",
+      "line": 41,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/MicrofilmScene.js",
+      "line": 41,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/MicrofilmScene.js",
+      "line": 41,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/MicrofilmScene.js",
+      "line": 41,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/NewspaperOverlayScene.js",
+      "line": 9,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/NewspaperOverlayScene.js",
+      "line": 15,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/OfficeDeductionScene.js",
+      "line": 51,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/OfficeDeductionScene.js",
+      "line": 139,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/OfficeDeductionScene.js",
+      "line": 178,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/OfficeDeductionScene.js",
+      "line": 188,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/OfficeDeductionScene.js",
+      "line": 234,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/OfficeDeductionScene.js",
+      "line": 265,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/OfficeDustScene.js",
+      "line": 139,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/OfficeDustScene.js",
+      "line": 163,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/PhoneCallScene.js",
+      "line": 56,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/PhoneCallScene.js",
+      "line": 57,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/PhoneCallScene.js",
+      "line": 58,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/PhoneCallScene.js",
+      "line": 59,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/PhoneCallScene.js",
+      "line": 60,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/PhoneCallScene.js",
+      "line": 61,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/PigeonLoftScene.js",
+      "line": 371,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/PigeonLoftScene.js",
+      "line": 373,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/PigeonLoftScene.js",
+      "line": 595,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/PigeonLoftScene.js",
+      "line": 600,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/PigeonLoftScene.js",
+      "line": 600,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/PigeonLoftScene.js",
+      "line": 604,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/PigeonLoftScene.js",
+      "line": 605,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/PigeonLoftScene.js",
+      "line": 661,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/PigeonLoftScene.js",
+      "line": 666,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/PigeonLoftScene.js",
+      "line": 726,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/PigeonLoftScene.js",
+      "line": 744,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/RadioSpliceScene.js",
+      "line": 84,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/RadioSpliceScene.js",
+      "line": 166,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/RadioSpliceScene.js",
+      "line": 182,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/RecoveredArtifactsScene.js",
+      "line": 45,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/RecoveredArtifactsScene.js",
+      "line": 46,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/RecoveredArtifactsScene.js",
+      "line": 78,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/RecoveredArtifactsScene.js",
+      "line": 96,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/RecoveredArtifactsScene.js",
+      "line": 114,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/RecoveredArtifactsScene.js",
+      "line": 115,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/RecoveredArtifactsScene.js",
+      "line": 118,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/RecoveredArtifactsScene.js",
+      "line": 126,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/RecoveredArtifactsScene.js",
+      "line": 133,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/RecoveredArtifactsScene.js",
+      "line": 136,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/RecoveredArtifactsScene.js",
+      "line": 168,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/RecoveredArtifactsScene.js",
+      "line": 184,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/RecoveredArtifactsScene.js",
+      "line": 188,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/RecoveredArtifactsScene.js",
+      "line": 209,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/SettingsScene.js",
+      "line": 49,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/SettingsScene.js",
+      "line": 166,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShopScene.js",
+      "line": 290,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShopScene.js",
+      "line": 291,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShopScene.js",
+      "line": 481,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShopScene.js",
+      "line": 509,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShopScene.js",
+      "line": 512,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShopScene.js",
+      "line": 546,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShopScene.js",
+      "line": 549,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShopScene.js",
+      "line": 551,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShopScene.js",
+      "line": 551,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShopScene.js",
+      "line": 649,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShopScene.js",
+      "line": 726,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShopScene.js",
+      "line": 726,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShopScene.js",
+      "line": 771,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShopScene.js",
+      "line": 772,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShopScene.js",
+      "line": 812,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShopSceneWithAnimations.js",
+      "line": 9,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShreddedReportScene.js",
+      "line": 84,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShreddedReportScene.js",
+      "line": 85,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShreddedReportScene.js",
+      "line": 86,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShreddedReportScene.js",
+      "line": 91,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShreddedReportScene.js",
+      "line": 100,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShreddedReportScene.js",
+      "line": 101,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShreddedReportScene.js",
+      "line": 102,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShreddedReportScene.js",
+      "line": 105,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/ShreddedReportScene.js",
+      "line": 108,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/SpyShopScene.js",
+      "line": 155,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/SpyShopScene.js",
+      "line": 156,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/SpyShopScene.js",
+      "line": 157,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/SpyShopScene.js",
+      "line": 158,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/SpyShopScene.js",
+      "line": 210,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/SpyShopScene.js",
+      "line": 211,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/SpyShopScene.js",
+      "line": 219,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/SpyShopScene.js",
+      "line": 364,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/SpyShopScene.js",
+      "line": 374,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/SpyShopScene.js",
+      "line": 493,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/SpyShopScene.js",
+      "line": 493,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/SpyShopScene.js",
+      "line": 606,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/SpyShopSceneWithAnimations.js",
+      "line": 12,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/SuccessScene.js",
+      "line": 164,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/SuccessScene.js",
+      "line": 172,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/SuccessScene.js",
+      "line": 405,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/SuccessScene.js",
+      "line": 441,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/SuccessScene.js",
+      "line": 521,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/SuccessScene.js",
+      "line": 536,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/SuccessScene.js",
+      "line": 536,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/SuccessScene.js",
+      "line": 557,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/SuccessScene.js",
+      "line": 651,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TavernScene.js",
+      "line": 40,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TavernScene.js",
+      "line": 129,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TavernScene.js",
+      "line": 129,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TavernScene.js",
+      "line": 131,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TavernScene.js",
+      "line": 133,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TheoryResultCallScene.js",
+      "line": 57,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TheoryResultCallScene.js",
+      "line": 58,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TheoryResultCallScene.js",
+      "line": 59,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TheoryResultCallScene.js",
+      "line": 66,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TheoryResultCallScene.js",
+      "line": 71,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TheoryResultCallScene.js",
+      "line": 76,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TravelTransitionScene.js",
+      "line": 374,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TravelTransitionScene.js",
+      "line": 666,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TravelTransitionScene.js",
+      "line": 678,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TravelTransitionScene.js",
+      "line": 732,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TravelTransitionScene.js",
+      "line": 733,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TravelTransitionScene.js",
+      "line": 749,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TypewriterComparisonScene.js",
+      "line": 87,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TypewriterComparisonScene.js",
+      "line": 89,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TypewriterComparisonScene.js",
+      "line": 90,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TypewriterComparisonScene.js",
+      "line": 96,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TypewriterComparisonScene.js",
+      "line": 97,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TypewriterComparisonScene.js",
+      "line": 97,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TypewriterComparisonScene.js",
+      "line": 97,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TypewriterComparisonScene.js",
+      "line": 113,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/TypewriterComparisonScene.js",
+      "line": 139,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/alarm/AlarmPanelHelpController.js",
+      "line": 30,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/alarm/AlarmPanelHelpController.js",
+      "line": 31,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/alarm/AlarmPanelHelpController.js",
+      "line": 35,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/alarm/AlarmPanelHelpController.js",
+      "line": 35,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/alarm/AlarmPanelModel.js",
+      "line": 10,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/alarm/AlarmPanelModel.js",
+      "line": 10,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/apartament/ApartmentHintUI.js",
+      "line": 247,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/apartament/ApartmentHotspotDebug.js",
+      "line": 111,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/apartament/ApartmentIdentityEvidence.js",
+      "line": 11,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/apartament/ApartmentObject.js",
+      "line": 770,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/apartament/ApartmentObject.js",
+      "line": 841,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/apartament/ApartmentObject.js",
+      "line": 854,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/apartament/ApartmentObject.js",
+      "line": 916,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/apartament/ApartmentObject.js",
+      "line": 924,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/apartament/ApartmentObject.js",
+      "line": 1313,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/apartament/ApartmentOccupantController.js",
+      "line": 173,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/apartament/ApartmentOccupantController.js",
+      "line": 173,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/archive/OfficeDustHelpController.js",
+      "line": 23,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/archive/OfficeDustHelpController.js",
+      "line": 24,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/archive/OfficeDustHelpController.js",
+      "line": 30,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/archive/OfficeDustHelpController.js",
+      "line": 31,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/archive/TimelineHelpController.js",
+      "line": 50,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/archive/TimelineHelpController.js",
+      "line": 59,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/archive/TimelineHelpController.js",
+      "line": 60,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/archive/TypewriterHelpController.js",
+      "line": 23,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/archive/TypewriterHelpController.js",
+      "line": 24,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/archive/TypewriterHelpController.js",
+      "line": 30,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/archive/TypewriterHelpController.js",
+      "line": 31,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/arrestSelection/config.js",
+      "line": 36,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/arrestSelection/confirmation.js",
+      "line": 28,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/arrestSelection/controls.js",
+      "line": 92,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/arrestSelection/controls.js",
+      "line": 103,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/arrestSelection/controls.js",
+      "line": 156,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/arrestSelection/controls.js",
+      "line": 164,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/arrestSelection/dossier.js",
+      "line": 62,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/arrestSelection/dossier.js",
+      "line": 75,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/arrestSelection/dossier.js",
+      "line": 96,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/arrestSelection/folder.js",
+      "line": 185,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/arrestSelection/folder.js",
+      "line": 233,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/arrestSelection/folder.js",
+      "line": 241,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/arrestSelection/folder.js",
+      "line": 255,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/arrestSelection/folder.js",
+      "line": 332,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/arrestSelection/zoom.js",
+      "line": 50,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/city/CityEncounters.js",
+      "line": 73,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/city/CityEncounters.js",
+      "line": 73,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/city/CityLifecycle.js",
+      "line": 101,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/city/CityLifecycle.js",
+      "line": 101,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/city/CityLifecycle.js",
+      "line": 101,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/city/CityMapDebug.js",
+      "line": 246,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/city/CityPlaces.js",
+      "line": 42,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/city/CityPlaces.js",
+      "line": 58,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/city/CityPlaces.js",
+      "line": 164,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/city/CityPlaces.js",
+      "line": 164,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/city/CityPresentation.js",
+      "line": 127,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/city/CityPresentation.js",
+      "line": 128,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/city/CityPresentation.js",
+      "line": 129,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/city/CityPresentation.js",
+      "line": 129,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/city/CityPresentation.js",
+      "line": 129,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/city/CityPresentation.js",
+      "line": 130,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/city/CityPresentation.js",
+      "line": 162,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/city/CityPresentation.js",
+      "line": 231,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/city/CityPresentation.js",
+      "line": 271,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/city/CityPresentation.js",
+      "line": 273,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/crimeCity/CrimeCityApartmentMethods.js",
+      "line": 34,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/crimeCity/CrimeCityMapUI.js",
+      "line": 276,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/crimeCity/CrimeCityMapUI.js",
+      "line": 848,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/crimeCity/CrimeCityMapUI.js",
+      "line": 900,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/crimeCity/CrimeCityNpcManager.js",
+      "line": 251,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/crimeCity/CrimeCityNpcManager.js",
+      "line": 270,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/crimeCity/CrimeCityNpcManager.js",
+      "line": 274,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/crimeCity/CrimeCityNpcManager.js",
+      "line": 740,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/crimeCity/CrimeCityNpcManager.js",
+      "line": 816,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/crimeCity/CrimeCityNpcManager.js",
+      "line": 816,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/crimeCity/CrimeCityNpcManager.js",
+      "line": 816,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/crimeCity/CrimeCityNpcManager.js",
+      "line": 1054,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/drive/DriveCockpit.js",
+      "line": 93,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/drive/DriveCockpit.js",
+      "line": 97,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/drive/DriveCockpit.js",
+      "line": 182,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/drive/DriveCockpit.js",
+      "line": 207,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/drive/DriveCockpit.js",
+      "line": 233,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/gordon/GordonConfrontationController.js",
+      "line": 508,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/gordon/GordonConfrontationController.js",
+      "line": 509,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/gordon/GordonHotspotDebug.js",
+      "line": 71,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/gordon/GordonHotspotDebug.js",
+      "line": 84,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/gordon/GordonSafeController.js",
+      "line": 73,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/gordon/GordonSafeController.js",
+      "line": 119,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/gordon/GordonSafeController.js",
+      "line": 121,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/gordon/GordonSafeController.js",
+      "line": 122,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/hiddenObjects/HiddenObjectsPresentation.js",
+      "line": 315,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/hiddenObjects/HiddenObjectsPresentation.js",
+      "line": 324,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/hiddenObjects/HiddenObjectsPresentation.js",
+      "line": 349,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/hiddenObjects/HiddenObjectsPresentation.js",
+      "line": 352,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/hiddenObjects/HiddenObjectsPresentation.js",
+      "line": 360,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/hiddenObjects/HiddenObjectsPresentation.js",
+      "line": 706,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/homeCity/HomeCityAmbient.js",
+      "line": 48,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/homeCity/HomeCityBuildings.js",
+      "line": 341,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/homeCity/HomeCityBuildings.js",
+      "line": 342,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/homeCity/HomeCityExtras.js",
+      "line": 169,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/homeCity/HomeCityGround.js",
+      "line": 114,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/hotel/HotelHotspots.js",
+      "line": 294,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/hotel/HotelHotspots.js",
+      "line": 318,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/hotel/HotelSleep.js",
+      "line": 431,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/hr/MargeHRHelpController.js",
+      "line": 22,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/hr/MargeHRHelpController.js",
+      "line": 23,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/hr/MargeHRHelpController.js",
+      "line": 27,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/hr/MargeHRHelpController.js",
+      "line": 27,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/medical/MedicalTestsController.js",
+      "line": 5,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/medical/MedicalTestsController.js",
+      "line": 39,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/office/ChapterTwoDeskEntry.js",
+      "line": 41,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/office/OfficeDoorsigns.js",
+      "line": 122,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/office/OfficeElevatorAnimations.js",
+      "line": 110,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/office/OfficeElevatorAnimations.js",
+      "line": 116,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/office/OfficeElevatorAnimations.js",
+      "line": 116,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/office/OfficeHotspotManager.js",
+      "line": 201,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/office/OfficeHotspotManager.js",
+      "line": 571,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/office/OfficeHotspotManager.js",
+      "line": 605,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/office/OfficeNavigationBase.js",
+      "line": 203,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/office/OfficeNavigationBase.js",
+      "line": 322,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/office/OfficeNavigationBase.js",
+      "line": 322,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/pi-office/OfficeMoveIn.js",
+      "line": 52,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/pi-office/OfficeMoveIn.js",
+      "line": 53,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/pi-office/OfficeMoveIn.js",
+      "line": 67,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/storage/AlexMouthAnimation.js",
+      "line": 141,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelSeaLife.js",
+      "line": 122,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTicketUI.js",
+      "line": 36,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTicketUI.js",
+      "line": 36,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTicketUI.js",
+      "line": 41,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTicketUI.js",
+      "line": 274,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTicketUI.js",
+      "line": 281,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTicketUI.js",
+      "line": 361,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTicketUI.js",
+      "line": 368,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTicketUI.js",
+      "line": 406,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTicketUI.js",
+      "line": 409,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTransitionEffects.js",
+      "line": 270,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTransitionEffects.js",
+      "line": 506,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTransitionEffects.js",
+      "line": 510,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTransitionEffects.js",
+      "line": 709,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTransitionEffects.js",
+      "line": 709,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTransitionEffects.js",
+      "line": 709,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTransitionEffects.js",
+      "line": 725,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTransitionEffects.js",
+      "line": 760,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTransitionEffects.js",
+      "line": 772,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTransitionEffects.js",
+      "line": 783,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTransitionEffects.js",
+      "line": 793,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTransitionEffects.js",
+      "line": 794,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTransitionEffects.js",
+      "line": 815,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTransitionEffects.js",
+      "line": 824,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTransitionEffects.js",
+      "line": 835,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTransitionEffects.js",
+      "line": 841,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTransitionEffects.js",
+      "line": 963,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/travel/TravelTransitionEffects.js",
+      "line": 963,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/tv/TvBroadcastControls.js",
+      "line": 594,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/tv/TvBroadcastView.js",
+      "line": 591,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/tv/TvBroadcastView.js",
+      "line": 591,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/tv/TvBroadcastView.js",
+      "line": 726,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/tv/TvBroadcastView.js",
+      "line": 836,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/tv/TvBroadcastView.js",
+      "line": 873,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/tv/TvBroadcastView.js",
+      "line": 874,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/tv/TvBroadcastView.js",
+      "line": 925,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/tv/TvBroadcastView.js",
+      "line": 926,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseCards.js",
+      "line": 39,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseCards.js",
+      "line": 39,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseCards.js",
+      "line": 85,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseCards.js",
+      "line": 149,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseCards.js",
+      "line": 150,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseCards.js",
+      "line": 282,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseCards.js",
+      "line": 442,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseDetails.js",
+      "line": 186,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseDetails.js",
+      "line": 190,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseDetails.js",
+      "line": 193,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseDetailsView.js",
+      "line": 57,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseDetailsView.js",
+      "line": 312,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseDetailsView.js",
+      "line": 322,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseFilters.js",
+      "line": 33,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseNavigation.js",
+      "line": 8,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseNavigation.js",
+      "line": 11,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseNavigation.js",
+      "line": 61,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseNavigation.js",
+      "line": 75,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseNavigation.js",
+      "line": 80,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseNavigation.js",
+      "line": 85,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseUi.js",
+      "line": 86,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseUi.js",
+      "line": 87,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseUi.js",
+      "line": 88,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseUi.js",
+      "line": 110,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "scenes/wanted-database/WantedDatabaseUi.js",
+      "line": 112,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspects/PersonnelCardZoom.js",
+      "line": 16,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelCardZoom.js",
+      "line": 53,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspects/PersonnelCardZoom.js",
+      "line": 64,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspects/PersonnelCardZoom.js",
+      "line": 65,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelCardZoom.js",
+      "line": 78,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspects/PersonnelCardZoom.js",
+      "line": 88,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspects/PersonnelCardZoom.js",
+      "line": 89,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspects/PersonnelCardZoom.js",
+      "line": 90,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 144,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 144,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 152,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 170,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 170,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 170,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 170,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 170,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 170,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 170,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 170,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 170,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 171,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 183,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 183,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 183,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 183,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 183,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 183,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 183,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 183,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 183,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 183,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRoster.js",
+      "line": 183,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRosterFlow.js",
+      "line": 109,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRosterFlow.js",
+      "line": 109,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRosterFlow.js",
+      "line": 109,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRosterFlow.js",
+      "line": 109,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRosterFlow.js",
+      "line": 109,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRosterFlow.js",
+      "line": 109,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspects/PersonnelRosterFlow.js",
+      "line": 109,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRosterFlow.js",
+      "line": 109,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRosterFlow.js",
+      "line": 109,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspects/PersonnelRosterFlow.js",
+      "line": 109,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRosterFlow.js",
+      "line": 109,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspects/PersonnelRosterFlow.js",
+      "line": 109,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRosterFlow.js",
+      "line": 109,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRosterFlow.js",
+      "line": 109,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspects/PersonnelRosterFlow.js",
+      "line": 109,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "suspectsBoard/GridCells.mixin.js",
+      "line": 194,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/GridCells.mixin.js",
+      "line": 258,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/GridCells.mixin.js",
+      "line": 258,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/GridData.mixin.js",
+      "line": 352,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/GridData.mixin.js",
+      "line": 411,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/GridDraw.mixin.js",
+      "line": 147,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/GridDraw.mixin.js",
+      "line": 159,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/GridDraw.mixin.js",
+      "line": 224,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/GridDraw.mixin.js",
+      "line": 224,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/GridDraw.mixin.js",
+      "line": 245,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/GridDraw.mixin.js",
+      "line": 254,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/GridDraw.mixin.js",
+      "line": 284,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/GridDraw.mixin.js",
+      "line": 314,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/GridDraw.mixin.js",
+      "line": 314,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/SuspectBoardUI.mixin.js",
+      "line": 31,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/SuspectCards.mixin.js",
+      "line": 121,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/SuspectCards.mixin.js",
+      "line": 124,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/SuspectCards.mixin.js",
+      "line": 130,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/SuspectCards.mixin.js",
+      "line": 141,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/SuspectCards.mixin.js",
+      "line": 162,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/SuspectCards.mixin.js",
+      "line": 164,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/SuspectCards.mixin.js",
+      "line": 175,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/SuspectDetails.mixin.js",
+      "line": 184,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/SuspectDetails.mixin.js",
+      "line": 185,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "suspectsBoard/SuspectDetails.mixin.js",
+      "line": 185,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "systems/CityWeatherManager.js",
+      "line": 670,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "systems/DeadCasesWorldOutcomes.js",
+      "line": 40,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "systems/DeadCasesWorldOutcomes.js",
+      "line": 43,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "systems/WorldNpcReactionModel.js",
+      "line": 64,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "systems/WorldNpcReactionModel.js",
+      "line": 64,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "systems/chaseLogic.js",
+      "line": 126,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "systems/newsstand/NewsstandBackground.js",
+      "line": 60,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "systems/newsstand/NewsstandComix.js",
+      "line": 28,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "systems/thiefdoku/ThiefdokuPuzzle.js",
+      "line": 28,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "systems/thiefdoku/ThiefdokuService.js",
+      "line": 70,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "systems/thiefdoku/ThiefdokuService.js",
+      "line": 74,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "systems/thiefdoku/ThiefdokuService.js",
+      "line": 166,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "tutorials/CrimeCityTutorial.js",
+      "line": 333,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "tutorials/CrimeCityTutorial.js",
+      "line": 347,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "tutorials/CrimeCityTutorial.js",
+      "line": 354,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "tutorials/CrimeCityTutorial.js",
+      "line": 354,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "tutorials/FirstCaseTutorial.js",
+      "line": 578,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "tutorials/chase/ChaseTutorialOverlay.js",
+      "line": 57,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "tutorials/chase/ChaseTutorialOverlay.js",
+      "line": 85,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "tutorials/chase/ChaseTutorialOverlay.js",
+      "line": 113,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "tutorials/chase/ChaseTutorialOverlay.js",
+      "line": 113,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/AgencyLedgerUI.js",
+      "line": 282,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/AgencyLedgerUI.js",
+      "line": 292,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/AgencyManualReader.js",
+      "line": 152,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/AgencyManualReader.js",
+      "line": 439,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/AlibiCloudModel.js",
+      "line": 349,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/AtlasUIBase.js",
+      "line": 445,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/AtlasUIBase.js",
+      "line": 446,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/AtlasUIBase.js",
+      "line": 589,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/AtlasUIBase.js",
+      "line": 637,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/AtlasUIBase.js",
+      "line": 820,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/AtlasUIBase.js",
+      "line": 879,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/AtlasUIBase.js",
+      "line": 1139,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/CaseCloudNotebook.js",
+      "line": 37,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/ColdCaseUI.js",
+      "line": 37,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/ColdCaseUI.js",
+      "line": 62,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/ColdCaseUI.js",
+      "line": 67,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/ColdCaseUI.js",
+      "line": 69,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/ColdCaseUI.js",
+      "line": 101,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/ColdCaseUI.js",
+      "line": 106,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/ColdCaseUI.js",
+      "line": 107,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/ColdCaseUI.js",
+      "line": 120,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/ColdCaseUI.js",
+      "line": 125,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/ColdCaseUI.js",
+      "line": 132,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/ColdCaseUI.js",
+      "line": 159,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/CrimeBoardUI.js",
+      "line": 129,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/CrimeBoardUI.js",
+      "line": 130,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/CrimeBoardUI.js",
+      "line": 145,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/CrimeBoardUI.js",
+      "line": 304,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/CrimeBoardUI.js",
+      "line": 309,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/CrimeBoardUI.js",
+      "line": 313,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/CrimeBoardUI.js",
+      "line": 317,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/CrimeBoardUI.js",
+      "line": 561,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationMapPainter.js",
+      "line": 130,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationMapPainter.js",
+      "line": 311,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationMapPainter.js",
+      "line": 384,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationMapPainter.js",
+      "line": 386,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationMapPainter.js",
+      "line": 396,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationMapPainter.js",
+      "line": 399,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationMapPainter.js",
+      "line": 522,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationMapPainter.js",
+      "line": 707,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationMapPainter.js",
+      "line": 750,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationMapPainter.js",
+      "line": 752,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationMapPainter.js",
+      "line": 764,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationMapPainter.js",
+      "line": 780,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationMapPainter.js",
+      "line": 817,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationPanel.js",
+      "line": 70,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationPanel.js",
+      "line": 107,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationPanel.js",
+      "line": 162,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationPanel.js",
+      "line": 237,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationPanel.js",
+      "line": 237,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationPanel.js",
+      "line": 284,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationTravel.js",
+      "line": 332,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationWorldMap.js",
+      "line": 181,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationWorldMap.js",
+      "line": 184,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationWorldMap.js",
+      "line": 188,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationWorldMap.js",
+      "line": 191,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationWorldMap.js",
+      "line": 257,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationWorldMap.js",
+      "line": 402,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationWorldMap.js",
+      "line": 439,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationsUI.js",
+      "line": 85,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DestinationsUI.js",
+      "line": 195,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/DialogUI.js",
+      "line": 85,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/EscapeTimeCallUI.js",
+      "line": 34,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/EscapeTimeCallUI.js",
+      "line": 35,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/EscapeTimeCallUI.js",
+      "line": 36,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/ForgerObservationUI.js",
+      "line": 179,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HiddenObjectsUI.js",
+      "line": 248,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HiddenObjectsUI.js",
+      "line": 259,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HiddenObjectsUI.js",
+      "line": 338,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HiddenObjectsUI.js",
+      "line": 411,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HiddenObjectsUI.js",
+      "line": 489,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HiddenObjectsUI.js",
+      "line": 500,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HiddenObjectsUI.js",
+      "line": 572,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HiddenObjectsUI.js",
+      "line": 676,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HiddenObjectsUI.js",
+      "line": 718,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HiddenObjectsUI.js",
+      "line": 754,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HiddenObjectsUI.js",
+      "line": 1142,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HiddenObjectsUI.js",
+      "line": 1164,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HiddenObjectsUI.js",
+      "line": 1235,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HollyChapterOneCallUI.js",
+      "line": 75,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HollyChapterOneCallUI.js",
+      "line": 79,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HollyChapterOneCallUI.js",
+      "line": 86,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/HudStanding.js",
+      "line": 56,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HudStanding.js",
+      "line": 76,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/HudStanding.js",
+      "line": 100,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HudStanding.js",
+      "line": 103,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HudStanding.js",
+      "line": 176,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HudStanding.js",
+      "line": 176,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HypothesisBoardUI.js",
+      "line": 146,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HypothesisBoardUI.js",
+      "line": 151,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HypothesisBoardUI.js",
+      "line": 159,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HypothesisBoardUI.js",
+      "line": 165,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HypothesisBoardUI.js",
+      "line": 178,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/HypothesisBoardUI.js",
+      "line": 207,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/InventoryUI.js",
+      "line": 11,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/InventoryUI.js",
+      "line": 85,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/LegacyCaseCloudNotebook.js",
+      "line": 55,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/LegacyCaseCloudNotebook.js",
+      "line": 212,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/LegacyCaseCloudNotebook.js",
+      "line": 213,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/MarkAgencyComputerUI.js",
+      "line": 38,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/MarkAgencyComputerUI.js",
+      "line": 39,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/MarkAgencyComputerUI.js",
+      "line": 140,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/MarkAgencyComputerUI.js",
+      "line": 170,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/MissionReportComputer.js",
+      "line": 37,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/MissionReportComputer.js",
+      "line": 42,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/MissionReportComputer.js",
+      "line": 43,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/MissionReportComputer.js",
+      "line": 81,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/MissionReportComputer.js",
+      "line": 135,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/MissionReportComputer.js",
+      "line": 150,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/MissionReportComputer.js",
+      "line": 160,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NewsHud.js",
+      "line": 152,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NewsHud.js",
+      "line": 159,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NewsHud.js",
+      "line": 164,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NewsHud.js",
+      "line": 168,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NewsHud.js",
+      "line": 170,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NewspaperTimeCover.js",
+      "line": 260,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NewspaperTimeCover.js",
+      "line": 260,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NotebookWordBankToggle.js",
+      "line": 8,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/NotebookWordBankToggle.js",
+      "line": 12,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NotebookWordBankToggle.js",
+      "line": 31,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NotebookWordBankToggle.js",
+      "line": 32,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NotesUI.js",
+      "line": 56,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NotesUI.js",
+      "line": 101,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/NotesUI.js",
+      "line": 118,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/NotesUI.js",
+      "line": 144,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NotesUI.js",
+      "line": 161,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NotesUI.js",
+      "line": 162,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NotesUI.js",
+      "line": 163,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NotesUI.js",
+      "line": 164,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NotesUI.js",
+      "line": 165,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NotesUI.js",
+      "line": 166,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NotesUI.js",
+      "line": 167,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NotesUI.js",
+      "line": 168,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NotesUI.js",
+      "line": 169,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NotesUI.js",
+      "line": 170,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NotesUI.js",
+      "line": 203,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/NotesUI.js",
+      "line": 383,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/OfficeSaveUI.js",
+      "line": 764,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/OfficeSaveUI.js",
+      "line": 764,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/PICrimeBoardUI.js",
+      "line": 61,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PICrimeBoardUI.js",
+      "line": 64,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PICrimeBoardUI.js",
+      "line": 64,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PICrimeBoardUI.js",
+      "line": 97,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PICrimeBoardUI.js",
+      "line": 122,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PICrimeBoardUI.js",
+      "line": 165,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PICrimeBoardUI.js",
+      "line": 166,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PICrimeBoardUI.js",
+      "line": 179,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PICrimeBoardUI.js",
+      "line": 199,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PICrimeBoardUI.js",
+      "line": 215,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PIInventoryUI.js",
+      "line": 221,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PIInventoryUI.js",
+      "line": 367,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PIOfficeComputerUI.js",
+      "line": 53,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PIOfficeNotebookIntegration.js",
+      "line": 99,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PIOfficeNotebookIntegration.js",
+      "line": 101,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PIOfficeNotebookIntegration.js",
+      "line": 107,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PIOfficeNotebookIntegration.js",
+      "line": 110,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PIOfficeNotebookIntegration.js",
+      "line": 111,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/PIOfficeNotebookIntegration.js",
+      "line": 146,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PIOfficeNotebookIntegration.js",
+      "line": 149,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PIOfficeNotebookIntegration.js",
+      "line": 192,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PIOfficeNotebookIntegration.js",
+      "line": 225,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PIOfficeNotebookIntegration.js",
+      "line": 230,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PIOfficePhoneUI.js",
+      "line": 16,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PIOfficePhoneUI.js",
+      "line": 19,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PIOfficePhoneUI.js",
+      "line": 19,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PassportUI.js",
+      "line": 427,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PassportUI.js",
+      "line": 432,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PassportUI.js",
+      "line": 441,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PassportUI.js",
+      "line": 459,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/PassportUI.js",
+      "line": 460,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/PassportUI.js",
+      "line": 784,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PassportUI.js",
+      "line": 799,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PassportUI.js",
+      "line": 809,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PassportUI.js",
+      "line": 885,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PassportUI.js",
+      "line": 919,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PassportUI.js",
+      "line": 1049,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PassportUI.js",
+      "line": 1070,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PayPalSandboxCheckout.js",
+      "line": 47,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/PayPalSandboxCheckout.js",
+      "line": 49,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PayPalSandboxCheckout.js",
+      "line": 106,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PayPalSandboxCheckout.js",
+      "line": 110,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PayPalSandboxCheckout.js",
+      "line": 111,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PayPalSandboxCheckout.js",
+      "line": 247,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PhonebookBaseUI.js",
+      "line": 185,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PhonebookBaseUI.js",
+      "line": 209,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PlayerCloudNotebook.js",
+      "line": 60,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/PlayerCloudNotebook.js",
+      "line": 60,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/PlayerCloudNotebook.js",
+      "line": 60,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/PlayerCloudNotebook.js",
+      "line": 60,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/PlayerCloudNotebook.js",
+      "line": 311,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PlayerCloudNotebook.js",
+      "line": 347,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PlayerCloudNotebook.js",
+      "line": 366,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PlayerCloudNotebook.js",
+      "line": 449,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PlayerCloudNotebook.js",
+      "line": 454,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PlayerCloudNotebook.js",
+      "line": 475,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PlayerCloudNotebook.js",
+      "line": 528,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PlayerCloudNotebook.js",
+      "line": 528,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PlayerCloudNotebook.js",
+      "line": 528,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PlayerCloudNotebook.js",
+      "line": 528,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PlayerCloudNotebook.js",
+      "line": 528,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PlayerCloudNotebook.js",
+      "line": 528,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PlayerCloudNotebook.js",
+      "line": 599,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PlayerCloudNotebook.js",
+      "line": 603,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PlayerCloudNotebook.js",
+      "line": 621,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PlayerCloudNotebook.js",
+      "line": 889,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PlayerCloudNotebook.js",
+      "line": 969,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PlayerMenuUI.js",
+      "line": 346,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PlayerMenuUI.js",
+      "line": 506,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PlayerMenuUI.js",
+      "line": 674,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PlayerMenuUI.js",
+      "line": 678,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/PlayerMenuUI.js",
+      "line": 843,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/RoadTripDestinationsUI.js",
+      "line": 362,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/RoadTripDestinationsUI.js",
+      "line": 568,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/RoadTripDestinationsUI.js",
+      "line": 574,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/RoadTripDestinationsUI.js",
+      "line": 648,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/RoadTripDestinationsUI.js",
+      "line": 820,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/RoomHotspotDebug.js",
+      "line": 20,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "line": 226,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "line": 463,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "line": 506,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "line": 508,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "line": 534,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "line": 600,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "line": 602,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "line": 670,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "line": 671,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "line": 671,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "line": 852,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "line": 905,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "line": 909,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "line": 1311,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "line": 1874,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "line": 1927,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "line": 1939,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "line": 1947,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "line": 1964,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "line": 1964,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "line": 2038,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "line": 2070,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/UIScene.js",
+      "line": 2105,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/WarrantUI.js",
+      "line": 86,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/WarrantUI.js",
+      "line": 139,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/WarrantUI.js",
+      "line": 251,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/WorldPoliceReactionHooks.js",
+      "line": 66,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/WorldPoliceReactionHooks.js",
+      "line": 67,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/WorldReactionInspector.js",
+      "line": 22,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/WorldReactionInspector.js",
+      "line": 27,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/WorldReactionInspector.js",
+      "line": 68,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/WorldReactionInspector.js",
+      "line": 69,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/WorldReceptionReactionHooks.js",
+      "line": 78,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/characterCreation/DifficultyCards.js",
+      "line": 29,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/DifficultyCards.js",
+      "line": 29,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/DifficultyCards.js",
+      "line": 29,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/DifficultyCards.js",
+      "line": 29,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/DifficultyCards.js",
+      "line": 29,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/DifficultyCards.js",
+      "line": 29,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/DifficultyCards.js",
+      "line": 33,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/DifficultyCards.js",
+      "line": 39,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/ProfileCards.js",
+      "line": 7,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/ProfileCards.js",
+      "line": 7,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/ProfileCards.js",
+      "line": 7,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/ProfileCards.js",
+      "line": 7,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/ProfileCards.js",
+      "line": 7,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/ProfileCards.js",
+      "line": 7,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/ProfileCards.js",
+      "line": 41,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/ProfileCards.js",
+      "line": 43,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/StatControls.js",
+      "line": 20,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/StatControls.js",
+      "line": 20,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/StatControls.js",
+      "line": 20,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/StatControls.js",
+      "line": 20,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/StatControls.js",
+      "line": 20,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/StatControls.js",
+      "line": 20,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/StatControls.js",
+      "line": 20,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/StatControls.js",
+      "line": 30,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/StatControls.js",
+      "line": 30,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/characterCreation/StatControls.js",
+      "line": 36,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/hypothesisBoard/BoardElements.js",
+      "line": 30,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/hypothesisBoard/BoardElements.js",
+      "line": 43,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/hypothesisBoard/BoardElements.js",
+      "line": 58,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/hypothesisBoard/BoardElements.js",
+      "line": 72,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/hypothesisBoard/BoardElements.js",
+      "line": 84,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/hypothesisBoard/BoardElements.js",
+      "line": 170,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/hypothesisBoard/BoardElements.js",
+      "line": 184,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/hypothesisBoard/BoardElements.js",
+      "line": 200,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/hypothesisBoard/BoardElements.js",
+      "line": 371,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/inventory/InventoryDiscardDialog.js",
+      "line": 19,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/inventory/InventoryDiscardDialog.js",
+      "line": 21,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/inventory/InventoryDiscardDialog.js",
+      "line": 25,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/inventory/InventoryDiscardDialog.js",
+      "line": 28,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/inventory/InventoryDragController.js",
+      "line": 106,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/inventory/InventoryDragController.js",
+      "line": 107,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/inventory/InventoryDragController.js",
+      "line": 130,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/inventory/InventoryDragController.js",
+      "line": 131,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/inventory/InventoryGraphics.js",
+      "line": 7,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/inventory/InventoryView.js",
+      "line": 243,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/inventory/InventoryView.js",
+      "line": 259,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/inventory/InventoryView.js",
+      "line": 562,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/inventory/InventoryView.js",
+      "line": 897,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/inventory/InventoryView.js",
+      "line": 1035,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/inventory/InventoryView.js",
+      "line": 1149,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/mark-agency/ReportIncidentUI.js",
+      "line": 21,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/mark-agency/ReportIncidentUI.js",
+      "line": 21,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/mark-agency/ReportIncidentUI.js",
+      "line": 54,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/mark-agency/ReportIncidentUI.js",
+      "line": 80,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/mark-agency/ReportIncidentUI.js",
+      "line": 80,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/mark-agency/ReportIncidentUI.js",
+      "line": 80,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/AlibiAdvertEmailFlow.js",
+      "line": 117,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/AlibiAdvertEmailFlow.js",
+      "line": 163,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/AlibiReportUI.js",
+      "line": 40,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/BorrowedAlibiMail.js",
+      "line": 24,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/pi-computer/BorrowedAlibiMail.js",
+      "line": 25,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/pi-computer/BorrowedAlibiMail.js",
+      "line": 28,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/pi-computer/BusinessPageTemplate.js",
+      "line": 111,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/CommonRoomTemplate.js",
+      "line": 4,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/ComputerAudio.js",
+      "line": 58,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/ComputerChatContent.js",
+      "line": 16,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/ComputerChatContent.js",
+      "line": 19,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/ComputerChatContent.js",
+      "line": 19,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/ComputerChatContent.js",
+      "line": 19,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/ComputerDocumentsBase.js",
+      "line": 489,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/ComputerDocumentsBase.js",
+      "line": 497,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/ComputerSearch.js",
+      "line": 795,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/pi-computer/ComputerSearchHome.js",
+      "line": 31,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/ComputerSearchHome.js",
+      "line": 72,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/ComputerSearchWidgets.js",
+      "line": 77,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/ComputerThiefdoku.js",
+      "line": 136,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/ComputerThiefdoku.js",
+      "line": 137,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/ComputerThiefdokuArt.js",
+      "line": 58,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/DeadMailAttachment.js",
+      "line": 278,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/EditorialPageTemplate.js",
+      "line": 12,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/EditorialPageTemplate.js",
+      "line": 13,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/ForumPageTemplate.js",
+      "line": 290,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/pi-computer/KeywordStyle.js",
+      "line": 140,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/NotebookContactActions.js",
+      "line": 63,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/OrganisationPageTemplate.js",
+      "line": 19,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/OrganisationPageTemplate.js",
+      "line": 20,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/OwlAudioAvailability.js",
+      "line": 30,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/PhotoHotspotEditor.js",
+      "line": 61,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/PhotoHotspotEditor.js",
+      "line": 65,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/QuestHintPurchase.js",
+      "line": 54,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/ReedReportUI.js",
+      "line": 28,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-computer/SocialProfileTemplate.js",
+      "line": 124,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-phone/AlibiCloudPhoneNotes.js",
+      "line": 59,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/pi-phone/AlibiCloudPhoneNotes.js",
+      "line": 61,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/pi-phone/DeadMenCloudPhoneNotes.js",
+      "line": 46,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/pi-phone/DeadMenCloudPhoneNotes.js",
+      "line": 48,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/pi-phone/LegacyPhoneFieldNotes.js",
+      "line": 63,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/pi-phone/LegacyPhoneFieldNotes.js",
+      "line": 65,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/pi-phone/PhoneDirectory.js",
+      "line": 50,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-phone/PhoneDirectory.js",
+      "line": 65,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-phone/PhoneDisplay.js",
+      "line": 83,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-phone/PhoneDisplay.js",
+      "line": 262,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/pi-phone/PhoneDisplay.js",
+      "line": 262,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/pi-phone/PhoneDisplay.js",
+      "line": 274,
+      "reason": "catalog-in-technical-context"
+    },
+    {
+      "file": "ui/pi-phone/PhoneInvestigationBase.js",
+      "line": 406,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/pi-phone/PhoneInvestigationBase.js",
+      "line": 407,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/pi-phone/PlayerCloudPhoneNotes.js",
+      "line": 42,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/pi-phone/PlayerCloudPhoneNotes.js",
+      "line": 44,
+      "reason": "catalog-markup"
+    },
+    {
+      "file": "ui/warrant/WarrantResults.js",
+      "line": 513,
+      "reason": "catalog-in-technical-context"
+    }
+  ],
+  "after": []
 }

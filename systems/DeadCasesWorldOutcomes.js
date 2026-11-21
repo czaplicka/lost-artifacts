@@ -37,10 +37,10 @@ export function deadCasesWorldOutcomes(state,now=Date.now()){
  return events;
 }
 export function deadCaseWorldText(event){
- if(event.caseId===DEAD_MEN_WORLD_CASE&&event.source===__dialogueText("systems/DeadCasesWorldOutcomes.js", "t_221749c1d98b5e6902a9")&&event.outcomeCode==='verified_calls_report'){
+ if(event.caseId===DEAD_MEN_WORLD_CASE&&event.source==="piDeadMenCallingFinale.settlement"&&event.outcomeCode==='verified_calls_report'){
   return __dialogueText("systems/DeadCasesWorldOutcomes.js", "t_fa716cf93182dde26241");
  }
- if(event.caseId===DEAD_MAIL_WORLD_CASE&&event.source===__dialogueText("systems/DeadCasesWorldOutcomes.js", "t_bc2553071cb109d342d1")&&event.outcomeCode==='available_finale_completed'){
+ if(event.caseId===DEAD_MAIL_WORLD_CASE&&event.source==="deadMailPreview.finale"&&event.outcomeCode==='available_finale_completed'){
   return __dialogueText("systems/DeadCasesWorldOutcomes.js", "t_b5e3183439d060bf31aa");
  }
  return __dialogueText("systems/DeadCasesWorldOutcomes.js", "t_80ab6a4bdc00fda0b31b");

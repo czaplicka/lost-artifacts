@@ -488,7 +488,7 @@ export class ApartmentScene extends BaseScene {
       host.add.text(
         0,
         -100,
-        __dialogueText("scenes/ApartmentScene.js", "t_0bd8b40d403ff921a873"),
+        "APARTMENT UNAVAILABLE",
         {
           fontFamily: 'SpecialElite',
           fontSize: '26px',
@@ -503,9 +503,9 @@ export class ApartmentScene extends BaseScene {
       host.add.text(
         0,
         -10,
-        __dialogueText("scenes/ApartmentScene.js", "t_40a5acd3c62f11466ac3") +
-        __dialogueText("scenes/ApartmentScene.js", "t_a70054307a2ed347d1b3") +
-        __dialogueText("scenes/ApartmentScene.js", "t_2ad12a346761c34be893"),
+        "This apartment could not be prepared.\n" +
+        "No replacement evidence or destination has been invented.\n" +
+        "Return to the city and check the case configuration.",
         {
           fontFamily: 'SpecialElite',
           fontSize: '19px',
@@ -519,7 +519,7 @@ export class ApartmentScene extends BaseScene {
     const back = host.add.text(
       0,
       110,
-      __dialogueText("scenes/ApartmentScene.js", "t_9e68ae53d4348a0b870e"),
+      "[ BACK TO CITY ]",
       {
         fontFamily: 'SpecialElite',
         fontSize: '23px',
@@ -1048,7 +1048,7 @@ export class ApartmentScene extends BaseScene {
       host.add.text(
         0,
         -panelHeight / 2 + 30,
-        __dialogueText("scenes/ApartmentScene.js", "t_a27178a7a3851a61a832"),
+        "ARTEFACT RECOVERED!",
         {
           fontFamily: 'PressStart2P',
           fontSize: '14px',
@@ -1080,7 +1080,7 @@ export class ApartmentScene extends BaseScene {
       host.add.text(
         0,
         panelHeight / 2 - 112,
-        artifact.label + __dialogueText("scenes/ApartmentScene.js", "t_54e7660dd92c3b6ba6d1"),
+        artifact.label + "\nLogged in recovered artefacts.",
         {
           fontFamily: 'SpecialElite',
           fontSize: '21px',
@@ -1107,7 +1107,7 @@ export class ApartmentScene extends BaseScene {
       host.add.text(
         0,
         panelHeight / 2 - 38,
-        __dialogueText("scenes/ApartmentScene.js", "t_31fbef162594de01bab0"),
+        "Continue",
         {
           fontFamily: 'SpecialElite',
           fontSize: '22px',
@@ -1217,7 +1217,7 @@ export class ApartmentScene extends BaseScene {
       this.add.text(
         this.exitButton.x,
         this.exitButton.y,
-        __dialogueText("scenes/ApartmentScene.js", "t_3a0931580d18a6e0308c"),
+        "EXIT",
         {
           fontFamily: 'SpecialElite',
           fontSize: '20px',
@@ -1500,7 +1500,7 @@ export class ApartmentScene extends BaseScene {
       this.add.text(
         width / 2,
         height / 2 - 60,
-        __dialogueText("scenes/ApartmentScene.js", "t_46d50af5e1623539bd5b"),
+        "Leaving already?\nThere may still be useful evidence in this apartment.",
         {
           fontFamily: 'SpecialElite',
           fontSize: '22px',

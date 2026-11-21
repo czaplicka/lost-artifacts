@@ -53,7 +53,7 @@ export class NotesUI {
     this.container.add(bg);
 
     const closeBtn = this.scene.add
-      .text(width * 0.87, height * 0.03, __dialogueText("ui/NotesUI.js", "t_4b68ab3847feda7d6c62"), {
+      .text(width * 0.87, height * 0.03, "X", {
         fontFamily: 'SpecialElite',
         fontSize: '48px',
         color: '#000000'
@@ -98,7 +98,7 @@ export class NotesUI {
     this.prevCluesBtn = this.createPageButton(
       width * 0.17,
       height * 0.82,
-      __dialogueText("ui/NotesUI.js", "t_86af811671fe29fad1d2"),
+      "< PREV",
       () => this.changeCluePage(-1)
     );
 
@@ -115,7 +115,7 @@ export class NotesUI {
     this.nextCluesBtn = this.createPageButton(
       width * 0.44,
       height * 0.82,
-      __dialogueText("ui/NotesUI.js", "t_58b85f2ea88bf1a9ba16"),
+      "NEXT >",
       () => this.changeCluePage(1)
     );
 
@@ -141,7 +141,7 @@ export class NotesUI {
       .text(
         width * 0.68,
         height * 0.15,
-        __dialogueText("ui/NotesUI.js", "t_51876a61a7c89f640704"),
+        "[ CLICK TO WRITE | ESC TO STOP ]",
         {
           fontFamily: 'SpecialElite',
           fontSize: '16px',
@@ -158,16 +158,16 @@ export class NotesUI {
         height * 0.4,
         'textarea',
         [
-          __dialogueText("ui/NotesUI.js", "t_f91830934749f0910256"),
-          __dialogueText("ui/NotesUI.js", "t_23927985a9d7b783fd32"),
-          __dialogueText("ui/NotesUI.js", "t_9238955ee4613783b3d1"),
-          __dialogueText("ui/NotesUI.js", "t_7e954fdb9f22e7efff09"),
-          __dialogueText("ui/NotesUI.js", "t_8c3a5d4f399e59727106"),
-          __dialogueText("ui/NotesUI.js", "t_723c9b4e31276b15c90b"),
-          __dialogueText("ui/NotesUI.js", "t_1f6d5babe8d9f56a8029"),
-          __dialogueText("ui/NotesUI.js", "t_f94f245916770018e5b1"),
-          __dialogueText("ui/NotesUI.js", "t_f80a833bf1a2c7522f9d"),
-          __dialogueText("ui/NotesUI.js", "t_07da01c9c993e83bdd1b")
+          "width: 400px",
+          "height: 500px",
+          "font-family: \"IndieFlower\"",
+          "font-size: 22px",
+          "background: transparent",
+          "border: none",
+          "outline: none",
+          "resize: none",
+          "color: #000000",
+          "pointer-events: auto"
         ].join('; ') + ';',
         ''
       )
@@ -200,7 +200,7 @@ export class NotesUI {
     );
 
     const clearBtn = this.scene.add
-      .text(width * 0.68, height * 0.82, __dialogueText("ui/NotesUI.js", "t_d6535da07e962d7840a0"), {
+      .text(width * 0.68, height * 0.82, "[ CLEAR NOTES ]", {
         fontFamily: 'SpecialElite',
         fontSize: '20px',
         color: '#8b0000'
@@ -380,7 +380,7 @@ export class NotesUI {
   }
 
   onGlobalKeyDown(event) {
-    if (!this.isOpen || event.key !== __dialogueText("ui/NotesUI.js", "t_037c968467aa3fd7c059")) return;
+    if (!this.isOpen || event.key !== "Escape") return;
 
     event.preventDefault();
 

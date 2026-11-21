@@ -68,7 +68,7 @@ export class GordonHotspotDebug {
     }
     if(!this.canEdit())return;
     if(event.code==='KeyC'){if(!event.repeat){event.preventDefault();this.exportConfig();}return;}
-    if(event.code===__dialogueText("scenes/gordon/GordonHotspotDebug.js", "t_90ddf1963abb36c9921c")){
+    if(event.code==="Tab"){
       event.preventDefault();this.selectedIndex=(this.selectedIndex+(event.shiftKey?-1:1)+this.hotspots.length)%this.hotspots.length;this.redraw();return;
     }
     const selected=this.hotspots[this.selectedIndex];
@@ -81,7 +81,7 @@ export class GordonHotspotDebug {
       const selected=index===this.selectedIndex,color=selected?0xff44ff:0x00ff88;
       this.art.fillStyle(color,selected?0.22:0.12);this.art.fillRect(def.x,def.y,def.w,def.h);
       this.art.lineStyle(selected?3:2,color,0.95);this.art.strokeRect(def.x,def.y,def.w,def.h);
-      const label=this.scene.add.text(def.x+5,def.y+5,`${selected?__dialogueText("scenes/gordon/GordonHotspotDebug.js", "t_ec4f8e3d1f7cafbdb86e"):''}${def.id}`,{
+      const label=this.scene.add.text(def.x+5,def.y+5,`${selected?"> ":''}${def.id}`,{
         fontFamily:'SpecialElite, monospace',fontSize:'19px',color:selected?'#ff7cfa':'#a3ffd0',backgroundColor:'#061710',padding:{x:5,y:3}
       });this.layer.add(label);this.labels.push(label);
     });

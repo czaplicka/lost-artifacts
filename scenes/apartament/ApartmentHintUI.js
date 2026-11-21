@@ -244,7 +244,7 @@ export class ApartmentHintUI extends HiddenObjectsUI {
     this.scene.showMessage(
       text,
       3200,
-      color === __dialogueText("scenes/apartament/ApartmentHintUI.js", "t_67f0c667a89e3ff3f3e3")
+      color === "#ffb3b3"
         ? __dialogueText("scenes/apartament/ApartmentHintUI.js", "t_c27978fb247345a3da90")
         : __dialogueText("scenes/apartament/ApartmentHintUI.js", "t_2857dc4b870ec1edce62")
     );

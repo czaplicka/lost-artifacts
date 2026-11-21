@@ -74,7 +74,7 @@ export class FingerprintPatternScene extends BaseForensicMinigame {
     const {width, height} = this.scale;
     const style = {fontFamily: 'PressStart2P', fontSize: '8px', color: '#ffcc00'};
     this.scoreText = this.add.text(16, height - 28, '', style).setDepth(130);
-    this.timerText = this.add.text(width - 16, height - 28, __dialogueText("scenes/CSI/FingerprintPatternScene.js", "t_ad41fb28140561ca1d65"), style).setOrigin(1, 0).setDepth(130);
+    this.timerText = this.add.text(width - 16, height - 28, "Time: 00", style).setOrigin(1, 0).setDepth(130);
     this.setScore(this.score);
   }
   setStep(index) {
@@ -82,7 +82,7 @@ export class FingerprintPatternScene extends BaseForensicMinigame {
     this.progressLabel?.setText(`${__dialogueText("scenes/CSI/FingerprintPatternScene.js", "t_292e12948d7f29dc1024")}${this.currentStep}${__dialogueText("scenes/CSI/FingerprintPatternScene.js", "t_8a5edab282632443219e")}${this.totalSteps}`);
   }
   createButton(x, y, w, h, label, callback, opts = {}) {
-    if (label === __dialogueText("scenes/CSI/FingerprintPatternScene.js", "t_d8c6f6bc46d3b7948ad7")) {
+    if (label === "ADD TO CASE FILE") {
       x = this.scale.width / 2; y = this.patternLayout.actionY;
       w = Math.min(w, this.scale.width - 32);
     }
@@ -127,7 +127,7 @@ export class FingerprintPatternScene extends BaseForensicMinigame {
       }
       this.addStageObject(cover);
     }
-    this.addStageObject(this.add.text(L.centerX, L.sampleY + L.sampleHeight / 2 + 12, __dialogueText("scenes/CSI/FingerprintPatternScene.js", "t_5967e65da2ed48e73da2"), {
+    this.addStageObject(this.add.text(L.centerX, L.sampleY + L.sampleHeight / 2 + 12, "RECOVERED SAMPLE", {
       fontFamily: 'PressStart2P', fontSize: '8px', color: '#9db9a7'
     }).setOrigin(.5).setDepth(153));
   }

@@ -5,10 +5,10 @@ export const WantedDatabaseNavigation = {
     createNavigation(W, H) {
         const th = this.th, navY = H - 104;
         this.makeRect(24, navY, W - 48, 46, th.panel, 0.92, 0.6);
-        this.prevButton = this.makeButton(44, navY + 7, 140, 32, __dialogueText("scenes/wanted-database/WantedDatabaseNavigation.js", "t_86af811671fe29fad1d2"), () => this.prevPage());
+        this.prevButton = this.makeButton(44, navY + 7, 140, 32, "< PREV", () => this.prevPage());
         this.marksText = this.makeText(210, navY + 23, '', 11, { color: th.sMid }).setOrigin(0, 0.5);
         this.pageText = this.makeText(W / 2, navY + 23, '', 16, { shadow: this.glow(th.sMain, 6) }).setOrigin(0.5);
-        this.nextButton = this.makeButton(W - 44 - 140, navY + 7, 140, 32, __dialogueText("scenes/wanted-database/WantedDatabaseNavigation.js", "t_58b85f2ea88bf1a9ba16"), () => this.nextPage());
+        this.nextButton = this.makeButton(W - 44 - 140, navY + 7, 140, 32, "NEXT >", () => this.nextPage());
         this.updateNavButtons(); this.updateMarksText();
     },
     updateMarksText() {
@@ -58,7 +58,7 @@ export const WantedDatabaseNavigation = {
         if (this.helpPanel?.visible) { command(() => this.toggleHelp(false)); return; }
         if (this.detailPanel?.visible) {
             switch (key) {
-                case __dialogueText("scenes/wanted-database/WantedDatabaseNavigation.js", "t_037c968467aa3fd7c059"): command(() => this.closeDetailPanel()); break;
+                case "Escape": command(() => this.closeDetailPanel()); break;
                 case 'ArrowLeft': command(() => this.stepDetail(-1)); break;
                 case 'ArrowRight': command(() => this.stepDetail(1)); break;
                 case 'f': case 'F':
@@ -72,17 +72,17 @@ export const WantedDatabaseNavigation = {
             return;
         }
         switch (key) {
-            case __dialogueText("scenes/wanted-database/WantedDatabaseNavigation.js", "t_037c968467aa3fd7c059"):
+            case "Escape":
                 if (this.searchQuery) {
                     this.searchQuery = ''; this.playSearchKeySound(); this.onSearchChanged();
                 } else command(() => this.closeAndReturnToOffice());
                 return;
-            case __dialogueText("scenes/wanted-database/WantedDatabaseNavigation.js", "t_292fffe328d07afdaba6"):
+            case "Backspace":
                 if (this.searchQuery) {
                     this.searchQuery = this.searchQuery.slice(0, -1); this.playSearchKeySound(); this.onSearchChanged();
                 }
                 return;
-            case __dialogueText("scenes/wanted-database/WantedDatabaseNavigation.js", "t_90ddf1963abb36c9921c"): command(() => this.cycleGender()); return;
+            case "Tab": command(() => this.cycleGender()); return;
             case 'ArrowUp': command(() => this.cycleSort()); return;
             case 'ArrowDown': command(() => this.cycleStatus()); return;
             case 'ArrowLeft': command(() => this.prevPage()); return;

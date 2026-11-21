@@ -33,12 +33,12 @@ export function createTravelHeader(scene, { width, U, transport, vehicleKey, fro
   const route = register(scene, scene.add.text(
     width / 2,
     70 * U,
-    returning ? __dialogueText("scenes/travel/TravelTicketUI.js", "t_7291df60b5934300beed") : `${fromCity}${__dialogueText("scenes/travel/TravelTicketUI.js", "t_58d08b7ffa48faede71f")}${toCity}`,
+    returning ? "Back to the private office" : `${fromCity}${"  →  "}${toCity}`,
     {
       fontFamily: 'SpecialElite',
       fontSize: fs(U, 40),
       color: '#f4e7c1',
-      stroke: __dialogueText("scenes/travel/TravelTicketUI.js", "t_8f5ea20ab9f8b90f63a4"),
+      stroke: "#1a0f08",
       strokeThickness: Math.max(2, Math.round(6 * U))
     }
   ).setOrigin(0.5));
@@ -271,14 +271,14 @@ export class TravelJournal {
     this.typing?.remove(false);
 
     let index = 0;
-    this.text.setText(__dialogueText("scenes/travel/TravelTicketUI.js", "t_d2e2adf7177b7a8afddb"));
+    this.text.setText("_");
     this.typing = this.scene.time.addEvent({
       delay: speed,
       repeat: Math.max(0, line.length - 1),
       callback: () => {
         index += 1;
         if (!this.text?.active) return;
-        this.text.setText(line.slice(0, index) + (index < line.length ? __dialogueText("scenes/travel/TravelTicketUI.js", "t_d2e2adf7177b7a8afddb") : ''));
+        this.text.setText(line.slice(0, index) + (index < line.length ? "_" : ''));
       }
     });
   }
@@ -358,14 +358,14 @@ export function createPassportMark(scene, { width, height, U, country }) {
   ring.lineStyle(2 * U, color, 0.9);
   ring.strokeCircle(0, 0, 53 * U);
 
-  const top = scene.add.text(0, -34 * U, __dialogueText("scenes/travel/TravelTicketUI.js", "t_6ee9657aa896385e14b3"), {
+  const top = scene.add.text(0, -34 * U, "ENTRY", {
     fontFamily: 'PressStart2P', fontSize: fs(U, 10), color: hex(color)
   }).setOrigin(0.5);
   const name = scene.add.text(0, 0, country, {
     fontFamily: 'SpecialElite', fontSize: fs(U, 19), color: hex(color), align: 'center',
     wordWrap: { width: 96 * U }
   }).setOrigin(0.5);
-  const bottom = scene.add.text(0, 36 * U, __dialogueText("scenes/travel/TravelTicketUI.js", "t_109510644bb4c21f8eb3"), {
+  const bottom = scene.add.text(0, 36 * U, "* * *", {
     fontFamily: 'SpecialElite', fontSize: fs(U, 18), color: hex(color)
   }).setOrigin(0.5);
 
@@ -403,10 +403,10 @@ export function createPhoneNotice(scene, { width, U }) {
   g.lineStyle(2 * U, 0xd4af37, 0.9);
   g.strokeRoundedRect(-w / 2, -h / 2, w, h, 10 * U);
 
-  const title = scene.add.text(0, -16 * U, __dialogueText("scenes/travel/TravelTicketUI.js", "t_dbf28aa359d7f95293f7"), {
+  const title = scene.add.text(0, -16 * U, "RING RING!", {
     fontFamily: 'PressStart2P', fontSize: fs(U, 12), color: '#d4af37'
   }).setOrigin(0.5);
-  const body = scene.add.text(0, 14 * U, __dialogueText("scenes/travel/TravelTicketUI.js", "t_6c8552e2a06d5f4784fb"), {
+  const body = scene.add.text(0, 14 * U, "Headquarters has thoughts.", {
     fontFamily: 'SpecialElite', fontSize: fs(U, 22), color: '#f4e7c1'
   }).setOrigin(0.5);
 

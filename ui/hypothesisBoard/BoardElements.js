@@ -27,7 +27,7 @@ export const BoardElements = {
       const decor = this.scene.add.graphics();
 
       const qMark = this.scene.add
-        .text(0, 0, __dialogueText("ui/hypothesisBoard/BoardElements.js", "t_8a8de823d5ed3e12746a"), {
+        .text(0, 0, "?", {
           fontFamily: FONT_PIXEL,
           fontSize: '48px',
           color: '#ffffff'
@@ -40,7 +40,7 @@ export const BoardElements = {
         .setStrokeStyle(1, 0xb8a678, 1);
 
       const label = this.scene.add
-        .text(0, 0, this.slotLabels[index] || `${__dialogueText("ui/hypothesisBoard/BoardElements.js", "t_67f86c98b763a36c135d")}${index + 1}`, {
+        .text(0, 0, this.slotLabels[index] || `${"QUESTION "}${index + 1}`, {
           fontFamily: FONT_PIXEL,
           fontSize: '11px',
           color: '#3d2a09',
@@ -55,7 +55,7 @@ export const BoardElements = {
       const labelPin = this.scene.add.graphics();
 
       const answerText = this.scene.add
-        .text(0, 2, __dialogueText("ui/hypothesisBoard/BoardElements.js", "t_41953e69788775d57264"), {
+        .text(0, 2, "[ empty ]", {
           fontFamily: FONT_TEXT,
           fontSize: '20px',
           color: '#8d8577',
@@ -69,7 +69,7 @@ export const BoardElements = {
         .setOrigin(0.5);
 
       const lockStamp = this.scene.add
-        .text(0, 0, __dialogueText("ui/hypothesisBoard/BoardElements.js", "t_102cf1442cf6e329f9df"), {
+        .text(0, 0, "CONFIRMED", {
           fontFamily: FONT_PIXEL,
           fontSize: '9px',
           color: '#6fe08a',
@@ -81,7 +81,7 @@ export const BoardElements = {
         .setVisible(false);
 
       const removeButton = this.scene.add
-        .text(0, 0, __dialogueText("ui/hypothesisBoard/BoardElements.js", "t_5fdf0b2bbe277cf410d7"), {
+        .text(0, 0, "REMOVE", {
           fontFamily: FONT_PIXEL,
           fontSize: '9px',
           color: '#ffffff',
@@ -167,7 +167,7 @@ export const BoardElements = {
       const pin = this.scene.add.graphics();
 
       const cardTitle = this.scene.add
-        .text(0, 4, card.item || `${__dialogueText("ui/hypothesisBoard/BoardElements.js", "t_7b941f3f0adda67ff9a3")}${index + 1}`, {
+        .text(0, 4, card.item || `${"CLUE "}${index + 1}`, {
           fontFamily: FONT_TEXT,
           fontSize: '18px',
           color: '#3d2409',
@@ -181,7 +181,7 @@ export const BoardElements = {
         .setOrigin(0.5);
 
       const selectedMark = this.scene.add
-        .text(0, 39, __dialogueText("ui/hypothesisBoard/BoardElements.js", "t_6a6df4a0eec5caa19d1a"), {
+        .text(0, 39, "SELECTED", {
           fontFamily: FONT_PIXEL,
           fontSize: '9px',
           color: '#251700',
@@ -197,7 +197,7 @@ export const BoardElements = {
         .setVisible(false);
 
       const usedMark = this.scene.add
-        .text(0, 0, __dialogueText("ui/hypothesisBoard/BoardElements.js", "t_f2ba62b091ff9fd9a08d"), {
+        .text(0, 0, "USED", {
           fontFamily: FONT_PIXEL,
           fontSize: '14px',
           color: '#f7e7bd',
@@ -368,7 +368,7 @@ export const BoardElements = {
           fontFamily: FONT_TEXT,
           fontSize: '15px',
           color: '#e0cfa2',
-          stroke: __dialogueText("ui/hypothesisBoard/BoardElements.js", "t_7b2817bf9b80e66d07f2"),
+          stroke: "#000000",
           strokeThickness: 3
         })
         .setOrigin(0, 0.5);

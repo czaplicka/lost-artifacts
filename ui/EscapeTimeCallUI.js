@@ -31,9 +31,9 @@ class EscapeTimeIncomingCallScene extends PhoneCallScene {
       return;
     }
     super.create();
-    const answerButton = this.ui.find(object => object?.text === __dialogueText("ui/EscapeTimeCallUI.js", "t_569571744c7853c81c52"));
-    const ignoreButton = this.ui.find(object => object?.text === __dialogueText("ui/EscapeTimeCallUI.js", "t_3d71a7b1b5f2153ff09e"));
-    const caller = this.ui.find(object => object?.text === __dialogueText("ui/EscapeTimeCallUI.js", "t_258648f8498aa3aecd7c"));
+    const answerButton = this.ui.find(object => object?.text === "[ ANSWER ]");
+    const ignoreButton = this.ui.find(object => object?.text === "[ IGNORE ]");
+    const caller = this.ui.find(object => object?.text === "DETECTIVE BUREAU");
     if (!answerButton || !ignoreButton) {
       console.error('[EscapeTimeCallUI] Incoming phone controls are missing.');
       owner.cancelFromPhone(this);

@@ -248,17 +248,17 @@ function drawSole(g, cx, top, length, sole, wear, style) {
   // wear = smooth patch with no tread
   g.fillStyle(style.base, 1);
 
-  if (wear === __dialogueText("scenes/CSI/ShoeprintScene.js", "t_8b40281cc4f0786a6d92")) {
+  if (wear === "RIGHT TOE") {
     g.fillEllipse(
       cx + half * 0.42, top + length * 0.15,
       half * 0.8, length * 0.10
     );
-  } else if (wear === __dialogueText("scenes/CSI/ShoeprintScene.js", "t_8cc1bac4d7f3c38a0cb1")) {
+  } else if (wear === "LEFT HEEL") {
     g.fillEllipse(
       cx - half * 0.30, top + length * 0.84,
       half * 0.72, length * 0.11
     );
-  } else if (wear === __dialogueText("scenes/CSI/ShoeprintScene.js", "t_21c5aefcbed22fba193f")) {
+  } else if (wear === "OUTER EDGE") {
     g.beginPath();
 
     for (let t = 0.28; t <= 0.74; t += 0.02) {
@@ -596,7 +596,7 @@ export class ShoeprintScene extends BaseScene {
     this.add.text(
       pad,
       H * 0.0475,
-      __dialogueText("scenes/CSI/ShoeprintScene.js", "t_dcf72038a1b4e2d33e6f"),
+      "CAST COMPARATOR // FOOTWEAR DB (1994 EDITION)",
       {
         fontFamily: FONT_PIXEL,
         fontSize: this.px(14),
@@ -995,11 +995,11 @@ export class ShoeprintScene extends BaseScene {
     this.hudScore.setText(`${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_8781558c8f9241d9bc6c")}${this.score}`);
 
     this.hudErr
-      .setText(`${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_cea25be114b8c1a5399c")}${this.mistakes}`)
+      .setText(`${"ERR "}${this.mistakes}`)
       .setColor(this.mistakes > 0 ? css(PAL.red) : css(PAL.text));
 
     this.hudTime
-      .setText(`${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_d734fd238a5e520c02c6")}${String(s).padStart(2, __dialogueText("scenes/CSI/ShoeprintScene.js", "t_5feceb66ffc86f38d952"))}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_043a718774c572bd8a25")}`)
+      .setText(`${"TIME "}${String(s).padStart(2, "0")}${"s"}`)
       .setColor(timeColor);
   }
 
@@ -1011,15 +1011,15 @@ export class ShoeprintScene extends BaseScene {
 
     const lines = [
       [
-        __dialogueText("scenes/CSI/ShoeprintScene.js", "t_498bb99a95356723a392"),
+        "> PLASTER CAST FROM THE MUSEUM WINDOWSILL. IT SMELLS LIKE CRIME.",
         css(PAL.text)
       ],
       [
-        `${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_572367ae7f87efbd99e6")}${this.cast.size}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_005e1574a2b5c8163046")}${this.cast.sole}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_0bbb9728d6e9fc87ccac")}${this.cast.wear}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_86577b3808603173873e")}`,
+        `${"> CAST NOTES: SIZE "}${this.cast.size}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_005e1574a2b5c8163046")}${this.cast.sole}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_0bbb9728d6e9fc87ccac")}${this.cast.wear}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_86577b3808603173873e")}`,
         css(PAL.amber)
       ],
       [
-        __dialogueText("scenes/CSI/ShoeprintScene.js", "t_dfec9c292e84da83721b"),
+        "> DATABASE RETURNED 3 BOOTS. CLICK THE ONE THAT FULLY MATCHES.",
         css(PAL.text)
       ]
     ];
@@ -1084,7 +1084,7 @@ export class ShoeprintScene extends BaseScene {
       fontFamily: FONT_PIXEL,
       fontSize: this.px(size),
       color: css(color),
-      stroke: __dialogueText("scenes/CSI/ShoeprintScene.js", "t_7b2817bf9b80e66d07f2"),
+      stroke: "#000000",
       strokeThickness: Math.round(4 * this.u)
     })
       .setOrigin(0.5)
@@ -1121,7 +1121,7 @@ export class ShoeprintScene extends BaseScene {
 
       const results = await Promise.all([
         this.say(
-          `${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_8be179c6df815665853a")}${entry.id}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_45822f54a0d0e030f756")}${entry.size}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_005e1574a2b5c8163046")}${entry.sole}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_005e1574a2b5c8163046")}${entry.wear}`,
+          `${"> CHECKING "}${entry.id}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_45822f54a0d0e030f756")}${entry.size}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_005e1574a2b5c8163046")}${entry.sole}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_005e1574a2b5c8163046")}${entry.wear}`,
           css(PAL.text),
           8
         ),
@@ -1202,20 +1202,20 @@ export class ShoeprintScene extends BaseScene {
     // readout
     const lines = [
       [
-        __dialogueText("scenes/CSI/ShoeprintScene.js", "t_8b4df81fc16ea4846589"),
+        "> FULL MATCH. THE SHOE FITS. SOMEONE IS ABOUT TO HAVE A BAD DAY.",
         css(PAL.amber)
       ],
       [
-        `${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_05cb88697741d1be2bd1")}${this.correctValue.toUpperCase()}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_c7ad34855ada925631ef")}`,
+        `${"> FORENSIC CATEGORY: "}${this.correctValue.toUpperCase()}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_c7ad34855ada925631ef")}`,
         css(PAL.text)
       ]
     ];
 
     if (timeBonus > 0) {
-      lines.push([`${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_12af905b2e0dd06cb1dd")}${timeBonus}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_eeb98a5625408b801794")}`, css(PAL.amber)]);
+      lines.push([`${"> SPEED BONUS: +"}${timeBonus}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_eeb98a5625408b801794")}`, css(PAL.amber)]);
     }
 
-    lines.push([__dialogueText("scenes/CSI/ShoeprintScene.js", "t_5fe75d0a88dfe79b974d"), css(PAL.green)]);
+    lines.push(["> CLUE READY FOR CASE FILE.", css(PAL.green)]);
 
     for (const [text, color] of lines) {
       const ok = await this.say(text, color, 10);
@@ -1279,13 +1279,13 @@ export class ShoeprintScene extends BaseScene {
     this.lastQuip = q;
 
     let ok = await this.say(
-      `${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_4119e852c9fcda3daed5")}${mismatched.join(__dialogueText("scenes/CSI/ShoeprintScene.js", "t_46209f696e32b54882cb"))}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_8e96c3e3ecdaef85c802")}`,
+      `${"> MISMATCH: "}${mismatched.join(__dialogueText("scenes/CSI/ShoeprintScene.js", "t_46209f696e32b54882cb"))}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_8e96c3e3ecdaef85c802")}`,
       css(PAL.red),
       10
     );
     if (!ok || !this.alive(session)) return;
 
-    await this.say(`${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_ec4f8e3d1f7cafbdb86e")}${MISS_QUIPS[q]}`, css(PAL.text), 10);
+    await this.say(`${"> "}${MISS_QUIPS[q]}`, css(PAL.text), 10);
   }
 
 
@@ -1312,7 +1312,7 @@ export class ShoeprintScene extends BaseScene {
     };
     paint(0x0f3a25);
 
-    const label = this.add.text(bw / 2, bh / 2, __dialogueText("scenes/CSI/ShoeprintScene.js", "t_4bed89f0684df3816929"), {
+    const label = this.add.text(bw / 2, bh / 2, "ADD TO\nCASE FILE", {
       fontFamily: FONT_PIXEL,
       fontSize: this.px(11),
       color: css(PAL.green),

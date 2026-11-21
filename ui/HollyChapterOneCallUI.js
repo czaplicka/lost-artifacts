@@ -72,18 +72,18 @@ export class HollyChapterOneCallUI {
     this.previewLabel.setText(preview?__dialogueText('ui/HollyChapterOneCallUI.js','t_61b5f26b6a4e4661589a'):__dialogueText('ui/HollyChapterOneCallUI.js','t_b470fb42a744fcae9285'));
   }
   showLine(lines,index){
-    this.lines=lines.map(line=>({...line,speaker:line.speaker===__dialogueText('ui/HollyChapterOneCallUI.js','t_1e954e77ee4e5253c6c5')?__dialogueText('ui/HollyChapterOneCallUI.js','t_08b041935798fbf6fd6f'):line.speaker}));
+    this.lines=lines.map(line=>({...line,speaker:line.speaker==="DETECTIVE"?__dialogueText('ui/HollyChapterOneCallUI.js','t_08b041935798fbf6fd6f'):line.speaker}));
     this.lineIndex=index;
     const line=this.lines[index];if(!line)return;
     this.status.setText(__dialogueText('ui/HollyChapterOneCallUI.js','t_3b051a970c356f002eed'));this.progress.setText(`${__dialogueText('ui/HollyChapterOneCallUI.js','t_cf55a0161783226c54ba')}${index+1}${__dialogueText('ui/HollyChapterOneCallUI.js','t_005e1574a2b5c8163046')}${lines.length}`);
-    const isYou=line.speaker===__dialogueText('ui/HollyChapterOneCallUI.js','t_08b041935798fbf6fd6f');
+    const isYou=line.speaker==="You";
     const item=this.addBubble(isYou?'DETECTIVE':line.speaker,line.text,isYou);
     this.typeItem(item);
     this.closeKey.setLabel(__dialogueText('ui/HollyChapterOneCallUI.js','t_b157c26dbf2374fd499e'));this.render();
   }
   render(){
     if(this.destroyed||!this.nextKey)return;
-    this.nextKey.setLabel(this.typingItem?__dialogueText('ui/HollyChapterOneCallUI.js','t_2b74f001d24c660b5b4c'):this.lineIndex>=this.lines.length-1&&this.lines.length?__dialogueText('ui/HollyChapterOneCallUI.js','t_63b7971cb6fda736add3'):__dialogueText('ui/HollyChapterOneCallUI.js','t_ccb844f373a3b29ad190'));
+    this.nextKey.setLabel(this.typingItem?__dialogueText('ui/HollyChapterOneCallUI.js','t_2b74f001d24c660b5b4c'):this.lineIndex>=this.lines.length-1&&this.lines.length?__dialogueText('ui/HollyChapterOneCallUI.js','t_63b7971cb6fda736add3'):"CONTINUE >");
   }
   finishCurrentTyping(){
     if(!this.typingItem)return false;

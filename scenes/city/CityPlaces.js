@@ -39,7 +39,7 @@ export class CityPlaces {
     const label = this.add.text(
       x,
       y + 66,
-      __dialogueText("scenes/city/CityPlaces.js", "t_ab5470ec3214b1f3afbd"),
+      "HOTEL",
       {
         fontFamily: 'SpecialElite',
         fontSize: '22px',
@@ -55,7 +55,7 @@ export class CityPlaces {
     const objects = [icon, label];
 
     if (!this.textures.exists('hotel_icon')) {
-      const symbol = this.add.text(x, y, __dialogueText("scenes/city/CityPlaces.js", "t_ab5470ec3214b1f3afbd"), {
+      const symbol = this.add.text(x, y, "HOTEL", {
         fontFamily: 'PressStart2P',
         fontSize: '13px',
         color: '#f6dc8c'
@@ -161,7 +161,7 @@ export class CityPlaces {
     const label = this.add.text(
       position.x,
       position.y + SHOP_LABEL_OFFSET,
-      `${__dialogueText("scenes/city/CityPlaces.js", "t_b3785a04e242f06452e1")}${SHOP_TAXI_ENERGY}${__dialogueText("scenes/city/CityPlaces.js", "t_91aac9d5eebf6cfbc424")}`,
+      `${"Shop (-"}${SHOP_TAXI_ENERGY}${" Energy)"}`,
       {
         fontFamily: 'SpecialElite',
         fontSize: '18px',

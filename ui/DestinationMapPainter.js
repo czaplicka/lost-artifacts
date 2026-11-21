@@ -127,7 +127,7 @@ export function prepareCountries(features, projection = PROJECTION) {
         const name = String(props.NAME_EN || props.NAME || props.ADMIN || '');
         const geometry = feature.geometry;
         if (!geometry) continue;
-        const polygons = geometry.type === __dialogueText("ui/DestinationMapPainter.js", "t_0ef705dd99da0ae4b601") ? [geometry.coordinates] :
+        const polygons = geometry.type === "Polygon" ? [geometry.coordinates] :
             geometry.type === 'MultiPolygon' ? geometry.coordinates : [];
         const projected = [];
         for (const polygon of polygons) {
@@ -308,7 +308,7 @@ function paintAgencyFrame(ctx, P) {
         ctx.stroke();
     });
 
-    ctx.font = __dialogueText("ui/DestinationMapPainter.js", "t_3f5b813c7eac9a6f159e");
+    ctx.font = "9px PressStart2P, monospace";
     ctx.fillStyle = __dialogueText("ui/DestinationMapPainter.js", "t_14f0cbbcf9a57578b568");
     ctx.strokeStyle = __dialogueText("ui/DestinationMapPainter.js", "t_70f3105740345ba38280");
     ctx.lineWidth = 1;
@@ -381,9 +381,9 @@ export function paintAgency(ctx, data) {
     } else {
         ctx.textAlign = 'center';
         ctx.fillStyle = __dialogueText("ui/DestinationMapPainter.js", "t_c8497a890136dbdf25a5");
-        ctx.font = __dialogueText("ui/DestinationMapPainter.js", "t_2edb25451a3b85ef6ac7");
+        ctx.font = "20px PressStart2P, monospace";
         ctx.fillText(__dialogueText("ui/DestinationMapPainter.js", "t_1507cb6a4ba5816258f5"), (F.l + F.r) / 2, (F.t + F.b) / 2 - 10);
-        ctx.font = __dialogueText("ui/DestinationMapPainter.js", "t_19f51c9f26675d332a10");
+        ctx.font = "12px PressStart2P, monospace";
         ctx.fillStyle = __dialogueText("ui/DestinationMapPainter.js", "t_39fd6949808367941fa2");
         ctx.fillText(data.failed ? __dialogueText("ui/DestinationMapPainter.js", "t_a37a157bb6d354cb6bdb") :
             __dialogueText("ui/DestinationMapPainter.js", "t_5e663d9eb5c24dbbf80c"), (F.l + F.r) / 2, (F.t + F.b) / 2 + 26);
@@ -393,10 +393,10 @@ export function paintAgency(ctx, data) {
     AGENCY_OCEANS.forEach(({ lon, lat, text, sub }) => {
         const p = P.project(lon, lat);
         if (!inFrame(F, p.x, p.y, 40)) return;
-        ctx.font = __dialogueText("ui/DestinationMapPainter.js", "t_19f51c9f26675d332a10");
+        ctx.font = "12px PressStart2P, monospace";
         ctx.fillStyle = __dialogueText("ui/DestinationMapPainter.js", "t_d392468f477dcdb840a8");
         spacedText(ctx, text, p.x, p.y, 6);
-        ctx.font = __dialogueText("ui/DestinationMapPainter.js", "t_1e187c4b16f2046adcac");
+        ctx.font = "8px PressStart2P, monospace";
         ctx.fillStyle = __dialogueText("ui/DestinationMapPainter.js", "t_0fda9bcaec94bd61d6ed");
         spacedText(ctx, sub, p.x, p.y + 18, 3);
     });
@@ -519,7 +519,7 @@ function drawCompassRose(ctx, x, y, R) {
         ctx.stroke();
     }
     ctx.fillStyle = __dialogueText("ui/DestinationMapPainter.js", "t_e41caaae56c6216928eb");
-    ctx.font = __dialogueText("ui/DestinationMapPainter.js", "t_5f0bae70d8fb4e546e7e");
+    ctx.font = "22px SpecialElite, serif";
     ctx.textAlign = 'center';
     ctx.fillText('N', 0, -R - 12);
     ctx.restore();
@@ -704,7 +704,7 @@ function paintPIFrame(ctx, P) {
             ctx.stroke();
         });
 
-    ctx.font = __dialogueText("ui/DestinationMapPainter.js", "t_d341612b34bbd75d675a");
+    ctx.font = "13px SpecialElite, serif";
     ctx.fillStyle = __dialogueText("ui/DestinationMapPainter.js", "t_15a09b06c8ff87339524");
     ctx.textAlign = 'center';
     for (let lon = -180; lon <= 180; lon += 15) {
@@ -747,9 +747,9 @@ export function paintPI(ctx, data) {
     } else {
         ctx.textAlign = 'center';
         ctx.fillStyle = __dialogueText("ui/DestinationMapPainter.js", "t_0d0c515399ea909878e4");
-        ctx.font = __dialogueText("ui/DestinationMapPainter.js", "t_fd734ed4593bb28679dc");
+        ctx.font = "34px SpecialElite, serif";
         ctx.fillText(__dialogueText("ui/DestinationMapPainter.js", "t_3633470206f72e52be82"), (F.l + F.r) / 2, (F.t + F.b) / 2 - 8);
-        ctx.font = __dialogueText("ui/DestinationMapPainter.js", "t_02d3515b38bf15255f3b");
+        ctx.font = "20px SpecialElite, serif";
         ctx.fillText(data.failed ? __dialogueText("ui/DestinationMapPainter.js", "t_93327d3968f1512a5cfb") :
             __dialogueText("ui/DestinationMapPainter.js", "t_1ba1fb6412a80dda30b4"), (F.l + F.r) / 2, (F.t + F.b) / 2 + 28);
     }
@@ -761,7 +761,7 @@ export function paintPI(ctx, data) {
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate(rot);
-        ctx.font = __dialogueText("ui/DestinationMapPainter.js", "t_f621004195117ba4664e");
+        ctx.font = "italic 30px SpecialElite, serif";
         ctx.fillStyle = __dialogueText("ui/DestinationMapPainter.js", "t_4dc1df755c8833a77b91");
         spacedText(ctx, text.toUpperCase(), 0, 0, 9);
         ctx.restore();
@@ -777,7 +777,7 @@ export function paintPI(ctx, data) {
         if (!inFrame(F, p.x, p.y, 70)) return;
         if (kind === 'serpent') drawSerpent(ctx, p.x, p.y, s);
         else drawKraken(ctx, p.x, p.y, s);
-        ctx.font = __dialogueText("ui/DestinationMapPainter.js", "t_bce02b3bb6f041ea2ca5");
+        ctx.font = "16px SpecialElite, serif";
         ctx.fillStyle = __dialogueText("ui/DestinationMapPainter.js", "t_d53a48c0a2e37f2509a2");
         ctx.textAlign = 'center';
         ctx.fillText(label, p.x + 20, p.y + (kind === 'kraken' ? 70 : 34));
@@ -814,7 +814,7 @@ export function paintPI(ctx, data) {
     ctx.strokeRect(-112, -24, 224, 48);
     ctx.lineWidth = 1;
     ctx.strokeRect(-107, -19, 214, 38);
-    ctx.font = __dialogueText("ui/DestinationMapPainter.js", "t_02d3515b38bf15255f3b");
+    ctx.font = "20px SpecialElite, serif";
     ctx.textAlign = 'center';
     ctx.fillText(__dialogueText("ui/DestinationMapPainter.js", "t_76d3463ead3719da606b"), 0, 7);
     ctx.restore();

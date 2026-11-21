@@ -25,7 +25,7 @@ export const confirmationMethods = {
     const band = this.add.rectangle(0, -150, 900, 80, 0x4a3118, 1);
 
     const title = this.add
-      .text(0, -150, __dialogueText("scenes/arrestSelection/confirmation.js", "t_073477e26c90cb450c63"), {
+      .text(0, -150, "ISSUE ARREST ORDER?", {
         fontFamily: FONT_PIXEL,
         fontSize: '24px',
         color: PAL.goldCss

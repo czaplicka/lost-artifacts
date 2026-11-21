@@ -23,9 +23,9 @@ export class MaterialAnalysisScene extends FiberAnalysisScene {
   async showIntro(){
     const terminal=this.term,session=this._fiberSession;
     const printed=await this.printLines(session,terminal,[
-      [__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_9721bf120ce49c48f34f")],
-      [__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_ec4078a6852ae378ee8b")],
-      [__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_4639ca02b5f8eebf17e2"),{color:TERM.amber}]
+      ["> MATERIAL SAMPLE LOADED. DO NOT SNEEZE."],
+      ["> REPEAT THE REAGENT SEQUENCE EXACTLY."],
+      ["> THE MACHINE HAS A MEMORY. IT EXPECTS YOU TO HAVE ONE TOO.",{color:TERM.amber}]
     ]);
     if(printed&&!this.finished)this.showReadyScreen();
   }
@@ -37,14 +37,14 @@ export class MaterialAnalysisScene extends FiberAnalysisScene {
     this.readyOverlay=this.add.rectangle(0,0,width,height,0x000000,.9).setOrigin(0,0).setDepth(5000).setInteractive();
     this.readyOverlay.on('pointerdown',(p,x,y,event)=>event?.stopPropagation());
     const panel=this.add.rectangle(cx,cy,w,h,0x111827,1).setStrokeStyle(3,0x7df9ff).setDepth(5001);
-    const title=this.add.text(cx,cy-h/2+34,__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_381b44efa7860b46700a"),{
+    const title=this.add.text(cx,cy-h/2+34,"MATERIAL IDENTIFICATION PROTOCOL",{
       fontFamily:'PressStart2P',fontSize:width<=700?'11px':'15px',color:'#7df9ff',align:'center',wordWrap:{width:w-32,useAdvancedWrap:true}
     }).setOrigin(.5).setDepth(5002);
-    const briefing=this.add.text(cx,cy-10,__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_b14b5f77c1520513d5ba"),{
+    const briefing=this.add.text(cx,cy-10,"Watch the scanner.\nRepeat the colour sequence.\n\nIdentify the material.\nLeave the accusations to the detective.",{
       fontFamily:'SpecialElite',fontSize:width<=700?'20px':'24px',color:'#fff4c7',align:'center',wordWrap:{width:w-40,useAdvancedWrap:true}
     }).setOrigin(.5).setDepth(5002);
     const scale=Math.min(1,(h-150)/Math.max(1,briefing.height));briefing.setScale(scale);
-    const start=this.add.text(cx,cy+h/2-40,__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_50285600a6b1bb268eb8"),{
+    const start=this.add.text(cx,cy+h/2-40,"[ I AM FOCUSED ]",{
       fontFamily:'PressStart2P',fontSize:'11px',color:'#39ff14',backgroundColor:'#000000',padding:{left:12,right:12,top:12,bottom:12}
     }).setOrigin(.5).setDepth(5002).setInteractive({useHandCursor:true});
     this.readyObjects=[this.readyOverlay,panel,title,briefing,start];
@@ -60,10 +60,10 @@ export class MaterialAnalysisScene extends FiberAnalysisScene {
     this.settlePlayback(false);this.cancelCall(this.nextRoundEvent);this.nextRoundEvent=null;
     const bonus=this.getTimeBonus();this.score=Math.min(120,this.score+bonus);this.disablePads();
     if(!await this.terminalAction(session,terminal,()=>terminal.progress(__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_417cac3597812e93560c"),1800)))return;
-    const lines=[[`${__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_aeef2e02de04a3930138")}${this.materialReport.label.toUpperCase()}${__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_cdb4ee2aea69cc6a8333")}`],[`> ${this.materialReport.labText}`],
+    const lines=[[`${"> RESULT: "}${this.materialReport.label.toUpperCase()}${__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_cdb4ee2aea69cc6a8333")}`],[`> ${this.materialReport.labText}`],
       ...(this.materialConfig.sourceText?[[`> ${this.materialConfig.sourceText}`]]:[]),
-      [__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_7ca650f3db6f6866995a"),{color:TERM.amber}]];
-    if(bonus>0)lines.push([`${__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_12af905b2e0dd06cb1dd")}${bonus}${__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_eeb98a5625408b801794")}`,{color:TERM.amber}]);lines.push([__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_5fe75d0a88dfe79b974d"),{color:TERM.amber}]);
+      ["> THE MACHINE HAS IDENTIFIED THE MATERIAL. DETECTIVE WORK SOLD SEPARATELY.",{color:TERM.amber}]];
+    if(bonus>0)lines.push([`${"> SPEED BONUS: +"}${bonus}${__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_eeb98a5625408b801794")}`,{color:TERM.amber}]);lines.push(["> CLUE READY FOR CASE FILE.",{color:TERM.amber}]);
     if(!await this.printLines(session,terminal,lines))return;
     terminal.button(__dialogueText("scenes/CSI/MaterialAnalysisScene.js", "t_d8c6f6bc46d3b7948ad7"),TERM.green,()=>{if(this.isCurrentSession(session,terminal))this.returnResultToCrimeLab();});
   }

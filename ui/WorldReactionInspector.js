@@ -19,12 +19,12 @@ export function installWorldReactionInspector(game){
  };
  function render(){
   if(!overlay)return;
-  const section=node('section');section.setAttribute('role','dialog');section.setAttribute('aria-modal','true');section.setAttribute('aria-label',__dialogueText("ui/WorldReactionInspector.js", "t_751dd16fbf74d6e2c072"));
+  const section=node('section');section.setAttribute('role','dialog');section.setAttribute('aria-modal','true');section.setAttribute('aria-label',"World reactions inspector");
   section.append(node('h2',__dialogueText("ui/WorldReactionInspector.js", "t_b998ad2a3f8b1820df8c")));
   const note=node('p',__dialogueText("ui/WorldReactionInspector.js", "t_6d6306796537984f2f7e"));note.className='world-note';section.append(note);
   const tools=node('div');tools.className='world-tools';
   tools.append(button(__dialogueText("ui/WorldReactionInspector.js", "t_0e91610117029a62a478"),()=>{render();}),button(__dialogueText("ui/WorldReactionInspector.js", "t_2f34be1460443fb706cd"),close));
-  const filter=node('select');filter.setAttribute('aria-label',__dialogueText("ui/WorldReactionInspector.js", "t_919f4e806ff43bb39fd9"));
+  const filter=node('select');filter.setAttribute('aria-label',"Visibility filter");
   for(const [value,label]of [['all',__dialogueText("ui/WorldReactionInspector.js", "t_bbf571dc1bdafdf7d275")],['public',__dialogueText("ui/WorldReactionInspector.js", "t_591935b15b1c88e2d5f6")],['private',__dialogueText("ui/WorldReactionInspector.js", "t_c63eb6720c6e88493897")],['agency',__dialogueText("ui/WorldReactionInspector.js", "t_e9af7825227d6907c9ff")]]){
    const option=node('option',label);option.value=value;filter.append(option);
   }
@@ -65,8 +65,8 @@ export function installWorldReactionInspector(game){
   }
   if(!overlay)return;
   event.stopImmediatePropagation();
-  if(event.code===__dialogueText("ui/WorldReactionInspector.js", "t_037c968467aa3fd7c059")){event.preventDefault();if(!event.repeat)close();return;}
-  if(event.key===__dialogueText("ui/WorldReactionInspector.js", "t_90ddf1963abb36c9921c")){
+  if(event.code==="Escape"){event.preventDefault();if(!event.repeat)close();return;}
+  if(event.key==="Tab"){
    const items=[...overlay.querySelectorAll('button,select')].filter(item=>!item.disabled);
    const first=items[0],last=items.at(-1);
    if(!first){event.preventDefault();return;}

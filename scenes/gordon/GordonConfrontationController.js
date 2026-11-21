@@ -505,8 +505,8 @@ export class GordonConfrontationController {
     }
 
     const advanceKey = [
-      __dialogueText("scenes/gordon/GordonConfrontationController.js", "t_20eac5aae274985fd886"),
-      __dialogueText("scenes/gordon/GordonConfrontationController.js", "t_dc8659db6d416dc32fca"),
+      "Space",
+      "Enter",
       'NumpadEnter'
     ].includes(event.code);
 

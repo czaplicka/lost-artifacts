@@ -269,11 +269,11 @@ export class FingerprintScene extends BaseScene {
 
     const lines = [
       [
-        __dialogueText("scenes/CSI/FingerprintScene.js", "t_d767ae1cbaf02e62ebf9"),
+        "> PARTIAL PRINT LIFTED FROM SKYLIGHT LATCH.",
         {}
       ],
       [
-        __dialogueText("scenes/CSI/FingerprintScene.js", "t_fffcc8dd885bab13a21e"),
+        "> AFIS FOUND 3 \"CANDIDATES\". DEFINE \"CANDIDATES\".",
         {}
       ],
       [
@@ -285,7 +285,7 @@ export class FingerprintScene extends BaseScene {
         }
       ],
       [
-        __dialogueText("scenes/CSI/FingerprintScene.js", "t_07d906ad5046381dd61a"),
+        "> PICK THE RECORD MATCHING EVERY READABLE CELL (? = UNREADABLE).",
         { color: TERM.amber }
       ]
     ];
@@ -353,7 +353,7 @@ export class FingerprintScene extends BaseScene {
         session,
         terminal,
         () => terminal.print(
-          `${__dialogueText("scenes/CSI/FingerprintScene.js", "t_8be179c6df815665853a")}${candidate.name}${__dialogueText("scenes/CSI/FingerprintScene.js", "t_4501c820f066129ae4d3")}`
+          `${"> CHECKING "}${candidate.name}${__dialogueText("scenes/CSI/FingerprintScene.js", "t_4501c820f066129ae4d3")}`
         )
       );
 
@@ -403,24 +403,24 @@ export class FingerprintScene extends BaseScene {
 
     const lines = [
       [
-        __dialogueText("scenes/CSI/FingerprintScene.js", "t_793ff8d6954db163fd96"),
+        "> MATCH CONFIRMED. 41% CERTAINTY.",
         { color: TERM.amber }
       ],
       [
-        __dialogueText("scenes/CSI/FingerprintScene.js", "t_04536bc26461faf381f8"),
+        "> IN COURT? USELESS. IN OUR CASE FILE? PRICELESS.",
         {}
       ]
     ];
 
     if (timeBonus > 0) {
       lines.push([
-        `${__dialogueText("scenes/CSI/FingerprintScene.js", "t_12af905b2e0dd06cb1dd")}${timeBonus}${__dialogueText("scenes/CSI/FingerprintScene.js", "t_eeb98a5625408b801794")}`,
+        `${"> SPEED BONUS: +"}${timeBonus}${__dialogueText("scenes/CSI/FingerprintScene.js", "t_eeb98a5625408b801794")}`,
         { color: TERM.amber }
       ]);
     }
 
     lines.push([
-      __dialogueText("scenes/CSI/FingerprintScene.js", "t_5fe75d0a88dfe79b974d"),
+      "> CLUE READY FOR CASE FILE.",
       { color: TERM.amber }
     ]);
 
@@ -462,7 +462,7 @@ export class FingerprintScene extends BaseScene {
       session,
       terminal,
       () => terminal.print(
-        __dialogueText("scenes/CSI/FingerprintScene.js", "t_45805fb534816228cb20"),
+        "> MISMATCH. AFIS SUGGESTS GLASSES. (-15 PTS)",
         { color: TERM.red }
       )
     );
@@ -472,7 +472,7 @@ export class FingerprintScene extends BaseScene {
     const retryPrinted = await this.terminalAction(
       session,
       terminal,
-      () => terminal.print(__dialogueText("scenes/CSI/FingerprintScene.js", "t_48dae4ffaac4d211f941"))
+      () => terminal.print("> TRY THE OTHER RECORDS.")
     );
 
     if (!retryPrinted) return;

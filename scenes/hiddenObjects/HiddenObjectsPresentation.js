@@ -312,19 +312,13 @@ export class HiddenObjectsPresentation {
         cy + 64,
         String(
           scene.title ||
-          __dialogueText(
-            "scenes/hiddenObjects/HiddenObjectsPresentation.js",
-            "t_deb2ecf56ab544bfcb8e"
-          )
+          "Crime Scene"
         ),
         {
           fontFamily: F.body,
           fontSize: '38px',
           color: C.cream,
-          stroke: __dialogueText(
-            "scenes/hiddenObjects/HiddenObjectsPresentation.js",
-            "t_7b2817bf9b80e66d07f2"
-          ),
+          stroke: "#000000",
           strokeThickness: 6,
           align: 'center',
           wordWrap: {
@@ -346,21 +340,12 @@ export class HiddenObjectsPresentation {
       scene.add.text(
         cx,
         title.y + title.height + 12,
-        `${__dialogueText(
-          "scenes/hiddenObjects/HiddenObjectsPresentation.js",
-          "t_8348b044f81087d6cd01"
-        )}${count}${__dialogueText(
-          "scenes/hiddenObjects/HiddenObjectsPresentation.js",
-          "t_0ed43fb3c74c11e12f23"
-        )}`,
+        `${"Find "}${count}${" pieces of evidence. The clock is already ticking."}`,
         {
           fontFamily: F.body,
           fontSize: '20px',
           color: '#ffffff',
-          stroke: __dialogueText(
-            "scenes/hiddenObjects/HiddenObjectsPresentation.js",
-            "t_7b2817bf9b80e66d07f2"
-          ),
+          stroke: "#000000",
           strokeThickness: 4,
           align: 'center',
           wordWrap: {
@@ -703,10 +688,7 @@ export class HiddenObjectsPresentation {
         fontFamily: F.pixel,
         fontSize: '16px',
         color,
-        stroke: __dialogueText(
-          "scenes/hiddenObjects/HiddenObjectsPresentation.js",
-          "t_7b2817bf9b80e66d07f2"
-        ),
+        stroke: "#000000",
         strokeThickness: 5
       }
     )

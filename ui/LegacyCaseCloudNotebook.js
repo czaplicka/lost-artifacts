@@ -52,7 +52,7 @@ export function installCaseNotebook(ui,scope) {
       const group=String(clue.notebookGroup||clue.category||clue.type||'evidence');
       const id=String(clue.id||clue.key||`entry_${i}_${hash(JSON.stringify(clue))}`);
       groups.set(group,{id:group,title:clue.notebookGroupTitle||names[group]||group.replace(/_/g,__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_36a9e7f1c95b82ffb997")).toUpperCase()});
-      words.set(id,{id,label:typeof clue===__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_473287f8298dba7163a8")?clue:String(clue.text||clue.tag||clue.value||clue.key||__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_d3e49c95e6a8ce22e6c8")),cloudId:group,relatedIds:list(clue.relatedClueIds||clue.relatedIds)});
+      words.set(id,{id,label:typeof clue==="string"?clue:String(clue.text||clue.tag||clue.value||clue.key||__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_d3e49c95e6a8ce22e6c8")),cloudId:group,relatedIds:list(clue.relatedClueIds||clue.relatedIds)});
     });
     const keywords=[...words.values()],ids=new Map(keywords.map(item=>[item.id,item.cloudId])),links=[];
     keywords.forEach(item=>list(item.relatedIds).forEach(id=>{const to=ids.get(String(id));if(to&&to!==item.cloudId)links.push({from:item.cloudId,to});}));
@@ -209,8 +209,8 @@ export function installCaseNotebook(ui,scope) {
       }g.strokePath();
     };
     const pager=(index,count,callback)=>{
-      button(50,337,__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_d463afc6ea8f75cc6b55"),()=>callback(index-1),index>0);text(595,337,`${index+1} / ${count}`,16);
-      button(1155,337,__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_8188caf087609e305acc"),()=>callback(index+1),index+1<count);
+      button(50,337,"< PAGE",()=>callback(index-1),index>0);text(595,337,`${index+1} / ${count}`,16);
+      button(1155,337,"PAGE >",()=>callback(index+1),index+1<count);
     };
     if(!definition){
       fit(text(90,145,ui.search.error&&scope==='pi'?__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_fdbfbc29c0f45aeacbb4"):__dialogueText("ui/LegacyCaseCloudNotebook.js", "t_d803d1b86ff050d2bad2"),22),1100);

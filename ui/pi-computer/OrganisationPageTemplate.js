@@ -16,8 +16,8 @@ export function organisationKind(page) {
     if (explicit === 'foundation') return 'foundation';
     if (['association', 'club'].includes(explicit)) return 'association';
     if (['organisation', 'organization'].includes(explicit) || ['organisation', 'organization'].includes(page.theme)) {
-        if (page.brand === __dialogueText("ui/pi-computer/OrganisationPageTemplate.js", "t_a96d0800845ac9ad94a2")) return 'foundation';
-        if (page.brand === __dialogueText("ui/pi-computer/OrganisationPageTemplate.js", "t_5647d4df07a02e15301f")) return 'association';
+        if (page.brand === "OPEN SKIES") return 'foundation';
+        if (page.brand === "SWALLOW WATCH") return 'association';
         return 'organisation';
     }
     return null;

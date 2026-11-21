@@ -8,7 +8,7 @@ export class JohnAccountReviewScene extends WarsawMeetingScene{
  create(){
   const story=getJohnAccountReview();this.allowed=this.preview||story.eligible;this.progress=normalizeJohnReview(DATA,this.preview?null:story);
   this.cameras.main.setBackgroundColor('#102018');this.root=this.add.container(0,0);this.root.add(this.add.rectangle(720,490,1440,980,0x192b20));this.text(720,55,__dialogueText("scenes/JohnAccountReviewScene.js", "t_6d3638cbe83b4177088d"),24,1300,'#efd299',this.root,'PressStart2P');this.content=this.add.container(0,0);this.root.add(this.content);this.button(1210,910,'BACK',()=>this.closeVisit(),this.root);this.render();
-  this.resize=()=>this.layout();this.scale.on('resize',this.resize);this.layout();this.keyHandler=e=>{if(e.code===__dialogueText("scenes/JohnAccountReviewScene.js", "t_037c968467aa3fd7c059")&&!e.repeat){e.preventDefault();this.closeVisit();}};this.input.keyboard?.on('keydown',this.keyHandler);
+  this.resize=()=>this.layout();this.scale.on('resize',this.resize);this.layout();this.keyHandler=e=>{if(e.code==="Escape"&&!e.repeat){e.preventDefault();this.closeVisit();}};this.input.keyboard?.on('keydown',this.keyHandler);
   this.suspend();this.events.once('shutdown',()=>{this.scale.off('resize',this.resize);this.input.keyboard?.off('keydown',this.keyHandler);this.restore();this.notifyFinished();});
  }
  render(){

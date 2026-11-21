@@ -152,10 +152,10 @@ export class SpyShopScene extends BaseScene {
     g.fillStyle(0x383c34).fillRect(w * 0.69, h * 0.19, w * 0.24, h * 0.58);
     g.fillStyle(0x779081, 0.5).fillRect(w * 0.705, h * 0.21, w * 0.21, h * 0.53);
     for (let i = 0; i < 3; i++) g.fillStyle(0xbdad80).fillRect(w * 0.70, h * (0.37 + i * 0.17), w * 0.22, 9);
-    this.add.text(w * 0.81, h * 0.29, __dialogueText("scenes/SpyShopScene.js", "t_6bdf75e63e8e4b99322a"), this.style(23)).setOrigin(0.5);
-    this.add.text(w * 0.81, h * 0.46, __dialogueText("scenes/SpyShopScene.js", "t_00939134a7f108eb3ea1"), this.style(23)).setOrigin(0.5);
-    this.add.text(w * 0.81, h * 0.63, __dialogueText("scenes/SpyShopScene.js", "t_6c5e4231b328d4d5a693"), this.style(23)).setOrigin(0.5);
-    this.add.text(w / 2, h * 0.87, __dialogueText("scenes/SpyShopScene.js", "t_cf6e0ebef12b8befcbcd"), this.style(18)).setOrigin(0.5);
+    this.add.text(w * 0.81, h * 0.29, "CAMERA   PHONE", this.style(23)).setOrigin(0.5);
+    this.add.text(w * 0.81, h * 0.46, "DUCK   GADGET", this.style(23)).setOrigin(0.5);
+    this.add.text(w * 0.81, h * 0.63, "BADGE   MAGAZINE", this.style(23)).setOrigin(0.5);
+    this.add.text(w / 2, h * 0.87, "Temporary background — no image required.", this.style(18)).setOrigin(0.5);
   }
 
   createAtmosphere() {
@@ -207,8 +207,8 @@ export class SpyShopScene extends BaseScene {
     // zapasowy wyświetlacz gotówki (chowany, gdy działa górny HUD)
     const cash = this.add.container(x, y + H + 10).setDepth(100), cg = this.add.graphics();
     goldPlate(cg, 0, 0, W, 42);
-    const label = this.add.text(24, 22, __dialogueText("scenes/SpyShopScene.js", "t_cd3b3c6f9d48cbd42ddd"), { fontFamily: FONT.pixel, fontSize: '9px', color: P.TOPIC_USED }).setOrigin(0, 0.5);
-    this.moneyText = this.add.text(W - 22, 23, __dialogueText("scenes/SpyShopScene.js", "t_ce66470e18f3579ac766"), { fontFamily: FONT.pixel, fontSize: '16px', color: P.AMBER }).setOrigin(1, 0.5);
+    const label = this.add.text(24, 22, "PRIVATE CASH", { fontFamily: FONT.pixel, fontSize: '9px', color: P.TOPIC_USED }).setOrigin(0, 0.5);
+    this.moneyText = this.add.text(W - 22, 23, "$0", { fontFamily: FONT.pixel, fontSize: '16px', color: P.AMBER }).setOrigin(1, 0.5);
     cash.add([cg, label, this.moneyText]); this.cashBar = cash;
   }
 
@@ -216,7 +216,7 @@ export class SpyShopScene extends BaseScene {
     const { width, height } = this.scale, x = 24, W = width - 48, H = 58, y = height - 84;
     const c = this.add.container(x, y).setDepth(110), g = this.add.graphics();
     goldPlate(g, 0, 0, W, H);
-    const prompt = this.add.text(28, H / 2 + 1, __dialogueText("scenes/SpyShopScene.js", "t_62b67e1f685b7fef5110"), { fontFamily: FONT.pixel, fontSize: '16px', color: P.AMBER }).setOrigin(0, 0.5);
+    const prompt = this.add.text(28, H / 2 + 1, ">", { fontFamily: FONT.pixel, fontSize: '16px', color: P.AMBER }).setOrigin(0, 0.5);
     this.feedback = this.add.text(58, H / 2, '', { fontFamily: FONT.body, fontSize: '22px', color: P.TEXT, wordWrap: { width: W - 110 } }).setOrigin(0, 0.5);
     this.cursor = this.add.rectangle(58, H / 2, 12, 22, PHOSPHOR, 0.9).setOrigin(0, 0.5);
     this.tweens.add({ targets: this.cursor, alpha: { from: 0.9, to: 0.1 }, duration: 420, yoyo: true, repeat: -1 });
@@ -361,7 +361,7 @@ export class SpyShopScene extends BaseScene {
   onKey(event) {
     const target = event.target;
     if (target?.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target?.tagName) || this.disposed || this.navigating || this.buying) return;
-    if (event.code === __dialogueText("scenes/SpyShopScene.js", "t_037c968467aa3fd7c059")) {
+    if (event.code === "Escape") {
       event.preventDefault();
       if (this.pendingPurchase) this.showItem(this.pendingPurchase.index);
       else if (this.dialogue) this.closeDialogue();
@@ -371,7 +371,7 @@ export class SpyShopScene extends BaseScene {
     if (this.dialogue && !this.debugMode) { this.onDialogueKey(event); return; }
     if (event.code === 'KeyD') { if (!event.repeat) { this.debugMode = !this.debugMode; this.refreshHotspots(); } return; }
     if (!this.debugMode || !this.hotspots.length) return;
-    if (event.code === __dialogueText("scenes/SpyShopScene.js", "t_90ddf1963abb36c9921c")) {
+    if (event.code === "Tab") {
       event.preventDefault(); this.selectedIndex = (this.selectedIndex + (event.shiftKey ? -1 : 1) + this.hotspots.length) % this.hotspots.length;
     } else if (event.code === 'KeyC') {
       if (!event.repeat) this.exportHotspots();
@@ -490,7 +490,7 @@ export class SpyShopScene extends BaseScene {
     const cash = moneyManager.getBalance(MONEY_SOURCE.CASH);
     if (state.reason === 'owned') return { text: `${__dialogueText("scenes/SpyShopScene.js", "t_09fc96082d34c2dfc129")}${product.price}${__dialogueText("scenes/SpyShopScene.js", "t_8b9809b52014ff237c95")}`, color: P.GREEN };
     if (state.ok) return { text: `${__dialogueText("scenes/SpyShopScene.js", "t_09fc96082d34c2dfc129")}${product.price}${__dialogueText("scenes/SpyShopScene.js", "t_53c4555390668997fa1d")}${cash}`, color: P.AMBER };
-    return { text: `${__dialogueText("scenes/SpyShopScene.js", "t_09fc96082d34c2dfc129")}${product.price}${__dialogueText("scenes/SpyShopScene.js", "t_32ac743cd5a3889a48ce")}${state.reason === __dialogueText("scenes/SpyShopScene.js", "t_1dae3331ad544f4fb61f") ? `${__dialogueText("scenes/SpyShopScene.js", "t_dc2e6b294dc383defb89")}${product.price - cash}` : state.reason === __dialogueText("scenes/SpyShopScene.js", "t_a18b869b2e81c0c52955") ? __dialogueText("scenes/SpyShopScene.js", "t_96f11bab701ebcef79d7") : __dialogueText("scenes/SpyShopScene.js", "t_eb0be6d636d52794e3ab")}`, color: P.RED };
+    return { text: `${__dialogueText("scenes/SpyShopScene.js", "t_09fc96082d34c2dfc129")}${product.price}${__dialogueText("scenes/SpyShopScene.js", "t_32ac743cd5a3889a48ce")}${state.reason === "funds" ? `${__dialogueText("scenes/SpyShopScene.js", "t_dc2e6b294dc383defb89")}${product.price - cash}` : state.reason === "full" ? __dialogueText("scenes/SpyShopScene.js", "t_96f11bab701ebcef79d7") : __dialogueText("scenes/SpyShopScene.js", "t_eb0be6d636d52794e3ab")}`, color: P.RED };
   }
 
   buyLabel(product, state) {
@@ -603,7 +603,7 @@ export class SpyShopScene extends BaseScene {
   }
 
   makeSoldStamp(hot) {
-    const t = this.add.text(0, 1, __dialogueText("scenes/SpyShopScene.js", "t_68c47195c04106b62b6d"), { fontFamily: FONT.pixel, fontSize: '10px', color: '#ff5a4d' }).setOrigin(0.5);
+    const t = this.add.text(0, 1, "SOLD", { fontFamily: FONT.pixel, fontSize: '10px', color: '#ff5a4d' }).setOrigin(0.5);
     const w = t.width + 14, h = t.height + 12, g = this.add.graphics();
     g.fillStyle(0x0b0805, 0.7); g.fillRect(-w / 2, -h / 2, w, h);
     g.lineStyle(2, 0xd9382f, 1); g.strokeRect(-w / 2, -h / 2, w, h);

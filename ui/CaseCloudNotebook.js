@@ -1,6 +1,4 @@
-import {
-  dialogueText as __dialogueText
-} from '../dialogues/DialogueText.js';
+
 
 import {
   installCaseNotebook as installLegacyNotebook
@@ -34,10 +32,7 @@ export function installCaseNotebook(ui, scope) {
   if (scope === 'pi') {
     const previousRoots = new Set(
       document.querySelectorAll(
-        __dialogueText(
-          'ui/CaseCloudNotebook.js',
-          't_ac41b924aa2755fb032c'
-        )
+        ".pcn"
       )
     );
 

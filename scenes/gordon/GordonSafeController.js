@@ -70,7 +70,7 @@ export class GordonSafeController{
     this.button(1310,700,__dialogueText("scenes/gordon/GordonSafeController.js", "t_70359299edddd658ed0b"),()=>this.checkCode(),this.content);
     this.notice=this.text(1310,825,__dialogueText("scenes/gordon/GordonSafeController.js", "t_7bc2c08bf58d8104c254"),24,780,'#d1cab0',this.content);this.refreshSlots();
   }
-  refreshSlots(){this.slots?.forEach((slot,i)=>slot.setText(String(this.state.entered[i]).padStart(2,__dialogueText("scenes/gordon/GordonSafeController.js", "t_5feceb66ffc86f38d952"))).setStyle({backgroundColor:i===this.selected?'#806a3c':'#365543'}));}
+  refreshSlots(){this.slots?.forEach((slot,i)=>slot.setText(String(this.state.entered[i]).padStart(2,"0")).setStyle({backgroundColor:i===this.selected?'#806a3c':'#365543'}));}
   checkCode(){
     if(this.kind!=='code')return;const result=checkSafeCode(this.state,DATA.combination);this.state=result.state;this.persist();
     if(result.accepted){this.render();this.cooldown=500;}
@@ -116,10 +116,10 @@ export class GordonSafeController{
   }
   onKey(event){
     if(!this.isOpen||this.destroyed||event.repeat||event.ctrlKey||event.metaKey||event.altKey)return;
-    if(this.kind==='timing'&&event.code===__dialogueText("scenes/gordon/GordonSafeController.js", "t_20eac5aae274985fd886")){event.preventDefault();this.stopPin();return;}
+    if(this.kind==='timing'&&event.code==="Space"){event.preventDefault();this.stopPin();return;}
     if(this.kind!=='code')return;
-    if(event.code===__dialogueText("scenes/gordon/GordonSafeController.js", "t_dc8659db6d416dc32fca")||event.code==='NumpadEnter'){event.preventDefault();this.checkCode();return;}
-    if(event.code===__dialogueText("scenes/gordon/GordonSafeController.js", "t_90ddf1963abb36c9921c")){event.preventDefault();this.selected=(this.selected+(event.shiftKey?2:1))%3;this.buffer='';this.refreshSlots();return;}
+    if(event.code==="Enter"||event.code==='NumpadEnter'){event.preventDefault();this.checkCode();return;}
+    if(event.code==="Tab"){event.preventDefault();this.selected=(this.selected+(event.shiftKey?2:1))%3;this.buffer='';this.refreshSlots();return;}
     if(/^\d$/.test(event.key)){
       event.preventDefault();this.buffer+=event.key;this.state.entered[this.selected]=Number(this.buffer);
       if(this.buffer.length===2){this.buffer='';this.selected=(this.selected+1)%3;}this.refreshSlots();

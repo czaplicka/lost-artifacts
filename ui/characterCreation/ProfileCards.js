@@ -4,7 +4,7 @@ import { PROFILES } from './CharacterCreationData.js';
 function renderProfileCard(profile, selectedProfileId) {
   const selected = profile.id === selectedProfileId;
 
-  return `${__dialogueText("ui/characterCreation/ProfileCards.js", "t_b78a7d54f68511275a52")}${selected ? __dialogueText("ui/characterCreation/ProfileCards.js", "t_dad1545efbcffe484e06") : ''}${__dialogueText("ui/characterCreation/ProfileCards.js", "t_05ee7f75041f2a3070c9")}${selected}${__dialogueText("ui/characterCreation/ProfileCards.js", "t_03bae2c802c967e58136")}${profile.id}${__dialogueText("ui/characterCreation/ProfileCards.js", "t_b713d7c8cab3a1178fd6")}${getProfileIcon(profile.id)}${__dialogueText("ui/characterCreation/ProfileCards.js", "t_cfe62977a84cedfd5701")}${toTitleCase(profile.name)}${__dialogueText("ui/characterCreation/ProfileCards.js", "t_e0b3169ed0623065dbd3")}${profile.bonus}${__dialogueText("ui/characterCreation/ProfileCards.js", "t_2645f877fba265325edd")}${getProfileDescription(profile.id)}${__dialogueText("ui/characterCreation/ProfileCards.js", "t_9dff15038d7c67ad7ca8")}`;
+  return `${"\n    <button\n      class=\"character-profile-card"}${selected ? __dialogueText("ui/characterCreation/ProfileCards.js", "t_dad1545efbcffe484e06") : ''}${__dialogueText("ui/characterCreation/ProfileCards.js", "t_05ee7f75041f2a3070c9")}${selected}${__dialogueText("ui/characterCreation/ProfileCards.js", "t_03bae2c802c967e58136")}${profile.id}${"\"\n    >\n      <span class=\"character-profile-icon\">"}${getProfileIcon(profile.id)}${"</span>\n      <span class=\"character-profile-name\">"}${toTitleCase(profile.name)}${"</span>\n      <span class=\"character-profile-bonus\">"}${profile.bonus}${"</span>\n      <span class=\"character-profile-description\">\n        "}${getProfileDescription(profile.id)}${"\n      </span>\n    </button>\n  "}`;
 }
 
 function getProfileIcon(profileId) {
@@ -38,7 +38,7 @@ function toTitleCase(value) {
 }
 
 export function renderProfileStep(playerData) {
-  return `${__dialogueText("ui/characterCreation/ProfileCards.js", "t_6f89861e64d5d3c190fa")}${PROFILES.map((profile) => (
+  return `${"\n    <section\n      class=\"character-step-panel\"\n      data-step-panel=\"1\"\n    >\n      <h2 class=\"character-section-title\">HOW DO YOU WORK?</h2>\n\n      <p class=\"character-section-intro\">\n        Pick a professional tendency. HR calls it a profile.\n        Your old clients may disagree.\n      </p>\n\n      <div\n        class=\"character-profile-grid\"\n        role=\"radiogroup\"\n        aria-label=\"Detective profile\"\n      >\n        "}${PROFILES.map((profile) => (
           renderProfileCard(profile, playerData.profile)
-        )).join('')}${__dialogueText("ui/characterCreation/ProfileCards.js", "t_dc209e3df250d373f0a4")}`;
+        )).join('')}${"\n      </div>\n    </section>\n  "}`;
 }

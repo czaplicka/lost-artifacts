@@ -82,7 +82,7 @@ export class DestinationsUI {
     this.mapImage = this.worldMap.baseImage;
 
     this.closeBtn = scene.add
-      .text(width - 100, 75, __dialogueText("ui/DestinationsUI.js", "t_4b68ab3847feda7d6c62"), {
+      .text(width - 100, 75, "X", {
         fontFamily: 'SpecialElite',
         fontSize: '48px',
         color: this.theme.closeColor
@@ -192,7 +192,7 @@ export class DestinationsUI {
 
     if (this.committedTravelPayload) {
       this.transportPrompt
-        .setColor(__dialogueText("ui/DestinationsUI.js", "t_e5ce4dbdca8ab29e7605"))
+        .setColor("#ff9d6b")
         .setText(
           __dialogueText("ui/DestinationsUI.js", "t_f9b4bfc5ab1e5f15fcf7")
         );

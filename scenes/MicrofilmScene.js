@@ -15,8 +15,8 @@ export class MicrofilmScene extends BaseScene{
   this.text(740,50,this.mode==='receive'?__dialogueText("scenes/MicrofilmScene.js", "t_f8b8a41bd97be4f50f1e"):__dialogueText("scenes/MicrofilmScene.js", "t_a66193a27d70843be3f2"),25,1300,'#f0d091',this.root,'PressStart2P');this.button(1450,50,__dialogueText("scenes/MicrofilmScene.js", "t_a31e9f98f863454d2602"),()=>this.closeVisit(),this.root);
   this.content=this.add.container(0,0);this.root.add(this.content);this.render();this.layout();this.trackInputEvent(this.scale,'resize',this.layout);
   if(this.input.keyboard)this.trackInputEvent(this.input.keyboard,'keydown',e=>{
-   if(e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;if(e.code===__dialogueText("scenes/MicrofilmScene.js", "t_037c968467aa3fd7c059")){e.preventDefault();this.closeVisit();return;}if(!this.allowed||this.mode!=='compare'||this.progress.completed)return;
-   if(e.code===__dialogueText("scenes/MicrofilmScene.js", "t_90ddf1963abb36c9921c")){e.preventDefault();this.activeReel=this.activeReel==='left'?'right':'left';this.render();return;}
+   if(e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;if(e.code==="Escape"){e.preventDefault();this.closeVisit();return;}if(!this.allowed||this.mode!=='compare'||this.progress.completed)return;
+   if(e.code==="Tab"){e.preventDefault();this.activeReel=this.activeReel==='left'?'right':'left';this.render();return;}
    if(['ArrowLeft','ArrowRight'].includes(e.code)){e.preventDefault();this.moveReel(this.activeReel,e.code==='ArrowLeft'?-1:1);}
   });
   this.suspend();this.events.once('shutdown',()=>{stopMicrofilmTransport(this);this.restore();this.onFinished=null;});
@@ -38,7 +38,7 @@ export class MicrofilmScene extends BaseScene{
   this.text(800,115,__dialogueText("scenes/MicrofilmScene.js", "t_bc96ed2c380646dac907"),22);
   this.drawFrame('left',430,DATA.leftFrames[this.progress.left],this.progress.left,DATA.leftFrames.length);
   this.drawFrame('right',1170,DATA.rightFrames[this.progress.right],this.progress.right,DATA.rightFrames.length);
-  this.button(200,745,__dialogueText("scenes/MicrofilmScene.js", "t_5232601d2fc57152e2b6"),()=>this.moveReel('left',-1));this.button(650,745,__dialogueText("scenes/MicrofilmScene.js", "t_3534ecae490921758cb2"),()=>this.moveReel('left',1));this.button(940,745,__dialogueText("scenes/MicrofilmScene.js", "t_08fc9a0a091d6adf4c01"),()=>this.moveReel('right',-1));this.button(1400,745,__dialogueText("scenes/MicrofilmScene.js", "t_f45ec974ade4f296920e"),()=>this.moveReel('right',1));
+  this.button(200,745,"< ARCHIVE",()=>this.moveReel('left',-1));this.button(650,745,"ARCHIVE >",()=>this.moveReel('left',1));this.button(940,745,"< ALEX",()=>this.moveReel('right',-1));this.button(1400,745,"ALEX >",()=>this.moveReel('right',1));
   this.button(380,825,__dialogueText("scenes/MicrofilmScene.js", "t_31db3d45f386fa107b6e"),()=>this.changeFocus(-.1));this.text(800,823,`${__dialogueText("scenes/MicrofilmScene.js", "t_076256bbd3dd4d1b47ce")}${Math.round(this.progress.focus*100)}${__dialogueText("scenes/MicrofilmScene.js", "t_85f76cc69cfab7e1dc11")}${microfilmFocused(DATA,this.progress)?'READABLE':'ADJUST'}`,23);
   this.button(1220,825,__dialogueText("scenes/MicrofilmScene.js", "t_43bfd0dc534f3c1015d1"),()=>this.changeFocus(.1));this.button(800,880,__dialogueText("scenes/MicrofilmScene.js", "t_bc4edcba87e4cfa50569"),()=>this.autoFocus());
   if(DATA.differenceFields.every(k=>this.progress.differences.includes(k))){DATA.destinations.forEach((d,i)=>this.button(370+i*430,930,d.label,()=>this.chooseCity(d.id)));}

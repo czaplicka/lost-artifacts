@@ -25,7 +25,7 @@ export class ReedReportUI{
         {id:SENT,from:__dialogueText("ui/pi-computer/ReedReportUI.js", "t_700ccb3aba203ee7c273"),subject:__dialogueText("ui/pi-computer/ReedReportUI.js", "t_c43a4c853003ad59f3d4")+this.data.subject,date:__dialogueText("ui/pi-computer/ReedReportUI.js", "t_aa56ad4b2d1623d94be8"),body:resolution.report},...items];}
       if(!canPrepareReedReport(this.data))return items;
       const ending=this.data.endings.find(e=>e.id===(resolution?.endingId||this.choice));
-      return [{id:DRAFT,from:__dialogueText("ui/pi-computer/ReedReportUI.js", "t_700ccb3aba203ee7c273"),subject:this.data.subject,date:__dialogueText("ui/pi-computer/ReedReportUI.js", "t_13256c6bc4fc99988287"),body:resolution?.phase===__dialogueText("ui/pi-computer/ReedReportUI.js", "t_0a0dcac5952689a5b7b6")?resolution.report:(ending?.report||__dialogueText("ui/pi-computer/ReedReportUI.js", "t_356a0e4bc1c00e4ec498"))},...items];
+      return [{id:DRAFT,from:__dialogueText("ui/pi-computer/ReedReportUI.js", "t_700ccb3aba203ee7c273"),subject:this.data.subject,date:__dialogueText("ui/pi-computer/ReedReportUI.js", "t_13256c6bc4fc99988287"),body:resolution?.phase==="settling"?resolution.report:(ending?.report||__dialogueText("ui/pi-computer/ReedReportUI.js", "t_356a0e4bc1c00e4ec498"))},...items];
     };
     const paged=docs.renderPagedText.bind(docs);
     docs.renderPagedText=(content,x,y,w,h)=>paged(content,x,y,w,ui.app==='mail'&&ui.selectedId===DRAFT?Math.max(40,h-92):h);

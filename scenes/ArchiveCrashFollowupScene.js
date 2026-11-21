@@ -25,8 +25,8 @@ export class ArchiveCrashFollowupScene extends BaseScene{
     this.render();this.layout();this.trackInputEvent(this.scale,'resize',this.layout);
     if(this.input.keyboard)this.trackInputEvent(this.input.keyboard,'keydown',event=>{
       if(event.repeat||event.ctrlKey||event.metaKey||event.altKey)return;
-      if(event.code===__dialogueText("scenes/ArchiveCrashFollowupScene.js", "t_037c968467aa3fd7c059")){event.preventDefault();this.closeVisit();return;}
-      if([__dialogueText("scenes/ArchiveCrashFollowupScene.js", "t_20eac5aae274985fd886"),__dialogueText("scenes/ArchiveCrashFollowupScene.js", "t_dc8659db6d416dc32fca"),'NumpadEnter'].includes(event.code)&&['intro','discussion'].includes(this.view)&&this.time.now>=this.inputLockedUntil){event.preventDefault();this.inputLockedUntil=this.time.now+180;this.advance();}
+      if(event.code==="Escape"){event.preventDefault();this.closeVisit();return;}
+      if(["Space","Enter",'NumpadEnter'].includes(event.code)&&['intro','discussion'].includes(this.view)&&this.time.now>=this.inputLockedUntil){event.preventDefault();this.inputLockedUntil=this.time.now+180;this.advance();}
     });
     this.suspendBackground();this.events.once(Phaser.Scenes.Events.SHUTDOWN,()=>{this.restoreBackground();this.onFinished=null;});
   }
@@ -41,7 +41,7 @@ export class ArchiveCrashFollowupScene extends BaseScene{
     object.on('pointerdown',(p,localX,localY,event)=>{event?.stopPropagation();if(!this.closing&&this.time.now>=this.inputLockedUntil){this.inputLockedUntil=this.time.now+180;callback();}});parent.add(object);return object;
   }
   renderFrankLine(value,label){
-    this.text(140,230,__dialogueText("scenes/ArchiveCrashFollowupScene.js", "t_a74fe164691ed886ba61"),22,1050,'#f0c75e',this.content,'PressStart2P').setOrigin(0,0).setAlign('left');
+    this.text(140,230,"FRANK DREBIN",22,1050,'#f0c75e',this.content,'PressStart2P').setOrigin(0,0).setAlign('left');
     this.content.add(this.add.rectangle(140,310,1000,360,0x2a2012).setOrigin(0).setStrokeStyle(2,0xb58a42));
     const body=this.text(166,340,value,31,948,'#f3e7c4').setOrigin(0,0).setAlign('left');
     let size=31;

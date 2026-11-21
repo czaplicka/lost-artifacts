@@ -54,26 +54,26 @@ export class TheoryResultCallScene extends BaseScene {
     this.bubble = this.add.rectangle(0, 0, 1, 1, 0x2a2012, 1)
       .setOrigin(0).setStrokeStyle(1, 0xb58a42).setDepth(4001);
     this.headerText = this.add.text(0, 0,
-      this.mode === __dialogueText("scenes/TheoryResultCallScene.js", "t_45569da57f4b7bf472d7")
-        ? __dialogueText("scenes/TheoryResultCallScene.js", "t_0ce130cd8a988f5c7e19")
-        : __dialogueText("scenes/TheoryResultCallScene.js", "t_5b79ac69ac12b539191d"),
+      this.mode === "phone"
+        ? "Encrypted call"
+        : "HQ assessment",
       { fontFamily: 'SpecialElite', fontSize: '38px', color: palette.title, align: 'center' }
     ).setOrigin(.5).setDepth(4002);
     this.speakerText = this.add.text(0, 0, this.getSpeakerName(this.mode), {
       fontFamily: 'PressStart2P', fontSize: '16px', color: '#f0c75e', align: 'left'
     }).setOrigin(0).setDepth(4002);
     this.bodyText = this.add.text(0, 0,
-      lines.join(__dialogueText("scenes/TheoryResultCallScene.js", "t_75a11da44c802486bc6f")), {
+      lines.join("\n\n"), {
         fontFamily: 'SpecialElite', fontSize: '28px', color: '#f3e7c4', align: 'left',
         wordWrap: { width: 760, useAdvancedWrap: true }, lineSpacing: 10
       }).setOrigin(0).setDepth(4002);
     this.continueBtn = this.add.text(0, 0,
-      __dialogueText("scenes/TheoryResultCallScene.js", "t_50f34a845279312ca4b6"), {
+      "[ CONTINUE ]", {
         fontFamily: 'SpecialElite', fontSize: '30px', color: '#e3f0d7',
         backgroundColor: '#263729', padding: { left: 18, right: 18, top: 10, bottom: 10 }
       }).setOrigin(1, .5).setDepth(4002).setInteractive({ useHandCursor: true });
     this.hintText = this.add.text(0, 0,
-      __dialogueText("scenes/TheoryResultCallScene.js", "t_e769998298e9e8e749f9"), {
+      "Tap anywhere or press Enter / Space", {
         fontFamily: 'SpecialElite', fontSize: '16px', color: '#ccb98c', align: 'center'
       }).setOrigin(.5).setDepth(4002);
     this.handleContinueBound = () => this.finishScene();

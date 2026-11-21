@@ -368,9 +368,9 @@ export class PigeonLoftScene extends BaseScene {
     zone.on('pointerover', () => {
       if (this.modal || this.leaving || this.debugMode) return;
       let label = cfg.label;
-      if (cfg.id === 'feeder') label = __dialogueText("scenes/PigeonLoftScene.js", "t_518daaa7c10378a2e652");
+      if (cfg.id === 'feeder') label = "Pour grain";
       const match = cfg.id.match(/^p([123])$/), bird = match ? this.state.slots.find(s => s.slot === Number(match[1]))?.bird : null;
-      if (bird) label = `${bird.name}${__dialogueText("scenes/PigeonLoftScene.js", "t_a8c96b4dfb3ed7e1d990")}`;
+      if (bird) label = `${bird.name}${"  (click to talk)"}`;
       const at = this.toScreen(cfg.x, cfg.y - cfg.h / 2 - 6);
       this.showTip(label, at.x, at.y);
     });
@@ -592,17 +592,17 @@ export class PigeonLoftScene extends BaseScene {
     const rect = this.game.canvas.getBoundingClientRect();
     const sx = rect.width / this.scale.width, sy = rect.height / this.scale.height;
     const input = document.createElement('input'); input.type = 'text'; input.maxLength = 24; input.value = this.nameDraft;
-    input.setAttribute('aria-label', __dialogueText("scenes/PigeonLoftScene.js", "t_ffb4f02003c171562ca1")); input.autocomplete = 'off'; input.spellcheck = false;
+    input.setAttribute('aria-label', "Pigeon name"); input.autocomplete = 'off'; input.spellcheck = false;
     Object.assign(input.style, { position: 'fixed', zIndex: '10000', boxSizing: 'border-box',
       left: `${rect.left + x * sx}px`, top: `${rect.top + y * sy}px`,
       width: `${w * sx}px`, height: `${h * sy}px`, fontFamily: 'SpecialElite, monospace',
       fontSize: `${Math.max(16, 26 * sx)}px`, background: '#2a1c0c', color: '#f4ecd8',
-      border: __dialogueText("scenes/PigeonLoftScene.js", "t_2a6679f96b4b4d222ba3"), borderRadius: '0', padding: __dialogueText("scenes/PigeonLoftScene.js", "t_3da9f1ab62a93d051bbd"), outline: 'none' });
+      border: "2px solid #d4af37", borderRadius: '0', padding: "4px 14px", outline: 'none' });
     input.addEventListener('input', () => { this.nameDraft = input.value; });
     input.addEventListener('keydown', event => {
       event.stopPropagation(); if (event.isComposing) return;
-      if (event.key === __dialogueText("scenes/PigeonLoftScene.js", "t_dc8659db6d416dc32fca")) { event.preventDefault(); this.saveName(); }
-      else if (event.key === __dialogueText("scenes/PigeonLoftScene.js", "t_037c968467aa3fd7c059")) { event.preventDefault(); this.cancelRename(); }
+      if (event.key === "Enter") { event.preventDefault(); this.saveName(); }
+      else if (event.key === "Escape") { event.preventDefault(); this.cancelRename(); }
     });
     document.body.appendChild(input); this.nameInput = input;
     if (this.input.keyboard) { this.keyboardBeforeName = this.input.keyboard.enabled; this.input.keyboard.enabled = false; }
@@ -658,12 +658,12 @@ export class PigeonLoftScene extends BaseScene {
     g.fillStyle(known ? 0x2a1c0c : 0x120d07, 1); g.fillRect(x + 14, y + 14, 112, h - 28);
     this.drawFindIcon(g, id, x + 70, y + h / 2, 42, known);
     parent.add(g);
-    if (!known) parent.add(this.add.text(x + 70, y + h / 2, __dialogueText("scenes/PigeonLoftScene.js", "t_8a8de823d5ed3e12746a"), { fontFamily: FONT.pixel, fontSize: '34px', color: '#5a4a22' }).setOrigin(0.5));
+    if (!known) parent.add(this.add.text(x + 70, y + h / 2, "?", { fontFamily: FONT.pixel, fontSize: '34px', color: '#5a4a22' }).setOrigin(0.5));
     const tx = x + 144, tw = w - 144 - 16;
     parent.add(this.add.text(tx, y + 18, known ? (find?.name ?? id) : __dialogueText("scenes/PigeonLoftScene.js", "t_a03b221c6c6eae7122ca"), { fontFamily: FONT.body, fontSize: '22px', color: known ? P.TEXT : P.TOPIC_USED, wordWrap: { width: tw } }));
     parent.add(this.add.text(tx, y + 58, known ? (find?.description || '') : __dialogueText("scenes/PigeonLoftScene.js", "t_3c30651c5fa63183b431"),
       { fontFamily: FONT.body, fontSize: '16px', color: known ? '#b8bdbb' : P.TOPIC_USED, wordWrap: { width: tw }, lineSpacing: 3 }));
-    if (known) parent.add(this.add.text(x + w - 16, y + h - 14, `${__dialogueText("scenes/PigeonLoftScene.js", "t_2d711642b726b0440162")}${n}`, { fontFamily: FONT.pixel, fontSize: '12px', color: P.AMBER }).setOrigin(1, 1));
+    if (known) parent.add(this.add.text(x + w - 16, y + h - 14, `${"x"}${n}`, { fontFamily: FONT.pixel, fontSize: '12px', color: P.AMBER }).setOrigin(1, 1));
   }
 
   // proste, rysowane kodem ikony: kapsle i guziki
@@ -723,7 +723,7 @@ export class PigeonLoftScene extends BaseScene {
 
   onKey(event) {
     if (event.target?.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target?.tagName)) return;
-    if (event.code === __dialogueText("scenes/PigeonLoftScene.js", "t_037c968467aa3fd7c059")) {
+    if (event.code === "Escape") {
       if (this.modal === 'rename') this.cancelRename(); else if (this.modal) this.closeModal();
       else if (this.dialogue) this.closeDialogue();
       else if (this.debugMode) { this.debugMode = false; this.renderLoft(); } return;
@@ -741,7 +741,7 @@ export class PigeonLoftScene extends BaseScene {
       console.log('COPY INTO config/pigeonHotspots.js:');
       console.log('export const PIGEON_HOTSPOTS = ' + JSON.stringify(this.configs.map(c => ({ ...c, auto: false })), null, 2) + ';'); return;
     }
-    if (event.code === __dialogueText("scenes/PigeonLoftScene.js", "t_90ddf1963abb36c9921c")) {
+    if (event.code === "Tab") {
       event.preventDefault(); this.selectedIndex = (this.selectedIndex + (event.shiftKey ? -1 : 1) + this.configs.length) % this.configs.length;
       this.drawAllHotspots(); return;
     }

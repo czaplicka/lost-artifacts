@@ -588,7 +588,7 @@ export class TvBroadcastView {
     u.liveDot.setVisible(kind !== 'ad');
 
     u.tickerCapText.setText(
-      kind === __dialogueText("scenes/tv/TvBroadcastView.js", "t_19fba0e995b9794fc2c2") ? __dialogueText("scenes/tv/TvBroadcastView.js", "t_7ee66c4f1536ac84dc5b") : kind === __dialogueText("scenes/tv/TvBroadcastView.js", "t_70ba33708cbfb103f1a8") ? __dialogueText("scenes/tv/TvBroadcastView.js", "t_c7bf4bbdbcd88d9d7f7c") : __dialogueText("scenes/tv/TvBroadcastView.js", "t_35e0d0360a0af6d115f9")
+      kind === "news" ? __dialogueText("scenes/tv/TvBroadcastView.js", "t_7ee66c4f1536ac84dc5b") : kind === "ad" ? __dialogueText("scenes/tv/TvBroadcastView.js", "t_c7bf4bbdbcd88d9d7f7c") : __dialogueText("scenes/tv/TvBroadcastView.js", "t_35e0d0360a0af6d115f9")
     );
 
     this.layoutHeader(Boolean(segment.badge), kind !== 'ad');
@@ -723,7 +723,7 @@ export class TvBroadcastView {
       u.anchorText
         .setFontFamily(FONT_PIXEL)
         .setFontSize(this.fs(11))
-        .setColor(__dialogueText("scenes/tv/TvBroadcastView.js", "t_f060c8c060261c2dc925"))
+        .setColor("#f8e7a7")
         .setText(name)
         .setPosition(panelX + Math.round(22 * k), panelY - Math.round(20 * k))
         .setVisible(true);
@@ -833,7 +833,7 @@ export class TvBroadcastView {
       u.anchorText
         .setFontFamily(FONT_TYPE)
         .setFontSize(this.fs(22))
-        .setColor(__dialogueText("scenes/tv/TvBroadcastView.js", "t_c74965da239a2ec6379c"))
+        .setColor("#d7efe5")
         .setText(hostName)
         .setPosition(panelX + pad + Math.round(6 * k), cursorY)
         .setVisible(true);
@@ -870,8 +870,8 @@ export class TvBroadcastView {
     u.titleText
       .setOrigin(0.5, 0)
       .setFontSize(this.fs(24))
-      .setColor(__dialogueText("scenes/tv/TvBroadcastView.js", "t_118a641250b2a2bb189a"))
-      .setStroke(__dialogueText("scenes/tv/TvBroadcastView.js", "t_7b2817bf9b80e66d07f2"), Math.round(6 * k))
+      .setColor("#fff6cf")
+      .setStroke("#000000", Math.round(6 * k))
       .setAlign(__dialogueText("scenes/tv/TvBroadcastView.js", "t_f179a509d32bd92c923f"))
       .setWordWrapWidth(m.SW - Math.round(80 * k), true)
       .setText(String(segment.title || '').toUpperCase())
@@ -922,8 +922,8 @@ export class TvBroadcastView {
     u.titleText
       .setOrigin(0, 0)
       .setFontSize(this.fs(11))
-      .setColor(__dialogueText("scenes/tv/TvBroadcastView.js", "t_118a641250b2a2bb189a"))
-      .setStroke(__dialogueText("scenes/tv/TvBroadcastView.js", "t_7b2817bf9b80e66d07f2"), 0)
+      .setColor("#fff6cf")
+      .setStroke("#000000", 0)
       .setAlign(__dialogueText("scenes/tv/TvBroadcastView.js", "t_360f84035942243c6a36"))
       .setWordWrapWidth(Math.round(maxW), true)
       .setText(String(title).toUpperCase())

@@ -67,7 +67,7 @@ export class DestinationPanel {
     );
 
     this.panelTag = isAgency
-      ? this.scene.add.text(360, 26, __dialogueText("ui/DestinationPanel.js", "t_394115ac4eb09aa49429"), {
+      ? this.scene.add.text(360, 26, "ENCRYPTED", {
         fontFamily: 'PressStart2P',
         fontSize: '8px',
         color: t.accentCss
@@ -104,7 +104,7 @@ export class DestinationPanel {
       .setInteractive({ useHandCursor: true });
 
     this.confirmLabel = text(
-      190, 350, __dialogueText("ui/DestinationPanel.js", "t_70db5eaaecce103e33d3"), 17, t.confirmText
+      190, 350, "Choose a city", 17, t.confirmText
     ).setOrigin(0.5);
 
     this.confirmButton.on('pointerdown', () => {
@@ -159,7 +159,7 @@ export class DestinationPanel {
       .setInteractive({ useHandCursor: true });
 
     this.hqButtonLabel = this.scene.add
-      .text(0, 0, __dialogueText("ui/DestinationPanel.js", "t_522e8a33e721296e0f4f"), {
+      .text(0, 0, "RETURN TO HQ", {
         fontFamily: 'SpecialElite',
         fontSize: '18px',
         color: t.hq.text
@@ -234,7 +234,7 @@ export class DestinationPanel {
 
     this.hqButtonLabel
       .setText(
-        this.isAtHQ() ? __dialogueText("ui/DestinationPanel.js", "t_47dd394e38f0f5b5f970") : __dialogueText("ui/DestinationPanel.js", "t_522e8a33e721296e0f4f")
+        this.isAtHQ() ? "MARK AGENCY HQ" : "RETURN TO HQ"
       )
       .setColor(blocked ? t.hq.blockedText : t.hq.text);
 
@@ -281,7 +281,7 @@ export class DestinationPanel {
       .setInteractive({ useHandCursor: true });
 
     this.officeButtonLabel = this.scene.add
-      .text(0, 0, __dialogueText("ui/DestinationPanel.js", "t_f99419d296900dce0711"), {
+      .text(0, 0, "PI OFFICE", {
         fontFamily: 'SpecialElite',
         fontSize: '18px',
         color: t.office.text

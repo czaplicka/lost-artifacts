@@ -428,7 +428,7 @@ export class HotelSleep {
     this.previewText.setText(
       hours === null
         ? `${__dialogueText("scenes/hotel/HotelSleep.js", "t_be89bf96a7d4a637280e")}${current}${__dialogueText("scenes/hotel/HotelSleep.js", "t_005e1574a2b5c8163046")}${maximum}`
-        : `${hours}${__dialogueText("scenes/hotel/HotelSleep.js", "t_536040abd476531f9851")}${current}${__dialogueText("scenes/hotel/HotelSleep.js", "t_a404e8f0ffc8303837ac")}${after}${__dialogueText("scenes/hotel/HotelSleep.js", "t_005e1574a2b5c8163046")}${maximum}`
+        : `${hours}${__dialogueText("scenes/hotel/HotelSleep.js", "t_536040abd476531f9851")}${current}${" -> "}${after}${__dialogueText("scenes/hotel/HotelSleep.js", "t_005e1574a2b5c8163046")}${maximum}`
     );
 
     this.previewFill.setDisplaySize(

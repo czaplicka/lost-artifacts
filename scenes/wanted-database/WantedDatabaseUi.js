@@ -83,9 +83,9 @@ export const WantedDatabaseUi = {
         const th = this.th;
         this.makeRect(24, 24, W - 48, 72, th.panel, 0.95, 0.8, 2);
         this.makeRect(26, 26, W - 52, 14, th.panelAlt, 1, 0);
-        this.makeText(44, 38, __dialogueText("scenes/wanted-database/WantedDatabaseUi.js", "t_6df7193e1416e4087b4f"), 12, { color: th.sMid }).setOrigin(0, 0.5);
-        this.makeText(44, 68, __dialogueText("scenes/wanted-database/WantedDatabaseUi.js", "t_b2d22e46b76d790ec55c"), 9, { color: th.sDim }).setOrigin(0, 0.5);
-        this.makeText(W / 2, 62, __dialogueText("scenes/wanted-database/WantedDatabaseUi.js", "t_5420703a30f83f1fc37a"), 28, { stroke: th.sShadow, strokeThickness: 4,
+        this.makeText(44, 38, "> MARK-OS v2.04", 12, { color: th.sMid }).setOrigin(0, 0.5);
+        this.makeText(44, 68, "LINK: INTERPOL-NET [ONLINE]", 9, { color: th.sDim }).setOrigin(0, 0.5);
+        this.makeText(W / 2, 62, "MOST WANTED DATABASE", 28, { stroke: th.sShadow, strokeThickness: 4,
             shadow: this.glow(th.sMain, 12) }).setOrigin(0.5);
         this.clockText = this.makeText(W - 44, 80, '', 11, { color: th.sMid }).setOrigin(1, 0.5);
         const updateClock = () => { if (this.isWantedTextAlive(this.clockText)) this.clockText.setText(this.gameClockText()); };
@@ -107,9 +107,9 @@ export const WantedDatabaseUi = {
         const bg = this.makeRect(bx, by, bw, bh, th.bg, 0.99, 1, 2).setInteractive();
         bg.on('pointerdown', (_p, _x, _y, event) => event?.stopPropagation?.());
         panel.add(bg); panel.add(this.makeRect(bx, by, bw, 44, th.panelAlt, 1, 0.6));
-        panel.add(this.makeText(bx + 20, by + 22, __dialogueText("scenes/wanted-database/WantedDatabaseUi.js", "t_5893f3fa1257072c26cb"), 16, { shadow: this.glow(th.sMain, 8) }).setOrigin(0, 0.5));
+        panel.add(this.makeText(bx + 20, by + 22, "HELP // CONTROLS", 16, { shadow: this.glow(th.sMain, 8) }).setOrigin(0, 0.5));
         panel.add(this.makeText(bx + 28, by + 66, text, 12, { lineSpacing: 16 }));
-        panel.add(this.makeText(bx + bw / 2, by + bh - 24, __dialogueText("scenes/wanted-database/WantedDatabaseUi.js", "t_5dc9f8e0ee2ae340c026"), 10,
+        panel.add(this.makeText(bx + bw / 2, by + bh - 24, "PRESS ANY KEY OR CLICK TO RETURN", 10,
             { color: th.sDim }).setOrigin(0.5));
         return panel;
     },

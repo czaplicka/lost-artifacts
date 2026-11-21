@@ -37,7 +37,7 @@ export class AlibiReportUI{
    if(u.app==='mail'&&this.opened&&active){this.render();return;}
    if(u.selectedId===DRAFT)u.selectedId=null;
    render();
-   if(u.app==='mail'&&active&&u.window&&!u[Symbol.for(__dialogueText("ui/pi-computer/AlibiReportUI.js", "t_56dd81d3a5ec0a99278e"))]){
+   if(u.app==='mail'&&active&&u.window&&!u[Symbol.for("lostArtifacts.alibiDialogueUIV2")]){
     const b=u.window;u.drawing.button(b.x+b.w-(b.w>=600?190:120),b.y+b.h-77,b.w>=600?__dialogueText("ui/pi-computer/AlibiReportUI.js", "t_29304bf6838d0fc4a1c1"):'REVIEW',()=>this.open());
    }
   };

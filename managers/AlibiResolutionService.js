@@ -478,11 +478,11 @@ function narrative(id) {
       distinction +
       __dialogueText("managers/AlibiResolutionService.js", "t_5a828098152804ffe02a"),
 
-    reply: id === __dialogueText("managers/AlibiResolutionService.js", "t_a18b869b2e81c0c52955")
+    reply: id === "full"
       ? __dialogueText("managers/AlibiResolutionService.js", "t_b25c65a67690ecae1a4d")
       : __dialogueText("managers/AlibiResolutionService.js", "t_dd1772b31f234506e79a"),
 
-    summary: id === __dialogueText("managers/AlibiResolutionService.js", "t_a18b869b2e81c0c52955")
+    summary: id === "full"
       ? __dialogueText("managers/AlibiResolutionService.js", "t_79d150ca30b7e4e02ed6")
       : __dialogueText("managers/AlibiResolutionService.js", "t_044a82be020e49e5667a"),
 

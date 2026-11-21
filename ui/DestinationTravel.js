@@ -329,7 +329,7 @@ export class DestinationTravel {
     this.setConfirmEnabled(false);
 
     this.transportPrompt
-      .setColor(__dialogueText("ui/DestinationTravel.js", "t_e5ce4dbdca8ab29e7605"))
+      .setColor("#ff9d6b")
       .setText(
         __dialogueText("ui/DestinationTravel.js", "t_0d6d05af1cdfc1b5ca47")
       );

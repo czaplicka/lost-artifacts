@@ -28,7 +28,7 @@ export class ComputerSearchHome {
   const d=this.ui.drawing;
   const known=this.definition.keywords.filter(keyword=>this.progress.known.includes(keyword.id));
   if(!known.length){
-   d.text(x+width/2,y,__dialogueText("ui/pi-computer/ComputerSearchHome.js", "t_1c8158020037a29b2e4b"),14,'#8a8d80',width).setOrigin(0.5,0).setAlign('center');return y+48;
+   d.text(x+width/2,y,"Your Field Notes are empty. Go and find a clue first. The napkin will not read itself.",14,'#8a8d80',width).setOrigin(0.5,0).setAlign('center');return y+48;
   }
   const open=known.filter(keyword=>!this.terms.includes(keyword.id));if(!open.length)return y;
   d.text(x,y,__dialogueText("ui/pi-computer/ComputerSearchHome.js", "t_53caa00ae8da56773560"),13,'#7a7d72');y+=24;
@@ -69,7 +69,7 @@ export class ComputerSearchHome {
    }
   }
   const footerY=area.y+area.h-30;
-  d.text(centerX-150,footerY,__dialogueText("ui/pi-computer/ComputerSearchHome.js", "t_6f6ca128fbbdf22488f9"),13,'#81847c').setOrigin(0,0);
+  d.text(centerX-150,footerY,"Owl Search",13,'#81847c').setOrigin(0,0);
   for(const[label,offset,line]of[[__dialogueText("ui/pi-computer/ComputerSearchHome.js", "t_4efca0d10c5feb8e9b35"),0,ABOUT_TIP],[__dialogueText("ui/pi-computer/ComputerSearchHome.js", "t_54a57c3147c49f33de58"),80,PRIVACY_TIP]]){
    const link=d.text(centerX-40+offset,footerY,label,13,'#4b6d9a');
    bindSearchClick(this,link,()=>this.say(line),()=>this.tip!==line);

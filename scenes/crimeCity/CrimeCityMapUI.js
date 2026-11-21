@@ -273,7 +273,7 @@ export class CrimeCityMapUI {
       details.finalCost === costs.activityCost
     ) {
       lines.push(
-        `${__dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_4ead6cfb1a6f08ecf13a")}${details.originalCost}${__dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_a404e8f0ffc8303837ac")}${costs.activityCost}`
+        `${__dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_4ead6cfb1a6f08ecf13a")}${details.originalCost}${" -> "}${costs.activityCost}`
       );
 
       lines.push(`${__dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_bc32d0d7c8ebe3474393")}${details.saved}`);
@@ -845,7 +845,7 @@ export class CrimeCityMapUI {
     this.track(
       scene.add.text(
         width / 2, top + 24,
-        __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_f414f6c433988044654d"),
+        "Choose an apartment",
         {
           fontFamily: 'SpecialElite',
           fontSize: '24px',
@@ -897,7 +897,7 @@ export class CrimeCityMapUI {
       scene.add.text(
         width / 2,
         top + panelHeight - 30,
-        __dialogueText("scenes/crimeCity/CrimeCityMapUI.js", "t_19766ed6ccb2f4a32778"),
+        "Cancel",
         {
           fontFamily: 'SpecialElite',
           fontSize: '18px',

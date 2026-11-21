@@ -346,7 +346,7 @@ export function alibiCloudQuestions(
         topic.questionLabel ||
 
         array(topic.lines).find(
-          line => line.speaker === __dialogueText("ui/AlibiCloudModel.js", "t_08b041935798fbf6fd6f")
+          line => line.speaker === "You"
         )?.text ||
 
         __dialogueText("ui/AlibiCloudModel.js", "t_bb4f8a01656fbb6eab2a")

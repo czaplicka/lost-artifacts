@@ -121,7 +121,7 @@ export function renderSocialPage(ui, search, page) {
 
     const restricted = state.mode !== 'profile';
     const content = restricted
-        ? { blocks: [[state.mode === __dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_84a6dae49cf0481203aa") ? __dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_297355bbd0bd46a2ad1e") : __dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_97ba574d817810648d08")],
+        ? { blocks: [[state.mode === "photos" ? __dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_297355bbd0bd46a2ad1e") : __dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_97ba574d817810648d08")],
             [__dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_448faf3ae39a9ccc6ff1")],
             [__dialogueText("ui/pi-computer/SocialProfileTemplate.js", "t_7f018c9bbd297da746b6")]], links: [] }
         : { blocks: [[name], [profile.bio || ''], ...(page.blocks || [])], links: page.links || [] };

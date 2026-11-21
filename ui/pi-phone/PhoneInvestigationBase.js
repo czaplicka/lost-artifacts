@@ -403,8 +403,8 @@ export class PhoneInvestigation {
         } else {
           p.prompt.setText(
             p.lineIndex >= p.lines.length - 1
-              ? __dialogueText("ui/pi-phone/PhoneInvestigationBase.js", "t_0197d787ba2a3371adb0")
-              : __dialogueText("ui/pi-phone/PhoneInvestigationBase.js", "t_ccb844f373a3b29ad190")
+              ? "RETURN TO NOTES >"
+              : "CONTINUE >"
           );
         }
 

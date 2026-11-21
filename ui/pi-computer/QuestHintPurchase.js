@@ -51,7 +51,7 @@ export function purchaseQuestHint(questId,method,expected,sceneId){
   }
   result=hintManager.recordPaidHint(method,context,{...cost,cash:0});
  }
- if(!result?.success)return {success:false,message:method===__dialogueText("ui/pi-computer/QuestHintPurchase.js", "t_db80476684cadd281425")?__dialogueText("ui/pi-computer/QuestHintPurchase.js", "t_acb432e83b7163eea864"):__dialogueText("ui/pi-computer/QuestHintPurchase.js", "t_2655eb63211afcbf35c4")};
+ if(!result?.success)return {success:false,message:method==="free_hint"?__dialogueText("ui/pi-computer/QuestHintPurchase.js", "t_acb432e83b7163eea864"):__dialogueText("ui/pi-computer/QuestHintPurchase.js", "t_2655eb63211afcbf35c4")};
  const receipt={questId,stage:offer.stage,level:offer.level,text:offer.next.text,method,
   historyEntryId:result.entry.id,createdAt:result.entry.createdAt};
  gameState.updateState({

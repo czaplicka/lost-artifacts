@@ -1,4 +1,4 @@
-import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
+
 import { audioManager } from '../managers/AudioManager.js';
 import { FONT_TEXT } from './hypothesisBoard/BoardConstants.js';
 import { BoardElements } from './hypothesisBoard/BoardElements.js';
@@ -143,12 +143,12 @@ export class HypothesisBoardUI {
       .setDepth(3001);
 
     this.titleText = this.scene.add
-      .text(width / 2, 0, __dialogueText("ui/HypothesisBoardUI.js", "t_00fef851f54d7ba67cb7"), {
+      .text(width / 2, 0, "RECONSTRUCT THE HEIST", {
         fontFamily: FONT_TEXT,
         fontSize: '36px',
         color: '#f7f1dc',
         align: 'center',
-        stroke: __dialogueText("ui/HypothesisBoardUI.js", "t_7b2817bf9b80e66d07f2"),
+        stroke: "#000000",
         strokeThickness: 5
       })
       .setOrigin(0.5)
@@ -156,13 +156,13 @@ export class HypothesisBoardUI {
 
     this.subtitleText = this.scene.add
       .text(width / 2, 0,
-        __dialogueText("ui/HypothesisBoardUI.js", "t_684c4e0af21b025c6df1"),
+        "Select one clue below, then select the question it answers.",
         {
           fontFamily: FONT_TEXT,
           fontSize: '19px',
           color: '#e8d7a8',
           align: 'center',
-          stroke: __dialogueText("ui/HypothesisBoardUI.js", "t_7b2817bf9b80e66d07f2"),
+          stroke: "#000000",
           strokeThickness: 3
         }
       )
@@ -175,7 +175,7 @@ export class HypothesisBoardUI {
         fontSize: '21px',
         color: '#ffd966',
         align: 'center',
-        stroke: __dialogueText("ui/HypothesisBoardUI.js", "t_7b2817bf9b80e66d07f2"),
+        stroke: "#000000",
         strokeThickness: 3
       })
       .setOrigin(0.5)
@@ -204,7 +204,7 @@ export class HypothesisBoardUI {
         fontSize: '19px',
         color: '#ffd966',
         align: 'center',
-        stroke: __dialogueText("ui/HypothesisBoardUI.js", "t_7b2817bf9b80e66d07f2"),
+        stroke: "#000000",
         strokeThickness: 3,
         wordWrap: {
           width: 700,

@@ -277,13 +277,13 @@ export class HotelScene extends BaseScene {
     this.roomTitle = this.add.text(
       width / 2,
       46,
-      __dialogueText("scenes/HotelScene.js", "t_c2b46553f77612c851ce"),
+      "HOTEL ROOM",
       {
         fontFamily: 'PressStart2P',
         fontSize: '24px',
         color: '#ffffff',
         align: 'center',
-        stroke: __dialogueText("scenes/HotelScene.js", "t_7b2817bf9b80e66d07f2"),
+        stroke: "#000000",
         strokeThickness: 5
       }
     )
@@ -293,13 +293,13 @@ export class HotelScene extends BaseScene {
     this.roomSubtitle = this.add.text(
       width / 2,
       84,
-      __dialogueText("scenes/HotelScene.js", "t_4c4ad3615949cd056416"),
+      "Sleep is cheaper than therapy. Usually.",
       {
         fontFamily: 'SpecialElite',
         fontSize: '20px',
         color: '#f1e6b8',
         align: 'center',
-        stroke: __dialogueText("scenes/HotelScene.js", "t_7b2817bf9b80e66d07f2"),
+        stroke: "#000000",
         strokeThickness: 4
       }
     )
@@ -311,7 +311,7 @@ export class HotelScene extends BaseScene {
     this.add.text(
       width / 2,
       height - 76,
-      __dialogueText("scenes/HotelScene.js", "t_7847db07fb69c0374aa6"),
+      "[ ESC TO LEAVE ]",
       {
         fontFamily: 'PressStart2P',
         fontSize: '12px',
@@ -371,8 +371,8 @@ export class HotelScene extends BaseScene {
         panelW / 2,
         34,
         expired
-          ? __dialogueText("scenes/HotelScene.js", "t_69f722adc8925e541b8a")
-          : __dialogueText("scenes/HotelScene.js", "t_3dcc9c299e6e02c3c58c"),
+          ? "HOTEL BOOKING EXPIRED"
+          : "CHOOSE YOUR HOTEL",
         {
           fontFamily: 'PressStart2P',
           fontSize: '20px',
@@ -385,7 +385,7 @@ export class HotelScene extends BaseScene {
       this.add.text(
         panelW / 2,
         78,
-        __dialogueText("scenes/HotelScene.js", "t_a271e7175973d601c685"),
+        "One charge per city per day. Mark Agency picks up the bill.",
         {
           fontFamily: 'SpecialElite',
           fontSize: '21px',
@@ -402,7 +402,7 @@ export class HotelScene extends BaseScene {
       this.add.text(
         panelW / 2,
         114,
-        `${__dialogueText("scenes/HotelScene.js", "t_e40363cb6503a9692eeb")}${balance}`,
+        `${"AGENCY BUDGET: $"}${balance}`,
         {
           fontFamily: 'PressStart2P',
           fontSize: '14px',
@@ -493,7 +493,7 @@ export class HotelScene extends BaseScene {
     const cancel = this.add.text(
       panelW / 2,
       490,
-      __dialogueText("scenes/HotelScene.js", "t_739a682d2f1d89e6eba1"),
+      "[ RETURN TO CITY ]",
       {
         fontFamily: 'PressStart2P',
         fontSize: '13px',

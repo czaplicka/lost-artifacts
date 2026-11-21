@@ -54,7 +54,7 @@ export const WantedDatabaseDetailsView = {
             this.makeText(
                 25,
                 35,
-                __dialogueText("scenes/wanted-database/WantedDatabaseDetailsView.js", "t_a93a7e824bea8aa6a418"),
+                "CLASSIFIED DOSSIER // INDIVIDUAL PROFILE",
                 16,
                 { shadow: this.glow(th.sMain, 8) }
             ).setOrigin(0, 0.5)
@@ -309,7 +309,7 @@ export const WantedDatabaseDetailsView = {
             704,
             160,
             36,
-            __dialogueText("scenes/wanted-database/WantedDatabaseDetailsView.js", "t_86af811671fe29fad1d2"),
+            "< PREV",
             () => this.stepDetail(-1),
             12
         );
@@ -319,7 +319,7 @@ export const WantedDatabaseDetailsView = {
             704,
             160,
             36,
-            __dialogueText("scenes/wanted-database/WantedDatabaseDetailsView.js", "t_58b85f2ea88bf1a9ba16"),
+            "NEXT >",
             () => this.stepDetail(1),
             12
         );

@@ -682,7 +682,7 @@ export class EscapeTimelineScene extends BaseScene {
       hint.conclusionId ? this.conclusionButtons.find(item => item.id === hint.conclusionId)?.button : null].filter(Boolean) };
   }
 
-  setDialogue(text) { this.message?.setText(`${__dialogueText("scenes/EscapeTimelineScene.js", "t_e0e94082545fdad681ba")}${text}`).setFontSize(18); }
+  setDialogue(text) { this.message?.setText(`${"HINT: "}${text}`).setFontSize(18); }
 
   persist() {
     if (this.preview || !this.allowed) return;
@@ -712,9 +712,9 @@ export class EscapeTimelineScene extends BaseScene {
     this.timelineHelp?.hintButton?.setVisible(false);
     this.conclusionButtons.forEach(item => item.button.disableInteractive());
     this.sourceTitle.setText(__dialogueText("scenes/EscapeTimelineScene.js", "t_cd2088cb02151e7272f7")); this.sourceBody.setText(DATA.success);
-    this.message.setText(this.preview ? __dialogueText("scenes/EscapeTimelineScene.js", "t_a291ed7256cec4187b32") : this.savedOk === false ?
+    this.message.setText(this.preview ? "Reconstruction complete / preview only." : this.savedOk === false ?
       DATA.messages.saveFailed : this.stageSynced === false ?
-      __dialogueText("scenes/EscapeTimelineScene.js", "t_68abfdfff6c9f05c1967") : DATA.messages.complete).setFontSize(20);
+      "Reconstruction saved, but story stage synchronization needs review." : DATA.messages.complete).setFontSize(20);
     this.refreshBoard(); this.updatePlane(animate);
     this.addSuccessFx(animate);
   }

@@ -30,7 +30,7 @@ export const WantedDatabaseFilters = {
         this.searchPlaceholder = this.makeText(
             boxX + 30,
             r1 + 16,
-            __dialogueText("scenes/wanted-database/WantedDatabaseFilters.js", "t_5d8e277b245891630991"),
+            "TYPE TO SEARCH NAME / SKILLS / ACCENT...",
             10,
             { color: th.sDim }
         ).setOrigin(0, 0.5);

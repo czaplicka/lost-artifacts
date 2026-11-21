@@ -166,7 +166,7 @@ export class HomeCityExtras extends HomeCityAmbient {
       if (p.kind !== 'signpost' || this.has('hc_prop_signpost')) return;
       const a = PROP_ART.signpost, c = this.pt(p.x, p.y);
       const key = this.bake(`signtext${i}`, a.w, a.h, ctx => {
-        ctx.font = `${__dialogueText("scenes/homeCity/HomeCityExtras.js", "t_aea790759be5a7c00f67")}${FONT_UI}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = css(0xf6e7c1);
+        ctx.font = `${"11px "}${FONT_UI}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = css(0xf6e7c1);
         for (const b of SIGN_BOARDS) ctx.fillText(b.text, b.dir > 0 ? 20 : -20, b.y + 11);
       }, -a.ax, -a.ay);
       if (key) s.add.image(c.x, c.y, key).setOrigin(a.ax / a.w, a.ay / a.h).setDepth((p.x + p.y) * 100 + 1.2);

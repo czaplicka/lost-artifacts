@@ -18,7 +18,7 @@ function renderSummary(owner,original){
   const drawing=owner.drawing,button=drawing.button;
   const wrapped=function(x,y,label,callback,...args){
     const object=button.call(this,x,y,label,callback,...args);
-    if(label===__dialogueText("ui/mark-agency/ReportIncidentUI.js", "t_f8a8438b2477eec70f4f")||label===__dialogueText("ui/mark-agency/ReportIncidentUI.js", "t_a075e6c0c9999238411d")){
+    if(label==="PRINT REPORT"||label==="COLLECT REPORT"){
       object.removeAllListeners('pointerdown');
       object.on('pointerdown',()=>{
         if(owner.destroyed||!owner.isOpen||owner.suspended||owner.app!=='reports'||
@@ -51,7 +51,7 @@ export function installReportIncidentUI(Class) {
     if(getArchiveCaseId(this.state)!==this.reportCaseId){this.openApp('reports');return;}
     this.form=getMissionReportForm(this.locations(),this.state);
     const history=getReportIncidentHistory().filter(entry=>entry.phase==='resolved');
-    d.button(b.x+18,b.y+44,__dialogueText("ui/mark-agency/ReportIncidentUI.js", "t_7fc9a65908c7db831b26"),()=>{this.incidentMode=null;this.render();});
+    d.button(b.x+18,b.y+44,"< SUMMARY",()=>{this.incidentMode=null;this.render();});
     d.button(b.x+210,b.y+44,'MESSAGE',()=>{this.incidentMode='message';this.incidentBodyPage=0;this.render();});
     d.button(b.x+375,b.y+44,'DECISION',()=>{this.incidentMode='decision';this.render();});
     d.button(b.x+550,b.y+44,'HISTORY',()=>{this.incidentMode='history';this.incidentBodyPage=0;this.render();});
@@ -77,7 +77,7 @@ export function installReportIncidentUI(Class) {
         if(!readonly)d.rectangle(b.x+22,oy,b.w-44,62,0,0).setInteractive({useHandCursor:true}).on('pointerdown',()=>{
           if(getArchiveCaseId(this.state)!==this.reportCaseId){this.openApp('reports');return;}
           const result=saveMissionReportIncidentChoice(choice.id,this.locations(),this.state);
-          this.notice=result.ok?(result.saved?__dialogueText("ui/mark-agency/ReportIncidentUI.js", "t_911aedda117c7f081a23"):__dialogueText("ui/mark-agency/ReportIncidentUI.js", "t_84ebd41bb2429c543aee")):__dialogueText("ui/mark-agency/ReportIncidentUI.js", "t_741daf754019d04c68c2");
+          this.notice=result.ok?(result.saved?"Recommendation saved. It locks when printed.":"Choice kept for this session. Save manually."):"This recommendation can no longer be changed.";
           this.form=getMissionReportForm(this.locations(),this.state);this.render();
         });
       });

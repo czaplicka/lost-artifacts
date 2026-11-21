@@ -29,7 +29,7 @@ export class CrimeLabHUD {
       .setStrokeStyle(2, 0x39ff14, 0.65);
 
     const locationText = this.scene.add
-      .text(18, 12, __dialogueText("scenes/CSI/CrimeLabHUD.js", "t_d6e4f58b9bc27723bc30"), {
+      .text(18, 12, "MARK AGENCY // CRIME LAB", {
         fontFamily: 'PressStart2P',
         fontSize: '10px',
         color: '#39ff14'

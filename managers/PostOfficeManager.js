@@ -355,7 +355,7 @@ export function leavePostalMessage(
 
   if (
     normalizedAlias !== 'CLOCKWORK' ||
-    normalizedPassword !== __dialogueText("managers/PostOfficeManager.js", "t_9e3ce8d3f0616285504a")
+    normalizedPassword !== "SECOND HAND"
   ) {
     return (
       __dialogueText("managers/PostOfficeManager.js", "t_1261f135bb5eb58cc2ba") +

@@ -575,7 +575,7 @@ export class FirstCaseTutorial {
     const skip = createButton(
       left + w - 84,
       144,
-      __dialogueText("tutorials/FirstCaseTutorial.js", "t_e8395936de2e1c809b3e"),
+      "SKIP TUTORIAL >",
       () => {
         if (this.skipButtonEnabled) this.skip();
       }

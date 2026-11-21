@@ -198,7 +198,7 @@ export class OfficeHotspotManager {
       return;
     }
 
-    if (event.code === __dialogueText("scenes/office/OfficeHotspotManager.js", "t_90ddf1963abb36c9921c")) {
+    if (event.code === "Tab") {
       event.preventDefault();
 
       const direction = event.shiftKey ? -1 : 1;
@@ -568,7 +568,7 @@ export class OfficeHotspotManager {
       const label = this.scene.add.text(
         data.x + 8,
         data.y + 8,
-        `${selected ? __dialogueText("scenes/office/OfficeHotspotManager.js", "t_ec4f8e3d1f7cafbdb86e") : ''}${data.id}`,
+        `${selected ? "> " : ''}${data.id}`,
         {
           fontFamily: 'Arial',
           fontSize: '16px',
@@ -602,7 +602,7 @@ export class OfficeHotspotManager {
     this.debugHelp = this.scene.add.text(
       12,
       height - 12,
-      lines.join(__dialogueText("scenes/office/OfficeHotspotManager.js", "t_01ba4719c80b6fe911b0")),
+      lines.join("\n"),
       {
         fontFamily: 'monospace',
         fontSize: '13px',

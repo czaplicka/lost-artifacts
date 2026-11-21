@@ -223,7 +223,7 @@ export class UIScene extends BaseScene {
         document.getElementById('energy-target'),
 
       energyWrapper:
-        container?.querySelector(__dialogueText("ui/UIScene.js", "t_2ca2d1c09cbe57e3bf6e")) || null,
+        container?.querySelector(".energy-wrapper") || null,
 
       energyFill:
         document.getElementById('energy-fill'),
@@ -460,7 +460,7 @@ export class UIScene extends BaseScene {
         if (!(target instanceof Element)) return;
 
         const button = target.closest(
-          __dialogueText("ui/UIScene.js", "t_1cdd68cb0d766cbce2f4")
+          "#profile-modal button[data-progression-stat]"
         );
 
         if (!(button instanceof HTMLButtonElement)) return;
@@ -503,9 +503,9 @@ export class UIScene extends BaseScene {
 
           this._setProgressionMessage(
             modal,
-            `${STAT_NAMES[result.statId]}${__dialogueText("ui/UIScene.js", "t_4d50f073d001891cd6a6")}${
+            `${STAT_NAMES[result.statId]}${" increased to "}${
               result.effectiveStats[result.statId]
-            }${__dialogueText("ui/UIScene.js", "t_cdb4ee2aea69cc6a8333")}`,
+            }${"."}`,
             false
           );
 
@@ -531,7 +531,7 @@ export class UIScene extends BaseScene {
 
           this._setProgressionMessage(
             modal,
-            __dialogueText("ui/UIScene.js", "t_0944cbbd10db0e7be236"),
+            "Could not update this personnel file.",
             true
           );
 
@@ -597,9 +597,9 @@ export class UIScene extends BaseScene {
     section.className = 'ui-progression';
     section.dataset.progressionSummary = 'true';
     section.tabIndex = -1;
-    section.setAttribute('aria-label', __dialogueText("ui/UIScene.js", "t_e83f54d473c2ba805213"));
+    section.setAttribute('aria-label', "Character progression");
 
-    section.innerHTML = `${__dialogueText("ui/UIScene.js", "t_55556983602d8863a846")}`;
+    section.innerHTML = `${"\n      <div class=\"ui-progression-heading\">\n        <span\n          class=\"ui-progression-level\"\n          data-progression-level\n        ></span>\n        <span\n          class=\"ui-progression-total\"\n          data-progression-total\n        ></span>\n      </div>\n\n      <div\n        class=\"ui-progression-bar\"\n        data-progression-bar\n        role=\"progressbar\"\n        aria-label=\"Experience toward next level\"\n        aria-valuemin=\"0\"\n        aria-valuemax=\"100\"\n      >\n        <span\n          class=\"ui-progression-fill\"\n          data-progression-fill\n        ></span>\n      </div>\n\n      <p\n        class=\"ui-progression-caption\"\n        data-progression-caption\n      ></p>\n\n      <p\n        class=\"ui-progression-points\"\n        data-progression-points\n      ></p>\n\n      <p\n        class=\"ui-progression-message\"\n        data-progression-message\n        role=\"status\"\n        aria-live=\"polite\"\n        aria-atomic=\"true\"\n      ></p>\n    "}`;
 
     statsGrid.insertAdjacentElement('beforebegin', section);
 
@@ -667,8 +667,8 @@ export class UIScene extends BaseScene {
       bar.setAttribute(
         'aria-valuetext',
         summary.isMaxLevel
-          ? __dialogueText("ui/UIScene.js", "t_ab738e7625797d81498c")
-          : `${summary.currentLevelXP}${__dialogueText("ui/UIScene.js", "t_a4282e4b2298b90b56f7")}${summary.requiredXP}${__dialogueText("ui/UIScene.js", "t_42e2aa5470e71f56e5a5")}`
+          ? "Maximum level reached"
+          : `${summary.currentLevelXP}${" of "}${summary.requiredXP}${" XP"}`
       );
     }
 
@@ -849,7 +849,7 @@ export class UIScene extends BaseScene {
     }
 
     target.setAttribute('role', 'meter');
-    target.setAttribute('aria-label', __dialogueText("ui/UIScene.js", "t_a0b354577d6472224061"));
+    target.setAttribute('aria-label', "Energy remaining");
     target.setAttribute('aria-valuemin', '0');
     target.setAttribute('aria-valuemax', '100');
 
@@ -902,11 +902,11 @@ export class UIScene extends BaseScene {
     target.addEventListener(
       'keydown',
       event => {
-        if (event.key === __dialogueText("ui/UIScene.js", "t_dc8659db6d416dc32fca") || event.key === ' ') {
+        if (event.key === "Enter" || event.key === ' ') {
           event.preventDefault();
           event.stopPropagation();
           this._toggleEnergyLog();
-        } else if (event.key === __dialogueText("ui/UIScene.js", "t_037c968467aa3fd7c059")) {
+        } else if (event.key === "Escape") {
           event.preventDefault();
           event.stopPropagation();
 
@@ -1308,7 +1308,7 @@ export class UIScene extends BaseScene {
 
     this.dom.energyTarget?.setAttribute(
       'aria-valuetext',
-      `${percent}${__dialogueText("ui/UIScene.js", "t_8e5d75479f65b7333e86")}`
+      `${percent}${"% energy remaining"}`
     );
 
     if (this._isEnergyTooltipActive()) {
@@ -1871,7 +1871,7 @@ export class UIScene extends BaseScene {
         __dialogueText("ui/UIScene.js", "t_74b088014c98defd0577")
       );
 
-      const note = modal.querySelector(__dialogueText("ui/UIScene.js", "t_23af6d074816c52bca8e"));
+      const note = modal.querySelector(".profile-stats-note");
       if (note) note.hidden = true;
 
       return;
@@ -1924,7 +1924,7 @@ export class UIScene extends BaseScene {
       `${__dialogueText("ui/UIScene.js", "t_6201521d9540f2602b05")}${profile.bonus}`
     );
 
-    const note = modal.querySelector(__dialogueText("ui/UIScene.js", "t_23af6d074816c52bca8e"));
+    const note = modal.querySelector(".profile-stats-note");
     if (note) note.hidden = false;
 
     for (const statId of STAT_IDS) {
@@ -1936,7 +1936,7 @@ export class UIScene extends BaseScene {
 
       row.className =
         bonus > 0
-          ? __dialogueText("ui/UIScene.js", "t_82f29ce3c2e55545ce94")
+          ? "profile-stat has-profile-bonus"
           : 'profile-stat';
 
       const name = document.createElement('dt');
@@ -1944,7 +1944,7 @@ export class UIScene extends BaseScene {
       name.textContent = STAT_NAMES[statId];
 
       const value = document.createElement('dd');
-      value.className = __dialogueText("ui/UIScene.js", "t_29e0974837a312b7b652");
+      value.className = "profile-stat-value ui-stat-value";
 
       const number = document.createElement('span');
       number.textContent = String(finalValue);
@@ -1961,7 +1961,7 @@ export class UIScene extends BaseScene {
 
       increase.setAttribute(
         'aria-label',
-        `${__dialogueText("ui/UIScene.js", "t_348fc02ccdb0cfde0800")}${STAT_NAMES[statId]}${__dialogueText("ui/UIScene.js", "t_225ae107308a57c787a2")}`
+        `${"Increase "}${STAT_NAMES[statId]}${" by 1. Costs 1 skill point."}`
       );
 
       increase.title = !hasValidStats
@@ -2035,7 +2035,7 @@ renderAgentDossierPortrait(this, avatar);
 
       avatar.setAttribute(
         'aria-label',
-        `${playerName}${__dialogueText("ui/UIScene.js", "t_f7824571098797937aae")}`
+        `${playerName}${"'s agent portrait"}`
       );
     }
 
@@ -2067,7 +2067,7 @@ renderAgentDossierPortrait(this, avatar);
 
     Object.assign(tagline.style, {
       display: alias ? 'block' : 'none',
-      margin: __dialogueText("ui/UIScene.js", "t_70b9fca79ae1440a5e60"),
+      margin: "4px 0 10px",
       padding: '0',
       fontFamily: "'SpecialElite', 'Special Elite', monospace",
       fontSize: 'clamp(10px, 1.2vw, 16px)',
@@ -2102,7 +2102,7 @@ renderAgentDossierPortrait(this, avatar);
 
       item.className = unlocked
         ? 'achievement-item'
-        : __dialogueText("ui/UIScene.js", "t_ae698bf60e2d38102696");
+        : "achievement-item locked";
 
       item.title = unlocked
         ? achievement.description

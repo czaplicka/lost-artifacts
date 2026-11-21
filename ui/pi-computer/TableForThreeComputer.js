@@ -3,7 +3,6 @@ import { acceptPIQuestFromAdvert } from '../../managers/PIQuestManager.js';
 import { getCurrentTownId } from '../../managers/RoadTripManager.js';
 import { readTableForThree, dispatchTableForThree } from '../../managers/TableForThreeService.js';
 import { installTableForThreeArrivalTracking } from '../../managers/TableForThreeLocations.js';
-import { closeTableForThreeDevelopmentCase } from '../../managers/TableForThreeRestaurantService.js';
 import { installTableForThreePawnShop } from '../TableForThreePawnShop.js';
 import { BusinessCenterScene } from '../../scenes/BusinessCenterScene.js';
 import { TableForThreeCompanyScene } from '../../scenes/TableForThreeCompanyScene.js';
@@ -60,7 +59,8 @@ export function installTableForThreeComputer(ui,documents){
     if(rows.some(a=>a.missionId===CASE_ID))return rows;
     const ad=ui.scene.cache.json.get('piOfficeClassifieds')?.advertisements?.find(a=>a.id===AD);return ad?[...rows,ad]:rows;
   };
-  const paged=function(body,x,y,w,h){return oldPaged.call(this,body,x,y,w,Math.max(40,h-((viewing()||viewingReply())?64:0)));};
+  const canClose=()=>viewingReply()&&quest()?.status==='active';
+  const paged=function(body,x,y,w,h){return oldPaged.call(this,body,x,y,w,Math.max(40,h-((viewing()||canClose())?64:0)));};
   const render=function(...args){
     const result=oldRender.apply(this,args),b=ui.window;
     if(viewing()&&b){ui.drawing.button(b.x+312,b.y+b.h-108,'RECORD CLIENT BRIEFING',()=>{
@@ -68,10 +68,10 @@ export function installTableForThreeComputer(ui,documents){
       if(s&&!s.briefingRead){const r=dispatchTableForThree({type:'READ_BRIEFING'});if(!r.ok){ui.notice=r.reason;ui.render();return;}}
       ui.notice='Visit the Business Center in Home Town and ask for XYZ Consulting.';ui.render();
     });}
-    if(viewingReply()&&b&&readTableForThree()?.stage!=='closed')ui.drawing.button(b.x+312,b.y+b.h-108,'ACKNOWLEDGE AND CLOSE CASE',()=>{
+    if(canClose()&&b)ui.drawing.button(b.x+312,b.y+b.h-108,'ACKNOWLEDGE AND CLOSE CASE',()=>{
       const r=dispatchTableForThree({type:'READ_CLIENT_REPLY'});
-      if(r.ok)closeTableForThreeDevelopmentCase();
-      ui.notice=r.ok?'Case closed. No development rewards paid.':r.reason;ui.render();
+      ui.notice=r.ok?(r.warning||'Case closed. No development rewards paid.'):r.reason;
+      ui.render();
     });
     return result;
   };

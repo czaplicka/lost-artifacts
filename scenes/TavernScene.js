@@ -37,7 +37,7 @@ export class TavernScene extends BaseScene {
     this.cameras.main.setBackgroundColor('#171b18');this.hideGameplayHud();
     this.dialogue=new HomeTownDialogue(this,()=>this.closePanel());
     if(!this.textData?.ui||!this.textData?.npcs||!this.textData?.rumors||!this.extraData?.ui||!this.extraData?.comments||!this.textures.exists(this.config.backgroundKey)){
-      this.add.text(24,24,__dialogueText("scenes/TavernScene.js", "t_6f9aac0ce41bd8fb840c"),{fontFamily:'monospace',fontSize:'20px',color:'#fff',wordWrap:{width:Math.max(100,this.scale.width-48)}}).setInteractive({useHandCursor:true}).on('pointerdown',()=>void this.leave());return;
+      this.add.text(24,24,"Tavern assets could not be loaded.\nCheck config/tavernConfig.js and the JSON files.\nClick here to return to town.",{fontFamily:'monospace',fontSize:'20px',color:'#fff',wordWrap:{width:Math.max(100,this.scale.width-48)}}).setInteractive({useHandCursor:true}).on('pointerdown',()=>void this.leave());return;
     }
     this.background=this.add.image(0,0,this.config.backgroundKey).setOrigin(0).setDepth(0);
     for(const[id,def]of Object.entries(this.config.npcs)){
@@ -126,11 +126,11 @@ export class TavernScene extends BaseScene {
   onKey(event){
     if(this.disposed||!this.ready||!this.sys.isActive()||this.navigating||this.piTimeModalOpen||event.ctrlKey||event.metaKey)return;
     if(event.target?.isContentEditable||['INPUT','TEXTAREA','SELECT','BUTTON'].includes(event.target?.tagName))return;
-    const code=event.code,handled=code===__dialogueText("scenes/TavernScene.js", "t_037c968467aa3fd7c059")||(!this.panel&&code==='KeyD')||(!this.panel&&this.debugMode&&[__dialogueText("scenes/TavernScene.js", "t_90ddf1963abb36c9921c"),'KeyC','KeyN','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(code));
+    const code=event.code,handled=code==="Escape"||(!this.panel&&code==='KeyD')||(!this.panel&&this.debugMode&&["Tab",'KeyC','KeyN','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(code));
     if(!handled)return;event.preventDefault();event.stopImmediatePropagation();
-    if(code===__dialogueText("scenes/TavernScene.js", "t_037c968467aa3fd7c059")){if(event.repeat)return;if(this.panel)this.closePanel();else if(this.debugMode)this.toggleDebug();else void this.leave();return;}
+    if(code==="Escape"){if(event.repeat)return;if(this.panel)this.closePanel();else if(this.debugMode)this.toggleDebug();else void this.leave();return;}
     if(this.panel)return;if(code==='KeyD'){if(!event.repeat)this.toggleDebug();return;}if(!this.debugMode)return;
-    if(code===__dialogueText("scenes/TavernScene.js", "t_90ddf1963abb36c9921c")&&this.spots.length)this.selectedIndex=(this.selectedIndex+(event.shiftKey?-1:1)+this.spots.length)%this.spots.length;
+    if(code==="Tab"&&this.spots.length)this.selectedIndex=(this.selectedIndex+(event.shiftKey?-1:1)+this.spots.length)%this.spots.length;
     else if(code==='KeyC'){if(!event.repeat)this.exportConfig();}else if(code==='KeyN'){if(!event.repeat)this.addHotspot();}
     else if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(code)){const hot=this.spots[this.selectedIndex];if(hot){adjustTavernHotspot(hot.cfg,code,event.shiftKey,event.altKey,this.scale.width,this.scale.height);this.syncHotspot(hot);}}this.refreshHotspots();
   }

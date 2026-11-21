@@ -33,7 +33,7 @@ export const DEFAULT_DIALOGUE =
   __dialogueText("scenes/arrestSelection/config.js", "t_2d9a2cfd4997d8842756");
 
 export const DEFAULT_NOTE =
-  __dialogueText("scenes/arrestSelection/config.js", "t_479b758c2a02005674a5");
+  "<  >  browse files   |   ENTER  arrest   |   Cross-check means, motive and opportunity.";
 
 // Fields shown on the "Subject Record" page. Add/remove rows freely:
 // { label: 'short label', key: 'property in suspects.json' }

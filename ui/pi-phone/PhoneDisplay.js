@@ -80,7 +80,7 @@ export const PhoneDisplay = {
     for (let i = 0; i < length; i++) {
       const bx = X + 28 + i * 100, by = Y + 96;
       const bg = s.add.graphics();
-      const text = s.add.text(bx + 44, by + 46, __dialogueText("ui/pi-phone/PhoneDisplay.js", "t_3973e022e93220f9212c"), {
+      const text = s.add.text(bx + 44, by + 46, "-", {
         fontFamily: FONT_PIXEL, fontSize: '44px', color: '#4a3a1c'
       }).setOrigin(0.5);
       this.ui.add([bg, text]);
@@ -259,7 +259,7 @@ export const PhoneDisplay = {
     this.prompt.setVisible(connected);
     if (connected) {
       const last = this.lineIndex >= this.lines.length - 1;
-      this.prompt.setText(last ? __dialogueText("ui/pi-phone/PhoneDisplay.js", "t_85dd9926e5a70b9cddaa") : __dialogueText("ui/pi-phone/PhoneDisplay.js", "t_ccb844f373a3b29ad190"));
+      this.prompt.setText(last ? "END CONVERSATION >" : "CONTINUE >");
     }
     this.refreshDigits();
     this.updateLeds();
@@ -271,7 +271,7 @@ export const PhoneDisplay = {
     this.digitBoxes.forEach((box, i) => {
       const ch = this.number[i];
       const isCursor = ready && i === this.number.length;
-      box.text.setText(ch ?? __dialogueText("ui/pi-phone/PhoneDisplay.js", "t_3973e022e93220f9212c")).setColor(ch ? AMBER_CSS : '#4a3a1c');
+      box.text.setText(ch ?? "-").setColor(ch ? AMBER_CSS : '#4a3a1c');
       box.bg.clear();
       box.bg.fillStyle(0x070b08, 1);
       box.bg.fillRoundedRect(box.x, box.y, 88, 92, 8);

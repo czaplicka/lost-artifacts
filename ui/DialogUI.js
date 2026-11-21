@@ -82,7 +82,7 @@ export class DialogUI {
             fontFamily: 'SpecialElite', fontSize: '22px', color: '#f3e7c4', lineSpacing: 8
         });
         this.nextHint = this.scene.add.text(0, 0,
-            __dialogueText('ui/DialogUI.js', 't_2e522d1f0da2cc7d6f68'), {
+            "▼", {
                 fontFamily: 'PressStart2P', fontSize: '20px', color: '#d4af37'
             }).setOrigin(0.5).setAlpha(0);
         this.choiceContainer = this.scene.add.container(0, 0);

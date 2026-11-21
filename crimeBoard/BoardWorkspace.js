@@ -39,9 +39,9 @@ function addKnownIdentityEvidence(data, state) {
     if (!subjectIds.has(item.suspectId) || item.createdByPlayer) continue;
     targetIds.push(item.id);
     if (item.tags?.includes('unknown') && publicName) item.label = publicName;
-    if (!String(item.label).includes(__dialogueText("crimeBoard/BoardWorkspace.js", "t_e6f8ef7ed7bd8d52a696"))) item.label += __dialogueText("crimeBoard/BoardWorkspace.js", "t_783801ce828143b78c91");
+    if (!String(item.label).includes("[FAKE NAME]")) item.label += __dialogueText("crimeBoard/BoardWorkspace.js", "t_783801ce828143b78c91");
     if (item.type === 'evidence') {
-      item.fields = (item.fields || []).filter(row => row.key !== __dialogueText("crimeBoard/BoardWorkspace.js", "t_999f23fcd7bec7075e54"));
+      item.fields = (item.fields || []).filter(row => row.key !== "Identity");
       item.fields.push({ key: 'Identity', value: __dialogueText("crimeBoard/BoardWorkspace.js", "t_4b7fed18a2f0b71c5957") });
     } else if (item.type === 'photo') {
       item.caption = __dialogueText("crimeBoard/BoardWorkspace.js", "t_77fb725b33fcafef1553");
@@ -183,7 +183,7 @@ export function installBoardWorkspace(api, state, saved) {
   tools.append(addNote, hint);
   // Functional rules only. All colours / fonts live in crime-board.css and crime-board-layout.css.
   const style = document.createElement('style');
-  style.textContent = `${__dialogueText("crimeBoard/BoardWorkspace.js", "t_fb320e028a1ee220c235")}`;
+  style.textContent = `${"\n    .crime-board-workspace-panel{position:relative;z-index:6}\n    .crime-board-workspace-panel:not([open])>.crime-board-workspace-panel__content{display:none!important}\n    .crime-board-workspace-panel__content{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:10px}\n    .crime-board-workspace-panel__content>.crime-board-deduction{width:100%;box-sizing:border-box}\n    .crime-board__item,.crime-board__anchor{touch-action:none}\n    .crime-board__anchor{cursor:crosshair}\n    .crime-board__temp-link{pointer-events:none}\n  "}`;
   board.root.parentNode.append(style);
 
   api.refresh = (nextState = activeState) => {
@@ -205,10 +205,10 @@ export function installBoardWorkspace(api, state, saved) {
 
   const dialog = document.createElement('dialog');
   dialog.className = 'cb-note-dialog';
-  dialog.innerHTML = `${__dialogueText("crimeBoard/BoardWorkspace.js", "t_79925d1c1429f2eb2c18")}`;
+  dialog.innerHTML = `${"<form method=\"dialog\" class=\"cb-note-form\">\n    <h2 class=\"cb-note-dialog__title\">New note</h2>\n    <p class=\"cb-note-dialog__sub\">Write something brilliant. Or at least plausible.</p>\n    <label class=\"cb-note-field\"><span>Title</span><input name=\"title\" maxlength=\"120\"></label>\n    <label class=\"cb-note-field\"><span>Note</span><textarea name=\"text\" rows=\"7\" maxlength=\"8000\"></textarea></label>\n    <label class=\"cb-note-field\"><span>Colour</span><select name=\"color\"><option value=\"yellow\">Yellow</option><option value=\"blue\">Blue</option><option value=\"pink\">Pink</option></select></label>\n    <div class=\"cb-note-dialog__actions\">\n      <button value=\"save\" class=\"crime-board-btn\">Save note</button>\n      <button value=\"cancel\" formnovalidate class=\"crime-board-btn crime-board-btn--ghost\">Cancel</button>\n      <button type=\"button\" data-delete class=\"crime-board-btn crime-board-btn--danger\">Delete note</button>\n    </div>\n  </form>"}`;
   document.body.append(dialog);
   const form = dialog.querySelector('form');
-  const dialogTitle = dialog.querySelector(__dialogueText("crimeBoard/BoardWorkspace.js", "t_39c6a6ade59dda18a08f"));
+  const dialogTitle = dialog.querySelector(".cb-note-dialog__title");
   let editingId = null;
   const editNote = item => {
     editingId = item?.id || null;
@@ -234,7 +234,7 @@ export function installBoardWorkspace(api, state, saved) {
     board.removeItem(editingId); board.refreshEditor(); board.syncJsonOutput(); dialog.close('cancel');
   });
   listen(board.root, 'dblclick', event => {
-    const card = event.target.closest(__dialogueText("crimeBoard/BoardWorkspace.js", "t_5bd89b1df88527a4f1b7"));
+    const card = event.target.closest(".crime-board__item");
     const item = card && board.getItemById(card.dataset.id);
     if (item?.type === 'note' && item.createdByPlayer && item.editableByPlayer) editNote(item);
   });
@@ -242,7 +242,7 @@ export function installBoardWorkspace(api, state, saved) {
   listen(board.root, 'pointerdown', event => {
     const pin = event.target.closest('[data-anchor]');
     if (!pin || event.button !== 0) return;
-    const card = pin.closest(__dialogueText("crimeBoard/BoardWorkspace.js", "t_5bd89b1df88527a4f1b7"));
+    const card = pin.closest(".crime-board__item");
     if (!card || !board.canStartLinkFromItem(card.dataset.id)) return;
     event.preventDefault(); event.stopImmediatePropagation();
     board.clearDragState(); board.resetConnectionMode();
@@ -254,7 +254,7 @@ export function installBoardWorkspace(api, state, saved) {
     if (!gesture || event.pointerId !== gesture.pointerId) return;
     const source = gesture;
     const hit = document.elementFromPoint(event.clientX, event.clientY);
-    const card = hit?.closest(__dialogueText("crimeBoard/BoardWorkspace.js", "t_5bd89b1df88527a4f1b7"));
+    const card = hit?.closest(".crime-board__item");
     if (card && board.root.contains(card) && card.dataset.id !== source.id) {
       const pin = hit.closest('[data-anchor]');
       const link = board.addLink({ from: source.id, to: card.dataset.id,
@@ -271,7 +271,7 @@ export function installBoardWorkspace(api, state, saved) {
   listen(window, 'pointercancel', () => { cancelGesture(); board.clearDragState(); persist(); });
   listen(window, 'blur', () => { cancelGesture(); board.clearDragState(); persist(); });
   listen(window, 'keydown', event => {
-    if (event.key === __dialogueText("crimeBoard/BoardWorkspace.js", "t_037c968467aa3fd7c059") && gesture) {
+    if (event.key === "Escape" && gesture) {
       event.preventDefault(); event.stopImmediatePropagation(); cancelGesture();
     }
   }, { capture: true });

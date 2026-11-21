@@ -84,17 +84,17 @@ export class TypewriterComparisonScene extends BaseScene{
  buildCharacter(item,index){
   const container=this.add.container(130+index*236,519);
   const box=this.add.rectangle(0,0,220,408,0xd2c3a3).setStrokeStyle(2,0x8f7856).setInteractive({useHandCursor:true});
-  const title=this.add.text(0,-180,`${__dialogueText("scenes/TypewriterComparisonScene.js", "t_971fe722bd7075a87481")}${item.label}`,{fontFamily:'SpecialElite, monospace',fontSize:'22px',color:'#493a2b'}).setOrigin(.5);
+  const title=this.add.text(0,-180,`${"CHARACTER "}${item.label}`,{fontFamily:'SpecialElite, monospace',fontSize:'22px',color:'#493a2b'}).setOrigin(.5);
   const reference=this.add.image(0,-73,this.makeSample(item,false)),suspect=this.add.image(0,112,this.makeSample(item,true));
-  const refLabel=this.add.text(0,-155,__dialogueText("scenes/TypewriterComparisonScene.js", "t_30e7e41efab31a8beaa5"),{fontFamily:'SpecialElite, monospace',fontSize:'16px',color:'#68543c'}).setOrigin(.5);
-  const qLabel=this.add.text(0,27,__dialogueText("scenes/TypewriterComparisonScene.js", "t_06e3558da2f0e3a20f3a"),{fontFamily:'SpecialElite, monospace',fontSize:'16px',color:'#68543c'}).setOrigin(.5);
+  const refLabel=this.add.text(0,-155,"BODY",{fontFamily:'SpecialElite, monospace',fontSize:'16px',color:'#68543c'}).setOrigin(.5);
+  const qLabel=this.add.text(0,27,"INSURANCE ENTRY",{fontFamily:'SpecialElite, monospace',fontSize:'16px',color:'#68543c'}).setOrigin(.5);
   container.add([box,title,refLabel,reference,qLabel,suspect]);this.root.add(container);
   box.on('pointerdown',()=>{
    if(this.finished||this.closing||this.checking)return;
    if(this.selected.has(item.id))this.selected.delete(item.id);else this.selected.add(item.id);
    playTypewriterAudio(this,'click');
-   const status=this.selected.has(item.id)?__dialogueText("scenes/TypewriterComparisonScene.js", "t_557f603907b129c5b5df"):'unmarked';
-   this.message.setText(`${__dialogueText("scenes/TypewriterComparisonScene.js", "t_a71be3b2e2d552a460d1")}${item.label}${__dialogueText("scenes/TypewriterComparisonScene.js", "t_45822f54a0d0e030f756")}${status}${__dialogueText("scenes/TypewriterComparisonScene.js", "t_2c935c7c9b8f1e94aae7")}`).setFontSize(21);
+   const status=this.selected.has(item.id)?"marked as structurally different":'unmarked';
+   this.message.setText(`${"Character "}${item.label}${": "}${status}${". Compare both samples with the dashed baseline."}`).setFontSize(21);
    this.refresh();this.persist();
   });this.characters.push({id:item.id,container,box});
  }
@@ -110,7 +110,7 @@ export class TypewriterComparisonScene extends BaseScene{
   if(next)return{id:`find_${next.id}`,instructions,text:next.hint,targets:[this.characters.find(item=>item.id===next.id)?.box].filter(Boolean)};
   return{id:'ready_to_check',instructions,text:__dialogueText("scenes/TypewriterComparisonScene.js", "t_58d5ce15d4b59d46d326"),targets:[this.checkButton]};
  }
- setDialogue(text){this.message.setText(`${__dialogueText("scenes/TypewriterComparisonScene.js", "t_e0e94082545fdad681ba")}${text}`).setFontSize(19);}
+ setDialogue(text){this.message.setText(`${"HINT: "}${text}`).setFontSize(19);}
  persist(){
   if(this.preview)return;
   MainStoryManager.setSideClue(KEY,{version:1,selected:[...this.selected],checks:this.checks,completed:this.finished,originalAmount:null,author:null});
@@ -136,7 +136,7 @@ export class TypewriterComparisonScene extends BaseScene{
   try{
    if(!this.preview){
     try{this.xpGranted=this.grantCompletionXP();}
-    catch(error){console.error('[TypewriterComparison] XP settlement failed:',error);this.message.setText(__dialogueText("scenes/TypewriterComparisonScene.js", "t_1da09d4cd747b06b264a")).setFontSize(21);return;}
+    catch(error){console.error('[TypewriterComparison] XP settlement failed:',error);this.message.setText("Comparison correct, but XP could not be recorded. Click CHECK COMPARISON again to retry.").setFontSize(21);return;}
    }
    this.finished=true;this.persist();this.showSuccess();playTypewriterAudio(this,'success');
    if(!this.preview)this.emitBus('mainStory:typewriterMismatchFound',{flag:FLAG});

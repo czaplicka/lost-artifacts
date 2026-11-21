@@ -14,8 +14,8 @@ export class MedicalReviewScene extends BaseScene{
   create(){
     super.create();this.cameras.main.setBackgroundColor('#080b08');const story=getMedicalReviewStory();this.allowed=this.preview||story.eligible;this.progress=normalizeMedical(DATA,this.preview?null:story);
     this.root=this.add.container(0,0);this.background=this.add.image(DATA.width/2,DATA.height/2,DATA.backgrounds.occupied.key).setDisplaySize(DATA.width,DATA.height).setVisible(this.allowed);this.root.add(this.background);
-    this.label(25,23,__dialogueText("scenes/MedicalReviewScene.js", "t_adf981ebd77937236ed5"),22).setOrigin(0,0);
-    this.exit=this.label(25,80,__dialogueText("scenes/MedicalReviewScene.js", "t_db26b7d387791ba818bb"),20).setOrigin(0,0).setInteractive({useHandCursor:true});this.exit.on('pointerdown',()=>{if(!this.modal&&!this.debug.enabled)this.closeReview();});
+    this.label(25,23,"MARK AGENCY / ANNUAL MEDICAL REVIEW",22).setOrigin(0,0);
+    this.exit=this.label(25,80,"< UPPER FLOOR",20).setOrigin(0,0).setInteractive({useHandCursor:true});this.exit.on('pointerdown',()=>{if(!this.modal&&!this.debug.enabled)this.closeReview();});
     this.status=this.label(DATA.width-25,80,'',18).setOrigin(1,0);this.tooltip=this.label(0,0,'',19).setVisible(false);
     this.tests=new MedicalTestsController(this,DATA);
     for(const source of DATA.hotspots){const def={...source},zone=this.add.zone(def.x,def.y,def.w,def.h).setOrigin(0).setInteractive({useHandCursor:true});this.root.add(zone);const h={def,zone};this.hotspots.push(h);

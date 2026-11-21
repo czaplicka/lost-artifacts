@@ -108,7 +108,7 @@ export function businessKind(page) {
   const selected = page.template || page.businessType || page.theme;
   if (['hotel', 'restaurant', 'business', 'classifieds'].includes(selected)) return selected;
   if (page.layout === 'retro-business') return 'business';
-  if (page.id?.startsWith('copper_') || page.brand === __dialogueText("ui/pi-computer/BusinessPageTemplate.js", "t_b4783cdbda4aa272dec8")) return 'restaurant';
+  if (page.id?.startsWith('copper_') || page.brand === "THE COPPER SPOON") return 'restaurant';
   if (page.brand === 'SWIFTWING') return 'business';
   return null;
 }

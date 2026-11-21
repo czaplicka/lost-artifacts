@@ -183,14 +183,14 @@ export const WantedDatabaseDetails = {
 
         if (status === 'flag') {
             this.detailStatusText
-                .setText(__dialogueText("scenes/wanted-database/WantedDatabaseDetails.js", "t_234d78bc26f96045ea04"))
+                .setText("STATUS: FLAGGED AS SUSPECT")
                 .setColor(th.sAlert);
         } else if (status === 'clear') {
             this.detailStatusText
-                .setText(__dialogueText("scenes/wanted-database/WantedDatabaseDetails.js", "t_e80ab7640d97123cb860"))
+                .setText("STATUS: CLEARED (ALIBI OK)")
                 .setColor(th.sMid);
         } else {
-            this.detailStatusText.setText(__dialogueText("scenes/wanted-database/WantedDatabaseDetails.js", "t_7640d5c1e7dcffcb1840")).setColor(th.sDim);
+            this.detailStatusText.setText("STATUS: UNSORTED").setColor(th.sDim);
         }
 
         this.flagButton.setLabel(

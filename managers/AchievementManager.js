@@ -91,7 +91,7 @@ export function installAchievementSystem(game){
   const achievement=toastQueue.shift();
   if(!toastRoot){
    toastRoot=document.createElement('div');toastRoot.setAttribute('role','status');toastRoot.setAttribute('aria-live','polite');
-   Object.assign(toastRoot.style,{position:'fixed',right:'16px',bottom:'16px',zIndex:'100001',maxWidth:__dialogueText("managers/AchievementManager.js", "t_c68ac6986ef3e6a84a9b"),boxSizing:'border-box',background:'#181511',color:'#ffe7ab',border:__dialogueText("managers/AchievementManager.js", "t_2a6679f96b4b4d222ba3"),padding:'16px',fontFamily:'SpecialElite, monospace',fontSize:'18px',whiteSpace:'pre-line',pointerEvents:'none',boxShadow:__dialogueText("managers/AchievementManager.js", "t_7925597c70f9ae30e9bb")});
+   Object.assign(toastRoot.style,{position:'fixed',right:'16px',bottom:'16px',zIndex:'100001',maxWidth:"min(380px, calc(100vw - 32px))",boxSizing:'border-box',background:'#181511',color:'#ffe7ab',border:"2px solid #d4af37",padding:'16px',fontFamily:'SpecialElite, monospace',fontSize:'18px',whiteSpace:'pre-line',pointerEvents:'none',boxShadow:"0 4px 24px #0009"});
    document.body.appendChild(toastRoot);
   }
   toastRoot.textContent=[`${achievement.icon}${__dialogueText("managers/AchievementManager.js", "t_843d9fd2e9e06cdccc72")}`,achievement.title,achievement.description].join('\n');toastRoot.hidden=false;

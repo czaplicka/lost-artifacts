@@ -119,7 +119,7 @@ export class TravelSeaLife {
         fontFamily: 'SpecialElite',
         fontSize: fs(stage.U, 20),
         color: '#f4e7c1',
-        stroke: __dialogueText("scenes/travel/TravelSeaLife.js", "t_8f5ea20ab9f8b90f63a4"),
+        stroke: "#1a0f08",
         strokeThickness: Math.max(2, Math.round(5 * stage.U))
       }).setOrigin(0.5).setAlpha(0),
       TRAVEL_DEPTH.vehicle + 1

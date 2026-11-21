@@ -121,7 +121,7 @@ export class CrashTimelineScene extends BaseScene {
     if (definition.conclusionId) targets.push(this.conclusionButtons.find(item => item.id === definition.conclusionId)?.button);
     return { ...definition, targets: targets.filter(Boolean) };
   }
-  setDialogue(text) { this.message?.setText(`${__dialogueText("scenes/CrashTimelineScene.js", "t_e0e94082545fdad681ba")}${text}`).setFontSize(18); }
+  setDialogue(text) { this.message?.setText(`${"HINT: "}${text}`).setFontSize(18); }
   chooseSlot(index) {
     if (this.closing || this.checking) return;
     if (this.slots[index]) this.inspect(this.slots[index]);
@@ -195,7 +195,7 @@ export class CrashTimelineScene extends BaseScene {
         try { this.xpGranted = this.grantCompletionXP(); }
         catch (error) {
           console.error('[CrashTimeline] XP settlement failed:', error);
-          this.message.setText(__dialogueText("scenes/CrashTimelineScene.js", "t_af7755ad2344af0d1363")).setFontSize(20);
+          this.message.setText("Reconstruction correct, but XP could not be recorded. Click CHECK TIMELINE again to retry.").setFontSize(20);
           return;
         }
       }

@@ -486,7 +486,7 @@ export class ComputerDocuments {
       d.pixel(
         cx,
         top + innerH / 2 + 24,
-        __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_6d2aedf776b31bfc37f0"),
+        "NO MESSAGES",
         12,
         COLORS.text
       ).setOrigin(0.5, 0);
@@ -494,7 +494,7 @@ export class ComputerDocuments {
       d.text(
         cx,
         top + innerH / 2 + 54,
-        __dialogueText("ui/pi-computer/ComputerDocumentsBase.js", "t_4d2d7a183b9ee2094c34"),
+        "The mailbox is quiet. Too quiet.",
         16,
         COLORS.muted,
         Math.max(120, box.w - 120)

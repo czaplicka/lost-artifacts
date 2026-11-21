@@ -133,8 +133,8 @@ export class ComputerThiefdoku {
   g.lineStyle(1,0xe8dcc4,0.6);g.strokeRect(bx,y+24,bw,6);
   a.text(bx+bw+8,y+22,`${s.placedCount}${__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_8a5edab282632443219e")}${s.people.length}${__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_1da621181d3d2fdad1be")}`,10,'#e8dcc4');
   const r=x+w-20;
-  a.text(r,y+8,`${__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_2b16cc0ddac49e71b242")}${thiefdokuService.getMedals()}`,11,'#f0d98e').setOrigin(1,0);
-  a.text(r,y+22,`${__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_9654f663ae25bad69022")}${s.solved}`,10,'#bfb3c4').setOrigin(1,0);
+  a.text(r,y+8,`${"MEDALS "}${thiefdokuService.getMedals()}`,11,'#f0d98e').setOrigin(1,0);
+  a.text(r,y+22,`${"SOLVED "}${s.solved}`,10,'#bfb3c4').setOrigin(1,0);
   a.magnifier(x+22,y+58,18);
   a.text(x+38,y+46,`${__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_859bb20bb8d5093a89a8")}${s.stolenItem}${__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_f327f4cba9fca599dae4")}${s.roomNames[s.theftRoom].toLowerCase()}${__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_cdb4ee2aea69cc6a8333")}`,12,'#5b474b',w-60);
  }

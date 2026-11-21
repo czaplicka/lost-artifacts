@@ -73,7 +73,7 @@ export class MediumOfficeScene extends BaseScene {
     this.highlight=this.add.graphics();this.root.add(this.highlight);
     this.tooltip=this.add.text(0,0,'',this.style(20)).setOrigin(0.5,1).setVisible(false);this.root.add(this.tooltip);
     this.debugText=this.add.text(22,CONFIG.height-220,'',this.style(17)).setVisible(false);this.root.add(this.debugText);
-    this.back=this.add.text(20,CONFIG.height-25,__dialogueText("scenes/MediumOfficeScene.js", "t_cd46626128fc8436fdce"),this.style(22)).setOrigin(0,1).setInteractive({useHandCursor:true});
+    this.back=this.add.text(20,CONFIG.height-25,"< DOWNSTAIRS",this.style(22)).setOrigin(0,1).setInteractive({useHandCursor:true});
     this.root.add(this.back);this.back.on('pointerdown',()=>{void this.returnDownstairs();});
     this.navigation={hideHint:()=>this.tooltip?.setVisible(false)};
     this.computerController=installMarkAgencyComputer(this);
@@ -225,8 +225,8 @@ export class MediumOfficeScene extends BaseScene {
     if(target?.isContentEditable||['INPUT','TEXTAREA','SELECT'].includes(target?.tagName)||event.ctrlKey||event.metaKey||this.uiLocked||!this.allowed)return;
     if(event.code==='KeyD'){event.preventDefault();this.setDebugMode(!this.debugMode);return;}
     if(!this.debugMode)return;
-    if(event.code===__dialogueText("scenes/MediumOfficeScene.js", "t_037c968467aa3fd7c059")){event.preventDefault();this.setDebugMode(false);return;}
-    if(event.code===__dialogueText("scenes/MediumOfficeScene.js", "t_90ddf1963abb36c9921c")){event.preventDefault();this.selectedIndex=(this.selectedIndex+(event.shiftKey?-1:1)+this.definitions.length)%this.definitions.length;this.updateDebug();return;}
+    if(event.code==="Escape"){event.preventDefault();this.setDebugMode(false);return;}
+    if(event.code==="Tab"){event.preventDefault();this.selectedIndex=(this.selectedIndex+(event.shiftKey?-1:1)+this.definitions.length)%this.definitions.length;this.updateDebug();return;}
     if(event.code==='KeyC'){
       console.log('COPY INTO config/mediumOfficeConfig.js -> hotspots:',JSON.stringify(this.definitions,null,2));this.showOfficeStatusMessage(__dialogueText("scenes/MediumOfficeScene.js", "t_aa538dbe205dd1955c2a"));return;
     }

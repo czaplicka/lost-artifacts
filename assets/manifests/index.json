@@ -2112,7 +2112,24 @@
       "image:red-glasses",
       "image:scar-mouth",
       "image:scar-right",
-      "image:sketch_her"
+      "image:sketch_her",
+      "image:apartment_debt_bathroom",
+      "image:apartment_debt_bedroom",
+      "image:lady",
+      "image:square",
+      "image:blush",
+      "image:avatar__eyes__lady",
+      "image:avatar__eyes__square",
+      "image:avatar__eyewear__red-glasses",
+      "image:messy",
+      "image:sideBraid",
+      "image:wtf",
+      "image:youngster",
+      "image:lips",
+      "image:avatar__marks__scar-mouth",
+      "image:avatar__marks__scar-right",
+      "video:drama",
+      "video:romance"
     ],
     "auto:folder:apartments": [
       "image:apartment_debt_kitchen",
@@ -2133,7 +2150,9 @@
       "image:apartment_luxury_listing",
       "image:apartment_luxury_living_room",
       "image:apartment_research_bathroom",
-      "image:apartment_research_bedroom"
+      "image:apartment_research_bedroom",
+      "image:apartment_debt_bathroom",
+      "image:apartment_debt_bedroom"
     ],
     "auto:folder:artifacts": [
       "image:artifact_amber_necklace",
@@ -3251,6 +3270,37 @@
       "image:debt_tool_drawer_background",
       "image:debt_wedge_in_place",
       "image:apartments__cabinet__paper"
+    ],
+    "auto:folder:avatar/base": [
+      "image:lady",
+      "image:square"
+    ],
+    "auto:folder:avatar/blush": [
+      "image:blush"
+    ],
+    "auto:folder:avatar/eyes": [
+      "image:avatar__eyes__lady",
+      "image:avatar__eyes__square"
+    ],
+    "auto:folder:avatar/eyewear": [
+      "image:avatar__eyewear__red-glasses"
+    ],
+    "auto:folder:avatar/hairFront": [
+      "image:messy",
+      "image:sideBraid",
+      "image:wtf",
+      "image:youngster"
+    ],
+    "auto:folder:avatar/makeup": [
+      "image:lips"
+    ],
+    "auto:folder:avatar/marks": [
+      "image:avatar__marks__scar-mouth",
+      "image:avatar__marks__scar-right"
+    ],
+    "auto:folder:video/tv": [
+      "video:drama",
+      "video:romance"
     ]
   }
 }

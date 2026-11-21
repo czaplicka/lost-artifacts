@@ -53,7 +53,7 @@ export function createHudStanding(
   } = {}
 ) {
   const content =
-    hudContainer?.querySelector(__dialogueText("ui/HudStanding.js", "t_000fe423fa15b05430f2"));
+    hudContainer?.querySelector(".hud-content");
 
   if (!(content instanceof HTMLElement)) {
     console.error(
@@ -73,7 +73,7 @@ export function createHudStanding(
   root.id = 'hud-standing-row';
   root.className = 'hud-standing-row';
 
-  root.innerHTML = `${__dialogueText("ui/HudStanding.js", "t_eff35b35769b9b997bcb")}`;
+  root.innerHTML = `${"\n    <div\n      class=\"hud-standing-stat\"\n      data-standing=\"fame\"\n      tabindex=\"0\"\n    >\n      <div class=\"hud-standing-heading\">\n        <span class=\"hud-standing-label\">REPUTATION</span>\n        <span\n          class=\"hud-standing-value\"\n          data-standing-value=\"fame\"\n        >0/100</span>\n      </div>\n\n      <div\n        class=\"hud-standing-track\"\n        role=\"meter\"\n        aria-label=\"Reputation\"\n        aria-valuemin=\"0\"\n        aria-valuemax=\"100\"\n        aria-valuenow=\"0\"\n      >\n        <div\n          class=\"hud-standing-fill hud-standing-fame-fill\"\n        ></div>\n      </div>\n\n      <span\n        class=\"hud-standing-status\"\n        data-standing-status=\"fame\"\n      >Unknown</span>\n    </div>\n\n    <div\n      class=\"hud-standing-stat\"\n      data-standing=\"integrity\"\n      tabindex=\"0\"\n    >\n      <div class=\"hud-standing-heading\">\n        <span class=\"hud-standing-label\">INTEGRITY</span>\n        <span\n          class=\"hud-standing-value\"\n          data-standing-value=\"integrity\"\n        >0</span>\n      </div>\n\n      <div\n        class=\"hud-standing-track\"\n        role=\"meter\"\n        aria-label=\"Integrity\"\n        aria-valuemin=\"-100\"\n        aria-valuemax=\"100\"\n        aria-valuenow=\"0\"\n      >\n        <div\n          class=\"hud-standing-fill hud-standing-integrity-fill\"\n        ></div>\n\n        <span\n          class=\"hud-standing-marker is-underworld\"\n          aria-hidden=\"true\"\n        ></span>\n\n        <span\n          class=\"hud-standing-marker is-center\"\n          aria-hidden=\"true\"\n        ></span>\n\n        <span\n          class=\"hud-standing-marker is-police\"\n          aria-hidden=\"true\"\n        ></span>\n      </div>\n\n      <span\n        class=\"hud-standing-status\"\n        data-standing-status=\"integrity\"\n      >Unaffiliated</span>\n    </div>\n  "}`;
 
   // Wewnątrz istniejącego panelu, pod SCORE / CASH.
   content.appendChild(root);
@@ -97,10 +97,10 @@ export function createHudStanding(
     root.querySelector('[data-standing-status="integrity"]');
 
   const fameFill =
-    root.querySelector(__dialogueText("ui/HudStanding.js", "t_c2c8a95b37594971e3c7"));
+    root.querySelector(".hud-standing-fame-fill");
 
   const integrityFill =
-    root.querySelector(__dialogueText("ui/HudStanding.js", "t_1a7c1e43bd6822177a16"));
+    root.querySelector(".hud-standing-integrity-fill");
 
   const fameMeter =
     fameStat.querySelector('[role="meter"]');
@@ -173,7 +173,7 @@ export function createHudStanding(
 
     fameMeter.setAttribute(
       'aria-valuetext',
-      `${fame}${__dialogueText("ui/HudStanding.js", "t_4b761ad96f2ccf9d8db1")}${fameDescription}${__dialogueText("ui/HudStanding.js", "t_cdb4ee2aea69cc6a8333")}`
+      `${fame}${" out of 100. "}${fameDescription}${"."}`
     );
 
     integrityMeter.setAttribute(

@@ -126,8 +126,8 @@ function recoverPhotosFromBoard(saved) {
         meta.find(value => {
           return (
             typeof value === 'string' &&
-            value !== __dialogueText("ui/CrimeBoardUI.js", "t_6071b9b565c939cdfdd2") &&
-            value !== __dialogueText("ui/CrimeBoardUI.js", "t_75f33cdfc8e52098ea07")
+            value !== "Processed" &&
+            value !== "Incomplete"
           );
         }) ||
         '';
@@ -142,7 +142,7 @@ function recoverPhotosFromBoard(saved) {
         missionId: item.missionId ?? null,
         success:
           item.tags?.includes('scene-failed') ||
-          meta.includes(__dialogueText("ui/CrimeBoardUI.js", "t_75f33cdfc8e52098ea07"))
+          meta.includes("Incomplete")
             ? false
             : true
       };
@@ -301,20 +301,20 @@ export class CrimeBoardUI {
     this.overlay = document.createElement('div');
     this.overlay.className = 'crime-board-ui-overlay';
 
-    this.overlay.innerHTML = `${__dialogueText("ui/CrimeBoardUI.js", "t_e31eaee7c177a5e2c3c1")}`;
+    this.overlay.innerHTML = `${"\n      <div class=\"crime-board-ui-modal\">\n        <button\n          type=\"button\"\n          class=\"crime-board-ui-close\"\n        >Close</button>\n        <div class=\"crime-board-ui-root\"></div>\n      </div>\n    "}`;
 
     document.body.appendChild(this.overlay);
 
     this.modal = this.overlay.querySelector(
-      __dialogueText("ui/CrimeBoardUI.js", "t_1e8ed6e0ad2bc816cb39")
+      ".crime-board-ui-modal"
     );
 
     this.root = this.overlay.querySelector(
-      __dialogueText("ui/CrimeBoardUI.js", "t_701e2f3f9b383f199b2a")
+      ".crime-board-ui-root"
     );
 
     this.closeBtn = this.overlay.querySelector(
-      __dialogueText("ui/CrimeBoardUI.js", "t_224c015da68ef4cb5e85")
+      ".crime-board-ui-close"
     );
 
     this.closeBtn.addEventListener(
@@ -558,7 +558,7 @@ export class CrimeBoardUI {
   onKeyDown(event) {
     if (
       event.defaultPrevented ||
-      event.key !== __dialogueText("ui/CrimeBoardUI.js", "t_037c968467aa3fd7c059") ||
+      event.key !== "Escape" ||
       !this.isOpen ||
       this.isDestroyed
     ) {

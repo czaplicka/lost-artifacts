@@ -34,7 +34,7 @@ export class ColdCaseUI {
     this.header = element('header');
     this.header.append(element('h1', data.title.toUpperCase()), this.button(__dialogueText("ui/ColdCaseUI.js", "t_bd9c76ecd0b39bbbbda8"), () => this.destroy()));
     this.nav = element('nav');
-    this.nav.setAttribute('aria-label', __dialogueText("ui/ColdCaseUI.js", "t_2c4390730ef472a30171"));
+    this.nav.setAttribute('aria-label', "Case sections");
     this.main = element('main');
     this.footer = element('div', __dialogueText("ui/ColdCaseUI.js", "t_45171677bbdba932ab95"), 'cc-footer');
     this.root.append(this.header, this.nav, this.main, this.footer);
@@ -59,14 +59,14 @@ export class ColdCaseUI {
 
   handleKeyboard(event) {
     event.stopPropagation();
-    if (event.code === __dialogueText("ui/ColdCaseUI.js", "t_037c968467aa3fd7c059")) {
+    if (event.code === "Escape") {
       event.preventDefault();
       if (!event.repeat) this.escape();
       return;
     }
-    if (event.key !== __dialogueText("ui/ColdCaseUI.js", "t_90ddf1963abb36c9921c")) return;
+    if (event.key !== "Tab") return;
     const scope = this.lightbox || this.root;
-    const focusable = [...scope.querySelectorAll(__dialogueText("ui/ColdCaseUI.js", "t_1f00994492e22bd840c7"))].filter(node => !node.disabled && !node.closest('[inert]'));
+    const focusable = [...scope.querySelectorAll("button, video[controls]")].filter(node => !node.disabled && !node.closest('[inert]'));
     const first = focusable[0], last = focusable.at(-1);
     if (!first) { event.preventDefault(); return; }
     if (!focusable.includes(document.activeElement)) {
@@ -98,13 +98,13 @@ export class ColdCaseUI {
     }
     this.main.replaceChildren(element('h2', this.tab));
     this.main.scrollTop = 0;
-    if (this.tab === __dialogueText("ui/ColdCaseUI.js", "t_d12f22e06aa520f25d81")) {
+    if (this.tab === "Case file") {
       const card = element('article', undefined, 'cc-card');
       if (this.data.victimPortrait) this.media(card, this.data.victimPortrait, __dialogueText("ui/ColdCaseUI.js", "t_666214c84d39ec6b4ff5"), 'image', {portrait:true});
       for (const [label, value] of Object.entries(this.data.brief)) card.append(element('h3', label), element('p', value));
       this.main.append(card);
-    } else if (this.tab === __dialogueText("ui/ColdCaseUI.js", "t_40c9f9f69f538765e313")) this.suspects();
-    else if (this.tab === __dialogueText("ui/ColdCaseUI.js", "t_f96a22e0f4a8bcd5d81e")) this.accuse();
+    } else if (this.tab === "Suspects") this.suspects();
+    else if (this.tab === "Accuse") this.accuse();
     else {
       const keys = {'Crime scene':'crimeScene',Interrogation:'interrogations',Evidence:'evidence',Intel:'intel'};
       for (const item of this.data[keys[this.tab]] || []) this.item(item);
@@ -117,19 +117,19 @@ export class ColdCaseUI {
     if (type === 'video') {
       const video = document.createElement('video');
       video.controls = true; video.preload = 'metadata'; video.src = url;
-      video.addEventListener('error', () => video.replaceWith(element('div', `${__dialogueText("ui/ColdCaseUI.js", "t_f2c7a58f9ab51aefce5c")}${alt}`, 'cc-placeholder')), {once:true});
+      video.addEventListener('error', () => video.replaceWith(element('div', `${"Asset unavailable: "}${alt}`, 'cc-placeholder')), {once:true});
       figure.append(video);
     } else {
       const button = this.button('', () => this.openLightbox(url, alt, options.effect, button));
       button.className = 'cc-photo-button';
-      button.setAttribute('aria-label', `${__dialogueText("ui/ColdCaseUI.js", "t_836e31e1cac810cd8515")}${alt}`);
+      button.setAttribute('aria-label', `${"Enlarge: "}${alt}`);
       const screen = element('span', undefined, 'cc-screen' + (options.effect === 'cctv' ? __dialogueText("ui/ColdCaseUI.js", "t_871e9a00e08aef17cbef") : ''));
       const image = document.createElement('img');
       image.alt = alt; image.src = url; image.loading = 'lazy'; image.decoding = 'async';
       image.addEventListener('error', () => {
         button.disabled = true;
         screen.className = 'cc-screen';
-        screen.replaceChildren(element('div', `${__dialogueText("ui/ColdCaseUI.js", "t_f2c7a58f9ab51aefce5c")}${alt}`, 'cc-placeholder'));
+        screen.replaceChildren(element('div', `${"Asset unavailable: "}${alt}`, 'cc-placeholder'));
       }, {once:true});
       screen.append(image); button.append(screen); figure.append(button);
     }
@@ -156,7 +156,7 @@ export class ColdCaseUI {
     image.alt = alt; image.src = url;
     image.addEventListener('error', () => {
       screen.className = 'cc-screen';
-      screen.replaceChildren(element('p', __dialogueText("ui/ColdCaseUI.js", "t_d282cbd2ed606a87c4b9")));
+      screen.replaceChildren(element('p', "This photograph could not be loaded."));
     }, {once:true});
     screen.append(image);
     if (effect === 'cctv') {

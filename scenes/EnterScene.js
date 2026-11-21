@@ -247,14 +247,14 @@ export class EnterScene extends BaseScene {
         if (!started) {
           this.isEnteringGame = false;
           this.updateEntryButtons();
-          this._showNotice(__dialogueText("scenes/EnterScene.js", "t_4e567b063739189afad2"), 4000);
+          this._showNotice("Unable to begin a new case. Please try again.", 4000);
         }
       } catch (error) {
         if (!this.isCurrentRun(runId)) return;
         this.isEnteringGame = false;
         this.updateEntryButtons();
         console.error('[EnterScene] New game failed:', error);
-        this._showNotice(__dialogueText("scenes/EnterScene.js", "t_4e567b063739189afad2"), 4000);
+        this._showNotice("Unable to begin a new case. Please try again.", 4000);
       }
     })();
   }
@@ -325,7 +325,7 @@ export class EnterScene extends BaseScene {
     close.on('pointerover', () => close.setColor('#bc4d38'));
     close.on('pointerout', () => close.setColor('#843b32'));
     label(43, H - 64, __dialogueText("scenes/EnterScene.js", "t_92e9bcfbfb8896b48996"), 16, '#75634d');
-    const loadingText = label(W / 2, H / 2, __dialogueText("scenes/EnterScene.js", "t_162bac9307bed52bb4d8"), 22).setOrigin(0.5);
+    const loadingText = label(W / 2, H / 2, "Reading case files...", 22).setOrigin(0.5);
     root.setAlpha(0);
     this.createTrackedTween({ targets: root, alpha: 1, duration: 180, ease: 'Quad.Out' });
 
@@ -404,7 +404,7 @@ export class EnterScene extends BaseScene {
     }
     const description = text(18, 75, this.getSaveSlotDescription(meta), 14, '#68583f');
     if (description.width > width - 36) description.setScale((width - 36) / description.width);
-    const openLabel = text(width - 18, 13, __dialogueText("scenes/EnterScene.js", "t_24e03ed599339942ea5c"), 10, '#8e4d37').setOrigin(1, 0);
+    const openLabel = text(width - 18, 13, "OPEN >", 10, '#8e4d37').setOrigin(1, 0);
     const hit = this.add.rectangle(0, 0, width, height, 0, 0).setOrigin(0)
       .setInteractive({ useHandCursor: true });
     card.add(hit);
@@ -496,11 +496,11 @@ export class EnterScene extends BaseScene {
   openModal(url) {
     if (!this.canUseEntry()) return;
     const overlay = document.createElement('div');
-    overlay.style.cssText = `${__dialogueText("scenes/EnterScene.js", "t_f8134cf7a4d6c0b4a0f4")}`;
+    overlay.style.cssText = `${"position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.72);z-index:9999;"}`;
     const frame = document.createElement('iframe');
     frame.src = url;
     frame.title = __dialogueText("scenes/EnterScene.js", "t_5bded4e4beed700a753e");
-    frame.style.cssText = `${__dialogueText("scenes/EnterScene.js", "t_d38971ffd970dd618529")}`;
+    frame.style.cssText = `${"width:600px;max-width:90vw;height:70vh;max-height:680px;border:4px solid #000;box-shadow:0 0 28px #000;background:#111;"}`;
     const clickHandler = event => {
       if (event.target === overlay && !this.isHandlingAuth) this.closeModal();
     };

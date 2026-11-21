@@ -196,7 +196,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
     });
 
 
-    const hint = this.add.text(this.closedSwab.x, this.closedSwab.y + 140, __dialogueText("scenes/CSI/DnaGenderScene.js", "t_7a5f665e7774cf246c94"), {
+    const hint = this.add.text(this.closedSwab.x, this.closedSwab.y + 140, "CLICK TO OPEN", {
       fontFamily: 'PressStart2P',
       fontSize: '10px',
       color: '#ffe8a3',
@@ -218,7 +218,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
       this.closedSwab.setDisplaySize(240, 200);
 
 
-      this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_e75098c3ba2ecc28cdd2"));
+      this.setDialogue("Vial opened. Pull the swab out and load it into the PCR tube.");
 
 
       this.time.delayedCall(500, () => {
@@ -287,7 +287,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
 
       if (!this.pcrTube.getBounds().contains(this.dnaSwab.x, this.dnaSwab.y)) {
         this.penalize(3);
-        this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_82870e9615ff5b34b19e"));
+        this.setDialogue("The swab needs to go into the PCR tube.");
         return;
       }
 
@@ -299,8 +299,8 @@ export class DnaGenderScene extends BaseForensicMinigame {
       this.pcrTube.setTint(0xbfffd0);
 
 
-      this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_82806a3b3bb43e9ef0eb"));
-      this.createRunButton(width * 0.72, height * 0.86, __dialogueText("scenes/CSI/DnaGenderScene.js", "t_6056a0e38a4306d58616"), () => this.runPcr());
+      this.setDialogue("Sample loaded. Press RUN to start amplification.");
+      this.createRunButton(width * 0.72, height * 0.86, "RUN PCR", () => this.runPcr());
     });
   }
 
@@ -399,7 +399,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
     this.addStageObject(this.pcrTube);
 
 
-    const tubeLabel = this.add.text(width * 0.14, height * 0.30 + 78, __dialogueText("scenes/CSI/DnaGenderScene.js", "t_ef0a524e07664d8f9f4e"), {
+    const tubeLabel = this.add.text(width * 0.14, height * 0.30 + 78, "SAMPLE", {
       fontFamily: 'PressStart2P',
       fontSize: '9px',
       color: '#f4e6cf'
@@ -513,10 +513,10 @@ export class DnaGenderScene extends BaseForensicMinigame {
         if (this.pcrTube?.getBounds().contains(tipX, tipY)) {
           tubeLoaded = true;
           marker.setFillStyle(0x39ff14, 1);
-          this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_c647e7393809395855a7"));
+          this.setDialogue("Sample loaded. Place it in the SAMPLE well.");
         } else {
           this.penalize(3);
-          this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_448a35a8a5366dfdc943"));
+          this.setDialogue("Draw the amplified sample from the PCR tube first.");
         }
         return;
       }
@@ -528,13 +528,13 @@ export class DnaGenderScene extends BaseForensicMinigame {
 
       if (distance > 40) {
         this.penalize(3);
-        this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_910406ecd40ee5756638"));
+        this.setDialogue("Aim the pipette at the SAMPLE well on the gel.");
         return;
       }
 
 
       if (this.loadedSample) {
-        this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_2495bb007c94a1f96237"));
+        this.setDialogue("The sample well is already loaded.");
         return;
       }
 
@@ -545,8 +545,8 @@ export class DnaGenderScene extends BaseForensicMinigame {
       this.pipette.disableInteractive();
 
 
-      this.setDialogue(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_e4709320e9eed49109ef"));
-      this.createRunButton(this.scale.width * 0.55, this.scale.height * 0.88, __dialogueText("scenes/CSI/DnaGenderScene.js", "t_3363d4987c91927a7cad"), () => this.runGel());
+      this.setDialogue("Sample loaded. Press RUN to start the electrophoresis.");
+      this.createRunButton(this.scale.width * 0.55, this.scale.height * 0.88, "RUN GEL", () => this.runGel());
     });
   }
 
@@ -611,7 +611,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
     this.addStageObject(hotspot);
 
 
-    const hint = this.add.text(this.gelTray.x, this.gelTray.y + 145, __dialogueText("scenes/CSI/DnaGenderScene.js", "t_5ca7df37e5954bf40839"), {
+    const hint = this.add.text(this.gelTray.x, this.gelTray.y + 145, "CLICK GEL FOR UV LIGHT", {
       fontFamily: 'PressStart2P',
       fontSize: '10px',
       color: '#ffe8a3',
@@ -651,7 +651,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
       .setTint(0xbfffe0);
 
 
-    const title = this.add.text(width / 2, height * 0.13, __dialogueText("scenes/CSI/DnaGenderScene.js", "t_b32a51e246591a5819c2"), {
+    const title = this.add.text(width / 2, height * 0.13, "UV LIGHT: BAND PATTERN", {
       fontFamily: 'PressStart2P',
       fontSize: '13px',
       color: '#ffe8a3'
@@ -661,7 +661,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
     const laneTexts = this.wells.map((lane, index) => {
       const bandCount = lane.isControl ? lane.bands : sampleWell.bands;
       const bars = Array.from({ length: bandCount }, () => '▬▬▬▬').join('\n');
-      return this.add.text(width * (0.32 + index * 0.18), height * 0.5, `${lane.label}${__dialogueText("scenes/CSI/DnaGenderScene.js", "t_75a11da44c802486bc6f")}${bars}`, {
+      return this.add.text(width * (0.32 + index * 0.18), height * 0.5, `${lane.label}${"\n\n"}${bars}`, {
         fontFamily: 'SpecialElite',
         fontSize: '20px',
         color: '#39ff14',
@@ -672,9 +672,9 @@ export class DnaGenderScene extends BaseForensicMinigame {
 
 
     const reactionText = this.add.text(width / 2, height * 0.78, [
-      `${__dialogueText("scenes/CSI/DnaGenderScene.js", "t_d3655db26be893ca0f9d")}${sampleWell.bands}`,
-      sampleWell.bands === 1 ? __dialogueText("scenes/CSI/DnaGenderScene.js", "t_6d4f8eadec91657f77bf") : __dialogueText("scenes/CSI/DnaGenderScene.js", "t_71ab0faf74a37fad27dc")
-    ].join(__dialogueText("scenes/CSI/DnaGenderScene.js", "t_01ba4719c80b6fe911b0")), {
+      `${"SAMPLE BANDS: "}${sampleWell.bands}`,
+      sampleWell.bands === 1 ? "MATCHES CONTROL XX (1 BAND)" : "MATCHES CONTROL XY (2 BANDS)"
+    ].join("\n"), {
       fontFamily: 'SpecialElite',
       fontSize: '22px',
       color: '#dff2de',
@@ -683,7 +683,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
     }).setOrigin(0.5).setDepth(53);
 
 
-    const hint = this.add.text(width / 2, height - 45, __dialogueText("scenes/CSI/DnaGenderScene.js", "t_e8825e41e8f3c18554f4"), {
+    const hint = this.add.text(width / 2, height - 45, "CLICK ANYWHERE TO CLOSE", {
       fontFamily: 'PressStart2P',
       fontSize: '10px',
       color: '#ffe8a3',
@@ -709,7 +709,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
 
 
       this.setDialogue(
-        __dialogueText("scenes/CSI/DnaGenderScene.js", "t_49ecdd692415f329ba98")
+        "Compare the band count with the reference ladders, then classify the sample."
       );
     });
   }
@@ -725,7 +725,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
       .setStrokeStyle(2, 0x39ff14, 0.6);
 
 
-    const title = this.add.text(x, y - 120, __dialogueText("scenes/CSI/DnaGenderScene.js", "t_1d9c0894eceab05b033f"), {
+    const title = this.add.text(x, y - 120, "CLASSIFY PROFILE", {
       fontFamily: 'SpecialElite',
       fontSize: '20px',
       color: '#ffe8a3'

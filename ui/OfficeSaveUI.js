@@ -761,7 +761,7 @@ export class OfficeSaveUI {
         card,
         width - 18,
         13,
-        hasSave ? __dialogueText("ui/OfficeSaveUI.js", "t_598e084b35a3ec31d986") : __dialogueText("ui/OfficeSaveUI.js", "t_3e2f47c34db1af7b79c7"),
+        hasSave ? "REPLACE >" : "SAVE >",
         10,
         '#8e4d37'
       ).setOrigin(1, 0);

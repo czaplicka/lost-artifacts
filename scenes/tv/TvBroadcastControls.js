@@ -591,7 +591,7 @@ export class TvBroadcastControls {
       return;
     }
 
-    if (event.code === __dialogueText("scenes/tv/TvBroadcastControls.js", "t_90ddf1963abb36c9921c")) {
+    if (event.code === "Tab") {
       event.preventDefault();
 
       const delta = event.shiftKey ? -1 : 1;

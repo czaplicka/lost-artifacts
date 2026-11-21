@@ -243,7 +243,7 @@ export class CityMapDebug {
       return;
     }
     if (!this.targets.length) return;
-    if (event.code === __dialogueText("scenes/city/CityMapDebug.js", "t_90ddf1963abb36c9921c")) {
+    if (event.code === "Tab") {
       event.preventDefault();
       this.selectedIndex = (this.selectedIndex + (event.shiftKey ? -1 : 1) + this.targets.length) % this.targets.length;
       this.syncHandles(); return;

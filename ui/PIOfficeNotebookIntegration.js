@@ -96,19 +96,19 @@ export function installPIOfficeNotebook(ui){
   const scene=ui.scene;
   ensureOfficeRefresh(scene);
   if(ui[INSTALL])return ui[INSTALL].notebook;
-  const before=new Set(document.querySelectorAll(__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_ac41b924aa2755fb032c")));
+  const before=new Set(document.querySelectorAll(".pcn"));
   const notebook=installPlayerCloudNotebook(createOfficeNotebookFacade(ui));
-  const notesRoot=[...document.querySelectorAll(__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_ac41b924aa2755fb032c"))].find(node=>!before.has(node))||null;
+  const notesRoot=[...document.querySelectorAll(".pcn")].find(node=>!before.has(node))||null;
   const phoneSync=bindPhoneNotebookUpdates(ui,notebook);
   let dead=false,lastStep=-Infinity,modal=null,settingsBinding=null,settingsOpening=false;
   let offer=null,questId=null,message='',receipt=null,buying=false;
   const restorers=[];
   const style=element('style',CSS);document.head.append(style);
-  const tools=element('nav',undefined,'pio-tools');tools.setAttribute('aria-label',__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_61376a26de56a35af936"));
+  const tools=element('nav',undefined,'pio-tools');tools.setAttribute('aria-label',"PI office controls");
   const hint=element('button','HINT');hint.type='button';tools.append(hint);
   const settings=element('button',undefined,'pio-settings');settings.type='button';
-  settings.title=__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_74a883a037bc227f9189");settings.setAttribute('aria-label',__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_74a883a037bc227f9189"));
-  settings.innerHTML=__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_925c2bdf9ef514f414ed");
+  settings.title=__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_74a883a037bc227f9189");settings.setAttribute('aria-label',"Settings");
+  settings.innerHTML="<svg viewBox=\"0 0 32 32\" aria-hidden=\"true\"><path d=\"m13 3 6 0 1 4 3 2 4-1 3 5-3 3v3l3 3-3 5-4-1-3 2-1 4h-6l-1-4-3-2-4 1-3-5 3-3v-3l-3-3 3-5 4 1 3-2z\" transform=\"translate(1 -1) scale(.94)\"/><circle cx=\"16\" cy=\"16\" r=\"5\"/></svg>";
   tools.append(settings);document.body.append(tools);
   scene.officeTitle?.destroy();scene.officeTitle=null;
   function wrap(target,key,factory){
@@ -143,10 +143,10 @@ export function installPIOfficeNotebook(ui){
     if(!modal||!alive())return;
     const oldFocus=document.activeElement?.dataset?.action;
     modal.replaceChildren();
-    const article=element('article');article.setAttribute('role','dialog');article.setAttribute('aria-modal','true');article.setAttribute('aria-label',__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_94d155e57600e9847461"));article.tabIndex=-1;
+    const article=element('article');article.setAttribute('role','dialog');article.setAttribute('aria-modal','true');article.setAttribute('aria-label',"Case assistance");article.tabIndex=-1;
     modal.append(article);article.append(element('h2',__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_dfbbedeca8c56f461882")));
     const quests=availableQuests();
-    const select=element('select');select.setAttribute('aria-label',__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_006165a612ceec8ab236"));
+    const select=element('select');select.setAttribute('aria-label',"Active case");
     for(const q of quests){const option=element('option',q.title);option.value=q.id;select.append(option);}
     if(!quests.some(q=>q.id===questId))questId=quests.find(q=>q.offer)?.id||quests[0]?.id||null;
     if(questId)select.value=questId;
@@ -189,7 +189,7 @@ export function installPIOfficeNotebook(ui){
     if(!alive()||!scene.canUseOffice()||modal)return;
     scene.activeDevice='office-hint';scene.refreshInteractions();
     modal=element('div',undefined,'pio-assist');
-    modal.addEventListener('keydown',event=>{event.stopPropagation();if(event.key===__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_037c968467aa3fd7c059")){event.preventDefault();closeHints();}});
+    modal.addEventListener('keydown',event=>{event.stopPropagation();if(event.key==="Escape"){event.preventDefault();closeHints();}});
     for(const type of ['pointerdown','pointerup','click','wheel'])modal.addEventListener(type,event=>event.stopPropagation());
     document.body.append(modal);receipt=null;message='';drawHints();updateVisibility();
   }
@@ -222,12 +222,12 @@ export function installPIOfficeNotebook(ui){
     const now=scene.time?.now??Date.now();if(now-lastStep<120)return;lastStep=now;
     phoneSync.step();
   }
-  const handle=notesRoot?.querySelector(__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_19380311105cba9f2828"));
+  const handle=notesRoot?.querySelector(".pcn-handle");
   function onNotesClick(){
     if(!scene.phoneUI?.isOpen)return;
     queueMicrotask(()=>{
       if(!alive())return;
-      const paper=notesRoot?.querySelector(__dialogueText("ui/PIOfficeNotebookIntegration.js", "t_7161f0f9dc27778223ff"));
+      const paper=notesRoot?.querySelector(".pcn-paper");
       if(paper&&!paper.hidden)phoneSync.reveal();
     });
   }

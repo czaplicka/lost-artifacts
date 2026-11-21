@@ -8,7 +8,7 @@ import { InventoryDragController } from './inventory/InventoryDragController.js'
 import { InventoryDiscardDialog } from './inventory/InventoryDiscardDialog.js';
 import { captureApartmentInventory, recordEnvelopeViewed } from '../crimeBoard/BoardEvidenceRuntime.js';
 
-const say=text=>EventBus.emit('showDialogue',{speaker:__dialogueText("ui/InventoryUI.js", "t_2653ceeec1fd951707a3"),text});
+const say=text=>EventBus.emit('showDialogue',{speaker:"Detective",text});
 export class InventoryUI {
   constructor(scene) {
     this.scene=scene;this.isVisible=false;this.selectedItem=null;
@@ -82,7 +82,7 @@ export class InventoryUI {
     const x=view.cardX+width+gap;
     this.discardButtonBg=this.scene.add.rectangle(x,410,width,54,0x353541).setOrigin(0)
       .setStrokeStyle(2,0x6a6070).setInteractive({useHandCursor:true});
-    this.discardButtonText=this.scene.add.text(x+width/2,437,__dialogueText("ui/InventoryUI.js", "t_61413a37fa2334328146"),{
+    this.discardButtonText=this.scene.add.text(x+width/2,437,"DISCARD",{
       fontFamily:'PressStart2P',fontSize:'13px',color:'#96909b'
     }).setOrigin(0.5).setShadow(2,2,'#000000',0,false,true);
     this.discardButtonBg.on('pointerdown',(p,x,y,event)=>event?.stopPropagation());

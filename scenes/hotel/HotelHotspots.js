@@ -291,7 +291,7 @@ export class HotelHotspots {
 
     if (
       this.debugMode &&
-      event.code === __dialogueText("scenes/hotel/HotelHotspots.js", "t_037c968467aa3fd7c059")
+      event.code === "Escape"
     ) {
       event.preventDefault();
       this.setDebug(false);
@@ -315,7 +315,7 @@ export class HotelHotspots {
 
     if (!this.debugMode || !this.zones.length) return;
 
-    if (event.code === __dialogueText("scenes/hotel/HotelHotspots.js", "t_90ddf1963abb36c9921c")) {
+    if (event.code === "Tab") {
       event.preventDefault();
 
       const delta = event.shiftKey ? -1 : 1;

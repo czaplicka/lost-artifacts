@@ -43,9 +43,9 @@ export function renderDeadMenCloudPhoneNotes(){
  this.notePage=Math.max(0,Math.min(pages.length-1,this.notePage||0));
  for(const entry of pages[this.notePage])button(30,entry.y,entry.label,entry.action,choosing);
  if(!entries.length)text(30,top,active?__dialogueText("ui/pi-phone/DeadMenCloudPhoneNotes.js", "t_fe5204006499a29c3f19"):__dialogueText("ui/pi-phone/DeadMenCloudPhoneNotes.js", "t_d808b377b1b13766230d"),17,'#786c54');
- button(30,height-82,__dialogueText("ui/pi-phone/DeadMenCloudPhoneNotes.js", "t_d463afc6ea8f75cc6b55"),()=>{inv.notePage--;phone.render();},choosing&&this.notePage>0);
+ button(30,height-82,"< PAGE",()=>{inv.notePage--;phone.render();},choosing&&this.notePage>0);
  text(width/2,height-80,`${this.notePage+1}/${pages.length}`,14);
- button(width-108,height-82,__dialogueText("ui/pi-phone/DeadMenCloudPhoneNotes.js", "t_8188caf087609e305acc"),()=>{inv.notePage++;phone.render();},choosing&&this.notePage<pages.length-1);
+ button(width-108,height-82,"PAGE >",()=>{inv.notePage++;phone.render();},choosing&&this.notePage<pages.length-1);
  button(30,height-40,active?__dialogueText("ui/pi-phone/DeadMenCloudPhoneNotes.js", "t_9e905f09f84609111358"):__dialogueText("ui/pi-phone/DeadMenCloudPhoneNotes.js", "t_a1129ed66b026c7ba94c"),()=>{inv.dmCloudId=null;inv.notePage=0;phone.render();},choosing);
  button(190,height-40,__dialogueText("ui/pi-phone/DeadMenCloudPhoneNotes.js", "t_57122ddcbe5aaddde50a"),()=>inv.replay(),choosing&&(phoneCaseProgress(definition.id).transcripts||[]).length>0);
  if(choosing){phone.logContainer.setVisible(false);phone.prompt.setVisible(false);phone.statusText.setVisible(true).setText(__dialogueText("ui/pi-phone/DeadMenCloudPhoneNotes.js", "t_90c1a393d4e412163ab2"));}

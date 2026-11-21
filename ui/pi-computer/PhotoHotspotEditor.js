@@ -58,11 +58,11 @@ export class PhotoHotspotEditor{
       event.preventDefault();if(!event.repeat){this.enabled=!this.enabled;this.owner.refresh();}return true;
     }
     if(!this.enabled)return false;
-    if(event.code===__dialogueText("ui/pi-computer/PhotoHotspotEditor.js", "t_037c968467aa3fd7c059")){event.preventDefault();this.enabled=false;this.owner.refresh();return true;}
+    if(event.code==="Escape"){event.preventDefault();this.enabled=false;this.owner.refresh();return true;}
     if(event.code==='KeyC'){
       event.preventDefault();if(!event.repeat){console.log('COPY INTO assets/data/piPhotoQuest.json -> photo.hotspots:');console.log(JSON.stringify(this.owner.data.photo.hotspots,null,2));}return true;
     }
-    if(event.code===__dialogueText("ui/pi-computer/PhotoHotspotEditor.js", "t_90ddf1963abb36c9921c")){
+    if(event.code==="Tab"){
       event.preventDefault();this.index=(this.index+(event.shiftKey?-1:1)+this.views.length)%Math.max(1,this.views.length);this.sync();return true;
     }
     if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.code))return false;

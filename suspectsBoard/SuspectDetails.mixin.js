@@ -130,7 +130,7 @@ export const SuspectDetailsMixin={
     }return lines.join('\n');
   },
   buildCrimeLabReportsText(){
-    const results=this.getCompletedCrimeLabResults();if(!results.length)return__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_0d58d60642718826c798");
+    const results=this.getCompletedCrimeLabResults();if(!results.length)return __dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_0d58d60642718826c798");
     return results.map(r=>[r.label.toUpperCase(),`${__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_0650c019e87c68c4d074")}${r.value}`,r.description,
       r.sourceText&&!r.description.includes(r.sourceText)?`${__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_997d8ad6a73e20233513")}${r.sourceText}`:'',
       r.assistantProvided?__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_a636314dcae2c8902374"):__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_f9c1eb52eeb1006d5a9a")
@@ -181,8 +181,8 @@ export const SuspectDetailsMixin={
         const label=this.add.text(14,yy+3,r.label.toUpperCase(),{fontFamily:'PressStart2P',fontSize:'6px',color:'#a9d5d4'});fitText(label,width-28,12);
         const value=this.add.text(14,yy+17,r.value,{fontFamily:'SpecialElite',fontSize:'17px',color:'#f4e6b5'});fitText(value,width-28,21);
         bg.on('pointerdown',(p,x,y,event)=>{
-          event?.stopPropagation();this.openSuspectFileDocument({title:r.label,text:[`${__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_0650c019e87c68c4d074")}${r.value}`,r.description,
-            r.sourceText&&!r.description.includes(r.sourceText)?`${__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_997d8ad6a73e20233513")}${r.sourceText}`:''].filter(Boolean).join(__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_75a11da44c802486bc6f"))});
+          event?.stopPropagation();this.openSuspectFileDocument({title:r.label,text:[`${"Result: "}${r.value}`,r.description,
+            r.sourceText&&!r.description.includes(r.sourceText)?`${"Sample origin: "}${r.sourceText}`:''].filter(Boolean).join("\n\n")});
         });rowRoot.add([bg,label,value]);
       });
     };render();return{container,height};
@@ -210,3 +210,5 @@ export const SuspectDetailsMixin={
     return labels[status]||__dialogueText("suspectsBoard/SuspectDetails.mixin.js", "t_331551b0de4157c9abc7");
   }
 };
+
+// CSI reliability fixes: 2026-11-20-v1

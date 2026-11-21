@@ -352,7 +352,7 @@ export class LoadingOverlayScene extends Phaser.Scene {
 
     /* ---------- teksty ---------- */
 
-    this.folderText = this.add.text(24, -21, `${__dialogueText("scenes/LoadingOverlayScene.js", "t_bbc8ad66c4df0b7b9f35")}${this.caseNumber}`, {
+    this.folderText = this.add.text(24, -21, `${"CASE No. "}${this.caseNumber}`, {
       fontFamily: FONT_PIXEL,
       fontSize: '9px',
       color: '#4a3922'
@@ -386,7 +386,7 @@ export class LoadingOverlayScene extends Phaser.Scene {
       .setOrigin(1, 0);
 
     this.titleText = this.add
-      .text(410, 172, __dialogueText("scenes/LoadingOverlayScene.js", "t_af177e6d57810d405928"), {
+      .text(410, 172, "DIGGING THROUGH\nTHE ARCHIVES", {
         fontFamily: FONT_PIXEL,
         fontSize: '20px',
         color: '#362b23',
@@ -413,7 +413,7 @@ export class LoadingOverlayScene extends Phaser.Scene {
       });
 
     this.percentText = this.add
-      .text(758, 252, __dialogueText("scenes/LoadingOverlayScene.js", "t_d9a847a1a79ab44825bb"), {
+      .text(758, 252, "0%", {
         fontFamily: FONT_PIXEL,
         fontSize: '13px',
         color: '#514334'
@@ -497,7 +497,7 @@ export class LoadingOverlayScene extends Phaser.Scene {
     g.strokeRect(-w / 2, -h / 2, w, h);
 
     this.tipHeading = this.add
-      .text(0, -h / 2 + 24, __dialogueText("scenes/LoadingOverlayScene.js", "t_bb6230d294da1882196d"), {
+      .text(0, -h / 2 + 24, "A NOTE FROM THE ARCHIVIST", {
         fontFamily: FONT_PIXEL,
         fontSize: '9px',
         color: '#8b513b'
@@ -529,7 +529,7 @@ export class LoadingOverlayScene extends Phaser.Scene {
       .setStrokeStyle(3, 0x963e32);
 
     this.stampText = this.add
-      .text(0, 1, __dialogueText("scenes/LoadingOverlayScene.js", "t_889999e4746fd0f2cbcf"), {
+      .text(0, 1, "CLASSIFIED", {
         fontFamily: FONT_PIXEL,
         fontSize: '12px',
         color: '#963e32'
@@ -717,7 +717,7 @@ export class LoadingOverlayScene extends Phaser.Scene {
 
     this.stampBorder.setStrokeStyle(3, color);
     this.stampText
-      .setText(approved ? __dialogueText("scenes/LoadingOverlayScene.js", "t_f1995216dcfbca4efddf") : __dialogueText("scenes/LoadingOverlayScene.js", "t_889999e4746fd0f2cbcf"))
+      .setText(approved ? "APPROVED" : "CLASSIFIED")
       .setColor(approved ? '#3d6a3f' : '#963e32');
 
     this.tweens.killTweensOf(this.stamp);

@@ -141,7 +141,7 @@ const PATHS={
 };
 function icon(job){
   const key=/secur|guard|CCTV/i.test(job)?'shield':/\bIT\b|network|computer|software|database/i.test(job)?'computer':/clean|janitor|housekeep/i.test(job)?'broom':/ticket|admission|cloakroom/i.test(job)?'ticket':/archiv|educat|guide|docent|research/i.test(job)?'book':/conserv|restor|curat|display/i.test(job)?'brush':/pack|cargo|warehouse|freight|stock/i.test(job)?'box':'briefcase';
-  return `${__dialogueText("suspects/PersonnelRoster.js", "t_f323980de7ff35d17862")}${PATHS[key]}${__dialogueText("suspects/PersonnelRoster.js", "t_fc2a84ab62b5bd298ac6")}`;
+  return `${"<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\""}${PATHS[key]}${"\"/></svg>"}`;
 }
 let avatarCss='';
 const avatarStyleParts=new Set();
@@ -149,7 +149,7 @@ function portrait(appearance,name){
   const wrapper=document.createElement('div');wrapper.innerHTML=renderAvatarPreview({appearance,name});
   for(const style of wrapper.querySelectorAll('style'))avatarStyleParts.add(style.textContent);
   avatarCss=[...avatarStyleParts].join('\n');
-  const avatar=wrapper.querySelector(__dialogueText("suspects/PersonnelRoster.js", "t_64781541f2719c61a61f"));
+  const avatar=wrapper.querySelector(".agency-id-avatar");
   if(!avatar)throw new Error('Avatar renderer did not return a portrait.');
   avatar.removeAttribute('data-avatar-preview');avatar.setAttribute('aria-label',name);
   if(appearance?.hairHex)avatar.style.setProperty('--hair',appearance.hairHex);
@@ -167,8 +167,8 @@ export class PersonnelRosterView {
     this.selectedStatement=Math.max(0,Math.min(roster.selectedStatement||0,roster.statements.length-1));
     this.handleClick=this.handleClick.bind(this);this.resize=this.resize.bind(this);loadStyles();
     const ui=PERSONNEL_TEXT.ui;
-    this.element=scene.add.dom(0,0).createFromHTML(`${__dialogueText("suspects/PersonnelRoster.js", "t_7894280d0cc22f6b55ff")}${esc(ui.title)}${__dialogueText("suspects/PersonnelRoster.js", "t_b860d5f775a18a3e20d0")}${esc(ui.title)}${__dialogueText("suspects/PersonnelRoster.js", "t_427148483efaaabf7744")}${esc(roster.location)}${__dialogueText("suspects/PersonnelRoster.js", "t_3b2e8119b6fcc97df985")}${esc(ui.instruction)}${__dialogueText("suspects/PersonnelRoster.js", "t_17760dd7eee1b14d1834")}${esc(ui.back)}${__dialogueText("suspects/PersonnelRoster.js", "t_2800c3da8fd588cffc67")}${esc(ui.note)}${__dialogueText("suspects/PersonnelRoster.js", "t_b8a52c3c3b1b94b75425")}${esc(ui.hint)}${__dialogueText("suspects/PersonnelRoster.js", "t_72f82f5e83207e5a5c17")}${esc(ui.submit)}${__dialogueText("suspects/PersonnelRoster.js", "t_adc3ae5e7cf6379200b1")}`).setOrigin(0,0).setDepth(2000).setScrollFactor(0);
-    this.root=this.element.node.querySelector(__dialogueText("suspects/PersonnelRoster.js", "t_0abdcccbbdd807c54557"));
+    this.element=scene.add.dom(0,0).createFromHTML(`${"\n      <section class=\"personnel-roster\" aria-label=\""}${esc(ui.title)}${"\"><style data-avatar-css></style>\n        <header class=\"personnel-header\"><div><h1>"}${esc(ui.title)}${"</h1><p>"}${esc(roster.location)}${" — "}${esc(ui.instruction)}${"</p></div><button type=\"button\" data-close>"}${esc(ui.back)}${"</button></header>\n        <section class=\"personnel-testimony\"><div class=\"personnel-witness-photo\" data-witness-photo></div><div class=\"personnel-account\">\n          <div class=\"personnel-witness-bar\"><button type=\"button\" data-prev aria-label=\"Previous witness\">&#8249;</button><div data-speaker></div><button type=\"button\" data-next aria-label=\"Next witness\">&#8250;</button></div>\n          <blockquote data-statement></blockquote><details><summary>"}${esc(ui.note)}${"</summary><p data-corroboration></p></details>\n        </div></section><div class=\"personnel-grid\" data-grid></div>\n        <footer><button type=\"button\" data-hint>"}${esc(ui.hint)}${"</button><p data-message role=\"status\" aria-live=\"polite\"></p><button type=\"button\" data-confirm>"}${esc(ui.submit)}${"</button></footer>\n      </section>"}`).setOrigin(0,0).setDepth(2000).setScrollFactor(0);
+    this.root=this.element.node.querySelector(".personnel-roster");
     this.help=new PersonnelHelpController(scene,this,PERSONNEL_TEXT.help);
     this.root.addEventListener('click',this.handleClick);scene.scale.on('resize',this.resize);
     this.help.create();this.render();this.resize();
@@ -180,7 +180,7 @@ export class PersonnelRosterView {
   }
   render(){
     const excluded=new Set(this.roster.excludedIds||[]),ui=PERSONNEL_TEXT.ui;
-    this.root.querySelector('[data-grid]').innerHTML=this.roster.people.map(p=>`${__dialogueText("suspects/PersonnelRoster.js", "t_145ee8e5bdb8d9c619cb")}${excluded.has(p.id)?__dialogueText("suspects/PersonnelRoster.js", "t_777741c0f535a5e37e71"):''}${__dialogueText("suspects/PersonnelRoster.js", "t_2dcc6dd830e42ff686fe")}${esc(p.id)}${__dialogueText("suspects/PersonnelRoster.js", "t_b3c0b044207f0ecc4137")}${excluded.has(p.id)}${__dialogueText("suspects/PersonnelRoster.js", "t_99d2ca2d1aa2d0be0ace")}${portrait(p.appearance,p.name)}${__dialogueText("suspects/PersonnelRoster.js", "t_549386b255132b68059e")}${esc(ui.cleared)}${__dialogueText("suspects/PersonnelRoster.js", "t_63edff4808ebde6d73b3")}${esc(p.name)}${__dialogueText("suspects/PersonnelRoster.js", "t_6d65c3cec938f427f5d1")}${icon(p.occupation)}${__dialogueText("suspects/PersonnelRoster.js", "t_f0a8ebd68c47ad5549c3")}${esc(p.occupation)}${__dialogueText("suspects/PersonnelRoster.js", "t_81f81d5723b9e3df62be")}${esc(floorLabel(p.floor))}${__dialogueText("suspects/PersonnelRoster.js", "t_fed48d69b2f478abb2f5")}`).join('');
+    this.root.querySelector('[data-grid]').innerHTML=this.roster.people.map(p=>`${"<button type=\"button\" class=\"personnel-card"}${excluded.has(p.id)?" is-cleared":''}${"\" data-person=\""}${esc(p.id)}${"\" aria-pressed=\""}${excluded.has(p.id)}${"\">\n      <span class=\"personnel-photo\">"}${portrait(p.appearance,p.name)}${"<span class=\"personnel-stamp\" aria-hidden=\"true\">"}${esc(ui.cleared)}${"</span></span>\n      <span class=\"personnel-name\">"}${esc(p.name)}${"</span><span class=\"personnel-occupation\">"}${icon(p.occupation)}${"<span>"}${esc(p.occupation)}${"</span></span><span class=\"personnel-floor\">"}${esc(floorLabel(p.floor))}${"</span></button>"}`).join('');
     this.renderStatement();this.updateCount();if(this.roster.updatedFromPreviousVersion)this.message(ui.updated);
   }
   renderStatement(){

@@ -20,15 +20,15 @@ export class OfficeDustHelpController extends ForensicHelpController {
     this.makeButton(0,215,__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_a224ade223493a9c49f7"),()=>{this.close();this.showEffect(definition,{text:definition.text});},this.modal);
   }
   panel(title,body){
-    if(title===__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_aa4c08975bb761f44d5f")){title=__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_27853b148a3694fc8b63");body=__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_f60b0daa0b50bf39b0d9");}
-    if(title===__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_cf340b2b1c0c6eabde3b"))title=__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_fd39cf010137c6692402");
+    if(title==="LAB ASSISTANCE"){title=__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_27853b148a3694fc8b63");body=__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_f60b0daa0b50bf39b0d9");}
+    if(title==="LAB HINT")title=__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_fd39cf010137c6692402");
     const before=this.modal,result=super.panel(title,body);
     if(this.modal&&this.modal!==before)playOfficeDustAudio(this.scene,'paper');return result;
   }
   makeButton(x,y,label,callback,parent=null,enabled=true){
     label=label.replace(__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_887ded7583c53dfaf1b8"),__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_ab54be8f55c14bfdd304")).replace(__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_e59dd6a4c606d360d6a5"),__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_a224ade223493a9c49f7"));
-    if(label.startsWith(__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_d1cbbf44341666456748")))label+=__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_9c7fd168c10f116a0ba2");
-    if(label.startsWith(__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_ab54be8f55c14bfdd304")))label+=__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_314538d65759cb745d17");
+    if(label.startsWith("CUT CORNERS"))label+=__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_9c7fd168c10f116a0ba2");
+    if(label.startsWith("ASK AGENCY ANALYST"))label+=__dialogueText("scenes/archive/OfficeDustHelpController.js", "t_314538d65759cb745d17");
     return super.makeButton(x,y,label,()=>{
       if(this.scene.closing||this.scene._cleanupDone||!this.scene.sys.isActive())return;
       const before=this.modal;

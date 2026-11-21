@@ -45,7 +45,7 @@ export class HospitalScene extends BaseScene{
         wordWrap:{width:Math.max(100,this.scale.width-48)}
       }).setDepth(20);
     }
-    this.exitButton=this.add.text(18,16,__dialogueText("scenes/HospitalScene.js", "t_05a9505481b14d636cc5"),{
+    this.exitButton=this.add.text(18,16,"< Back to town",{
       fontFamily:'SpecialElite, monospace',fontSize:20,color:'#ffe0a0',backgroundColor:'#24352e',padding:{x:12,y:10}
     }).setDepth(100).setInteractive({useHandCursor:true});
     this.exitButton.on('pointerdown',()=>{void this.leave();});
@@ -63,7 +63,7 @@ export class HospitalScene extends BaseScene{
   }
   createNurseHotspot(){
     this.nurseHotspot=this.add.rectangle(0,0,1,1,0xffffff,0).setDepth(10).setInteractive({useHandCursor:true});
-    this.nurseLabel=this.add.text(0,0,__dialogueText("scenes/HospitalScene.js", "t_41e96c33cee3543fb051"),{
+    this.nurseLabel=this.add.text(0,0,"Nurse",{
       fontFamily:'SpecialElite, monospace',fontSize:20,color:'#ffe3a4',backgroundColor:'#18201c',padding:{x:10,y:6}
     }).setOrigin(0.5,1).setDepth(30).setVisible(false);
     this.nurseHotspot.on('pointerover',()=>{if(this.canInteract())this.nurseLabel.setVisible(true);});

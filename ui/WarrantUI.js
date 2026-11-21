@@ -83,7 +83,7 @@ export class WarrantUI {
       if (!object) return;
 
       if (
-        object.type === __dialogueText("ui/WarrantUI.js", "t_71988c4d8e0803ba4519") &&
+        object.type === "Text" &&
         typeof object.updateText === 'function'
       ) {
         object.updateText();
@@ -136,7 +136,7 @@ export class WarrantUI {
     const title = s.add.text(
       SCREEN_W * 0.28,
       90,
-      __dialogueText("ui/WarrantUI.js", "t_bba0472f1f9db608d20b"),
+      "— SUSPECT SKETCH —",
       {
         fontFamily: FONT,
         fontSize: '38px',
@@ -248,7 +248,7 @@ export class WarrantUI {
       const heading = this.scene.add.text(
         RESULT_X,
         y,
-        `${label}${__dialogueText("ui/WarrantUI.js", "t_e7ac0786668e0ff0f02b")}`,
+        `${label}${":"}`,
         {
           fontFamily: FONT,
           fontSize: '26px',

@@ -182,10 +182,7 @@ export const folderMethods = {
         {
           fontFamily: FONT_TYPE,
           fontSize: '28px',
-          fontStyle: __dialogueText(
-            "scenes/arrestSelection/folder.js",
-            "t_db2365bb7a376f09d1dd"
-          ),
+          fontStyle: "italic",
           color: '#6c7396'
         }
       )
@@ -230,18 +227,12 @@ export const folderMethods = {
       .text(
         width / 2,
         36,
-        __dialogueText(
-          "scenes/arrestSelection/folder.js",
-          "t_9246fca97ffafae56410"
-        ),
+        "MARK AGENCY",
         {
           fontFamily: FONT_PIXEL,
           fontSize: '18px',
           color: PAL.goldCss,
-          stroke: __dialogueText(
-            "scenes/arrestSelection/folder.js",
-            "t_65a103aa74ee8a7ded7b"
-          ),
+          stroke: "#2e1f10",
           strokeThickness: 5
         }
       )
@@ -252,10 +243,7 @@ export const folderMethods = {
       .text(
         width / 2,
         78,
-        __dialogueText(
-          "scenes/arrestSelection/folder.js",
-          "t_44c0f230da507c2b8226"
-        ),
+        "FINAL SUSPECT DOSSIER",
         {
           fontFamily: FONT_TYPE,
           fontSize: '34px',
@@ -329,10 +317,7 @@ export const folderMethods = {
         .text(
           baseX,
           baseY,
-          __dialogueText(
-            "scenes/arrestSelection/folder.js",
-            "t_dabd3aff769f07eb2965"
-          ),
+          "<",
           {
             fontFamily: FONT_PIXEL,
             fontSize: '22px',

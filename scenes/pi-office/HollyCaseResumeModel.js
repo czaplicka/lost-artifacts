@@ -13,9 +13,9 @@ export function selectHollyResume(hasFlag,mainCaseClosed=false){
  const stage=HOLLY_RESUME_STAGES.find(s=>hasFlag(s.after));return stage?{...stage,ending:false}:null;
 }
 export function validateHollyResume(entry,state,hasFlag,mainCaseClosed=false){
- if(!state||state.eligible!==true)return__dialogueText("scenes/pi-office/HollyCaseResumeModel.js", "t_4a21c2822a850beb0916");
- if(state.completed===true&&!hasFlag(entry.completion))return__dialogueText("scenes/pi-office/HollyCaseResumeModel.js", "t_13db54174ae19924e5f9");
- if(entry.ending&&state.completed!==true)return__dialogueText("scenes/pi-office/HollyCaseResumeModel.js", "t_f6f9e0666d009379e440");
- if(entry.id==='finale'&&state.completed===true&&!mainCaseClosed)return__dialogueText("scenes/pi-office/HollyCaseResumeModel.js", "t_69f7678aa45421beaf67");
+ if(!state||state.eligible!==true)return __dialogueText("scenes/pi-office/HollyCaseResumeModel.js", "t_4a21c2822a850beb0916");
+ if(state.completed===true&&!hasFlag(entry.completion))return __dialogueText("scenes/pi-office/HollyCaseResumeModel.js", "t_13db54174ae19924e5f9");
+ if(entry.ending&&state.completed!==true)return __dialogueText("scenes/pi-office/HollyCaseResumeModel.js", "t_f6f9e0666d009379e440");
+ if(entry.id==='finale'&&state.completed===true&&!mainCaseClosed)return __dialogueText("scenes/pi-office/HollyCaseResumeModel.js", "t_69f7678aa45421beaf67");
  return null;
 }

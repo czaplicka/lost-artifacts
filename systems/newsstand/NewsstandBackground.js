@@ -1,4 +1,4 @@
-import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
+
 import {
   NEWSSTAND_CONFIG
 } from '../../config/newsstandConfig.js';
@@ -57,7 +57,7 @@ export class NewsstandBackground {
         .text(
           width / 2,
           height / 2,
-          `${__dialogueText("systems/newsstand/NewsstandBackground.js", "t_33d7d45dfab85260cb23")}${config.backgroundKey}`,
+          `${"NEWSSTAND BACKGROUND MISSING\n\n"}${config.backgroundKey}`,
           {
             fontFamily: 'SpecialElite',
             fontSize: '28px',

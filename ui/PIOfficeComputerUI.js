@@ -50,7 +50,7 @@ export class PIOfficeComputerUI {
    const target = event.target;
    if (target?.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target?.tagName)) return;
    if (this.photoQuest.debugEditor.handleKey(event)) return;
-   if (event.code !== __dialogueText("ui/PIOfficeComputerUI.js", "t_037c968467aa3fd7c059")) return;
+   if (event.code !== "Escape") return;
    event.preventDefault();
    if (this.booting) { this.cancelPendingBootStart(); this.monitor.finishBoot(); return; }
    if (this.menuOpen) { this.menuOpen = false; this.render(); return; }

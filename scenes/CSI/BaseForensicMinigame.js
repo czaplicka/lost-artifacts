@@ -125,7 +125,7 @@ export class BaseForensicMinigame extends BaseScene {
     const { width } = this.scale;
 
     this.exitButton = this.add
-      .text(width - 24, 18, __dialogueText("scenes/CSI/BaseForensicMinigame.js", "t_4b68ab3847feda7d6c62"), {
+      .text(width - 24, 18, "X", {
         fontFamily: 'PressStart2P',
         fontSize: '12px',
         color: '#ff6666',
@@ -376,7 +376,7 @@ export class BaseForensicMinigame extends BaseScene {
       .setDepth(130);
 
     this.timerText = this.add
-      .text(width - 40, height - 36, __dialogueText("scenes/CSI/BaseForensicMinigame.js", "t_ad41fb28140561ca1d65"), style)
+      .text(width - 40, height - 36, "Time: 00", style)
       .setOrigin(1, 0)
       .setDepth(130);
 

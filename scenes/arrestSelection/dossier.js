@@ -59,7 +59,7 @@ export const dossierMethods = {
       polaroid.add([photo, hoverFrame]);
     } else {
       const missing = this.add
-        .text(0, -50, __dialogueText("scenes/arrestSelection/dossier.js", "t_2e0828e3b426a51ac1c6"), {
+        .text(0, -50, "PHOTO MISSING", {
           fontFamily: FONT_PIXEL,
           fontSize: '18px',
           color: '#f7ebc6'
@@ -72,7 +72,7 @@ export const dossierMethods = {
     const tagBg = this.add.rectangle(-160, -197, 260, 28, 0x000000, 0.65);
 
     const tagText = this.add
-      .text(-160, -197, __dialogueText("scenes/arrestSelection/dossier.js", "t_ada295b42fe5736c587e"), {
+      .text(-160, -197, "SURVEILLANCE PHOTO", {
         fontFamily: FONT_PIXEL,
         fontSize: '10px',
         color: PAL.goldCss
@@ -93,7 +93,7 @@ export const dossierMethods = {
 
     if (hasPhoto) {
       const hint = this.add
-        .text(0, 198, __dialogueText("scenes/arrestSelection/dossier.js", "t_0a47d1ab0df201b6e2ba"), {
+        .text(0, 198, "click photo to enlarge", {
           fontFamily: FONT_TYPE,
           fontSize: '18px',
           color: '#8a6a44'

@@ -70,7 +70,7 @@ export class CityEncounters {
     if (!access.available) return;
     const root = this.add.container(this.scale.width - 220, 155).setDepth(8);
     const bg = this.add.rectangle(0, 0, 380, 64, 0x34251a).setStrokeStyle(2, 0xd4af37).setInteractive({useHandCursor:true});
-    const label = this.add.text(0, 0, access.completed ? __dialogueText('scenes/city/CityEncounters.js', 't_c1abec826396059421c5') : __dialogueText('scenes/city/CityEncounters.js', 't_159b45db787832bbdafa'), {
+    const label = this.add.text(0, 0, access.completed ? "Document workshop · Notes" : "Observe document forger", {
       fontFamily:'SpecialElite', fontSize:'22px', color:'#ffe0a3', align:'center', wordWrap:{width:350}
     }).setOrigin(.5);
     root.add([bg, label]);

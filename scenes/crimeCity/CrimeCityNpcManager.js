@@ -248,7 +248,7 @@ export class CrimeCityNpcManager {
           continue;
         }
 
-        if (object.type === __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_1aa4cb0bcca76e92e306")) {
+        if (object.type === "Image") {
           const maxSide = Math.max(
             object.width,
             object.height,
@@ -267,11 +267,11 @@ export class CrimeCityNpcManager {
             w,
             h
           );
-        } else if (object.type === __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_a874fca87cdd5e4e6770")) {
+        } else if (object.type === "Graphics") {
           add(object.x - 12, object.y - 13, 24, 26);
         } else if (typeof object.getBounds === 'function') {
           const b = object.getBounds();
-          const pad = object.type === __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_7291b1b6320fe0737cd6") ? 8 : 0;
+          const pad = object.type === "Arc" ? 8 : 0;
 
           add(
             b.x - pad,
@@ -737,7 +737,7 @@ export class CrimeCityNpcManager {
     const label = this.scene.add.text(
       slot.x,
       labelY,
-      encounter.witnessRole || encounter.npcName || __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_2b5c3d26721ae9c350cf"),
+      encounter.witnessRole || encounter.npcName || "Contact",
       {
         fontFamily: 'SpecialElite',
         fontSize: `${18 * scale}px`,
@@ -813,7 +813,7 @@ export class CrimeCityNpcManager {
     const badge = this.scene.add.text(
       position.x,
       position.y,
-      excluded ? __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_9a3c5460432ba66a10b0") : visited ? __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_11a6767d5674c7e45f7e") : __dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_cc721a5ac5b0fd9e79d7"),
+      excluded ? "Out" : visited ? "Done" : "Alibi",
       {
         fontFamily: 'SpecialElite',
         fontSize: `${13 * scale}px`,
@@ -1051,7 +1051,7 @@ export class CrimeCityNpcManager {
     const hint = this.scene.add.text(
       width / 2,
       height - 86,
-      lines.join(__dialogueText("scenes/crimeCity/CrimeCityNpcManager.js", "t_01ba4719c80b6fe911b0")),
+      lines.join("\n"),
       {
         fontFamily: 'SpecialElite',
         fontSize: '16px',

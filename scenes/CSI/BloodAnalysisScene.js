@@ -235,7 +235,7 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
 
       if (!this.slide.getBounds().contains(this.bloodSwab.x, this.bloodSwab.y)) {
         this.penalize(3);
-        this.setDialogue(__dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_b25a8475fd64ba0fdf3a"));
+        this.setDialogue("The sample must be transferred onto the preparation board.");
         return;
       }
 
@@ -245,7 +245,7 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
       this.slide.setTexture('blood_microscope_slide');
       this.slide.setDisplaySize(1100, 300);
 
-      this.setDialogue(__dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_29a6f5ce4b52203fe21b"));
+      this.setDialogue("Slide prepared. Apply Anti-A, Anti-B and Anti-Rh reagents.");
 
       this.time.delayedCall(500, () => {
         if (!this.resolved) this.startStep4();
@@ -281,7 +281,7 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
         .setDepth(3);
       this.addStageObject(bottle);
 
-      const label = this.add.text(data.x, data.y + 75, `${__dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_4a649fd551bae0fdbd56")}${data.id}`, {
+      const label = this.add.text(data.x, data.y + 75, `${"ANTI-"}${data.id}`, {
         fontFamily: 'PressStart2P',
         fontSize: '10px',
         color: '#c30000'
@@ -380,7 +380,7 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
       if (bottleHit) {
         this.loadedReagent = bottleHit.id;
         marker.setFillStyle(bottleHit.color, 1);
-        this.setDialogue(`${__dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_8a0ab6eb26fd649621db")}${bottleHit.id}${__dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_a87d791d70fce2807f53")}${bottleHit.id}${__dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_81463002fb3b81d4f9b2")}`);
+        this.setDialogue(`${"Anti-"}${bottleHit.id}${" loaded. Place it in the "}${bottleHit.id}${" well."}`);
         return;
       }
 
@@ -389,7 +389,7 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
         Phaser.Math.Distance.Between(tipX, tipY, reagent.bottle.x, reagent.bottle.y) <= BOTTLE_HIT_RADIUS
       );
       if (usedBottleHit) {
-        this.setDialogue(`${__dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_8a0ab6eb26fd649621db")}${usedBottleHit.id}${__dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_27fb8e14c900d0b9aa91")}`);
+        this.setDialogue(`${"Anti-"}${usedBottleHit.id}${" has already been used."}`);
         return;
       }
 
@@ -399,24 +399,24 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
 
       if (!wellHit) {
         this.penalize(3);
-        this.setDialogue(__dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_94508b8086f640ddb2dd"));
+        this.setDialogue("Aim the pipette at a reagent bottle or one of the slide wells.");
         return;
       }
 
       if (!this.loadedReagent) {
         this.penalize(3);
-        this.setDialogue(__dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_59c67bd2c9f70c40518d"));
+        this.setDialogue("Load a reagent into the pipette first.");
         return;
       }
 
       if (this.loadedReagent !== wellHit.id) {
         this.penalize(5);
-        this.setDialogue(`${__dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_118fd01dca96f926ab4f")}${this.loadedReagent}${__dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_517ecdd62983f1c32425")}${this.loadedReagent}${__dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_81463002fb3b81d4f9b2")}`);
+        this.setDialogue(`${"Wrong well. Anti-"}${this.loadedReagent}${" belongs in the "}${this.loadedReagent}${" well."}`);
         return;
       }
 
       if (this.completedReagents.has(wellHit.id)) {
-        this.setDialogue(`${__dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_103c5169871d49be7a2e")}${wellHit.id}${__dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_09be2ed2890908cad46e")}`);
+        this.setDialogue(`${"The "}${wellHit.id}${" well already contains its reagent."}`);
         return;
       }
 
@@ -479,7 +479,7 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
       .setInteractive({ useHandCursor: true });
     this.addStageObject(microscopeHotspot);
 
-    const hint = this.add.text(width * 0.36, height * 0.82, __dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_9f2d718cfd606f330105"), {
+    const hint = this.add.text(width * 0.36, height * 0.82, "CLICK MICROSCOPE", {
       fontFamily: 'PressStart2P',
       fontSize: '10px',
       color: '#ffe8a3',
@@ -509,7 +509,7 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
   const panel = this.add.rectangle(x, y, 360, 590, 0x0d1713, 0.94)
     .setStrokeStyle(2, 0x39ff14, 0.6);
 
-  const title = this.add.text(x, y - 260, __dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_1ae6bc8eea6b2538b464"), {
+  const title = this.add.text(x, y - 260, "REFERENCE PROFILES", {
     fontFamily: 'SpecialElite',
     fontSize: '21px',
     color: '#ffe8a3'
@@ -524,7 +524,7 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
       .setOrigin(0.5)
       .setDisplaySize(105, 66);
 
-    const label = this.add.text(x - 100, optionY + 46, `${__dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_d3bd6a868ba626e805f6")}${baseType}`, {
+    const label = this.add.text(x - 100, optionY + 46, `${"TYPE "}${baseType}`, {
       fontFamily: 'PressStart2P',
       fontSize: '9px',
       color: '#f4e6cf'
@@ -585,18 +585,18 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
       .setDisplaySize(width * 0.36, height * 0.32)
       .setDepth(52);
 
-    const title = this.add.text(width / 2, height * 0.13, __dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_73093779ef2851f86854"), {
+    const title = this.add.text(width / 2, height * 0.13, "MICROSCOPE: REAGENT REACTIONS", {
       fontFamily: 'PressStart2P',
       fontSize: '13px',
       color: '#ffe8a3'
     }).setOrigin(0.5).setDepth(53);
 
     const reactionText = this.add.text(width / 2, height * 0.72, [
-      `${__dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_7e25d50588edb0f56c64")}${pattern.a ? __dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_f78b53ac49210154c31a") : __dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_b7399374b849a6b18908")}`,
-      `${__dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_0e86fd1e2348ef6809a9")}${pattern.b ? __dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_f78b53ac49210154c31a") : __dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_b7399374b849a6b18908")}`,
-      `${__dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_f564a05fe9376104d0e9")}${pattern.rh ? __dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_f78b53ac49210154c31a") : __dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_b7399374b849a6b18908")}`,
-      `${__dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_116504bc8c4be5e9cd2b")}${rhPositive ? __dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_d896ef34858d23fd4b49") : __dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_2282e0efc66f2852fb32")}`
-    ].join(__dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_01ba4719c80b6fe911b0")), {
+      `${"ANTI-A: "}${pattern.a ? "AGGLUTINATION" : "NO REACTION"}`,
+      `${"ANTI-B: "}${pattern.b ? "AGGLUTINATION" : "NO REACTION"}`,
+      `${"ANTI-Rh: "}${pattern.rh ? "AGGLUTINATION" : "NO REACTION"}`,
+      `${"Rh FACTOR: "}${rhPositive ? "POSITIVE" : "NEGATIVE"}`
+    ].join("\n"), {
       fontFamily: 'SpecialElite',
       fontSize: '24px',
       color: '#dff2de',
@@ -604,7 +604,7 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
       lineSpacing: 7
     }).setOrigin(0.5).setDepth(53);
 
-    const hint = this.add.text(width / 2, height - 45, __dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_e8825e41e8f3c18554f4"), {
+    const hint = this.add.text(width / 2, height - 45, "CLICK ANYWHERE TO CLOSE", {
       fontFamily: 'PressStart2P',
       fontSize: '10px',
       color: '#ffe8a3',
@@ -624,7 +624,7 @@ overlay.on('pointerdown', () => {
 
   this.bloodChoicePanel?.setVisible(true);
 
-  this.setDialogue(__dialogueText("scenes/CSI/BloodAnalysisScene.js", "t_7cda84fde25f2cd2b994"));
+  this.setDialogue("Compare the reaction profile with the reference cards.");
 });
   }
 

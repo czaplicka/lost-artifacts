@@ -1,4 +1,4 @@
-import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
+
 import { BaseScene } from './BaseScene.js';
 import { CityMapDebug } from './city/CityMapDebug.js';
 import { applyCityVisualLayout } from './city/CityVisualLayout.js';
@@ -101,7 +101,7 @@ export class CityScene extends BaseScene {
       console.error('[CityScene] Invalid locations data.', locations);
       void this.goto('EnterScene', {
         citySetupFailed: true,
-        errorMessage: __dialogueText("scenes/CityScene.js", "t_f6e39343c49a6ebfe35c")
+        errorMessage: "City data could not be loaded."
       });
       return;
     }
@@ -111,7 +111,7 @@ export class CityScene extends BaseScene {
       console.error('[CityScene] Unknown city:', this.cityId);
       void this.goto('EnterScene', {
         citySetupFailed: true,
-        errorMessage: `${__dialogueText("scenes/CityScene.js", "t_d5b580d4d087006c5d75")}${this.cityId}`
+        errorMessage: `${"Unknown city: "}${this.cityId}`
       });
       return;
     }

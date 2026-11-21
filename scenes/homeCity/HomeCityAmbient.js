@@ -45,7 +45,7 @@ export class HomeCityAmbient extends HomeCityProps {
     for (const [cx, cy] of [[14.2, 9], [15.4, 10.6], [16.6, 9.2], [14.4, 11], [15.8, 8.4], [16.8, 10.8]]) this.makePigeon(cx, cy);
     const home = s.buildings.find(b => b.id === 'your-home');
     if (home) for (let i = 0; i < 2; i++) { const q = this.makePigeon(16.2 + i * 1.2, 17.3); }
-    this.prompt = s.add.text(0, 0, __dialogueText("scenes/homeCity/HomeCityAmbient.js", "t_d50187dd170f377fe06e"), { fontFamily: FONT_PX, fontSize: '12px', color: '#ffe19b', backgroundColor: '#2b312b', padding: { x: 8, y: 6 } }).setOrigin(0.5).setDepth(10001).setVisible(false);
+    this.prompt = s.add.text(0, 0, "ENTER", { fontFamily: FONT_PX, fontSize: '12px', color: '#ffe19b', backgroundColor: '#2b312b', padding: { x: 8, y: 6 } }).setOrigin(0.5).setDepth(10001).setVisible(false);
   }
   makePigeon(cx, cy) {
     const home = this.pt(cx, cy), sp = this.scene.add.image(home.x, home.y, this.pigeonKey).setOrigin(...this.anchors.get(this.pigeonKey)).setDepth((cx + cy) * 100 + 1.2);

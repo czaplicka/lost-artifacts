@@ -287,7 +287,7 @@ export function renderForum(search, page) {
     left + 10,
     b.y + 147,
     page.sectionLabel ||
-      __dialogueText("ui/pi-computer/ForumPageTemplate.js", "t_437e310db610fef36fd5"),
+      "FORUM INDEX > ARCHIVED DISCUSSIONS",
     width - (hasImage ? 126 : 20),
     9,
     muted,

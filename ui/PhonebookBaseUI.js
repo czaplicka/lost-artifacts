@@ -182,7 +182,7 @@ export class PhonebookUI {
             .setInteractive({ useHandCursor: true });
 
         this.closeHint = this.scene.add
-            .text(660, -440, __dialogueText("ui/PhonebookUI.js", "t_4b68ab3847feda7d6c62"), {
+            .text(660, -440, "X", {
                 fontFamily: 'PressStart2P',
                 fontSize: '28px',
                 color: '#e0ff8c'
@@ -206,7 +206,7 @@ export class PhonebookUI {
         );
 
         this.titleText = this.scene.add
-            .text(0, -400, __dialogueText("ui/PhonebookUI.js", "t_318b111d5cb53245c1fd"), {
+            .text(0, -400, "PHONE BOOK", {
                 fontFamily: 'PressStart2P',
                 fontSize: '28px',
                 color: '#e0ff8c'

@@ -191,7 +191,7 @@ export const GridCellsMixin = {
     }
     if (scrollX || scrollY) {
       this.uiRoot.add(this.add.text(g.x + g.w - 16, g.y + g.h - 18,
-        __dialogueText("suspectsBoard/GridCells.mixin.js", "t_bd2413479c75695b401f"), {
+        "DRAG TABLE  /  SHIFT + WHEEL = SIDEWAYS", {
           fontFamily: 'SpecialElite', fontSize: '12px', color: '#d9c998',
           backgroundColor: '#171112', padding: { x: 6, y: 3 }
         }).setOrigin(1, 1).setDepth(5));
@@ -255,7 +255,7 @@ export const GridCellsMixin = {
       .setInteractive({ useHandCursor: true });
     const led = this.add.rectangle(bx - 46, cy, 8, 8,
       unlikely ? COLORS.noStroke : COLORS.okStroke, 1);
-    const label = this.add.text(bx + 6, cy, unlikely ? __dialogueText("suspectsBoard/GridCells.mixin.js", "t_b389fa48055a366d973b") : __dialogueText("suspectsBoard/GridCells.mixin.js", "t_49ed77f8cd66eb4ca16f"), {
+    const label = this.add.text(bx + 6, cy, unlikely ? "UNLIKELY" : "POSSIBLE", {
       fontFamily: 'PressStart2P', fontSize: '8px', color: unlikely ? '#ffd1c8' : '#d5ffd2'
     }).setOrigin(0.5);
     btn.on('pointerover', () => btn.setFillStyle(unlikely ? 0x823b31 : 0x35613a, 1));

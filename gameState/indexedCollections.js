@@ -87,8 +87,14 @@ export const MANAGED_PRIVATE_KEYS = new Set(
  * clone = true  -> dane z zewnątrz, kopiujemy każdy wpis.
  * clone = false -> dane już należą do stanu (albo zostały wcześniej sklonowane).
  * prepareEntry  -> opcjonalna naprawa wpisu przed sprawdzeniem ID.
+ * collectionKey -> nazwa kolekcji w zbiorczym logu odrzuconych wpisów.
  */
-export function normalizeCollection(entries, clone = true, prepareEntry = null) {
+export function normalizeCollection(
+  entries,
+  clone = true,
+  prepareEntry = null,
+  collectionKey = 'unknown'
+) {
   if (!Array.isArray(entries)) {
     return [];
   }
@@ -96,6 +102,9 @@ export function normalizeCollection(entries, clone = true, prepareEntry = null) 
 
   const result = [];
   const ids = new Set();
+  let invalidId = 0;
+  let duplicateId = 0;
+  let cloneFailed = 0;
 
 
   for (const rawEntry of entries) {
@@ -104,6 +113,7 @@ export function normalizeCollection(entries, clone = true, prepareEntry = null) 
 
 
     if (id === null) {
+      invalidId += 1;
       continue;
     }
 
@@ -112,6 +122,7 @@ export function normalizeCollection(entries, clone = true, prepareEntry = null) 
 
 
     if (ids.has(key)) {
+      duplicateId += 1;
       continue;
     }
 
@@ -120,6 +131,7 @@ export function normalizeCollection(entries, clone = true, prepareEntry = null) 
 
 
     if (copied === undefined) {
+      cloneFailed += 1;
       continue;
     }
 
@@ -128,6 +140,24 @@ export function normalizeCollection(entries, clone = true, prepareEntry = null) 
     result.push(copied);
   }
 
+
+  const rejected = invalidId + duplicateId + cloneFailed;
+
+  if (rejected > 0) {
+    console.warn(
+      `[GameState] normalizeCollection(${collectionKey}): ` +
+      `rejected ${rejected} of ${entries.length} entries.`,
+      {
+        collectionKey,
+        total: entries.length,
+        kept: result.length,
+        rejected,
+        invalidId,
+        duplicateId,
+        cloneFailed
+      }
+    );
+  }
 
   return result;
 }
@@ -145,7 +175,8 @@ export function rebuildCollectionIndex(state, collectionKey, clone = false) {
   const collection = normalizeCollection(
     state[collectionKey],
     clone,
-    config.prepareEntry || null
+    config.prepareEntry || null,
+    collectionKey
   );
 
 

@@ -161,18 +161,12 @@ export class SuccessScene extends BaseScene {
     this.skipHint = this.add.text(
       960,
       1017,
-      __dialogueText(
-        "scenes/SuccessScene.js",
-        "t_ad378c8c442bccfda0e9"
-      ),
+      "CLICK TO SKIP INTRO",
       {
         fontFamily: 'SpecialElite',
         fontSize: '20px',
         color: '#e4d0a6',
-        stroke: __dialogueText(
-          "scenes/SuccessScene.js",
-          "t_b8d3b814ad9cb35524e0"
-        ),
+        stroke: "#171819",
         strokeThickness: 4
       }
     ).setOrigin(0.5);
@@ -402,10 +396,7 @@ export class SuccessScene extends BaseScene {
       {
         ...justiceStyle,
         color: '#ffffff',
-        stroke: __dialogueText(
-          "scenes/SuccessScene.js",
-          "t_f2074b6cef37b6733112"
-        )
+        stroke: "#ffffff"
       }
     )
       .setOrigin(0.5)
@@ -438,10 +429,7 @@ export class SuccessScene extends BaseScene {
         fontFamily: 'SpecialElite',
         fontSize: '30px',
         color: '#2c1d11',
-        stroke: __dialogueText(
-          "scenes/SuccessScene.js",
-          "t_728e11068df8b3d3a125"
-        ),
+        stroke: "#8a653a",
         strokeThickness: 1,
         align: 'center',
         padding: {
@@ -518,10 +506,7 @@ export class SuccessScene extends BaseScene {
     const heading = this.add.text(
       1585,
       125,
-      __dialogueText(
-        "scenes/SuccessScene.js",
-        "t_2282d5f2696d4e236999"
-      ),
+      "CASE SOLVED",
       {
         fontFamily: 'PressStart2P',
         fontSize: '22px',
@@ -533,7 +518,7 @@ export class SuccessScene extends BaseScene {
     const captured = this.add.text(
       1585,
       177,
-      `${__dialogueText("scenes/SuccessScene.js", "t_3a9cac6a878dcf851e1f")}${gameState.currentThief?.name || __dialogueText("scenes/SuccessScene.js", "t_a7c73daa1bc6f58f7897")}`,
+      `${"You captured:\n"}${gameState.currentThief?.name || "Unknown suspect"}`,
       {
         fontFamily: 'SpecialElite',
         fontSize: '27px',
@@ -554,10 +539,7 @@ export class SuccessScene extends BaseScene {
     const summary = this.add.text(
       1585,
       summaryY,
-      __dialogueText(
-        "scenes/SuccessScene.js",
-        "t_9ec65ca87af723d57627"
-      ),
+      "The artefact is safe.\nThe paperwork is just beginning.",
       {
         fontFamily: 'SpecialElite',
         fontSize: '23px',
@@ -648,10 +630,7 @@ export class SuccessScene extends BaseScene {
     const buttonLabel = this.add.text(
       1585,
       565,
-      __dialogueText(
-        "scenes/SuccessScene.js",
-        "t_e0609774861512f24b9c"
-      ),
+      "RETURN TO OFFICE",
       {
         fontFamily: 'PressStart2P',
         fontSize: '16px',

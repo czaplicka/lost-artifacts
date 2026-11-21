@@ -175,17 +175,22 @@ export class CrimeLabManager {
     });
   }
 
-  markCrimeLabCompleted() {
+  markCrimeLabCompleted({ save = true } = {}) {
+    if (!['identity', 'trace_0', 'trace_1'].every(id => this.isStationCompleted(id))) {
+      return false;
+    }
     const key = this.getCaseKey();
-
     this.gameState.crimeCityProgress ??= {};
-    this.gameState.crimeCityProgress[key] ??= {};
-
-    this.gameState.crimeCityProgress[key].crimeLabCompleted = true;
-    this.gameState.crimeCityProgress[key].crimeLabCompletedAt = Date.now();
+    const progress = this.gameState.crimeCityProgress[key] ??= {};
+    let changed = progress.crimeLabCompleted !== true || this.gameState.csiLabCompleted !== true;
+    progress.crimeLabCompleted = true;
+    if (!Number.isFinite(progress.crimeLabCompletedAt) || progress.crimeLabCompletedAt <= 0) {
+      progress.crimeLabCompletedAt = Date.now();
+      changed = true;
+    }
     this.gameState.csiLabCompleted = true;
-
-    saveGameState();
+    if (save && changed) saveGameState();
+    return true;
   }
 
   normalizeEvidenceConfig(
@@ -566,3 +571,5 @@ export class CrimeLabManager {
     });
   }
 }
+
+// CSI reliability fixes: 2026-11-20-v1

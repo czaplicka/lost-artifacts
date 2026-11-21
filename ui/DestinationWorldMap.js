@@ -178,17 +178,17 @@ export class DestinationWorldMap {
     buildTitle() {
         const s = this.scene;
         if (this.themeId === 'agency') {
-            this.title = makeText(s, MAP_W / 2, 50, __dialogueText("ui/DestinationWorldMap.js", "t_5db93c74ce2001268ca9"), {
+            this.title = makeText(s, MAP_W / 2, 50, "GLOBAL OPS GRID", {
                 fontFamily: 'PressStart2P', fontSize: '24px', color: '#9ffcff'
             }).setOrigin(0.5);
-            this.subtitle = makeText(s, MAP_W / 2, 90, __dialogueText("ui/DestinationWorldMap.js", "t_11e8624b8b7b35d7243e"), {
+            this.subtitle = makeText(s, MAP_W / 2, 90, "MARK AGENCY // TRAVEL DESK // CLEARANCE: YES(ISH)", {
                 fontFamily: 'PressStart2P', fontSize: '10px', color: '#4fb4c4'
             }).setOrigin(0.5);
         } else {
-            this.title = makeText(s, MAP_W / 2, 66, __dialogueText("ui/DestinationWorldMap.js", "t_c010d0780e8bf116b09a"), {
+            this.title = makeText(s, MAP_W / 2, 66, "Routes of the Intrepid", {
                 fontFamily: 'SpecialElite', fontSize: '40px', color: '#3b2a18'
             }).setOrigin(0.5);
-            this.subtitle = makeText(s, MAP_W / 2, 102, __dialogueText("ui/DestinationWorldMap.js", "t_2fd76f25db553658027e"), {
+            this.subtitle = makeText(s, MAP_W / 2, 102, "(and slightly underfunded)", {
                 fontFamily: 'SpecialElite', fontSize: '18px', color: '#7a5c35'
             }).setOrigin(0.5);
         }
@@ -254,7 +254,7 @@ export class DestinationWorldMap {
         this.recDot = makeText(s, 1560, 62, '\u25CF', {
             fontFamily: 'PressStart2P', fontSize: '14px', color: '#ff3b5c'
         }).setOrigin(0.5);
-        this.clockText = makeText(s, 1584, 62, __dialogueText("ui/DestinationWorldMap.js", "t_f4198afdcbe2c22f9c1f"), {
+        this.clockText = makeText(s, 1584, 62, "REC 00:00:00 UTC", {
             fontFamily: 'PressStart2P', fontSize: '11px', color: '#9ffcff'
         }).setOrigin(0, 0.5);
         this.hudLayer.add([this.crossGfx, this.coordsText, this.recDot, this.clockText]);
@@ -399,7 +399,7 @@ export class DestinationWorldMap {
                 marker.add(ring);
                 this.herePulses.push(ring);
             }
-            const tag = makeText(s, 0, -48, __dialogueText("ui/DestinationWorldMap.js", "t_f93e69e3f57ae519aa48"), {
+            const tag = makeText(s, 0, -48, "YOU ARE HERE", {
                 fontFamily: 'PressStart2P', fontSize: '9px', color: '#03121b',
                 backgroundColor: '#00e5ff', padding: { x: 6, y: 4 }
             }).setOrigin(0.5);
@@ -436,7 +436,7 @@ export class DestinationWorldMap {
             ring.beginPath();
             ring.arc(0, 0, 28, 0.5, Math.PI * 2 - 0.2, false);
             ring.strokePath();
-            const note = makeText(s, 0, -58, __dialogueText("ui/DestinationWorldMap.js", "t_04639f28c26c4cbcc23a"), {
+            const note = makeText(s, 0, -58, "You are here!", {
                 fontFamily: 'SpecialElite', fontSize: '22px', color: '#8b2a1d'
             }).setOrigin(0.5).setAngle(-6);
             const arrow = s.add.graphics();

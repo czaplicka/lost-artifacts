@@ -3865,6 +3865,144 @@
       "groups": [
         "backgrounds"
       ]
+    },
+    {
+      "key": "apartment_debt_bathroom",
+      "url": "assets/apartments/apartment_debt_bathroom.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "apartment_debt_bedroom",
+      "url": "assets/apartments/apartment_debt_bedroom.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "lady",
+      "url": "assets/avatar/base/lady.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "square",
+      "url": "assets/avatar/base/square.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "blush",
+      "url": "assets/avatar/blush/blush.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "avatar__eyes__lady",
+      "url": "assets/avatar/eyes/lady.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "avatar__eyes__square",
+      "url": "assets/avatar/eyes/square.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "avatar__eyewear__red-glasses",
+      "url": "assets/avatar/eyewear/red-glasses.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "messy",
+      "url": "assets/avatar/hairFront/messy.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "sideBraid",
+      "url": "assets/avatar/hairFront/sideBraid.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "wtf",
+      "url": "assets/avatar/hairFront/wtf.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "youngster",
+      "url": "assets/avatar/hairFront/youngster.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "lips",
+      "url": "assets/avatar/makeup/lips.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "avatar__marks__scar-mouth",
+      "url": "assets/avatar/marks/scar-mouth.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "avatar__marks__scar-right",
+      "url": "assets/avatar/marks/scar-right.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "drama",
+      "url": "assets/video/tv/drama.mp4",
+      "type": "video",
+      "groups": [
+        "videos"
+      ],
+      "noAudio": false
+    },
+    {
+      "key": "romance",
+      "url": "assets/video/tv/romance.mp4",
+      "type": "video",
+      "groups": [
+        "videos"
+      ],
+      "noAudio": false
     }
   ]
 }

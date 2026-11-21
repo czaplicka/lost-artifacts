@@ -27,7 +27,7 @@ export class GordonSearchScene extends BaseScene {
     if (this.allowed && this.textures.exists(DATA.backgrounds.empty.key)) {
       this.root.add(this.add.image(960, 540, DATA.backgrounds.empty.key).setDisplaySize(1920, 1080));
     }
-    this.label(35, 25, __dialogueText("scenes/GordonSearchScene.js", "t_d931ccfc74e70e3ad129"), 22).setOrigin(0, 0);
+    this.label(35, 25, "SUPERVISOR OFFICE / UNATTENDED", 22).setOrigin(0, 0);
     this.outline = this.add.graphics(); this.root.add(this.outline); this.tooltip = this.label(0, 0, '', 20).setVisible(false);
     for (const def of this.definitions) {
       const zone = this.add.zone(def.x, def.y, def.w, def.h).setOrigin(0).setInteractive({ useHandCursor: true });
@@ -45,15 +45,15 @@ export class GordonSearchScene extends BaseScene {
         if (def.id === 'door') { this.closeSearch(); return; }
         if (def.id === 'folder') { openGordonPrivacyPanel(this); return; }
         const messages = {
-          safe: __dialogueText("scenes/GordonSearchScene.js", "t_98036681b892cc28a31a"),
-          access: __dialogueText("scenes/GordonSearchScene.js", "t_04026d76bb01b9a0596c"),
-          telephone: __dialogueText("scenes/GordonSearchScene.js", "t_0d74aa11ee5a7f9dc6fd")
+          safe: "The safe is still locked. The door panel did not open it.",
+          access: "The entrance interlock has been bypassed. The safe has its own lock.",
+          telephone: "Using Gordon's telephone would be an excellent way to announce your presence."
         };
-        this.showStatus(messages[def.id] || __dialogueText("scenes/GordonSearchScene.js", "t_44bb65186bd3f77f11e3"));
+        this.showStatus(messages[def.id] || "Nothing useful here.");
       });
     }
     this.status = this.label(960, 85, '', 25).setVisible(false);
-    this.back = this.label(170, 1028, __dialogueText("scenes/GordonSearchScene.js", "t_db26b7d387791ba818bb"), 23).setInteractive({ useHandCursor: true });
+    this.back = this.label(170, 1028, "< UPPER FLOOR", 23).setInteractive({ useHandCursor: true });
     this.back.on('pointerdown', () => { if (!this.modal && !this.hotspotDebug?.enabled) this.closeSearch(); });
     this.label(960, 1028, this.preview ? __dialogueText("scenes/GordonSearchScene.js", "t_db1d7313ec962ed15287") : __dialogueText("scenes/GordonSearchScene.js", "t_5113ce88552cc1067d24"), 20);
     this.hotspotDebug = new GordonHotspotDebug(this, this.hotspots); this.layout();

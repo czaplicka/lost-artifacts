@@ -75,7 +75,7 @@ export function installReceptionWorldReactions(scene){
     const token=this.token,rawShow=this.show;
     let injected=false;
     const decoratedShow=function(title,text,choices=[],...rest){
-      if(injected||title!==__dialogueText("ui/WorldReceptionReactionHooks.js", "t_ab63c0d0657040400f5a")||!available(this)||!Array.isArray(choices))return rawShow.call(this,title,text,choices,...rest);
+      if(injected||title!=="Receptionist"||!available(this)||!Array.isArray(choices))return rawShow.call(this,title,text,choices,...rest);
       injected=true;
       return rawShow.call(this,title,text,[[TOPIC,()=>openReaction(this,token)],...choices],...rest);
     };

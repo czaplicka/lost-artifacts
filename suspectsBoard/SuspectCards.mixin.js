@@ -118,16 +118,16 @@ export const SuspectCardsMixin = {
     const card=this.add.container(x,y),top=-height/2;
     const bg=this.add.rectangle(0,0,width,height,background,1)
       .setStrokeStyle(this.excludeMode||selected?3:2,border,.95).setInteractive({useHandCursor:true});
-    const file=this.add.text(-width/2+12,top+10,`${__dialogueText("suspectsBoard/SuspectCards.mixin.js", "t_3e25b41de17bf0813725")}${this.getSuspectFileNumber(suspect.id)}`,{
+    const file=this.add.text(-width/2+12,top+10,`${"FILE "}${this.getSuspectFileNumber(suspect.id)}`,{
       fontFamily:'PressStart2P',fontSize:'8px',color:cleared?'#d07f75':'#bba276'
     }).setOrigin(0,0);
-    const name=this.add.text(0,top+30,suspect.publicProfile?.displayName||suspect.name||__dialogueText("suspectsBoard/SuspectCards.mixin.js", "t_b764cdc0eab713746721"),{
+    const name=this.add.text(0,top+30,suspect.publicProfile?.displayName||suspect.name||"Unknown",{
       fontFamily:'SpecialElite',fontSize:width<230?'20px':'25px',color:cleared?'#b8a39d':'#fff0cd',
       align:'center',wordWrap:{width:width-28,useAdvancedWrap:true}
     }).setOrigin(.5,0);
     fit(name,width-28,Math.max(22,Math.min(42,height*.22)));
     const nameBottom=name.y+name.height*(name.scaleY??name.scaleX??1);
-    const occupation=this.add.text(0,nameBottom+5,suspect.publicProfile?.occupation||suspect.occupation||__dialogueText("suspectsBoard/SuspectCards.mixin.js", "t_1db2d66a8edb2f1e4892"),{
+    const occupation=this.add.text(0,nameBottom+5,suspect.publicProfile?.occupation||suspect.occupation||"Unknown role",{
       fontFamily:'SpecialElite',fontSize:'16px',color:cleared?'#9a8581':'#dfca9e',
       align:'center',wordWrap:{width:width-30,useAdvancedWrap:true}
     }).setOrigin(.5,0);
@@ -138,7 +138,7 @@ export const SuspectCardsMixin = {
     const statusText=this.add.text(0,height/2-14,status.label,{
       fontFamily:'PressStart2P',fontSize:'7px',color:status.color,align:'center'
     }).setOrigin(.5);fit(statusText,width-24,16);
-    const open=this.add.text(0,height/2-36,__dialogueText("suspectsBoard/SuspectCards.mixin.js", "t_06f12f2eb2d889c513e1"),{
+    const open=this.add.text(0,height/2-36,"[ OPEN FILE ]",{
       fontFamily:'PressStart2P',fontSize:'7px',color:'#dcc89b',backgroundColor:'#201710',padding:{x:8,y:5}
     }).setOrigin(.5).setInteractive({useHandCursor:true});
     card.add([bg,file,name,occupation,...data,statusText,open]);
@@ -159,9 +159,9 @@ export const SuspectCardsMixin = {
       select(false);
     });
     if(cleared) {
-      const stamp=this.add.text(0,0,__dialogueText("suspectsBoard/SuspectCards.mixin.js", "t_2026e813d70cc656862b"),{
+      const stamp=this.add.text(0,0,"CLEARED",{
         fontFamily:'PressStart2P',fontSize:width<230?'15px':'18px',color:'#db5750',
-        stroke:__dialogueText("suspectsBoard/SuspectCards.mixin.js", "t_d7229b9146b855c45b63"),strokeThickness:5,align:'center'
+        stroke:"#1f0d0b",strokeThickness:5,align:'center'
       }).setOrigin(.5).setAngle(-12).setAlpha(.9).setDepth(10);
       card.add(stamp);
     }
@@ -172,7 +172,7 @@ export const SuspectCardsMixin = {
     const facts=this.getVisibleFileFacts(suspect),left=-width/2+14;
     const top=layout.top??(-height/2+108),bottom=layout.bottom??(height/2-54);
     if(bottom-top<26)return[];
-    const title=this.add.text(left,top,__dialogueText("suspectsBoard/SuspectCards.mixin.js", "t_96bfda3dec6ed5b76a0b"),{
+    const title=this.add.text(left,top,"FILE DATA",{
       fontFamily:'PressStart2P',fontSize:'7px',color:isEliminated?'#a58781':'#c9b785'
     }).setOrigin(0,0);
     const available=bottom-top-17;

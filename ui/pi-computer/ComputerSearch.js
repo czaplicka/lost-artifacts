@@ -792,7 +792,7 @@ export class ComputerSearch extends ComputerSearchCore {
     for (const link of page.links || []) {
       blocks.push([
         {
-          text: `${__dialogueText("ui/pi-computer/ComputerSearch.js", "t_ec4f8e3d1f7cafbdb86e")}${link.label}`,
+          text: `${"> "}${link.label}`,
           pageId: link.pageId
         }
       ]);

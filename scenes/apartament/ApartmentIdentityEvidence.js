@@ -8,7 +8,7 @@ const FIELD = 'eyes';
 const LABELS = { eyes: __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_f24248e0b8d7f74c4f41") };
 const HOST_IDS = ['desk', 'bookshelf', 'framed_photo', 'nightstand_drawer', 'jewelry_box'];
 const valid = value => typeof value === 'string' && Boolean(value.trim()) &&
-  !['NONE', 'UNKNOWN', 'N/A', __dialogueText("scenes/apartament/ApartmentIdentityEvidence.js", "t_0b30531b53399a61493f")].includes(value.trim().toUpperCase());
+  !['NONE', 'UNKNOWN', 'N/A', "NOT KNOWN"].includes(value.trim().toUpperCase());
 const values = value => (Array.isArray(value) ? value : [value]).filter(valid).map(text => text.trim());
 const same = (a, b) => String(a).trim().toUpperCase() === String(b).trim().toUpperCase();
 function hash(value) {

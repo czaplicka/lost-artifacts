@@ -266,7 +266,22 @@ export const DriveCockpit = {
     g.fillTriangle(cx, y - 10 * U, cx - 6 * U, y - 2 * U, cx + 6 * U, y - 2 * U);
   },
 
+  clearDriveBubble() {
+    const timer = this._bubbleTimer;
+    this._bubbleTimer = null;
+    timer?.remove(false);
+
+    const bubble = this.bubble;
+    this.bubble = null;
+    this.bubbleUntil = 0;
+    if (bubble) {
+      this.killTrackedTweensOf(bubble);
+      if (bubble.scene) bubble.destroy(true);
+    }
+  },
+
   say(text, ms = 2800, force = false) {
+    if (this._cleanupDone || this._destroyCleanupDone || !this.dino?.scene) return;
     if (!this.ready && !force) {
       return;
     }
@@ -275,7 +290,7 @@ export const DriveCockpit = {
       return;
     }
 
-    this.bubble?.destroy();
+    this.clearDriveBubble();
 
     const { W, H, U } = this;
     const pad = 14 * U;
@@ -305,18 +320,22 @@ export const DriveCockpit = {
 
     this.createTrackedTween({ targets: c, alpha: 1, duration: 120 });
 
-    this.time.delayedCall(ms, () => {
-      if (this.bubble !== c || !c.scene) {
+    this._bubbleTimer = this.time.delayedCall(ms, () => {
+      if (this._cleanupDone || this.bubble !== c || !c.scene) {
         return;
       }
 
+      this._bubbleTimer = null;
+      this.killTrackedTweensOf(c);
       this.createTrackedTween({
         targets: c,
         alpha: 0,
         duration: 250,
         onComplete: () => {
-          if (c.scene) c.destroy();
-          if (this.bubble === c) this.bubble = null;
+          if (this.bubble !== c) return;
+          this.bubble = null;
+          this.bubbleUntil = 0;
+          if (c.scene) c.destroy(true);
         }
       });
     });

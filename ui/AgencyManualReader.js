@@ -149,7 +149,7 @@ export function openAgencyFieldManual(
   }
 
   const nav = document.createElement('nav');
-  nav.setAttribute('aria-label', __dialogueText("ui/AgencyManualReader.js", "t_f339920a9248a126c9a9"));
+  nav.setAttribute('aria-label', "Manual pages");
 
   const article = document.createElement('article');
   const footer = document.createElement('footer');
@@ -436,7 +436,7 @@ export function openAgencyFieldManual(
     event.stopPropagation();
     event.stopImmediatePropagation();
 
-    if (event.key === __dialogueText("ui/AgencyManualReader.js", "t_037c968467aa3fd7c059")) {
+    if (event.key === "Escape") {
       event.preventDefault();
       finish();
     }

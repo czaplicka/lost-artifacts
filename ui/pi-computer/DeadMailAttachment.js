@@ -275,7 +275,7 @@ export class DeadMailAttachment {
       return false;
     }
 
-    if (event.code === __dialogueText("ui/pi-computer/DeadMailAttachment.js", "t_037c968467aa3fd7c059")) {
+    if (event.code === "Escape") {
       event.preventDefault();
       this.close();
     }

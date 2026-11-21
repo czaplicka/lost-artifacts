@@ -1,6 +1,6 @@
 import { dialogueText as __dialogueText } from '../../dialogues/DialogueText.js';
 import { FLAVOUR, OBSTACLES } from '../../config/RoadTripTowns.js';
-import { Z0, ROAD_HALF, DRAW_DIST, COIN_VALUE, FINE_AMOUNT, rand, pick, clamp } from './DriveShared.js';
+import { Z0, ROAD_HALF, DRAW_DIST, COIN_VALUE, rand, pick, clamp } from './DriveShared.js';
 
 export const DriveRoad = {
   curveAt(d) {
@@ -390,18 +390,5 @@ export const DriveRoad = {
       duration: 260,
       onComplete: () => sprite.scene && sprite.destroy()
     });
-  },
-
-  onCam() {
-    if (this.speedMul > 1.15) {
-      this.stats.fines += FINE_AMOUNT;
-
-      this.cameras.main.flash(220, 255, 255, 255);
-      this.say(pick(FLAVOUR.camFlash), 3000, true);
-      this.floatText(`-$${FINE_AMOUNT}`, '#ff6b5a');
-      this.refreshStats();
-    } else {
-      this.say(pick(FLAVOUR.camSafe), 2400);
-    }
   }
 };

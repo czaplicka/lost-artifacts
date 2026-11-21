@@ -1,4 +1,4 @@
-import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
+
 import { getChapterTwoOpening, finishChapterTwoDeskVisit,
   chapterTwoOpeningConfig as config } from '../../chapterTwoOpeningService.js';
 
@@ -38,7 +38,7 @@ export function installChapterTwoDeskEntry(scene) {
       if (!opened) { loading = false; refresh(); }
     } catch (error) {
       console.error('[ChapterTwoDeskEntry]', config.messages.loadFailed, error);
-      if (!disposed && token === run) { loading = false; button.setText(__dialogueText("scenes/office/ChapterTwoDeskEntry.js", "t_83b8afd27553010f3d17")); refresh(); }
+      if (!disposed && token === run) { loading = false; button.setText("RETRY DESK INVESTIGATION"); refresh(); }
     }
   });
   const destroy = () => {

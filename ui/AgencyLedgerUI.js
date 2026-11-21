@@ -279,7 +279,7 @@ export class AgencyLedgerUI {
     this.prevBtn = this.text(
       24,
       h - 47,
-      __dialogueText("ui/AgencyLedgerUI.js", "t_86af811671fe29fad1d2"),
+      "< PREV",
       18,
       '#ffd166'
     ).setInteractive({
@@ -289,7 +289,7 @@ export class AgencyLedgerUI {
     this.nextBtn = this.text(
       w - 110,
       h - 47,
-      __dialogueText("ui/AgencyLedgerUI.js", "t_58b85f2ea88bf1a9ba16"),
+      "NEXT >",
       18,
       '#ffd166'
     ).setInteractive({

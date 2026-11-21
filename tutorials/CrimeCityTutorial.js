@@ -330,7 +330,7 @@ export class CrimeCityTutorial {
       const portrait = this.scene.textures.exists(PORTRAIT_KEY)
         ? this.scene.add.image(portraitX, portraitY, PORTRAIT_KEY).setScrollFactor(0).setDisplaySize(PORTRAIT_SIZE, PORTRAIT_SIZE)
         : this.scene.add.rectangle(portraitX, portraitY, PORTRAIT_SIZE, PORTRAIT_SIZE, 0xd7c58f, 0.3).setScrollFactor(0);
-      const nameplate = this.scene.add.text(portraitX, portraitY + PORTRAIT_SIZE / 2 + 7, __dialogueText("tutorials/CrimeCityTutorial.js", "t_a688d83ae8586526909c"), { fontFamily: FONT_PIXEL, fontSize: '8px', color: '#f2d477' }).setScrollFactor(0).setOrigin(0.5, 0);
+      const nameplate = this.scene.add.text(portraitX, portraitY + PORTRAIT_SIZE / 2 + 7, "HQ", { fontFamily: FONT_PIXEL, fontSize: '8px', color: '#f2d477' }).setScrollFactor(0).setOrigin(0.5, 0);
       items.push(frame, portrait, nameplate);
     }
     this.stepNumberText = this.scene.add.text(textLeft, panelTop + (collapsed ? 9 : 12), '', { fontFamily: FONT_PIXEL, fontSize: '8px', color: '#f2d477' }).setScrollFactor(0);
@@ -344,14 +344,14 @@ export class CrimeCityTutorial {
     const skipW = 136, skipH = 26, skipX = panelLeft + panelWidth - skipW / 2 - 10, skipY = panelTop + 8 + skipH / 2;
     const skipBorder = this.scene.add.rectangle(skipX, skipY, skipW, skipH, COLORS.panel, 0.35).setScrollFactor(0).setStrokeStyle(1, COLORS.accent, 0.72);
     const skipButton = this.scene.add.rectangle(skipX, skipY, skipW, skipH, 0, 0.001).setScrollFactor(0).setInteractive({ useHandCursor: true });
-    const skipText = this.scene.add.text(skipX, skipY, __dialogueText("tutorials/CrimeCityTutorial.js", "t_8cc97df53fb818d8aca7"), { fontFamily: FONT_PIXEL, fontSize: '7px', color: '#d7c58f' }).setScrollFactor(0).setOrigin(0.5);
+    const skipText = this.scene.add.text(skipX, skipY, "SKIP TUTORIAL ▸", { fontFamily: FONT_PIXEL, fontSize: '7px', color: '#d7c58f' }).setScrollFactor(0).setOrigin(0.5);
     skipButton.on('pointerover', () => skipText.setColor('#f2d477'));
     skipButton.on('pointerout', () => skipText.setColor('#d7c58f'));
     skipButton.on('pointerdown', (pointer, lx, ly, event) => { event?.stopPropagation?.(); this.skip(); });
     const toggleSize = 26, toggleX = skipX - skipW / 2 - 8 - toggleSize / 2;
     const toggleBorder = this.scene.add.rectangle(toggleX, skipY, toggleSize, toggleSize, COLORS.panel, 0.35).setScrollFactor(0).setStrokeStyle(1, COLORS.accent, 0.72);
     const toggleButton = this.scene.add.rectangle(toggleX, skipY, toggleSize, toggleSize, 0, 0.001).setScrollFactor(0).setInteractive({ useHandCursor: true });
-    const toggleText = this.scene.add.text(toggleX, skipY, collapsed ? __dialogueText("tutorials/CrimeCityTutorial.js", "t_a318c24216defe206fee") : __dialogueText("tutorials/CrimeCityTutorial.js", "t_d4f85d36757c12f0c6da"), { fontFamily: FONT_PIXEL, fontSize: '12px', color: '#d7c58f' }).setScrollFactor(0).setOrigin(0.5);
+    const toggleText = this.scene.add.text(toggleX, skipY, collapsed ? "+" : "–", { fontFamily: FONT_PIXEL, fontSize: '12px', color: '#d7c58f' }).setScrollFactor(0).setOrigin(0.5);
     toggleButton.on('pointerover', () => toggleText.setColor('#f2d477'));
     toggleButton.on('pointerout', () => toggleText.setColor('#d7c58f'));
     toggleButton.on('pointerdown', (pointer, lx, ly, event) => { event?.stopPropagation?.(); this.toggleCollapsed(); });

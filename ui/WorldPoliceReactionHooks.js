@@ -63,8 +63,8 @@ function openReaction(scene,canTalk,token,menuVersion){
 }
 export function addPoliceWorldReactionOption(scene,id,{canTalk}={}){
   if(!['start','topics'].includes(id)||typeof canTalk!=='function'||!available(scene,canTalk)||!scene.panel||!safeReaction())return false;
-  const choices=scene.panel.querySelector(__dialogueText("ui/WorldPoliceReactionHooks.js", "t_e0620ac96572cb04b764"));
-  if(!choices||choices.querySelector('[data-world-case-news]')||!choices.textContent.includes(__dialogueText("ui/WorldPoliceReactionHooks.js", "t_2b687db6298b629d3bcb")))return false;
+  const choices=scene.panel.querySelector(".police-choices");
+  if(!choices||choices.querySelector('[data-world-case-news]')||!choices.textContent.includes("Goodbye."))return false;
   const token=scene.runToken,version=scene.dialogueVersion;
   const button=scene.makeButton(TOPIC,()=>openReaction(scene,canTalk,token,version),version);
   button.dataset.worldCaseNews='true';

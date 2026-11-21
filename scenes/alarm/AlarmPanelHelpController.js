@@ -27,12 +27,12 @@ export class AlarmPanelHelpController extends ForensicHelpController{
     return super.purchase(method,definition);
   }
   panel(title,body){
-    if(title===__dialogueText("scenes/alarm/AlarmPanelHelpController.js", "t_aa4c08975bb761f44d5f")){title=__dialogueText("scenes/alarm/AlarmPanelHelpController.js", "t_90653ea3b3f08e96d708");body=__dialogueText("scenes/alarm/AlarmPanelHelpController.js", "t_7b3a1cfd948e3780c8f2");}
-    if(title===__dialogueText("scenes/alarm/AlarmPanelHelpController.js", "t_cf340b2b1c0c6eabde3b"))title=__dialogueText("scenes/alarm/AlarmPanelHelpController.js", "t_54f7ca94f2717e23bf31");return super.panel(title,body);
+    if(title==="LAB ASSISTANCE"){title=__dialogueText("scenes/alarm/AlarmPanelHelpController.js", "t_90653ea3b3f08e96d708");body=__dialogueText("scenes/alarm/AlarmPanelHelpController.js", "t_7b3a1cfd948e3780c8f2");}
+    if(title==="LAB HINT")title=__dialogueText("scenes/alarm/AlarmPanelHelpController.js", "t_54f7ca94f2717e23bf31");return super.panel(title,body);
   }
   makeButton(x,y,label,callback,parent=null,enabled=true){
     label=label.replace(__dialogueText("scenes/alarm/AlarmPanelHelpController.js", "t_887ded7583c53dfaf1b8"),__dialogueText("scenes/alarm/AlarmPanelHelpController.js", "t_b5493187b35cce813378")).replace(__dialogueText("scenes/alarm/AlarmPanelHelpController.js", "t_e59dd6a4c606d360d6a5"),__dialogueText("scenes/alarm/AlarmPanelHelpController.js", "t_fca6fb219ba19f444741"));
-    if(label.startsWith(__dialogueText("scenes/alarm/AlarmPanelHelpController.js", "t_d1cbbf44341666456748")))label+=__dialogueText("scenes/alarm/AlarmPanelHelpController.js", "t_9c7fd168c10f116a0ba2");if(label.startsWith(__dialogueText("scenes/alarm/AlarmPanelHelpController.js", "t_b5493187b35cce813378")))label+=__dialogueText("scenes/alarm/AlarmPanelHelpController.js", "t_314538d65759cb745d17");
+    if(label.startsWith("CUT CORNERS"))label+=__dialogueText("scenes/alarm/AlarmPanelHelpController.js", "t_9c7fd168c10f116a0ba2");if(label.startsWith("ASK TECHNICAL CONTACT"))label+=__dialogueText("scenes/alarm/AlarmPanelHelpController.js", "t_314538d65759cb745d17");
     return super.makeButton(x,y,label,callback,parent,enabled);
   }
   handleResize(){if(this.modal&&!this.busy)this.close();}

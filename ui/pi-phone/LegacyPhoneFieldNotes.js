@@ -60,9 +60,9 @@ export function renderPhoneFieldNotes(){
   const before=investigation.notePage,next=Math.max(0,Math.min(pageCount-1,before+delta));if(next===before)return;
   investigation.notePage=next;phone.render();return 'page';
  };
- action(TEXT_X,PAGE_Y,__dialogueText("ui/pi-phone/LegacyPhoneFieldNotes.js", "t_d463afc6ea8f75cc6b55"),()=>turn(-1),this.notePage>0);
+ action(TEXT_X,PAGE_Y,"< PAGE",()=>turn(-1),this.notePage>0);
  text(PAPER_WIDTH/2,PAGE_Y+2,`${this.notePage+1} / ${pageCount}`,15,'#75684c').setOrigin(.5,0);
- action(PAPER_WIDTH-112,PAGE_Y,__dialogueText("ui/pi-phone/LegacyPhoneFieldNotes.js", "t_8188caf087609e305acc"),()=>turn(1),this.notePage<pageCount-1);
+ action(PAPER_WIDTH-112,PAGE_Y,"PAGE >",()=>turn(1),this.notePage<pageCount-1);
  const selectedText=selectedIds.map(id=>keywordMap.get(id)?.label).filter(Boolean).join(' + ');
  const selection=text(TEXT_X,SELECTION_Y,selectedText||__dialogueText("ui/pi-phone/LegacyPhoneFieldNotes.js", "t_0fcc768cacc0451c47e5"),16,selectedText?'#574e35':'#8b8065');
  let selectionFontSize=16;while(selection.height>SELECTION_HEIGHT&&selectionFontSize>11){selectionFontSize--;selection.setFontSize(selectionFontSize);}

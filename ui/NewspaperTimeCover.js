@@ -257,7 +257,7 @@ function paintCoverPrint(ctx, layout) {
 
   // logo: TIME, drawn letter by letter so we control the spacing
   const size = layout.logo.size;
-  ctx.font = `${__dialogueText("ui/NewspaperTimeCover.js", "t_83f1acae29fdefe9796c")}${size}${__dialogueText("ui/NewspaperTimeCover.js", "t_12e0ffc0ea37a67fbc4b")}`;
+  ctx.font = `${"bold "}${size}${"px \"Times New Roman\", Georgia, serif"}`;
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = NAVY;
 

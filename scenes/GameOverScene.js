@@ -82,7 +82,7 @@ export class GameOverScene extends BaseScene {
     audioManager.stopAllVoice(); audioManager.stopAllSfx();
     this.applyGameOverConsequences();
     this.stage = this.add.container(0, 0); this.buildStreet(); this.buildMedallion(); this.buildResultPanel();
-    this.skipHint = this.add.text(960, 1015, __dialogueText("scenes/GameOverScene.js", "t_ad378c8c442bccfda0e9"), {
+    this.skipHint = this.add.text(960, 1015, "CLICK TO SKIP INTRO", {
       fontFamily: 'SpecialElite', fontSize: '21px', color: '#cfba92'
     }).setOrigin(0.5);
     this.stage.add(this.skipHint); this.layoutStage();

@@ -56,9 +56,9 @@ export function renderAlibiCloudPhoneNotes(){
   this.notePage=Math.max(0,Math.min(pages.length-1,Number(this.notePage)||0));
   for(const entry of pages[this.notePage])button(30,entry.y,entry.label,entry.action,choosing);
   if(!entries.length)text(30,listTop,activeCloud?__dialogueText("ui/pi-phone/AlibiCloudPhoneNotes.js", "t_fe5204006499a29c3f19"):__dialogueText("ui/pi-phone/AlibiCloudPhoneNotes.js", "t_e9bf758279570baddf99"),17,'#786c54');
-  button(30,height-82,__dialogueText("ui/pi-phone/AlibiCloudPhoneNotes.js", "t_d463afc6ea8f75cc6b55"),()=>{investigation.notePage--;phone.render();},choosing&&this.notePage>0);
+  button(30,height-82,"< PAGE",()=>{investigation.notePage--;phone.render();},choosing&&this.notePage>0);
   text(width/2,height-80,`${this.notePage+1}/${pages.length}`,14);
-  button(width-108,height-82,__dialogueText("ui/pi-phone/AlibiCloudPhoneNotes.js", "t_8188caf087609e305acc"),()=>{investigation.notePage++;phone.render();},choosing&&this.notePage<pages.length-1);
+  button(width-108,height-82,"PAGE >",()=>{investigation.notePage++;phone.render();},choosing&&this.notePage<pages.length-1);
   button(30,height-40,activeCloud?__dialogueText("ui/pi-phone/AlibiCloudPhoneNotes.js", "t_9e905f09f84609111358"):__dialogueText("ui/pi-phone/AlibiCloudPhoneNotes.js", "t_a1129ed66b026c7ba94c"),()=>{investigation.alibiCloudId=null;investigation.notePage=0;phone.render();},choosing);
   const transcripts=phoneCaseProgress(CASE).transcripts||[];
   button(190,height-40,__dialogueText("ui/pi-phone/AlibiCloudPhoneNotes.js", "t_57122ddcbe5aaddde50a"),()=>investigation.replay(),choosing&&transcripts.length>0);

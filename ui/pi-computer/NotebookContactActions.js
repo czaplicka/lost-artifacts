@@ -60,7 +60,7 @@ export function installNotebookContactActions(ui){
  }
  function bind(){
   if(!live()||ui.caseCloudNotebook?.collapsed)return;
-  const paper=ui.root?.list?.find(container=>Array.isArray(container.list)&&container.list.some(child=>child.text===__dialogueText("ui/pi-computer/NotebookContactActions.js", "t_bbc638660cdde9fbfde6")));
+  const paper=ui.root?.list?.find(container=>Array.isArray(container.list)&&container.list.some(child=>child.text==="PRIVATE INVESTIGATIONS"));
   if(!paper?.visible)return;
   const definitions=ui.search.data?.cases||[],titles=new Set(paper.list.filter(item=>typeof item.text==='string').map(item=>item.text));
   const displayed=definitions.filter(definition=>titles.has(definition.title));if(displayed.length!==1)return;

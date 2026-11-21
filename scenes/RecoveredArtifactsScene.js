@@ -42,8 +42,8 @@ export class RecoveredArtifactsScene extends BaseScene {
         });
     }
     _buildHeader(width) {
-        this.add.text(width / 2, 68, __dialogueText("scenes/RecoveredArtifactsScene.js", "t_4002d8e6ea5c5314a250"), {
-            fontFamily: 'PressStart2P', fontSize: '18px', color: '#c8a84b', stroke: __dialogueText("scenes/RecoveredArtifactsScene.js", "t_e00a579669b77dab4a01"), strokeThickness: 4
+        this.add.text(width / 2, 68, "RECOVERED ARTIFACTS", {
+            fontFamily: 'PressStart2P', fontSize: '18px', color: '#c8a84b', stroke: "#1a0e05", strokeThickness: 4
         }).setOrigin(0.5).setDepth(302);
         const count = this.artifacts.length;
         const subtitle = count === 0 ? __dialogueText("scenes/RecoveredArtifactsScene.js", "t_d4be867494b072b7279a") : `${count}${__dialogueText("scenes/RecoveredArtifactsScene.js", "t_5539ec10f4990d953813")}${count !== 1 ? 's' : ''}${__dialogueText("scenes/RecoveredArtifactsScene.js", "t_352be3525b598c75b096")}`;
@@ -75,7 +75,7 @@ export class RecoveredArtifactsScene extends BaseScene {
             const iconBg = this.add.graphics().setDepth(depth + 1);
             iconBg.fillStyle(0x3d2510, 1); iconBg.fillRoundedRect(x + 14, y + 14, 100, h - 28, 8);
             iconBg.lineStyle(1, 0xc8a84b, 0.4); iconBg.strokeRoundedRect(x + 14, y + 14, 100, h - 28, 8); this.cardObjects.push(iconBg);
-            this.cardObjects.push(this.add.text(x + 64, y + h / 2, __dialogueText("scenes/RecoveredArtifactsScene.js", "t_6f0781f74be2221b8f0b"), { fontSize: '36px' }).setOrigin(0.5).setDepth(depth + 2));
+            this.cardObjects.push(this.add.text(x + 64, y + h / 2, "🏺", { fontSize: '36px' }).setOrigin(0.5).setDepth(depth + 2));
         }
         const nameText = this.add.text(x + 128, y + 22, artifactData.artifact || __dialogueText("scenes/RecoveredArtifactsScene.js", "t_172ff09667bbca32dc87"), {
             fontFamily: 'PressStart2P', fontSize: '9px', color: '#c8a84b', wordWrap: { width: w - 148 }
@@ -93,7 +93,7 @@ export class RecoveredArtifactsScene extends BaseScene {
                 fontFamily: 'SpecialElite', fontSize: '11px', color: '#6e5a38'
             }).setOrigin(1, 0.5).setDepth(depth + 1));
         }
-        const detailsBtn = this.add.text(x + w - 10, y + 22, __dialogueText("scenes/RecoveredArtifactsScene.js", "t_613ee91c298d3f5f4fdf"), {
+        const detailsBtn = this.add.text(x + w - 10, y + 22, "[ details ]", {
             fontFamily: 'SpecialElite', fontSize: '12px', color: '#c8a84b'
         }).setOrigin(1, 0).setDepth(depth + 2).setInteractive({ useHandCursor: true });
         detailsBtn.on('pointerover', () => detailsBtn.setColor('#ffe080'));
@@ -111,11 +111,11 @@ export class RecoveredArtifactsScene extends BaseScene {
         hitZone.on('pointerdown', () => this._openDetailPanel(artifactData)); this.cardObjects.push(hitZone);
     }
     _buildEmptyState(width, height) {
-        this.cardObjects.push(this.add.text(width / 2, height / 2 - 60, __dialogueText("scenes/RecoveredArtifactsScene.js", "t_6f0781f74be2221b8f0b"), { fontSize: '64px' }).setOrigin(0.5).setDepth(303).setAlpha(0.3));
-        this.cardObjects.push(this.add.text(width / 2, height / 2 + 20, __dialogueText("scenes/RecoveredArtifactsScene.js", "t_81188a19ba3de95f1c40"), {
+        this.cardObjects.push(this.add.text(width / 2, height / 2 - 60, "🏺", { fontSize: '64px' }).setOrigin(0.5).setDepth(303).setAlpha(0.3));
+        this.cardObjects.push(this.add.text(width / 2, height / 2 + 20, "No artifacts recovered yet.", {
             fontFamily: 'PressStart2P', fontSize: '14px', color: '#6e5a38'
         }).setOrigin(0.5).setDepth(303));
-        this.cardObjects.push(this.add.text(width / 2, height / 2 + 56, __dialogueText("scenes/RecoveredArtifactsScene.js", "t_9d95b9fa5cc73822595e"), {
+        this.cardObjects.push(this.add.text(width / 2, height / 2 + 56, "Solve missions to fill your collection!", {
             fontFamily: 'SpecialElite', fontSize: '18px', color: '#5a4a28'
         }).setOrigin(0.5).setDepth(303));
     }
@@ -123,17 +123,17 @@ export class RecoveredArtifactsScene extends BaseScene {
         const totalPages = Math.ceil(this.artifacts.length / this.itemsPerPage);
         if (totalPages <= 1) return;
         const y = height - 56;
-        const prevBtn = this.add.text(width / 2 - 80, y, __dialogueText("scenes/RecoveredArtifactsScene.js", "t_cf8ba9e23746768d376a"), {
+        const prevBtn = this.add.text(width / 2 - 80, y, "◀ PREV", {
             fontFamily: 'PressStart2P', fontSize: '10px', color: this.currentPage === 0 ? '#4a3a1a' : '#c8a84b'
         }).setOrigin(0.5).setDepth(304).setInteractive({ useHandCursor: this.currentPage > 0 });
         if (this.currentPage > 0) {
             prevBtn.on('pointerover', () => prevBtn.setColor('#ffe080')); prevBtn.on('pointerout', () => prevBtn.setColor('#c8a84b'));
             prevBtn.on('pointerdown', () => this._changePage(-1, width, height));
         }
-        const pageInfo = this.add.text(width / 2, y, `${this.currentPage + 1}${__dialogueText("scenes/RecoveredArtifactsScene.js", "t_005e1574a2b5c8163046")}${totalPages}`, {
+        const pageInfo = this.add.text(width / 2, y, `${this.currentPage + 1}${" / "}${totalPages}`, {
             fontFamily: 'SpecialElite', fontSize: '16px', color: '#a89060'
         }).setOrigin(0.5).setDepth(304);
-        const nextBtn = this.add.text(width / 2 + 80, y, __dialogueText("scenes/RecoveredArtifactsScene.js", "t_4066c847882348f43ddc"), {
+        const nextBtn = this.add.text(width / 2 + 80, y, "NEXT ▶", {
             fontFamily: 'PressStart2P', fontSize: '10px', color: this.currentPage >= totalPages - 1 ? '#4a3a1a' : '#c8a84b'
         }).setOrigin(0.5).setDepth(304).setInteractive({ useHandCursor: this.currentPage < totalPages - 1 });
         if (this.currentPage < totalPages - 1) {
@@ -165,7 +165,7 @@ export class RecoveredArtifactsScene extends BaseScene {
         }); panel.add(outsideZone);
         const panelBg = this.add.graphics(); panelBg.fillStyle(0x1a0e05, 0.97); panelBg.fillRoundedRect(px, py, pw, ph, 14);
         panelBg.lineStyle(3, 0xc8a84b, 1); panelBg.strokeRoundedRect(px, py, pw, ph, 14); panel.add(panelBg);
-        panel.add(this.add.text(px + pw / 2, py + 28, artifactData.artifact || __dialogueText("scenes/RecoveredArtifactsScene.js", "t_b764cdc0eab713746721"), {
+        panel.add(this.add.text(px + pw / 2, py + 28, artifactData.artifact || "Unknown", {
             fontFamily: 'PressStart2P', fontSize: '11px', color: '#c8a84b', align: 'center', wordWrap: { width: pw - 60 }
         }).setOrigin(0.5, 0));
         const divLine = this.add.graphics(); divLine.lineStyle(1, 0xc8a84b, 0.4); divLine.lineBetween(px + 30, py + 68, px + pw - 30, py + 68); panel.add(divLine);
@@ -181,11 +181,11 @@ export class RecoveredArtifactsScene extends BaseScene {
             }));
         }
         if (artifactData.recoveredAt) {
-            panel.add(this.add.text(px + pw - 36, py + ph - 28, `${__dialogueText("scenes/RecoveredArtifactsScene.js", "t_e7e60ab7c4c814141f6c")}${artifactData.recoveredAt}`, {
+            panel.add(this.add.text(px + pw - 36, py + ph - 28, `${"Recovered: "}${artifactData.recoveredAt}`, {
                 fontFamily: 'SpecialElite', fontSize: '12px', color: '#6e5a38'
             }).setOrigin(1, 0.5));
         }
-        const closeBtn = this.add.text(px + pw - 20, py + 16, __dialogueText("scenes/RecoveredArtifactsScene.js", "t_be64f28a8d0a6257b2af"), { fontFamily: 'PressStart2P', fontSize: '12px', color: '#c8a84b' }).setOrigin(1, 0).setInteractive({ useHandCursor: true });
+        const closeBtn = this.add.text(px + pw - 20, py + 16, "✕", { fontFamily: 'PressStart2P', fontSize: '12px', color: '#c8a84b' }).setOrigin(1, 0).setInteractive({ useHandCursor: true });
         closeBtn.on('pointerover', () => closeBtn.setColor('#ff6b6b')); closeBtn.on('pointerout', () => closeBtn.setColor('#c8a84b'));
         closeBtn.on('pointerdown', () => this._closeDetailPanel()); panel.add(closeBtn);
         panel.setAlpha(0); this.tweens.add({ targets: panel, alpha: 1, duration: 200, ease: 'Power2' });
@@ -206,7 +206,7 @@ export class RecoveredArtifactsScene extends BaseScene {
         }});
     }
     _buildCloseButton(width) {
-        const closeBtn = this.add.text(width - 52, 48, __dialogueText("scenes/RecoveredArtifactsScene.js", "t_368d075bc49762386ec9"), {
+        const closeBtn = this.add.text(width - 52, 48, "[ CLOSE ]", {
             fontFamily: 'PressStart2P', fontSize: '9px', color: '#c8a84b', backgroundColor: '#1a0e05', padding: { left: 8, right: 8, top: 6, bottom: 6 }
         }).setOrigin(0.5).setDepth(310).setInteractive({ useHandCursor: true });
         closeBtn.on('pointerover', () => closeBtn.setColor('#ffe080')); closeBtn.on('pointerout', () => closeBtn.setColor('#c8a84b'));

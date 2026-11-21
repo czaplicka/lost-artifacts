@@ -767,7 +767,7 @@ export class ApartmentObject {
         __dialogueText("scenes/apartament/ApartmentObject.js", "t_266b6fd0dd4dc28a9405"),
         () => this.openItemPicker(),
         {
-          sub: ACTION_SUBS[__dialogueText("scenes/apartament/ApartmentObject.js", "t_266b6fd0dd4dc28a9405")]
+          sub: ACTION_SUBS["USE ITEM"]
         }
       ]);
     }
@@ -838,7 +838,7 @@ export class ApartmentObject {
     if (pending.length > 1) {
       if (this.findingIndex > 0) {
         actions.push([
-          __dialogueText("scenes/apartament/ApartmentObject.js", "t_2b8c035d931a36d1e669"),
+          "< PREVIOUS",
           () => this.showContents(
             this.findingIndex - 1
           ),
@@ -851,7 +851,7 @@ export class ApartmentObject {
         pending.length - 1
       ) {
         actions.push([
-          __dialogueText("scenes/apartament/ApartmentObject.js", "t_58b85f2ea88bf1a9ba16"),
+          "NEXT >",
           () => this.showContents(
             this.findingIndex + 1
           ),
@@ -913,7 +913,7 @@ export class ApartmentObject {
 
     if (page > 0) {
       actions.push([
-        __dialogueText("scenes/apartament/ApartmentObject.js", "t_2b8c035d931a36d1e669"),
+        "< PREVIOUS",
         () => this.openItemPicker(page - 1),
         { half: true }
       ]);
@@ -921,7 +921,7 @@ export class ApartmentObject {
 
     if (page < pages - 1) {
       actions.push([
-        __dialogueText("scenes/apartament/ApartmentObject.js", "t_58b85f2ea88bf1a9ba16"),
+        "NEXT >",
         () => this.openItemPicker(page + 1),
         { half: true }
       ]);
@@ -1310,7 +1310,7 @@ export class ApartmentObject {
     this.keyHandler = event => {
       if (this.menu !== root) return;
 
-      if (event.key === __dialogueText("scenes/apartament/ApartmentObject.js", "t_037c968467aa3fd7c059")) {
+      if (event.key === "Escape") {
         return this.closeMenu();
       }
 

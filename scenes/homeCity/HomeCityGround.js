@@ -111,7 +111,7 @@ export class HomeCityGround extends HomeCityRendererCore {
     const key = this.bake(`txt_${job.t.replace(/\W/g, '')}`, 560, 300, ctx => {
       ctx.save(); ctx.transform(HW, HH, -HW, HH, o.x, o.y); ctx.translate(job.u, job.v);
       if (job.rot === 'v') ctx.rotate(-Math.PI / 2);
-      ctx.scale(1 / 64, 1 / 64); ctx.font = `${job.size}${__dialogueText("scenes/homeCity/HomeCityGround.js", "t_2e0dd9220c0e7b7f0e34")}${FONT_UI}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.scale(1 / 64, 1 / 64); ctx.font = `${job.size}${"px "}${FONT_UI}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillStyle = __dialogueText("scenes/homeCity/HomeCityGround.js", "t_9f2570635845628ca364"); ctx.fillText(job.t, 0, 0); ctx.restore();
     }, c.x - 280, c.y - 150);
     if (key) s.add.image(c.x - 280, c.y - 150, key).setOrigin(0, 0).setDepth(-900);

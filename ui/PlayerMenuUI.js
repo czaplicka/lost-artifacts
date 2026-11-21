@@ -343,7 +343,7 @@ export class PlayerMenuUI {
                 .text(
                     hitArea.x,
                     y + 3,
-                    `${index}${__dialogueText("ui/PlayerMenuUI.js", "t_45822f54a0d0e030f756")}${button.key}`,
+                    `${index}${": "}${button.key}`,
                     {
                         fontFamily: 'monospace',
                         fontSize: '10px',
@@ -503,7 +503,7 @@ export class PlayerMenuUI {
                 {
                     ...style,
                     color: hotkeyColor,
-                    fontStyle: __dialogueText("ui/PlayerMenuUI.js", "t_e0007a5bca8d91586274")
+                    fontStyle: "bold"
                 }
             )
             .setOrigin(0);
@@ -671,11 +671,11 @@ export class PlayerMenuUI {
         };
 
         const left = this.scene.add
-            .text(spacing, 0, __dialogueText("ui/PlayerMenuUI.js", "t_2e522d1f0da2cc7d6f68"), arrowStyle)
+            .text(spacing, 0, "▼", arrowStyle)
             .setOrigin(0.5);
 
         const right = this.scene.add
-            .text(-spacing, 0, __dialogueText("ui/PlayerMenuUI.js", "t_2e522d1f0da2cc7d6f68"), arrowStyle)
+            .text(-spacing, 0, "▼", arrowStyle)
             .setOrigin(0.5);
 
         this.toggleArrows = { left, right };
@@ -840,7 +840,7 @@ export class PlayerMenuUI {
                     .text(
                         0,
                         iconY,
-                        item.fallbackIcon || __dialogueText("ui/PlayerMenuUI.js", "t_4abd8ab8e98ed5c97343"),
+                        item.fallbackIcon || "❔",
                         {
                             fontFamily: item.officeRoom
                                 ? 'SpecialElite'

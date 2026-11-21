@@ -114,7 +114,7 @@ export function installAlibiAdvertEmailFlow(ui,documents) {
   }
   function bindNotebookAddress() {
     if (!alive() || !known() || ui.caseCloudNotebook?.collapsed) return;
-    const paper=ui.root?.list?.find(container=>Array.isArray(container.list) && container.list.some(child=>child.text===__dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_bbc638660cdde9fbfde6")));
+    const paper=ui.root?.list?.find(container=>Array.isArray(container.list) && container.list.some(child=>child.text==="PRIVATE INVESTIGATIONS"));
     if (!paper?.visible) return;
     for (const label of paper.list || []) {
       if (label.text!==EMAIL || typeof label.setInteractive!=='function') continue;
@@ -160,7 +160,7 @@ export function installAlibiAdvertEmailFlow(ui,documents) {
       d.text(x,labelY+label.height+5,caption,12,'#5b6558',width);
     });
     wrap(ui.drawing,'button',original=>(x,y,label,...args)=>{
-      if (alive() && label===__dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_3759b2884c0dcf2e68c3") && isAdvert()) {
+      if (alive() && label==="REPLY TO AD" && isAdvert()) {
         return original(x,y,__dialogueText("ui/pi-computer/AlibiAdvertEmailFlow.js", "t_759a747a4b432b6d18e6"),collectAddress,active() || Boolean(gameState.piBorrowedAlibi?.sent));
       }
       return original(x,y,label,...args);

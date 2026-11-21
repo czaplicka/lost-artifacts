@@ -58,7 +58,7 @@ export const APPEARANCE_OPTIONS = {
       P('long', 'Long', [art('base', 'long', 'skin'), art('eyes', 'long', 'eyes')],
         { quip: 'Looks permanently disappointed. Useful in interrogations.' }),
       P('heart', 'Heart-Shaped', [art('base', 'heart', 'skin'), art('eyes', 'heart', 'eyes')],
-        { ready: true, quip: 'Cheekbones sold separately. Yours came with the file.' }),
+        { quip: 'Cheekbones sold separately. Yours came with the file.' }),
       P('lady', 'Lady-like', [art('base', 'lady', 'skin'), art('eyes', 'lady', 'eyes')],
         { ready: true, quip: 'Watch out for those eyes.' })
     ]

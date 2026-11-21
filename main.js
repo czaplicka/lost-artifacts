@@ -17,7 +17,7 @@ import { getReedContactService } from './managers/ReedContactService.js';
 import { supabase } from './supabase-client.js';
 import { installAchievementSystem } from './managers/AchievementManager.js';
 import { installChaseTutorial } from './tutorials/chase/ChaseTutorial.js';
-
+import { installDailyLoginRewards } from './systems/DailyLoginRewards.js';
 import './managers/PICaseRewards.js';
 
 const RESIZE_DEBOUNCE_MS = 120;
@@ -216,8 +216,6 @@ function installDevTools(game) {
     return;
   }
 
-  window.game = game;
-
   import('./tests/BaseSceneLeakTest.js')
     .then(({ installLeakTest }) => {
       installLeakTest(game);
@@ -265,6 +263,10 @@ const config = {
 
 const game = new Phaser.Game(config);
 
+// Required by runtime systems, including repeated-exhaustion handling.
+// Keep available on production domains as well as localhost.
+window.game = game;
+
 game.assets = new AssetManager(game);
 
 game.sceneLoader = new SceneLoader(
@@ -287,3 +289,4 @@ installResizeNotification(game);
 installScenePrefetch(game);
 installDevTools(game);
 installChaseTutorial(game);
+installDailyLoginRewards(game);

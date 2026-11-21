@@ -667,10 +667,7 @@ export class CityWeatherManager {
 
     for (const object of this.scene.children.list) {
       if (
-        object.type === __dialogueText(
-          'systems/CityWeatherManager.js',
-          't_1aa4cb0bcca76e92e306'
-        ) &&
+        object.type === "Image" &&
         !object.input?.enabled &&
         object.depth === 0 &&
         Math.abs(object.displayWidth - width) < 2 &&

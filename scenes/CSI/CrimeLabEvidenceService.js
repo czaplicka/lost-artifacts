@@ -550,6 +550,7 @@ export class CrimeLabEvidenceService {
 
     // Ponowny zapis starego wyniku nie daje XP.
     if (previous) {
+      this.syncLabCompletion();
       return {
         saved: true,
         wasAlreadyCompleted: true,
@@ -599,6 +600,7 @@ export class CrimeLabEvidenceService {
 
     // Nagroda dopiero po zapisaniu ostatniej
     // brakującej analizy w stanie sprawy.
+    this.syncLabCompletion({ save: false });
     const xpResult = this.grantCompletionXP();
 
     // Wyniki i odebrana nagroda trafiają
@@ -625,6 +627,10 @@ export class CrimeLabEvidenceService {
     };
   }
 
+  syncLabCompletion({ save = true } = {}) {
+    if (!STATION_IDS.every(id => this.isStationCompleted(id))) return false;
+    return this.labManager.markCrimeLabCompleted({ save });
+  }
   ensureAssistantResults(ids = []) {
     const stations = Array.isArray(ids)
       ? [
@@ -663,6 +669,7 @@ export class CrimeLabEvidenceService {
       }
     }
 
+    this.syncLabCompletion();
     const count = this.getCompletedStationCount();
 
     EventBus.emit('crimeLabAssistantResultsReady', {
@@ -965,3 +972,5 @@ export class CrimeLabEvidenceService {
     return true;
   }
 }
+
+// CSI reliability fixes: 2026-11-20-v1

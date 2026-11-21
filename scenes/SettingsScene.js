@@ -46,7 +46,7 @@ export class SettingsScene extends BaseScene {
     panel.lineStyle(3, 0xc9a227, 1);
     panel.strokeRoundedRect(cx - pw / 2, top, pw, ph, 12);
 
-    this.add.text(cx, top + 60, __dialogueText("scenes/SettingsScene.js", "t_02f6ea12816a9e7b8ce8"), {
+    this.add.text(cx, top + 60, "SETTINGS", {
       fontFamily: 'PressStart2P', fontSize: '28px', color: '#c9a227'
     }).setOrigin(0.5).setDepth(20);
 
@@ -163,7 +163,7 @@ export class SettingsScene extends BaseScene {
   }
 
   createMuteToggle(x, y) {
-    this.add.text(x - 200, y, __dialogueText("scenes/SettingsScene.js", "t_cd8ad69679c93eba430f"), {
+    this.add.text(x - 200, y, "SOUND:", {
       fontFamily: 'PressStart2P', fontSize: '14px', color: '#e8d5a3'
     }).setOrigin(0, 0.5).setDepth(20);
     this.muteLabel = this.add.text(x + 80, y, '', {

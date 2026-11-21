@@ -27,7 +27,7 @@ export function installOwlAudioAvailability(ui) {
   ui.desktop.createIcon = function (...args) {
     const label = args[3];
     const kind = args[4];
-    if ((label === __dialogueText("ui/pi-computer/OwlAudioAvailability.js", "t_5ddde5a18bc919b6ce35") || kind === 'audio') && !canUseOwlAudio()) {
+    if ((label === "Owl Audio" || kind === 'audio') && !canUseOwlAudio()) {
       return;
     }
     return createIcon.apply(this, args);

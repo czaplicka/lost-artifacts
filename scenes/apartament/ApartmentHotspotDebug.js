@@ -108,7 +108,7 @@ export class ApartmentHotspotDebug {
     const objects = this.objects();
     if (!objects.length) return;
     let index = objects.findIndex(o => o.config.layoutSlotId === this.selectedId);
-    if (event.code === __dialogueText("scenes/apartament/ApartmentHotspotDebug.js", "t_90ddf1963abb36c9921c")) {
+    if (event.code === "Tab") {
       event.preventDefault();
       if (index < 0) index = event.shiftKey ? 0 : -1;
       index = (index + (event.shiftKey ? -1 : 1) + objects.length) % objects.length;

@@ -2,7 +2,7 @@ import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js"
 import { reflexAccepted,medicalNeedle,recordMedicalHit } from './MedicalReviewModel.js';
 export class MedicalTestsController{
   constructor(scene,data){this.scene=scene;this.data=data;this.layer=null;this.kind=null;this.held=false;this.focused=true;this.phase='wait';this.elapsed=0;this.cycle=0;this.hold=0;this.cooldown=0;
-    this.keyDown=e=>this.onKey(e);this.keyUp=e=>{if(e.code===__dialogueText("scenes/medical/MedicalTestsController.js", "t_20eac5aae274985fd886"))this.release();};this.pointerUp=()=>this.release();
+    this.keyDown=e=>this.onKey(e);this.keyUp=e=>{if(e.code==="Space")this.release();};this.pointerUp=()=>this.release();
     this.updateBound=(time,delta)=>this.update(delta);this.blur=()=>{this.focused=false;this.release();};this.focus=()=>{this.focused=true;this.resetRound();};this.visibility=()=>{if(document.hidden)this.blur();else this.focus();};}
   get isOpen(){return Boolean(this.layer);}
   open(kind){
@@ -36,7 +36,7 @@ export class MedicalTestsController{
     this.button(1090,660,this.scene.progress.slow?__dialogueText("scenes/medical/MedicalTestsController.js", "t_312f7c7cff02ae7b9e38"):__dialogueText("scenes/medical/MedicalTestsController.js", "t_b662226023239e326897"),()=>{this.scene.progress.slow=!this.scene.progress.slow;this.scene.persist();this.resetRound();this.render();});
   }
   release(){this.held=false;this.hold=0;}
-  onKey(event){if(!this.isOpen||event.repeat||event.ctrlKey||event.metaKey||event.code!==__dialogueText("scenes/medical/MedicalTestsController.js", "t_20eac5aae274985fd886"))return;event.preventDefault();if(this.kind==='reflex')this.react();else if(this.cooldown<=0&&this.focused)this.held=true;}
+  onKey(event){if(!this.isOpen||event.repeat||event.ctrlKey||event.metaKey||event.code!=="Space")return;event.preventDefault();if(this.kind==='reflex')this.react();else if(this.cooldown<=0&&this.focused)this.held=true;}
   react(){
     if(!this.isOpen||this.kind!=='reflex'||this.cooldown>0||!this.focused||this.scene.progress.reflex>=this.data.rounds)return;
     const windowMs=this.scene.progress.slow?this.data.slowReflexWindowMs:this.data.reflexWindowMs;

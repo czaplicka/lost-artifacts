@@ -123,7 +123,7 @@ export function applyChoice(record, index) {
   record.remaining = 0;
   const text = !option ? __dialogueText("systems/chaseLogic.js", "t_d9b5faaf5a4458feeb4a")
     : result.success ? option.success : option.failure;
-  record.resultText = `${text}${__dialogueText("systems/chaseLogic.js", "t_c1587382f551feef818a")}${before}${__dialogueText("systems/chaseLogic.js", "t_5a6d0819a8a8a57a1841")}${record.distance}${__dialogueText("systems/chaseLogic.js", "t_506df2a2a61a4f61c529")}`;
+  record.resultText = `${text}${__dialogueText("systems/chaseLogic.js", "t_c1587382f551feef818a")}${before}${" m -> "}${record.distance}${__dialogueText("systems/chaseLogic.js", "t_506df2a2a61a4f61c529")}`;
   record.phase = record.distance <= 0 ? 'caught'
     : record.distance >= C.escapeDistance ? 'escaped' : 'result';
   return true;

@@ -81,7 +81,7 @@ export class ScoreManager {
       gameState.caseData = {...(gameState.caseData || {}), scoreLedger:{version:1,claimed:{},breakdown:[]}};
     } else this._sessionPoints = this.getCanonicalScore();
     EventBus.emit('scoreChanged', {delta:0,total:this.getSessionPoints(),
-      label:reset ? __dialogueText("managers/ScoreManager.js", "t_7e7120930e5db362b928") : __dialogueText("managers/ScoreManager.js", "t_fa02db73e0e2135e44b9")});
+      label:reset ? "New score session started" : "Score session restored"});
     return this.getSessionPoints();
   }
   getSessionPoints() { return this._sessionPoints = this.getCanonicalScore(); }

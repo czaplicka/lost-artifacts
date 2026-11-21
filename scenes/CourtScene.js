@@ -596,7 +596,7 @@ export class CourtScene extends BaseScene {
         }
 
         this.heading.setText(
-          `${question.side === __dialogueText("scenes/CourtScene.js", "t_5b6e4c26a352100e1252") ? __dialogueText("scenes/CourtScene.js", "t_5ae131912dad5af8ebe5") : __dialogueText("scenes/CourtScene.js", "t_9f3bed01ba593455014c")}${__dialogueText("scenes/CourtScene.js", "t_3b2e8119b6fcc97df985")}${record.index + 1}${__dialogueText("scenes/CourtScene.js", "t_8a5edab282632443219e")}${record.questions.length}`
+          `${question.side === "prosecutor" ? __dialogueText("scenes/CourtScene.js", "t_5ae131912dad5af8ebe5") : __dialogueText("scenes/CourtScene.js", "t_9f3bed01ba593455014c")}${__dialogueText("scenes/CourtScene.js", "t_3b2e8119b6fcc97df985")}${record.index + 1}${__dialogueText("scenes/CourtScene.js", "t_8a5edab282632443219e")}${record.questions.length}`
         );
 
         this.questionPages = this.measuredPages(
@@ -805,7 +805,7 @@ export class CourtScene extends BaseScene {
 
     const heading = this.add.text(
       960, 245,
-      __dialogueText("scenes/CourtScene.js", "t_39d33596e45d31dc0142"),
+      "COURTROOM HINT",
       {
         fontFamily: 'PressStart2P, monospace',
         fontSize: '22px',
@@ -966,7 +966,7 @@ export class CourtScene extends BaseScene {
     }
 
     if (this.hintModal) {
-      if ([__dialogueText("scenes/CourtScene.js", "t_037c968467aa3fd7c059"), 'KeyH'].includes(event.code)) {
+      if (["Escape", 'KeyH'].includes(event.code)) {
         this.closeHint();
       } else if (
         ['ArrowRight', 'PageDown'].includes(event.code)
@@ -1013,7 +1013,7 @@ export class CourtScene extends BaseScene {
     }
 
     if (
-      [__dialogueText("scenes/CourtScene.js", "t_dc8659db6d416dc32fca"), 'NumpadEnter'].includes(event.code) &&
+      ["Enter", 'NumpadEnter'].includes(event.code) &&
       this.record?.phase !== 'question'
     ) {
       this.press(0);
