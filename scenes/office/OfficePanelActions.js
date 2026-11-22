@@ -1,30 +1,45 @@
-import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
+import { dialogueText } from '../../dialogues/DialogueText.js';
+import { missionArtifactName } from '../../utils/artifactDisplay.js';
 const PANEL_TIMEOUT_MS = 12000;
+const FILE = 'scenes/office/OfficePanelActions.js';
+const text = id => dialogueText(FILE, id);
+const OPENING_FLAGS = [
+  'isOpeningCrimeLab', 'isOpeningRecoveredArtifacts', 'isOpeningWantedDatabase',
+  'isOpeningArchive', 'isOpeningStorage'
+];
 
 export const OfficePanelActions = {
+  _isOfficePanelOpeningBlocked() {
+    return Boolean(
+      this.agencyComputerUI?.isOpen || this.agencyLedgerUI?.isOpen || this.saveUI?.isOpen ||
+      this.isTransitioning || OPENING_FLAGS.some(flag => this[flag])
+    );
+  },
+
   async _getReadyOfficePanel(name, token) {
-    const current = () => this.isCurrentOfficeRun(token) && this.sys.isActive();
+    const current = () => this.isCurrentOfficeRun(token) && this.sys.isActive() &&
+      !this._isOfficePanelOpeningBlocked();
+    if (!current()) return null;
     await this.setupOfficeUiLayers();
     if (!current()) return null;
-
     let hud = this.getPlayerHud();
     if (!hud) hud = await this.restorePlayerHud();
     if (!current()) return null;
     if (!hud) throw new Error('PlayerHudScene could not be restored.');
 
     const deadline = Date.now() + PANEL_TIMEOUT_MS;
-    // SceneLoader can return before the HUD has run create().
     while (hud._allowPanelCreation === false && !hud.isHudReady) {
       if (!current()) return null;
+      if (this.getPlayerHud() !== hud) throw new Error('PlayerHudScene changed while waiting.');
       if (Date.now() >= deadline) throw new Error('PlayerHudScene did not start.');
       await new Promise(resolve => window.setTimeout(resolve, 20));
     }
-
+    if (!current()) return null;
+    if (!this.isSceneActive('PlayerHudScene') || this.getPlayerHud() !== hud) {
+      throw new Error('PlayerHudScene changed while loading the panel.');
+    }
     hud.setCurrentGameplayScene?.('OfficeScene');
-    const panel = typeof hud.ensurePanel === 'function'
-      ? await hud.ensurePanel(name)
-      : hud[name];
-
+    const panel = typeof hud.ensurePanel === 'function' ? await hud.ensurePanel(name) : hud[name];
     if (!current()) return null;
     if (!this.isSceneActive('PlayerHudScene') || this.getPlayerHud() !== hud) {
       throw new Error('PlayerHudScene changed while loading the panel.');
@@ -33,37 +48,37 @@ export const OfficePanelActions = {
       throw new Error(`Panel "${name}" is unavailable. Check its import or constructor error.`);
     }
     this._playerHud = hud;
-    return { hud, panel };
+    return {hud, panel};
   },
 
   async _openReadyOfficePanel(name, getData, onOpened = null) {
-    if (!this.isOfficeActive() || this._officePanelRequest || this.agencyComputerUI?.isOpen) {
-      return false;
-    }
+    if (!this.isOfficeActive() || this._officePanelRequest || this._isOfficePanelOpeningBlocked()) return false;
     const token = this._runToken;
     const request = Symbol(name);
-    const current = () => this.isCurrentOfficeRun(token) && this.sys.isActive();
+    const current = () => this.isCurrentOfficeRun(token) && this.sys.isActive() &&
+      this._officePanelRequest === request;
     this._officePanelRequest = request;
-
     try {
       const ready = await this._getReadyOfficePanel(name, token);
-      if (!ready || !current()) return false;
-      const { hud, panel } = ready;
+      if (!ready || !current() || this._isOfficePanelOpeningBlocked()) return false;
+      const {hud, panel} = ready;
+      const sameHud = () => this.isSceneActive('PlayerHudScene') && this.getPlayerHud() === hud;
+      if (!sameHud()) return false;
       if (panel.isOpen) return true;
-
+      const data = getData();
+      if (!current() || !sameHud() || this._isOfficePanelOpeningBlocked()) return false;
       this.closeAllUIPanels();
       this.navigation?.hideHint();
       hud.setCurrentGameplayScene?.('OfficeScene');
       hud.showHud?.();
       this.scene.setVisible(true, 'PlayerHudScene');
       this.bringSceneToTopIfActive('PlayerHudScene');
-
-      // CrimeBoardUI.open() is asynchronous: do not discard its result.
-      const result = await panel.open(getData());
-      if (!current()) return false;
+      if (!current() || !sameHud() || this._isOfficePanelOpeningBlocked()) return false;
+      const result = await panel.open(data);
+      if (!current() || !sameHud() || this._isOfficePanelOpeningBlocked()) return false;
       if (result === false || !panel.isOpen) {
         console.warn(`[OfficeScene] Panel "${name}" did not open.`);
-        this.showOfficeStatusMessage(__dialogueText("scenes/office/OfficePanelActions.js", "t_0292010f04685ea6f589"));
+        this.showOfficeStatusMessage(text('t_0292010f04685ea6f589'));
         return false;
       }
       onOpened?.();
@@ -71,12 +86,12 @@ export const OfficePanelActions = {
     } catch (error) {
       if (current()) {
         console.error(`[OfficeScene] Failed to open "${name}":`, error);
-        this.showOfficeStatusMessage(__dialogueText("scenes/office/OfficePanelActions.js", "t_0292010f04685ea6f589"));
+        this.showOfficeStatusMessage(text('t_0292010f04685ea6f589'));
       }
       return false;
     } finally {
       if (this._officePanelRequest === request) this._officePanelRequest = null;
-      if (current()) this.refreshPanelLock();
+      if (this.isCurrentOfficeRun(token) && this.sys.isActive()) this.refreshPanelLock();
     }
   },
 
@@ -88,13 +103,12 @@ export const OfficePanelActions = {
     return this._openReadyOfficePanel('caseFileUI', () => {
       const mission = this.gameState.currentMission || {};
       return {
-        artifact: mission.artifact || __dialogueText("scenes/office/OfficePanelActions.js", "t_51b01e8422efd81865f3"),
-        city: mission.city || __dialogueText("scenes/office/OfficePanelActions.js", "t_031708f5a6c18e0a6279"),
-        country: mission.country || __dialogueText("scenes/office/OfficePanelActions.js", "t_e282dbbdd7a0fe3f46f5"),
-        description: mission.description || __dialogueText("scenes/office/OfficePanelActions.js", "t_5b90bad5ea1caf117c4e"),
-        significance: mission.significance || '',
-        clue: mission.clue || '',
-        artifactKey: mission.artifactKey || ''
+        artifact: missionArtifactName(mission, text('t_51b01e8422efd81865f3')),
+        city: mission.city || text('t_031708f5a6c18e0a6279'),
+        country: mission.country || text('t_e282dbbdd7a0fe3f46f5'),
+        description: mission.description || text('t_5b90bad5ea1caf117c4e'),
+        significance: mission.significance || mission.signifance || '',
+        clue: mission.clue || '', artifactKey: mission.artifactKey || ''
       };
     }, () => this.firstCaseTutorial?.onCaseFileOpened());
   },
@@ -115,10 +129,8 @@ export const OfficePanelActions = {
   openAtlas() {
     return this._openReadyOfficePanel('atlasUI', () => {
       const mission = this.gameState.currentMission || {};
-      return {
-        country: mission.country || '', city: mission.city || '',
-        artifact: mission.artifact || '', gameState: this.gameState
-      };
+      return {country: mission.country || '', city: mission.city || '',
+        artifact: missionArtifactName(mission), gameState: this.gameState};
     });
   }
 };

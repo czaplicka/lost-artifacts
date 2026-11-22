@@ -25,7 +25,8 @@
     "assets/manifests/source/bundles/home-town.json",
     "assets/manifests/source/bundles/legacy-auto.json",
     "assets/manifests/source/bundles/shared.json",
-    "assets/manifests/source/bundles/story-and-other.json"
+    "assets/manifests/source/bundles/story-and-other.json",
+    "assets/manifests/source/bundles/location-audio.json"
   ],
   "bundleOrder": [
     "startup",
@@ -171,6 +172,7 @@
     "auto:folder:avatar/hairFront",
     "auto:folder:avatar/makeup",
     "auto:folder:avatar/marks",
-    "auto:folder:video/tv"
+    "auto:folder:video/tv",
+    "scene:LocationScene"
   ]
 }

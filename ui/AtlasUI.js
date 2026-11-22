@@ -109,12 +109,6 @@ async function fetchDetailedBoundaries() {
       );
     }
 
-    console.info(
-      '[AtlasUI] Detailed boundaries loaded:',
-      features.length,
-      'countries. Singapore geometry found.'
-    );
-
     return features;
   } finally {
     clearTimeout(timeout);

@@ -282,15 +282,8 @@
       "audio:wrong",
       "audio:paper_rustle",
       "audio:citysound",
-      "audio:alleysound",
       "audio:arrestsound",
-      "audio:banksound",
-      "audio:hotelsound",
-      "audio:officescenesound",
-      "audio:parkingsound",
       "audio:planesound",
-      "audio:policesound",
-      "audio:restaurantsound",
       "audio:crimelab_ambient",
       "audio:sfx_dial",
       "audio:sfx_ring",
@@ -364,7 +357,8 @@
       "image:archivist",
       "image:premium_office",
       "image:archive",
-      "image:hotel"
+      "image:hotel",
+      "audio:officescenesound"
     ],
     "scene:ArchiveScene": [
       "image:archive",
@@ -3317,6 +3311,14 @@
     "auto:folder:video/tv": [
       "video:drama",
       "video:romance"
+    ],
+    "scene:LocationScene": [
+      "audio:alleysound",
+      "audio:banksound",
+      "audio:hotelsound",
+      "audio:parkingsound",
+      "audio:policesound",
+      "audio:restaurantsound"
     ]
   }
 }

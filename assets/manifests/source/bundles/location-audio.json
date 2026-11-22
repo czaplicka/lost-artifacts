@@ -1,0 +1,12 @@
+{
+  "bundles": {
+    "scene:LocationScene": [
+      "audio:alleysound",
+      "audio:banksound",
+      "audio:hotelsound",
+      "audio:parkingsound",
+      "audio:policesound",
+      "audio:restaurantsound"
+    ]
+  }
+}

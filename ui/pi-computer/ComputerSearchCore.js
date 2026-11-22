@@ -1,4 +1,4 @@
-import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
+import { dialogueText as __dialogueText } from '../../dialogues/DialogueText.js';
 
 import {
   STATE_KEY,
@@ -63,7 +63,8 @@ export class ComputerSearch {
       images: [],
       requested: new Set(),
       tip: '',
-      tagline: pick(TAGLINES)
+      tagline: pick(TAGLINES),
+      browserStatusLabel: null
     });
 
     this.install();
@@ -92,8 +93,8 @@ export class ComputerSearch {
         y + 10,
         128,
         __dialogueText(
-          "ui/pi-computer/ComputerSearchCore.js",
-          "t_d04fc7d7e19702f8b611"
+          'ui/pi-computer/ComputerSearchCore.js',
+          't_d04fc7d7e19702f8b611'
         ),
         'globe',
         0x9fc9a9,
@@ -183,37 +184,66 @@ export class ComputerSearch {
     return true;
   }
 
-  renderBrowserClose() {
-    const ui = this.ui;
-    const bounds = ui.window;
+  browserDefaultStatus() {
+    if (this.error) return 'Connection failed.';
+    if (!this.data) return 'Connecting...';
 
-    if (
-      this.dead ||
-      ui.destroyed ||
-      ui.app !== 'search' ||
-      !bounds
-    ) {
+    return 'Done.';
+  }
+
+  setBrowserStatus(message) {
+    const label = this.browserStatusLabel;
+
+    if (!label || label.active === false || !label.scene) {
       return;
     }
 
+    label.setText(message || this.browserDefaultStatus());
+
+    this.ui.drawing.fit(
+      label,
+      label.text,
+      this.browserStatusWidth || 1
+    );
+  }
+
+  browserButton(
+    x,
+    y,
+    width,
+    height,
+    caption,
+    callback,
+    enabled = true,
+    status = ''
+  ) {
+    const ui = this.ui;
     const drawing = ui.drawing;
-    const x = bounds.x + bounds.w - 49;
-    const y = bounds.y + 3;
-    const width = 44;
-    const height = 30;
     const token = ui.viewToken;
 
-    drawing.bevel(x, y, width, height, 0xd0cec6);
+    drawing.bevel(
+      x,
+      y,
+      width,
+      height,
+      0xc6c7bf
+    );
 
     const label = drawing.pixel(
       x + width / 2,
       y + height / 2,
-      'X',
-      10,
-      '#252820'
+      caption,
+      8,
+      enabled ? '#252820' : '#777a73'
     ).setOrigin(0.5);
 
-    label.setName?.('browser-close-caption');
+    drawing.fit(
+      label,
+      caption,
+      Math.max(1, width - 10)
+    );
+
+    if (!enabled) return;
 
     const hit = drawing.rectangle(
       x,
@@ -224,14 +254,20 @@ export class ComputerSearch {
       0.001
     ).setInteractive({ useHandCursor: true });
 
-    hit.setName?.('browser-close');
-
     hit.on('pointerover', () => {
-      hit.setFillStyle(0xffffff, 0.15);
+      hit.setFillStyle(0xffffff, 0.14);
+
+      if (ui.viewToken === token && status) {
+        this.setBrowserStatus(status);
+      }
     });
 
     hit.on('pointerout', () => {
       hit.setFillStyle(0xffffff, 0.001);
+
+      if (ui.viewToken === token) {
+        this.setBrowserStatus();
+      }
     });
 
     hit.on(
@@ -252,9 +288,38 @@ export class ComputerSearch {
         }
 
         playComputerUiClick(ui);
-        this.closeBrowser();
+        callback();
       }
     );
+
+    return hit;
+  }
+
+  renderBrowserClose() {
+    const ui = this.ui;
+    const bounds = ui.window;
+
+    if (
+      this.dead ||
+      ui.destroyed ||
+      ui.app !== 'search' ||
+      !bounds
+    ) {
+      return;
+    }
+
+    const hit = this.browserButton(
+      bounds.x + bounds.w - 49,
+      bounds.y + 3,
+      44,
+      30,
+      'X',
+      () => this.closeBrowser(),
+      true,
+      'Close OWL Navigator'
+    );
+
+    hit?.setName?.('browser-close');
   }
 
   refresh() {
@@ -328,8 +393,8 @@ export class ComputerSearch {
       } catch (error) {
         if (!this.dead && error.name !== 'AbortError') {
           this.error = __dialogueText(
-            "ui/pi-computer/ComputerSearchCore.js",
-            "t_b05a4e43013b2b920e6c"
+            'ui/pi-computer/ComputerSearchCore.js',
+            't_b05a4e43013b2b920e6c'
           );
 
           console.error('[ComputerSearch]', error);
@@ -343,83 +408,26 @@ export class ComputerSearch {
     return this.loading;
   }
 
-  renderGossipShortcut(area) {
-    const ui = this.ui;
-    const drawing = ui.drawing;
-
-    const strip = {
-      x: area.x + 8,
-      y: area.y + area.h - 43,
-      w: area.w - 16,
-      h: 35
-    };
-
-    if (strip.w < 80) return;
-
-    const token = ui.viewToken;
-    const caseId = this.definition?.id;
-
-    drawing.bevel(
-      strip.x,
-      strip.y,
-      strip.w,
-      strip.h,
-      0x8c2663
+  renderGossipShortcut(bar) {
+    const portal = this.definition?.pages.find(
+      page => page.id === GOSSIP_HOME_ID
     );
 
-    const caption = strip.w >= 620
-      ? 'THE DAILY SPILL — All the tea. None of the responsibility.'
-      : 'THE DAILY SPILL';
+    if (!portal) return;
 
-    const text = drawing.text(
-      strip.x + 12,
-      strip.y + 9,
-      caption,
-      15,
-      '#ffe7a1'
-    );
+    const width = Math.min(180, bar.w - 100);
 
-    drawing.fit(text, caption, Math.max(1, strip.w - 24));
+    if (width < 60) return;
 
-    const hit = drawing.rectangle(
-      strip.x,
-      strip.y,
-      strip.w,
-      strip.h,
-      0xffffff,
-      0.001
-    ).setInteractive({ useHandCursor: true });
-
-    hit.on('pointerover', () => {
-      hit.setFillStyle(0xffffff, 0.12);
-    });
-
-    hit.on('pointerout', () => {
-      hit.setFillStyle(0xffffff, 0.001);
-    });
-
-    hit.on(
-      'pointerdown',
-      (pointer, localX, localY, event) => {
-        event?.stopPropagation();
-
-        if (
-          this.dead ||
-          !computerUiCanInteract(ui) ||
-          ui.booting ||
-          ui.app !== 'search' ||
-          ui.viewToken !== token ||
-          this.view !== 'home' ||
-          this.definition?.id !== caseId ||
-          hit.active === false ||
-          !hit.scene
-        ) {
-          return;
-        }
-
-        playComputerUiClick(ui);
-        this.openPage(GOSSIP_HOME_ID);
-      }
+    this.browserButton(
+      bar.x + 94,
+      bar.y + 2,
+      width,
+      24,
+      'The Daily Spill',
+      () => this.openPage(GOSSIP_HOME_ID),
+      true,
+      portal.address || 'Open The Daily Spill'
     );
   }
 
@@ -427,6 +435,8 @@ export class ComputerSearch {
     const ui = this.ui;
     const drawing = ui.drawing;
     const { x, y, w, h } = ui.layout;
+
+    this.browserStatusLabel = null;
 
     if (
       !this.data &&
@@ -462,41 +472,40 @@ export class ComputerSearch {
       0x244452
     );
 
-    drawing.pixel(
+    const title = drawing.pixel(
       box.x + 14,
       box.y + 14,
-      __dialogueText(
-        "ui/pi-computer/ComputerSearchCore.js",
-        "t_2d203934a45ede6caf05"
-      ),
+      'OWL Navigator',
       10,
       '#fff0cc'
     );
 
-    drawing.button(
-      box.x + box.w - 45,
-      box.y + 3,
-      'X',
-      () => this.closeBrowser()
+    drawing.fit(
+      title,
+      title.text,
+      Math.max(1, box.w - 76)
     );
 
-    drawing.button(
+    this.browserButton(
       box.x + 8,
       box.y + 39,
-      '<',
+      54,
+      30,
+      '< Back',
       () => this.back(),
-      this.view !== 'home'
+      this.view !== 'home',
+      'Back to the previous page'
     );
 
-    drawing.button(
-      box.x + 52,
+    this.browserButton(
+      box.x + 66,
       box.y + 39,
-      __dialogueText(
-        "ui/pi-computer/ComputerSearchCore.js",
-        "t_3a78695388b38b5cceef"
-      ),
+      54,
+      30,
+      'Home',
       () => this.goHome(),
-      this.view !== 'home'
+      this.view !== 'home',
+      'owl://search'
     );
 
     const page = this.definition?.pages.find(
@@ -504,7 +513,7 @@ export class ComputerSearch {
     );
 
     const addressX = box.x + 128;
-    const addressWidth = box.w - 139;
+    const addressWidth = Math.max(1, box.w - 139);
 
     drawing.bevel(
       addressX,
@@ -515,19 +524,13 @@ export class ComputerSearch {
       true
     );
 
-    let addressText = __dialogueText(
-      "ui/pi-computer/ComputerSearchCore.js",
-      "t_469f09a9432ece06efd6"
-    );
+    let addressText = 'owl://search';
 
     if (this.view === 'page') {
       addressText = page?.address || '';
     } else if (this.view === 'results' && this.data) {
       addressText =
-        __dialogueText(
-          "ui/pi-computer/ComputerSearchCore.js",
-          "t_de42a1118d45855fbad7"
-        ) +
+        'owl://search?q=' +
         this.termLabels(this.submitted)
           .join('+')
           .replace(/\s+/g, '+');
@@ -541,7 +544,11 @@ export class ComputerSearch {
         page
       );
     } else {
-      this.owlIcon(addressX + 8, box.y + 45, 19);
+      this.owlIcon(
+        addressX + 8,
+        box.y + 45,
+        19
+      );
     }
 
     const address = drawing.text(
@@ -555,15 +562,81 @@ export class ComputerSearch {
     drawing.fit(
       address,
       address.text,
-      addressWidth - 50
+      Math.max(1, addressWidth - 50)
+    );
+
+    const bookmarks = {
+      x: box.x + 6,
+      y: box.y + 74,
+      w: box.w - 12,
+      h: 28
+    };
+
+    drawing.rectangle(
+      bookmarks.x,
+      bookmarks.y,
+      bookmarks.w,
+      bookmarks.h,
+      0xbabcb4
+    );
+
+    drawing.pixel(
+      bookmarks.x + 8,
+      bookmarks.y + 10,
+      'Bookmarks:',
+      7,
+      '#41483e'
+    );
+
+    this.renderGossipShortcut(bookmarks);
+
+    const status = {
+      x: box.x + 6,
+      y: box.y + box.h - 25,
+      w: box.w - 12,
+      h: 19
+    };
+
+    drawing.bevel(
+      status.x,
+      status.y,
+      status.w,
+      status.h,
+      0xc6c7bf,
+      true
+    );
+
+    this.browserStatusWidth = Math.max(1, status.w - 16);
+
+    this.browserStatusLabel = drawing.pixel(
+      status.x + 8,
+      status.y + 7,
+      this.browserDefaultStatus(),
+      7,
+      '#41483e'
+    );
+
+    drawing.fit(
+      this.browserStatusLabel,
+      this.browserStatusLabel.text,
+      this.browserStatusWidth
     );
 
     const area = {
       x: box.x + 6,
-      y: box.y + 78,
+      y: box.y + 106,
       w: box.w - 12,
-      h: box.h - 84
+      h: Math.max(1, box.h - 135)
     };
+
+    drawing.bevel(
+      area.x - 1,
+      area.y - 1,
+      area.w + 2,
+      area.h + 2,
+      0xfaf9f3,
+      true
+    );
 
     drawing.rectangle(
       area.x,
@@ -574,15 +647,19 @@ export class ComputerSearch {
     );
 
     if (!this.data) {
-      this.owlIcon(area.x + 25, area.y + 26, 56);
+      this.owlIcon(
+        area.x + 25,
+        area.y + 26,
+        56
+      );
 
       drawing.text(
         area.x + 96,
         area.y + 40,
         this.error ||
           __dialogueText(
-            "ui/pi-computer/ComputerSearchCore.js",
-            "t_5f04ae9ed6a865bb382c"
+            'ui/pi-computer/ComputerSearchCore.js',
+            't_5f04ae9ed6a865bb382c'
           ),
         18,
         '#535b5c'
@@ -593,8 +670,8 @@ export class ComputerSearch {
           area.x + 96,
           area.y + 88,
           __dialogueText(
-            "ui/pi-computer/ComputerSearchCore.js",
-            "t_942087cc2d41e01304b7"
+            'ui/pi-computer/ComputerSearchCore.js',
+            't_942087cc2d41e01304b7'
           ),
           () => void this.load()
         );
@@ -608,30 +685,12 @@ export class ComputerSearch {
       return;
     }
 
-    const hasPortal = (
-      this.view === 'home' &&
-      area.h >= 120 &&
-      this.definition?.pages.some(
-        item => item.id === GOSSIP_HOME_ID
-      )
-    );
-
-    const searchArea = hasPortal
-      ? {
-          ...area,
-          h: Math.max(1, area.h - 48)
-        }
-      : area;
-
-    this.drawSearch(searchArea);
-
-    if (hasPortal) {
-      this.renderGossipShortcut(area);
-    }
+    this.drawSearch(area);
   }
 
   destroy() {
     this.dead = true;
+    this.browserStatusLabel = null;
     this.controller?.abort();
 
     for (const image of this.images) {

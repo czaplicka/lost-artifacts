@@ -15,7 +15,8 @@
       "image:archivist",
       "image:premium_office",
       "image:archive",
-      "image:hotel"
+      "image:hotel",
+      "audio:officescenesound"
     ],
     "scene:ArchiveScene": [
       "image:archive",

@@ -1,3 +1,5 @@
+import './config/structuredClone.js';
+
 import { AssetManager } from './managers/AssetManager.js';
 import { BootScene } from './scenes/BootScene.js';
 import { PreloaderScene } from './scenes/PreloaderSceneWithKitchenAnimations.js';

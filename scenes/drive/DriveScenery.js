@@ -1,153 +1,463 @@
-import { BASE_SPEED, rand } from './DriveShared.js';
+import {
+  BASE_SPEED,
+  rand,
+  clamp
+} from './DriveShared.js';
+
+const smooth = (value, target, rate, dt) =>
+  value + (target - value) * (1 - Math.exp(-rate * dt));
 
 export const DriveScenery = {
   buildSky() {
-    const { W, H, horizonY: hz, biome: B } = this;
+    const {
+      W,
+      H,
+      horizonY: hz,
+      biome: B
+    } = this;
+
+    this._sceneryMotion = {
+      look: 0,
+      previousLook: 0
+    };
 
     const sky = this.add.graphics().setDepth(0);
-    sky.fillGradientStyle(B.skyTop, B.skyTop, B.skyBottom, B.skyBottom, 1);
+
+    sky.fillGradientStyle(
+      B.skyTop,
+      B.skyTop,
+      B.skyBottom,
+      B.skyBottom,
+      1
+    );
+
     sky.fillRect(0, 0, W, hz + 4);
 
+    const dark = B.stars || B.darkness > 0.15;
+    const overcast =
+      this.weather === 'rain' ||
+      this.weather === 'fog';
+
     if (B.stars) {
+      const size = Math.max(1, Math.round(this.U * 2));
+
       for (let i = 0; i < 90; i++) {
-        sky.fillStyle(0xffffff, rand(0.3, 0.95));
-        sky.fillRect(rand(0, W), rand(0, hz * 0.8), 2, 2);
+        sky.fillStyle(0xf2eee0, rand(0.25, 0.8));
+
+        sky.fillRect(
+          Math.round(rand(0, W)),
+          Math.round(rand(H * 0.035, hz * 0.82)),
+          size,
+          size
+        );
       }
     }
 
-    sky.fillStyle(B.sun, 0.22);
-    sky.fillCircle(W * 0.72, hz * 0.55, hz * 0.22);
-    sky.fillStyle(B.sun, 1);
-    sky.fillCircle(W * 0.72, hz * 0.55, hz * 0.1);
+    const sunX = W * 0.72;
+    const sunY = hz * 0.55;
+
+    sky.fillStyle(
+      B.sun,
+      overcast ? 0.035 : dark ? 0.06 : 0.11
+    );
+    sky.fillCircle(sunX, sunY, hz * 0.2);
+
+    sky.fillStyle(B.sun, overcast ? 0.28 : 0.9);
+    sky.fillCircle(
+      sunX,
+      sunY,
+      hz * (dark ? 0.065 : 0.085)
+    );
 
     this.clouds = [];
 
     if (!B.stars) {
-      for (let i = 0; i < 5; i++) {
-        const cloud = this.add.image(rand(0, W), rand(hz * 0.1, hz * 0.6), 'drv_cloud')
+      const count = overcast ? 8 : 5;
+
+      for (let i = 0; i < count; i++) {
+        const cloud = this.add.image(
+          rand(-W * 0.1, W * 1.1),
+          rand(hz * 0.12, hz * 0.65),
+          'drv_cloud'
+        )
           .setScale(rand(0.8, 1.6) * this.sx)
-          .setAlpha(rand(0.5, 0.9))
+          .setAlpha(
+            overcast ? rand(0.3, 0.5) : rand(0.45, 0.7)
+          )
           .setDepth(2);
+
+        if (overcast) cloud.setTint(0x9ba4ad);
+
+        cloud.setData('wind', rand(3, 8));
+        cloud.setData('parallax', rand(0.7, 1.2));
 
         this.clouds.push(cloud);
       }
     }
 
-    if (this.weather !== 'clear') {
-      this.add.rectangle(W / 2, hz / 2, W, hz, 0x7d8a94, 0.4).setDepth(3);
+    if (overcast) {
+      this.add.rectangle(
+        W / 2,
+        hz / 2,
+        W,
+        hz,
+        dark ? 0x18202e : 0x6d7c88,
+        this.weather === 'rain' ? 0.24 : 0.16
+      ).setDepth(3);
     }
   },
 
   buildWorldLayers() {
     const { W, horizonY: hz } = this;
 
-    this.hillsFar = this.add.tileSprite(0, hz + 2, W, this.hillH, this.hillKeyFar)
-      .setOrigin(0, 1).setDepth(4);
+    this.hillsFar = this.add.tileSprite(
+      0,
+      hz + 2,
+      W,
+      this.hillH,
+      this.hillKeyFar
+    )
+      .setOrigin(0, 1)
+      .setAlpha(0.72)
+      .setDepth(4);
 
-    this.hillsNear = this.add.tileSprite(0, hz + 2, W, this.hillH, this.hillKeyNear)
-      .setOrigin(0, 1).setDepth(5);
+    this.hillsNear = this.add.tileSprite(
+      0,
+      hz + 2,
+      W,
+      this.hillH,
+      this.hillKeyNear
+    )
+      .setOrigin(0, 1)
+      .setDepth(5);
 
     this.roadGfx = this.add.graphics().setDepth(10);
   },
 
   buildWeather() {
-    const { W, H, horizonY: hz, dashTop, biome: B } = this;
+    const {
+      W,
+      H,
+      horizonY: hz,
+      dashTop,
+      biome: B
+    } = this;
 
-    // horizon haze
+    this.drops = [];
+    this.wiper = null;
+    this._rainStreaks = null;
+    this._wiperClock = 0;
+    this._wiperPreviousAngle = -78;
+
+    const dark = B.stars || B.darkness > 0.15;
+    const fog = this.weather === 'fog';
+    const rain = this.weather === 'rain';
+
+    const hazeColor = dark ? B.skyBottom : 0xd6ddd7;
+    const hazeAlpha = fog ? 0.62 : dark ? 0.09 : 0.2;
+
     const haze = this.add.graphics().setDepth(149);
-    const hazeAlpha = this.weather === 'fog' ? 0.75 : 0.35;
-    haze.fillGradientStyle(0xdfe6ea, 0xdfe6ea, 0xdfe6ea, 0xdfe6ea, 0, 0, hazeAlpha, hazeAlpha);
-    haze.fillRect(0, hz - H * 0.12, W, H * 0.12);
-    haze.fillGradientStyle(0xdfe6ea, 0xdfe6ea, 0xdfe6ea, 0xdfe6ea, hazeAlpha, hazeAlpha, 0, 0);
-    haze.fillRect(0, hz, W, H * 0.14);
 
-    if (this.weather === 'fog') {
-      this.add.rectangle(W / 2, dashTop / 2, W, dashTop, 0xcfd6da, 0.16).setDepth(150);
+    haze.fillGradientStyle(
+      hazeColor,
+      hazeColor,
+      hazeColor,
+      hazeColor,
+      0,
+      0,
+      hazeAlpha,
+      hazeAlpha
+    );
+
+    haze.fillRect(
+      0,
+      hz - H * 0.09,
+      W,
+      H * 0.09
+    );
+
+    haze.fillGradientStyle(
+      hazeColor,
+      hazeColor,
+      hazeColor,
+      hazeColor,
+      hazeAlpha,
+      hazeAlpha,
+      0,
+      0
+    );
+
+    haze.fillRect(
+      0,
+      hz,
+      W,
+      H * (fog ? 0.23 : 0.12)
+    );
+
+    if (fog) {
+      this.add.rectangle(
+        W / 2,
+        dashTop / 2,
+        W,
+        dashTop,
+        dark ? 0x465061 : 0xcfd6da,
+        dark ? 0.09 : 0.12
+      ).setDepth(150);
     }
 
     if (B.darkness > 0) {
-      this.add.rectangle(W / 2, dashTop / 2, W, dashTop, 0x000010, B.darkness).setDepth(150);
+      this.add.rectangle(
+        W / 2,
+        dashTop / 2,
+        W,
+        dashTop,
+        0x000010,
+        B.darkness
+      ).setDepth(150);
 
-      this.add.image(W / 2, dashTop, 'drv_light')
+      this.add.image(
+        W / 2,
+        dashTop,
+        'drv_light'
+      )
         .setOrigin(0.5, 1)
-        .setScale((W * 1.1) / 512, (H * 0.5) / 256)
+        .setScale(
+          (W * 1.1) / 512,
+          (H * 0.5) / 256
+        )
         .setBlendMode(Phaser.BlendModes.ADD)
         .setDepth(151);
     }
 
-    if (this.weather === 'rain') {
-      this.add.rectangle(W / 2, dashTop / 2, W, dashTop, 0x10161c, 0.22).setDepth(150);
+    if (!rain) return;
 
-      for (let i = 0; i < 70; i++) {
-        const drop = this.add.image(
-          rand(W * 0.06, W * 0.94),
-          rand(H * 0.1, dashTop - 10),
-          'drv_drop'
-        )
-          .setScale(rand(0.6, 1.6) * this.U)
-          .setAlpha(rand(0.4, 0.9))
-          .setDepth(165);
+    this.add.rectangle(
+      W / 2,
+      dashTop / 2,
+      W,
+      dashTop,
+      0x101a25,
+      dark ? 0.12 : 0.18
+    ).setDepth(150);
 
-        this.drops.push(drop);
-      }
+    this._rainStreaks = this.add.graphics().setDepth(160);
+    this._rainParticles = [];
 
-      const pivotX = W * 0.52;
-      const pivotY = dashTop - H * 0.005;
-
-      this.wiper = this.add.rectangle(pivotX, pivotY, 10 * this.U, H * 0.36, 0x050506, 1)
-        .setOrigin(0.5, 1)
-        .setAngle(-78)
-        .setDepth(168);
-
-      this.createTrackedTween({
-        targets: this.wiper,
-        angle: 18,
-        duration: 1100,
-        yoyo: true,
-        repeat: -1,
-        repeatDelay: 1800,
-        ease: 'Sine.easeInOut',
-        onYoyo: () => this.refreshDrops()
+    for (let i = 0; i < 45; i++) {
+      this._rainParticles.push({
+        x: rand(W * 0.04, W * 0.96),
+        y: rand(H * 0.09, dashTop),
+        depth: rand(0.3, 1),
+        alpha: rand(0.08, 0.22)
       });
     }
+
+    for (let i = 0; i < 70; i++) {
+      const drop = this.add.image(
+        rand(W * 0.08, W * 0.92),
+        rand(H * 0.1, dashTop - H * 0.015),
+        'drv_drop'
+      )
+        .setScale(rand(0.55, 1.25) * this.U)
+        .setAlpha(rand(0.08, 0.5))
+        .setDepth(165);
+
+      drop.setData('targetAlpha', rand(0.25, 0.65));
+      drop.setData('recovery', rand(0.08, 0.17));
+
+      this.drops.push(drop);
+    }
+
+    this._wiperPivotX = W * 0.52;
+    this._wiperPivotY = dashTop - H * 0.005;
+    this._wiperLength = H * 0.36;
+
+    this.wiper = this.add.rectangle(
+      this._wiperPivotX,
+      this._wiperPivotY,
+      Math.max(2, 7 * this.U),
+      this._wiperLength,
+      0x08090b,
+      1
+    )
+      .setOrigin(0.5, 1)
+      .setAngle(-78)
+      .setDepth(168);
   },
 
   refreshDrops() {
-    if (!this.drops.length) {
-      return;
-    }
+    if (!this.wiper || !this.drops?.length) return;
+
+    const angle = this.wiper.angle;
+    const previous = this._wiperPreviousAngle ?? angle;
+
+    const low = Math.min(previous, angle) - 4;
+    const high = Math.max(previous, angle) + 4;
 
     for (const drop of this.drops) {
-      drop.setPosition(
-        rand(this.W * 0.06, this.W * 0.94),
-        rand(this.H * 0.1, this.dashTop - 10)
-      );
-      drop.setAlpha(0);
+      if (!drop.scene) continue;
+
+      const dx = drop.x - this._wiperPivotX;
+      const dy = drop.y - this._wiperPivotY;
+      const distance = Math.hypot(dx, dy);
+
+      const dropAngle =
+        Math.atan2(dx, -dy) * 180 / Math.PI;
+
+      if (
+        distance <= this._wiperLength &&
+        dropAngle >= low &&
+        dropAngle <= high
+      ) {
+        drop.setAlpha(0);
+      }
     }
 
-    this.createTrackedTween({
-      targets: this.drops,
-      alpha: 0.75,
-      duration: 900,
-      delay: this.tweens.stagger ? this.tweens.stagger(12) : 0
-    });
+    this._wiperPreviousAngle = angle;
   },
 
   updateScenery(dt) {
-    const sp = this.speed / BASE_SPEED;
-    const turn = this.curveAt(this.pos + 250) * sp;
+    if (!Number.isFinite(dt) || dt <= 0) return;
 
-    this.hillsFar.tilePositionX += turn * dt * 60;
-    this.hillsNear.tilePositionX += turn * dt * 110;
+    const sp = Math.max(0, this.speed / BASE_SPEED);
+    const turn = this.curveAt(this.pos + 250) * sp;
+    const motion = this._sceneryMotion;
+
+    motion.previousLook = motion.look;
+
+    motion.look = smooth(
+      motion.look,
+      this.playerX * 9 * this.sx,
+      4,
+      dt
+    );
+
+    const lookDelta = motion.look - motion.previousLook;
+
+    this.hillsFar.tilePositionX +=
+      turn * dt * 45 + lookDelta * 0.35;
+
+    this.hillsNear.tilePositionX +=
+      turn * dt * 95 + lookDelta * 0.8;
 
     for (const cloud of this.clouds) {
-      cloud.x -= dt * (8 + this.speed * 0.02) + turn * dt * 40;
+      const wind = cloud.getData('wind') ?? 5;
+      const parallax = cloud.getData('parallax') ?? 1;
 
-      if (cloud.x < -200) {
-        cloud.x = this.W + 200;
-      } else if (cloud.x > this.W + 220) {
-        cloud.x = -180;
+      cloud.x -=
+        dt * wind * this.sx +
+        turn * dt * 25 * parallax +
+        lookDelta * 0.2 * parallax;
+
+      const margin = Math.max(
+        this.W * 0.12,
+        cloud.displayWidth
+      );
+
+      if (cloud.x < -margin) {
+        cloud.x = this.W + margin;
+      } else if (cloud.x > this.W + margin) {
+        cloud.x = -margin;
       }
     }
+
+    if (this.weather !== 'rain' || !this.wiper) return;
+
+    this.updateDriveRain(dt, sp);
+  },
+
+  updateDriveRain(dt, sp) {
+    const { W, H, U, dashTop } = this;
+    const g = this._rainStreaks;
+
+    const minX = W * 0.04;
+    const maxX = W * 0.96;
+    const minY = H * 0.09;
+    const maxY = dashTop;
+
+    g.clear();
+
+    for (const particle of this._rainParticles) {
+      const depth = particle.depth;
+
+      particle.y +=
+        H * (0.2 + depth * 0.35 + sp * 0.08) * dt;
+
+      particle.x -=
+        W * (0.025 + sp * 0.015) * depth * dt;
+
+      if (
+        particle.y > maxY ||
+        particle.x < minX
+      ) {
+        particle.y = minY;
+        particle.x = rand(minX, maxX);
+      }
+
+      const length = H * (
+        0.008 + depth * 0.014 + sp * 0.004
+      );
+
+      const endX = Math.max(
+        minX,
+        particle.x - length * 0.3
+      );
+
+      const endY = Math.min(
+        maxY,
+        particle.y + length
+      );
+
+      g.lineStyle(
+        Math.max(1, U * depth),
+        0xc3d7e5,
+        particle.alpha
+      );
+
+      g.lineBetween(
+        particle.x,
+        particle.y,
+        endX,
+        endY
+      );
+    }
+
+    for (const drop of this.drops) {
+      if (!drop.scene) continue;
+
+      const target = drop.getData('targetAlpha');
+      const recovery = drop.getData('recovery');
+
+      drop.setAlpha(
+        Math.min(target, drop.alpha + recovery * dt)
+      );
+    }
+
+    // One outward sweep, return sweep, then a short pause.
+    const outward = 0.68;
+    const returning = 0.58;
+    const pause = 1.15;
+    const cycle = outward + returning + pause;
+
+    this._wiperClock = (this._wiperClock + dt) % cycle;
+
+    let angle = -78;
+
+    if (this._wiperClock < outward) {
+      const progress = this._wiperClock / outward;
+      const eased = (1 - Math.cos(progress * Math.PI)) / 2;
+
+      angle = -78 + eased * 96;
+    } else if (this._wiperClock < outward + returning) {
+      const progress =
+        (this._wiperClock - outward) / returning;
+
+      const eased = (1 - Math.cos(progress * Math.PI)) / 2;
+
+      angle = 18 - eased * 96;
+    }
+
+    this.wiper.setAngle(angle);
+    this.refreshDrops();
   }
 };

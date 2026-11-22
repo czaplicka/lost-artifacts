@@ -1,11 +1,13 @@
-// Shared identity for the crime-scene visit, used by the minigame and city map.
-// Runtime scene IDs are deliberately excluded: they may be overridden.
+import { getArtifactCasePart, scalarCasePart } from './crimeCaseKey.js';
+
+// Runtime scene IDs are deliberately excluded: both consumers use mission.scene.
 export function getCrimeSceneVisitKey(state) {
   const mission = state?.currentMission || {};
-  const sceneId = mission.scene || 'unknown_scene';
-  const missionId = mission.id;
-  const missionCity = mission.city || state?.crimeCityId || state?.currentCityId || 'unknown';
-  const artifact = mission.artifact || state?.currentArtifact || 'artifact';
-  if (missionId) return `${sceneId}_${missionId}`;
-  return `${sceneId}_${missionCity}_${artifact}`;
+  const sceneId = scalarCasePart(mission.scene) ?? 'unknown_scene';
+  const missionId = scalarCasePart(mission.id);
+  if (missionId !== null) return `${sceneId}_${missionId}`;
+  const city = scalarCasePart(mission.city) ?? scalarCasePart(state?.crimeCityId) ??
+    scalarCasePart(state?.currentCityId) ?? 'unknown';
+  const artifact = getArtifactCasePart(mission.artifact ?? state?.currentArtifact, 'artifact');
+  return `${sceneId}_${city}_${artifact}`;
 }

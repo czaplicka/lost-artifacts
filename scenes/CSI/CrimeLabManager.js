@@ -1,575 +1,229 @@
-import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
+import { dialogueText as __dialogueText } from '../../dialogues/DialogueText.js';
 import { saveGameState } from '../../gameStatePersistence.js';
-
-import {
-  normalizeMiniGameKey,
-  CSI_MAIN_GAME_POOL,
-  CSI_DUST_ANALYSIS_VARIANTS
-} from './CrimeLabConfig.js';
-
+import { getMissionCaseKey } from '../../crimeCaseKey.js';
+import { normalizeMiniGameKey, CSI_MAIN_GAME_POOL, CSI_DUST_ANALYSIS_VARIANTS } from './CrimeLabConfig.js';
 import { getForensicValue } from '../../suspects/suspectFactory.js';
-
-import {
-  createMaterialEvidence,
-  getMaterialProfiles,
-  evaluateMaterialEvidence
-} from '../../suspects/MaterialEvidence.js';
-
-import {
-  createDustEvidence,
-  getDustProfiles,
-  evaluateDustEvidence
-} from '../../suspects/DustEvidence.js';
-
+import { createMaterialEvidence, getMaterialProfiles, evaluateMaterialEvidence } from '../../suspects/MaterialEvidence.js';
+import { createDustEvidence, getDustProfiles, evaluateDustEvidence } from '../../suspects/DustEvidence.js';
 import { isCompletedLabResult } from './LabResultState.js';
 
-function cloneEvidence(evidence = {}) {
-  return structuredClone(evidence);
-}
-
+const text = key => __dialogueText('scenes/CSI/CrimeLabManager.js', key);
+function cloneEvidence(evidence = {}) { return structuredClone(evidence); }
 function getEvidenceValue(evidence = {}) {
-  return evidence.thief_value ??
-    evidence.value ??
-    evidence.correctValue ??
-    evidence.normalizedValue ??
-    null;
+  return evidence.thief_value ?? evidence.value ?? evidence.correctValue ?? evidence.normalizedValue ?? null;
 }
-
 function hashString(value) {
   let hash = 0;
-
-  for (const character of String(value || 'default')) {
-    hash = (hash * 31 + character.charCodeAt(0)) >>> 0;
-  }
-
+  for (const character of String(value || 'default')) hash = (hash * 31 + character.charCodeAt(0)) >>> 0;
   return hash;
 }
-
 function mapGenderCodeToDnaProfile(value) {
   const normalized = String(value || '').trim().toLowerCase();
-
   if (['m', 'male', 'xy'].includes(normalized)) return 'XY';
   if (['f', 'female', 'xx'].includes(normalized)) return 'XX';
-
   return null;
 }
-
 function weightedFingerprintPattern(seed) {
   const roll = (seed % 1000) / 1000;
-
   return roll < 0.65 ? 'LOOP' : roll < 0.95 ? 'WHORL' : 'ARCH';
 }
-
 function randomItem(items) {
-  if (!Array.isArray(items) || items.length === 0) {
-    throw new Error('CrimeLabManager: cannot choose from an empty pool.');
-  }
-
+  if (!Array.isArray(items) || items.length === 0) throw new Error('CrimeLabManager: cannot choose from an empty pool.');
   return items[Math.floor(Math.random() * items.length)];
 }
-
-const ORIGINS = {
-  dust:
-    __dialogueText("scenes/CSI/CrimeLabManager.js", "t_9d0f0235dd89cc5008fc"),
-
-  material:
-    __dialogueText("scenes/CSI/CrimeLabManager.js", "t_29d6f1d6fde5186d16f5")
-};
+const ORIGINS = { dust: text('t_9d0f0235dd89cc5008fc'), material: text('t_29d6f1d6fde5186d16f5') };
 
 export class CrimeLabManager {
-  constructor(gameState, cityId) {
-    this.gameState = gameState;
-    this.cityId = cityId;
-  }
+  constructor(gameState, cityId) { this.gameState = gameState; this.cityId = cityId; }
 
-  getCaseKey() {
-    const mission = this.gameState.currentMission ?? {};
-    const id = mission.id ?? mission.caseId ?? mission.caseIndex;
-
-    if (id !== undefined && id !== null && id !== '') {
-      return String(id);
-    }
-
-    return `${this.cityId ?? 'unknown_city'}_${mission.artifact ?? 'default_artifact'}`;
-  }
+  getCaseKey() { return getMissionCaseKey(this.gameState, this.cityId); }
 
   getSuspectData() {
-    const suspect =
-      this.gameState.selectedThiefProfile ||
-      this.gameState.selectedThief ||
-      this.gameState.currentThief ||
-      this.gameState.thief ||
-      {};
-
-    return {
-      ...suspect,
-      ...(this.gameState.reconstructedHeist || {})
-    };
+    const suspect = this.gameState.selectedThiefProfile || this.gameState.selectedThief ||
+      this.gameState.currentThief || this.gameState.thief || {};
+    return { ...suspect, ...(this.gameState.reconstructedHeist || {}) };
   }
 
   ensureCaseForensics() {
     this.gameState.caseForensics ??= {};
-
-    const state =
-      this.gameState.caseForensics[this.getCaseKey()] ??= {};
-
-    state.identityEvidenceResult ??= null;
-    state.traceEvidenceResults ??= [];
-    state.forensicResults ??= [];
-
+    const state = this.gameState.caseForensics[this.getCaseKey()] ??= {};
+    state.identityEvidenceResult ??= null; state.traceEvidenceResults ??= []; state.forensicResults ??= [];
     state.suspectGrid ??= {
-      generated: false,
-      completed: false,
-      eliminatedSuspectIds: [],
-      marksBySuspectId: {},
-      clueCards: [],
-      score: 0,
-      mistakes: 0,
-      hintsUsed: 0,
-      completedAt: null
+      generated: false, completed: false, eliminatedSuspectIds: [], marksBySuspectId: {},
+      clueCards: [], score: 0, mistakes: 0, hintsUsed: 0, completedAt: null
     };
-
     return state;
   }
-
   ensureCaseAssignment() {
     this.gameState.caseCsiAssignments ??= {};
-
-    return this.gameState.caseCsiAssignments[this.getCaseKey()] ??= {
-      identityEvidence: null,
-      traceEvidence: []
-    };
+    return this.gameState.caseCsiAssignments[this.getCaseKey()] ??= { identityEvidence: null, traceEvidence: [] };
   }
-
   isValidIdentityEvidence(evidence) {
-    return Boolean(
-      evidence &&
-      typeof evidence.id === 'string' &&
-      evidence.id &&
-      typeof evidence.attribute === 'string' &&
-      evidence.attribute &&
-      getEvidenceValue(evidence) !== null
-    );
+    return Boolean(evidence && typeof evidence.id === 'string' && evidence.id &&
+      typeof evidence.attribute === 'string' && evidence.attribute && getEvidenceValue(evidence) !== null);
   }
-
   isValidTraceEvidence(evidence) {
-    return (
-      this.isValidIdentityEvidence(evidence) &&
-      typeof evidence.label === 'string' &&
-      Boolean(evidence.label)
-    );
+    return this.isValidIdentityEvidence(evidence) && typeof evidence.label === 'string' && Boolean(evidence.label);
   }
-
   isStationCompleted(stationId) {
-    const state = this.ensureCaseForensics();
-    let result = null;
-
-    if (stationId === 'identity') {
-      result = state.identityEvidenceResult;
-    } else if (/^trace_[01]$/.test(String(stationId))) {
-      result = state.traceEvidenceResults[Number(stationId.slice(-1))];
-    }
-
-    return isCompletedLabResult(result, {
-      caseKey: this.getCaseKey()
-    });
+    const state = this.ensureCaseForensics(); let result = null;
+    if (stationId === 'identity') result = state.identityEvidenceResult;
+    else if (/^trace_[01]$/.test(String(stationId))) result = state.traceEvidenceResults[Number(stationId.slice(-1))];
+    return isCompletedLabResult(result, { caseKey: this.getCaseKey() });
   }
-
   markCrimeLabCompleted({ save = true } = {}) {
-    if (!['identity', 'trace_0', 'trace_1'].every(id => this.isStationCompleted(id))) {
-      return false;
-    }
+    if (!['identity', 'trace_0', 'trace_1'].every(id => this.isStationCompleted(id))) return false;
     const key = this.getCaseKey();
     this.gameState.crimeCityProgress ??= {};
     const progress = this.gameState.crimeCityProgress[key] ??= {};
     let changed = progress.crimeLabCompleted !== true || this.gameState.csiLabCompleted !== true;
     progress.crimeLabCompleted = true;
     if (!Number.isFinite(progress.crimeLabCompletedAt) || progress.crimeLabCompletedAt <= 0) {
-      progress.crimeLabCompletedAt = Date.now();
-      changed = true;
+      progress.crimeLabCompletedAt = Date.now(); changed = true;
     }
     this.gameState.csiLabCompleted = true;
     if (save && changed) saveGameState();
     return true;
   }
-
-  normalizeEvidenceConfig(
-    evidence = {},
-    {
-      stationId = null,
-      fallbackLabel = __dialogueText("scenes/CSI/CrimeLabManager.js", "t_d2f42de4fcfd1fbdaa64"),
-      fallbackClueType = 'trace'
-    } = {}
-  ) {
-    const attribute =
-      evidence.attribute ||
-      evidence.field ||
-      evidence.evidenceType;
-
+  normalizeEvidenceConfig(evidence = {}, {
+    stationId = null, fallbackLabel = text('t_d2f42de4fcfd1fbdaa64'), fallbackClueType = 'trace'
+  } = {}) {
+    const attribute = evidence.attribute || evidence.field || evidence.evidenceType;
     const value = getEvidenceValue(evidence);
-
-    if (!attribute || value == null || value === '') {
-      throw new Error('CrimeLabManager: invalid forensic evidence.');
-    }
-
+    if (!attribute || value == null || value === '') throw new Error('CrimeLabManager: invalid forensic evidence.');
     const result = {
-      ...cloneEvidence(evidence),
-
-      id: evidence.id || `${attribute}_evidence`,
+      ...cloneEvidence(evidence), id: evidence.id || `${attribute}_evidence`,
       stationId: stationId ?? evidence.stationId ?? null,
-
-      attribute,
-      evidenceType: attribute,
-      thief_value: value,
-      correctValue: value,
-
-      source: evidence.source || 'crime_lab',
-      label: evidence.label || fallbackLabel,
+      attribute, evidenceType: attribute, thief_value: value, correctValue: value,
+      source: evidence.source || 'crime_lab', label: evidence.label || fallbackLabel,
       clueType: evidence.clueType || fallbackClueType,
-
-      clueText:
-        evidence.clueText ||
-        `${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_c3a8aab15c7d72b57838")}${attribute}${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_7bacf9de79aa5b6a042a")}${value}${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_cdb4ee2aea69cc6a8333")}`,
-
-      allowedValues: Array.isArray(evidence.allowedValues)
-        ? [...evidence.allowedValues]
-        : [],
-
+      clueText: evidence.clueText || `${text('t_c3a8aab15c7d72b57838')}${attribute}${text('t_7bacf9de79aa5b6a042a')}${value}${text('t_cdb4ee2aea69cc6a8333')}`,
+      allowedValues: Array.isArray(evidence.allowedValues) ? [...evidence.allowedValues] : [],
       minigame: normalizeMiniGameKey(evidence.minigame, attribute)
     };
-
-    return {
-      ...result,
-      evidence: cloneEvidence(result)
-    };
+    return { ...result, evidence: cloneEvidence(result) };
   }
-
   ensureIdentityEvidence() {
     const assignment = this.ensureCaseAssignment();
-
     if (!this.isValidIdentityEvidence(assignment.identityEvidence)) {
-      assignment.identityEvidence =
-        this.buildIdentityEvidenceForCase(this.getCaseKey());
-
-      if (!this.isValidIdentityEvidence(assignment.identityEvidence)) {
-        throw new Error(
-          'CrimeLabManager: cannot generate identity evidence.'
-        );
-      }
-
+      assignment.identityEvidence = this.buildIdentityEvidenceForCase(this.getCaseKey());
+      if (!this.isValidIdentityEvidence(assignment.identityEvidence)) throw new Error('CrimeLabManager: cannot generate identity evidence.');
       saveGameState();
     }
-
     const evidence = cloneEvidence(assignment.identityEvidence);
     evidence.resultUnlocked = this.isStationCompleted('identity');
-
     this.gameState.identityEvidence = cloneEvidence(evidence);
-
     return evidence;
   }
-
   getIdentityEvidenceConfig() {
-    return this.normalizeEvidenceConfig(
-      this.ensureIdentityEvidence(),
-      {
-        stationId: 'identity',
-        fallbackLabel: __dialogueText("scenes/CSI/CrimeLabManager.js", "t_9b0f1ff98f35c658af82"),
-        fallbackClueType: 'identity'
-      }
-    );
+    return this.normalizeEvidenceConfig(this.ensureIdentityEvidence(), {
+      stationId: 'identity', fallbackLabel: text('t_9b0f1ff98f35c658af82'), fallbackClueType: 'identity'
+    });
   }
-
   buildIdentityEvidenceForCase(caseKey) {
     const suspect = this.getSuspectData();
     const seed = hashString(suspect.id || suspect.name || caseKey);
-
     const templates = CSI_MAIN_GAME_POOL.map(entry => {
-      let value;
-      let allowedValues;
-      let clueText;
-
+      let value, allowedValues, clueText;
       switch (entry.evidenceType) {
         case 'hair_color':
           value = getForensicValue(suspect, 'hair_color', null);
-
-          allowedValues = [
-            __dialogueText("scenes/CSI/CrimeLabManager.js", "t_c6cfe6e4f129a34671d1"), __dialogueText("scenes/CSI/CrimeLabManager.js", "t_18f285592896ec8ead1b"), __dialogueText("scenes/CSI/CrimeLabManager.js", "t_7866f2fffdd6577c532e"), __dialogueText("scenes/CSI/CrimeLabManager.js", "t_ba19e9c3d5f49882ddaa"),
-            __dialogueText("scenes/CSI/CrimeLabManager.js", "t_d4ac58091b024645805d"), __dialogueText("scenes/CSI/CrimeLabManager.js", "t_3495e757855a5c678add"), __dialogueText("scenes/CSI/CrimeLabManager.js", "t_7261410fba2f27ee65c0")
-          ];
-
-          clueText = value
-            ? `${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_336ed092d2808e6bc5b6")}${String(value).toLowerCase()}${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_7599fa97f745a2391bd9")}`
-            : null;
+          allowedValues = [text('t_c6cfe6e4f129a34671d1'), text('t_18f285592896ec8ead1b'), text('t_7866f2fffdd6577c532e'), text('t_ba19e9c3d5f49882ddaa'), text('t_d4ac58091b024645805d'), text('t_3495e757855a5c678add'), text('t_7261410fba2f27ee65c0')];
+          clueText = value ? `${text('t_336ed092d2808e6bc5b6')}${String(value).toLowerCase()}${text('t_7599fa97f745a2391bd9')}` : null;
           break;
-
         case 'blood_type':
           value = getForensicValue(suspect, 'blood_type', null);
-
-          allowedValues = [
-            'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'
-          ];
-
-          clueText = value
-            ? `${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_b3b88d81563b07f0069c")}${value}${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_cdb4ee2aea69cc6a8333")}`
-            : null;
+          allowedValues = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+          clueText = value ? `${text('t_b3b88d81563b07f0069c')}${value}${text('t_cdb4ee2aea69cc6a8333')}` : null;
           break;
-
         case 'dna_gender':
-          value = mapGenderCodeToDnaProfile(
-            getForensicValue(suspect, 'biological_sex', null) ||
-            suspect.gender_code ||
-            suspect.genderCode ||
-            suspect.gender
-          );
-
+          value = mapGenderCodeToDnaProfile(getForensicValue(suspect, 'biological_sex', null) || suspect.gender_code || suspect.genderCode || suspect.gender);
           allowedValues = ['XX', 'XY'];
-
-          clueText = value
-            ? `${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_6b1cd59a72b0fe5c92aa")}${value}${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_1cf4cff8189c5f81c600")}`
-            : null;
+          clueText = value ? `${text('t_6b1cd59a72b0fe5c92aa')}${value}${text('t_1cf4cff8189c5f81c600')}` : null;
           break;
-
         case 'fingerprint_pattern':
-          value = String(
-            getForensicValue(
-              suspect,
-              'fingerprint_pattern',
-              weightedFingerprintPattern(seed)
-            )
-          ).toUpperCase();
-
+          value = String(getForensicValue(suspect, 'fingerprint_pattern', weightedFingerprintPattern(seed))).toUpperCase();
           allowedValues = ['LOOP', 'WHORL', 'ARCH'];
-
-          clueText =
-            `${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_1198cc8a2a11c773c8c2")}${value.toLowerCase()}${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_edc1830c9c0a4114af47")}`;
+          clueText = `${text('t_1198cc8a2a11c773c8c2')}${value.toLowerCase()}${text('t_edc1830c9c0a4114af47')}`;
           break;
-
-        default:
-          return null;
+        default: return null;
       }
-
       if (value == null || value === '') return null;
-
-      return {
-        ...entry,
-        id: `identity_${entry.evidenceType}`,
-        attribute: entry.evidenceType,
-        thief_value: value,
-        allowedValues,
-        clueType: 'identity',
-        source: 'crime_lab',
-        clueText,
-        stationId: 'identity'
-      };
+      return { ...entry, id: `identity_${entry.evidenceType}`, attribute: entry.evidenceType, thief_value: value,
+        allowedValues, clueType: 'identity', source: 'crime_lab', clueText, stationId: 'identity' };
     }).filter(Boolean);
-
-    return templates.length
-      ? cloneEvidence(templates[seed % templates.length])
-      : null;
+    return templates.length ? cloneEvidence(templates[seed % templates.length]) : null;
   }
-
   ensureRandomTraceEvidence() {
-    const assignment = this.ensureCaseAssignment();
-    const old = assignment.traceEvidence;
-
-    const valid =
-      Array.isArray(old) &&
-      old.length === 2 &&
-      old.every(evidence => this.isValidTraceEvidence(evidence)) &&
-      [
-        'shoeSizeCategory',
-        'shoe_size_category',
-        'dust_profile'
-      ].includes(old[0].attribute) &&
-      [
-        'handedness',
-        'material_profile'
-      ].includes(old[1].attribute);
-
+    const assignment = this.ensureCaseAssignment(), old = assignment.traceEvidence;
+    const valid = Array.isArray(old) && old.length === 2 && old.every(evidence => this.isValidTraceEvidence(evidence)) &&
+      ['shoeSizeCategory', 'shoe_size_category', 'dust_profile'].includes(old[0].attribute) &&
+      ['handedness', 'material_profile'].includes(old[1].attribute);
     if (!valid) {
-      const state = this.ensureCaseForensics();
-      const hard = this.gameState.currentMission?.forensicHardEvidence;
-
-      if (
-        state.traceEvidenceResults.some(Boolean) ||
-        (Array.isArray(hard) && hard.length)
-      ) {
-        throw new Error(
-          'CrimeLabManager: invalid saved trace assignment. Start a new case; no silent migration.'
-        );
+      const state = this.ensureCaseForensics(), hard = this.gameState.currentMission?.forensicHardEvidence;
+      if (state.traceEvidenceResults.some(Boolean) || (Array.isArray(hard) && hard.length)) {
+        throw new Error('CrimeLabManager: invalid saved trace assignment. Start a new case; no silent migration.');
       }
-
-      assignment.traceEvidence =
-        this.buildTraceEvidenceForCase(this.getCaseKey());
-
+      assignment.traceEvidence = this.buildTraceEvidenceForCase(this.getCaseKey());
       saveGameState();
     }
-
-    const evidence = assignment.traceEvidence.map(entry =>
-      cloneEvidence(entry)
-    );
-
-    this.gameState.traceEvidence = evidence.map(entry =>
-      cloneEvidence(entry)
-    );
-
+    const evidence = assignment.traceEvidence.map(entry => cloneEvidence(entry));
+    this.gameState.traceEvidence = evidence.map(entry => cloneEvidence(entry));
     return evidence;
   }
-
   assignDustAnalysisVariant(evidence) {
     const variant = randomItem(CSI_DUST_ANALYSIS_VARIANTS);
-
-    return {
-      ...cloneEvidence(evidence),
-      minigame: variant.minigame,
-      label: variant.label
-    };
+    return { ...cloneEvidence(evidence), minigame: variant.minigame, label: variant.label };
   }
-
   buildTraceEvidenceForCase() {
     const suspect = this.getSuspectData();
-
-    const shoeSize = String(
-      getForensicValue(suspect, 'shoe_size_category', 'medium')
-    ).trim().toLowerCase();
-
-    const hand = String(
-      getForensicValue(suspect, 'handedness', 'right')
-    )
-      .trim()
-      .toLowerCase()
-      .replace(/[-_ ]handed$/, '');
-
+    const shoeSize = String(getForensicValue(suspect, 'shoe_size_category', 'medium')).trim().toLowerCase();
+    const hand = String(getForensicValue(suspect, 'handedness', 'right')).trim().toLowerCase().replace(/[-_ ]handed$/, '');
     if (!['small', 'medium', 'large'].includes(shoeSize)) {
-      throw new Error(
-        `CrimeLabManager: unsupported shoe size "${shoeSize}" for suspect "${suspect.id || suspect.name || 'unknown'}".`
-      );
+      throw new Error(`CrimeLabManager: unsupported shoe size "${shoeSize}" for suspect "${suspect.id || suspect.name || 'unknown'}".`);
     }
-
     if (!['left', 'right', 'ambidextrous'].includes(hand)) {
-      throw new Error(
-        `CrimeLabManager: unsupported handedness "${hand}" for suspect "${suspect.id || suspect.name || 'unknown'}".`
-      );
+      throw new Error(`CrimeLabManager: unsupported handedness "${hand}" for suspect "${suspect.id || suspect.name || 'unknown'}".`);
     }
-
     const shoe = {
-      id: 'trace_shoe_print',
-      label: __dialogueText("scenes/CSI/CrimeLabManager.js", "t_c22cb3b58cdf9c10664b"),
-      attribute: 'shoeSizeCategory',
-      thief_value: shoeSize,
-      allowedValues: ['small', 'medium', 'large'],
-      minigame: 'ShoeprintScene',
-      stationId: 'trace_0',
-      clueType: 'trace',
-      source: 'crime_lab',
-      isRedHerring: false,
-      clueText:
-        `${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_452ae5aacd858365eda1")}${shoeSize}${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_16464d1966565750b44e")}`
+      id: 'trace_shoe_print', label: text('t_c22cb3b58cdf9c10664b'), attribute: 'shoeSizeCategory', thief_value: shoeSize,
+      allowedValues: ['small', 'medium', 'large'], minigame: 'ShoeprintScene', stationId: 'trace_0',
+      clueType: 'trace', source: 'crime_lab', isRedHerring: false,
+      clueText: `${text('t_452ae5aacd858365eda1')}${shoeSize}${text('t_16464d1966565750b44e')}`
     };
-
     let dust = getDustProfiles().map(profile => ({
-      ...createDustEvidence(profile.id, {
-        stationId: 'trace_0',
-        sourceConfirmed: true,
-        sourceText: ORIGINS.dust
-      }),
-
-      displayValue: profile.label,
-      composition: profile.composition,
-      originBasis: 'generated_case_rule',
-      collectionMode: 'technical_sweep'
+      ...createDustEvidence(profile.id, { stationId: 'trace_0', sourceConfirmed: true, sourceText: ORIGINS.dust }),
+      displayValue: profile.label, composition: profile.composition,
+      originBasis: 'generated_case_rule', collectionMode: 'technical_sweep'
     }));
-
-    if (suspect.dustProfile) {
-      dust = dust.filter(evidence =>
-        evaluateDustEvidence(suspect, evidence).status === 'compatible'
-      );
-    }
-
+    if (suspect.dustProfile) dust = dust.filter(evidence => evaluateDustEvidence(suspect, evidence).status === 'compatible');
     let first = shoe;
-
-    if (dust.length && Math.random() < 0.5) {
-      first = this.assignDustAnalysisVariant(randomItem(dust));
-    }
-
+    if (dust.length && Math.random() < 0.5) first = this.assignDustAnalysisVariant(randomItem(dust));
     let material = getMaterialProfiles().map(profile => ({
-      ...createMaterialEvidence(profile.id, {
-        stationId: 'trace_1',
-        sourceConfirmed: true,
-        sourceText: ORIGINS.material
-      }),
-
-      originBasis: 'generated_case_rule',
-      collectionMode: 'technical_sweep'
+      ...createMaterialEvidence(profile.id, { stationId: 'trace_1', sourceConfirmed: true, sourceText: ORIGINS.material }),
+      originBasis: 'generated_case_rule', collectionMode: 'technical_sweep'
     }));
-
-    if (suspect.materialProfile) {
-      material = material.filter(evidence =>
-        evaluateMaterialEvidence(suspect, evidence).status === 'compatible'
-      );
-    }
-
+    if (suspect.materialProfile) material = material.filter(evidence => evaluateMaterialEvidence(suspect, evidence).status === 'compatible');
     const requiresMaterial = hand === 'ambidextrous';
-
-    if (requiresMaterial && material.length === 0) {
-      throw new Error(
-        `CrimeLabManager: no compatible material evidence for ambidextrous suspect "${suspect.id || suspect.name || 'unknown'}".`
-      );
-    }
-
+    if (requiresMaterial && material.length === 0) throw new Error(`CrimeLabManager: no compatible material evidence for ambidextrous suspect "${suspect.id || suspect.name || 'unknown'}".`);
     let second;
-
-    if (
-      requiresMaterial ||
-      (material.length > 0 && Math.random() < 0.5)
-    ) {
-      second = randomItem(material);
-      second.source = 'crime_lab';
-
-      if (
-        second.sourceText &&
-        !String(second.clueText || '').includes(second.sourceText)
-      ) {
-        second.clueText = [
-          second.clueText,
-          second.sourceText
-        ].filter(Boolean).join(' ');
+    if (requiresMaterial || (material.length > 0 && Math.random() < 0.5)) {
+      second = randomItem(material); second.source = 'crime_lab';
+      if (second.sourceText && !String(second.clueText || '').includes(second.sourceText)) {
+        second.clueText = [second.clueText, second.sourceText].filter(Boolean).join(' ');
       }
     } else {
-      second = {
-        id: 'trace_hand_smudge',
-        label: __dialogueText("scenes/CSI/CrimeLabManager.js", "t_d41caa779801fabac35a"),
-        attribute: 'handedness',
-        thief_value: hand,
-        allowedValues: ['left', 'right'],
-        minigame: 'ToolmarkAnalysisScene',
-        stationId: 'trace_1',
-        clueType: 'trace',
-        source: 'crime_lab',
-        isRedHerring: false,
-        clueText:
-          `${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_ce9318bad752d4924356")}${hand}${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_beffbd1acb69f6af9849")}`
-      };
+      second = { id: 'trace_hand_smudge', label: text('t_d41caa779801fabac35a'), attribute: 'handedness', thief_value: hand,
+        allowedValues: ['left', 'right'], minigame: 'ToolmarkAnalysisScene', stationId: 'trace_1',
+        clueType: 'trace', source: 'crime_lab', isRedHerring: false,
+        clueText: `${text('t_ce9318bad752d4924356')}${hand}${text('t_beffbd1acb69f6af9849')}` };
     }
-
     return [first, second];
   }
-
   getTraceEvidenceConfig(index) {
     const evidence = this.ensureRandomTraceEvidence()[index];
-
-    if (!evidence) {
-      throw new Error(
-        `CrimeLabManager: trace ${index} does not exist.`
-      );
-    }
-
-    return this.normalizeEvidenceConfig(evidence, {
-      stationId: `trace_${index}`,
-      fallbackLabel: `${__dialogueText("scenes/CSI/CrimeLabManager.js", "t_243d41da86da7e021257")}${index + 1}`,
-      fallbackClueType: 'trace'
-    });
+    if (!evidence) throw new Error(`CrimeLabManager: trace ${index} does not exist.`);
+    return this.normalizeEvidenceConfig(evidence, { stationId: `trace_${index}`,
+      fallbackLabel: `${text('t_243d41da86da7e021257')}${index + 1}`, fallbackClueType: 'trace' });
   }
 }
-
-// CSI reliability fixes: 2026-11-20-v1
