@@ -3,10 +3,9 @@
     {
       "id": "miramar_terrace",
       "title": "Terrace dining | Hotel Miramar",
-      "brand": "MIRAMAR",
       "address": "www.miramar.local/dining",
+      "brand": "MIRAMAR",
       "theme": "hotel",
-      "template": "hotel",
       "blocks": [
         [
           "The west terrace at ",
@@ -32,10 +31,6 @@
           "pageId": "miramar"
         },
         {
-          "label": "Journal",
-          "pageId": "miramar_event"
-        },
-        {
           "label": "Meetings",
           "pageId": "miramar_meetings"
         },
@@ -51,15 +46,15 @@
       "snippet": "West-terrace dining, afternoon drinks and private-event service.",
       "imageKey": "reed_web_hotel_miramar",
       "imageUrl": "assets/side_quests/Reed/web/hotels/miramar.webp",
+      "template": "hotel",
       "imageCaption": "Hotel Miramar — official hotel photograph"
     },
     {
       "id": "miramar_guest_faq",
       "title": "Before your stay | Miramar guest questions",
-      "brand": "MIRAMAR",
       "address": "www.miramar.local/guest-questions",
+      "brand": "MIRAMAR",
       "theme": "hotel",
-      "template": "hotel",
       "blocks": [
         [
           "DO I NEED A ROOM TO VISIT THE TERRACE?"
@@ -91,10 +86,6 @@
           "pageId": "miramar"
         },
         {
-          "label": "Journal",
-          "pageId": "miramar_event"
-        },
-        {
           "label": "Meetings",
           "pageId": "miramar_meetings"
         },
@@ -110,6 +101,7 @@
       "snippet": "Terrace visits, guest privacy and the lost-property cupboard.",
       "imageKey": "reed_web_hotel_miramar",
       "imageUrl": "assets/side_quests/Reed/web/hotels/miramar.webp",
+      "template": "hotel",
       "imageCaption": "Hotel Miramar — official hotel photograph"
     },
     {

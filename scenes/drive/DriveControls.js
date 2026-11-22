@@ -1,428 +1,150 @@
 import { FLAVOUR } from '../../config/RoadTripTowns.js';
-import { BASE_SPEED, rand, pick, clamp } from './DriveShared.js';
-
-const DRIVE = Object.freeze({
-  maxSpeed: BASE_SPEED * 1.4,
-
-  acceleration: BASE_SPEED * 0.36,
-  braking: BASE_SPEED * 0.95,
-  coasting: BASE_SPEED * 0.10,
-  airResistance: BASE_SPEED * 0.055,
-
-  offroadDrag: BASE_SPEED * 0.50,
-  offroadMaxSpeed: BASE_SPEED * 0.65,
-
-  steeringResponse: 13,
-  steeringReturn: 18,
-  steeringRate: 1.65,
-
-  curveForce: 0.42,
-  arrivalSpeed: BASE_SPEED * 0.32,
-  arrivalResponse: BASE_SPEED * 0.70,
-
-  coffeeMultiplier: 1.18
-});
-
-const approach = (value, target, amount) => {
-  if (value < target) return Math.min(target, value + amount);
-  return Math.max(target, value - amount);
-};
-
-export const DriveControls = {
-  buildInput() {
-    this.keys = this.input.keyboard?.addKeys(
-      'LEFT,RIGHT,UP,DOWN,A,D,W,S,SPACE,ENTER'
-    );
-
-    this.speed = 0;
-    this.speedMul = 0;
-    this.steerVel = 0;
-
-    this._driveDrag = null;
-    this._driveInputFocused = true;
-
-    this.introText?.setText(
-      'W / UP: GAS   S / DOWN / SPACE: BRAKE\n' +
-      'A / D OR LEFT / RIGHT: STEER\n' +
-      'MOUSE: HOLD AND DRAG TO STEER'
-    );
-
-    const releasePointer = pointer => {
-      if (
-        !pointer ||
-        !this._driveDrag ||
-        pointer.id === this._driveDrag.id
-      ) {
-        this._driveDrag = null;
-      }
-
-      this.uiHeld = false;
+import { BASE_SPEED, DRIVE, approach, smooth, rand, pick, clamp } from './DriveShared.js';
+export const DriveControls={
+  buildInput(){
+    this.keys=this.input.keyboard?.addKeys('LEFT,RIGHT,UP,DOWN,A,D,W,S,SPACE,ENTER');
+    this._driveDrag=null;this._driveInputFocused=!document.hidden;
+    this._driveButtonPointers=new Map();this._driveButtons=[];
+    const count=this.input.manager.pointers.length;if(count<4)this.input.addPointer(4-count);
+    this.buildDriveButtons();
+    const release=p=>{
+      if(p)this._driveButtonPointers.delete(p.id);
+      if(!p||p.id===this._driveDrag?.id)this._driveDrag=null;
+      this.uiHeld=false;this.refreshDriveButtons();
     };
-
-    const resetInput = () => {
-      this._driveDrag = null;
-      this.uiHeld = false;
-
-      for (const key of Object.values(this.keys || {})) {
-        key?.reset?.();
-      }
-    };
-
-    const onBlur = () => {
-      this._driveInputFocused = false;
-      resetInput();
-    };
-
-    const onFocus = () => {
-      resetInput();
-      this._driveInputFocused = true;
-    };
-
-    const onVisibility = () => {
-      if (document.hidden) onBlur();
-      else onFocus();
-    };
-
-    const proceed = () => {
-      if (
-        this.state === 'summary' &&
-        this.summaryReady &&
-        !this._cleanupDone
-      ) {
-        this.leaveScene();
-      }
-    };
-
-    this.trackInputEvent(
-      this.input,
-      'pointerdown',
-      (pointer, currentlyOver = []) => {
-        if (this.state === 'summary') {
-          if (!this.uiHeld) proceed();
-          return;
-        }
-
-        if (
-          this.state !== 'driving' ||
-          this.uiHeld ||
-          !this._driveInputFocused ||
-          this._driveDrag ||
-          currentlyOver.length > 0 ||
-          pointer.button > 0
-        ) {
-          return;
-        }
-
-        const point = this.cameras.main.getWorldPoint(
-          pointer.x,
-          pointer.y
-        );
-
-        this._driveDrag = {
-          id: pointer.id,
-          startX: point.x
-        };
-      }
-    );
-
-    this.trackInputEvent(this.input, 'pointerup', releasePointer);
-    this.trackInputEvent(
-      this.input,
-      'pointerupoutside',
-      releasePointer
-    );
-
-    if (this.input.keyboard) {
-      for (const eventName of ['keydown-SPACE', 'keydown-ENTER']) {
-        this.trackInputEvent(
-          this.input.keyboard,
-          eventName,
-          event => {
-            if (event?.repeat) return;
-            proceed();
-          }
-        );
-      }
+    const blur=()=>{this._driveInputFocused=false;this.resetDriveControls();};
+    const focus=()=>{this._driveInputFocused=!document.hidden;this.resetDriveControls();};
+    const visibility=()=>{if(document.hidden)blur();else focus();};
+    const cancel=()=>this.resetDriveControls();
+    this.trackInputEvent(this.input,'pointerdown',(p,over=[])=>{
+      if(!this.ready||this.state!=='driving'||this.settlementError||this._driveHold||this.uiHeld||
+        !this._driveInputFocused||this._driveDrag||over.length||p.button>0||this._driveButtonPointers.has(p.id))return;
+      const point=this.cameras.main.getWorldPoint(p.x,p.y);this._driveDrag={id:p.id,startX:point.x};
+    });
+    this.trackInputEvent(this.input,'pointerup',release);this.trackInputEvent(this.input,'pointerupoutside',release);
+    this.trackInputEvent(this.input,'gameout',()=>{if(this.input.activePointer?.pointerType!=='touch')cancel();});
+    if(this.input.keyboard){
+      for(const name of ['keydown-SPACE','keydown-ENTER'])this.trackInputEvent(this.input.keyboard,name,e=>{
+        if(e?.repeat||this._driveHold||this.settlementError)return;
+        if(this.state==='summary'&&this.summaryReady&&!this._cleanupDone)this.leaveScene();
+      });
+      this.trackInputEvent(this.input.keyboard,'keydown-ESC',e=>{
+        if(e?.repeat||this._driveHold?.kind!=='autopilot')return;
+        e?.preventDefault?.();this.releaseDriveHold();
+      });
     }
-
-    const onPointerCancel = () => resetInput();
-
-    window.addEventListener('blur', onBlur);
-    window.addEventListener('focus', onFocus);
-    window.addEventListener('pointercancel', onPointerCancel);
-    window.addEventListener('touchcancel', onPointerCancel);
-    document.addEventListener('visibilitychange', onVisibility);
-
-    let released = false;
-
-    this.releaseDriveInput = () => {
-      if (released) return;
-      released = true;
-
-      window.removeEventListener('blur', onBlur);
-      window.removeEventListener('focus', onFocus);
-      window.removeEventListener(
-        'pointercancel',
-        onPointerCancel
-      );
-      window.removeEventListener(
-        'touchcancel',
-        onPointerCancel
-      );
-      document.removeEventListener(
-        'visibilitychange',
-        onVisibility
-      );
-
-      resetInput();
+    window.addEventListener('blur',blur);window.addEventListener('focus',focus);
+    window.addEventListener('pointercancel',cancel);window.addEventListener('touchcancel',cancel);
+    document.addEventListener('visibilitychange',visibility);
+    let released=false;
+    this.releaseDriveInput=()=>{
+      if(released)return;released=true;
+      window.removeEventListener('blur',blur);window.removeEventListener('focus',focus);
+      window.removeEventListener('pointercancel',cancel);window.removeEventListener('touchcancel',cancel);
+      document.removeEventListener('visibilitychange',visibility);this.resetDriveControls();
     };
-
-    this.events.once(
-      Phaser.Scenes.Events.SHUTDOWN,
-      this.releaseDriveInput
-    );
   },
-
-  stepDrive(dt) {
-    if (!Number.isFinite(dt) || dt <= 0) return;
-
-    const driving = this.state === 'driving';
-    const arriving = this.state === 'arriving';
-
-    if (!driving && !arriving) return;
-
-    this.driveTime += dt;
-    this.invuln = Math.max(0, this.invuln - dt);
-    this.rumbleCd = Math.max(0, this.rumbleCd - dt);
-
-    const k = this.keys;
-    const focused = this._driveInputFocused;
-
-    const throttle = driving && focused && Boolean(
-      k?.UP?.isDown || k?.W?.isDown
-    );
-
-    const brake = driving && focused && Boolean(
-      k?.DOWN?.isDown ||
-      k?.S?.isDown ||
-      k?.SPACE?.isDown
-    );
-
-    let steer = 0;
-
-    if (driving && focused) {
-      const left = Boolean(k?.LEFT?.isDown || k?.A?.isDown);
-      const right = Boolean(k?.RIGHT?.isDown || k?.D?.isDown);
-
-      steer = Number(right) - Number(left);
-
-      if (!left && !right && this._driveDrag && !this.uiHeld) {
-        const pointer = this.input.manager.pointers.find(
-          candidate => candidate.id === this._driveDrag.id
-        );
-
-        if (pointer?.isDown) {
-          const point = this.cameras.main.getWorldPoint(
-            pointer.x,
-            pointer.y
-          );
-
-          const travel = this.W * 0.14;
-          const delta = point.x - this._driveDrag.startX;
-          const deadzone = this.W * 0.004;
-          const distance = Math.max(0, Math.abs(delta) - deadzone);
-
-          steer = Math.sign(delta) * clamp(
-            distance / travel,
-            0,
-            1
-          );
-        } else {
-          this._driveDrag = null;
-        }
-      }
-    }
-
-    const response = steer === 0
-      ? DRIVE.steeringReturn
-      : DRIVE.steeringResponse;
-
-    const blend = 1 - Math.exp(-response * dt);
-
-    this.steerVel += (steer - this.steerVel) * blend;
-
-    if (Math.abs(this.steerVel) < 0.001) {
-      this.steerVel = 0;
-    }
-
-    let speed = Math.max(0, this.speed);
-
-    // Existing collision handling reduces speedMul.
-    const collisionSpeed = Math.max(0, this.speedMul) * BASE_SPEED;
-
-    if (collisionSpeed < speed - 0.001) {
-      speed = collisionSpeed;
-    }
-
-    const previousSpeed = speed;
-    const speedRatio = speed / BASE_SPEED;
-
-    const offroadAmount = clamp(
-      (Math.abs(this.playerX) - 0.98) / 0.25,
-      0,
-      1
-    );
-
-    const coffee = driving && this.clock < this.coffeeUntil;
-    const coffeeMultiplier = coffee
-      ? DRIVE.coffeeMultiplier
-      : 1;
-
-    const roadMaxSpeed = DRIVE.maxSpeed * coffeeMultiplier;
-
-    const maxSpeed = roadMaxSpeed +
-      (
-        DRIVE.offroadMaxSpeed - roadMaxSpeed
-      ) * offroadAmount;
-
-    if (driving) {
-      if (brake || !focused) {
-        speed -= DRIVE.braking * dt;
-      } else if (throttle) {
-        const acceleration = DRIVE.acceleration *
-          coffeeMultiplier *
-          (1 - offroadAmount * 0.35);
-
-        speed += acceleration * dt;
-      } else {
-        speed -= (
-          DRIVE.coasting +
-          DRIVE.airResistance * speedRatio * speedRatio
-        ) * dt;
-      }
-
-      speed -= DRIVE.offroadDrag * offroadAmount * dt;
-      speed = Math.max(0, speed);
-
-      if (speed > maxSpeed) {
-        speed = approach(
-          speed,
-          maxSpeed,
-          DRIVE.acceleration * dt
-        );
-      }
-
-      if (speed < 0.5 && !throttle) {
-        speed = 0;
-      }
-    } else {
-      const remaining = Math.max(0, this.L - this.pos);
-
-      const target = Math.min(
-        DRIVE.arrivalSpeed,
-        Math.sqrt(2 * DRIVE.arrivalResponse * remaining)
-      );
-
-      speed = approach(
-        speed,
-        target,
-        DRIVE.arrivalResponse * dt
-      );
-    }
-
-    this.speed = speed;
-    this.speedMul = speed / BASE_SPEED;
-
-    const distance = (previousSpeed + speed) * 0.5 * dt;
-
-    this.pos = Math.min(
-      this.L,
-      this.pos + distance
-    );
-
-    const movement = clamp(speed / (BASE_SPEED * 0.3), 0, 1);
-    const fastDriving = clamp(speed / DRIVE.maxSpeed, 0, 1);
-
-    const steeringGrip = 1 -
-      fastDriving * 0.18 -
-      offroadAmount * 0.15;
-
-    const nearCurve = this.curveAt(this.pos + 60);
-
-    this.playerX += (
-      this.steerVel *
-      DRIVE.steeringRate *
-      movement *
-      steeringGrip -
-      nearCurve *
-      DRIVE.curveForce *
-      (speed / BASE_SPEED)
-    ) * dt;
-
-    this.playerX = clamp(this.playerX, -1.5, 1.5);
-
-    if (
-      offroadAmount > 0.1 &&
-      speed > 40 &&
-      this.rumbleCd <= 0
-    ) {
-      this.rumbleCd = 0.25;
-
-      this.cameras.main.shake(
-        90,
-        0.001 + offroadAmount * 0.002
-      );
-    }
-
-    if (driving) {
-      this.idleTimer -= dt;
-
-      if (this.idleTimer <= 0) {
-        this.idleTimer = rand(7, 11);
-        this.say(pick(FLAVOUR.dinoIdle), 3000);
-      }
-
-      if (this.pos >= this.L - 80) {
-        this.state = 'arriving';
-        this.arriveTime = 0;
-        this._driveDrag = null;
-        this.say(this.town.arrival, 3600, true);
-      }
-
-      return;
-    }
-
-    this.arriveTime += dt;
-
-    if (this.pos >= this.L) {
-      this.speed = 0;
-      this.speedMul = 0;
-
-      if (this.arriveTime > 1.1) {
-        this.showSummary();
-      }
+  resetDriveControls(){
+    this._driveDrag=null;this._driveButtonPointers?.clear();this.uiHeld=false;this.steerVel=0;
+    for(const key of Object.values(this.keys||{}))key?.reset?.();
+    this.refreshDriveButtons();
+  },
+  buildDriveButtons(){
+    const {W,H,U}=this;
+    const defs=[['left','<',.075,.105,0xbca784],['right','>',.195,.105,0xbca784],
+      ['brake','BRAKE',.735,.14,0xd2a18b],['gas','GAS',.905,.14,0xb3c791]];
+    for(const [action,label,x,width,color]of defs){
+      const bg=this.add.rectangle(W*x,H*.93,W*width,H*.105,0x252329,.96)
+        .setStrokeStyle(Math.max(1,2*U),color).setDepth(225).setInteractive({useHandCursor:true});
+      const t=this.add.text(W*x,H*.93,label,{fontFamily:'PressStart2P',fontSize:this.px(['left','right'].includes(action)?25:13),
+        color:`#${color.toString(16)}`}).setOrigin(.5).setDepth(226);
+      this._driveButtons.push({action,bg,t,color});
+      bg.on('pointerdown',(p,lx,ly,e)=>{
+        e?.stopPropagation?.();if(!this.ready||this.state!=='driving'||this._driveHold||this.settlementError||!this._driveInputFocused||p.button>0)return;
+        this._driveButtonPointers.set(p.id,action);if(this._driveDrag?.id===p.id)this._driveDrag=null;
+        this.refreshDriveButtons();
+      });
+      const up=p=>{if(this._driveButtonPointers.get(p.id)===action)this._driveButtonPointers.delete(p.id);this.refreshDriveButtons();};
+      for(const name of ['pointerup','pointerout','pointerupoutside'])bg.on(name,up);
     }
   },
-
-  autopilot() {
-    if (this.state !== 'driving') return;
-
-    this._driveDrag = null;
-
-    this.stats.autopilot = true;
-    this.stats.hits += Math.max(
-      1,
-      Math.round(this.L / 2200)
-    );
-
-    this.refreshStats();
-
-    this.pos = this.L;
-    this.speed = 0;
-    this.speedMul = 0;
-    this.steerVel = 0;
-
-    this.cameras.main.flash(300, 0, 0, 0);
-    this.showSummary();
+  driveButtonDown(action){
+    if(!this._driveInputFocused)return false;
+    for(const [id,held]of this._driveButtonPointers||[]){
+      const p=this.input.manager.pointers.find(p=>p.id===id);
+      if(!p?.isDown){this._driveButtonPointers.delete(id);continue;}if(held===action)return true;
+    }return false;
+  },
+  refreshDriveButtons(){
+    const visible=this.ready&&this.state==='driving'&&!this._driveHold&&!this.settlementError;
+    for(const b of this._driveButtons||[]){
+      if(!b.bg.scene)continue;b.bg.setVisible(visible);b.t.setVisible(visible);
+      b.bg.setFillStyle(visible&&this.driveButtonDown(b.action)?0x554936:0x252329,.96);
+    }
+  },
+  getDriveIntent(){
+    const k=this.keys;
+    const active=this.state==='driving'&&!this._driveHold&&!this.settlementError&&this._driveInputFocused;
+    const brake=Boolean(active&&(k?.DOWN?.isDown||k?.S?.isDown||k?.SPACE?.isDown||this.driveButtonDown('brake')));
+    return {brake,throttle:Boolean(active&&!brake&&(k?.UP?.isDown||k?.W?.isDown||this.driveButtonDown('gas'))),
+      left:Boolean(active&&(k?.LEFT?.isDown||k?.A?.isDown||this.driveButtonDown('left'))),
+      right:Boolean(active&&(k?.RIGHT?.isDown||k?.D?.isDown||this.driveButtonDown('right')))};
+  },
+  stepDrive(dt){
+    if(!Number.isFinite(dt)||dt<=0||this._driveHold)return;
+    const driving=this.state==='driving';if(!driving&&this.state!=='arriving')return;
+    const intent=this.getDriveIntent();this.refreshDriveButtons();this.driveTime+=dt;
+    this.invuln=Math.max(0,this.invuln-dt);this.rumbleCd=Math.max(0,this.rumbleCd-dt);
+    let steer=Number(intent.right)-Number(intent.left);
+    if(driving&&this._driveInputFocused&&!intent.left&&!intent.right&&this._driveDrag&&!this.uiHeld){
+      const p=this.input.manager.pointers.find(p=>p.id===this._driveDrag.id);
+      if(p?.isDown){const point=this.cameras.main.getWorldPoint(p.x,p.y),d=point.x-this._driveDrag.startX;
+        steer=Math.sign(d)*clamp(Math.max(0,Math.abs(d)-this.W*.004)/(this.W*.14),0,1);
+      }else this._driveDrag=null;
+    }
+    this.steerVel=smooth(this.steerVel,steer,steer===0?DRIVE.steeringReturn:DRIVE.steeringResponse,dt);
+    if(Math.abs(this.steerVel)<.001)this.steerVel=0;
+    let speed=Math.max(0,Math.min(this.speed,this.speedMul*BASE_SPEED));const previous=speed;
+    const offroad=clamp((Math.abs(this.playerX)-.98)/.25,0,1);
+    const coffee=driving&&this.clock<this.coffeeUntil?DRIVE.coffeeMultiplier:1;
+    const max=DRIVE.maxSpeed*coffee+(DRIVE.offroadMaxSpeed-DRIVE.maxSpeed*coffee)*offroad;
+    if(driving){
+      if(intent.brake||!this._driveInputFocused)speed-=DRIVE.braking*dt;
+      else if(intent.throttle)speed+=DRIVE.acceleration*coffee*(1-offroad*.35)*dt;
+      else speed-=(DRIVE.coasting+DRIVE.airResistance*(speed/BASE_SPEED)**2)*dt;
+      speed=Math.max(0,speed-DRIVE.offroadDrag*offroad*dt);
+      if(speed>max)speed=approach(speed,max,DRIVE.acceleration*dt);
+      if(speed<.5&&!intent.throttle)speed=0;
+    }else{
+      speed=approach(speed,Math.min(DRIVE.arrivalSpeed,Math.sqrt(2*DRIVE.arrivalResponse*Math.max(0,this.L-this.pos))),DRIVE.arrivalResponse*dt);
+    }
+    this.speed=speed;this.speedMul=speed/BASE_SPEED;
+    this.pos=Math.min(this.L,this.pos+(previous+speed)*.5*dt);
+    const grip=1-clamp(speed/DRIVE.maxSpeed,0,1)*.18-offroad*.15;
+    this.playerX=clamp(this.playerX+(this.steerVel*DRIVE.steeringRate*clamp(speed/(BASE_SPEED*.3),0,1)*grip-
+      this.curveAt(this.pos+60)*DRIVE.curveForce*(speed/BASE_SPEED))*dt,-1.5,1.5);
+    if(offroad>.1&&speed>40&&this.rumbleCd<=0){this.rumbleCd=.25;this.cameras.main.shake(90,.001+offroad*.002);}
+    if(driving){
+      this.idleTimer-=dt;if(this.idleTimer<=0){this.idleTimer=rand(7,11);this.say(pick(FLAVOUR.dinoIdle),3000);}
+      if(this.pos>=this.L-80){this.state='arriving';this.arriveTime=0;this.resetDriveControls();this.say(this.town.arrival,3600,true);}
+    }else{
+      this.arriveTime+=dt;if(this.pos>=this.L){this.speed=0;this.speedMul=0;if(this.arriveTime>1.1)this.showSummary();}
+    }
+  },
+  driveAutopilotPenalty(){return Math.max(1,Math.round(this.L/2200));},
+  autopilot(){
+    if(this.state!=='driving'||!this.holdDrive('autopilot'))return;
+    const dents=this.driveAutopilotPenalty();
+    this.showDriveDialog('LET THE CAR HANDLE IT?',
+      `Skip the remaining drive and arrive now.\n\nAdds ${dents} dent${dents===1?'':'s'} to the trip.\n`+
+      'Remaining pickups will be missed.\n\nIts licence is technically a supermarket receipt.',[
+        {label:'KEEP DRIVING',action:()=>this.releaseDriveHold()},
+        {label:'USE AUTOPILOT',action:()=>this.confirmDriveAutopilot()}
+      ]);
+  },
+  confirmDriveAutopilot(){
+    if(this._driveHold?.kind!=='autopilot'||!this.releaseDriveHold())return;
+    this.stats.autopilot=true;this.stats.hits+=this.driveAutopilotPenalty();this.refreshStats();
+    this.pos=this.L;this.speed=0;this.speedMul=0;this.steerVel=0;this.showSummary();this.refreshDriveButtons();
   }
 };

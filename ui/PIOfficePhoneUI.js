@@ -1,4 +1,5 @@
 
+import { installPhoneDirectoryShortcut } from './pi-phone/PhoneDirectoryShortcut.js';
 import { VU_BARS } from './pi-phone/PhoneConfig.js';
 import { PhoneAudio } from './pi-phone/PhoneAudio.js';
 import { PhoneCalls } from './pi-phone/PhoneCalls.js';
@@ -12,13 +13,14 @@ export class PIOfficePhoneUI{
  constructor(scene,options={}){
   this.scene=scene;this.options=options;Object.assign(this,{isOpen:false,destroyed:false,state:'on_hook',number:'',status:'',directoryOpen:false,directoryPage:0,lines:[],lineIndex:0,contactName:'',dialTween:null,run:0,built:false,ui:null,logItems:[],typingItem:null,sticky:null,keys:[],uprights:[],holes:[],digitBoxes:[],ledViews:[],vuLevels:new Array(VU_BARS).fill(.05),tickCount:0,tickEvent:null,callStart:0,_handsetUp:false,_closing:false});
   this.timers=new Set();this.tones=new Set();this.loops=new Set();this.phoneOneShots=new Set();this.preparePhoneAudio();this.root=scene.add.container(0,0).setDepth(1600).setVisible(false);
-  this.onKey=event=>{if(!this.isOpen)return;const t=event.target;if(t?.isContentEditable||['INPUT','TEXTAREA','SELECT'].includes(t?.tagName))return;
+  this.onKey=event=>{if(!this.isOpen||event.defaultPrevented)return;const t=event.target;if(t?.isContentEditable||['INPUT','TEXTAREA','SELECT'].includes(t?.tagName))return;
    if(event.code==="Escape"){event.preventDefault();if(this.directoryOpen)this.closeDirectory();else this.close();return;}
    if(this.directoryOpen){if(event.code==='ArrowLeft')this.turnDirectory(-1);if(event.code==='ArrowRight')this.turnDirectory(1);return;}
    if(this.state==='ready'&&/^[0-9]$/.test(event.key)){event.preventDefault();this.dialDigit(event.key);return;}
    if(event.code==="Space"||event.code==="Enter"){event.preventDefault();if(this.state==='connected')this.nextLine();else if(this.state==='on_hook')this.pickUp();return;}
    if(event.code==='KeyD'&&this.state!=='dialling'){event.preventDefault();this.openDirectory();}
   };
+  this.removeDirectoryShortcut=installPhoneDirectoryShortcut(this);
   this.onResize=()=>{if(!this.destroyed)this.layout();};scene.input.keyboard?.on('keydown',this.onKey);scene.scale.on('resize',this.onResize);scene.events.once('shutdown',this.destroy,this);this.investigation=new PhoneInvestigation(this);this.investigation.renderPaper=renderPhoneFieldNotes.bind(this.investigation);
  }
  get data(){return this.scene.cache.json.get('piPhoneDirectory')||{};}
@@ -30,6 +32,6 @@ export class PIOfficePhoneUI{
  close(){if(this.destroyed||!this.isOpen)return;this.investigation.resetCall();this.cancelActivity();this.stopTick();this.isOpen=false;this.state='on_hook';this.directoryOpen=false;this.options.onClose?.();this._closing=true;this._kill(this.root);const hide=()=>{if(this.isOpen||this.destroyed||!this.root)return;this._closing=false;this.root.setVisible(false).setAlpha(1);};const tween=this._tween({targets:this.root,alpha:0,duration:110,onComplete:hide});if(!tween)hide();}
  cancelActivity(){this.run++;this.timers.forEach(t=>t.remove(false));this.timers.clear();this.typingItem=null;this.dialTween?.stop?.();this.dialTween=null;this.resetDial();this.stopLoops();this.tones.forEach(t=>{try{t.oscillator.stop();}catch(_){}t.oscillator.disconnect();t.gain.disconnect();});this.tones.clear();}
  later(delay,callback){const run=this.run,timer=this.scene.time.delayedCall(delay,()=>{this.timers.delete(timer);if(this.destroyed||!this.isOpen||run!==this.run)return;callback();});this.timers.add(timer);return timer;}
- destroy(){if(this.destroyed)return;this.close();this.destroyed=true;this.investigation.destroy();this.stopTick();this.stopLoops();this.clearLog();this.scene.input.keyboard?.off('keydown',this.onKey);this.scene.scale.off('resize',this.onResize);this.scene.events.off('shutdown',this.destroy,this);[this.root,this.ui,this.handset,this.hooks,this.dial,this.stickyNote].forEach(o=>this._kill(o));this.root.destroy(true);this.root=null;this.ui=null;}
+ destroy(){if(this.destroyed)return;this.removeDirectoryShortcut?.();this.removeDirectoryShortcut=null;this.close();this.destroyed=true;this.investigation.destroy();this.stopTick();this.stopLoops();this.clearLog();this.scene.input.keyboard?.off('keydown',this.onKey);this.scene.scale.off('resize',this.onResize);this.scene.events.off('shutdown',this.destroy,this);[this.root,this.ui,this.handset,this.hooks,this.dial,this.stickyNote].forEach(o=>this._kill(o));this.root.destroy(true);this.root=null;this.ui=null;}
 }
 for(const methods of[PhoneAudio,PhoneCalls,PhoneTranscript,PhoneArtwork,PhoneDisplay,PhoneDirectory]){const descriptors=Object.getOwnPropertyDescriptors(methods);for(const d of Object.values(descriptors))d.enumerable=false;Object.defineProperties(PIOfficePhoneUI.prototype,descriptors);}

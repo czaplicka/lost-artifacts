@@ -16,7 +16,6 @@ function cancelPendingLaunch(scene) {
   scene.events.off(Phaser.Scenes.Events.SHUTDOWN, pending.onShutdown);
   pendingLaunches.delete(scene);
 }
-
 function scheduleLaunchAfterCreate(scene) {
   if (pendingLaunches.has(scene)) return true;
   const onReady = () => {
@@ -32,110 +31,75 @@ function scheduleLaunchAfterCreate(scene) {
 }
 
 export class EmptyApartmentArrestOverlayScene extends FailedAlibiArrestOverlayScene {
-  constructor() {
-    super();
-    this.sys.settings.key = SCENE_KEY;
-  }
-
+  constructor() { super(); this.sys.settings.key = SCENE_KEY; }
   init(data = {}) {
     super.init(data);
-    this.completed = false;
-    this.apartmentRestored = false;
-    this.videoLayer = null;
-    this.videoElement = null;
-    this.videoButton = null;
-    this.videoMessage = null;
-    this.videoCaption = null;
-    this.videoCaptionTitle = null;
-    this.videoCaptionDetail = null;
-    this.captionPhase = null;
-    this.playbackStarted = false;
-    this.resultTimer = null;
-    this.resultShowing = false;
-    this.videoDisposed = false;
-    this.playAttempt = 0;
+    this.completed = false; this.apartmentRestored = false;
+    this.videoLayer = null; this.videoElement = null; this.videoButton = null; this.videoMessage = null;
+    this.videoCaption = null; this.videoCaptionTitle = null; this.videoCaptionDetail = null;
+    this.captionPhase = null; this.playbackStarted = false; this.resultTimer = null;
+    this.resultShowing = false; this.videoDisposed = false; this.playAttempt = 0;
+    this.completionRetry = false;
+    this._emptyArrestRun = Symbol('empty-apartment-operation');
   }
-
+  isCurrentOperation(run) {
+    return run != null && this._emptyArrestRun === run && !this.videoDisposed && !this._cleanupDone;
+  }
   preload() {}
-
   create() {
     BaseScene.prototype.create.call(this);
-    this.input.setTopOnly(true);
-    this.captureHud();
-    this.hideOperationHud();
+    this.input.setTopOnly(true); this.captureHud(); this.hideOperationHud();
     const parent = this.getRegisteredScene(this.parentSceneKey);
     this.parentWasPaused = this.scene.isPaused(this.parentSceneKey);
     if (parent && this.scene.isActive(this.parentSceneKey)) {
-      this.parentPausedByOperation = true;
-      this.scene.pause(this.parentSceneKey);
+      this.parentPausedByOperation = true; this.scene.pause(this.parentSceneKey);
     }
+    const run = this._emptyArrestRun;
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-      this.disposeVideo();
-      this.restoreApartment();
+      if (this._emptyArrestRun !== run) return;
+      this._emptyArrestRun = null;
+      this.disposeVideo(); this.restoreApartment();
     });
-    this.createVideoLayer();
-    this.scene.bringToTop();
-    void this.playVideo();
+    this.createVideoLayer(); this.scene.bringToTop(); void this.playVideo();
   }
-
   createVideoLayer() {
+    const run = this._emptyArrestRun;
     const layer = document.createElement('div');
-    Object.assign(layer.style, {
-      position: 'fixed', inset: '0', zIndex: '10000', background: '#000',
-      overflow: 'hidden', pointerEvents: 'auto'
-    });
+    Object.assign(layer.style, { position: 'fixed', inset: '0', zIndex: '10000', background: '#000', overflow: 'hidden', pointerEvents: 'auto' });
     const video = document.createElement('video');
     video.src = new URL(VIDEO_PATH, document.baseURI).href;
-    video.preload = 'auto';
-    video.playsInline = true;
-    video.controls = false;
-    video.loop = false;
-    video.muted = false;
-    video.disablePictureInPicture = true;
-    video.setAttribute('playsinline', '');
-    video.setAttribute('webkit-playsinline', '');
-    Object.assign(video.style, {
-      position: 'absolute', width: '100%', height: '100%', objectFit: 'contain', background: '#000'
-    });
+    video.preload = 'auto'; video.playsInline = true; video.controls = false;
+    video.loop = false; video.muted = false; video.disablePictureInPicture = true;
+    video.setAttribute('playsinline', ''); video.setAttribute('webkit-playsinline', '');
+    Object.assign(video.style, { position: 'absolute', width: '100%', height: '100%', objectFit: 'contain', background: '#000' });
     const caption = document.createElement('div');
-    caption.setAttribute('role', 'status');
-    caption.setAttribute('aria-live', 'polite');
-    caption.setAttribute('aria-atomic', 'true');
+    caption.setAttribute('role', 'status'); caption.setAttribute('aria-live', 'polite'); caption.setAttribute('aria-atomic', 'true');
     Object.assign(caption.style, {
-      position: 'absolute', left: '50%', bottom: text('t_65b438ad8cb98f3bd6b7'),
-      transform: 'translateX(-50%)', width: text('t_bda1cf57f0ffb380c4d9'), boxSizing: 'border-box',
-      padding: text('t_fa826e6c7f3a9e9a0460'), background: text('t_d9d4dc193277622e16de'),
-      border: text('t_376317efdca406c23512'), boxShadow: text('t_6e37cd7c75f5989a9150'),
+      position: 'absolute', left: '50%', bottom: text('t_65b438ad8cb98f3bd6b7'), transform: 'translateX(-50%)',
+      width: text('t_bda1cf57f0ffb380c4d9'), boxSizing: 'border-box', padding: text('t_fa826e6c7f3a9e9a0460'),
+      background: text('t_d9d4dc193277622e16de'), border: text('t_376317efdca406c23512'), boxShadow: text('t_6e37cd7c75f5989a9150'),
       textAlign: 'center', pointerEvents: 'none', display: 'none'
     });
     const captionTitle = document.createElement('div');
-    Object.assign(captionTitle.style, {
-      fontFamily: 'PressStart2P, monospace', fontSize: 'clamp(12px, 2vw, 22px)',
-      lineHeight: '1.65', color: '#ffdc83', textShadow: text('t_fe2f2c2d3df0f047be13'), overflowWrap: 'anywhere'
-    });
+    Object.assign(captionTitle.style, { fontFamily: 'PressStart2P, monospace', fontSize: 'clamp(12px, 2vw, 22px)', lineHeight: '1.65', color: '#ffdc83', textShadow: text('t_fe2f2c2d3df0f047be13'), overflowWrap: 'anywhere' });
     const captionDetail = document.createElement('div');
-    Object.assign(captionDetail.style, {
-      marginTop: '10px', fontFamily: 'SpecialElite, monospace', fontSize: 'clamp(17px, 2.2vw, 25px)',
-      lineHeight: '1.35', color: '#f4e8cf', textShadow: text('t_edd560eb9770361f7337')
-    });
+    Object.assign(captionDetail.style, { marginTop: '10px', fontFamily: 'SpecialElite, monospace', fontSize: 'clamp(17px, 2.2vw, 25px)', lineHeight: '1.35', color: '#f4e8cf', textShadow: text('t_edd560eb9770361f7337') });
     caption.append(captionTitle, captionDetail);
     const message = document.createElement('div');
-    Object.assign(message.style, {
-      position: 'absolute', left: '24px', right: '24px', top: '45%', color: '#f4e3bc', textAlign: 'center',
-      fontFamily: 'SpecialElite, monospace', fontSize: '22px', pointerEvents: 'none'
-    });
+    Object.assign(message.style, { position: 'absolute', left: '24px', right: '24px', top: '45%', color: '#f4e3bc', textAlign: 'center', fontFamily: 'SpecialElite, monospace', fontSize: '22px', pointerEvents: 'none' });
     message.textContent = text('t_47d2a515ef2f05b87d68');
     const button = document.createElement('button');
     Object.assign(button.style, {
       position: 'absolute', left: '50%', top: '60%', transform: text('t_569bd25dce87a68e236e'),
-      padding: text('t_692ea4a5b5988b75787e'), border: text('t_2d2d582cc6544da4ffd6'),
-      background: '#241e19', color: '#f4e3bc', fontFamily: 'PressStart2P, monospace',
-      fontSize: '12px', cursor: 'pointer', display: 'none'
+      padding: text('t_692ea4a5b5988b75787e'), border: text('t_2d2d582cc6544da4ffd6'), background: '#241e19',
+      color: '#f4e3bc', fontFamily: 'PressStart2P, monospace', fontSize: '12px', cursor: 'pointer', display: 'none'
     });
     button.textContent = 'PLAY';
+    const current = () => this.isCurrentOperation(run) && this.videoElement === video;
     button.onclick = () => {
-      if (this.finishing || this.videoDisposed) return;
-      if (this.videoElement?.error) this.videoElement.load();
+      if (!current() || this.finishing || this.finished) return;
+      if (this.completionRetry) { void this.finishToGameOver(); return; }
+      if (video.error) video.load();
       void this.playVideo();
     };
     const skip = document.createElement('button');
@@ -145,35 +109,25 @@ export class EmptyApartmentArrestOverlayScene extends FailedAlibiArrestOverlaySc
       color: '#ead1a0', fontFamily: 'PressStart2P, monospace', fontSize: '10px', cursor: 'pointer'
     });
     skip.textContent = 'SKIP';
-    skip.onclick = () => { void this.finishToGameOver(); };
+    skip.onclick = () => { if (current()) void this.finishToGameOver(); };
     video.onplaying = () => {
-      if (this.videoDisposed) return;
-      this.playbackStarted = true;
-      message.textContent = '';
-      button.style.display = 'none';
-      this.syncVideoCaption();
+      if (!current() || this.finishing || this.completionRetry) return;
+      this.playbackStarted = true; message.textContent = ''; button.style.display = 'none'; this.syncVideoCaption();
     };
-    video.ontimeupdate = () => this.syncVideoCaption();
-    video.onseeked = () => this.syncVideoCaption();
-    video.ondurationchange = () => this.syncVideoCaption();
-    video.onended = () => this.showVideoResult();
+    video.ontimeupdate = () => { if (current()) this.syncVideoCaption(); };
+    video.onseeked = () => { if (current()) this.syncVideoCaption(); };
+    video.ondurationchange = () => { if (current()) this.syncVideoCaption(); };
+    video.onended = () => { if (current()) this.showVideoResult(); };
     video.onerror = () => {
-      this.showVideoPrompt(text('t_715d2660893d4e2c6eb0'), 'RETRY');
+      if (current() && !this.completionRetry) this.showVideoPrompt(text('t_715d2660893d4e2c6eb0'), 'RETRY');
     };
     layer.append(video, caption, message, button, skip);
     const fullscreenHost = document.fullscreenElement;
-    const host = fullscreenHost instanceof HTMLElement && fullscreenHost !== this.game.canvas
-      ? fullscreenHost : document.body;
+    const host = fullscreenHost instanceof HTMLElement && fullscreenHost !== this.game.canvas ? fullscreenHost : document.body;
     host.appendChild(layer);
-    this.videoLayer = layer;
-    this.videoElement = video;
-    this.videoButton = button;
-    this.videoMessage = message;
-    this.videoCaption = caption;
-    this.videoCaptionTitle = captionTitle;
-    this.videoCaptionDetail = captionDetail;
+    this.videoLayer = layer; this.videoElement = video; this.videoButton = button; this.videoMessage = message;
+    this.videoCaption = caption; this.videoCaptionTitle = captionTitle; this.videoCaptionDetail = captionDetail;
   }
-
   setVideoCaption(phase) {
     if (this.videoDisposed || !this.videoCaption) return;
     this.videoCaption.style.display = 'block';
@@ -187,138 +141,96 @@ export class EmptyApartmentArrestOverlayScene extends FailedAlibiArrestOverlaySc
       this.videoCaptionDetail.textContent = text('t_1a1b04e1dedbb9ddaacf');
     }
   }
-
   syncVideoCaption() {
-    if (this.videoDisposed || this.finishing || this.finished || !this.playbackStarted || !this.videoElement) return;
+    if (this.videoDisposed || this.finishing || this.finished || this.completionRetry || !this.playbackStarted || !this.videoElement) return;
     if (this.resultShowing) { this.setVideoCaption('result'); return; }
-    const duration = Number(this.videoElement.duration);
-    const time = Math.max(0, Number(this.videoElement.currentTime) || 0);
+    const duration = Number(this.videoElement.duration), time = Math.max(0, Number(this.videoElement.currentTime) || 0);
     const revealAt = Number.isFinite(duration) && duration > 0 ? duration * 0.62 : 4;
     this.setVideoCaption(time >= revealAt ? 'result' : 'entry');
   }
-
   showVideoResult() {
     if (this.videoDisposed || this.finishing || this.finished || this._cleanupDone || this.resultShowing) return;
-    this.resultShowing = true;
-    this.videoMessage.textContent = '';
-    this.videoButton.style.display = 'none';
-    this.setVideoCaption('result');
-    this.resultTimer?.remove(false);
-    this.resultTimer = null;
-    // Koniec filmu od razu kończy nakładkę, bez dodatkowych 2400 ms.
+    this.resultShowing = true; this.videoMessage.textContent = ''; this.videoButton.style.display = 'none';
+    this.setVideoCaption('result'); this.resultTimer?.remove(false); this.resultTimer = null;
     void this.finishToGameOver();
   }
-
   showVideoPrompt(message, buttonText) {
     if (this.videoDisposed || this._cleanupDone || this.finishing || this.finished) return;
-    this.playbackStarted = false;
-    this.videoMessage.textContent = message;
-    this.videoButton.textContent = buttonText;
-    this.videoButton.style.display = 'block';
+    this.playbackStarted = false; this.videoMessage.textContent = message;
+    this.videoButton.textContent = buttonText; this.videoButton.style.display = 'block';
     if (this.videoCaption) this.videoCaption.style.display = 'none';
   }
-
   async playVideo() {
     if (this.videoDisposed || this._cleanupDone || this.finishing || this.finished) return;
-    const attempt = ++this.playAttempt;
-    this.resultTimer?.remove(false);
-    this.resultTimer = null;
-    this.resultShowing = false;
-    this.playbackStarted = false;
+    if (this.completionRetry) { await this.finishToGameOver(); return; }
+    const run = this._emptyArrestRun, attempt = ++this.playAttempt;
+    this.resultTimer?.remove(false); this.resultTimer = null; this.resultShowing = false; this.playbackStarted = false;
     if (this.videoElement.ended) this.videoElement.currentTime = 0;
-    this.captionPhase = null;
-    if (this.videoCaption) this.videoCaption.style.display = 'none';
-    this.videoButton.style.display = 'none';
-    this.videoMessage.textContent = text('t_47d2a515ef2f05b87d68');
-    try {
-      await this.videoElement.play();
-    } catch (error) {
-      if (attempt !== this.playAttempt || this.videoDisposed || this._cleanupDone) return;
-      if (error?.name === 'NotAllowedError') {
-        this.showVideoPrompt(text('t_653c34e124fd9121ae1e'), 'PLAY');
-        return;
-      }
+    this.captionPhase = null; if (this.videoCaption) this.videoCaption.style.display = 'none';
+    this.videoButton.style.display = 'none'; this.videoMessage.textContent = text('t_47d2a515ef2f05b87d68');
+    try { await this.videoElement.play(); }
+    catch (error) {
+      if (!this.isCurrentOperation(run) || attempt !== this.playAttempt) return;
+      if (error?.name === 'NotAllowedError') { this.showVideoPrompt(text('t_653c34e124fd9121ae1e'), 'PLAY'); return; }
       console.warn('[EmptyApartmentArrest] Video playback failed:', error);
       this.showVideoPrompt(text('t_20052e9b2b1e63e43a31'), 'RETRY');
     }
   }
-
-  update() {
-    this.hideOperationHud();
-    this.scene.bringToTop();
-    this.syncVideoCaption();
-  }
+  update() { this.hideOperationHud(); this.scene.bringToTop(); this.syncVideoCaption(); }
 
   async finishToGameOver() {
-    // Retained API name: a correct address resumes the apartment, not Game Over.
-    if (this.finishing || this.finished || this._cleanupDone) return;
-    this.finishing = true;
-    this.playAttempt += 1;
-    this.resultTimer?.remove(false);
-    this.resultTimer = null;
-    this.videoElement?.pause();
+    // Compatibility name: a correct address returns to the apartment, never to Game Over.
+    if (this.finishing || this.finished || !this.isCurrentOperation(this._emptyArrestRun)) return;
+    const run = this._emptyArrestRun;
+    this.finishing = true; this.playAttempt += 1;
+    this.resultTimer?.remove(false); this.resultTimer = null; this.videoElement?.pause();
+    if (this.videoButton) this.videoButton.style.display = 'none';
     try {
       const apartment = this.getRegisteredScene(this.parentSceneKey);
       if (!apartment || apartment._cleanupDone || apartment.suspectId !== this.suspectId || apartment.caseKey !== this.caseId) {
         throw new Error('The apartment no longer matches this operation.');
       }
-      apartment.updateProgress({ arrestVisit: {
-        caseKey: this.caseId, suspectId: this.suspectId, outcome: 'suspect_escaped', completed: true
-      } });
+      const visit = apartment.getProgress().arrestVisit;
+      if (visit?.completed !== true || visit.caseKey !== this.caseId || visit.suspectId !== this.suspectId || visit.outcome !== 'suspect_escaped') {
+        apartment.updateProgress({ arrestVisit: {
+          caseKey: this.caseId, suspectId: this.suspectId, outcome: 'suspect_escaped', completed: true
+        } });
+      }
       requestAutosave();
-      flushAutosave();
-      this.completed = true;
-      this.finished = true;
-      this.scene.stop();
+      if (flushAutosave() !== true) throw new Error('The apartment operation could not be saved.');
+      if (!this.isCurrentOperation(run)) return;
+      if (this.getRegisteredScene(this.parentSceneKey) !== apartment || apartment.suspectId !== this.suspectId || apartment.caseKey !== this.caseId) {
+        throw new Error('The apartment changed while the operation was being saved.');
+      }
+      this.completed = true; this.finished = true; this.completionRetry = false;
+      try { this.scene.stop(); }
+      catch (error) { this.completed = false; this.finished = false; throw error; }
     } catch (error) {
       console.error('[EmptyApartmentArrest] Could not finish operation:', error);
-      if (this._cleanupDone) return;
-      this.finishing = false;
-      this.showVideoPrompt(text('t_fd6fee35780648bf9c73'), 'REPLAY');
+      if (!this.isCurrentOperation(run)) return;
+      this.finishing = false; this.completionRetry = true;
+      this.showVideoPrompt('The operation could not be saved or closed. Check browser storage, then press RETRY. The film will not restart.', 'RETRY');
     }
   }
-
   disposeVideo() {
     if (this.videoDisposed) return;
-    this.videoDisposed = true;
-    this.playAttempt += 1;
-    this.resultTimer?.remove(false);
-    this.resultTimer = null;
+    this.videoDisposed = true; this.playAttempt += 1; this.resultTimer?.remove(false); this.resultTimer = null;
     if (this.videoElement) {
-      this.videoElement.onplaying = null;
-      this.videoElement.onended = null;
-      this.videoElement.onerror = null;
-      this.videoElement.ontimeupdate = null;
-      this.videoElement.onseeked = null;
-      this.videoElement.ondurationchange = null;
-      this.videoElement.pause();
-      this.videoElement.removeAttribute('src');
-      this.videoElement.load();
+      this.videoElement.onplaying = null; this.videoElement.onended = null; this.videoElement.onerror = null;
+      this.videoElement.ontimeupdate = null; this.videoElement.onseeked = null; this.videoElement.ondurationchange = null;
+      this.videoElement.pause(); this.videoElement.removeAttribute('src'); this.videoElement.load();
     }
-    this.videoLayer?.remove();
-    this.videoElement = null;
-    this.videoLayer = null;
-    this.videoButton = null;
-    this.videoMessage = null;
-    this.videoCaption = null;
-    this.videoCaptionTitle = null;
-    this.videoCaptionDetail = null;
+    this.videoLayer?.remove(); this.videoElement = null; this.videoLayer = null; this.videoButton = null;
+    this.videoMessage = null; this.videoCaption = null; this.videoCaptionTitle = null; this.videoCaptionDetail = null;
   }
-
   restoreApartment() {
     if (this.apartmentRestored) return;
-    this.apartmentRestored = true;
-    this.restoreOperationHud();
+    this.apartmentRestored = true; this.restoreOperationHud();
     const apartment = this.getRegisteredScene(this.parentSceneKey);
     if (!apartment || apartment._cleanupDone || apartment.suspectId !== this.suspectId || apartment.caseKey !== this.caseId) return;
     if (this.scene.isPaused(this.parentSceneKey)) this.scene.resume(this.parentSceneKey);
     apartment._arrestIntroOpening = false;
-    if (this.completed) {
-      apartment.showMessage(
-        text('t_1744f2beabf56372425c') + text('t_5b797b22795ac494a3bb') + text('t_dde889a72a4d22202471'),
-        4500, text('t_0fa2e0046576e38dd099')
-      );
-    }
+    if (this.completed) apartment.showMessage(text('t_1744f2beabf56372425c') + text('t_5b797b22795ac494a3bb') + text('t_dde889a72a4d22202471'), 4500, text('t_0fa2e0046576e38dd099'));
     void apartment.setupSharedHud();
   }
 }
@@ -333,27 +245,18 @@ export async function launchEmptyApartmentArrest(scene) {
   if (scene.isSceneRunning(SCENE_KEY)) {
     if (scene.scene.isSleeping(SCENE_KEY)) scene.scene.wake(SCENE_KEY);
     else if (scene.scene.isPaused(SCENE_KEY)) scene.scene.resume(SCENE_KEY);
-    scene.scene.setVisible(true, SCENE_KEY);
-    scene.scene.bringToTop(SCENE_KEY);
-    return true;
+    scene.scene.setVisible(true, SCENE_KEY); scene.scene.bringToTop(SCENE_KEY); return true;
   }
   scene._arrestIntroOpening = true;
   try {
     scene.getPlayerHudScene()?.closeAllUIPanels?.();
     if (!scene.hasScene(SCENE_KEY)) scene.scene.add(SCENE_KEY, EmptyApartmentArrestOverlayScene, false);
-    scene.scene.launch(SCENE_KEY, {
-      parentSceneKey: scene.sys.settings.key, suspectId: scene.suspectId, caseId: scene.caseKey
-    });
+    scene.scene.launch(SCENE_KEY, { parentSceneKey: scene.sys.settings.key, suspectId: scene.suspectId, caseId: scene.caseKey });
     return true;
   } catch (error) {
     scene._arrestIntroOpening = false;
     console.error('[EmptyApartmentArrest] Could not launch operation:', error);
-    if (!scene._cleanupDone && scene.sys.isActive()) {
-      scene.showMessage(
-        text('t_65c814816785ef005b15') + text('t_616558b3e9e3e27bed72'),
-        4000, text('t_c27978fb247345a3da90')
-      );
-    }
+    if (!scene._cleanupDone && scene.sys.isActive()) scene.showMessage(text('t_65c814816785ef005b15') + text('t_616558b3e9e3e27bed72'), 4000, text('t_c27978fb247345a3da90'));
     return false;
   }
 }

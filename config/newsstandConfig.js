@@ -4,100 +4,38 @@ import { MONTHLY_SPILL_ISSUE } from '../systems/newsstand/MonthlySpillIssue.js';
 const SOURCE = 'config/newsstandConfig.js';
 
 export const NEWSSTAND_CONFIG = {
-  designWidth: 1920,
-  designHeight: 1080,
-
-  backgroundKey: 'newsstand_bg',
-  imageZoom: 1.30,
-  videoZoom: 1.25,
-  dimAlpha: 0.42,
-
-  videoUrl: dialogueText(SOURCE, 't_ee82efff2c904a48625a'),
-  videoDelayMs: 10000,
-  videoCheckDelayMs: 5000,
-
-  newspaperAccessKey: 'dailyNewspaperAccess'
+  designWidth:1920,
+  designHeight:1080,
+  backgroundKey:'newsstand_bg',
+  imageZoom:1.30,
+  videoZoom:1.25,
+  dimAlpha:0.42,
+  // Asset paths are technical data, not translatable dialogue.
+  videoUrl:new URL('../assets/video/newsstand.mp4',import.meta.url).href,
+  videoDelayMs:250,
+  videoCheckDelayMs:5000,
+  newspaperAccessKey:'dailyNewspaperAccess'
 };
 
-export const LOCAL_DEBUG_ALLOWED = [
-  '127.0.0.1',
-  'localhost'
-].includes(window.location.hostname);
+export const LOCAL_DEBUG_ALLOWED = ['127.0.0.1','localhost'].includes(window.location.hostname);
 
 export const NEWSSTAND_HOTSPOTS = [
-  {
-    id: 'daily',
-    kind: 'newspaper',
-    type: 'daily',
-    label: dialogueText(SOURCE, 't_ffd47871d94011eba52d'),
-    x: 545,
-    y: 688,
-    width: 430,
-    height: 230,
-    price: 5,
-    depth: 10,
-    labelDepth: 11
-  },
-  {
-    id: 'time',
-    kind: 'newspaper',
-    type: 'time',
-    label: dialogueText(SOURCE, 't_5888675d99b95617ba8c'),
-    x: 979,
-    y: 688,
-    width: 225,
-    height: 230,
-    price: 5,
-    depth: 10,
-    labelDepth: 11
-  },
-  {
-    id: 'monthly_spill',
-    kind: 'newspaper',
-    type: 'monthly',
-    label: MONTHLY_SPILL_ISSUE.title,
-    x: 1209,
-    y: 692,
-    width: 202,
-    height: 230,
-    price: MONTHLY_SPILL_ISSUE.price,
-    depth: 10,
-    labelDepth: 11
-  },
-  {
-    id: 'comix_1',
-    kind: 'comix',
-    label: dialogueText(SOURCE, 't_972570be0cb5152126cd'),
-    x: 1416,
-    y: 689,
-    width: 260,
-    height: 230,
-    textureKey: 'comix1',
-    price: 1,
-    depth: 12,
-    labelDepth: 13
-  }
+  {id:'daily',kind:'newspaper',type:'daily',label:dialogueText(SOURCE,'t_ffd47871d94011eba52d'),
+    x:545,y:688,width:430,height:230,price:5,depth:10,labelDepth:11},
+  {id:'time',kind:'newspaper',type:'time',label:dialogueText(SOURCE,'t_5888675d99b95617ba8c'),
+    x:979,y:688,width:225,height:230,price:5,depth:10,labelDepth:11},
+  {id:'monthly_spill',kind:'newspaper',type:'monthly',label:MONTHLY_SPILL_ISSUE.title,
+    x:1209,y:692,width:202,height:230,price:MONTHLY_SPILL_ISSUE.price,depth:10,labelDepth:11},
+  {id:'comix_1',kind:'comix',label:dialogueText(SOURCE,'t_972570be0cb5152126cd'),
+    x:1416,y:689,width:260,height:230,textureKey:'comix1',price:1,depth:12,labelDepth:13}
 ];
 
-const CITY_ALIASES = {
-  new_york: 'new_york_city',
-  new_dehli: 'new_delhi'
-};
-
+const CITY_ALIASES = {new_york:'new_york_city',new_dehli:'new_delhi'};
 export function normalizeNewsstandCityId(value) {
-  const normalized = String(value || 'paris')
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, '_');
-
+  const normalized = String(value || 'paris').trim().toLowerCase().replace(/\s+/g,'_');
   return CITY_ALIASES[normalized] || normalized;
 }
-
 export function isEditableTarget(event) {
   const target = event?.target;
-
-  return Boolean(
-    target?.isContentEditable ||
-    ['INPUT', 'TEXTAREA', 'SELECT'].includes(target?.tagName)
-  );
+  return Boolean(target?.isContentEditable || ['INPUT','TEXTAREA','SELECT'].includes(target?.tagName));
 }

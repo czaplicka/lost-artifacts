@@ -3,10 +3,9 @@
     {
       "id": "coral_family_stays",
       "title": "Family stays | Coral Crown Hotel",
-      "brand": "CORAL CROWN",
       "address": "www.coralcrown.local/family-stays",
+      "brand": "CORAL CROWN",
       "theme": "hotel",
-      "template": "hotel",
       "blocks": [
         [
           "Make room for everyone at ",
@@ -39,20 +38,24 @@
         {
           "label": "Pool questions",
           "pageId": "coral_pool_questions"
+        },
+        {
+          "label": "Guest discussion",
+          "pageId": "coral_guest_thread"
         }
       ],
       "snippet": "Family suites and indoor swimming, with room for the favourite toy.",
       "imageKey": "reed_web_hotel_coral_crown",
       "imageUrl": "assets/side_quests/Reed/web/hotels/coral_crown.webp",
+      "template": "hotel",
       "imageCaption": "Coral Crown Hotel — official hotel photograph"
     },
     {
       "id": "coral_pool_questions",
       "title": "Pool questions | Coral Crown",
-      "brand": "CORAL CROWN",
       "address": "www.coralcrown.local/pool-information",
+      "brand": "CORAL CROWN",
       "theme": "hotel",
-      "template": "hotel",
       "blocks": [
         [
           "IS THE POOL INDOORS?"
@@ -98,6 +101,7 @@
       "snippet": "Indoor swimming, supervision and the disputed legal status of borrowed towels.",
       "imageKey": "reed_web_hotel_coral_crown",
       "imageUrl": "assets/side_quests/Reed/web/hotels/coral_crown.webp",
+      "template": "hotel",
       "imageCaption": "Coral Crown Hotel — official hotel photograph"
     },
     {

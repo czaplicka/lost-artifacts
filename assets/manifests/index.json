@@ -1,17 +1,17 @@
 {
   "version": 2,
   "files": [
-    "assets/manifests/core.json",
-    "assets/manifests/office.json",
-    "assets/manifests/crime-lab.json",
-    "assets/manifests/cities.json",
-    "assets/manifests/suspects.json",
-    "assets/manifests/newspapers.json",
-    "assets/manifests/other.json",
-    "assets/manifests/side-quests.json",
-    "assets/manifests/auto-discovered.json",
-    "assets/manifests/tokyo-crime.json",
-    "assets/manifests/singapore-city.json"
+    "assets/manifests/catalog/core.json",
+    "assets/manifests/catalog/office.json",
+    "assets/manifests/catalog/crime-lab.json",
+    "assets/manifests/catalog/cities.json",
+    "assets/manifests/catalog/suspects.json",
+    "assets/manifests/catalog/newspapers.json",
+    "assets/manifests/catalog/other.json",
+    "assets/manifests/catalog/side-quests.json",
+    "assets/manifests/catalog/auto-discovered.json",
+    "assets/manifests/catalog/tokyo-crime.json",
+    "assets/manifests/catalog/singapore-city.json"
   ],
   "startup": {
     "backgrounds": [

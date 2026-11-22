@@ -23,10 +23,7 @@ export class CrimeCityProgressService {
   constructor(scene) { this.scene = scene; }
 
   getCaseKey() { return getMissionCaseKey(gameState, this.scene?.cityId); }
-
-  // This is a pure lookup. No CrimeLabManager instance is needed.
   getLabCaseKey() { return getMissionCaseKey(gameState, this.scene?.cityId); }
-
   getCrimeSceneVisitKey() { return getCrimeSceneVisitKey(gameState); }
 
   getCrimeCityProgress() {
@@ -39,9 +36,7 @@ export class CrimeCityProgressService {
     const caseKey = this.getCaseKey();
     const nodes = asRecord(gameState.crimeCityCurrentNodes);
     if (own(nodes, caseKey) && validNode(nodes[caseKey])) return nodes[caseKey];
-    const changed = gameState.updateState({
-      crimeCityCurrentNodes: { ...nodes, [caseKey]: 'arrival' }
-    });
+    const changed = gameState.updateState({ crimeCityCurrentNodes: { ...nodes, [caseKey]: 'arrival' } });
     if (changed && autosave) this.requestProgressAutosave();
     return this.getCurrentNode();
   }
@@ -53,12 +48,10 @@ export class CrimeCityProgressService {
 
   moveToCrimeCityNode(targetNodeId, transportType = 'taxi') {
     if (!validNode(targetNodeId)) {
-      console.warn('[CrimeCityProgressService] Missing or invalid target node ID.');
-      return false;
+      console.warn('[CrimeCityProgressService] Missing or invalid target node ID.'); return false;
     }
     if (!ALLOWED_LOCAL_TRANSPORTS.has(transportType)) {
-      console.error(`[CrimeCityProgressService] Unknown local transport: "${transportType}".`);
-      return false;
+      console.error(`[CrimeCityProgressService] Unknown local transport: "${transportType}".`); return false;
     }
     if (targetNodeId === 'apartment' && !this.hasAnyDebunkedAlibi()) {
       this.showUnresolvedAlibisMessage(); return false;
@@ -66,11 +59,8 @@ export class CrimeCityProgressService {
     const caseKey = this.getCaseKey();
     if (this.getCurrentNode() === targetNodeId) return true;
     if (!this.trySpendEnergy('travel', transportType, { autosave: false })) return false;
-    gameState.updateState({
-      crimeCityCurrentNodes: { ...asRecord(gameState.crimeCityCurrentNodes), [caseKey]: targetNodeId }
-    });
-    this.requestProgressAutosave();
-    return true;
+    gameState.updateState({ crimeCityCurrentNodes: { ...asRecord(gameState.crimeCityCurrentNodes), [caseKey]: targetNodeId } });
+    this.requestProgressAutosave(); return true;
   }
 
   hasPaidCrimeLabEntry() { return Boolean(this.getCrimeCityProgress().crimeLabEntryPaid); }
@@ -80,14 +70,11 @@ export class CrimeCityProgressService {
     if (progress.crimeLabEntryPaid) return true;
     const caseKey = this.getCaseKey();
     if (!this.trySpendEnergy('activity', 'csi_lab', { autosave: false })) return false;
-    gameState.updateState({
-      crimeCityProgress: {
-        ...asRecord(gameState.crimeCityProgress),
-        [caseKey]: { ...progress, crimeLabEntryPaid: true, crimeLabEntryPaidAt: Date.now() }
-      }
-    });
-    this.requestProgressAutosave();
-    return true;
+    gameState.updateState({ crimeCityProgress: {
+      ...asRecord(gameState.crimeCityProgress),
+      [caseKey]: { ...progress, crimeLabEntryPaid: true, crimeLabEntryPaidAt: Date.now() }
+    } });
+    this.requestProgressAutosave(); return true;
   }
 
   isCrimeSceneCompleted() {
@@ -95,17 +82,22 @@ export class CrimeCityProgressService {
   }
 
   isCrimeLabCompleted() {
-    // Preserve the existing completion contract; this change does not redesign CSI.
-    if (this.getCrimeCityProgress().crimeLabCompleted) return true;
     const labCaseKey = this.getLabCaseKey();
-    const labProgress = gameState.crimeCityProgress?.[labCaseKey];
-    if (labProgress?.crimeLabCompleted !== true) return false;
+    const progress = gameState.crimeCityProgress?.[labCaseKey];
+    // The completion marker is necessary, but never sufficient by itself.
+    if (progress?.crimeLabCompleted !== true) return false;
     const forensics = gameState.caseForensics?.[labCaseKey];
-    if (!forensics) return false;
-    const results = [forensics.identityEvidenceResult, forensics.traceEvidenceResults?.[0], forensics.traceEvidenceResults?.[1]];
+    if (!isRecord(forensics) || !Array.isArray(forensics.traceEvidenceResults) || forensics.traceEvidenceResults.length < 2) return false;
+    const stations = [
+      ['identity', forensics.identityEvidenceResult],
+      ['trace_0', forensics.traceEvidenceResults?.[0]],
+      ['trace_1', forensics.traceEvidenceResults?.[1]]
+    ];
     const cityId = this.scene?.cityId;
-    return results.every(result => {
+    return stations.every(([stationId, result]) => {
       if (!isCompletedLabResult(result, { caseKey: labCaseKey })) return false;
+      // Missing tags in legacy results are allowed; conflicting explicit tags are not.
+      if (result.stationId != null && result.stationId !== stationId) return false;
       if (result.cityId != null && cityId != null && result.cityId !== cityId) return false;
       return true;
     });
@@ -120,7 +112,6 @@ export class CrimeCityProgressService {
     const caseKey = this.getCaseKey();
     const incomplete = { ready: false, total: 0, resolved: 0, pendingIds: [], conclusions: [] };
     if (!caseKey || gameState.suspectExclusionState?.[caseKey]?.finished !== true) return incomplete;
-    // Always check the original subject list, not just suspects surviving filtering.
     const subjects = gameState.caseData?.alibiCases?.[caseKey]?.suspects;
     if (!Array.isArray(subjects) || subjects.length === 0) return incomplete;
     const ids = subjects.map(subject => subject?.suspectId);
@@ -131,7 +122,8 @@ export class CrimeCityProgressService {
       return { suspectId, status: final ? filed.status : 'pending', final };
     });
     const pendingIds = conclusions.filter(item => !item.final).map(item => item.suspectId);
-    return { ready: pendingIds.length === 0, total: conclusions.length, resolved: conclusions.length - pendingIds.length, pendingIds, conclusions };
+    return { ready: pendingIds.length === 0, total: conclusions.length,
+      resolved: conclusions.length - pendingIds.length, pendingIds, conclusions };
   }
 
   areAllAlibisResolved() { return this.getAlibiResolutionProgress().ready; }
@@ -148,12 +140,8 @@ export class CrimeCityProgressService {
   }
 
   showUnresolvedAlibisMessage() {
-    this.scene?.showMessage?.(
-      text('t_7bd1c7a25225aa66b887') + text('t_6578325017d726f4c4bf'),
-      3500, text('t_e09afad9b0dfcb2294f9')
-    );
+    this.scene?.showMessage?.(text('t_7bd1c7a25225aa66b887') + text('t_6578325017d726f4c4bf'), 3500, text('t_e09afad9b0dfcb2294f9'));
   }
-
   showNoEnergyPopup() { this.scene?.showNoEnergyPopup?.(); }
   requestProgressAutosave() { if (!gameState.caseFailed) requestAutosave(); }
 
@@ -173,8 +161,7 @@ export class CrimeCityProgressService {
         `${text('t_592efc34d9485f9ae821')}${key}${text('t_24e778466d407e0a9e47')}${cost}`,
         { requireFullAmount: true, activityType: `travel_${key}` });
       if (!result?.success) { this.showNoEnergyPopup(); return false; }
-      if (autosave) this.requestProgressAutosave();
-      return true;
+      if (autosave) this.requestProgressAutosave(); return true;
     }
     if (category === 'activity') {
       if (!ALLOWED_ACTIVITIES.has(key)) {
@@ -184,11 +171,9 @@ export class CrimeCityProgressService {
       if (!affordability.ok) { this.showNoEnergyPopup(); return false; }
       const result = energyManager.consumeActivity(key);
       if (!result?.success) { this.showNoEnergyPopup(); return false; }
-      if (autosave) this.requestProgressAutosave();
-      return true;
+      if (autosave) this.requestProgressAutosave(); return true;
     }
-    console.error(`[CrimeCityProgressService] Unknown energy category: "${category}".`);
-    return false;
+    console.error(`[CrimeCityProgressService] Unknown energy category: "${category}".`); return false;
   }
 
   destroy() { this.scene = null; }

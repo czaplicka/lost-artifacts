@@ -1,4 +1,4 @@
-import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
+import { dialogueText as __dialogueText } from '../dialogues/DialogueText.js';
 import { gameState } from '../GameData.js';
 import { retryCurrentCase, advanceToNextCase } from '../gameSetup.js';
 import { saveGameState } from '../gameStatePersistence.js';
@@ -18,23 +18,23 @@ function isFailedAttempt() {
 function resetRetryResources(locations) {
   const caseId = gameState.currentCaseId;
   if (caseId == null || !gameState.currentMission) throw new Error('[AgainScene] Cannot reset resources without a prepared case.');
-  const energy = getEnergyManager();
-  energy.init(gameState.difficulty || 'field');
+  const energy = getEnergyManager(); energy.init(gameState.difficulty || 'field');
   const maximum = energy.getMaxEnergy(), current = energy.getCurrentEnergy();
   if (!Number.isFinite(maximum) || maximum <= 0 || current !== maximum) throw new Error('[AgainScene] Retry energy initialization did not restore full energy.');
   const quote = fundCase(gameState, locations);
   if (!Number.isInteger(quote?.agencyBudget) || quote.agencyBudget <= 0) throw new Error('[AgainScene] Retry budget quote is invalid.');
-  moneyManager.beginMission({ missionId: caseId, agencyAdvance: quote.agencyBudget, description: __dialogueText("scenes/AgainScene.js", "t_8eea2f5225ea4640449e") });
-  gameState.updateState({
-    energy: current, maxEnergy: maximum, energyLog: [], energyModifiers: [], forcedSleepSession: null,
-    hqExhaustionIncidents: 0, hqExhaustionCallPending: false, hqExhaustionWarningSeen: false, hotelBookings: {}
-  });
-  gameState.currentMission = { ...gameState.currentMission, energyBalance: { awakeMinutes: 0, fatigueRemainder: 0, lastSleepMinutes: null } };
+  moneyManager.beginMission({ missionId: caseId, agencyAdvance: quote.agencyBudget,
+    description: __dialogueText('scenes/AgainScene.js', 't_8eea2f5225ea4640449e') });
+  gameState.updateState({ energy: current, maxEnergy: maximum, energyLog: [], energyModifiers: [], forcedSleepSession: null,
+    hqExhaustionIncidents: 0, hqExhaustionCallPending: false, hqExhaustionWarningSeen: false, hotelBookings: {} });
+  gameState.currentMission = { ...gameState.currentMission,
+    energyBalance: { awakeMinutes: 0, fatigueRemainder: 0, lastSleepMinutes: null } };
   const balances = moneyManager.getBalances();
   if (gameState.energy !== maximum || balances.agencyBudget !== quote.agencyBudget) throw new Error('[AgainScene] Retry resource verification failed.');
   EventBus.emit('moneyChanged', { ...balances, reason: 'retry_started', caseId });
   console.info('[AgainScene] Retry resources ready', { caseId, energy: current, maxEnergy: maximum, agencyBudget: balances.agencyBudget });
 }
+
 export class AgainScene extends BaseScene {
   constructor() { super({ key: 'AgainScene' }); }
   init(data = {}) {
@@ -44,18 +44,21 @@ export class AgainScene extends BaseScene {
     this.afterReport = !isFailedAttempt() && (data.afterReport === true || isSuccessfulCase());
     this.missionPrepared = false; this._attemptRun = Symbol('again-attempt');
   }
+  isCurrentAttempt(run) {
+    return run != null && this._attemptRun === run && !this._cleanupDone && this.sys.isActive();
+  }
   preload() { preloadMenuActionAudio(this); }
   create() {
     super.create(); this.hideGameplayInterface(); this.createBackground();
     this.createBackButton(); this.createDetectiveSection(); this.createChoiceButtons();
     if (this.afterReport && !canRequestNextMission()) {
       this.yesBtn.disableInteractive().setAlpha(0.45); this.yesText.setAlpha(0.45);
-      this.dialogueText.setText(__dialogueText("scenes/AgainScene.js", "t_b24c5e33c69baf4f020d"));
+      this.dialogueText.setText(__dialogueText('scenes/AgainScene.js', 't_b24c5e33c69baf4f020d'));
     } else {
-      const name = gameState.playerName || __dialogueText("scenes/AgainScene.js", "t_2653ceeec1fd951707a3");
+      const name = gameState.playerName || __dialogueText('scenes/AgainScene.js', 't_2653ceeec1fd951707a3');
       this.fullIntroText = this.afterReport
-        ? `${name}${__dialogueText("scenes/AgainScene.js", "t_776c63db625197bacacf")}`
-        : `${name}${__dialogueText("scenes/AgainScene.js", "t_ed1c837413a610bc5774")}`;
+        ? `${name}${__dialogueText('scenes/AgainScene.js', 't_776c63db625197bacacf')}`
+        : `${name}${__dialogueText('scenes/AgainScene.js', 't_ed1c837413a610bc5774')}`;
       this.typeText(this.dialogueText, this.fullIntroText, 24);
     }
     this.registerKeyboardShortcuts();
@@ -69,7 +72,8 @@ export class AgainScene extends BaseScene {
     const news = this.scene.manager.keys.NewsHud;
     news?.events?.emit('setButtonsVisible', false); news?.events?.emit('setNewspaperVisible', false); news?.events?.emit('setTvVisible', false);
     for (const key of ['NewsHud', 'PlayerHudScene', 'UIScene']) {
-      if (!this.hasScene(key)) continue; this.scene.setVisible(false, key); this.stopSceneIfActive(key);
+      if (!this.hasScene(key)) continue;
+      this.scene.setVisible(false, key); this.stopSceneIfActive(key);
     }
   }
   createBackground() {
@@ -82,7 +86,8 @@ export class AgainScene extends BaseScene {
       this.backBtn = this.add.image(200, 70, 'back').setScale(0.5).setDepth(30).setInteractive({ useHandCursor: true });
       this.addHoverEffect(this.backBtn, 0.5, 0.6);
     } else {
-      this.backBtn = this.add.text(24, 24, "< BACK", { fontFamily: 'SpecialElite', fontSize: '24px', color: '#ffffff' }).setDepth(30).setInteractive({ useHandCursor: true });
+      this.backBtn = this.add.text(24, 24, '< BACK', { fontFamily: 'SpecialElite', fontSize: '24px', color: '#ffffff' })
+        .setDepth(30).setInteractive({ useHandCursor: true });
     }
     this.backBtn.on('pointerdown', () => { void this.returnToEntry(); });
   }
@@ -101,8 +106,8 @@ export class AgainScene extends BaseScene {
       rect.on('pointerout', () => { if (!this.isBusy()) rect.setFillStyle(color, 1); });
       rect.on('pointerdown', () => { void action(); }); return [rect, text];
     };
-    [this.yesBtn, this.yesText] = button(540, __dialogueText("scenes/AgainScene.js", "t_f9171164593756e56fb1"), 0x2e6b3a, 0x3d8a4c, () => this.startNewMission());
-    [this.noBtn, this.noText] = button(820, __dialogueText("scenes/AgainScene.js", "t_23794d91c53ae875c8e2"), 0x7a2f2f, 0x9a3e3e, () => this.returnAfterDecline());
+    [this.yesBtn, this.yesText] = button(540, __dialogueText('scenes/AgainScene.js', 't_f9171164593756e56fb1'), 0x2e6b3a, 0x3d8a4c, () => this.startNewMission());
+    [this.noBtn, this.noText] = button(820, __dialogueText('scenes/AgainScene.js', 't_23794d91c53ae875c8e2'), 0x7a2f2f, 0x9a3e3e, () => this.returnAfterDecline());
   }
   registerKeyboardShortcuts() {
     if (!this.input?.keyboard) return;
@@ -113,62 +118,82 @@ export class AgainScene extends BaseScene {
   async startNewMission() {
     if (this.isBusy() || this._cleanupDone) return;
     if (this.afterReport && !this.missionPrepared && !canRequestNextMission()) {
-      this.stopTyping(); this.dialogueText?.setText(__dialogueText("scenes/AgainScene.js", "t_caab4ea6275bdc84482c")); return;
+      this.stopTyping(); this.dialogueText?.setText(__dialogueText('scenes/AgainScene.js', 't_caab4ea6275bdc84482c')); return;
     }
     const suspects = this.cache.json.get('suspects') || [], missions = this.cache.json.get('missions') || [], locations = this.cache.json.get('locations') || [];
     const run = this._attemptRun;
     this.isStartingNewMission = true; this.setButtonsEnabled(false); this.stopTyping();
     playMenuActionAudio(this);
-    this.dialogueText?.setText(__dialogueText("scenes/AgainScene.js", "t_a88ac48dc5921c8cf992"));
+    this.dialogueText?.setText(__dialogueText('scenes/AgainScene.js', 't_a88ac48dc5921c8cf992'));
     let backup = null;
     try {
       if (!this.missionPrepared) {
         const energy = getEnergyManager();
-        backup = { state: gameState.getState(), director: gameState.caseDirector, story: MainStoryManager.serialize(), inventory: inventoryManager.exportState(), energy: structuredClone(energy.serialize()) };
-        if (this.afterReport) await advanceToNextCase(suspects, missions, locations);
-        else {
+        backup = { state: structuredClone(gameState.getState()), director: gameState.caseDirector,
+          story: structuredClone(MainStoryManager.serialize()), inventory: structuredClone(inventoryManager.exportState()),
+          energy: structuredClone(energy.serialize()) };
+        if (this.afterReport) {
+          await advanceToNextCase(suspects, missions, locations);
+          if (!this.isCurrentAttempt(run)) return;
+        } else {
           await retryCurrentCase(suspects, missions, locations);
-          if (gameState.currentCaseId == null || String(gameState.currentCaseId) === String(backup.state.currentCaseId)) throw new Error('[AgainScene] Retry did not create a new case identity.');
+          if (!this.isCurrentAttempt(run)) return;
+          if (gameState.currentCaseId == null || String(gameState.currentCaseId) === String(backup.state.currentCaseId)) {
+            throw new Error('[AgainScene] Retry did not create a new case identity.');
+          }
           resetRetryResources(locations);
         }
-        gameState.isGameActive = true; gameState.scoreSaved = false; moveStateToHeadquarters(locations);
-        this.missionPrepared = true; saveGameState();
+        if (!this.isCurrentAttempt(run)) return;
+        gameState.isGameActive = true; gameState.scoreSaved = false;
+        moveStateToHeadquarters(locations);
+        // Keep this generated mission on save/navigation failure: retry must not reroll it.
+        this.missionPrepared = true;
       }
-      if (this._cleanupDone || this._attemptRun !== run) return;
+      if (!this.isCurrentAttempt(run)) return;
+      if (saveGameState() !== true) throw new Error('The prepared mission could not be saved.');
+      if (!this.isCurrentAttempt(run)) return;
       const opened = await this.goto('OfficeScene', { gameState });
-      if (opened === false && !this._cleanupDone && this._attemptRun === run) throw new Error('Could not open OfficeScene.');
+      if (!this.isCurrentAttempt(run)) return;
+      if (opened === false) throw new Error('Could not open OfficeScene.');
     } catch (error) {
       console.error('[AgainScene] Failed to start a new mission:', error);
+      // Never roll an old asynchronous attempt back over a newer scene/game.
+      if (!this.isCurrentAttempt(run)) return;
       if (!this.missionPrepared && backup) {
         try {
           if (!gameState.importFromSave(backup.state)) throw new Error('State rollback rejected.');
-          gameState.caseDirector = backup.director; MainStoryManager.deserialize(backup.story);
-          inventoryManager.importState(backup.inventory); getEnergyManager().restore(backup.energy); saveGameState();
+          gameState.caseDirector = backup.director;
+          MainStoryManager.deserialize(backup.story); inventoryManager.importState(backup.inventory);
+          getEnergyManager().restore(backup.energy); saveGameState();
         } catch (rollbackError) { console.error('[AgainScene] Rollback failed:', rollbackError); }
       }
-      if (this._cleanupDone || this._attemptRun !== run) return;
+      if (!this.isCurrentAttempt(run)) return;
       this.isStartingNewMission = false; this.setButtonsEnabled(true);
       this.dialogueText?.setText(this.missionPrepared
-        ? __dialogueText("scenes/AgainScene.js", "t_a50076a7d66a606fcf23")
-        : __dialogueText("scenes/AgainScene.js", "t_d52f850498a461836a62"));
+        ? 'Your mission is prepared. Saving or opening the office failed. Check storage, then press YES to retry without generating another case.'
+        : __dialogueText('scenes/AgainScene.js', 't_d52f850498a461836a62'));
     }
   }
   async returnToEntry() { return this.leaveFor('EnterScene'); }
   async returnAfterDecline() {
-    const sceneKey = this.afterReport || this.missionPrepared ? 'OfficeScene' : 'EnterScene'; return this.leaveFor(sceneKey);
+    return this.leaveFor(this.afterReport || this.missionPrepared ? 'OfficeScene' : 'EnterScene');
   }
   async leaveFor(sceneKey) {
     if (this.isBusy() || this._cleanupDone) return;
-    this.isLeaving = true; this.setButtonsEnabled(false); this.stopTyping();
-    playMenuActionAudio(this);
+    const run = this._attemptRun;
+    this.isLeaving = true; this.setButtonsEnabled(false); this.stopTyping(); playMenuActionAudio(this);
     try {
+      // NO/BACK must not bypass the save requirement after a preparation failure.
+      if (this.missionPrepared && saveGameState() !== true) throw new Error('The prepared mission could not be saved.');
+      if (!this.isCurrentAttempt(run)) return;
       const opened = await this.goto(sceneKey, sceneKey === 'EnterScene' ? {} : { gameState });
-      if (opened === false && !this._cleanupDone) throw new Error(`Could not open ${sceneKey}.`);
+      if (!this.isCurrentAttempt(run)) return;
+      if (opened === false) throw new Error(`Could not open ${sceneKey}.`);
     } catch (error) {
       console.error('[AgainScene] Navigation failed:', error);
-      if (this._cleanupDone) return;
+      if (!this.isCurrentAttempt(run)) return;
       this.isLeaving = false; this.setButtonsEnabled(true);
-      this.dialogueText?.setText(__dialogueText("scenes/AgainScene.js", "t_a475e66491996ef650aa"));
+      this.dialogueText?.setText(__dialogueText('scenes/AgainScene.js', 't_a475e66491996ef650aa'));
     }
   }
   setButtonsEnabled(enabled) {
@@ -188,7 +213,7 @@ export class AgainScene extends BaseScene {
     let index = 0;
     this.typingEvent = this.time.addEvent({ delay: speed, repeat: text.length - 1, callback: () => {
       target.setText(text.slice(0, ++index)); if (index >= text.length) this.typingEvent = null;
-    }});
+    } });
   }
   addHoverEffect(button, baseScale = 0.8, hoverScale = 0.9) {
     button.on('pointerover', () => { if (!this.isBusy()) button.setScale(hoverScale); });

@@ -1,5 +1,6 @@
 import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { gameState } from '../GameData.js';
+import { selectLocationAudioRefs } from './LocationAudioSelection.js';
 
 const WORKER = '__AssetWorkerScene';
 
@@ -245,7 +246,7 @@ export class AssetManager {
     );
   }
 
-  assetsFor(bundleIds) {
+  assetsFor(bundleIds, context = null) {
     const result = new Map();
 
     for (const bundleId of bundleIds) {
@@ -257,8 +258,10 @@ export class AssetManager {
         );
       }
 
+      const selectedRefs = selectLocationAudioRefs(bundleId, refs, context);
+
       const requiredRefs = new Set([
-        ...refs,
+        ...selectedRefs,
         ...(SCENE_REQUIRED_ASSETS[bundleId] || [])
       ]);
 
@@ -707,8 +710,8 @@ export class AssetManager {
     return task;
   }
 
-  async ensureBundles(bundleIds, owner, label) {
-    const assets = this.assetsFor(bundleIds);
+  async ensureBundles(bundleIds, owner, label, context = null) {
+    const assets = this.assetsFor(bundleIds, context);
 
     this.pin(owner, assets);
 
@@ -824,7 +827,8 @@ export class AssetManager {
       await this.ensureBundles(
         requested,
         token,
-        __dialogueText("managers/AssetManager.js", "t_4be4684b866070506103")
+        __dialogueText("managers/AssetManager.js", "t_4be4684b866070506103"),
+        { sceneKey: key, locationId: data.locationId }
       );
 
       const target = this.game.scene.getScene(key);
@@ -931,7 +935,7 @@ export class AssetManager {
 
   debugStatus() {
     return {
-      build: 'optional-newspaper-json-2026-10-30',
+      build: 'location-audio-selection-v1',
       currentCity: this.currentCity,
       preparedScenes: [
         ...this.prepared.keys()

@@ -27,10 +27,6 @@
           "pageId": "miramar"
         },
         {
-          "label": "Journal",
-          "pageId": "miramar_event"
-        },
-        {
           "label": "Meetings",
           "pageId": "miramar_meetings"
         },
@@ -123,6 +119,10 @@
         {
           "label": "Pool questions",
           "pageId": "coral_pool_questions"
+        },
+        {
+          "label": "Guest discussion",
+          "pageId": "coral_guest_thread"
         }
       ],
       "snippet": "A seaside resort with family suites, a heated pool and our familiar seahorse crest.",
@@ -162,10 +162,6 @@
         {
           "label": "Home",
           "pageId": "miramar"
-        },
-        {
-          "label": "Journal",
-          "pageId": "miramar_event"
         },
         {
           "label": "Meetings",
@@ -213,10 +209,6 @@
         {
           "label": "Home",
           "pageId": "miramar"
-        },
-        {
-          "label": "Journal",
-          "pageId": "miramar_event"
         },
         {
           "label": "Meetings",
@@ -301,6 +293,10 @@
         {
           "label": "Pool questions",
           "pageId": "coral_pool_questions"
+        },
+        {
+          "label": "Guest discussion",
+          "pageId": "coral_guest_thread"
         }
       ],
       "snippet": "Weddings, anniversaries and the Coastal Garden Society spring dinner.",

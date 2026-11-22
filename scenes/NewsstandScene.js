@@ -5,6 +5,7 @@ import { moneyManager, MONEY_SOURCE, ECONOMY_CATEGORY } from '../managers/MoneyM
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { NEWSSTAND_CONFIG, normalizeNewsstandCityId, isEditableTarget } from '../config/newsstandConfig.js';
+import { NewsstandPurchaseFeedback } from '../systems/newsstand/NewsstandPurchaseFeedback.js';
 import { NewsstandBackground } from '../systems/newsstand/NewsstandBackground.js';
 import { NewsstandHotspots } from '../systems/newsstand/NewsstandHotspots.js';
 import { NewsstandComix } from '../systems/newsstand/NewsstandComix.js';
@@ -145,6 +146,7 @@ export class NewsstandScene extends BaseScene {
     this.scale.on('resize',this.handleResize);
     if(this.input.keyboard)this.trackInputEvent(this.input.keyboard,'keydown-ESC',this.handleEscape);
     EventBus.emit('hideHUD');
+    this.purchaseFeedback=new NewsstandPurchaseFeedback(this);
     this.background=new NewsstandBackground(this,()=>this.hotspots?.resize());this.background.create();
     this.comix=new NewsstandComix(this);this.comix.create();
     this.hotspots=new NewsstandHotspots(this,this.background);this.hotspots.create();
@@ -219,6 +221,7 @@ export class NewsstandScene extends BaseScene {
         if(Number(config.price)>0)playShopPurchaseAudio(this);
         this.markNewspaperAccessForToday(cityId,config.id);
       }
+      this.showPurchaseConfirmation(config.label,alreadyPaidToday?0:config.price,alreadyPaidToday);
       this.cityId=cityId;this.stopSceneIfActive('NewspaperOverlayScene');
       const opened=await this.launchOverlay('NewspaperOverlayScene',{
         cityId,type:config.type,jsonKey,backgroundKey,purchaseId,alreadyPaidToday,sourceScene:'NewsstandScene',
@@ -243,6 +246,7 @@ export class NewsstandScene extends BaseScene {
     });
     if(!purchase.ok){this.showNotEnoughMoneyMessage(comicTitle,purchase.required,purchase.available);return;}
     if(Number(config.price)>0)playShopPurchaseAudio(this);
+    this.showPurchaseConfirmation(comicTitle,config.price);
     this.comix.open(config.textureKey);
   }
   buyAndOpenMonthly(){
@@ -251,7 +255,8 @@ export class NewsstandScene extends BaseScene {
     try{
       reader.paperKey=ensureDailyPaperTexture(this,{...NewspaperLayoutConfig.daily,structure:{}},PAPER_KEY);
       if(!reader.paperKey)throw new Error('Could not create clean Monthly Spill paper.');
-      if(gameState.monthlyMagazineAccess?.[ISSUE.id]!==true){
+      const alreadyOwned=gameState.monthlyMagazineAccess?.[ISSUE.id]===true;
+      if(!alreadyOwned){
         const purchase=moneyManager.spend(ISSUE.price,{
           source:MONEY_SOURCE.CASH,category:ECONOMY_CATEGORY.NEWSPAPER,
           description:`Monthly magazine: ${ISSUE.title}, ${ISSUE.edition}`,
@@ -263,8 +268,14 @@ export class NewsstandScene extends BaseScene {
         gameState.monthlyMagazineAccess[ISSUE.id]=true;requestAutosave();
         if(ISSUE.price>0)playShopPurchaseAudio(this);
       }
+      this.showPurchaseConfirmation(ISSUE.title,alreadyOwned?0:ISSUE.price,alreadyOwned);
       reader.open();
     }catch(error){console.error('[NewsstandScene] Could not open Monthly Spill:',error);this.showPurchaseErrorMessage();}
+  }
+  showPurchaseConfirmation(item,paid,alreadyOwned=false){
+    try{
+      this.purchaseFeedback?.show(item,paid,moneyManager.getBalance(MONEY_SOURCE.CASH),alreadyOwned);
+    }catch(error){console.warn('[NewsstandScene] Purchase feedback unavailable:',error);}
   }
   createMessage(text,options={}){
     const message=this.add.text(this.scale.width/2,this.scale.height/2,text,{
@@ -318,6 +329,7 @@ export class NewsstandScene extends BaseScene {
   handleShutdown(){
     if(this.isShuttingDown)return;
     this.isShuttingDown=true;this.sceneRunToken=null;
+    this.purchaseFeedback?.destroy();this.purchaseFeedback=null;
     this.monthlyReader?.destroy();this.monthlyReader=null;
     this.scale.off('resize',this.handleResize);
     this.stopSceneIfActive('NewspaperOverlayScene');

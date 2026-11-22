@@ -1,8 +1,4 @@
 import {
-  dialogueText as __dialogueText
-} from '../dialogues/DialogueText.js';
-
-import {
   RoadTripDestinationsUI
 } from './RoadTripDestinationsUI.js';
 
@@ -11,11 +7,9 @@ import {
   canStartRoadTrip
 } from '../managers/RoadTripManager.js';
 
-const SOURCE = 'ui/LocalAreaDestinationsUI.js';
-
-const NOTE_OFFSET_Y = 20;
-
-const t = id => __dialogueText(SOURCE, id);
+import {
+  localAreaText as t
+} from '../dialogues/LocalAreaText.js';
 
 export class LocalAreaDestinationsUI
   extends RoadTripDestinationsUI {
@@ -23,17 +17,45 @@ export class LocalAreaDestinationsUI
   constructor(scene, options = {}) {
     super(scene, options);
 
-    this.title.setText(t('local_title'));
-    this.subtitle.setText(t('local_subtitle'));
-    this.infoTitle.setText(t('local_title'));
+    this.title.setText(t('title'));
+    this.subtitle.setText(t('subtitle'));
+    this.infoTitle.setText(t('title'));
   }
 
   buildNote() {
     super.buildNote();
 
     if (this.noteText) {
-      this.noteText.setY(
-        this.noteText.y + NOTE_OFFSET_Y
+      this.noteText.setY(this.noteText.y - 15);
+    }
+  }
+
+  renderPins() {
+    super.renderPins();
+
+    // The base map disables the current-town pin.
+    // Local Area also allows exploring the current town.
+
+    const pin = this.pins.find(
+      entry => entry.town.id === getCurrentTownId()
+    );
+
+    if (!pin) return;
+
+    for (const target of [pin.hit, pin.labelHit]) {
+      target.setInteractive({
+        useHandCursor: true
+      });
+
+      target.on(
+        'pointerdown',
+        (pointer, x, y, event) => {
+          event?.stopPropagation?.();
+
+          if (!this.isBlocked()) {
+            this.selectTown(pin.town, pin);
+          }
+        }
       );
     }
   }
@@ -43,38 +65,24 @@ export class LocalAreaDestinationsUI
 
     if (!town || this.isDestroyed) return;
 
-    const access =
-      this.options.getAvailability?.(town);
+    const here = town.id === getCurrentTownId();
 
-    if (!access) {
-      this.setConfirmEnabled(false);
-      return;
-    }
+    const access =
+      this.options.getAvailability?.(town) ??
+      { ok: true };
+
+    const check = !access.ok
+      ? access
+      : here
+        ? { ok: true }
+        : canStartRoadTrip(
+            getCurrentTownId(),
+            town.id
+          );
 
     this.infoPrompt.setText(
       access.description || ''
     );
-
-    if (!access.ok) {
-      this.infoWarn
-        .setColor(this.theme.errorColor)
-        .setText(access.message);
-
-      this.confirmLabel.setText(t('locked'));
-      this.setConfirmEnabled(false);
-
-      return;
-    }
-
-    const alreadyThere =
-      town.id === getCurrentTownId();
-
-    const check = alreadyThere
-      ? { ok: true }
-      : canStartRoadTrip(
-          getCurrentTownId(),
-          town.id
-        );
 
     this.infoWarn
       .setColor(
@@ -84,15 +92,30 @@ export class LocalAreaDestinationsUI
       )
       .setText(
         check.ok
-          ? access.message
-          : check.message
+          ? (
+              here
+                ? t('here')
+                : access.message || ''
+            )
+          : check.message || ''
       );
 
     this.confirmLabel.setText(
-      alreadyThere
-        ? t('enter_garden')
-        : access.label
+      check.ok
+        ? (
+            here
+              ? t('explore')
+              : t('drive', {
+                  town: town.name
+                })
+          )
+        : t('unavailable')
     );
+
+    if (here) {
+      this.infoTravel.setText(t('noTravel'));
+      this.infoHours.setText('');
+    }
 
     this.setConfirmEnabled(check.ok);
   }
@@ -117,12 +140,12 @@ export class LocalAreaDestinationsUI
       );
     } catch (error) {
       console.error(
-        '[LocalAreaDestinationsUI] Departure failed:',
+        '[LocalArea] Departure failed:',
         error
       );
 
       if (!this.isDestroyed) {
-        this.showError(t('departure_error'));
+        this.showError(t('travelError'));
       }
 
       return false;
