@@ -1,0 +1,10 @@
+{
+  "bundles": {
+    "auto:folder:data/web/missions/dead-men-calling": [
+      "json:data__web__missions__dead-men-calling__keywords",
+      "json:data__web__missions__dead-men-calling__mission",
+      "json:phone",
+      "json:data__web__missions__dead-men-calling__search"
+    ]
+  }
+}

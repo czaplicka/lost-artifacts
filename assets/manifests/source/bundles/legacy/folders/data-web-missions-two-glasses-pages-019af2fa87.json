@@ -1,0 +1,15 @@
+{
+  "bundles": {
+    "auto:folder:data/web/missions/two-glasses/pages": [
+      "json:hotels",
+      "json:news",
+      "json:organisations",
+      "json:social",
+      "json:jacket-search",
+      "json:table-search",
+      "json:miramar-search",
+      "json:coral-search",
+      "json:mariner-search"
+    ]
+  }
+}

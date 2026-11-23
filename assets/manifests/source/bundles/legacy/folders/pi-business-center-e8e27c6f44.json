@@ -1,0 +1,8 @@
+{
+  "bundles": {
+    "auto:folder:pi/business-center": [
+      "image:lobby-under-construction",
+      "image:no-men"
+    ]
+  }
+}

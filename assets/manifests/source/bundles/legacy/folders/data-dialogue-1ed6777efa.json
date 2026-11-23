@@ -1,0 +1,29 @@
+{
+  "bundles": {
+    "auto:folder:data/dialogue": [
+      "json:dialog_accounting",
+      "json:archivist",
+      "json:dialogue_banker",
+      "json:dialogue_bum",
+      "json:crime_lab_assistant_dialogues",
+      "json:csi",
+      "json:dialog_csi",
+      "json:dialogue_fence",
+      "json:dialog_holmes",
+      "json:dialog_home",
+      "json:dialog_hq",
+      "json:dialog_informant",
+      "json:dialogue_knajpa",
+      "json:dialogue_maid",
+      "json:dialogue_parkingowy",
+      "json:dialog_police-station",
+      "json:dialogue_police",
+      "json:sailor",
+      "json:dialogue_stewardess",
+      "json:dialog_watson",
+      "json:extracted",
+      "json:dialogue_librery",
+      "json:museum"
+    ]
+  }
+}

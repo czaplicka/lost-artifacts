@@ -1,0 +1,12 @@
+{
+  "bundles": {
+    "auto:folder:side_quests/Dead-men": [
+      "image:dead_men_blue_file",
+      "image:dead_men_colin",
+      "image:dead_men_margaret_edward",
+      "image:dead_men_recorder",
+      "image:edward_vale_photography",
+      "image:edward_vale"
+    ]
+  }
+}

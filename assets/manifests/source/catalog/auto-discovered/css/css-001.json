@@ -1,0 +1,100 @@
+{
+  "assets": [
+    {
+      "key": "agent",
+      "url": "assets/css/agent.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "character-creation",
+      "url": "assets/css/character-creation.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "crime-board-layout",
+      "url": "assets/css/crime-board-layout.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "hud",
+      "url": "assets/css/hud.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "hud-mobile",
+      "url": "assets/css/hud-mobile.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "login",
+      "url": "assets/css/login.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "profile",
+      "url": "assets/css/profile.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "register",
+      "url": "assets/css/register.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "reset",
+      "url": "assets/css/reset.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "update-password",
+      "url": "assets/css/update-password.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "personnel-roster",
+      "url": "assets/css/personnel-roster.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "landing",
+      "url": "assets/css/landing.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    }
+  ]
+}

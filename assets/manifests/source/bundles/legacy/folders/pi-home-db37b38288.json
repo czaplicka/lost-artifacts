@@ -1,0 +1,20 @@
+{
+  "bundles": {
+    "auto:folder:pi/home": [
+      "image:attic",
+      "image:cage1",
+      "image:cage2",
+      "image:cage3",
+      "image:collection_cabinet",
+      "image:food_empty",
+      "image:food_full",
+      "image:food",
+      "image:p1",
+      "image:p1b",
+      "image:p2",
+      "image:p2b",
+      "image:p3",
+      "image:p3b"
+    ]
+  }
+}

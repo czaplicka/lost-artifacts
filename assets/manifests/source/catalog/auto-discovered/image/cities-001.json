@@ -1,0 +1,12 @@
+{
+  "assets": [
+    {
+      "key": "singapore",
+      "url": "assets/cities/singapore.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    }
+  ]
+}

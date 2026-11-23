@@ -1,0 +1,17 @@
+{
+  "bundles": {
+    "auto:folder:map_locations": [
+      "image:airport",
+      "image:alley",
+      "image:bank",
+      "image:garbage",
+      "image:harbor",
+      "image:map_locations__hotel",
+      "image:parking",
+      "image:police",
+      "image:restaurant",
+      "image:librery",
+      "image:museum"
+    ]
+  }
+}

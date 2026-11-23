@@ -1,0 +1,7 @@
+{
+  "bundles": {
+    "auto:folder:voice": [
+      "audio:detective-intro"
+    ]
+  }
+}

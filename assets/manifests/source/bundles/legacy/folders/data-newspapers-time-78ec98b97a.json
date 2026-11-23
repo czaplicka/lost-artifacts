@@ -1,0 +1,14 @@
+{
+  "bundles": {
+    "auto:folder:data/newspapers/time": [
+      "json:newspaper_time_berlin",
+      "json:newspaper_time_hq",
+      "json:newspaper_time_london",
+      "json:newspaper_time_new_delhi",
+      "json:newspaper_time_new_york_city",
+      "json:newspaper_time_paris",
+      "json:newspaper_time_warsaw",
+      "json:newspaper_time_singapore"
+    ]
+  }
+}

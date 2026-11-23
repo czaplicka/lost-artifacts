@@ -1,0 +1,10 @@
+{
+  "bundles": {
+    "auto:folder:side_quests/Mom’s Not Proud": [
+      "image:side_quests__Mom__s__Not__Proud__background",
+      "image:pigeon_mural",
+      "image:raven_painting",
+      "image:photo"
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "bundles": {
+    "auto:folder:portraits": [
+      "image:portrait_CSI",
+      "image:portrait_holmes",
+      "image:portrait_home",
+      "image:portrait_hq",
+      "image:portrait_informant",
+      "image:portrait_magazine",
+      "image:portrait_police-station",
+      "image:portrait_accounting",
+      "image:portrait_fallback",
+      "image:portrait_watson"
+    ]
+  }
+}

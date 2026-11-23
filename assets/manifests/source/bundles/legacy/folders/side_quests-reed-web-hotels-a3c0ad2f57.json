@@ -1,0 +1,9 @@
+{
+  "bundles": {
+    "auto:folder:side_quests/Reed/web/hotels": [
+      "image:coral_crown",
+      "image:miramar",
+      "image:the_mariner"
+    ]
+  }
+}

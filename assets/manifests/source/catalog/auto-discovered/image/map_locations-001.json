@@ -1,0 +1,92 @@
+{
+  "assets": [
+    {
+      "key": "airport",
+      "url": "assets/map_locations/airport.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alley",
+      "url": "assets/map_locations/alley.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bank",
+      "url": "assets/map_locations/bank.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "garbage",
+      "url": "assets/map_locations/garbage.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "harbor",
+      "url": "assets/map_locations/harbor.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "map_locations__hotel",
+      "url": "assets/map_locations/hotel.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "parking",
+      "url": "assets/map_locations/parking.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "police",
+      "url": "assets/map_locations/police.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "restaurant",
+      "url": "assets/map_locations/restaurant.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "librery",
+      "url": "assets/map_locations/librery.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "museum",
+      "url": "assets/map_locations/museum.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    }
+  ]
+}

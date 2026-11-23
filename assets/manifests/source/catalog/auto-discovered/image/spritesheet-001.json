@@ -1,0 +1,12 @@
+{
+  "assets": [
+    {
+      "key": "desk-lamp-flicker",
+      "url": "assets/spritesheet/office/desk-lamp-flicker.png",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    }
+  ]
+}

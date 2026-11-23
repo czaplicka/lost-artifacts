@@ -1,0 +1,7 @@
+{
+  "bundles": {
+    "auto:folder:avatar/eyewear": [
+      "image:avatar__eyewear__red-glasses"
+    ]
+  }
+}

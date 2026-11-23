@@ -1,0 +1,14 @@
+{
+  "bundles": {
+    "auto:folder:data/objects": [
+      "json:objects-data:auction_house",
+      "json:objects-data:castle",
+      "json:objects-data:dockyard",
+      "json:objects-data:havela",
+      "json:objects-data:louvre",
+      "json:objects-data:tower",
+      "json:tokyo_museum",
+      "json:objects-data:tokyo_museum"
+    ]
+  }
+}

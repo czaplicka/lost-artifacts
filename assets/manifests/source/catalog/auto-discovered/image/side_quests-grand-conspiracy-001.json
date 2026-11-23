@@ -1,0 +1,68 @@
+{
+  "assets": [
+    {
+      "key": "25",
+      "url": "assets/side_quests/Grand Conspiracy/garden.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bag_onion",
+      "url": "assets/side_quests/Grand Conspiracy/bag_onion.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bag",
+      "url": "assets/side_quests/Grand Conspiracy/bag.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "dog",
+      "url": "assets/side_quests/Grand Conspiracy/dog.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "grandma",
+      "url": "assets/side_quests/Grand Conspiracy/grandma.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "newspaper",
+      "url": "assets/side_quests/Grand Conspiracy/newspaper.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "shovel",
+      "url": "assets/side_quests/Grand Conspiracy/shovel.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "wheelbarrow",
+      "url": "assets/side_quests/Grand Conspiracy/wheelbarrow.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    }
+  ]
+}

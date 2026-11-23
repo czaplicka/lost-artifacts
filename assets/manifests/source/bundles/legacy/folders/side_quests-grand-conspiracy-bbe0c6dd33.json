@@ -1,0 +1,14 @@
+{
+  "bundles": {
+    "auto:folder:side_quests/Grand Conspiracy": [
+      "image:25",
+      "image:bag_onion",
+      "image:bag",
+      "image:dog",
+      "image:grandma",
+      "image:newspaper",
+      "image:shovel",
+      "image:wheelbarrow"
+    ]
+  }
+}

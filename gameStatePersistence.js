@@ -11,7 +11,7 @@ let autosaveTimer = null, autosavePending = false;
 let autosaveRevision = 0, autosaveWriteInProgress = false;
 let failedRaw = null, failedRawKnown = false, rollbackUnsafe = false;
 let lastError = null, lastRecoveryKey = null, lastTheorySignature = null;
-let domWarningScheduled = false;
+let domWarningScheduled = false, notifyingAutosaveRestore = false;
 const errorText = error => error?.message || String(error);
 
 function emitStatus() {
@@ -81,8 +81,7 @@ function unblockSaving() {
 }
 function cancelPendingAutosave() {
   if (autosaveTimer !== null) clearTimeout(autosaveTimer);
-  autosaveTimer = null; autosavePending = false;
-  autosaveRevision += 1;
+  autosaveTimer = null; autosavePending = false; autosaveRevision += 1;
 }
 function theorySignature() {
   const key = theoryWorkspaceKey(gameState), draft = gameState.caseTheories?.[key];
@@ -99,13 +98,20 @@ function captureTheoryEdgeIfNeeded() {
   try { if (theorySignature() !== lastTheorySignature) captureAudit(); }
   catch (error) { console.error('[Persistence] Could not inspect theory selection:', error); }
 }
-export function saveGameState() {
-  if (persistenceBusy || automaticSaveBlocked || isStateRestoreInProgress()) return false;
+
+// Detailed API. "paused" is a deliberate no-write, not a storage failure.
+// Legacy callers retain the original boolean API through saveGameState().
+export function saveGameStateResult() {
+  if (rollbackUnsafe) return { status: 'unsafe', saved: false, reason: 'rollback_incomplete', error: lastError };
+  if (isStateRestoreInProgress()) return { status: 'busy', saved: false, reason: 'restore_in_progress' };
+  if (persistenceBusy) return { status: 'busy', saved: false, reason: 'persistence_busy' };
+  if (automaticSaveBlocked) return { status: 'paused', saved: false, reason: 'autosave_protected' };
   persistenceBusy = true;
   try {
     captureAudit();
     storage().setItem(SAVE_KEY, JSON.stringify(exportCurrentGameState()));
-    lastError = null; hideWarning(); return true;
+    lastError = null; hideWarning();
+    return { status: 'saved', saved: true };
   } catch (error) {
     console.error('[Persistence] Failed to save game:', error);
     lastError = errorText(error); emitStatus();
@@ -118,9 +124,10 @@ export function saveGameState() {
       }
       if (root) root.textContent = 'The game could not be saved. Check browser storage and save again. ' + lastError;
     }
-    return false;
+    return { status: 'error', saved: false, reason: 'write_failed', error: lastError };
   } finally { persistenceBusy = false; emitStatus(); }
 }
+export function saveGameState() { return saveGameStateResult().saved; }
 
 function writePendingAutosave() {
   if (!autosavePending || autosaveWriteInProgress) return false;
@@ -128,7 +135,6 @@ function writePendingAutosave() {
   autosaveWriteInProgress = true;
   try {
     const saved = saveGameState();
-    // Keep failures pending; do not clear a newer request made by a listener.
     if (saved && revision === autosaveRevision) autosavePending = false;
     emitStatus();
     return saved;
@@ -140,10 +146,7 @@ export function requestAutosave() {
   if (automaticSaveBlocked) return;
   autosavePending = true; autosaveRevision += 1;
   if (autosaveTimer !== null) clearTimeout(autosaveTimer);
-  autosaveTimer = setTimeout(() => {
-    autosaveTimer = null;
-    writePendingAutosave();
-  }, AUTOSAVE_DELAY_MS);
+  autosaveTimer = setTimeout(() => { autosaveTimer = null; writePendingAutosave(); }, AUTOSAVE_DELAY_MS);
 }
 export function flushAutosave() {
   if (autosaveTimer !== null) clearTimeout(autosaveTimer);
@@ -151,7 +154,7 @@ export function flushAutosave() {
   return writePendingAutosave();
 }
 export function loadGameState() {
-  if (persistenceBusy || isStateRestoreInProgress()) return false;
+  if (persistenceBusy || notifyingAutosaveRestore || isStateRestoreInProgress()) return false;
   cancelPendingAutosave(); persistenceBusy = true;
   let raw = null, rawKnown = false;
   try {
@@ -161,12 +164,17 @@ export function loadGameState() {
       lastTheorySignature = null; unblockSaving(); return false;
     }
     const data = JSON.parse(raw);
-    restoreSavedGameState(data); lastTheorySignature = null; unblockSaving(); return true;
+    restoreSavedGameState(data); lastTheorySignature = null; unblockSaving();
   } catch (error) {
     blockSaving(error, raw, rawKnown);
     console.error('[Persistence] Load failed. Autosave unchanged; saving paused pending recovery.', error);
     return false;
   } finally { persistenceBusy = false; emitStatus(); }
+  notifyingAutosaveRestore = true;
+  try { EventBus.emit('gameState:restored', { source: 'autosave' }); }
+  catch (error) { console.error('[Persistence] Autosave restore notification failed:', error); }
+  finally { notifyingAutosaveRestore = false; }
+  return true;
 }
 function archiveFailedAutosave() {
   if (!failedRawKnown) throw new Error('Retry loading first: browser storage could not be read.');
@@ -204,7 +212,8 @@ export function clearSavedGame() {
     lastError = errorText(error); showWarning(); emitStatus(); return false;
   } finally { persistenceBusy = false; emitStatus(); }
 }
-function afterSlotRestored() {
+function afterExternalRestore({ source } = {}) {
+  if (source === 'autosave') return;
   cancelPendingAutosave(); lastTheorySignature = null; rollbackUnsafe = false;
   if (automaticSaveBlocked) resumeAutomaticSaving();
 }
@@ -216,7 +225,7 @@ function saveAfterMainStoryChange() {
 for (const event of ['mainStory:stageAdvanced', 'mainStory:flagSet', 'mainStory:sideClueSet', 'mainStory:reset']) {
   EventBus.on(event, saveAfterMainStoryChange);
 }
-EventBus.on('gameState:restored', afterSlotRestored);
+EventBus.on('gameState:restored', afterExternalRestore);
 EventBus.on('gameState:restoreFailed', ({ error } = {}) => {
   if (!error?.rollbackErrors?.length) return;
   cancelPendingAutosave();

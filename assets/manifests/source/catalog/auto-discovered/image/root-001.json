@@ -1,0 +1,20 @@
+{
+  "assets": [
+    {
+      "key": "crime-board",
+      "url": "assets/crime-board.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "logo",
+      "url": "assets/logo.png",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    }
+  ]
+}

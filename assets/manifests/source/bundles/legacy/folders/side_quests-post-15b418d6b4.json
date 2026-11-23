@@ -1,0 +1,12 @@
+{
+  "bundles": {
+    "auto:folder:side_quests/Post": [
+      "image:post_office_poste_restante_empty",
+      "image:return_to_sender_clock_repairs_notice",
+      "image:return_to_sender_delivered_card",
+      "image:return_to_sender_envelope",
+      "image:return_to_sender_forwarding_card",
+      "image:return_to_sender_reply"
+    ]
+  }
+}

@@ -117,9 +117,8 @@ export class CrimeCityTutorialController {
     }
     if (this.syncRestInstruction()) return;
     const before = state.step;
-    const caseKey = scene.getCaseKey();
-    const reconstruction = gameState.reconstructedHeists?.[caseKey] || gameState.reconstructedHeist;
-    if (state.step === 'hypothesis' && reconstruction?.playerTheoryResult) {
+    // Use the same case-scoped check as city progression and the lab phone.
+    if (state.step === 'hypothesis' && scene.isGridCompleted()) {
       advanceCrimeTutorial(gameState, 'hypothesis');
     }
     if (this.getCommittedGrid()) {

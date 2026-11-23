@@ -4,7 +4,7 @@ import { AssetManager } from './managers/AssetManager.js';
 import { BootScene } from './scenes/BootScene.js';
 import { PreloaderScene } from './scenes/PreloaderSceneWithKitchenAnimations.js';
 import { SettingsScene } from './scenes/SettingsScene.js';
-import { EnterScene } from './scenes/EnterChaseScene.js';
+import { EnterScene } from './scenes/EnterScene.js';
 import { PlayerHudScene } from './scenes/PlayerHudScene.js';
 import { UIScene } from './ui/UIScene.js';
 import { NewsHud } from './ui/NewsHud.js';

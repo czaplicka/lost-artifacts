@@ -1,0 +1,27 @@
+{
+  "bundles": {
+    "auto:folder:apartments": [
+      "image:apartment_debt_kitchen",
+      "image:apartment_debt_living_room",
+      "image:apartment_collector_bathroom",
+      "image:apartment_collector_bedroom",
+      "image:apartment_research_kitchen",
+      "image:apartment_research_living_room",
+      "image:apartment_collector_kitchen",
+      "image:apartment_collector_living_room",
+      "image:apartment_family_bathroom",
+      "image:apartment_family_bedroom",
+      "image:apartment_family_kitchen",
+      "image:apartment_family_living_room",
+      "image:apartment_luxury_bathroom",
+      "image:apartment_luxury_bedroom",
+      "image:apartment_luxury_kitchen",
+      "image:apartment_luxury_listing",
+      "image:apartment_luxury_living_room",
+      "image:apartment_research_bathroom",
+      "image:apartment_research_bedroom",
+      "image:apartment_debt_bathroom",
+      "image:apartment_debt_bedroom"
+    ]
+  }
+}

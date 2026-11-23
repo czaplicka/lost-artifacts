@@ -1,0 +1,324 @@
+{
+  "assets": [
+    {
+      "key": "piMail",
+      "url": "assets/data/piMail.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "piOfficeShop",
+      "url": "assets/data/piOfficeShop.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "piPhoneDialogues",
+      "url": "assets/data/piPhoneDialogues.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "piPhoneDirectory",
+      "url": "assets/data/piPhoneDirectory.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "piPhoneInvestigations",
+      "url": "assets/data/piPhoneInvestigations.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "piPhotoQuest",
+      "url": "assets/data/piPhotoQuest.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "piSearch",
+      "url": "assets/data/piSearch.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "rankConfig",
+      "url": "assets/data/rankConfig.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "redactedReportPuzzle",
+      "url": "assets/data/redactedReportPuzzle.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "reedContact",
+      "url": "assets/data/reedContact.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "reedFinale",
+      "url": "assets/data/reedFinale.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "reportIncidents",
+      "url": "assets/data/reportIncidents.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "sailor",
+      "url": "assets/data/dialogue/sailor.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "search",
+      "url": "assets/data/web/missions/two-glasses/search.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "shared",
+      "url": "assets/data/objects-source/shared.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "social",
+      "url": "assets/data/web/missions/two-glasses/pages/social.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "table-search",
+      "url": "assets/data/web/missions/two-glasses/pages/table-search.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "tavernDialogues",
+      "url": "assets/data/tavernDialogues.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "tavernExtras",
+      "url": "assets/data/tavernExtras.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "tavernScene",
+      "url": "assets/data/tavernScene.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "thirdMissionStory",
+      "url": "assets/data/thirdMissionStory.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "tower",
+      "url": "assets/data/objects-source/tower.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "typewriterComparison",
+      "url": "assets/data/typewriterComparison.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "johnMicrofilm",
+      "url": "assets/data/johnMicrofilm.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "tokyo_museum",
+      "url": "assets/data/objects/tokyo_museum.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "radioSplice",
+      "url": "assets/data/radioSplice.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "hollyFinale",
+      "url": "assets/data/hollyFinale.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "johnAccountReview",
+      "url": "assets/data/johnAccountReview.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "johnConfrontation",
+      "url": "assets/data/johnConfrontation.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "johnIncidentFiles",
+      "url": "assets/data/johnIncidentFiles.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "johnPrimaryRecords",
+      "url": "assets/data/johnPrimaryRecords.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "johnWarsawMeeting",
+      "url": "assets/data/johnWarsawMeeting.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "margeTrust",
+      "url": "assets/data/margeTrust.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "pages",
+      "url": "assets/data/web/missions/dead-men-calling/pages/pages.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "extracted",
+      "url": "assets/data/dialogue/extracted.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "npcs",
+      "url": "assets/data/npcs.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "personnelWitnesses",
+      "url": "assets/data/personnelWitnesses.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "storageRoomDialogues",
+      "url": "assets/data/storageRoomDialogues.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "museum",
+      "url": "assets/data/dialogue/museum.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "detectiveMonthly",
+      "url": "assets/data/detectiveMonthly.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    }
+  ]
+}

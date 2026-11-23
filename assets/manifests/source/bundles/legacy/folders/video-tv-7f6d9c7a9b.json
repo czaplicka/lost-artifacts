@@ -1,0 +1,8 @@
+{
+  "bundles": {
+    "auto:folder:video/tv": [
+      "video:drama",
+      "video:romance"
+    ]
+  }
+}

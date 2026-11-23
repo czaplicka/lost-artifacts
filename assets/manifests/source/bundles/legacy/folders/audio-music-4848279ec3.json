@@ -1,0 +1,11 @@
+{
+  "bundles": {
+    "auto:folder:audio/music": [
+      "audio:A_Matchbox_Left_Behind",
+      "audio:Rain_Against_the_Windowpane",
+      "audio:The_Second_Alibi",
+      "json:tracks",
+      "audio:Pavement_Confidential"
+    ]
+  }
+}

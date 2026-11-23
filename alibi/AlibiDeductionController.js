@@ -4,7 +4,7 @@ import { deductionManager } from '../managers/DeductionManager.js';
 import { NO_ALIBI_LIAR } from './AlibiEncounterSetup.js';
 import { allAlibiDetailsKnown } from './AlibiKnowledge.js';
 
-const LOW_STAT=__dialogueText('alibi/AlibiDeductionController.js','t_2a7d63eeffd0fbefccd7');
+const lowStatMessage=()=>__dialogueText('alibi/AlibiDeductionController.js','t_2a7d63eeffd0fbefccd7');
 export function evaluateTimelineSlot(cards,slots,index){
   if(!Array.isArray(cards)||cards.length!==3||new Set(cards.map(c=>c.id)).size!==3||cards.some(c=>!Number.isInteger(c.minute)))throw new Error('Missing public timeline times.');
   if(!Number.isInteger(index)||index<0||index>=3||!slots[index])throw new Error('No timeline answer selected.');
@@ -55,7 +55,7 @@ export class AlibiDeductionController {
   run(kind,index=null){
     const s=this.scene;if(s.busy||s.solved||s.modal)return;
     if(!this.hasEvidence()){s.setFeedback('Obtain all three detailed accounts first. No deduction check was spent.');return;}
-    if(!deductionManager.getSummary().unlocked){s.setFeedback(LOW_STAT);return;}
+    if(!deductionManager.getSummary().unlocked){s.setFeedback(lowStatMessage());return;}
     const request=this.request(kind,index);
     if(!request){s.setFeedback(kind==='timeline'?__dialogueText('alibi/AlibiDeductionController.js','t_ee2e021cb6c40ad11486'):__dialogueText('alibi/AlibiDeductionController.js','t_d18c644b0e3793ad2583'));return;}
     s.busy=true;
@@ -65,7 +65,7 @@ export class AlibiDeductionController {
         const data=gameState.caseData?.alibiCases?.[s.caseKey]?.suspects?.find(d=>d.suspectId===s.suspectId);
         return evaluateAlibiChoice(data,s.choice,s.witnesses.map(w=>w.npcId));
       }});
-      if(!result.success){const messages={deduction_too_low:LOW_STAT,
+      if(!result.success){const messages={deduction_too_low:lowStatMessage(),
         no_checks_left:__dialogueText('alibi/AlibiDeductionController.js','t_d63e256361ab6d53f4cd'),no_active_case:__dialogueText('alibi/AlibiDeductionController.js','t_ef26b967f23d7bf2b755')};
         s.setFeedback(messages[result.reason]||__dialogueText('alibi/AlibiDeductionController.js','t_fce2bccf3dcea9f56567'));return;}
       s.feedbackColor=result.entry.result.status==='supported'?'#28562c':'#8a3426';

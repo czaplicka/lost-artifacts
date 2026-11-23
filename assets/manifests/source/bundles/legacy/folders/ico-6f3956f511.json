@@ -1,0 +1,28 @@
+{
+  "bundles": {
+    "auto:folder:ico": [
+      "image:apt_icon",
+      "image:atlas",
+      "image:cog",
+      "image:crime_board",
+      "image:crime_lab",
+      "image:filebutt",
+      "image:hotel_icon",
+      "image:inventory_icon",
+      "image:news",
+      "image:note",
+      "image:passport",
+      "image:destination",
+      "image:plane",
+      "image:player",
+      "image:policja",
+      "image:profile",
+      "image:search",
+      "image:shop_icon",
+      "image:telephone",
+      "image:tv",
+      "image:warrant",
+      "image:ico__shopping"
+    ]
+  }
+}

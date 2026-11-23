@@ -1,0 +1,18 @@
+{
+  "bundles": {
+    "auto:folder:": [
+      "image:crime-board",
+      "image:dossier",
+      "image:file",
+      "image:backgroundpc",
+      "image:intro",
+      "image:logo",
+      "image:mapbg",
+      "image:notes",
+      "image:phonebook",
+      "image:shopping",
+      "image:background2",
+      "image:television"
+    ]
+  }
+}

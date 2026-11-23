@@ -1,0 +1,19 @@
+{
+  "bundles": {
+    "auto:folder:data/newspapers/daily": [
+      "json:newspaper_daily_berlin",
+      "json:newspaper_daily_hq",
+      "json:newspaper_daily_islamabad",
+      "json:newspaper_daily_kotte",
+      "json:newspaper_daily_london",
+      "json:newspaper_daily_nairobi",
+      "json:newspaper_daily_new_delhi",
+      "json:newspaper_daily_new_york_city",
+      "json:newspaper_daily_paris",
+      "json:newspaper_daily_tokyo",
+      "json:newspaper_daily_toronto",
+      "json:newspaper_daily_warsaw",
+      "json:newspaper_daily_singapore"
+    ]
+  }
+}

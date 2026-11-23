@@ -1,0 +1,19 @@
+{
+  "bundles": {
+    "auto:folder:Success": [
+      "image:Success__background",
+      "image:banner",
+      "image:medalion_officer",
+      "image:medalion",
+      "image:money_bag_left",
+      "image:money_bag_right",
+      "image:Success__police_car",
+      "image:police_left",
+      "image:police_right",
+      "image:police_right02",
+      "image:suspect",
+      "image:treasures",
+      "image:Success__wall"
+    ]
+  }
+}

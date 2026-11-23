@@ -1,0 +1,28 @@
+{
+  "assets": [
+    {
+      "key": "cog",
+      "url": "assets/ico/cog.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "player",
+      "url": "assets/ico/player.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "ico__shopping",
+      "url": "assets/ico/shopping.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    }
+  ]
+}

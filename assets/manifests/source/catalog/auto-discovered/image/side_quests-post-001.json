@@ -1,0 +1,52 @@
+{
+  "assets": [
+    {
+      "key": "post_office_poste_restante_empty",
+      "url": "assets/side_quests/Post/post_office_poste_restante_empty.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "return_to_sender_clock_repairs_notice",
+      "url": "assets/side_quests/Post/return_to_sender_clock_repairs_notice.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "return_to_sender_delivered_card",
+      "url": "assets/side_quests/Post/return_to_sender_delivered_card.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "return_to_sender_envelope",
+      "url": "assets/side_quests/Post/return_to_sender_envelope.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "return_to_sender_forwarding_card",
+      "url": "assets/side_quests/Post/return_to_sender_forwarding_card.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "return_to_sender_reply",
+      "url": "assets/side_quests/Post/return_to_sender_reply.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    }
+  ]
+}

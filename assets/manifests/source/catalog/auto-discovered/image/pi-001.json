@@ -1,0 +1,484 @@
+{
+  "assets": [
+    {
+      "key": "attic",
+      "url": "assets/pi/home/attic.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bartender",
+      "url": "assets/pi/city/bartender.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "cage1",
+      "url": "assets/pi/home/cage1.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "cage2",
+      "url": "assets/pi/home/cage2.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "cage3",
+      "url": "assets/pi/home/cage3.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "collection_cabinet",
+      "url": "assets/pi/home/collection_cabinet.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "food",
+      "url": "assets/pi/home/food.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "food_empty",
+      "url": "assets/pi/home/food_empty.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "food_full",
+      "url": "assets/pi/home/food_full.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "home-police",
+      "url": "assets/pi/police/home-police.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "men",
+      "url": "assets/pi/city/tavern/men.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "p1",
+      "url": "assets/pi/home/p1.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "p1b",
+      "url": "assets/pi/home/p1b.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "p2",
+      "url": "assets/pi/home/p2.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "p2b",
+      "url": "assets/pi/home/p2b.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "p3",
+      "url": "assets/pi/home/p3.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "p3b",
+      "url": "assets/pi/home/p3b.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "pi__city__tavern__bartender",
+      "url": "assets/pi/city/tavern/bartender.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "pi__city__tavern__tavern_empty",
+      "url": "assets/pi/city/tavern/tavern_empty.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "post_office",
+      "url": "assets/pi/postoffice/post_office.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "post_office_poste_restante",
+      "url": "assets/pi/postoffice/post_office_poste_restante.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "post_office_postman",
+      "url": "assets/pi/postoffice/post_office_postman.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "postman",
+      "url": "assets/pi/postoffice/postman.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "tavern",
+      "url": "assets/pi/city/tavern.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "tavern_empty",
+      "url": "assets/pi/city/tavern_empty.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "woman",
+      "url": "assets/pi/city/tavern/woman.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "no_nurse",
+      "url": "assets/pi/hospital/no_nurse.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "nurse",
+      "url": "assets/pi/hospital/nurse.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "artifact",
+      "url": "assets/pi/office/artifact.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bigger-office-ad",
+      "url": "assets/pi/office/bigger-office-ad.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bigger-office-reality",
+      "url": "assets/pi/office/bigger-office-reality.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bigger-office",
+      "url": "assets/pi/office/bigger-office.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "books",
+      "url": "assets/pi/office/books.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "case-files",
+      "url": "assets/pi/office/case-files.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "chairs",
+      "url": "assets/pi/office/chairs.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "coffee",
+      "url": "assets/pi/office/coffee.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "pi__office__crime-board",
+      "url": "assets/pi/office/crime-board.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "notepad",
+      "url": "assets/pi/office/notepad.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "painting",
+      "url": "assets/pi/office/painting.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "printer",
+      "url": "assets/pi/office/printer.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "pi__office__tv",
+      "url": "assets/pi/office/tv.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "lobby-under-construction",
+      "url": "assets/pi/business-center/lobby-under-construction.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "no-men",
+      "url": "assets/pi/business-center/no-men.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "altar",
+      "url": "assets/pi/church/altar.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "ambo",
+      "url": "assets/pi/church/ambo.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "auction-people",
+      "url": "assets/pi/church/auction-people.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "auction",
+      "url": "assets/pi/church/auction.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "candles",
+      "url": "assets/pi/church/candles.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "donation-box",
+      "url": "assets/pi/church/donation-box.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "glass",
+      "url": "assets/pi/church/glass.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "hymn-board",
+      "url": "assets/pi/church/hymn-board.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "lamps",
+      "url": "assets/pi/church/lamps.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "left-glass",
+      "url": "assets/pi/church/left-glass.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "office-empty",
+      "url": "assets/pi/church/office-empty.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "office",
+      "url": "assets/pi/church/office.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "organs",
+      "url": "assets/pi/church/organs.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "peagon",
+      "url": "assets/pi/church/peagon.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "pews",
+      "url": "assets/pi/church/pews.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "pipes",
+      "url": "assets/pi/church/pipes.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "priest",
+      "url": "assets/pi/church/priest.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    }
+  ]
+}

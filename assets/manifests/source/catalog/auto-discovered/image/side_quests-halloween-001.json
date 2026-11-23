@@ -1,0 +1,52 @@
+{
+  "assets": [
+    {
+      "key": "dead_mail_burial_register",
+      "url": "assets/side_quests/Halloween/dead_mail_burial_register.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "dead_mail_cemetery_plan",
+      "url": "assets/side_quests/Halloween/dead_mail_cemetery_plan.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "dead_mail_cover",
+      "url": "assets/side_quests/Halloween/dead_mail_cover.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "dead_mail_document_blank",
+      "url": "assets/side_quests/Halloween/dead_mail_document_blank.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "dead_mail_last_ringtone",
+      "url": "assets/side_quests/Halloween/dead_mail_last_ringtone.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "dead_mail_recorder",
+      "url": "assets/side_quests/Halloween/dead_mail_recorder.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    }
+  ]
+}

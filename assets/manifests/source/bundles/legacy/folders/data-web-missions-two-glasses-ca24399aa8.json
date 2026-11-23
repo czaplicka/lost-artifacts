@@ -1,0 +1,9 @@
+{
+  "bundles": {
+    "auto:folder:data/web/missions/two-glasses": [
+      "json:keywords",
+      "json:mission",
+      "json:search"
+    ]
+  }
+}

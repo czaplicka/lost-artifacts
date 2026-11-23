@@ -1,0 +1,8 @@
+{
+  "bundles": {
+    "auto:folder:side_quests/Reed/web/FaceSpace": [
+      "image:claire_sutton_avatar",
+      "image:nora_bell_avatar"
+    ]
+  }
+}

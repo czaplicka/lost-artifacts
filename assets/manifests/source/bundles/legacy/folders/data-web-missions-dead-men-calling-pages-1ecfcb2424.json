@@ -1,0 +1,9 @@
+{
+  "bundles": {
+    "auto:folder:data/web/missions/dead-men-calling/pages": [
+      "json:businesses",
+      "json:data__web__missions__dead-men-calling__pages__news",
+      "json:pages"
+    ]
+  }
+}

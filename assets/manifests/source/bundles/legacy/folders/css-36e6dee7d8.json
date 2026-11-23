@@ -1,0 +1,21 @@
+{
+  "bundles": {
+    "auto:folder:css": [
+      "css:agent",
+      "css:auth-styles-css",
+      "css:character-creation",
+      "css:crime-board-layout",
+      "css:crime-board-css",
+      "css:hud-mobile",
+      "css:hud",
+      "css:login",
+      "css:modal-css",
+      "css:profile",
+      "css:register",
+      "css:reset",
+      "css:update-password",
+      "css:personnel-roster",
+      "css:landing"
+    ]
+  }
+}

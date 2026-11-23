@@ -1,0 +1,7 @@
+{
+  "bundles": {
+    "auto:folder:side_quests/Alibi": [
+      "image:cooper_spoon"
+    ]
+  }
+}

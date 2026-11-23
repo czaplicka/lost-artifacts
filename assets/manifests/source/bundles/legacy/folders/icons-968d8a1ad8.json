@@ -1,0 +1,8 @@
+{
+  "bundles": {
+    "auto:folder:icons": [
+      "image:icon-192",
+      "image:icon-512"
+    ]
+  }
+}

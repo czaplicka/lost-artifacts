@@ -8,7 +8,7 @@ import { EventBus } from '../EventBus.js';
 import { getBoardEvidenceRecord } from './BoardEvidenceModel.js';
 import { loadJson } from '../config/loadJson.js';
 
-const manifest = await loadJson('../assets/manifests/suspects.json', import.meta.url);
+const manifest = await loadJson('../assets/manifests/catalog/suspects.json', import.meta.url);
 const suspectImages = new Map(
   (Array.isArray(manifest?.assets) ? manifest.assets : [])
     .filter(asset => asset?.type === 'image' && typeof asset.key === 'string' &&

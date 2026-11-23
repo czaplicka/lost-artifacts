@@ -1,0 +1,9 @@
+{
+  "bundles": {
+    "auto:folder:ui/pi-search": [
+      "image:FaceSpace",
+      "image:MPA",
+      "image:Mystery-pedia"
+    ]
+  }
+}

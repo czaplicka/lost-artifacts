@@ -1,0 +1,36 @@
+{
+  "assets": [
+    {
+      "key": "side_quests__Mom__s__Not__Proud__background",
+      "url": "assets/side_quests/Mom’s Not Proud/background.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "pigeon_mural",
+      "url": "assets/side_quests/Mom’s Not Proud/pigeon_mural.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "raven_painting",
+      "url": "assets/side_quests/Mom’s Not Proud/raven_painting.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "photo",
+      "url": "assets/side_quests/Mom’s Not Proud/photo.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    }
+  ]
+}

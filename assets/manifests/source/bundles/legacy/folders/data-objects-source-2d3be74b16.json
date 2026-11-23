@@ -1,0 +1,15 @@
+{
+  "bundles": {
+    "auto:folder:data/objects-source": [
+      "json:_manifest",
+      "json:auction_house",
+      "json:castle",
+      "json:dockyard",
+      "json:havela",
+      "json:louvre",
+      "json:shared",
+      "json:data__objects-source__tokyo_museum",
+      "json:tower"
+    ]
+  }
+}

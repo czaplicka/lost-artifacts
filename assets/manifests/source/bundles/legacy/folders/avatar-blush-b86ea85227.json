@@ -1,0 +1,7 @@
+{
+  "bundles": {
+    "auto:folder:avatar/blush": [
+      "image:blush"
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "bundles": {
+    "auto:folder:pi": [
+      "image:holly"
+    ]
+  }
+}

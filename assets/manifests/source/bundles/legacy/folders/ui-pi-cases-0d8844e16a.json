@@ -1,0 +1,7 @@
+{
+  "bundles": {
+    "auto:folder:ui/pi-cases": [
+      "image:terrace"
+    ]
+  }
+}

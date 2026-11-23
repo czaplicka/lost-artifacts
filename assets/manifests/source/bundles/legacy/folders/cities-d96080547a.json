@@ -1,0 +1,18 @@
+{
+  "bundles": {
+    "auto:folder:cities": [
+      "image:berlin",
+      "image:islamabad",
+      "image:kotte",
+      "image:london",
+      "image:nairobi",
+      "image:newdelhi",
+      "image:newyorkcity",
+      "image:paris",
+      "image:tokyo",
+      "image:toronto",
+      "image:warsaw",
+      "image:singapore"
+    ]
+  }
+}

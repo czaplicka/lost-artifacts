@@ -1,0 +1,11 @@
+{
+  "bundles": {
+    "auto:folder:ui/computer/search": [
+      "image:logo_small",
+      "image:ui__computer__search__logo",
+      "image:magnifier",
+      "image:owl_lost",
+      "image:owl"
+    ]
+  }
+}

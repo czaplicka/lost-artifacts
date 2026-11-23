@@ -1,0 +1,12 @@
+{
+  "assets": [
+    {
+      "key": "tracks",
+      "url": "assets/audio/music/tracks.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    }
+  ]
+}

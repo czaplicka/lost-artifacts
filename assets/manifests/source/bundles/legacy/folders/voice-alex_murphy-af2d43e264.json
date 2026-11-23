@@ -1,0 +1,12 @@
+{
+  "bundles": {
+    "auto:folder:voice/Alex_Murphy": [
+      "audio:intro",
+      "audio:replacement",
+      "audio:replacement2",
+      "audio:replacement3",
+      "audio:return",
+      "audio:return2"
+    ]
+  }
+}

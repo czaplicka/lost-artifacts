@@ -1,0 +1,8 @@
+{
+  "bundles": {
+    "auto:folder:avatar/base": [
+      "image:lady",
+      "image:square"
+    ]
+  }
+}

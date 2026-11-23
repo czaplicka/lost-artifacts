@@ -1,0 +1,21 @@
+{
+  "bundles": {
+    "auto:folder:artifacts": [
+      "image:artifact_amber_necklace",
+      "image:artifact_fallback",
+      "image:artifact_crown_jewels",
+      "image:artifact_liberty_torch",
+      "image:artifact_mona_lisa",
+      "image:artifact_mughal_dagger",
+      "image:artifact_royal_seal",
+      "image:artifact_great_wave",
+      "image:astrolabe",
+      "image:fan",
+      "image:goblet",
+      "image:music-box",
+      "image:reel",
+      "image:royal_observatory_chronometer",
+      "image:spotlight"
+    ]
+  }
+}

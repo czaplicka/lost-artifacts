@@ -1,0 +1,18 @@
+{
+  "bundles": {
+    "auto:folder:side_quests/Reed/web/news": [
+      "image:clare_sutton_studio",
+      "image:community_ledger_small_grants",
+      "image:community_ledger_volunteer_training",
+      "image:everyday_edit_green_checks",
+      "image:norah_bell_piano_studio",
+      "image:coat_check_green_jacket_swap",
+      "image:marsh_button_fenwick_blazer",
+      "image:pressing_matters_checked_blazer",
+      "image:second_impression_green_jackets",
+      "image:spare_pair_two_glasses",
+      "image:table_matters_two_glasses",
+      "image:toast_rack_two_glasses_gift_box"
+    ]
+  }
+}

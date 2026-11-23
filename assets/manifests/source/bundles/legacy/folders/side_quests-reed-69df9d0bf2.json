@@ -1,0 +1,10 @@
+{
+  "bundles": {
+    "auto:folder:side_quests/Reed": [
+      "image:Reed_conference",
+      "image:second",
+      "image:Reed_terrace",
+      "image:third"
+    ]
+  }
+}

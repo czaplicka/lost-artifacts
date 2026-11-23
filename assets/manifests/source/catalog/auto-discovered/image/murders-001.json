@@ -1,0 +1,124 @@
+{
+  "assets": [
+    {
+      "key": "7cm",
+      "url": "assets/murders/Reginald Prune/7cm.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "Barbara_Bloom",
+      "url": "assets/murders/Reginald Prune/Barbara_Bloom.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "Barbara_reward",
+      "url": "assets/murders/Reginald Prune/Barbara_reward.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "camera_still1",
+      "url": "assets/murders/Reginald Prune/camera_still1.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "camera_still2",
+      "url": "assets/murders/Reginald Prune/camera_still2.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "camera_still3",
+      "url": "assets/murders/Reginald Prune/camera_still3.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "Colin_Hedge",
+      "url": "assets/murders/Reginald Prune/Colin_Hedge.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "crime_scene",
+      "url": "assets/murders/Reginald Prune/crime_scene.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "glove",
+      "url": "assets/murders/Reginald Prune/glove.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "glove_sample",
+      "url": "assets/murders/Reginald Prune/glove_sample.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "greenhouse",
+      "url": "assets/murders/Reginald Prune/greenhouse.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "Penny_Potts",
+      "url": "assets/murders/Reginald Prune/Penny_Potts.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "Reginald_Prune",
+      "url": "assets/murders/Reginald Prune/Reginald_Prune.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "reward",
+      "url": "assets/murders/Reginald Prune/reward.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "the_incidents",
+      "url": "assets/murders/Reginald Prune/the_incidents.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    }
+  ]
+}

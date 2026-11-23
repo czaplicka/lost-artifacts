@@ -1,0 +1,24 @@
+{
+  "mode": "read-only",
+  "scannedFiles": 1090,
+  "missingManifestLinks": [],
+  "dynamicManifestLinks": [],
+  "legacyBundleMentions": [],
+  "ambiguousManifestLinks": [],
+  "scanErrors": [],
+  "skippedSymlinks": [],
+  "summary": {
+    "missing": 0,
+    "scanErrors": 0,
+    "dynamic": 0,
+    "ambiguous": 0,
+    "legacyMentions": 0
+  },
+  "limitations": [
+    "Scans JS/MJS/CJS literal strings and template chunks, not runtime execution.",
+    "Skips assets, dev tools, scripts, tests, backups, build output and supabase.",
+    "Computed paths, HTML/JSON references and bundle IDs assembled from variables may be missed.",
+    "Literal bundle mentions do not prove a bundle is loaded, and no mention does not prove it is unused.",
+    "No network requests; checks local file existence, not MIME types or server routing."
+  ]
+}

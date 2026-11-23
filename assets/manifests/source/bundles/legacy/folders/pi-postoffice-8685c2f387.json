@@ -1,0 +1,10 @@
+{
+  "bundles": {
+    "auto:folder:pi/postoffice": [
+      "image:post_office_poste_restante",
+      "image:post_office_postman",
+      "image:post_office",
+      "image:postman"
+    ]
+  }
+}

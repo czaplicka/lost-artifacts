@@ -1,3 +1,5 @@
+import { SPILL_BRAND as B } from '../../config/spillBrand.js';
+import { SpillPageTurns } from './SpillPageTurns.js';
 import { MONTHLY_SPILL_ISSUE as ISSUE } from './MonthlySpillIssue.js';
 import { gameState } from '../../GameData.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
@@ -8,10 +10,10 @@ const HEIGHT = 1000;
 const MARGIN = 44;
 const INNER = WIDTH - MARGIN * 2;
 const GAP = 12;
-const INK = '#27231e';
-const MUTED = '#605447';
-const PAPER = 0xf4ecd8;
-const RULE = 0x4f4438;
+const INK = B.ink;
+const MUTED = B.muted;
+const PAPER = B.paper;
+const RULE = B.banner;
 
 export class MonthlySpillReader {
   constructor(scene) {
@@ -20,6 +22,7 @@ export class MonthlySpillReader {
     this.page = 0;
     this.root = null;
     this.previousOpening = false;
+    this.pageTurns = new SpillPageTurns(this);
 
     this.onKey = event => {
       if (!this.isOpen || isEditableTarget(event) || event.repeat ||
@@ -101,6 +104,7 @@ export class MonthlySpillReader {
   }
 
   turn(direction) {
+    if (!this.isOpen || ![-1, 1].includes(direction)) return;
     const groups = this.groups();
     const next = groups[this.groupIndex(groups) + direction];
     if (next) this.goTo(next[0]);
@@ -118,6 +122,7 @@ export class MonthlySpillReader {
   }
 
   dispose() {
+    this.pageTurns.reset();
     this.root?.destroy(true);
     this.root = null;
     this.isOpen = false;
@@ -125,6 +130,7 @@ export class MonthlySpillReader {
   }
 
   destroy() {
+    this.pageTurns.destroy();
     this.scene.input.keyboard?.off('keydown', this.onKey);
     if (this.isOpen) this.dispose();
   }
@@ -138,7 +144,7 @@ export class MonthlySpillReader {
 
   text(parent, x, y, value, width, height, size, options = {}) {
     const text = this.scene.add.text(x, y, String(value ?? ''), {
-      fontFamily: options.pixel ? 'PressStart2P' : 'SpecialElite',
+      fontFamily: options.pixel ? B.fontDisplay : B.fontBody,
       fontSize: `${size}px`,
       color: options.color || INK,
       align: options.align || 'left',
@@ -159,10 +165,10 @@ export class MonthlySpillReader {
   }
 
   control(parent, x, y, width, label, action, enabled = true) {
-    const box = this.rect(parent, x, y, width, 36, enabled ? 0x3a3329 : 0x25231e);
+    const box = this.rect(parent, x, y, width, 36, enabled ? B.button : B.disabled);
     const caption = this.text(parent, 0, 0, label, width - 12, 22, 11, {
       pixel: true,
-      color: enabled ? '#f4ecd8' : '#988b77'
+      color: enabled ? '#ffffff' : B.disabledText
     });
 
     caption.setPosition(x + (width - caption.displayWidth) / 2, y + 12);
@@ -171,6 +177,7 @@ export class MonthlySpillReader {
       box.setInteractive({ useHandCursor: true });
       box.on('pointerup', (_pointer, _x, _y, event) => {
         event?.stopPropagation();
+        if (this.pageTurns.active) { this.pageTurns.onEnd(_pointer); return; }
         action();
       });
     }
@@ -178,14 +185,18 @@ export class MonthlySpillReader {
 
   render() {
     if (!this.root) return;
+    this.pageTurns.reset();
     this.root.removeAll(true);
 
     const { width, height } = this.scene.scale;
-    const backdrop = this.rect(this.root, 0, 0, width, height, 0x16130f, 0.97)
+    const backdrop = this.rect(this.root, 0, 0, width, height, B.backdrop, 0.97)
       .setInteractive();
 
     for (const name of ['pointerdown', 'pointerup', 'pointermove', 'wheel']) {
-      backdrop.on(name, (...args) => args.at(-1)?.stopPropagation?.());
+      backdrop.on(name, (...args) => {
+        this.pageTurns.forward(name, args[0]);
+        args.at(-1)?.stopPropagation?.();
+      });
     }
 
     const groups = this.groups();
@@ -203,6 +214,10 @@ export class MonthlySpillReader {
 
     this.root.add(stage);
     group.forEach((index, n) => this.drawPage(stage, n * (WIDTH + GAP), index));
+
+    this.pageTurns.layout({ x: stage.x, y: stage.y, width: spreadWidth * scale, height: HEIGHT * scale }, groupIndex, groups.length);
+    this.text(this.root, 12, 14, 'Click or drag a bottom corner to turn.',
+      Math.max(1, width - 120), 24, 14, { color: B.taglineColor });
 
     this.control(this.root, width - 87, 8, 77, 'CLOSE', () => this.close());
 
@@ -228,9 +243,10 @@ export class MonthlySpillReader {
     const data = ISSUE.pages[index];
     const cover = data.type === 'cover';
 
-    this.text(page, MARGIN, 30, cover ? ISSUE.edition : ISSUE.title,
-      INNER, 26, 18, { color: MUTED });
-    this.rect(page, MARGIN, 64, INNER, 2, RULE);
+    this.rect(page, MARGIN, 20, INNER, 45, B.banner);
+    this.text(page, MARGIN + 12, 32, cover ? ISSUE.edition : B.monthlyTitle,
+      INNER - 24, 24, 14, { color: B.headline, pixel: true });
+    this.rect(page, MARGIN, 64, INNER, 2, B.bannerDark);
 
     if (cover) this.drawFront(page, data);
     else if (data.type === 'contents') this.drawContents(page, data);
@@ -243,12 +259,14 @@ export class MonthlySpillReader {
   }
 
   drawFront(page, data) {
-    this.text(page, MARGIN, 84, ISSUE.title.toUpperCase(), INNER, 100, 63);
-    this.text(page, MARGIN, 190, ISSUE.tagline, INNER, 40, 23, { color: MUTED });
+    this.rect(page, MARGIN, 82, INNER, 148, B.banner);
+    this.rect(page, MARGIN, 82, INNER, 4, B.bannerDark);
+    this.text(page, MARGIN + 18, 98, B.monthlyTitle, INNER - 36, 80, 40, { color: B.headline, pixel: true });
+    this.text(page, MARGIN + 18, 191, B.tagline, INNER - 36, 32, 21, { color: B.taglineColor });
     this.rect(page, MARGIN, 240, INNER, 4, RULE);
     this.rect(page, MARGIN, 249, INNER, 1, RULE);
 
-    this.text(page, MARGIN, 282, data.headline, INNER, 245, 76);
+    this.text(page, MARGIN, 282, data.headline, INNER, 245, 60, { pixel: true, color: B.heading });
     this.text(page, MARGIN, 542, data.deck, INNER, 120, 31);
     this.rect(page, MARGIN, 688, INNER, 2, RULE);
     this.text(page, MARGIN, 709, 'INSIDE THIS ISSUE', INNER, 30, 20);
@@ -259,8 +277,8 @@ export class MonthlySpillReader {
   }
 
   drawHeading(page, data) {
-    this.text(page, MARGIN, 87, data.section, INNER, 28, 19, { color: MUTED });
-    this.text(page, MARGIN, 127, data.headline, INNER, 154, 55);
+    this.text(page, MARGIN, 87, data.section, INNER, 28, 19, { color: B.keyword });
+    this.text(page, MARGIN, 127, data.headline, INNER, 154, 42, { pixel: true, color: B.heading });
     this.text(page, MARGIN, 298, data.deck, INNER, 92, 27, { color: MUTED });
     this.rect(page, MARGIN, 400, INNER, 1, RULE);
   }
@@ -325,12 +343,13 @@ export class MonthlySpillReader {
 
     rows.forEach(([number, label], i) => {
       const y = 719 + i * rowH;
-      const row = this.rect(page, MARGIN, y, INNER, rowH, i % 2 ? 0xe7ddc5 : 0xefe6d0)
+      const row = this.rect(page, MARGIN, y, INNER, rowH, i % 2 ? B.paper : B.panel)
         .setInteractive({ useHandCursor: true });
       this.text(page, MARGIN + 8, y + 4, label, INNER - 64, rowH - 7, 21);
       this.text(page, WIDTH - MARGIN - 45, y + 4, number, 37, rowH - 7, 21);
       row.on('pointerup', (_pointer, _x, _y, event) => {
         event?.stopPropagation();
+        if (this.pageTurns.active) { this.pageTurns.onEnd(_pointer); return; }
         this.goTo(Number(number) - 1);
       });
     });

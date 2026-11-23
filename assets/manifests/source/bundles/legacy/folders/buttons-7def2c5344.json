@@ -1,0 +1,22 @@
+{
+  "bundles": {
+    "auto:folder:buttons": [
+      "image:back",
+      "image:btnCaptain",
+      "image:btnContinue",
+      "image:buttons__destination",
+      "image:btnExit",
+      "image:btnHiscore",
+      "image:load",
+      "image:loginbtn",
+      "image:new_game",
+      "image:next",
+      "image:btnOfficer",
+      "image:registerbtn",
+      "image:btnRookie",
+      "image:btnSave",
+      "image:btnSettings",
+      "image:btnStart"
+    ]
+  }
+}

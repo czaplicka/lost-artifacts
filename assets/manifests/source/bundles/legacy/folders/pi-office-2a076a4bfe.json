@@ -1,0 +1,20 @@
+{
+  "bundles": {
+    "auto:folder:pi/office": [
+      "image:artifact",
+      "image:bigger-office-ad",
+      "image:bigger-office-reality",
+      "image:bigger-office",
+      "image:books",
+      "image:case-files",
+      "image:chairs",
+      "image:coffee",
+      "image:pi__office__crime-board",
+      "image:notepad",
+      "image:painting",
+      "image:printer",
+      "image:pi__office__tv",
+      "image:computer-phone"
+    ]
+  }
+}

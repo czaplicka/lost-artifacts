@@ -1,0 +1,12 @@
+{
+  "assets": [
+    {
+      "key": "arrest-agents",
+      "url": "assets/cutscenes/arrest-agents.png",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    }
+  ]
+}

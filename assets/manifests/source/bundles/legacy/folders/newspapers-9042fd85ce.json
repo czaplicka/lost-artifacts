@@ -1,0 +1,8 @@
+{
+  "bundles": {
+    "auto:folder:newspapers": [
+      "image:comix1",
+      "image:comix2"
+    ]
+  }
+}

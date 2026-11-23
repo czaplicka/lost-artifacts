@@ -1,3 +1,4 @@
+import { installPINewMailButton } from './PINewMailButton.js';
 import {
   ComputerDocuments as ComputerDocumentsCore
 } from './ComputerDocumentsCore.js';
@@ -72,6 +73,12 @@ function installLocalAreaIconPosition(ui) {
 }
 
 export class ComputerDocuments extends ComputerDocumentsCore {
+  installMailButtonFilter() {
+    const rawButton = this.ui.drawing.button;
+    super.installMailButtonFilter();
+    installPINewMailButton(this.ui, this, rawButton);
+  }
+
   constructor(ui) {
     super(ui);
 

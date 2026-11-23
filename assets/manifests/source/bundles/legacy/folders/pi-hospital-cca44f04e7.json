@@ -1,0 +1,8 @@
+{
+  "bundles": {
+    "auto:folder:pi/hospital": [
+      "image:no_nurse",
+      "image:nurse"
+    ]
+  }
+}

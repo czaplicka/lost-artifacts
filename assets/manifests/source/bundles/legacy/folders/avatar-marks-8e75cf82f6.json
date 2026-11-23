@@ -1,0 +1,8 @@
+{
+  "bundles": {
+    "auto:folder:avatar/marks": [
+      "image:avatar__marks__scar-mouth",
+      "image:avatar__marks__scar-right"
+    ]
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "assets": [
+    {
+      "key": "banner",
+      "url": "assets/Success/banner.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "medalion",
+      "url": "assets/Success/medalion.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "medalion_officer",
+      "url": "assets/Success/medalion_officer.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "money_bag_left",
+      "url": "assets/Success/money_bag_left.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "money_bag_right",
+      "url": "assets/Success/money_bag_right.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "police_left",
+      "url": "assets/Success/police_left.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "police_right",
+      "url": "assets/Success/police_right.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "police_right02",
+      "url": "assets/Success/police_right02.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "Success__background",
+      "url": "assets/Success/background.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "Success__police_car",
+      "url": "assets/Success/police_car.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "Success__wall",
+      "url": "assets/Success/wall.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "suspect",
+      "url": "assets/Success/suspect.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "treasures",
+      "url": "assets/Success/treasures.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    }
+  ]
+}

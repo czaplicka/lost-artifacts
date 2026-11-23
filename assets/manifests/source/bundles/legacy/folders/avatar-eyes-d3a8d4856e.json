@@ -1,0 +1,8 @@
+{
+  "bundles": {
+    "auto:folder:avatar/eyes": [
+      "image:avatar__eyes__lady",
+      "image:avatar__eyes__square"
+    ]
+  }
+}

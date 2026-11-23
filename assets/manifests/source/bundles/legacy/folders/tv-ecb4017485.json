@@ -1,0 +1,9 @@
+{
+  "bundles": {
+    "auto:folder:tv": [
+      "image:tv_anchor_generic",
+      "image:tv_anchor_genericf",
+      "image:tv_news_studio"
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "bundles": {
+    "auto:folder:maps": [
+      "image:berlin_crime",
+      "image:london_crime",
+      "image:new_delhi_crime",
+      "image:new_york_city_crime",
+      "image:paris_crime",
+      "image:warsaw_crime",
+      "image:tokio"
+    ]
+  }
+}

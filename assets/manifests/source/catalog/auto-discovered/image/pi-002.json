@@ -1,0 +1,28 @@
+{
+  "assets": [
+    {
+      "key": "right_glass",
+      "url": "assets/pi/church/right_glass.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "rug",
+      "url": "assets/pi/church/rug.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "computer-phone",
+      "url": "assets/pi/office/computer-phone.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    }
+  ]
+}

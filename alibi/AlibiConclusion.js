@@ -2,17 +2,59 @@ import { gameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
 import { getCaseSuspects } from '../suspects/CaseSuspects.js';
 import { getMissionCaseKey } from '../crimeCaseKey.js';
-import { saveGameState } from '../gameStatePersistence.js';
+import { saveGameState, getPersistenceStatus } from '../gameStatePersistence.js';
+import { isStateRestoreInProgress } from '../gameState/saveRestore.js';
 import { progressionManager } from '../managers/ProgressionManager.js';
 import { allWitnessesVisited, NO_ALIBI_LIAR } from './AlibiEncounterSetup.js';
-import { getStoredAlibiSubject, validAlibiTimeline, orderedAlibiTimeline, assessAlibiConclusion } from './AlibiConclusionEvidence.js';
+import { copyAlibiData as copy, getStoredAlibiSubject, validAlibiTimeline, orderedAlibiTimeline, assessAlibiConclusion } from './AlibiConclusionEvidence.js';
 export { getAlibiEvidenceDossier, getAlibiCourtRecord } from './AlibiConclusionEvidence.js';
 
 const FINAL = new Set(['confirmed', 'contradicted']);
+const PAUSED_MESSAGE = 'Conclusion filed for this session. Automatic saving is paused: this conclusion and any XP are not yet saved. Back up the protected autosave and enable saving before leaving, or this progress may be lost.';
 let filingBusy = false;
 let recoveryRequired = false;
 EventBus.on('gameState:restored', () => { recoveryRequired = false; });
 
+function blockedPersistence() {
+  const status = getPersistenceStatus();
+  if (status.rollbackUnsafe) return 'unsafe';
+  if (status.busy || isStateRestoreInProgress()) return 'busy';
+  if (status.automaticSaveBlocked) return 'paused';
+  return null;
+}
+function persistCurrentState() {
+  try {
+    const before = blockedPersistence();
+    if (before) return { status: before, saved: false };
+    if (saveGameState() === true) return { status: 'saved', saved: true };
+    return { status: blockedPersistence() || 'error', saved: false };
+  } catch (error) {
+    console.error('[AlibiConclusion] Save failed:', error);
+    return { status: 'error', saved: false };
+  }
+}
+function rejectedPersistence(status) {
+  return { accepted: false, saveStatus: status, message: status === 'unsafe'
+    ? 'Loading recovery was incomplete. Reload a known-good save before filing a conclusion.'
+    : 'Saving or loading is in progress. Please wait before filing a conclusion.' };
+}
+function finishFiling(caseKey, filed, alreadyFiled, persistence) {
+  const completion = completionAndSave(caseKey);
+  const saveStatus = completion.rewardSaveStatus === 'saved' ? 'saved' : persistence.status;
+  const result = { accepted: true, alreadyFiled, ...publicResult(filed), ...completion,
+    saveStatus, saved: saveStatus === 'saved', sessionOnly: saveStatus !== 'saved' };
+  if (saveStatus === 'paused' || completion.rewardSaveStatus === 'paused') {
+    result.persistenceWarning = 'autosave_paused';
+    result.message = PAUSED_MESSAGE;
+  } else if (completion.rewardSaveStatus === 'error') {
+    result.persistenceWarning = 'reward_save_failed';
+    result.message = 'Conclusion filed. The latest XP update could not be saved. Save again before leaving.';
+  } else if (completion.rewardSaveStatus === 'busy' || completion.rewardSaveStatus === 'unsafe') {
+    result.persistenceWarning = 'reward_save_deferred';
+    result.message = 'Conclusion filed. The latest XP update is not saved yet. Wait for saving or recovery to finish and save again.';
+  }
+  return result;
+}
 function isActiveCase(caseKey) {
   if (typeof caseKey !== 'string' && typeof caseKey !== 'number') return false;
   if (typeof caseKey === 'number' && !Number.isFinite(caseKey)) return false;
@@ -30,7 +72,6 @@ function publicResult(filed) {
 function lookupFiledConclusion(caseKey, suspectId) {
   const { data, suspect } = context(caseKey, suspectId), filed = data?.playerConclusion;
   if (filed?.locked === true && FINAL.has(filed.status)) return publicResult(filed);
-  // Legacy suspect status has no independent case tag: use it only for the active case.
   if (isActiveCase(caseKey) && FINAL.has(suspect?.deductionState?.alibiStatus)) {
     return { status: suspect.deductionState.alibiStatus, locked: true,
       choice: gameState.alibiAccusations?.[caseKey]?.[suspectId] || null,
@@ -42,7 +83,6 @@ export function getFiledAlibiConclusion(caseKey, suspectId) {
   if (filingBusy || recoveryRequired) return null;
   return lookupFiledConclusion(caseKey, suspectId);
 }
-
 function grantCompletion(caseKey) {
   const subjects = gameState.caseData?.alibiCases?.[caseKey]?.suspects;
   if (!Array.isArray(subjects) || !subjects.length ||
@@ -61,53 +101,51 @@ function grantCompletion(caseKey) {
   }
   return progressionManager.grantReward('alibi_completed', scope, 'Alibi investigation completed');
 }
-
 function completionAndSave(caseKey) {
   let previousProgression;
-  try { previousProgression = structuredClone(gameState.progressionState); }
+  try { previousProgression = copy(gameState.progressionState); }
   catch (error) {
     console.error('[AlibiConclusion] XP snapshot failed:', error);
-    return { xpResult: { success: false, reason: 'progression_error' }, rewardSaved: false };
+    return { xpResult: { success: false, reason: 'progression_error' }, rewardSaved: false, rewardSaveStatus: 'not_attempted' };
   }
   let xpResult;
   try { xpResult = grantCompletion(caseKey); }
   catch (error) {
     console.error('[AlibiConclusion] XP failed:', error);
     try { gameState.progressionState = previousProgression; }
-    catch (rollbackError) {
-      recoveryRequired = true;
-      console.error('[AlibiConclusion] XP recovery failed:', rollbackError);
-    }
-    return { xpResult: { success: false, reason: 'progression_error' }, rewardSaved: false };
+    catch (rollbackError) { recoveryRequired = true; console.error('[AlibiConclusion] XP recovery failed:', rollbackError); }
+    return { xpResult: { success: false, reason: 'progression_error' }, rewardSaved: false, rewardSaveStatus: 'not_attempted' };
   }
-  if (xpResult?.reason === 'alibi_stage_not_finished') return { xpResult, rewardSaved: true };
-  if (xpResult?.success !== true && xpResult?.reason !== 'already_granted') return { xpResult, rewardSaved: false };
-  // Also save an already-granted in-memory reward: its earlier save may have failed.
-  try { return { xpResult, rewardSaved: saveGameState() === true }; }
-  catch (error) {
-    console.error('[AlibiConclusion] Reward save failed:', error);
-    return { xpResult, rewardSaved: false };
+  if (xpResult?.reason === 'alibi_stage_not_finished') {
+    return { xpResult, rewardSaved: true, rewardSaveStatus: 'not_needed' };
   }
+  if (xpResult?.success !== true && xpResult?.reason !== 'already_granted') {
+    return { xpResult, rewardSaved: false, rewardSaveStatus: 'not_attempted' };
+  }
+  // The reward ledger remains in memory on a deferred/failed write. Refiling
+  // retries persistence, not the award, through grantReward's existing scope.
+  const persistence = persistCurrentState();
+  return { xpResult, rewardSaved: persistence.saved, rewardSaveStatus: persistence.status };
 }
-
 function restoreClaim(data, suspect, backup) {
   const errors = [];
   for (const restore of [
     () => { if (backup.filed === undefined) delete data.playerConclusion; else data.playerConclusion = backup.filed; },
     () => { if (backup.deduction === undefined) delete suspect.deductionState; else suspect.deductionState = backup.deduction; },
     () => { gameState.alibiAccusations = backup.accusations; }
-  ]) {
-    try { restore(); } catch (error) { errors.push(error); }
-  }
-  if (errors.length) {
-    recoveryRequired = true;
-    console.error('[AlibiConclusion] Claim recovery failed:', errors);
-  }
+  ]) { try { restore(); } catch (error) { errors.push(error); } }
+  if (errors.length) { recoveryRequired = true; console.error('[AlibiConclusion] Claim recovery failed:', errors); }
 }
-
 function fileConclusion(caseKey, suspectId, timelineIds, choice, options) {
   const previous = lookupFiledConclusion(caseKey, suspectId);
-  if (previous) return { accepted: true, alreadyFiled: true, ...previous, ...completionAndSave(caseKey) };
+  if (previous) {
+    const persistence = persistCurrentState();
+    if (persistence.status === 'busy' || persistence.status === 'unsafe') return rejectedPersistence(persistence.status);
+    if (persistence.status === 'error') return { accepted: true, alreadyFiled: true, ...previous,
+      saved: false, sessionOnly: true, saveStatus: 'error', rewardSaved: false,
+      message: 'This conclusion is already filed, but it could not be saved. Save again before leaving.' };
+    return finishFiling(caseKey, previous, true, persistence);
+  }
   const { data, suspect } = context(caseKey, suspectId);
   if (!data || !suspect || !Array.isArray(data.witnesses) || data.witnesses.length !== 3 ||
     new Set(data.witnesses.map(w => w?.npcId)).size !== 3 || !allWitnessesVisited(caseKey, suspectId)) {
@@ -131,9 +169,9 @@ function fileConclusion(caseKey, suspectId, timelineIds, choice, options) {
     version: 2, locked: true, status, choice, timelineIds: [...timelineIds], filedAt: new Date().toISOString(),
     evidenceStatus: assessment.documented ? 'documented' : 'risky',
     evidence: {
-      sources: structuredClone(assessment.sources), comparison: structuredClone(assessment.comparison),
-      confirmation: structuredClone(assessment.confirmation), retraction: assessment.retraction || null,
-      crimeWindow: structuredClone(data.crimeWindow), riskAccepted: !assessment.documented,
+      sources: copy(assessment.sources), comparison: copy(assessment.comparison),
+      confirmation: copy(assessment.confirmation), retraction: assessment.retraction || null,
+      crimeWindow: copy(data.crimeWindow), riskAccepted: !assessment.documented,
       riskReasons: [...assessment.reasons],
       timeline: timelineIds.map(id => {
         const card = data.boardCards.find(c => c.id === id), witness = data.witnesses.find(w => w.timelineCard?.id === id);
@@ -146,10 +184,8 @@ function fileConclusion(caseKey, suspectId, timelineIds, choice, options) {
       evidenceSupported: assessment.documented && timelineCorrect && conclusionCorrect,
       correct: timelineCorrect && conclusionCorrect }
   };
-  const backup = {
-    filed: structuredClone(data.playerConclusion), accusations: structuredClone(gameState.alibiAccusations),
-    deduction: structuredClone(suspect.deductionState)
-  };
+  const backup = { filed: copy(data.playerConclusion), accusations: copy(gameState.alibiAccusations), deduction: copy(suspect.deductionState) };
+  let persistence;
   try {
     data.playerConclusion = filed;
     gameState.alibiAccusations ??= {}; gameState.alibiAccusations[caseKey] ??= {};
@@ -157,24 +193,28 @@ function fileConclusion(caseKey, suspectId, timelineIds, choice, options) {
     suspect.deductionState ??= {};
     suspect.deductionState.alibiStatus = status;
     suspect.deductionState.alibiEvidenceStatus = filed.evidenceStatus;
-    if (saveGameState() !== true) throw new Error('Save was not confirmed.');
+    persistence = persistCurrentState();
+    if (!['saved', 'paused'].includes(persistence.status)) throw new Error(`Filing persistence: ${persistence.status}`);
   } catch (error) {
     restoreClaim(data, suspect, backup);
     console.error('[AlibiConclusion] Filing save failed:', error);
-    return { accepted: false, message: recoveryRequired
+    if (!recoveryRequired && ['busy', 'unsafe'].includes(persistence?.status)) return rejectedPersistence(persistence.status);
+    return { accepted: false, saveStatus: persistence?.status || 'error', message: recoveryRequired
       ? 'Alibi recovery was incomplete. Reload a known-good save before continuing.'
       : 'The conclusion could not be saved. Please try again.' };
   }
-  return { accepted: true, alreadyFiled: false, ...publicResult(filed), ...completionAndSave(caseKey) };
+  return finishFiling(caseKey, filed, false, persistence);
 }
-
 export function fileAlibiConclusion(caseKey, suspectId, timelineIds, choice, options = {}) {
   if (filingBusy) return { accepted: false, message: 'An alibi filing is already in progress.' };
   if (recoveryRequired) return { accepted: false, message: 'Alibi recovery was incomplete. Reload a known-good save before continuing.' };
   options = options && typeof options === 'object' ? options : {};
   filingBusy = true;
-  try { return fileConclusion(caseKey, suspectId, timelineIds, choice, options); }
-  catch (error) {
+  try {
+    const blocked = blockedPersistence();
+    if (blocked === 'unsafe' || blocked === 'busy') return rejectedPersistence(blocked);
+    return fileConclusion(caseKey, suspectId, timelineIds, choice, options);
+  } catch (error) {
     console.error('[AlibiConclusion] Could not prepare filing:', error);
     return { accepted: false, message: 'The conclusion could not be prepared. Reopen the investigation and try again.' };
   } finally { filingBusy = false; }

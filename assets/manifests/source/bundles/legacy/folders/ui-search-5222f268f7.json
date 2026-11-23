@@ -1,0 +1,11 @@
+{
+  "bundles": {
+    "auto:folder:ui/search": [
+      "image:ui__search__logo_small",
+      "image:ui__search__logo",
+      "image:ui__search__magnifier",
+      "image:ui__search__owl_lost",
+      "image:ui__search__owl"
+    ]
+  }
+}

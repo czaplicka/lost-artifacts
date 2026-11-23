@@ -1,0 +1,28 @@
+{
+  "bundles": {
+    "auto:folder:side_quests/Halloween": [
+      "image:dead_mail_administration",
+      "image:dead_mail_burial_register",
+      "image:dead_mail_camera",
+      "image:dead_mail_cemetery_day",
+      "image:dead_mail_cemetery_night",
+      "image:dead_mail_cemetery_plan",
+      "image:dead_mail_chapel_interior",
+      "image:dead_mail_cover",
+      "image:dead_mail_delivery_photo",
+      "image:dead_mail_document_blank",
+      "image:dead_mail_edwin",
+      "image:dead_mail_florence",
+      "image:dead_mail_gate_collection",
+      "image:dead_mail_ghost",
+      "image:dead_mail_last_ringtone",
+      "image:dead_mail_milo",
+      "image:dead_mail_parcel",
+      "image:dead_mail_recorder",
+      "image:dead_mail_rose",
+      "image:dead_mail_shed_interior",
+      "image:dead_mail_tessa",
+      "image:dead_mail_vale_reveal"
+    ]
+  }
+}

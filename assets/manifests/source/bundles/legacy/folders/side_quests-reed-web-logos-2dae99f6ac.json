@@ -1,0 +1,9 @@
+{
+  "bundles": {
+    "auto:folder:side_quests/Reed/web/logos": [
+      "image:open_skies",
+      "image:swallow_watch",
+      "image:swiftwing"
+    ]
+  }
+}

@@ -1,0 +1,260 @@
+{
+  "assets": [
+    {
+      "key": "tokio",
+      "url": "assets/maps/tokio.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "10",
+      "url": "assets/maps/Berlin/10.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "11",
+      "url": "assets/maps/Berlin/11.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "12",
+      "url": "assets/maps/Berlin/12.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "13",
+      "url": "assets/maps/Berlin/13.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "14",
+      "url": "assets/maps/Berlin/14.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "15",
+      "url": "assets/maps/Berlin/15.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "16",
+      "url": "assets/maps/Berlin/16.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "17",
+      "url": "assets/maps/Berlin/17.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "18",
+      "url": "assets/maps/Berlin/18.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "19",
+      "url": "assets/maps/Berlin/19.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "20",
+      "url": "assets/maps/Berlin/20.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "21",
+      "url": "assets/maps/Berlin/21.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "22",
+      "url": "assets/maps/Berlin/22.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "23",
+      "url": "assets/maps/Berlin/23.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "24",
+      "url": "assets/maps/Berlin/24.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "maps__Berlin__25",
+      "url": "assets/maps/Berlin/25.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "26",
+      "url": "assets/maps/Berlin/26.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "27",
+      "url": "assets/maps/Berlin/27.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "28",
+      "url": "assets/maps/Berlin/28.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "29",
+      "url": "assets/maps/Berlin/29.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "30",
+      "url": "assets/maps/Berlin/30.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "31",
+      "url": "assets/maps/Berlin/31.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "32",
+      "url": "assets/maps/Berlin/32.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "33",
+      "url": "assets/maps/Berlin/33.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "34",
+      "url": "assets/maps/Berlin/34.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "35",
+      "url": "assets/maps/Berlin/35.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "5",
+      "url": "assets/maps/Berlin/5.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "7",
+      "url": "assets/maps/Berlin/7.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "8",
+      "url": "assets/maps/Berlin/8.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "9",
+      "url": "assets/maps/Berlin/9.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "crime cities",
+      "url": "assets/maps/Berlin/crime cities.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    }
+  ]
+}

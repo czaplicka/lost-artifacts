@@ -1,0 +1,25 @@
+{
+  "bundles": {
+    "auto:folder:pi/church": [
+      "image:altar",
+      "image:ambo",
+      "image:auction-people",
+      "image:auction",
+      "image:candles",
+      "image:donation-box",
+      "image:glass",
+      "image:hymn-board",
+      "image:lamps",
+      "image:left-glass",
+      "image:office-empty",
+      "image:office",
+      "image:organs",
+      "image:peagon",
+      "image:pews",
+      "image:pipes",
+      "image:priest",
+      "image:right_glass",
+      "image:rug"
+    ]
+  }
+}

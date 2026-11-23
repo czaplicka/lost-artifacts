@@ -1,0 +1,21 @@
+{
+  "bundles": {
+    "auto:folder:murders/Reginald Prune": [
+      "image:7cm",
+      "image:Barbara_Bloom",
+      "image:Barbara_reward",
+      "image:camera_still1",
+      "image:camera_still2",
+      "image:camera_still3",
+      "image:Colin_Hedge",
+      "image:crime_scene",
+      "image:glove_sample",
+      "image:glove",
+      "image:greenhouse",
+      "image:Penny_Potts",
+      "image:Reginald_Prune",
+      "image:reward",
+      "image:the_incidents"
+    ]
+  }
+}

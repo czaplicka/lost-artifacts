@@ -1,0 +1,13 @@
+{
+  "bundles": {
+    "auto:folder:npc_crime_city": [
+      "image:npc",
+      "image:npc1",
+      "image:npc2",
+      "image:npc3",
+      "image:npc4",
+      "image:npc5",
+      "image:npc6"
+    ]
+  }
+}

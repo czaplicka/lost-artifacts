@@ -1,0 +1,15 @@
+{
+  "bundles": {
+    "auto:folder:side_quests/Alibi/web": [
+      "image:alibi_club_contact",
+      "image:alibi_club_dinner",
+      "image:alibi_club_home",
+      "image:alibi_club_review",
+      "image:alibi_copper_contact",
+      "image:alibi_copper_kitchen",
+      "image:alibi_copper_menu",
+      "image:alibi_copper_restaurant",
+      "image:alibi_table_for_one"
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "assets": [
+    {
+      "key": "newsstand",
+      "url": "assets/video/newsstand.mp4",
+      "type": "video",
+      "groups": [
+        "videos"
+      ]
+    },
+    {
+      "key": "failed_arrest",
+      "url": "assets/video/failed_arrest.mp4",
+      "type": "video",
+      "groups": [
+        "videos"
+      ],
+      "noAudio": false
+    },
+    {
+      "key": "movie1",
+      "url": "assets/video/movie1.mp4",
+      "type": "video",
+      "groups": [
+        "videos"
+      ],
+      "noAudio": false
+    },
+    {
+      "key": "drama",
+      "url": "assets/video/tv/drama.mp4",
+      "type": "video",
+      "groups": [
+        "videos"
+      ],
+      "noAudio": false
+    },
+    {
+      "key": "romance",
+      "url": "assets/video/tv/romance.mp4",
+      "type": "video",
+      "groups": [
+        "videos"
+      ],
+      "noAudio": false
+    }
+  ]
+}

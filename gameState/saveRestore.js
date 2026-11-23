@@ -2,14 +2,8 @@
 import { gameState } from '../GameData.js';
 import { MainStoryManager } from '../managers/MainStoryManager.js';
 import { inventoryManager } from '../managers/InventoryManager.js';
-import { getEnergyManager } from '../managers/EnergyManager.js';
+import { getEnergyManager, energyRestoreData } from '../managers/EnergyManager.js';
 import { createCaseDirectorFromState } from '../restoreCaseDirector.js';
-
-const ENERGY_FIELDS = [
-  'energy', 'maxEnergy', 'difficulty', 'energyLog', 'lastEnergyChange',
-  'energyModifiers', 'forcedSleepSession', 'hqExhaustionIncidents',
-  'hqExhaustionCallPending', 'hqExhaustionWarningSeen'
-];
 
 let restoring = false;
 export function isStateRestoreInProgress() { return restoring; }
@@ -19,21 +13,9 @@ export function isPlainObject(value) {
   const proto = Object.getPrototypeOf(value);
   return proto === Object.prototype || proto === null;
 }
-
 export function getSavedField(data, key) {
   if (Object.prototype.hasOwnProperty.call(data, key)) return data[key];
   return isPlainObject(data.state) ? data.state[key] : undefined;
-}
-
-function savedEnergyData(data) {
-  const result = {};
-  for (const key of ENERGY_FIELDS) {
-    const value = getSavedField(data, key);
-    // Fallbacks come from the imported, normalized save, not the old manager.
-    const resolved = value === undefined ? gameState[key] : value;
-    if (resolved !== undefined) result[key] = structuredClone(resolved);
-  }
-  return result;
 }
 
 function requireTransactionalEnergy(energy) {
@@ -48,12 +30,10 @@ function requireTransactionalEnergy(energy) {
 
 export function exportCurrentGameState() {
   if (restoring) throw new Error('Cannot export during game-state restoration.');
-
   const energy = getEnergyManager();
   gameState.updateState(energy.serialize());
   gameState.mainStory = MainStoryManager.serialize();
   gameState.inventory = inventoryManager.exportState();
-
   const director = gameState.caseDirector;
   if (typeof director?.serialize === 'function') {
     const template = director.serialize();
@@ -65,10 +45,8 @@ export function exportCurrentGameState() {
 export function restoreSavedGameState(savedState) {
   if (!isPlainObject(savedState)) throw new TypeError('Save must be a plain object.');
   if (restoring) throw new Error('Game-state restoration is already in progress.');
-
   const energy = getEnergyManager();
   requireTransactionalEnergy(energy);
-
   const previous = {
     state: structuredClone(gameState.getState()),
     story: structuredClone(MainStoryManager.serialize()),
@@ -78,40 +56,33 @@ export function restoreSavedGameState(savedState) {
     checkpoint: gameState.saveCheckpoint,
     director: gameState.caseDirector
   };
-
   let stateAttempted = false;
   let storyAttempted = false;
   let inventoryAttempted = false;
   let energyAttempted = false;
   restoring = true;
-
   try {
     stateAttempted = true;
     if (!gameState.importFromSave(savedState)) throw new Error('Game state rejected.');
     gameState.caseDirector = createCaseDirectorFromState(gameState.state);
-
     storyAttempted = true;
     const story = getSavedField(savedState, 'mainStory');
     if (story == null) MainStoryManager.resetProgress({ silent: true });
     else if (MainStoryManager.deserialize(story) !== true) throw new Error('Story rejected.');
-
     inventoryAttempted = true;
     const inventory = getSavedField(savedState, 'inventory');
     if (!inventoryManager.importState(inventory === undefined ? { version: 1, items: [] } : inventory)) {
       throw new Error('Inventory rejected.');
     }
-
     gameState.mainStory = MainStoryManager.serialize();
     gameState.inventory = inventoryManager.exportState();
-
     energyAttempted = true;
-    energy.restore(savedEnergyData(savedState), { resumeEffects: false });
-
+    // EnergyManager owns the only field list and the shared restore-data export.
+    // Called AFTER import: omitted values come from the normalized loaded state.
+    energy.restore(energyRestoreData(savedState), { resumeEffects: false });
     gameState.dirty = false;
     gameState.saveCheckpoint = null;
-
-    // This schedules the UI/time effects for the next task. No sleep time or
-    // HQ call is started synchronously inside the restore transaction.
+    // Schedules UI/time effects for the next task, not inside this transaction.
     energy.resumeRestoredEffects();
     return gameState;
   } catch (cause) {
@@ -124,42 +95,32 @@ export function restoreSavedGameState(savedState) {
         return false;
       }
     };
-
     let stateRolledBack = false;
     if (stateAttempted) stateRolledBack = rollback('state', () => {
       if (!gameState.importFromSave(previous.state)) throw new Error('State rollback rejected.');
       gameState.caseDirector = previous.director;
     });
-
     if (storyAttempted) rollback('story', () => {
       if (previous.story == null) MainStoryManager.resetProgress({ silent: true });
       else if (MainStoryManager.deserialize(previous.story) !== true) throw new Error('Story rollback rejected.');
     });
-
     if (inventoryAttempted) rollback('inventory', () => {
       if (!inventoryManager.importState(previous.inventory)) throw new Error('Inventory rollback rejected.');
     });
-
     let energyRolledBack = false;
     if (energyAttempted) energyRolledBack = rollback('energy', () => {
       energy.restore(previous.energy, { resumeEffects: false });
     });
-
-    // Manager restoration can mark gameState dirty. Restore metadata last.
     if (stateRolledBack) rollback('metadata', () => {
       gameState.saveCheckpoint = previous.checkpoint;
       gameState.dirty = previous.dirty;
     });
-
     if (energyRolledBack && rollbackErrors.length === 0) {
       rollback('energy-runtime', () => energy.resumeRestoredEffects());
     }
-
     const error = new Error('Could not restore save: ' + (cause?.message || String(cause)));
     error.cause = cause;
     error.rollbackErrors = rollbackErrors;
     throw error;
-  } finally {
-    restoring = false;
-  }
+  } finally { restoring = false; }
 }

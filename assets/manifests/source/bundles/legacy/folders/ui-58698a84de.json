@@ -1,0 +1,29 @@
+{
+  "bundles": {
+    "auto:folder:ui": [
+      "image:2",
+      "image:beard",
+      "image:big_forhead",
+      "image:earings",
+      "image:glasses",
+      "image:gotee",
+      "image:long_hair",
+      "image:moustache",
+      "image:neckles",
+      "image:notebook_bg",
+      "image:rainbow_streak",
+      "image:scar",
+      "image:sketch_base",
+      "image:sketch_eyes",
+      "image:sketch_hair",
+      "image:tatoo",
+      "image:braid",
+      "image:koki",
+      "image:menly",
+      "image:red-glasses",
+      "image:scar-mouth",
+      "image:scar-right",
+      "image:sketch_her"
+    ]
+  }
+}

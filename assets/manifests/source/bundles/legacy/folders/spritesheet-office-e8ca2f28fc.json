@@ -1,0 +1,8 @@
+{
+  "bundles": {
+    "auto:folder:spritesheet/office": [
+      "image:alex-storage",
+      "image:desk-lamp-flicker"
+    ]
+  }
+}

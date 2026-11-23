@@ -1,0 +1,52 @@
+{
+  "assets": [
+    {
+      "key": "hq_coffee_machine_photo",
+      "url": "assets/newspapers/tabloid/hq_coffee_machine_photo.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "hq_gold_stapler_photo",
+      "url": "assets/newspapers/tabloid/hq_gold_stapler_photo.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "hq_sunglasses_photo",
+      "url": "assets/newspapers/tabloid/hq_sunglasses_photo.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "hq_window_chair_photo",
+      "url": "assets/newspapers/tabloid/hq_window_chair_photo.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "paper_tokyo_briefing_photo",
+      "url": "assets/newspapers/newspapers/paper_tokyo_briefing_photo.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "paper_tokyo_heist_photo",
+      "url": "assets/newspapers/newspapers/paper_tokyo_heist_photo.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    }
+  ]
+}

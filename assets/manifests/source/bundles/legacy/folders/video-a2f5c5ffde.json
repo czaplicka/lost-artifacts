@@ -1,0 +1,12 @@
+{
+  "bundles": {
+    "auto:folder:video": [
+      "video:detectiveIntro",
+      "video:in",
+      "video:newsstand",
+      "video:out",
+      "video:failed_arrest",
+      "video:movie1"
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "bundles": {
+    "auto:folder:apartments/cabinet": [
+      "image:debt_cabinet_body",
+      "image:debt_cabinet_fixed",
+      "image:debt_crowbar_in_place",
+      "image:debt_crowbar",
+      "image:debt_puzzle_background",
+      "image:debt_rubber_wedge",
+      "image:debt_tool_drawer_background",
+      "image:debt_wedge_in_place",
+      "image:apartments__cabinet__paper"
+    ]
+  }
+}

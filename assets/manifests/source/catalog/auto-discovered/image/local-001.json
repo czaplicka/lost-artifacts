@@ -1,0 +1,244 @@
+{
+  "assets": [
+    {
+      "key": "big_office",
+      "url": "assets/local/big_office.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "biuro_medium",
+      "url": "assets/local/biuro_medium.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "courtroom",
+      "url": "assets/local/courtroom.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "doctor",
+      "url": "assets/local/doctor.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "Gordon",
+      "url": "assets/local/Gordon.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "kitchen",
+      "url": "assets/local/kitchen.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "medical_office",
+      "url": "assets/local/medical_office.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "medical_office_empty",
+      "url": "assets/local/medical_office_empty.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "no_doctor",
+      "url": "assets/local/no_doctor.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "no_Gordon",
+      "url": "assets/local/no_Gordon.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "pioffice",
+      "url": "assets/local/pioffice.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "spy_shop",
+      "url": "assets/local/spy_shop.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "jukebox",
+      "url": "assets/local/jukebox.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "local__post_office_poste_restante",
+      "url": "assets/local/post_office_poste_restante.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "local__post_office_postman",
+      "url": "assets/local/post_office_postman.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "local__post_office",
+      "url": "assets/local/post_office.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "airport_o",
+      "url": "assets/local/airport_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alley_o",
+      "url": "assets/local/alley_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bank_o",
+      "url": "assets/local/bank_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "garbage_o",
+      "url": "assets/local/garbage_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "harbor_o",
+      "url": "assets/local/harbor_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "hotel_maid_o",
+      "url": "assets/local/hotel_maid_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "parking_o",
+      "url": "assets/local/parking_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "police_hq_o",
+      "url": "assets/local/police_hq_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "restaurant_o",
+      "url": "assets/local/restaurant_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "museum_a",
+      "url": "assets/local/museum_a.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "museum_b",
+      "url": "assets/local/museum_b.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "museum_h",
+      "url": "assets/local/museum_h.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "museum_o",
+      "url": "assets/local/museum_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "museum_w",
+      "url": "assets/local/museum_w.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    }
+  ]
+}

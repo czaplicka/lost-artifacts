@@ -7,6 +7,12 @@ export const SAVE_CONSTANTS = {
   LOCAL_PREFIX: 'lost-artefacts',
   LOCAL_LAST_USED_SLOT_KEY: 'lost-artefacts:last-used-slot'
 };
+
+// Add one synchronous step for each actual format change, for example:
+// { fromVersion: 1, toVersion: 2, migrate: save => ({ ...save, data: ... }) }
+// The runner sets saveVersion after each successful step. No fake version bump.
+export const SAVE_MIGRATIONS = Object.freeze([]);
+
 const message = error => error?.message || String(error);
 const plain = value => value !== null && typeof value === 'object' &&
   [Object.prototype, null].includes(Object.getPrototypeOf(value));
@@ -69,14 +75,31 @@ function metadataCaseId(state) {
   }
   return null;
 }
+function migrationError(code, text, cause) {
+  const error = new Error(text); error.code = code;
+  if (cause !== undefined) error.cause = cause;
+  return error;
+}
 
 export class SaveManager {
-  constructor({ supabase, getState, applyState, gameVersion = '0.1.0', requestTimeoutMs = 8000 }) {
+  constructor({ supabase, getState, applyState, gameVersion = '0.1.0', requestTimeoutMs = 8000,
+    migrations = SAVE_MIGRATIONS }) {
     if (!supabase || typeof getState !== 'function' || typeof applyState !== 'function') {
       throw new Error('[SaveManager] Missing dependencies.');
     }
-    // applyState restores the complete save, including energy, in one transaction.
+    // getState exports the complete save, including energy.
+    // applyState restores that complete save in one transaction.
     Object.assign(this, { supabase, getState, applyState, gameVersion });
+    if (!Array.isArray(migrations)) throw new TypeError('Save migrations must be an array.');
+    this._migrations = new Map();
+    for (const step of migrations) {
+      if (!Number.isInteger(step?.fromVersion) || step.fromVersion < 1 ||
+          step.toVersion !== step.fromVersion + 1 || typeof step.migrate !== 'function') {
+        throw new TypeError('Each save migration must advance exactly one version.');
+      }
+      if (this._migrations.has(step.fromVersion)) throw new Error(`Duplicate migration from version ${step.fromVersion}.`);
+      this._migrations.set(step.fromVersion, Object.freeze({ ...step }));
+    }
     this.requestTimeoutMs = Number.isFinite(requestTimeoutMs) && requestTimeoutMs > 0 ? requestTimeoutMs : 8000;
     this._saveChain = Promise.resolve(); this._controllers = new Set(); this._destroyed = false;
   }
@@ -172,7 +195,7 @@ export class SaveManager {
   buildSavePayload(slotKey, context = {}) {
     const raw = this.getState();
     if (!plain(raw)) throw new Error('Game state is not a plain object.');
-    const data = sanitize({ ...raw, ...getEnergyManager().serialize() });
+    const data = sanitize(raw);
     const state = plain(data.state) ? data.state : data;
     return {
       saveVersion: SAVE_CONSTANTS.CURRENT_SAVE_VERSION, gameVersion: this.gameVersion, slotKey,
@@ -207,8 +230,37 @@ export class SaveManager {
     return save;
   }
   migrate(raw) {
-    const save = this.normalizeSave(raw);
-    if (save.saveVersion !== SAVE_CONSTANTS.CURRENT_SAVE_VERSION) throw new Error('Unsupported save version.');
+    const original = this.normalizeSave(raw);
+    const target = SAVE_CONSTANTS.CURRENT_SAVE_VERSION;
+    if (!Number.isInteger(target) || target < 1) throw new Error('Invalid current save version.');
+    if (original.saveVersion > target) {
+      throw migrationError('SAVE_VERSION_TOO_NEW',
+        `Save version ${original.saveVersion} requires a newer game (current format: ${target}).`);
+    }
+    // Work on a detached copy. A failed migration must not alter the source save.
+    let save = structuredClone(original);
+    while (save.saveVersion < target) {
+      const from = save.saveVersion;
+      const step = this._migrations.get(from);
+      if (!step) {
+        throw migrationError('SAVE_MIGRATION_MISSING', `Missing save migration ${from} -> ${from + 1}.`);
+      }
+      try {
+        const next = step.migrate(save);
+        if (next && typeof next.then === 'function') {
+          // Consume a possible rejection; migration steps must remain synchronous.
+          Promise.resolve(next).catch(() => {});
+          throw new TypeError('Save migrations must be synchronous.');
+        }
+        if (!plain(next) || !plain(next.data)) throw new TypeError('Migration must return a save with plain data.');
+        if (next.saveVersion !== from && next.saveVersion !== step.toVersion) {
+          throw new Error('Migration returned an unexpected save version.');
+        }
+        save = this.normalizeSave({ ...next, saveVersion: step.toVersion });
+      } catch (cause) {
+        throw migrationError('SAVE_MIGRATION_FAILED', `Save migration ${from} -> ${step.toVersion} failed: ${message(cause)}`, cause);
+      }
+    }
     return save;
   }
   writeLocal(key, payload) {
@@ -273,7 +325,7 @@ export class SaveManager {
       if (error) throw error; return data ? this.normalizeSave(data) : null;
     } catch (error) { console.warn('[SaveManager] Cloud read failed:', error); return null; }
   }
-  // Retained for API compatibility. Normal slot loading must not call this twice.
+  // Legacy explicit API only; normal loading restores energy through applyState.
   restoreEnergyManager(data) { getEnergyManager().restore(data); }
   load(key, prefer = 'newest') { return this._enqueue(() => this._performLoad(key, prefer)); }
   async _performLoad(key, prefer) {
@@ -282,7 +334,6 @@ export class SaveManager {
     const cloud = prefer === 'local' ? null : await this.safeReadCloud(key);
     const resolved = this.resolvePreferredSave(local, cloud, prefer); if (!resolved) return null;
     const save = this.migrate(resolved);
-    // The injected applyState (saveGameService) already restores energy transactionally.
     if (await this.applyState(save.data) === false) throw new Error('Restoring game state failed.');
     this.rememberLastUsedSlot(key); return save;
   }

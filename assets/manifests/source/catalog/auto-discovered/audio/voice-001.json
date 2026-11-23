@@ -1,0 +1,52 @@
+{
+  "assets": [
+    {
+      "key": "intro",
+      "url": "assets/voice/Alex_Murphy/intro.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "replacement",
+      "url": "assets/voice/Alex_Murphy/replacement.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "replacement2",
+      "url": "assets/voice/Alex_Murphy/replacement2.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "replacement3",
+      "url": "assets/voice/Alex_Murphy/replacement3.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "return",
+      "url": "assets/voice/Alex_Murphy/return.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "return2",
+      "url": "assets/voice/Alex_Murphy/return2.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    }
+  ]
+}

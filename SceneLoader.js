@@ -274,11 +274,24 @@ export class SceneLoader {
   async goto(fromScene, key, data = {}, { stopFrom = true } = {}) {
     if (this._destroyed) return false;
     const stopSpinner = this._beginSpinner();
+    let guard = null;
+    let preparing = false;
+    const mayContinue = () => guard === null || Boolean(guard());
+    const cancelNavigation = () => {
+      if (preparing) this.game.assets.cancelPrepared(key);
+      return false;
+    };
     try {
-      // ensure() establishes foreground priority before queuing background work.
+      // Capture the operation, not a getter that might later return a newer operation.
+      guard = typeof fromScene?.captureNavigationGuard === 'function'
+        ? fromScene.captureNavigationGuard() ?? null : null;
+      if (guard !== null && typeof guard !== 'function') throw new TypeError('Invalid navigation guard.');
+      if (!mayContinue()) return cancelNavigation();
       const loading = this.ensure(key);
       this._notifyPlayerEntry(fromScene, key);
       await loading;
+      if (this._destroyed || !mayContinue()) return cancelNavigation();
+      preparing = true;
       await this.game.assets.prepareScene(key, data);
     } catch (error) {
       this.game.assets.cancelPrepared(key);
@@ -287,7 +300,13 @@ export class SceneLoader {
     } finally {
       stopSpinner();
     }
-    if (this._destroyed) return false;
+    if (this._destroyed) return cancelNavigation();
+    try {
+      if (!mayContinue()) return cancelNavigation();
+    } catch (error) {
+      this.game.assets.cancelPrepared(key);
+      throw error;
+    }
     if (stopFrom && !fromScene?.sys?.isActive?.()) {
       this.game.assets.cancelPrepared(key);
       console.warn('[SceneLoader] Navigation cancelled: source scene is inactive.');

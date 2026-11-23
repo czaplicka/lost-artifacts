@@ -1,0 +1,10 @@
+{
+  "bundles": {
+    "auto:folder:ui/pi-phone": [
+      "image:base",
+      "image:desk",
+      "image:dial",
+      "image:handset"
+    ]
+  }
+}

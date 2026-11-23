@@ -1,0 +1,21 @@
+{
+  "bundles": {
+    "auto:folder:crimes": [
+      "tilemap:auction_house",
+      "image:auction_house_bg",
+      "tilemap:castle",
+      "image:castle_bg",
+      "tilemap:dockyard",
+      "image:dockyard_bg",
+      "tilemap:havela",
+      "image:havela_bg",
+      "tilemap:louvre",
+      "image:louvre_bg",
+      "tilemap:tower",
+      "image:tower_bg",
+      "image:tokyo_museum",
+      "tilemap:tokyo_museum",
+      "image:tokyo_museum_bg"
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "bundles": {
+    "auto:folder:side_quests/Alibi/web/FaceSpace": [
+      "image:artur_finch_avatar",
+      "image:evelyn_shaw_avatar",
+      "image:simon_pike_avatar"
+    ]
+  }
+}

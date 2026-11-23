@@ -1,0 +1,25 @@
+{
+  "bundles": {
+    "auto:folder:game_over": [
+      "image:background",
+      "image:game_over",
+      "image:lamp",
+      "image:map",
+      "image:medallion_officer",
+      "image:medialion",
+      "image:officer_left_01",
+      "image:officer_left_02_1",
+      "image:officer_left_02",
+      "image:officer_right_01_1",
+      "image:officer_right_01",
+      "image:officer_right_02",
+      "image:paper_01",
+      "image:paper_02",
+      "image:paper_03",
+      "image:police_car",
+      "image:pouch",
+      "image:thief",
+      "image:wall"
+    ]
+  }
+}

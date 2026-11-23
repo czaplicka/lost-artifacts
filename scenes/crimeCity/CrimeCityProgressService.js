@@ -18,6 +18,33 @@ const own = (value, key) => Object.prototype.hasOwnProperty.call(value, key);
 const validNode = value => typeof value === 'string' && value.trim().length > 0;
 const FILE = 'scenes/crimeCity/CrimeCityProgressService.js';
 const text = key => __dialogueText(FILE, key);
+const THEORY_RESULTS = new Set(['exact', 'partial', 'weak']);
+function scalarId(value) {
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+  if (typeof value === 'string' && value.trim()) return value.trim();
+  return null;
+}
+function isCurrentTheory(reconstruction, caseKey, scoped) {
+  if (!isRecord(reconstruction) || !THEORY_RESULTS.has(reconstruction.playerTheoryResult)) return false;
+  const mission = gameState.currentMission;
+  if (!isRecord(mission)) return false;
+  const expected = {
+    caseKey,
+    caseId: gameState.currentCaseId,
+    missionId: mission.id || mission.missionId || caseKey,
+    sceneId: mission.scene,
+    thiefId: gameState.currentThief?.id || mission.actualThief?.id || gameState.currentThiefId || mission.actualThiefId || mission.thiefId || gameState.actualThiefId,
+    campaignId: gameState._createdAt
+  };
+  let identified = scoped;
+  for (const field of Object.keys(expected)) {
+    if (reconstruction[field] == null) continue;
+    const saved = scalarId(reconstruction[field]), current = scalarId(expected[field]);
+    if (saved === null || (current !== null && saved !== current)) return false;
+    if (current !== null && ['caseKey', 'caseId', 'missionId'].includes(field)) identified = true;
+  }
+  return identified;
+}
 
 export class CrimeCityProgressService {
   constructor(scene) { this.scene = scene; }
@@ -104,8 +131,14 @@ export class CrimeCityProgressService {
   }
 
   isGridCompleted() {
-    const reconstruction = gameState.reconstructedHeists?.[this.getCaseKey()] || gameState.reconstructedHeist;
-    return Boolean(reconstruction && typeof reconstruction.playerTheoryResult === 'string' && reconstruction.playerTheoryResult.length > 0);
+    const rawCaseKey = this.getCaseKey();
+    if (scalarId(rawCaseKey) === null) return false;
+    const caseKey = String(rawCaseKey);
+    const records = asRecord(gameState.reconstructedHeists);
+    // An existing current slot is authoritative, even when it is unfinished or invalid.
+    if (own(records, caseKey)) return isCurrentTheory(records[caseKey], caseKey, true);
+    // Older single-slot saves need explicit case/mission identity before they may count.
+    return isCurrentTheory(gameState.reconstructedHeist, caseKey, false);
   }
 
   getAlibiResolutionProgress() {

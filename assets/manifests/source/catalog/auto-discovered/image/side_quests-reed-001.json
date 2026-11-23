@@ -1,0 +1,180 @@
+{
+  "assets": [
+    {
+      "key": "claire_sutton_avatar",
+      "url": "assets/side_quests/Reed/web/FaceSpace/claire_sutton_avatar.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "clare_sutton_studio",
+      "url": "assets/side_quests/Reed/web/news/clare_sutton_studio.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "coat_check_green_jacket_swap",
+      "url": "assets/side_quests/Reed/web/news/coat_check_green_jacket_swap.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "community_ledger_small_grants",
+      "url": "assets/side_quests/Reed/web/news/community_ledger_small_grants.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "community_ledger_volunteer_training",
+      "url": "assets/side_quests/Reed/web/news/community_ledger_volunteer_training.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "coral_crown",
+      "url": "assets/side_quests/Reed/web/hotels/coral_crown.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "everyday_edit_green_checks",
+      "url": "assets/side_quests/Reed/web/news/everyday_edit_green_checks.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "marsh_button_fenwick_blazer",
+      "url": "assets/side_quests/Reed/web/news/marsh_button_fenwick_blazer.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "miramar",
+      "url": "assets/side_quests/Reed/web/hotels/miramar.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "nora_bell_avatar",
+      "url": "assets/side_quests/Reed/web/FaceSpace/nora_bell_avatar.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "norah_bell_piano_studio",
+      "url": "assets/side_quests/Reed/web/news/norah_bell_piano_studio.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "open_skies",
+      "url": "assets/side_quests/Reed/web/logos/open_skies.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "pressing_matters_checked_blazer",
+      "url": "assets/side_quests/Reed/web/news/pressing_matters_checked_blazer.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "second",
+      "url": "assets/side_quests/Reed/second.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "second_impression_green_jackets",
+      "url": "assets/side_quests/Reed/web/news/second_impression_green_jackets.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "spare_pair_two_glasses",
+      "url": "assets/side_quests/Reed/web/news/spare_pair_two_glasses.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "swallow_watch",
+      "url": "assets/side_quests/Reed/web/logos/swallow_watch.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "swiftwing",
+      "url": "assets/side_quests/Reed/web/logos/swiftwing.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "table_matters_two_glasses",
+      "url": "assets/side_quests/Reed/web/news/table_matters_two_glasses.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "the_mariner",
+      "url": "assets/side_quests/Reed/web/hotels/the_mariner.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "third",
+      "url": "assets/side_quests/Reed/third.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "toast_rack_two_glasses_gift_box",
+      "url": "assets/side_quests/Reed/web/news/toast_rack_two_glasses_gift_box.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    }
+  ]
+}

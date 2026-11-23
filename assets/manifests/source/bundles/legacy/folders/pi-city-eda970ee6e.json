@@ -1,0 +1,10 @@
+{
+  "bundles": {
+    "auto:folder:pi/city": [
+      "image:bartender",
+      "image:pi_spy_shop_background",
+      "image:tavern_empty",
+      "image:tavern"
+    ]
+  }
+}

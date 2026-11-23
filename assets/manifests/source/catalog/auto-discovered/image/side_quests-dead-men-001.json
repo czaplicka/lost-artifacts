@@ -1,0 +1,20 @@
+{
+  "assets": [
+    {
+      "key": "edward_vale",
+      "url": "assets/side_quests/Dead-men/edward_vale.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "edward_vale_photography",
+      "url": "assets/side_quests/Dead-men/edward_vale_photography.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    }
+  ]
+}

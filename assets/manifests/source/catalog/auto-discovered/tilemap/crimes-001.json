@@ -1,0 +1,12 @@
+{
+  "assets": [
+    {
+      "key": "tokyo_museum",
+      "url": "assets/crimes/tokyo_museum.json",
+      "type": "tilemap",
+      "groups": [
+        "tilemaps"
+      ]
+    }
+  ]
+}

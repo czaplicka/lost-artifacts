@@ -1,0 +1,484 @@
+{
+  "assets": [
+    {
+      "key": "_manifest",
+      "url": "assets/data/objects-source/_manifest.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "agencyFieldManual",
+      "url": "assets/data/agencyFieldManual.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "agencyMail",
+      "url": "assets/data/agencyMail.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "alexRecoveryInquiry",
+      "url": "assets/data/alexRecoveryInquiry.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "archiveCrashFollowup",
+      "url": "assets/data/archiveCrashFollowup.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "archiveMissingReport",
+      "url": "assets/data/archiveMissingReport.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "archivist",
+      "url": "assets/data/dialogue/archivist.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "auction_house",
+      "url": "assets/data/objects-source/auction_house.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "businesses",
+      "url": "assets/data/web/missions/dead-men-calling/pages/businesses.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "caseModifiers",
+      "url": "assets/data/caseModifiers.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "castle",
+      "url": "assets/data/objects-source/castle.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "chapterTwoOpening",
+      "url": "assets/data/chapterTwoOpening.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "coral-search",
+      "url": "assets/data/web/missions/two-glasses/pages/coral-search.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "crashTimelinePuzzle",
+      "url": "assets/data/crashTimelinePuzzle.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "csi_clues_config",
+      "url": "assets/data/csi_clues_config.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "data__objects-source__tokyo_museum",
+      "url": "assets/data/objects-source/tokyo_museum.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "data__web__missions__dead-men-calling__keywords",
+      "url": "assets/data/web/missions/dead-men-calling/keywords.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "data__web__missions__dead-men-calling__mission",
+      "url": "assets/data/web/missions/dead-men-calling/mission.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "data__web__missions__dead-men-calling__pages__news",
+      "url": "assets/data/web/missions/dead-men-calling/pages/news.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "data__web__missions__dead-men-calling__search",
+      "url": "assets/data/web/missions/dead-men-calling/search.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dockyard",
+      "url": "assets/data/objects-source/dockyard.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "escapeTimeline",
+      "url": "assets/data/escapeTimeline.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "events",
+      "url": "assets/data/events.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "financialTrace",
+      "url": "assets/data/financialTrace.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "fourthMissionStory",
+      "url": "assets/data/fourthMissionStory.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "gordonConfrontation",
+      "url": "assets/data/gordonConfrontation.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "gordonEthics",
+      "url": "assets/data/gordonEthics.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "gordonFirstInterview",
+      "url": "assets/data/gordonFirstInterview.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "gordonSafe",
+      "url": "assets/data/gordonSafe.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "havela",
+      "url": "assets/data/objects-source/havela.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "hollyChapterOneFinale",
+      "url": "assets/data/hollyChapterOneFinale.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "hollyFinancialLead",
+      "url": "assets/data/hollyFinancialLead.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "hollySurvivalUpdate",
+      "url": "assets/data/hollySurvivalUpdate.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "hotels",
+      "url": "assets/data/web/missions/two-glasses/pages/hotels.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "insuranceArchiveStory",
+      "url": "assets/data/insuranceArchiveStory.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "ItemsCatalog",
+      "url": "assets/data/ItemsCatalog.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "jacket-search",
+      "url": "assets/data/web/missions/two-glasses/pages/jacket-search.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "keywords",
+      "url": "assets/data/web/missions/two-glasses/keywords.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "last-gnome-standing",
+      "url": "assets/data/cold-cases/last-gnome-standing.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "louvre",
+      "url": "assets/data/objects-source/louvre.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "margeBirthday",
+      "url": "assets/data/margeBirthday.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "margeDisclosure",
+      "url": "assets/data/margeDisclosure.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "margeGift",
+      "url": "assets/data/margeGift.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "mariner-search",
+      "url": "assets/data/web/missions/two-glasses/pages/mariner-search.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "medicalReview",
+      "url": "assets/data/medicalReview.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "miramar-search",
+      "url": "assets/data/web/missions/two-glasses/pages/miramar-search.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "mission",
+      "url": "assets/data/web/missions/two-glasses/mission.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "motives",
+      "url": "assets/data/motives.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "news",
+      "url": "assets/data/web/missions/two-glasses/pages/news.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "newspapers-tabloid",
+      "url": "assets/data/newspapers-tabloid.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "newspapers-time",
+      "url": "assets/data/newspapers-time.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "npcMotiveClues",
+      "url": "assets/data/npcMotiveClues.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "officeDustPuzzle",
+      "url": "assets/data/officeDustPuzzle.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "officeSchedule",
+      "url": "assets/data/officeSchedule.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "onboardingSchedule",
+      "url": "assets/data/onboardingSchedule.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "organisations",
+      "url": "assets/data/web/missions/two-glasses/pages/organisations.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "phone",
+      "url": "assets/data/web/missions/dead-men-calling/phone.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "piCases",
+      "url": "assets/data/piCases.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "piClassifieds",
+      "url": "assets/data/piClassifieds.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "piDocumentJobs",
+      "url": "assets/data/piDocumentJobs.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    }
+  ]
+}

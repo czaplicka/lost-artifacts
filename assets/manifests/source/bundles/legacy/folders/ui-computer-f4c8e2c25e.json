@@ -1,0 +1,10 @@
+{
+  "bundles": {
+    "auto:folder:ui/computer": [
+      "image:wallpaper_mark",
+      "image:wallpaper_pi",
+      "image:start_mark",
+      "image:start_pi"
+    ]
+  }
+}

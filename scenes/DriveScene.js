@@ -9,6 +9,7 @@ import { DriveRoad } from './drive/DriveRoad.js';
 import { DriveControls } from './drive/DriveControls.js';
 import { DriveTrip } from './drive/DriveTrip.js';
 import { installDriveEngineAudio } from './drive/DriveEngineAudio.js';
+import { CAR_DESIGN, loadCarAssets } from './drive/DriveCarAssets.js';
 
 export class DriveScene extends BaseScene {
   constructor() { super({key:'DriveScene'}); }
@@ -29,12 +30,43 @@ export class DriveScene extends BaseScene {
       pendingArrival:false,settlementError:null,outcome:null,applied:false,
       summaryReady:false,gate:null,engineAudio:null,_roadWarning:null,
       _roadEventCount:0,_roadLastObstacleId:null,_settlementPanel:null,
+      carAssets:null,_carLoadingLabel:null,_carWeatherMask:null,_carMaskGraphics:null,
+      _carLoadingUnbind:null,dinoHead:null,dinoTorso:null,carSeat:null,
       stationIndex:Math.floor(Math.random()*FLAVOUR.radio.length)
     });
   }
   create() {
     super.create();
     this.events.once(Phaser.Scenes.Events.SHUTDOWN,this.onSceneShutdown,this);
+    this.hideTravelUi();this.state='loading-car';
+    const layout=()=>{
+      const {width,height}=this.scale.gameSize;
+      this.cameras.main.setViewport(0,0,width,height).setZoom(1).setScroll(0,0);
+      this._carLoadingLabel?.setPosition(width/2,height/2);
+    };
+    this._carLoadingLabel=this.add.text(0,0,'PREPARING YOUR VERY RESPECTABLE CAR...',{
+      fontFamily:'SpecialElite',fontSize:'24px',color:'#e3d4ad',align:'center',wordWrap:{width:this.scale.gameSize.width*.8}
+    }).setOrigin(.5).setDepth(20000);
+    this.trackInputEvent(this.scale,Phaser.Scale.Events.RESIZE,layout);layout();
+    this._carLoadingUnbind=()=>this.offTrackedInputEvent(this.scale,Phaser.Scale.Events.RESIZE,layout);
+    void this.prepareDriveCar();
+  }
+  async prepareDriveCar(){
+    const run=this._driveRun;
+    try{
+      await loadCarAssets(this);
+      if(this._cleanupDone||this._driveRun!==run||!this.sys.isActive())return;
+      this._carLoadingUnbind?.();this._carLoadingUnbind=null;
+      this._carLoadingLabel?.destroy();this._carLoadingLabel=null;
+      this.startPreparedDrive();
+    }catch(error){
+      if(this._cleanupDone||this._driveRun!==run||!this.sys.isActive())return;
+      this._carLoadingUnbind?.();this._carLoadingUnbind=null;
+      this._carLoadingLabel?.destroy();this._carLoadingLabel=null;
+      this.showDriveStartupError(error);
+    }
+  }
+  startPreparedDrive(){
     try {
       const d=this.driveData;
       this.quote=getRoadTripQuote(d.fromTownId,d.toTownId);
@@ -43,10 +75,10 @@ export class DriveScene extends BaseScene {
         throw new Error('No valid arrival scene is configured for this town.');
       this.tripId=beginRoadTrip(this.quote,this.tripId);
     } catch(error) { this.showDriveStartupError(error);return; }
-    this.hideTravelUi();
-    const {width:W,height:H}=this.scale.gameSize;
-    Object.assign(this,{W,H,U:Math.min(W/1920,H/1080),sx:W/1920,
-      horizonY:H*.4,dashTop:H*.66,step:Math.max(3,Math.round(4*H/1080)),curveK:.05*(W/1920)});
+    this.state='driving';
+    const W=CAR_DESIGN.width,H=CAR_DESIGN.height;
+    Object.assign(this,{W,H,U:1,sx:1,horizonY:H*CAR_DESIGN.horizon,dashTop:H*CAR_DESIGN.dashTop,
+      step:4,curveK:.05});
     this.rowCount=Math.ceil((H-this.horizonY)/this.step);
     this.rowCx=new Float32Array(this.rowCount+2);
     this.cullDz=Z0/((this.dashTop-this.horizonY)/(H-this.horizonY))*.92;
@@ -92,8 +124,7 @@ export class DriveScene extends BaseScene {
       tweens:this.tweens.getTweens().filter(t=>!t.paused)};
     this.state='paused';this.time.paused=true;
     for(const t of this._driveHold.tweens)t.pause();
-    this.resetDriveControls();this.refreshDriveButtons();this.engineAudio?.silence();
-    return true;
+    this.resetDriveControls();this.refreshDriveButtons();this.engineAudio?.silence();return true;
   }
   releaseDriveHold() {
     if(!this._driveHold||this._cleanupDone||document.hidden||!document.hasFocus())return false;
@@ -101,46 +132,35 @@ export class DriveScene extends BaseScene {
     this._driveOverlay?.destroy(true);this._driveOverlay=null;
     this.time.paused=hold.clockPaused;
     for(const t of hold.tweens)if(this.tweens.has(t))t.resume();
-    this.state=hold.state;this.resetDriveControls();this.refreshDriveButtons();
-    return true;
+    this.state=hold.state;this.resetDriveControls();this.refreshDriveButtons();return true;
   }
   showDriveDialog(title,message,buttons) {
     const {W,H,U}=this;
     const veil=this.add.rectangle(0,0,W,H,0x0c1018,.84).setOrigin(0).setInteractive();
     veil.on('pointerdown',(p,x,y,e)=>e?.stopPropagation?.());
     const card=this.add.rectangle(W/2,H/2,W*.84,H*.65,0x292326).setStrokeStyle(Math.max(1,2*U),0xb99d65);
-    const heading=this.add.text(W/2,H*.245,title,{fontFamily:'PressStart2P',fontSize:this.px(19),
-      color:'#e4c98b',align:'center',wordWrap:{width:W*.73}}).setOrigin(.5);
-    const body=this.add.text(W/2,H*.46,message,{fontFamily:'SpecialElite',fontSize:this.px(23),
-      color:'#d8ceba',align:'center',wordWrap:{width:W*.73}}).setOrigin(.5);
+    const heading=this.add.text(W/2,H*.245,title,{fontFamily:'PressStart2P',fontSize:this.px(19),color:'#e4c98b',align:'center',wordWrap:{width:W*.73}}).setOrigin(.5);
+    const body=this.add.text(W/2,H*.46,message,{fontFamily:'SpecialElite',fontSize:this.px(23),color:'#d8ceba',align:'center',wordWrap:{width:W*.73}}).setOrigin(.5);
     const items=[veil,card,heading,body];
     buttons.forEach((b,i)=>{
       const x=buttons.length===1?W/2:W*(.29+i*.42);
-      const button=this.add.text(x,H*.72,b.label,{fontFamily:'PressStart2P',fontSize:this.px(12),
-        color:'#eee0bb',backgroundColor:'#51422f',padding:{x:17*U,y:17*U}})
-        .setOrigin(.5).setInteractive({useHandCursor:true});
-      button.on('pointerdown',(p,lx,ly,e)=>{
-        e?.stopPropagation?.();if(p.button>0||document.hidden||!document.hasFocus())return;b.action();
-      });items.push(button);
+      const button=this.add.text(x,H*.72,b.label,{fontFamily:'PressStart2P',fontSize:this.px(12),color:'#eee0bb',backgroundColor:'#51422f',padding:{x:17*U,y:17*U}}).setOrigin(.5).setInteractive({useHandCursor:true});
+      button.on('pointerdown',(p,lx,ly,e)=>{e?.stopPropagation?.();if(p.button>0||document.hidden||!document.hasFocus())return;b.action();});items.push(button);
     });
     this._driveOverlay=this.add.container(0,0,items).setDepth(19000);
   }
   pauseDrive(message='Even detectives need a pit stop.') {
     if(!this.holdDrive('pause'))return false;
-    this.showDriveDialog('PIT STOP',message+'\n\nDistance, coffee time and road events are frozen.',[
-      {label:'RESUME [P]',action:()=>this.releaseDriveHold()}
-    ]);return true;
+    this.showDriveDialog('PIT STOP',message+'\n\nDistance, coffee time and road events are frozen.',[{label:'RESUME [P]',action:()=>this.releaseDriveHold()}]);return true;
   }
   showDriveStartupError(error) {
     if(this._cleanupDone||!this.sys.isActive())return;
-    console.error('[DriveScene] Could not start:',error);
-    this.ready=false;this.state='startup-error';
+    console.error('[DriveScene] Could not start:',error);this.ready=false;this.state='startup-error';
     const message=error?.message||String(error);
     if(this._driveStartupPanel?.scene){this._driveStartupMessage.setText(message);return;}
     const bg=this.add.rectangle(0,0,1,1,0x15111c).setOrigin(0).setInteractive();
     const t=this.add.text(0,0,message,{fontFamily:'SpecialElite',fontSize:'24px',color:'#fff1d0',align:'center'}).setOrigin(.5);
-    const b=this.add.text(0,0,'RETURN TO MENU (ESC)',{fontFamily:'PressStart2P',fontSize:'14px',
-      color:'#d4af37',backgroundColor:'#3b2d20',padding:{x:18,y:18}}).setOrigin(.5).setInteractive({useHandCursor:true});
+    const b=this.add.text(0,0,'RETURN TO MENU (ESC)',{fontFamily:'PressStart2P',fontSize:'14px',color:'#d4af37',backgroundColor:'#3b2d20',padding:{x:18,y:18}}).setOrigin(.5).setInteractive({useHandCursor:true});
     this._driveStartupMessage=t;this._driveStartupButton=b;
     this._driveStartupPanel=this.add.container(0,0,[bg,t,b]).setDepth(20000);
     const layout=()=>{
@@ -162,8 +182,7 @@ export class DriveScene extends BaseScene {
     try { if(await this.goto('EnterScene'))return true;throw new Error('The menu could not be opened. Please retry.'); }
     catch(error){
       if(this._driveRun===run&&!this._cleanupDone&&this.sys.isActive()){
-        this._driveStartupExitPending=false;this._driveStartupButton?.setAlpha(1);
-        this._driveStartupMessage?.setText(error?.message||String(error));
+        this._driveStartupExitPending=false;this._driveStartupButton?.setAlpha(1);this._driveStartupMessage?.setText(error?.message||String(error));
       }return false;
     }
   }
@@ -172,16 +191,18 @@ export class DriveScene extends BaseScene {
     this.releaseDriveInput?.();this.releaseDriveInput=null;
     if(this._driveHold)this.time.paused=this._driveHold.clockPaused;
     this._driveHold=null;
-    if(this._driveOverlay?.scene)this._driveOverlay.destroy(true);
-    this._driveOverlay=null;
+    if(this._driveOverlay?.scene)this._driveOverlay.destroy(true);this._driveOverlay=null;
     this.clearDriveBubble?.();
+    this._carLoadingUnbind?.();this._carLoadingUnbind=null;
+    this._carLoadingLabel?.destroy();this._carLoadingLabel=null;
+    this._carWeatherMask?.destroy();this._carWeatherMask=null;
+    this._carMaskGraphics?.destroy();this._carMaskGraphics=null;
   }
   cleanup() {
     if(this._cleanupDone)return;
     this.ready=false;this.disposeDriveRuntime();
     if(this._driveStartupPanel?.scene)this._driveStartupPanel.destroy(true);
-    this._driveStartupPanel=null;this._driveStartupExitPending=true;
-    super.cleanup();
+    this._driveStartupPanel=null;this._driveStartupExitPending=true;super.cleanup();
   }
   fitDriveCamera() {
     const {width,height}=this.scale.gameSize;if(!width||!height)return;
@@ -196,8 +217,7 @@ export class DriveScene extends BaseScene {
     const dt=Math.min(Math.max(0,delta/1000),.05);if(!Number.isFinite(dt)||!dt)return;
     this.clock+=dt;this.stepDrive(dt);
     if(!['driving','arriving'].includes(this.state)||this.settlementError)return;
-    this.spawnAhead();this.drawRoad();this.updateObjects(dt);
-    if(this.settlementError)return;
+    this.spawnAhead();this.drawRoad();this.updateObjects(dt);if(this.settlementError)return;
     this.updateScenery(dt);this.updateDashboard(dt);
   }
 }
@@ -210,5 +230,4 @@ export function applyDriveMixins(prototype,entries){
   }
   for(const [key,descriptor]of pending)Object.defineProperty(prototype,key,descriptor);
 }
-applyDriveMixins(DriveScene.prototype,[['DriveTextures',DriveTextures],['DriveScenery',DriveScenery],
-  ['DriveCockpit',DriveCockpit],['DriveRoad',DriveRoad],['DriveControls',DriveControls],['DriveTrip',DriveTrip]]);
+applyDriveMixins(DriveScene.prototype,[['DriveTextures',DriveTextures],['DriveScenery',DriveScenery],['DriveCockpit',DriveCockpit],['DriveRoad',DriveRoad],['DriveControls',DriveControls],['DriveTrip',DriveTrip]]);

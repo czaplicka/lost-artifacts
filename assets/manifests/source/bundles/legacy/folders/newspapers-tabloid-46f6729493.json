@@ -1,0 +1,10 @@
+{
+  "bundles": {
+    "auto:folder:newspapers/tabloid": [
+      "image:hq_coffee_machine_photo",
+      "image:hq_gold_stapler_photo",
+      "image:hq_sunglasses_photo",
+      "image:hq_window_chair_photo"
+    ]
+  }
+}

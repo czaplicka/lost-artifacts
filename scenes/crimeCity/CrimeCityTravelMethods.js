@@ -9,6 +9,15 @@ const LOCAL_ACTIVITY_BY_NODE = Object.freeze({
   crime_scene: 'crime_scene', crime_lab: 'csi_lab', apartment: 'apartment_visit'
 });
 
+function transitionContext(scene) {
+  const mission = gameState.currentMission;
+  return [gameState._createdAt, gameState.currentCaseId, mission?.id, mission?.missionId,
+    mission?.scene, scene.cityId];
+}
+function sameTransitionContext(scene, expected) {
+  return transitionContext(scene).every((value, index) => Object.is(value, expected[index]));
+}
+
 export const crimeCityTravelMethods = {
   getLocalActivityEnergyCost(targetNodeId) {
     const activityType = Object.prototype.hasOwnProperty.call(LOCAL_ACTIVITY_BY_NODE, targetNodeId)
@@ -129,22 +138,72 @@ export const crimeCityTravelMethods = {
     });
   },
 
+  captureNavigationGuard() {
+    return this._crimeCityTransitionGuard ?? null;
+  },
+
   transitionTo(sceneKey, data = {}) {
     if (this.isTransitioning || this._cleanupDone || !this.sys.isActive()) return false;
-    const token = this._runToken;
+    const token = this._runToken, context = transitionContext(this);
+    const camera = this.cameras.main;
+    const fadeEvent = Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE;
+    const events = Phaser.Scenes.Events;
+    this._crimeCityTransitionCleanup?.();
     this.isTransitioning = true;
-    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-      if (!this.isCurrentRun(token)) return;
-      void this.goto(sceneKey, data).then(started => {
-        if (!started && this.isCurrentRun(token)) {
-          this.isTransitioning = false; this.cameras.main.fadeIn(200, 0, 0, 0);
-        }
-      }).catch(error => {
-        if (!this.isCurrentRun(token)) return;
-        console.error(`[CrimeCityScene] Transition to ${sceneKey} failed:`, error);
-        this.isTransitioning = false; this.cameras.main.fadeIn(200, 0, 0, 0);
-      });
-    });
-    this.cameras.main.fadeOut(350, 0, 0, 0); return true;
+    let live = true, fadeHandled = false;
+    const ownsTransition = () => live && this._crimeCityTransitionCleanup === cancel;
+    const sameRun = () => token === this._runToken && !this._cleanupDone;
+    const isCurrent = () => ownsTransition() && this.isCurrentRun(token);
+    const guard = () => isCurrent() && sameTransitionContext(this, context);
+    const detachFade = () => camera.off(fadeEvent, onFade);
+    const cancel = () => {
+      live = false;
+      detachFade();
+      this.events.off(events.SHUTDOWN, cancel);
+      this.events.off(events.DESTROY, cancel);
+      this.events.off(events.SLEEP, onSuspend);
+      this.events.off(events.PAUSE, onSuspend);
+      if (this._crimeCityTransitionCleanup === cancel) this._crimeCityTransitionCleanup = null;
+      if (this._crimeCityTransitionGuard === guard) this._crimeCityTransitionGuard = null;
+    };
+    const recover = (error = null, suspended = false) => {
+      const canRestore = ownsTransition() && sameRun() && (suspended || this.sys.isActive());
+      cancel();
+      if (!canRestore) return;
+      this.isTransitioning = false;
+      if (error) console.error(`[CrimeCityScene] Transition to ${sceneKey} failed:`, error);
+      try {
+        camera.resetFX(); camera.setAlpha(1);
+        if (!suspended) camera.fadeIn(200, 0, 0, 0);
+      } catch (cameraError) {
+        console.error('[CrimeCityScene] Could not restore the city camera:', cameraError);
+      }
+    };
+    const onSuspend = () => recover(null, true);
+    const start = async () => {
+      try {
+        const started = await this.goto(sceneKey, data);
+        if (!started) recover();
+        else cancel();
+      } catch (error) { recover(error); }
+    };
+    const onFade = () => {
+      if (!ownsTransition() || fadeHandled) return;
+      fadeHandled = true; detachFade();
+      if (!isCurrent()) { cancel(); return; }
+      if (!guard()) { recover(); return; }
+      void start();
+    };
+    this._crimeCityTransitionCleanup = cancel;
+    this._crimeCityTransitionGuard = guard;
+    try {
+      this.events.once(events.SHUTDOWN, cancel);
+      this.events.once(events.DESTROY, cancel);
+      this.events.once(events.SLEEP, onSuspend);
+      this.events.once(events.PAUSE, onSuspend);
+      camera.once(fadeEvent, onFade);
+      camera.fadeOut(350, 0, 0, 0);
+      return true;
+    } catch (error) { recover(error); return false; }
   }
 };

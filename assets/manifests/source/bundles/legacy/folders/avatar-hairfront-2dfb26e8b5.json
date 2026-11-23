@@ -1,0 +1,10 @@
+{
+  "bundles": {
+    "auto:folder:avatar/hairFront": [
+      "image:messy",
+      "image:sideBraid",
+      "image:wtf",
+      "image:youngster"
+    ]
+  }
+}

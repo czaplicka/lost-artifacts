@@ -1,0 +1,12 @@
+{
+  "assets": [
+    {
+      "key": "buttons__destination",
+      "url": "assets/buttons/destination.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    }
+  ]
+}

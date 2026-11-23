@@ -1,0 +1,20 @@
+{
+  "assets": [
+    {
+      "key": "icon-192",
+      "url": "assets/icons/icon-192.png",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "icon-512",
+      "url": "assets/icons/icon-512.png",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    }
+  ]
+}

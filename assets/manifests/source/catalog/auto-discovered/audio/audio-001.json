@@ -1,0 +1,228 @@
+{
+  "assets": [
+    {
+      "key": "theme",
+      "url": "assets/audio/theme.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "A_Matchbox_Left_Behind",
+      "url": "assets/audio/music/A_Matchbox_Left_Behind.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "Rain_Against_the_Windowpane",
+      "url": "assets/audio/music/Rain_Against_the_Windowpane.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "The_Second_Alibi",
+      "url": "assets/audio/music/The_Second_Alibi.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "camera-flash",
+      "url": "assets/audio/camera-flash.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "card",
+      "url": "assets/audio/card.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "evidence_collect",
+      "url": "assets/audio/evidence_collect.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "kaching",
+      "url": "assets/audio/kaching.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "police-radio",
+      "url": "assets/audio/police-radio.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "police-siren",
+      "url": "assets/audio/police-siren.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "single-key",
+      "url": "assets/audio/single-key.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "stamp",
+      "url": "assets/audio/stamp.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "typing",
+      "url": "assets/audio/typing.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "cabinet-open",
+      "url": "assets/audio/cabinet-open.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "cabinet-open2",
+      "url": "assets/audio/cabinet-open2.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "drawer-open",
+      "url": "assets/audio/drawer-open.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "drawer-open2",
+      "url": "assets/audio/drawer-open2.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "Espionage",
+      "url": "assets/audio/Espionage.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "film-advance",
+      "url": "assets/audio/film-advance.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "key-lock",
+      "url": "assets/audio/key-lock.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "mobile-tune",
+      "url": "assets/audio/mobile-tune.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "old-phone-dial-the-number",
+      "url": "assets/audio/old-phone-dial-the-number.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "printer",
+      "url": "assets/audio/printer.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "pushing-chair",
+      "url": "assets/audio/pushing-chair.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "sliding-things-off-a-table",
+      "url": "assets/audio/sliding-things-off-a-table.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "slow-film-advance",
+      "url": "assets/audio/slow-film-advance.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "Pavement_Confidential",
+      "url": "assets/audio/music/Pavement_Confidential.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "rain-and-thunder",
+      "url": "assets/audio/rain-and-thunder.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    }
+  ]
+}

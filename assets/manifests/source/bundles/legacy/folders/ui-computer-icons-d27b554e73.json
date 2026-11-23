@@ -1,0 +1,20 @@
+{
+  "bundles": {
+    "auto:folder:ui/computer/icons": [
+      "image:board",
+      "image:envelope",
+      "image:globe",
+      "image:ledger",
+      "image:paper",
+      "image:report",
+      "image:ui__computer__icons__shop",
+      "image:trash",
+      "image:cat",
+      "image:owl_search",
+      "image:power",
+      "image:audio",
+      "image:boards",
+      "image:chat"
+    ]
+  }
+}

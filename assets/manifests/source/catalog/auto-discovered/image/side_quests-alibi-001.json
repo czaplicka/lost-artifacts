@@ -1,0 +1,108 @@
+{
+  "assets": [
+    {
+      "key": "cooper_spoon",
+      "url": "assets/side_quests/Alibi/cooper_spoon.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "artur_finch_avatar",
+      "url": "assets/side_quests/Alibi/web/FaceSpace/artur_finch_avatar.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "evelyn_shaw_avatar",
+      "url": "assets/side_quests/Alibi/web/FaceSpace/evelyn_shaw_avatar.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "simon_pike_avatar",
+      "url": "assets/side_quests/Alibi/web/FaceSpace/simon_pike_avatar.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alibi_club_contact",
+      "url": "assets/side_quests/Alibi/web/alibi_club_contact.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alibi_club_dinner",
+      "url": "assets/side_quests/Alibi/web/alibi_club_dinner.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alibi_club_home",
+      "url": "assets/side_quests/Alibi/web/alibi_club_home.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alibi_club_review",
+      "url": "assets/side_quests/Alibi/web/alibi_club_review.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alibi_copper_contact",
+      "url": "assets/side_quests/Alibi/web/alibi_copper_contact.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alibi_copper_kitchen",
+      "url": "assets/side_quests/Alibi/web/alibi_copper_kitchen.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alibi_copper_menu",
+      "url": "assets/side_quests/Alibi/web/alibi_copper_menu.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alibi_copper_restaurant",
+      "url": "assets/side_quests/Alibi/web/alibi_copper_restaurant.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alibi_table_for_one",
+      "url": "assets/side_quests/Alibi/web/alibi_table_for_one.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    }
+  ]
+}
