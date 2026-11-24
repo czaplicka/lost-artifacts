@@ -328,5 +328,30 @@
       1.49
     ],
     "mapLabel": "SINGAPORE"
+  },
+  {
+    "id": "country_aus",
+    "iso3": "AUS",
+    "name": "Australia",
+    "capital": "Sydney",
+    "capitalCoordinates": [
+      150.9319747,
+      -33.8482439
+    ],
+    "region": "oceania",
+    "description": "",
+    "knownFor": "",
+    "cities": [
+      {
+        "id": "sydney",
+        "name": "Sydney",
+        "coordinates": [
+          150.9319747,
+          -33.8482439
+        ],
+        "description": "Sydney is a vibrant coastal city built around a vast natural harbor, famous for the sail-like roofs of the Opera House, the sweeping arch of the Harbour Bridge, and golden surf beaches like Bondi. Blending historic sandstone lanes with sleek skyscrapers and laid-back outdoor culture, it feels both bustling and effortlessly breezy.",
+        "knownFor": ""
+      }
+    ]
   }
 ]
