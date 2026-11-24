@@ -601,3 +601,7 @@ export function planTravel(from, to, type, locations = [from, to]) {
   }
   return null;
 }
+
+// BEGIN ONLINE CITY EDITOR v1
+Object.assign(TRAVEL_NODES,{"sydney":{"name":"Sydney","x":1765,"y":743}});
+// END ONLINE CITY EDITOR v1

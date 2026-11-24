@@ -79,3 +79,7 @@ export function resolveTravelLonLat(nodeId, cityName, locations = []) {
 
   return null;
 }
+
+// BEGIN ONLINE CITY EDITOR v1
+Object.assign(TRAVEL_NODE_LONLAT,{"sydney":[150.9319747,-33.8482439]});
+// END ONLINE CITY EDITOR v1

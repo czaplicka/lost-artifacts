@@ -11,7 +11,8 @@
     "assets/manifests/catalog/side-quests.json",
     "assets/manifests/catalog/auto-discovered.json",
     "assets/manifests/catalog/tokyo-crime.json",
-    "assets/manifests/catalog/singapore-city.json"
+    "assets/manifests/catalog/singapore-city.json",
+    "assets/manifests/city-editor-online.json"
   ],
   "startup": {
     "backgrounds": [
@@ -3319,6 +3320,11 @@
       "audio:parkingsound",
       "audio:policesound",
       "audio:restaurantsound"
+    ],
+    "city:sydney": [
+      "image:online_city_sydney",
+      "json:newspaper_daily_sydney",
+      "json:newspaper_time_sydney"
     ]
   }
 }

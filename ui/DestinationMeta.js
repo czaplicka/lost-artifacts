@@ -268,3 +268,11 @@ if (!GAME_COUNTRIES_ISO3.includes('SGP')) GAME_COUNTRIES_ISO3.push('SGP');
 COUNTRY_ISO3.singapore = 'SGP';
 CITY_QUIPS.singapore = __dialogueText("ui/DestinationMeta.js", "t_878bbec23394bbe06662");
 // END SINGAPORE CITY INTEGRATION v1
+
+// BEGIN ONLINE CITY EDITOR v1
+CITY_ID_MAP["Sydney"]="sydney";
+CITY_COORDINATES["sydney"]=[150.9319747,-33.8482439];
+COUNTRY_ISO3["australia"]="AUS";
+if(!GAME_COUNTRIES_ISO3.includes("AUS")) GAME_COUNTRIES_ISO3.push("AUS");
+CITY_QUIPS["sydney"]="In Australia, the safest way to pack light is to leave room for the giant spider that insists on riding in your suitcase.";
+// END ONLINE CITY EDITOR v1

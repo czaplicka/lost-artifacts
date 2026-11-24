@@ -1700,5 +1700,102 @@
       "uniqueNpc": true,
       "uniqueLocation": true
     }
+  },
+  {
+    "id": "sydney",
+    "city": "Sydney",
+    "country": "Australia",
+    "travelRegion": "oceania",
+    "airport": true,
+    "airportCode": "SYD",
+    "harbor": true,
+    "busStation": true,
+    "trainStation": true,
+    "background": "online_sydney_4b5ee5bc70a83203.webp",
+    "backgroundKey": "online_city_sydney",
+    "npcTheme": "white",
+    "coordinates": [
+      150.9319747,
+      -33.8482439
+    ],
+    "map": {
+      "x": 1765,
+      "y": 743
+    },
+    "isCrimeCity": false,
+    "encounterSlots": [
+      {
+        "id": "slot_1",
+        "cityX": 260,
+        "cityY": 390,
+        "enabled": true
+      },
+      {
+        "id": "slot_2",
+        "cityX": 560,
+        "cityY": 470,
+        "enabled": true
+      },
+      {
+        "id": "slot_3",
+        "cityX": 900,
+        "cityY": 320,
+        "enabled": true
+      }
+    ],
+    "encounterPool": [
+      {
+        "id": "sydney_bankier_bank",
+        "npcId": "bankier",
+        "locationId": "bank"
+      },
+      {
+        "id": "sydney_fence_alley",
+        "npcId": "fence",
+        "locationId": "alley"
+      },
+      {
+        "id": "sydney_stewardessa_airport",
+        "npcId": "stewardessa",
+        "locationId": "airport"
+      },
+      {
+        "id": "sydney_maid_hotel",
+        "npcId": "maid",
+        "locationId": "hotel"
+      },
+      {
+        "id": "sydney_police_policehq",
+        "npcId": "police",
+        "locationId": "policehq"
+      },
+      {
+        "id": "sydney_parkingowy_parking",
+        "npcId": "parkingowy",
+        "locationId": "parking"
+      },
+      {
+        "id": "sydney_knajpa_restaurant",
+        "npcId": "knajpa",
+        "locationId": "restaurant"
+      },
+      {
+        "id": "sydney_bum_garbage",
+        "npcId": "bum",
+        "locationId": "garbage"
+      },
+      {
+        "id": "sydney_sailor_harbor",
+        "npcId": "sailor",
+        "locationId": "harbor"
+      }
+    ],
+    "encounterRules": {
+      "count": 3,
+      "uniqueNpc": true,
+      "uniqueLocation": true
+    },
+    "locationTheme": "white",
+    "locationBackgrounds": {}
   }
 ]

@@ -1,0 +1,28 @@
+{
+  "assets": [
+    {
+      "type": "image",
+      "key": "online_city_sydney",
+      "url": "assets/cities/online_sydney_4b5ee5bc70a83203.webp",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "type": "json",
+      "key": "newspaper_daily_sydney",
+      "url": "assets/data/newspapers/daily/sydney.json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "type": "json",
+      "key": "newspaper_time_sydney",
+      "url": "assets/data/newspapers/time/sydney.json",
+      "groups": [
+        "json"
+      ]
+    }
+  ]
+}

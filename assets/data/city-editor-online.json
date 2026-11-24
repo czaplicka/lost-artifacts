@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "cities": {
+    "sydney": {
+      "id": "sydney",
+      "name": "Sydney",
+      "country": "Australia",
+      "iso3": "AUS",
+      "lon": 150.9319747,
+      "lat": -33.8482439,
+      "mapX": 1765,
+      "mapY": 743,
+      "quip": "In Australia, the safest way to pack light is to leave room for the giant spider that insists on riding in your suitcase.",
+      "imagePath": "assets/cities/online_sydney_4b5ee5bc70a83203.webp"
+    }
+  }
+}

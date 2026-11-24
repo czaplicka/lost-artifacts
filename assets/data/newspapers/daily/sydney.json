@@ -1,0 +1,11 @@
+{
+  "title": "Sydney Field Gazette",
+  "articles": [
+    {
+      "id": "sydney_wire",
+      "slotId": "lead",
+      "headline": "Agency Reviews Its Own Paperwork",
+      "body": "The agency has opened a file about the number of open files. The committee expects a preliminary report as soon as someone finds the correct folder."
+    }
+  ]
+}
