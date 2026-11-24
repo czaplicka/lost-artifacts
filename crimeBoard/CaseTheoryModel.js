@@ -1,4 +1,5 @@
 import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
+import { getCaseKey } from '../crimeCaseKey.js';
 import { getOpportunityFacts, evaluateOpportunity } from '../systems/OpportunityRules.js';
 export const THEORY_FIELDS=[
  ['identity',__dialogueText("crimeBoard/CaseTheoryModel.js", "t_999f23fcd7bec7075e54"),__dialogueText("crimeBoard/CaseTheoryModel.js", "t_8271ae31a8e1a8fcdaea")],['motive',__dialogueText("crimeBoard/CaseTheoryModel.js", "t_3c304325a9d42f41663b"),__dialogueText("crimeBoard/CaseTheoryModel.js", "t_a50a3df2af2b7df540a1")],
@@ -19,8 +20,7 @@ export function normalizeSkillId(value){
 const strings=values=>[...new Set((Array.isArray(values)?values:[])
  .filter(value=>typeof value==='string'&&value.trim()).map(value=>value.trim()))];
 export function theoryCaseKey(state){
- const m=state.currentMission||{};
- return String(m.id??m.caseId??m.caseIndex??`${state.caseSuspectCityId??state.crimeCityId??state.crimeCity??m.city??'unknown'}_${m.artifactKey??m.artifact??'default'}`);
+ return getCaseKey(state);
 }
 export function normalizeTheory(raw={}){
  const source=raw&&typeof raw==='object'?raw:{};

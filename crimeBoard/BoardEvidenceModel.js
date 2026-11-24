@@ -8,6 +8,10 @@ const skill = value => {
   const id = text(value).toLowerCase().replace(/[_-]+/g,' ').replace(/\s+/g,' ');
   return ['pickpocket','pickpocketing',"pick pocketing"].includes(id) ? 'pickpocket' : id;
 };
+// Same slug as the crime-board generator uses in hypothesis-skill card IDs.
+const slug = value => String(value ?? '').toLowerCase().normalize('NFD')
+  .replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+const SKILL_CARD_PREFIX = 'hypothesis-skill-';
 const token = value => encodeURIComponent(String(value));
 export function getBoardEvidenceRecord(state) {
   return state.caseData?.boardEvidenceCases?.[getEvidenceCaseKey(state)] || {};
@@ -77,10 +81,7 @@ export function decorateBoardEvidence(input,state) {
       for(const item of data.items) {
         if(!item.tags?.includes('false-identity'))continue;
         if(viewed?.actualId && String(viewed.actualId)===id) {
-          item.text=String(item.text || '').replace(
-            __dialogueText("crimeBoard/BoardEvidenceModel.js", "t_bf87a2f06de395a96d1e"),
-            `${__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_18b4b1fe6487442543c4")}${name}${__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_41461bc5bdbbbe8b3928")}`
-          );
+          item.text=[...["The name and occupation in the suspect file are false.","An order for forged identification recovered from the apartment matches those details."], "The issued warrant names " + name + ". See the warrant identity card.", "Use the recovered appearance detail to narrow the wanted records."].join('\n\n');
         }
       }
     }
@@ -120,11 +121,27 @@ export function decorateBoardEvidence(input,state) {
     const claim=list(reconstruction.claims).find(c=>String(c?.solutionItemId)===String(card.id));
     if(!claim?.thiefSkill)return;
     const id=skill(claim.thiefSkill),old=accepted.get(id);
-    if(!old || (old.feedback==='yellow' && feedback==='green'))accepted.set(id,{card,feedback});
+    const slugs=new Set([...(old?.slugs||[]),slug(claim.thiefSkill)]);
+    if(!old || (old.feedback==='yellow' && feedback==='green'))accepted.set(id,{card,feedback,slugs});
+    else old.slugs=slugs;
   });
+  // Match by the stable card ID, not by the visible label.
+  const findAcceptedSkill=item=>{
+    const id=String(item.id || '');
+    if(id.startsWith(SKILL_CARD_PREFIX)) {
+      const key=id.slice(SKILL_CARD_PREFIX.length);
+      for(const entry of accepted.values())if(entry.slugs.has(key))return entry;
+    }
+    // Compatibility for cards that do not use the generated ID.
+    return accepted.get(skill(item.skillId || '')) || [...accepted.entries()].find(([id]) => {
+      const slug = value => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+      return item.id === 'hypothesis-skill-' + slug(id) || list(reconstruction.claims).some(c =>
+        skill(c?.thiefSkill || '') === id && item.id === 'hypothesis-skill-' + slug(c.thiefSkill));
+    })?.[1];
+  };
   for(const item of data.items) {
     if(!item.tags?.includes('hypothesis-skill'))continue;
-    const source=accepted.get(skill(String(item.label || '').replace(/\s*\?$/,'')));
+    const source=findAcceptedSkill(item);
     if(!source)continue;
     const name=text(source.card.item)||text(source.card.label)||text(source.card.title)||text(source.card.name);
     if(!name)continue;
@@ -152,3 +169,5 @@ export function decorateBoardEvidence(input,state) {
   }
   return data;
 }
+
+/* board-skill-semantic-match-v1 */

@@ -1,5 +1,7 @@
 
 import { installPhoneDirectoryShortcut } from './pi-phone/PhoneDirectoryShortcut.js';
+import { advertisingContact } from '../managers/PIAgencyAdvertising.js';
+import { installAgencyAdvertisingPhone, closeAgencyAdvertisingCall } from './pi-phone/AgencyAdvertisingCall.js';
 import { VU_BARS } from './pi-phone/PhoneConfig.js';
 import { PhoneAudio } from './pi-phone/PhoneAudio.js';
 import { PhoneCalls } from './pi-phone/PhoneCalls.js';
@@ -22,15 +24,16 @@ export class PIOfficePhoneUI{
   };
   this.removeDirectoryShortcut=installPhoneDirectoryShortcut(this);
   this.onResize=()=>{if(!this.destroyed)this.layout();};scene.input.keyboard?.on('keydown',this.onKey);scene.scale.on('resize',this.onResize);scene.events.once('shutdown',this.destroy,this);this.investigation=new PhoneInvestigation(this);this.investigation.renderPaper=renderPhoneFieldNotes.bind(this.investigation);
+  installAgencyAdvertisingPhone(this);
  }
  get data(){return this.scene.cache.json.get('piPhoneDirectory')||{};}
- get contacts(){const base=Array.isArray(this.data.contacts)?this.data.contacts:[],extra=this.investigation?.contacts()||[];return[...base.filter(c=>!extra.some(e=>e.id===c.id||e.number===c.number)),...extra];}
+ get contacts(){const base=Array.isArray(this.data.contacts)?this.data.contacts:[],extra=this.investigation?.contacts()||[];const contacts=[...base.filter(c=>!extra.some(e=>e.id===c.id||e.number===c.number)),...extra];const desk=advertisingContact();return contacts.some(c=>c.id===desk.id||c.number===desk.number)?contacts:[...contacts,desk];}
  get ownContact(){return this.contacts.find(c=>c.id===this.data.ownContactId)||null;}
  _tween(config){const s=this.scene;if(!s?.tweens||this.destroyed)return null;return typeof s.createTrackedTween==='function'?s.createTrackedTween(config):s.tweens.add(config);}
  _kill(target){if(!target)return;const s=this.scene;if(typeof s?.killTrackedTweensOf==='function')s.killTrackedTweensOf(target);else s?.tweens?.killTweensOf(target);}
  open(){if(this.destroyed||this.isOpen)return;this.ensureBuilt();Object.assign(this,{isOpen:true,_closing:false,state:'on_hook',number:'',directoryOpen:false,status:'Pick up the receiver.',sticky:null});this.investigation.resetCall();this.clearLog();this.resetDial();this._kill(this.root);this.root.setAlpha(1).setVisible(true);this.handset.setPosition(330,252).setAngle(0);this.hooks.setY(0);this._handsetUp=false;this.drawCord();this.dir.setVisible(false);this.updateSticky(false);this.layout();this._kill(this.ui);this.ui.setAlpha(0).setY(this.uiBaseY+18);this._tween({targets:this.ui,alpha:1,y:this.uiBaseY,duration:220,ease:'Cubic.easeOut'});this.startTick();this.options.onOpen?.();this.render();void this.investigation.load();}
  close(){if(this.destroyed||!this.isOpen)return;this.investigation.resetCall();this.cancelActivity();this.stopTick();this.isOpen=false;this.state='on_hook';this.directoryOpen=false;this.options.onClose?.();this._closing=true;this._kill(this.root);const hide=()=>{if(this.isOpen||this.destroyed||!this.root)return;this._closing=false;this.root.setVisible(false).setAlpha(1);};const tween=this._tween({targets:this.root,alpha:0,duration:110,onComplete:hide});if(!tween)hide();}
- cancelActivity(){this.run++;this.timers.forEach(t=>t.remove(false));this.timers.clear();this.typingItem=null;this.dialTween?.stop?.();this.dialTween=null;this.resetDial();this.stopLoops();this.tones.forEach(t=>{try{t.oscillator.stop();}catch(_){}t.oscillator.disconnect();t.gain.disconnect();});this.tones.clear();}
+ cancelActivity(){closeAgencyAdvertisingCall(this);this.run++;this.timers.forEach(t=>t.remove(false));this.timers.clear();this.typingItem=null;this.dialTween?.stop?.();this.dialTween=null;this.resetDial();this.stopLoops();this.tones.forEach(t=>{try{t.oscillator.stop();}catch(_){}t.oscillator.disconnect();t.gain.disconnect();});this.tones.clear();}
  later(delay,callback){const run=this.run,timer=this.scene.time.delayedCall(delay,()=>{this.timers.delete(timer);if(this.destroyed||!this.isOpen||run!==this.run)return;callback();});this.timers.add(timer);return timer;}
  destroy(){if(this.destroyed)return;this.removeDirectoryShortcut?.();this.removeDirectoryShortcut=null;this.close();this.destroyed=true;this.investigation.destroy();this.stopTick();this.stopLoops();this.clearLog();this.scene.input.keyboard?.off('keydown',this.onKey);this.scene.scale.off('resize',this.onResize);this.scene.events.off('shutdown',this.destroy,this);[this.root,this.ui,this.handset,this.hooks,this.dial,this.stickyNote].forEach(o=>this._kill(o));this.root.destroy(true);this.root=null;this.ui=null;}
 }

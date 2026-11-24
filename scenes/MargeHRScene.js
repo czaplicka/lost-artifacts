@@ -1,6 +1,6 @@
 import { dialogueText } from '../dialogues/DialogueText.js';
 import { BaseScene } from './BaseScene.js';
-import { LocationDialoguePanel } from '../ui/LocationDialoguePanel.js';
+import { HomeTownDialogue } from '../ui/HomeTownDialogue.js';
 import { gameState } from '../GameData.js';
 import { margeBirthdayData as DATA, getMargeBirthdayState, completeMargeRefusal,
   collectMargeBirthdayClue, saveMargeBirthdayAnswers, submitMargeBirthdayDeduction } from '../margeBirthdayService.js';
@@ -15,6 +15,11 @@ import { MargeTrustController } from './hr/MargeTrustController.js';
 const B=id=>dialogueText('scenes/MargeHRScene.js',id);
 const T=id=>dialogueText('scenes/MargeHRFloorScene.js',id);
 const KEY='MargeHRScene';
+const MARGE_RELATIONSHIP_LABELS={
+  professional:{label:'PROFESSIONAL',hex:'#d4af37'},
+  trusted:{label:'TRUSTED',hex:'#85d4a4'},
+  formal_only:{label:'FORMAL ONLY',hex:'#ffc66d'},
+};
 
 export class MargeHRScene extends BaseScene {
   constructor(){super({key:KEY});}
@@ -137,26 +142,38 @@ export class MargeHRScene extends BaseScene {
       event?.stopPropagation();if(!this.closing&&this.modal===parent)callback();
     });parent.add(object);return object;
   }
-  requireMargeSharedPanel(){
-    if(typeof LocationDialoguePanel.prototype.advance!=='function')throw new Error('Marge requires LocationDialoguePanel from dialogue migration stage 1.');
+  makeMargeSharedPanel(onLeave){
+    const view=new HomeTownDialogue(this,onLeave);
+    // Relacja Marge jest stanem fabularnym, nie licznikiem 0–100.
+    // Wspólny panel tylko wyświetla istniejący stan, nigdy go nie zapisuje.
+    view.refreshTrust=()=>{
+      if(!view.panel)return;
+      const relationship=this.trust?.state()?.relationship;
+      const level=MARGE_RELATIONSHIP_LABELS[relationship];
+      view.panel.setTrust(level?{level}:null);
+    };
+    return view;
   }
   openMargeDialogue(lines,{speaker=DATA.speaker,finalLabel='Continue',refusal=false,onComplete=null,floorMode=false}={}){
     if(!this.canExplore()||!Array.isArray(lines)||!lines.length)return false;
-    this.requireMargeSharedPanel();
-    const view=new LocationDialoguePanel(this,{depth:6000,modal:true,keyboard:false,leaveLabel:'Leave',
-      onLeave:()=>{if(this.dialogue?.view===view)this.abortDialogue();},
-      onAdvance:()=>{if(this.dialogue?.view===view)this.completeMargeDialogueLine();}});
-    this.dialogue={view,container:view.root,lines:lines.map(line=>typeof line==='string'?{speaker,text:line}:{...line}),
+    const view=this.makeMargeSharedPanel(()=>{if(this.dialogue?.view===view)this.abortDialogue();});
+    this.dialogue={view,container:null,lines:lines.map(line=>typeof line==='string'?{speaker,text:line}:{...line}),
       index:0,refusal,onComplete,finalLabel,floorMode};
     this.renderMargeDialogueLine();this.tooltip?.setVisible(false);this.refreshScene();return true;
   }
   renderMargeDialogueLine(){
-    const current=this.dialogue;if(!current)return;const line=current.lines[current.index];
-    current.view.setSpeaker({name:line.speaker,portrait:{kind:'texture',
-      key:line.portraitKey||(line.speaker===DATA.speaker?DATA.portraitKey:null)||'portrait_fallback'}});
-    current.view.setText(line.text);
-    current.view.setTopics([{id:'continue',label:current.index===current.lines.length-1?current.finalLabel:'Continue',
-      onSelect:()=>{if(this.dialogue===current)this.nextDialogue();}}]);
+    const current=this.dialogue;if(!current)return;
+    const index=current.index,line=current.lines[index],view=current.view;
+    const active=()=>!this.closing&&this.dialogue===current&&current.index===index;
+    const isPlayer=/^(detective|you)$/i.test(String(line.speaker??'').trim());
+    view.show({title:line.speaker,text:line.text,
+      messages:[{speaker:isPlayer?'player':'npc',text:line.text}],
+      nodeId:`marge_hr_line:${index}`,showTrust:true,scoreTrust:false,depth:6000,
+      choices:[{id:`marge_continue:${index}`,label:index===current.lines.length-1?current.finalLabel:'Continue',
+        scoreTrust:false,action:()=>{if(active())view.advance();}}],
+      onAdvance:()=>{if(active())this.completeMargeDialogueLine();},
+      onDraw:()=>{if(this.dialogue===current)current.container=view.root;},
+    });
   }
   completeMargeDialogueLine(){
     const current=this.dialogue;if(!current||this.closing)return;
@@ -168,27 +185,30 @@ export class MargeHRScene extends BaseScene {
     const callback=current.onComplete;current.onComplete=null;this.abortDialogue();callback?.();
   }
   openMargeChoicePanel({text='',topics=[],onLeave=null,speaker=DATA.speaker}={}){
-    if(!this.canExplore())return null;this.requireMargeSharedPanel();
-    const view=new LocationDialoguePanel(this,{depth:6000,modal:true,keyboard:false,leaveLabel:'Leave',onLeave:()=>{
+    if(!this.canExplore())return null;
+    const view=this.makeMargeSharedPanel(()=>{
       if(this.modal===view)(onLeave||(()=>this.closeModal()))();
-    }});
-    this.modal=view;view.setSpeaker({name:speaker,portrait:{kind:'texture',key:DATA.portraitKey||'portrait_fallback'}});
-    view.setText(text);view.setTopics(topics);this.tooltip?.setVisible(false);this.refreshScene();return view;
+    });
+    this.modal=view;
+    view.show({title:speaker,text,messages:[{speaker:'npc',text}],
+      nodeId:'marge_hr_choices',showTrust:true,scoreTrust:false,depth:6000,
+      choices:topics.map((topic,index)=>({id:topic.id||`marge_choice:${index}`,label:topic.label,
+        state:topic.state==='accent'?'normal':topic.state||'normal',
+        disabled:topic.state==='disabled',scoreTrust:false,
+        action:()=>{if(!this.closing&&this.modal===view&&topic.state!=='disabled')topic.onSelect?.(topic);}})),
+    });
+    this.tooltip?.setVisible(false);this.refreshScene();return view;
   }
   onMargeConversationKey(event){
     if(this.closing||event.repeat||event.ctrlKey||event.metaKey||event.altKey)return;
     const target=event.target;
     if(target?.isContentEditable||['INPUT','TEXTAREA','SELECT'].includes(target?.tagName))return;
-    if(event.code==='Escape'){
+    // Klawiaturę aktywnej rozmowy obsługuje tylko wspólny panel.
+    if(this.dialogue?.view instanceof HomeTownDialogue||this.modal instanceof HomeTownDialogue)return;
+    if(event.code==='Escape'||event.key==='Escape'){
       event.preventDefault();if(this.help?.modal)this.help.close();else if(this.modal)this.closeModal();
-      else if(this.dialogue)this.abortDialogue();else this.closeHR();return;
+      else if(this.dialogue)this.abortDialogue();else this.closeHR();
     }
-    const view=this.dialogue?.view||(this.modal?.advance?this.modal:null);if(!view?.isOpen)return;
-    if(['Enter','Space','NumpadEnter'].includes(event.code)){event.preventDefault();view.advance();return;}
-    const match=/^(?:Digit|Numpad)([1-9])$/.exec(event.code);if(!match)return;event.preventDefault();
-    if(view.isTyping){view.completeTypewriter();return;}
-    const topic=view.pageTopics?.[Number(match[1])-1];
-    if(topic&&topic.state!=='disabled'&&!view.topicsLocked())topic.onSelect?.(topic);
   }
   talkBirthday(){
     if(!this.canExplore())return;

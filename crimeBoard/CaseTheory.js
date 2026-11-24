@@ -248,7 +248,7 @@ export function installCaseTheory(api,initialState,host) {
   async function loadOptions() {
     const run=++dataRun;loading=true;loadError='';
     try {
-      const responses=await Promise.all(['suspects','motives'].map(name=>fetch(new URL(`${__dialogueText("crimeBoard/CaseTheory.js", "t_a4e918d9e7482e61244e")}${name}${__dialogueText("crimeBoard/CaseTheory.js", "t_12157ab04ed2c6accc3d")}`,import.meta.url),{signal:abort.signal})));
+      const responses=await Promise.all(['suspects','motives'].map(name=>fetch(new URL(`${"../assets/data/"}${name}${".json"}`,import.meta.url),{signal:abort.signal})));
       for(const response of responses)if(!response.ok)throw new Error(`Options: ${response.status}`);
       const [database,data]=await Promise.all(responses.map(response=>response.json()));if(dead || run!==dataRun)return;
       skills=buildSkillOptions(database);const labels=new Map();

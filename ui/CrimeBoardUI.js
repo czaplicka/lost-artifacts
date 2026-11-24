@@ -25,7 +25,7 @@ function sceneImagePath(value) {
 
   return value
     .trim()
-    .replace(/\.jpe?g(?=[?#]|$)/i, __dialogueText("ui/CrimeBoardUI.js", "t_ed140d91e29553b83699"));
+    .replace(/\.jpe?g(?=[?#]|$)/i, ".webp");
 }
 
 function photoKey(photo) {
@@ -107,46 +107,16 @@ function mergeFoundObjects(...collections) {
 }
 
 function recoverPhotosFromBoard(saved) {
-  return asArray(saved?.items)
-    .filter(item => {
-      return (
-        item &&
-        !item.createdByPlayer &&
-        (
-          item.tags?.includes('scene-photo') ||
-          String(item.id || '').startsWith('scene-photo-')
-        )
-      );
-    })
-    .map(item => {
-      const meta = asArray(item.meta);
-
-      const cityId =
-        item.cityId ||
-        meta.find(value => {
-          return (
-            typeof value === 'string' &&
-            value !== "Processed" &&
-            value !== "Incomplete"
-          );
-        }) ||
-        '';
-
-      return {
-        sceneId:
-          item.sceneId ||
-          String(item.id).replace(/^scene-photo-/, ''),
-        cityId,
-        displayName: item.label || __dialogueText("ui/CrimeBoardUI.js", "t_7624a8b8c9d8d5d1ee22"),
-        imagePath: sceneImagePath(item.image),
-        missionId: item.missionId ?? null,
-        success:
-          item.tags?.includes('scene-failed') ||
-          meta.includes("Incomplete")
-            ? false
-            : true
-      };
-    });
+  return asArray(saved?.items).filter(item => item && !item.createdByPlayer &&
+    (item.tags?.includes('scene-photo') || String(item.id || '').startsWith('scene-photo-')))
+    .map(item => ({
+      sceneId: item.sceneId || String(item.id).replace(/^scene-photo-/, ''),
+      cityId: item.cityId || '',
+      displayName: item.label || 'Crime scene',
+      imagePath: sceneImagePath(item.image),
+      missionId: item.missionId ?? null,
+      success: item.sceneSuccess === false || item.tags?.includes('scene-failed') ? false : true
+    }));
 }
 
 function recoverSceneData(state, saved) {
@@ -359,7 +329,7 @@ export class CrimeBoardUI {
     if (this.templateHtml) return this.templateHtml;
 
     const url = new URL(
-      __dialogueText("ui/CrimeBoardUI.js", "t_805539fe0ca2eb338686"),
+      "../crime-board.html",
       import.meta.url
     ).toString();
 

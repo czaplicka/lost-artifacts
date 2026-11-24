@@ -2,6 +2,7 @@ import { dialogueText } from '../dialogues/DialogueText.js';
 import { HomeTownDialogue } from '../ui/HomeTownDialogue.js';
 import { hollyFinaleData as DATA, getHollyFinale, performHollyFinale } from '../hollyFinaleService.js';
 import { normalizeFinale, finaleAction } from './pi-office/HollyFinaleModel.js';
+import { getHollyTrust, HOLLY_TRUST_VIEW_ID } from './hollyIntro/HollyIntroTrust.js';
 const KEY = 'HollyFinaleScene';
 const T = id => dialogueText('scenes/HollyFinaleScene.js', id);
 
@@ -85,7 +86,7 @@ export class HollyFinaleScene extends Phaser.Scene {
         attitude: 'neutral', scoreTrust: false, disabled: topic.state === 'disabled',
         state: topic.state === 'accent' ? 'normal' : topic.state || 'normal',
         action: () => { if (!this.disposed && !this.closing && topic.state !== 'disabled') topic.onSelect?.(); } })),
-      nodeId, npcId: 'holly', showTrust: true, scoreTrust: false, depth: 6000,
+      nodeId, npcId: HOLLY_TRUST_VIEW_ID, showTrust: true, scoreTrust: false, startTrust: getHollyTrust(), depth: 6000,
       onAdvance: () => this.conversationAdvance?.() });
   }
   runFinalPanelAction(callback) {

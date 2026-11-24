@@ -183,6 +183,15 @@ function syntaxString(node, parents) {
     (parent?.type === 'ExpressionStatement' && parent.directive);
 }
 function unsafeContext(node, parents) {
+  /* board-technical-context-v1 */
+  if (parents.some(p => p.type === 'NewExpression' && p.callee?.name === 'URL')) return true;
+  if (parents.some(p => p.type === 'CallExpression' &&
+      ['replace', 'replaceAll', 'fetch', 'loadJson'].includes(member(p.callee) ?? p.callee?.name))) return true;
+  // Do not extract catalog fragments from structural HTML/SVG builders.
+  if (parents.some(p =>
+      (p.type === 'FunctionDeclaration' && ['buildLinkPath', 'getItemMarkup', 'createOverlay'].includes(p.id?.name)) ||
+      ((p.type === 'Property' || p.type === 'MethodDefinition') &&
+        ['buildLinkPath', 'getItemMarkup', 'createOverlay'].includes(p.key?.name)))) return true;
   for (let i = 0; i < parents.length; i++) {
     const p = parents[i], child = i === parents.length - 1 ? node : parents[i + 1];
     if (p.type === 'BinaryExpression' && COMPARISONS.has(p.operator)) return true;

@@ -20,6 +20,7 @@ import { supabase } from './supabase-client.js';
 import { installAchievementSystem } from './managers/AchievementManager.js';
 import { installChaseTutorial } from './tutorials/chase/ChaseTutorial.js';
 import { installDailyLoginRewards } from './systems/DailyLoginRewards.js';
+import { installReferralRewards } from './systems/ReferralRewards.js';
 import './managers/PICaseRewards.js';
 
 const RESIZE_DEBOUNCE_MS = 120;
@@ -292,3 +293,4 @@ installScenePrefetch(game);
 installDevTools(game);
 installChaseTutorial(game);
 installDailyLoginRewards(game);
+installReferralRewards(game);

@@ -11,21 +11,24 @@ export class PIOfficeDestinationsUI extends DestinationsUI {
     this.piOptions = options;
 
     this.returnCityButton = scene.add
-      .text(scene.scale.width / 2, 75, '', {
+      .text(430, 105, '', {
         fontFamily: 'SpecialElite',
-        fontSize: '22px',
+        fontSize: '18px',
         color: '#f4e7c1',
         backgroundColor: '#382718',
-        padding: { x: 16, y: 10 }
+        align: 'center',
+        padding: { x: 10, y: 11 }
       })
       .setOrigin(0.5)
       .setVisible(false);
 
-    this.returnCityButton.on('pointerdown', () => {
+    this.returnCityButton.on('pointerdown', (_pointer, _x, _y, event) => {
+      event?.stopPropagation();
       void this.returnToDepartureCity();
     });
 
     this.container.add(this.returnCityButton);
+    this.officeButton?.setVisible(false);
   }
 
   getMapTheme() {
@@ -42,6 +45,13 @@ export class PIOfficeDestinationsUI extends DestinationsUI {
     const opened = super.open(gameStateData);
     if (opened) this.updateReturnCityButton();
     return opened;
+  }
+
+  updateOfficeButton() {
+    super.updateOfficeButton();
+    // Already inside PI Office: use this slot for the departure-city return.
+    this.officeButton?.setVisible(false);
+    this.officeButtonBg?.disableInteractive();
   }
 
   getReturnCity() {
@@ -62,7 +72,17 @@ export class PIOfficeDestinationsUI extends DestinationsUI {
     button.setAlpha(enabled ? 1 : 0.55);
 
     if (visible) {
+      button.setPosition(
+        (this.hqButton?.x ?? 150) + 280,
+        this.hqButton?.y ?? 105
+      );
+      button.setFixedSize(0, 0);
+      button.setFontSize(18);
       button.setText(`Return to ${target.cityName}`);
+      for (let size = 17; button.width > 220 && size >= 10; size--) {
+        button.setFontSize(size);
+      }
+      button.setFixedSize(220, 44);
       this.container.bringToTop(button);
     }
 

@@ -10,7 +10,7 @@ import {
 
 const UNKNOWN_SUSPECT_IMAGE='assets/suspects/unknown.webp';
 const DEFAULT_ARTIFACT_IMAGE='assets/artifacts/artifact_unknown.webp';
-const DEFAULT_OBJECTS_URL='/assets/data/objects.json';
+const DEFAULT_OBJECTS_URL=new URL('./assets/data/objects.json',import.meta.url).href;
 
 async function loadJson(url){
   const response=await fetch(url,{cache:'no-store'});
@@ -32,7 +32,7 @@ function fieldKey(value){const key=String(value||'').trim();return FIELD_BY_ALIA
 
 function resolveCrimeSceneImage(imagePath){
   if(typeof imagePath!=='string')return imagePath;
-  return imagePath.trim().replace(/\.jpe?g(?=[?#]|$)/i,__dialogueText("CrimeBoardInitCore.js", "t_ed140d91e29553b83699"));
+  return imagePath.trim().replace(/\.jpe?g(?=[?#]|$)/i,".webp");
 }
 
 function currentCaseKey(state){
@@ -44,7 +44,7 @@ function currentCaseKey(state){
 function resolveArtifactImage(mission={}){
   if(mission.image)return mission.image;if(mission.artifactImage)return mission.artifactImage;
   if(mission.artifactPhoto)return mission.artifactPhoto;if(mission.photo)return mission.photo;
-  if(mission.artifactKey)return`${__dialogueText("CrimeBoardInitCore.js", "t_1163016ae1a48f72c015")}${mission.artifactKey.replace(/^artifact_/,'')}${__dialogueText("CrimeBoardInitCore.js", "t_ed140d91e29553b83699")}`;
+  if(mission.artifactKey)return`${"assets/artifacts/"}${mission.artifactKey.replace(/^artifact_/,'')}${".webp"}`;
   return DEFAULT_ARTIFACT_IMAGE;
 }
 
@@ -171,7 +171,7 @@ function buildHypothesisSkillItems(state={}){
       rotation:getRotation(index+3),pinned:true,label:confirmed?entry.skill:`${entry.skill}${__dialogueText("CrimeBoardInitCore.js", "t_81d6591c690c70c74282")}`,
       text:confirmed?__dialogueText("CrimeBoardInitCore.js", "t_cf29321015202bbf911b"):__dialogueText("CrimeBoardInitCore.js", "t_8143283d4746a5e1cf8f"),
       metaText:confirmed?__dialogueText("CrimeBoardInitCore.js", "t_d210579b7b41616836eb"):__dialogueText("CrimeBoardInitCore.js", "t_3aecc3ce9f134d2320d3"),color:confirmed?'blue':'yellow',
-      clueId:`hypothesis-skill-${slugify(entry.skill)}`,tags:['hypothesis','hypothesis-skill',confirmed?'skill-confirmed':'skill-uncertain',`feedback-${entry.feedback}`],
+      skillId:normalizeSkill(entry.skill),clueId:`hypothesis-skill-${slugify(entry.skill)}`,tags:['hypothesis','hypothesis-skill',confirmed?'skill-confirmed':'skill-uncertain',`feedback-${entry.feedback}`],
       discovered:true,createdByPlayer:false,editableByPlayer:false};
   });
 }
@@ -219,7 +219,7 @@ function buildCrimeScenePhotoItems(state){
     return{id:`scene-photo-${scene.sceneId||index}`,type:'photo',x:80+(index%4)*150,y:320+Math.floor(index/4)*130,z:1,
       rotation:getRotation(index),pinned:false,label:scene.displayName||scene.sceneId||__dialogueText("CrimeBoardInitCore.js", "t_7624a8b8c9d8d5d1ee22"),image:resolveCrimeSceneImage(scene.imagePath),
       caption:success?__dialogueText("CrimeBoardInitCore.js", "t_0114253dfa3cc43f3924"):__dialogueText("CrimeBoardInitCore.js", "t_ab6c09167078ba5ddf36"),meta:[scene.cityId||'',success?__dialogueText("CrimeBoardInitCore.js", "t_6071b9b565c939cdfdd2"):__dialogueText("CrimeBoardInitCore.js", "t_75f33cdfc8e52098ea07")].filter(Boolean),
-      sceneId:scene.sceneId||null,missionId:scene.missionId||null,tags:['scene-photo',success?'scene-success':'scene-failed'],discovered:true,createdByPlayer:false,editableByPlayer:false};
+      sceneId:scene.sceneId||null,cityId:scene.cityId||null,sceneSuccess:success,missionId:scene.missionId??null,tags:['scene-photo',success?'scene-success':'scene-failed'],discovered:true,createdByPlayer:false,editableByPlayer:false};
   });
 }
 

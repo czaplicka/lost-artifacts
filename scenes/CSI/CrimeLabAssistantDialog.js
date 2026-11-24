@@ -1,6 +1,6 @@
 import { dialogueText } from '../../dialogues/DialogueText.js';
-import { DialoguePanel } from '../../ui/DialoguePanel.js';
-import { showDialogueBubbles } from '../../ui/DialogueBubbles.js';
+import { HomeTownDialogue } from '../../ui/HomeTownDialogue.js';
+import { getTrustLevel } from '../../managers/TrustManager.js';
 import { audioManager } from '../../managers/AudioManager.js';
 import { MainStoryManager } from '../../managers/MainStoryManager.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
@@ -40,182 +40,150 @@ function isResultsChoice(choice) {
   return [].concat(choice?.showIf ?? []).includes('has_assistant_results');
 }
 
-class CsiDialogueView extends DialoguePanel {
-  constructor(scene, onLeave) {
-    super(scene, { depth: 3000, modal: true });
-    this.onLeave = onLeave;
-    this.text = this.body;
-    this.topics = [];
-    this.pageTopics = [];
-    this.pages = [];
-    this.textPage = 0;
-    this.choicePage = 0;
+// Adapter istniejącego API laboratorium. Nie rysuje własnego panelu:
+// tekst, dymki, strony, przyciski i miernik tworzy HomeTownDialogue.
+class CsiDialogueView {
+  constructor(scene, onLeave, onExitLab) {
+    this.scene = scene;
     this.isOpen = true;
-
-    this.meterObjs.forEach(object => object.setVisible(false));
-    this.numText.setVisible(false);
-    this.toneObjs.forEach(object => object.setVisible(false));
-    this._setTabsVisible(false);
-    this.choiceTitle.setText('YOUR REPLY:').setVisible(false);
-    this.byeBtn.text.setText('EXIT LAB');
-    this._setEntries([]);
-
-    const { lx, lw, py, s } = this.L;
-    this.dialWidth = Math.min(105 * s, lw * 0.38);
-    this.dialX = lx + lw - this.dialWidth / 2;
-    this.dialY = py + 51 * s;
-    this.dialRadius = Math.max(1, Math.min(23 * s, this.dialWidth * 0.38));
-    this.dial = scene.add.graphics();
-    this.root.add(this.dial);
-    this.dialLabel = this._txt(
-      this.dialX, py + 9 * s, '',
-      '"Press Start 2P", "PressStart2P", monospace', 7 * s, '#d4af37'
-    ).setOrigin(0.5, 0);
-
-    showDialogueBubbles({
-      L: this.L,
-      scene,
-      root: this.root,
-      body: this.body,
-      pageLabel: { setText() {} },
-      renderTextPage() {},
-    }, [{ speaker: 'npc', text: '' }]);
-
-    this.drawTrust(readTrust().value);
-    this._show();
+    this.topics = [];
+    this.speaker = '';
+    this.value = '';
+    this.pendingText = true;
+    this.instant = false;
+    this.savedScroll = 0;
+    this.readySignature = null;
+    this.boundPanel = null;
+    this.exitRequested = false;
+    this.onExitLab = onExitLab;
+    this.shared = new HomeTownDialogue(scene, () => onLeave?.());
+    this.onUpdate = () => this.sync();
+    scene.events.on('update', this.onUpdate);
   }
 
-  get isTyping() { return this.mode === 'typing'; }
+  get root() { return this.shared?.root || null; }
+  get text() { return this.shared?.body || null; }
+  get isTyping() { return Boolean(this.shared?.typing); }
+  get textPage() { return this.shared?.textPage || 0; }
+  get pages() { return this.shared?.pages || []; }
+  get scroll() { return this.shared?.panel?.scroll ?? this.savedScroll; }
+  set scroll(value) {
+    this.savedScroll = value;
+    if (this.shared?.panel) this.shared.panel.scroll = value;
+  }
+  get choicePage() { return this.shared?.menuPage || 0; }
+  set choicePage(value) {
+    this.savedScroll = value * (this.shared?.panel?.rows?.length || 6);
+  }
+  get pageTopics() {
+    if (!this.isReady()) return [];
+    return this.topics.slice(this.scroll, this.scroll + (this.shared?.panel?.rows?.length || 6));
+  }
+  get byeBtn() { return this.shared?.panel?.byeBtn; }
 
-  drawTrust(value) {
-    value = clampTrust(value);
-    const { s } = this.L;
-    const x = this.dialX, y = this.dialY, radius = this.dialRadius;
-    this.dialLabel.setText(`TRUST ${value}`);
-    this.dial.clear();
-    [0xb95749, 0xc99042, 0x669d62].forEach((color, i) => {
-      this.dial.lineStyle(Math.max(2, 5 * s), color, 1);
-      this.dial.beginPath();
-      this.dial.arc(x, y, radius,
-        Math.PI + i * Math.PI / 3 + 0.035,
-        Math.PI + (i + 1) * Math.PI / 3 - 0.035, false);
-      this.dial.strokePath();
-    });
-    const angle = Math.PI + Math.PI * value / 100;
-    const length = Math.max(0, radius - 5 * s);
-    this.dial.lineStyle(Math.max(1, 2 * s), 0xf3e7c4, 1);
-    this.dial.lineBetween(x, y,
-      x + Math.cos(angle) * length, y + Math.sin(angle) * length);
-    this.dial.fillStyle(0xd4af37, 1);
-    this.dial.fillCircle(x, y, Math.max(1, 3 * s));
+  isReady() {
+    return this.isOpen && Boolean(this.shared?.panel) && !this.isTyping &&
+      this.textPage >= this.pages.length - 1;
   }
 
-  setSpeaker({ name }) {
-    const { lw, s } = this.L;
-    this.nameText.setText(String(name ?? '').toUpperCase());
-    this._fitWidth(this.nameText,
-      Math.max(1, lw - this.dialWidth - 8 * s), 14 * s, 7 * s);
-  }
-
+  setSpeaker({ name }) { this.speaker = name; }
   setText(value, { instant = false } = {}) {
-    const { s, bodyH } = this.L;
-    const fontSize = Math.max(1, 16 * s), spacing = 5 * s;
-    this._cancelTyper();
-    this.body.setFontSize(fontSize).setLineSpacing(spacing);
-    const lines = this.body.getWrappedText(String(value ?? ''));
-    const pageSize = Math.max(1, Math.floor(bodyH / (fontSize * 1.4 + spacing)));
-    this.pages = [];
-    for (let i = 0; i < lines.length; i += pageSize) {
-      this.pages.push(lines.slice(i, i + pageSize).join('\n'));
-    }
-    if (!this.pages.length) this.pages.push('');
-    this.textPage = 0;
-    this.renderPage(instant);
-  }
-
-  renderPage(instant = false) {
-    this._cancelTyper();
-    this._curKind = 'say';
-    this._full = this.pages[this.textPage] ?? '';
-    this._idx = 0;
-    this.body.setFontSize(Math.max(1, 16 * this.L.s)).setText('');
-    this.contArrow.setVisible(false);
-    this.choiceTitle.setVisible(false);
-    this._setMode('typing');
-    this._setEntries([]);
-    this.pageTopics = [];
-    if (instant) this._finishTyping();
-    else this._tick();
-  }
-
-  _afterLines() {
-    const moreText = this.textPage < this.pages.length - 1;
-    this._setMode(moreText ? 'waiting' : 'choices');
-    this.contArrow.setVisible(moreText);
-    this.refreshTopics();
+    this.value = String(value ?? '');
+    this.instant = instant;
+    this.pendingText = true;
   }
 
   setTopics(topics, { preservePage = false } = {}) {
     this.topics = topics;
     if (!preservePage) this.scroll = 0;
-    this.refreshTopics();
+    if (this.pendingText || !this.shared.panel) this.render();
+    else {
+      this.readySignature = null;
+      this.sync();
+    }
   }
 
-  refreshTopics() {
-    const ready = this.mode === 'choices';
-    this.choiceTitle.setVisible(ready && this.topics.length > 0);
-    this._setEntries(ready
-      ? this.topics.map(topic => ({ label: topic.label, style: 'new' })) : []);
-    this.pageTopics = ready
-      ? this.topics.slice(this.scroll, this.scroll + this.rows.length) : [];
-  }
-
-  _scrollBy(delta) {
-    super._scrollBy(delta);
-    this.pageTopics = this.mode === 'choices'
-      ? this.topics.slice(this.scroll, this.scroll + this.rows.length) : [];
-  }
-
-  _pickIndex(index) {
-    if (this.isOpen && this.mode === 'choices') this.topics[index]?.onSelect?.();
-  }
-
-  _advance() {
+  render() {
     if (!this.isOpen) return;
-    if (this.isTyping) this._finishTyping();
-    else if (this.mode === 'waiting') {
-      this.textPage += 1;
-      this.renderPage();
-    }
+    this.pendingText = false;
+    this.readySignature = null;
+    const trust = readTrust().value;
+    this.shared.show({
+      title: this.speaker,
+      text: this.value,
+      messages: [{ speaker: 'npc', text: this.value }],
+      npcId: 'csi_assistant',
+      startTrust: trust,
+      showTrust: true,
+      scoreTrust: false,
+      depth: 3000,
+      choices: [],
+      onDraw: () => {
+        this.readySignature = null;
+        this.bindExitButton();
+        this.drawTrust(readTrust().value);
+        this.sync();
+      },
+    });
+    this.shared.panel.scroll = this.savedScroll;
+    if (this.instant) this.shared.stop();
+    this.sync();
   }
 
-  advance() { this._advance(); }
-  completeTypewriter() { if (this.isTyping) this._finishTyping(); }
-  stopTypewriter() { if (this.isTyping) this._finishTyping(); }
-  relayout() {}
-  _goodbye() { if (this.isOpen) this.onLeave?.(); }
+  sync() {
+    if (!this.isOpen || !this.shared?.panel) return;
+    this.bindExitButton();
+    const panel = this.shared.panel;
+    const ready = this.isReady();
+    const signature = `${ready}:${this.topics.length}`;
+    if (this.readySignature !== signature) {
+      this.readySignature = signature;
+      this.shared.data.choices = ready ? this.topics.map((topic, index) => ({
+        id: topic.id || `csi_choice:${index}`,
+        label: topic.label,
+        state: topic.state || 'normal',
+        scoreTrust: false,
+        action: () => { if (this.isReady()) topic.onSelect?.(); },
+      })) : [];
+      this.shared.updateTopics();
+    }
+    panel.choiceTitle.setVisible(ready && this.topics.length > 0);
+  }
 
-  _handleKey(event) {
-    if (!this.isOpen || event.ctrlKey || event.metaKey || event.altKey ||
-      event.target?.isContentEditable ||
-      ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target?.tagName)) return;
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      if (!event.repeat) this._goodbye();
-      return;
-    }
-    if (event.code === 'Space' || event.key === ' ' || event.key === 'Enter') {
-      event.preventDefault();
-      if (!event.repeat) this._advance();
-      return;
-    }
-    if (event.repeat) return;
-    if (/^[1-6]$/.test(event.key)) {
-      this._pickIndex(this.scroll + Number(event.key) - 1);
-    } else if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-      event.preventDefault();
-      this._scrollBy(event.key === 'ArrowUp' ? -1 : 1);
-    }
+  bindExitButton() {
+    const panel = this.shared?.panel;
+    if (!panel || this.boundPanel === panel) return;
+    this.boundPanel = panel;
+    panel.byeBtn.text.setText('EXIT LAB');
+    panel.byeBtn.rect.removeAllListeners('pointerdown');
+    panel.byeBtn.rect.on('pointerdown', (_pointer, _x, _y, event) => {
+      event?.stopPropagation?.();
+      const lab = this.scene;
+      if (this.exitRequested || !this.isOpen || lab.isExitingLab ||
+        lab.debugMode || !lab.sys.isActive()) return;
+      this.exitRequested = true;
+      this.onExitLab?.();
+    });
+  }
+
+  drawTrust(value) {
+    if (!this.shared?.panel) return;
+    const safe = clampTrust(value);
+    this.shared.data.startTrust = safe;
+    this.shared.panel.setTrust({ value: safe, level: getTrustLevel(safe) });
+  }
+  advance() { this.shared?.advance(); this.sync(); }
+  completeTypewriter() { this.shared?.stop(); this.sync(); }
+  stopTypewriter() { this.completeTypewriter(); }
+  relayout() { this.shared?.draw(); this.sync(); }
+  destroy() {
+    if (!this.isOpen) return;
+    this.isOpen = false;
+    this.scene.events.off('update', this.onUpdate);
+    this.shared?.destroy();
+    this.shared = null;
+    this.topics = [];
+    this.boundPanel = null;
   }
 }
 
@@ -268,31 +236,17 @@ export class CrimeLabAssistantDialog {
     this.seen = bucket(STORE.seen, key);
     this.chosen = bucket(STORE.chosen, key);
     this.installRelationshipNodes();
-    this.view = new CsiDialogueView(this.scene, () => this.close());
-    this.bindExitButton();
+    this.view = new CsiDialogueView(this.scene, () => this.close(), () => {
+      this.close();
+      this.scene.exitLab();
+    });
     this.scene.events.once('shutdown', this.boundShutdown);
     this.scene.events.once('destroy', this.boundShutdown);
     this.renderCurrentNode();
     return true;
   }
 
-  bindExitButton() {
-    const view = this.view;
-    const exitButton = view.byeBtn;
-    exitButton.text.setText('EXIT LAB');
-    exitButton.rect.removeAllListeners('pointerdown');
-    let exitRequested = false;
-    exitButton.rect.on('pointerdown', (_pointer, _x, _y, event) => {
-      event?.stopPropagation?.();
-      const lab = this.scene;
-      if (exitRequested || !this.isOpen() || this.view !== view ||
-        lab.isExitingLab || lab.debugMode || !lab.sys.isActive()) return;
-      exitRequested = true;
-      this.close();
-      lab.exitLab();
-    });
-  }
-
+  bindExitButton() { this.view?.bindExitButton(); }
   ensurePortrait() {}
 
   cancelPortraitLoad() {
@@ -390,7 +344,7 @@ export class CrimeLabAssistantDialog {
     if (!this.relationshipRootId) return;
     const back = () => [{ id: '__csi_relationship_back', text: 'Back to the case.', next: root }];
     this.dialogue.nodes[REL_MENU] = {
-      text: '"Working together? Sure. I handle the microscopic evidence. You handle the people who insist they were never there."',
+      text: '\"Working together? Sure. I handle the microscopic evidence. You handle the people who insist they were never there.\"',
       choices: [
         { id: '__csi_respect_work', text: 'I appreciate your work. You catch what the rest of us miss.', next: REL_POSITIVE },
         { id: '__csi_dismiss_work', text: 'Just run the tests. The machines do the clever part.', next: REL_NEGATIVE },
@@ -398,11 +352,11 @@ export class CrimeLabAssistantDialog {
       ],
     };
     this.dialogue.nodes[REL_POSITIVE] = {
-      text: '*The assistant looks up from the microscope.*\n\n"Thank you. Most people only notice my work when it fails to confirm their theory."\n\n"I would shake your hand, but mine currently counts as evidence."',
+      text: '*The assistant looks up from the microscope.*\n\n\"Thank you. Most people only notice my work when it fails to confirm their theory.\"\n\n\"I would shake your hand, but mine currently counts as evidence.\"',
       choices: back(),
     };
     this.dialogue.nodes[REL_NEGATIVE] = {
-      text: '*The assistant stops writing.*\n\n"Of course. The centrifuge also writes the reports, testifies in court and remembers your name."\n\n"It has asked me not to repeat what it calls you."',
+      text: '*The assistant stops writing.*\n\n\"Of course. The centrifuge also writes the reports, testifies in court and remembers your name.\"\n\n\"It has asked me not to repeat what it calls you.\"',
       choices: back(),
     };
   }

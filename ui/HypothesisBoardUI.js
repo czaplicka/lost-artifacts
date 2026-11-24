@@ -7,6 +7,15 @@ import { BoardEffects } from './hypothesisBoard/BoardEffects.js';
 import { BoardRefresh } from './hypothesisBoard/BoardRefresh.js';
 import { BoardDeduction } from './hypothesisBoard/BoardDeduction.js';
 
+function attemptCapacity(state) {
+  const values = [state?.maxAttempts, state?.attemptsLeft, 1]
+    .map(value => Number(value))
+    .filter(value => Number.isFinite(value) && value >= 0)
+    .map(value => Math.floor(value));
+  // The board may reopen with fewer attempts left; the icon row must still show the full budget.
+  return Math.min(10, Math.max(...values));
+}
+
 export class HypothesisBoardUI {
   constructor(scene, {
     state,
@@ -185,7 +194,7 @@ export class HypothesisBoardUI {
       .graphics()
       .setDepth(3010);
 
-    this._maxAttempts = Math.max(this.state?.attemptsLeft ?? 0, 1);
+    this._maxAttempts = attemptCapacity(this.state);
 
     this.createQuestionSlots();
     this.createEvidenceCards();

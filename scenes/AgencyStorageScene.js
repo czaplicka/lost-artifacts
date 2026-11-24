@@ -1,10 +1,9 @@
 import { dialogueText as __dialogueText, dialogueText } from '../dialogues/DialogueText.js';
 import { storageRoomDialogues as DIALOGUES } from '../storageRoomDialogueService.js';
 import { BaseScene } from './BaseScene.js';
-import { LiveDialogUI } from '../ui/LiveDialogUI.js';
-import { DialoguePanel } from '../ui/DialoguePanel.js';
+import { HomeTownDialogue } from '../ui/HomeTownDialogue.js';
 import { DialogUI } from '../ui/DialogUI.js';
-import { showDialogueBubbles } from '../ui/DialogueBubbles.js';
+import { getTrustLevel } from '../managers/TrustManager.js';
 import { gameState } from '../GameData.js';
 import { ItemsLoader } from '../ItemsLoader.js';
 import { audioManager } from '../managers/AudioManager.js';
@@ -25,7 +24,6 @@ const REISSUE_LINES = DIALOGUES.manual.replacement;
 const RETURN_LINES = DIALOGUES.manual.return;
 const TRUST_KEY = 'alex_trust';
 const START_TRUST = 50;
-const PRESS = '"Press Start 2P", "PressStart2P", monospace';
 const VOICE_FILES = {
   intro: ['intro'],
   replacement: ['replacement', 'replacement2', 'replacement3'],
@@ -63,6 +61,8 @@ function addTrustForConversation(lines) {
   requestAutosave();
 }
 
+// Wyłącznie istniejący odtwarzacz głosu. create() nie tworzy UI.
+// DialogUI nadal obsługuje ładowanie audio, synchronizację intro i fallback.
 class AlexVoicePlayer extends DialogUI {
   create() {
     this.bodyText = { setText: text => this.panel?.showVoiceSubtitle(text) };
@@ -96,150 +96,196 @@ class AlexVoicePlayer extends DialogUI {
   }
 }
 
-class AlexStorageDialogue extends DialoguePanel {
+// Adapter przebiegu i audio. Cały widoczny panel tworzy HomeTownDialogue.
+class AlexStorageDialogue {
   constructor(hud) {
-    super(hud, { depth: 9000, modal: true });
+    this.scene = hud;
+    this.destroyed = false;
+    this.isOpen = false;
+    this.onClose = null;
+    this.lines = [];
+    this.lineIndex = 0;
+    this.renderVersion = 0;
+    this.speakerText = { text: '' }; // API animacji ust pozostaje bez zmian.
     this.voice = new AlexVoicePlayer(hud);
     this.voice.panel = this;
-    this.voiceLineIndex = -1;
-    this._alexBubbleStyled = false;
-    const { lx, lw, py, s } = this.L;
-    this.dialWidth = Math.min(110 * s, lw * 0.42);
-    this.dialX = lx + lw - this.dialWidth / 2;
-    this.dialY = py + 51 * s;
-    this.dialRadius = Math.max(1, Math.min(24 * s, this.dialWidth * 0.37));
-    this.dial = hud.add.graphics();
-    this.root.add(this.dial);
-    this.dialLabel = this._txt(this.dialX, py + 9 * s, '', PRESS, 7 * s, '#d4af37').setOrigin(0.5, 0);
-    this.skipHint = this._txt(
-      this.L.rx, py + this.L.ph - 42 * s,
-      'SPACE: Skip conversation\nENTER: Continue',
-      '"Special Elite", "Courier New", monospace', 14 * s, '#d4af37',
-      { wordWrap: { width: this.L.rw, useAdvancedWrap: true } }
-    );
+    this.shared = new HomeTownDialogue(hud, () => {
+      // Stary panel nie pozwalał zakończyć rozmowy przez Esc/0.
+      if (this.isOpen && !this.destroyed) this.renderLine();
+    });
+    // Używamy dotychczasowego alex_trust, nie drugiej kopii zaufania.
+    this.shared.refreshTrust = () => this.drawTrust(readTrust().value);
+    this.boundKey = event => this.handleKey(event);
+    this.boundShutdown = () => this.destroy();
+    hud.events.once('shutdown', this.boundShutdown);
+    hud.events.once('destroy', this.boundShutdown);
   }
-  get destroyed() { return this._destroyed; }
+  get root() { return this.shared?.root || null; }
   get isTyping() {
-    return this.isOpen && (this.mode === 'typing' || Boolean(this.voice?.voiceSound?.isPlaying));
+    return this.isOpen && (Boolean(this.shared?.typing) || Boolean(this.voice?.voiceSound?.isPlaying));
   }
   open({ speaker, lines }, { onClose } = {}) {
     if (this.destroyed || this.isOpen) throw new Error('The Alex dialogue panel is not available.');
-    this.voiceLineIndex = -1;
-    this.voice.begin(getVoiceMode(speaker, lines), lines);
+    this.speakerText.text = speaker;
+    this.lines = [...lines];
+    this.lineIndex = 0;
+    this.onClose = typeof onClose === 'function' ? onClose : null;
+    this.isOpen = true;
+    // Przed listenerem modalnym wspólnego panelu: Space nadal pomija całą rozmowę.
+    if (typeof window !== 'undefined') window.addEventListener('keydown', this.boundKey, true);
+    this.voice.begin(getVoiceMode(speaker, this.lines), this.lines);
     try {
-      const opened = this.talkOnce(speaker, lines, {
-        onClose: () => {
-          try { addTrustForConversation(lines); }
-          catch (error) { console.warn('[Alex Storage] Could not save trust:', error); }
-          onClose?.();
-        },
-      });
-      if (!opened) throw new Error('Could not open the Alex dialogue.');
-      this._setTabsVisible(false);
-      this.byeBtn.rect.setVisible(false);
-      this.byeBtn.text.setVisible(false);
-      const { lw, s } = this.L;
-      this._fitWidth(this.nameText, Math.max(1, lw - this.dialWidth - 8 * s), 14 * s, 7 * s);
-      this.drawTrust(readTrust().value);
-      this.addAlexBubble();
+      if (!this.lines.length) this.close();
+      else this.startLine();
       return true;
     } catch (error) {
+      this.isOpen = false;
+      this.onClose = null;
       this.voice.end();
+      this.shared.close(false);
+      this.unbindKey();
       throw error;
     }
   }
-  addAlexBubble() {
-    if (!this.isOpen || this._alexBubbleStyled) return;
-    const initialText = this._full || this.body.text || '';
-    const previousText = this.body.text;
-    const index = this.root.getIndex(this.body);
-    showDialogueBubbles({
-      L: this.L, scene: this.scene, root: this.root, body: this.body,
-      pageLabel: { setText() {} }, renderTextPage() {},
-    }, [{ speaker: 'npc', text: initialText }]);
-    this.body.setText(previousText);
-    this.root.getAt(index).setVisible(true);
-    this._alexBubbleStyled = true;
-  }
-  _showLine(line) {
-    const index = ++this.voiceLineIndex;
-    const mode = this.voice?.voiceMode;
-    const clip = mode ? VOICE_FILES[mode]?.[index] : null;
-    super._showLine(line);
-    this.speakerText.setText(dialogueText(
-      'scenes/storage/AlexMouthAnimation.js', 't_1a609d7d435a01c0384d'
-    )).setVisible(false);
+  startLine() {
+    if (!this.isOpen || this.destroyed) return;
+    if (this.lineIndex >= this.lines.length) { this.close(); return; }
+    const mode = this.voice.voiceMode;
+    const clip = mode ? VOICE_FILES[mode]?.[this.lineIndex] : null;
+    this.renderLine(Boolean(clip));
     if (clip) {
-      if (this.mode === 'typing') this._finishTyping();
-      this.voice.currentLineIndex = index;
+      this.voice.currentLineIndex = this.lineIndex;
       this.voice.playAlexVoice(clip);
-      if (this.voice.voiceBusy) this.contArrow.setVisible(false);
+      this.updateVoiceControls();
     }
-    if (this._alexBubbleStyled) this.body.setColor('#f3e7c4');
+  }
+  renderLine(instant = false) {
+    if (!this.isOpen || this.destroyed) return;
+    const version = ++this.renderVersion;
+    const line = this.lines[this.lineIndex] ?? '';
+    this.shared.show({
+      title: this.speakerText.text,
+      role: 'SPACE: Skip conversation / ENTER: Continue',
+      text: line,
+      messages: [{ speaker: 'npc', text: line }],
+      npcId: 'alex_murphy',
+      startTrust: readTrust().value,
+      showTrust: true,
+      scoreTrust: false,
+      depth: 9000,
+      nodeId: `alex_storage:${this.lineIndex}`,
+      choices: [
+        { id: 'alex_storage_continue', label: 'Continue', scoreTrust: false,
+          action: () => { if (this.renderVersion === version) this.advance(); } },
+        { id: 'alex_storage_skip', label: 'Skip conversation', scoreTrust: false,
+          action: () => { if (this.renderVersion === version) this.skipConversation(); } },
+      ],
+      onAdvance: () => {
+        if (this.renderVersion !== version || !this.isOpen) return;
+        if (this.voice.voiceBusy) { this.unlockAudio(); return; }
+        this.lineIndex += 1;
+        this.startLine();
+      },
+      onDraw: () => {
+        this.shared.panel?.byeBtn.rect.setVisible(false);
+        this.shared.panel?.byeBtn.text.setVisible(false);
+        // Klik w tekst ma tę samą blokadę audio co Enter.
+        for (const hit of [this.shared.panel?.textHit, this.shared.panel?.blocker]) {
+          if (!hit) continue;
+          hit.removeAllListeners('pointerdown');
+          hit.on('pointerdown', (_p, _x, _y, event) => {
+            event?.stopPropagation?.();
+            if (this.renderVersion === version) this.advance();
+          });
+        }
+        this.drawTrust(readTrust().value);
+        this.updateVoiceControls();
+      },
+    });
+    if (instant) this.shared.stop();
+    this.updateVoiceControls();
+  }
+  drawTrust(value) {
+    if (!this.shared?.panel) return;
+    this.shared.panel.setTrust({ value, level: getTrustLevel(value) });
+  }
+  updateVoiceControls() {
+    if (this.voice?.voiceBusy) this.shared?.panel?.contArrow.setVisible(false);
+  }
+  unlockAudio() {
+    if (this.scene.sound?.locked) this.scene.sound.unlock?.();
   }
   showVoiceSubtitle(text) {
-    if (this.isOpen) this.body.setText(this._fit(String(text ?? '')));
+    if (!this.isOpen || this.destroyed) return;
+    const index = this.voice.currentLineIndex;
+    if (index >= 0 && index < this.lines.length) this.lineIndex = index;
+    // Tekst synchronizowany przez ten sam odtwarzacz co dotąd.
+    if (this.lines[this.lineIndex] !== String(text ?? '')) return;
+    this.renderLine(true);
   }
   showManualContinue() {
     if (!this.isOpen) return;
-    this.contArrow.setVisible(this.mode === 'waiting' || this.mode === 'endwait');
+    this.shared.stop();
+    const panel = this.shared.panel;
+    if (panel) panel.contArrow.setVisible(true);
   }
-  continueAfterVoice() { if (this.isOpen) super._advance(); }
-  finishVoicedIntro() {
-    if (!this.isOpen) return;
-    this.lineQueue.length = 0;
-    this._close();
+  continueAfterVoice() {
+    if (!this.isOpen || this.destroyed) return;
+    this.lineIndex += 1;
+    this.startLine();
+  }
+  finishVoicedIntro() { if (this.isOpen) this.close(); }
+  advance() {
+    if (!this.isOpen || this.destroyed) return;
+    if (this.voice.voiceBusy) { this.unlockAudio(); return; }
+    this.shared.advance();
   }
   skipConversation() {
-    if (this.destroyed || !this.isOpen || !this.session) return false;
-    this._cancelTyper();
-    this.lineQueue.length = 0;
-    this._close();
+    if (this.destroyed || !this.isOpen) return false;
+    this.close();
     return true;
   }
-  _advance() {
-    if (this.voice?.voiceBusy) {
-      if (this.scene.sound?.locked) this.scene.sound.unlock?.();
-      return;
-    }
-    super._advance();
-  }
-  _close() { this.voice?.end(); super._close(); }
-  drawTrust(value) {
-    const g = this.dial;
-    const { s } = this.L;
-    const x = this.dialX, y = this.dialY, radius = this.dialRadius;
-    this.dialLabel.setText(`TRUST ${value}`);
-    g.clear();
-    [0xb95749, 0xc99042, 0x669d62].forEach((color, index) => {
-      const start = Math.PI + index * Math.PI / 3 + 0.035;
-      const end = Math.PI + (index + 1) * Math.PI / 3 - 0.035;
-      g.lineStyle(Math.max(2, 5 * s), color, 1);
-      g.beginPath();
-      g.arc(x, y, radius, start, end, false);
-      g.strokePath();
-    });
-    const angle = Math.PI + Math.PI * value / 100;
-    const length = Math.max(0, radius - 5 * s);
-    g.lineStyle(Math.max(1, 2 * s), 0xf3e7c4, 1);
-    g.lineBetween(x, y, x + Math.cos(angle) * length, y + Math.sin(angle) * length);
-    g.fillStyle(0xd4af37, 1);
-    g.fillCircle(x, y, Math.max(1, 3 * s));
-  }
-  _handleKey(event) {
-    if (!this.isOpen || event.repeat || event.ctrlKey || event.metaKey || event.altKey ||
+  handleKey(event) {
+    if (!this.isOpen || this.destroyed || event.ctrlKey || event.metaKey || event.altKey ||
       event.target?.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target?.tagName)) return;
-    if (event.code === 'Space' || event.key === ' ' || event.key === 'Spacebar') {
-      event.preventDefault?.();
-      this.skipConversation();
-      return;
-    }
-    if (event.key === 'Enter') {
-      event.preventDefault?.();
-      this._advance();
-    }
+    const space = event.code === 'Space' || event.key === ' ' || event.key === 'Spacebar';
+    const enter = event.key === 'Enter';
+    const blockedExit = event.key === 'Escape' || event.key === '0';
+    if (!space && !enter && !blockedExit) return;
+    event.preventDefault?.();
+    event.stopImmediatePropagation?.();
+    if (event.repeat || blockedExit) return;
+    if (space) this.skipConversation();
+    else this.advance();
   }
-  destroy() { this.voice?.destroy(); super.destroy(); }
+  unbindKey() {
+    if (typeof window !== 'undefined') window.removeEventListener('keydown', this.boundKey, true);
+  }
+  close() {
+    if (!this.isOpen || this.destroyed) return;
+    this.isOpen = false;
+    ++this.renderVersion;
+    this.voice.end();
+    this.shared.close(false);
+    this.unbindKey();
+    const callback = this.onClose;
+    this.onClose = null;
+    try { addTrustForConversation(this.lines); }
+    catch (error) { console.warn('[Alex Storage] Could not save trust:', error); }
+    callback?.();
+  }
+  destroy() {
+    if (this.destroyed) return;
+    this.destroyed = true;
+    this.isOpen = false;
+    ++this.renderVersion;
+    this.onClose = null;
+    this.unbindKey();
+    this.voice.destroy();
+    this.shared.destroy();
+    this.scene.events.off('shutdown', this.boundShutdown);
+    this.scene.events.off('destroy', this.boundShutdown);
+  }
 }
 
 export class AgencyStorageScene extends BaseScene {
@@ -423,7 +469,7 @@ export class AgencyStorageScene extends BaseScene {
       if (!this.isCurrent(token) || this.isLeaving) return;
       if (!this.storageDialog || this.storageDialog.destroyed || this.storageDialog.scene !== hud) {
         this.storageDialog?.destroy();
-        this.storageDialog = new LiveDialogUI(hud);
+        this.storageDialog = new AlexStorageDialogue(hud);
       }
       this.storageHud = hud;
       const news = await this.ensureOverlayScene('NewsHud');

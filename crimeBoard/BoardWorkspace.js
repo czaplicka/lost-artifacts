@@ -39,10 +39,13 @@ function addKnownIdentityEvidence(data, state) {
     if (!subjectIds.has(item.suspectId) || item.createdByPlayer) continue;
     targetIds.push(item.id);
     if (item.tags?.includes('unknown') && publicName) item.label = publicName;
-    if (!String(item.label).includes("[FAKE NAME]")) item.label += __dialogueText("crimeBoard/BoardWorkspace.js", "t_783801ce828143b78c91");
+    // The marker is data; the displayed label is never used as a condition.
+    if (item.identityStatus !== 'false') item.identityBaseLabel = String(item.label || '');
+    item.identityStatus = 'false';
+    item.label = item.identityBaseLabel + __dialogueText("crimeBoard/BoardWorkspace.js", "t_783801ce828143b78c91");
     if (item.type === 'evidence') {
-      item.fields = (item.fields || []).filter(row => row.key !== "Identity");
-      item.fields.push({ key: 'Identity', value: __dialogueText("crimeBoard/BoardWorkspace.js", "t_4b7fed18a2f0b71c5957") });
+      item.fields = (item.fields || []).filter(row => row.id !== 'identity-status');
+      item.fields.push({ id: 'identity-status', key: 'Identity', value: __dialogueText("crimeBoard/BoardWorkspace.js", "t_4b7fed18a2f0b71c5957") });
     } else if (item.type === 'photo') {
       item.caption = __dialogueText("crimeBoard/BoardWorkspace.js", "t_77fb725b33fcafef1553");
     }

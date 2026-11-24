@@ -205,7 +205,7 @@ export const BoardLinks = {
     const dx = Math.abs(to.x - from.x);
     const curve = Math.max(40, dx * 0.35);
 
-
-    return `${__dialogueText("crimeBoard/BoardLinks.js", "t_b10ac9cbb0309ec50efd")}${from.x}${__dialogueText("crimeBoard/BoardLinks.js", "t_36a9e7f1c95b82ffb997")}${from.y}${__dialogueText("crimeBoard/BoardLinks.js", "t_ca0764fcd7eb4ebe8795")}${from.x + curve}${__dialogueText("crimeBoard/BoardLinks.js", "t_36a9e7f1c95b82ffb997")}${from.y}${__dialogueText("crimeBoard/BoardLinks.js", "t_0a07f659461970d8d8dc")}${to.x - curve}${__dialogueText("crimeBoard/BoardLinks.js", "t_36a9e7f1c95b82ffb997")}${to.y}${__dialogueText("crimeBoard/BoardLinks.js", "t_0a07f659461970d8d8dc")}${to.x}${__dialogueText("crimeBoard/BoardLinks.js", "t_36a9e7f1c95b82ffb997")}${to.y}`;
+    // SVG syntax is code, not player-facing text: it must not come from the dialogue catalog.
+    return `M ${from.x} ${from.y} C ${from.x + curve} ${from.y}, ${to.x - curve} ${to.y}, ${to.x} ${to.y}`;
   }
 };

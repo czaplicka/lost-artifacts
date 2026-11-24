@@ -6,6 +6,8 @@ import {
 } from './CrimeBoardInitCore.js';
 
 const REPORT_TAG = 'object-lab-report';
+// Resolved from this module, so it also works when the game is hosted in a subfolder.
+const DEFAULT_OBJECTS_URL = new URL('./assets/data/objects.json', import.meta.url).href;
 
 function asArray(value) {
   return Array.isArray(value) ? value : [];
@@ -362,7 +364,10 @@ export function buildBoardLayout(
 }
 
 export async function initCrimeBoard(options = {}) {
-  const api = await initCrimeBoardCore(options);
+  const api = await initCrimeBoardCore({
+    ...options,
+    objectsUrl: options.objectsUrl ?? DEFAULT_OBJECTS_URL
+  });
 
   let state = options.gameState || {};
 

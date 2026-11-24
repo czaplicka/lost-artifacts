@@ -1,5 +1,6 @@
 import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { getCaseSuspects } from '../suspects/CaseSuspects.js';
+import { getCaseKey } from '../crimeCaseKey.js';
 import { decorateBoardEvidence } from './BoardEvidenceModel.js';
 import { captureApartmentInventory } from './BoardEvidenceRuntime.js';
 import { addTrialEvidence } from '../systems/CaseTheorySubmission.js';
@@ -10,8 +11,7 @@ function installEvidenceDecorator(api,state){
  api.board.loadBoard=data=>{captureApartmentInventory(record.state);return load(decorateBoardEvidence(addTrialEvidence(data,record.state),record.state));};
 }
 function context(state){
- const m=state.currentMission||{},city=state.alibiInvestigation?.cityId||state.caseSuspectCityId||state.crimeCityId||state.crimeCity||m.city||'unknown_city';
- const key=String(m.id||m.caseId||`${city}_${m.artifact||'default'}`);
+ const key=getCaseKey(state);
  return {key,grid:state.caseForensics?.[key]?.suspectGrid,exclusions:state.suspectExclusionState?.[key]};
 }
 export function getCrimeBoardSuspects(state){

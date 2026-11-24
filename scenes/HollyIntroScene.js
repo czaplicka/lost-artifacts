@@ -1,666 +1,47 @@
-import { dialogueText } from '../dialogues/DialogueText.js';
 import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
 import { gameState } from '../GameData.js';
-import { moneyManager, ECONOMY_CATEGORY } from '../managers/MoneyManager.js';
-import hintManager from '../managers/HintManager.js';
 import { requestAutosave, flushAutosave } from '../gameStatePersistence.js';
 import { MainStoryManager } from '../managers/MainStoryManager.js';
-import { DialoguePanel } from '../ui/DialoguePanel.js';
-import { showDialogueBubbles } from '../ui/DialogueBubbles.js';
+import { HomeTownDialogue } from '../ui/HomeTownDialogue.js';
 
-const T = id => dialogueText('scenes/HollyIntroScene.js', id);
+import {
+  T,
+  HOLLY,
+  DETECTIVE,
+  OPENING_SCRIPT,
+  CLOSING_SCRIPT,
+  REWARD_CHOICES
+} from './hollyIntro/HollyIntroText.js';
 
-const HOLLY = T('t_58de530cfa35752b7230');
-const DETECTIVE = T('t_1e954e77ee4e5253c6c5');
+import {
+  TRUST_KEY,
+  START_TRUST,
+  getHollyTrust,
+  applyToneToTrust
+} from './hollyIntro/HollyIntroTrust.js';
 
-const TRUST_KEY = 'holly_trust';
-const START_TRUST = 50;
-const TRUST_BY_TONE = Object.freeze({
-  serious: 10,
-  sarcastic: -5,
-  greedy: -10
-});
+import { HollyHudGuard } from './hollyIntro/HollyHudGuard.js';
 
-const GOLD = 0xd4af37;
-const IVORY = 0xf3e7c4;
+import {
+  hasCompletedHollyIntro,
+  grantHollyChoiceReward
+} from './hollyIntro/HollyIntroRewards.js';
+
+// Dotychczasowy import z tego pliku pozostaje poprawny.
+export { getHollyTrust } from './hollyIntro/HollyIntroTrust.js';
+
 const PRESS = '"Press Start 2P", monospace';
 
 const SLEEP_DURATION = 2200;
 const SLEEP_FADE_DURATION = 350;
 
-const line = (speaker, id, extra = {}) => ({
-  speaker,
-  text: T(id),
-  ...extra
-});
-
-const OPENING_SCRIPT = [
-  line(HOLLY, 't_3cfc53f7bfc5b8f7ae88'),
-  {
-    choice: true,
-    options: [
-      {
-        tone: 'sarcastic',
-        lines: [
-          line(DETECTIVE, 't_74c233625f6b492e13c7'),
-          line(HOLLY, 't_50e757c57fabc06607f1')
-        ]
-      },
-      {
-        tone: 'serious',
-        lines: [
-          line(DETECTIVE, 't_f4f93a89db6836d93750'),
-          line(HOLLY, 't_240d4587c662a3616fac')
-        ]
-      },
-      {
-        tone: 'greedy',
-        lines: [
-          line(DETECTIVE, 't_bb744364ded3e1c4e5b2'),
-          line(HOLLY, 't_ebbdaa241cb92cf1064a'),
-          line(HOLLY, 't_50e757c57fabc06607f1')
-        ]
-      }
-    ]
-  },
-  line(HOLLY, 't_62c37e29d04f7e79b74c'),
-  line(DETECTIVE, 't_dd7c20fddbdfc0013122'),
-  line(HOLLY, 't_e9fbee6a8263393ebd98', {
-    stamp: 'CLASSIFIED'
-  }),
-  {
-    choice: true,
-    options: [
-      {
-        tone: 'sarcastic',
-        lines: [
-          line(DETECTIVE, 't_5ad00f98d7e55e4f19be'),
-          line(HOLLY, 't_27cd71ceb568b2a867e3')
-        ]
-      },
-      {
-        tone: 'serious',
-        lines: [
-          line(DETECTIVE, 't_034bc3a16d07673de51a')
-        ]
-      },
-      {
-        tone: 'greedy',
-        lines: [
-          line(DETECTIVE, 't_1da4c748f4fb0244aa69'),
-          line(HOLLY, 't_6030b237e93b17d23fff')
-        ]
-      }
-    ]
-  },
-  line(HOLLY, 't_9e5655f42cefea5b5d71'),
-  line(DETECTIVE, 't_f65d02ecbea38aac4be3'),
-  line(HOLLY, 't_54ca21d98060df467a90'),
-  line(DETECTIVE, 't_51863d7a15d8a13e3401'),
-  line(HOLLY, 't_0048782429e52a93ccdf', {
-    stamp: T('t_26ce46b10bbdbeeccac6')
-  })
-];
-
-const CLOSING_SCRIPT = [
-  line(HOLLY, 't_446661c97578f44ff416'),
-  line(DETECTIVE, 't_d97965f43c564e3eeb15'),
-  line(HOLLY, 't_d51576c7ff76180b8316'),
-  line(DETECTIVE, 't_6509a5b517eb995a2b4c')
-];
-
-const REWARD_CHOICES = [
-  {
-    id: 'cash',
-    label: T('t_fb5b1b0623205ba2c12c'),
-    desc: T('t_e21e026308b1dd9fce2a')
-  },
-  {
-    id: 'rest',
-    label: T('t_878cef89d2a9686096fb'),
-    desc: T('t_21b6487c0f96a50b7a2e')
-  },
-  {
-    id: 'kit',
-    label: T('t_2fb1d1b9ec31b925e61f'),
-    desc: T('t_cb1031afb8c84378546b')
-  },
-  {
-    id: 'travel',
-    label: T('t_434a8d75fb758289413a'),
-    desc: T('t_47b1dcd8b1cdd60d9be7')
-  }
-];
-
-function hasCompletedHollyIntro() {
-  return (
-    gameState.hollyIntroSeen === true ||
-    REWARD_CHOICES.some(
-      choice => choice.id === gameState.hollyIntroChoice
-    )
-  );
-}
-
-function clampTrust(value) {
-  return Math.max(0, Math.min(100, Math.round(value)));
-}
-
-export function getHollyTrust() {
-  const value = MainStoryManager.getSideClue(TRUST_KEY)?.value;
-  return Number.isFinite(value) ? clampTrust(value) : START_TRUST;
-}
-
-class HollyHudGuard {
-  constructor(owner) {
-    this.owner = owner;
-    this.snapshots = new Map();
-    this.style = null;
-    this.active = false;
-    this.enforce = this.enforce.bind(this);
-  }
-
-  start() {
-    if (this.active) return;
-
-    this.active = true;
-
-    if (typeof document !== 'undefined' && document.head) {
-      this.style = document.createElement('style');
-      this.style.setAttribute('data-holly-hud-lock', 'true');
-      this.style.textContent = `${T('t_3f18ff5f78084f067ac4')}`;
-      document.head.appendChild(this.style);
-    }
-
-    this.owner.events.on('preupdate', this.enforce);
-    this.enforce();
-  }
-
-  enforce() {
-    if (!this.active) return;
-
-    const keys = this.owner.scene?.manager?.keys;
-    if (!keys) return;
-
-    for (const key of ['UIScene', 'PlayerHudScene', 'NewsHud']) {
-      const scene = keys[key];
-
-      if (
-        !scene?.sys ||
-        !(scene.sys.isActive() || scene.sys.isPaused())
-      ) {
-        continue;
-      }
-
-      let snapshot = this.snapshots.get(key);
-
-      if (!snapshot || snapshot.scene !== scene) {
-        snapshot = {
-          scene,
-          visible: scene.sys.settings.visible,
-          input: scene.input,
-          inputEnabled: scene.input?.enabled,
-          keyboard: scene.input?.keyboard,
-          keyboardEnabled: scene.input?.keyboard?.enabled,
-          newsEnabled: key === 'NewsHud' ? scene.hudEnabled : null
-        };
-
-        this.snapshots.set(key, snapshot);
-
-        if (key === 'PlayerHudScene') {
-          scene.closeAllUIPanels?.();
-          scene._panelInstances?.get('playerMenu')?.close?.();
-        }
-
-        if (key === 'UIScene') {
-          scene._hideTooltip?.();
-          scene._setEnergyLogVisible?.(false);
-        }
-      }
-
-      if (key === 'NewsHud') {
-        scene.closeMenu?.(true);
-
-        if (scene.hudEnabled !== false) {
-          scene.setHudVisible?.(false);
-        }
-      }
-
-      scene.sys.setVisible(false);
-
-      if (scene.input) {
-        scene.input.enabled = false;
-      }
-
-      if (scene.input?.keyboard) {
-        scene.input.keyboard.enabled = false;
-      }
-    }
-  }
-
-  release() {
-    if (!this.active) return;
-
-    this.active = false;
-    this.owner.events.off('preupdate', this.enforce);
-
-    this.style?.remove();
-    this.style = null;
-
-    const keys = this.owner.scene?.manager?.keys;
-    const failed = gameState.caseFailed === true;
-
-    for (const [key, snapshot] of this.snapshots) {
-      const scene = keys?.[key];
-
-      if (
-        scene !== snapshot.scene ||
-        !scene?.sys ||
-        !(scene.sys.isActive() || scene.sys.isPaused())
-      ) {
-        continue;
-      }
-
-      if (
-        scene.input === snapshot.input &&
-        typeof snapshot.inputEnabled === 'boolean'
-      ) {
-        scene.input.enabled = snapshot.inputEnabled;
-      }
-
-      if (
-        scene.input?.keyboard === snapshot.keyboard &&
-        typeof snapshot.keyboardEnabled === 'boolean'
-      ) {
-        scene.input.keyboard.enabled = snapshot.keyboardEnabled;
-      }
-
-      if (
-        key === 'NewsHud' &&
-        typeof snapshot.newsEnabled === 'boolean'
-      ) {
-        scene.setHudVisible?.(failed ? false : snapshot.newsEnabled);
-      }
-
-      if (failed && key === 'UIScene') {
-        scene.hideHUD?.();
-      }
-
-      scene.sys.setVisible(failed ? false : snapshot.visible);
-    }
-
-    this.snapshots.clear();
-  }
-}
-
-class HollyDialoguePanel extends DialoguePanel {
-  constructor(scene, trust) {
-    super(scene, {
-      depth: 9000,
-      modal: true
-    });
-
-    this.background = this.root;
-    this.text = this.body;
-    this.portraitObjects = [];
-    this.stamp = null;
-    this.items = [];
-    this.leaveButton = {
-      setVisible: () => this.leaveButton
-    };
-
-    this.isOpen = true;
-    this.bubbleSide = 'npc';
-    this.bubble = null;
-
-    this.meterObjs.forEach(object => object.setVisible(false));
-    this.numText.setVisible(false);
-    this.toneObjs.forEach(object => object.setVisible(false));
-    this.byeBtn.rect.setVisible(false);
-    this.byeBtn.text.setVisible(false);
-
-    this._setTabsVisible(false);
-    this._setEntries([]);
-
-    const { lx, lw, py, s } = this.L;
-
-    this.meterWidth = Math.min(109 * s, lw * 0.40);
-    this.meterX = lx + lw - this.meterWidth / 2;
-    this.meterY = py + 52 * s;
-    this.meterRadius = Math.min(25 * s, this.meterWidth * 0.40);
-
-    this.meterFace = scene.add.graphics();
-    this.root.add(this.meterFace);
-
-    this.meterCaption = this._txt(
-      this.meterX,
-      py + 9 * s,
-      '',
-      PRESS,
-      7 * s,
-      '#d4af37'
-    ).setOrigin(0.5, 0);
-
-    this.setTrust(trust);
-    this._show();
-  }
-
-  get isTyping() {
-    return this.mode === 'typing';
-  }
-
-  setTrust(value) {
-    const next = clampTrust(value);
-    const before = this.trustTweenState?.value ?? next;
-
-    this.trustTween?.remove();
-    this.trustTweenState = { value: before };
-
-    this.meterCaption.setText(`TRUST ${next}`);
-
-    if (before === next) {
-      this.drawTrustDial(next);
-      return;
-    }
-
-    this.trustTween = this.scene.tweens.add({
-      targets: this.trustTweenState,
-      value: next,
-      duration: 320,
-      ease: 'Sine.easeOut',
-      onUpdate: () => {
-        this.drawTrustDial(this.trustTweenState.value);
-      },
-      onComplete: () => {
-        this.trustTween = null;
-        this.drawTrustDial(next);
-      }
-    });
-  }
-
-  drawTrustDial(value) {
-    const g = this.meterFace;
-    const { s } = this.L;
-    const x = this.meterX;
-    const y = this.meterY;
-    const r = this.meterRadius;
-
-    g.clear();
-
-    [0xb95749, 0xc99042, 0x669d62].forEach((color, index) => {
-      const start = Math.PI + index * Math.PI / 3 + 0.035;
-      const end = Math.PI + (index + 1) * Math.PI / 3 - 0.035;
-
-      g.lineStyle(5 * s, color, 1);
-      g.beginPath();
-      g.arc(x, y, r, start, end, false);
-      g.strokePath();
-    });
-
-    g.lineStyle(Math.max(1, s), GOLD, 0.8);
-
-    for (let i = 0; i <= 4; i++) {
-      const angle = Math.PI + i * Math.PI / 4;
-      const inner = r - 8 * s;
-      const outer = r - 4 * s;
-
-      g.lineBetween(
-        x + Math.cos(angle) * inner,
-        y + Math.sin(angle) * inner,
-        x + Math.cos(angle) * outer,
-        y + Math.sin(angle) * outer
-      );
-    }
-
-    const angle = Math.PI + value / 100 * Math.PI;
-    const length = Math.max(0, r - 5 * s);
-
-    g.lineStyle(2 * s, IVORY, 1);
-
-    g.lineBetween(
-      x,
-      y,
-      x + Math.cos(angle) * length,
-      y + Math.sin(angle) * length
-    );
-
-    g.fillStyle(GOLD, 1);
-    g.fillCircle(x, y, 3 * s);
-  }
-
-  _handleKey(event) {
-    if (
-      !this.isOpen ||
-      event.repeat ||
-      event.ctrlKey ||
-      event.metaKey ||
-      event.altKey ||
-      event.target?.isContentEditable ||
-      ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target?.tagName)
-    ) {
-      return;
-    }
-
-    if (event.key === ' ' || event.key === 'Enter') {
-      event.preventDefault?.();
-      this._advance();
-      return;
-    }
-
-    if (/^[1-9]$/.test(event.key)) {
-      event.preventDefault?.();
-      this._pickIndex(Number(event.key) - 1);
-    }
-  }
-
-  _advance() {
-    if (!this.isOpen || this.mode === 'choices') return;
-
-    if (this.isTyping) {
-      this.completeTypewriter();
-      return;
-    }
-
-    if (this.scene.phase === 'dialogue') {
-      this.scene.advance();
-    }
-  }
-
-  advance() {
-    this._advance();
-  }
-
-  setSpeaker({ name }) {
-    this.bubbleSide = name === DETECTIVE ? 'player' : 'npc';
-    this.nameText.setText(String(name ?? '').toUpperCase());
-
-    const { lw, s } = this.L;
-
-    this._fitWidth(
-      this.nameText,
-      Math.max(1, lw - this.meterWidth - 8 * s),
-      14 * s,
-      7 * s
-    );
-  }
-
-  setText(text, { instant = false } = {}) {
-    this.bubble?.destroy();
-
-    const view = {
-      L: this.L,
-      scene: this.scene,
-      root: this.root,
-      body: this.body,
-      pageLabel: {
-        setText() {}
-      },
-      renderTextPage() {}
-    };
-
-    const index = this.root.getIndex(this.body);
-
-    showDialogueBubbles(view, [{
-      speaker: this.bubbleSide,
-      text
-    }]);
-
-    this.bubble = this.root.getAt(index);
-
-    this.stopTypewriter();
-    this._showLine({
-      kind: 'say',
-      text: String(text ?? '')
-    });
-
-    if (instant) {
-      this.completeTypewriter();
-    }
-  }
-
-  _afterLines() {
-    const choosing = this.items.length > 0;
-
-    this._setMode(choosing ? 'choices' : 'waiting');
-    this.contArrow.setVisible(!choosing);
-  }
-
-  stopTypewriter() {
-    this._cancelTyper();
-
-    if (this.isTyping) {
-      this._setMode('waiting');
-    }
-  }
-
-  completeTypewriter() {
-    if (this.isTyping) {
-      this._finishTyping();
-    }
-  }
-
-  setTopics(items) {
-    this.items = items;
-    this.scroll = 0;
-
-    this.choiceTitle.setVisible(items.length > 0);
-
-    if (items.length) {
-      this._setMode('choices');
-    } else if (this.mode === 'choices') {
-      this._setMode('waiting');
-    }
-
-    this._setEntries(
-      items.map(item => ({
-        label: item.label,
-        style: 'new'
-      }))
-    );
-
-    this.contArrow.setVisible(
-      !items.length && this.mode === 'waiting'
-    );
-  }
-
-  _drawRows() {
-    super._drawRows();
-
-    const { rw, listY, s } = this.L;
-    const step = 47 * s;
-    const rowHeight = 43 * s;
-
-    this.rows.forEach((row, index) => {
-      if (!this._entries[this.scroll + index]) return;
-
-      const y = listY + index * step;
-      const width = Math.max(1, rw - 2 * s);
-      const height = Math.max(1, rowHeight);
-
-      row.bg.setY(y).setSize(width, height);
-      row.bg.input?.hitArea?.setSize(width, height);
-
-      row.num.setY(y + height / 2);
-
-      row.label
-        .setY(y + height / 2)
-        .setWordWrapWidth(Math.max(1, rw - 42 * s), true)
-        .setFontSize(15 * s)
-        .setLineSpacing(0);
-
-      let size = 15 * s;
-
-      while (row.label.height > height - 2 * s && size > 8 * s) {
-        size -= s;
-        row.label.setFontSize(size);
-      }
-    });
-  }
-
-  _pickIndex(index) {
-    if (!this.isOpen || this.mode !== 'choices') return;
-    this.items[index]?.onSelect?.();
-  }
-
-  setStamp(label, { color = '#c0392b', slam = false } = {}) {
-    this.clearStamp();
-
-    const { lx, lw, py, s } = this.L;
-
-    this.stamp = this.scene.add.text(
-      lx + lw / 2,
-      py - 64 * s,
-      label,
-      {
-        fontFamily: PRESS,
-        fontSize: `${18 * s}px`,
-        color,
-        stroke: '#17110a',
-        strokeThickness: 5 * s,
-        padding: {
-          x: 10 * s,
-          y: 8 * s
-        }
-      }
-    )
-      .setOrigin(0.5)
-      .setAngle(-8)
-      .setResolution(2);
-
-    const maxWidth = Math.max(1, lw - 32 * s);
-    const fitScale = Math.min(1, maxWidth / this.stamp.width);
-
-    this.stamp.setScale(fitScale);
-    this.root.add(this.stamp);
-
-    if (slam) {
-      this.stamp.setScale(fitScale * 1.5);
-
-      this.scene.tweens.add({
-        targets: this.stamp,
-        scaleX: fitScale,
-        scaleY: fitScale,
-        duration: 150,
-        ease: 'Quad.easeOut'
-      });
-    }
-  }
-
-  clearStamp() {
-    if (!this.stamp) return;
-
-    this.scene.tweens.killTweensOf(this.stamp);
-    this.stamp.destroy();
-    this.stamp = null;
-  }
-
-  destroy() {
-    this.trustTween?.remove();
-    this.trustTween = null;
-    this.clearStamp();
-    super.destroy();
-  }
-}
+const DIALOGUE_DEPTH = 9000;
+const STAMP_DEPTH = 9500;
+
+// Tylko do wyświetlania stanu rozmówcy. Zaufanie Holly
+// nadal zapisuje się osobno pod kluczem holly_trust.
+const TRUST_VIEW_ID = 'holly_intro';
 
 export class HollyIntroScene extends BaseScene {
   constructor() {
@@ -679,19 +60,20 @@ export class HollyIntroScene extends BaseScene {
     this.video = null;
     this.bgVideo = null;
     this.videoFitted = false;
-    this.hollyPortrait = null;
-    this.portraitBaseY = 0;
     this.stampText = null;
+    this.stampLabel = null;
     this.stampShown = false;
+    this.stampSlam = false;
     this._finishEmitted = false;
     this._applyingReward = false;
     this._skipRepeatedIntro = false;
     this._hudGuard = null;
     this.source = 'forced_sleep';
     this.sleepHours = 6;
-    this.dialoguePanel = null;
+    this.dialogue = null;
+    this.currentView = null;
+    this._lineSerial = 0;
     this._optionsToken = 0;
-    this.boundAdvance = this.handleAdvance.bind(this);
     this.hollyTrust = START_TRUST;
 
     this.sleepLayer = null;
@@ -705,7 +87,7 @@ export class HollyIntroScene extends BaseScene {
   }
 
   get isTyping() {
-    return this.dialoguePanel?.isTyping ?? this._typingFallback ?? false;
+    return this.dialogue?.typing ?? this._typingFallback ?? false;
   }
 
   set isTyping(value) {
@@ -718,9 +100,11 @@ export class HollyIntroScene extends BaseScene {
 
     this.clearSleepTransition();
     this.stopTyping();
+    this.hideStamp();
 
-    this.dialoguePanel?.destroy();
-    this.dialoguePanel = null;
+    this.dialogue?.destroy();
+    this.dialogue = null;
+    this.currentView = null;
 
     this.returnScene = data.returnScene || null;
 
@@ -759,12 +143,14 @@ export class HollyIntroScene extends BaseScene {
     this.video = null;
     this.bgVideo = null;
     this.videoFitted = false;
-    this.hollyPortrait = null;
     this.stampText = null;
+    this.stampLabel = null;
     this.stampShown = false;
+    this.stampSlam = false;
     this._finishEmitted = false;
     this._applyingReward = false;
     this._skipRepeatedIntro = false;
+    this._lineSerial = 0;
     this._optionsToken++;
     this.hollyTrust = getHollyTrust();
   }
@@ -823,26 +209,17 @@ export class HollyIntroScene extends BaseScene {
       .setDepth(8)
       .setVisible(false);
 
+    this.dialogue = new HomeTownDialogue(
+      this,
+      () => this.handleUserLeave()
+    );
+
     this.trackInputEvent(
       this.scale,
       'resize',
       this.layoutDialogue,
       this
     );
-
-    if (this.input.keyboard) {
-      this.trackInputEvent(
-        this.input.keyboard,
-        'keydown-SPACE',
-        this.boundAdvance
-      );
-
-      this.trackInputEvent(
-        this.input.keyboard,
-        'keydown-ENTER',
-        this.boundAdvance
-      );
-    }
 
     this.playSleepTransition();
   }
@@ -1083,24 +460,6 @@ export class HollyIntroScene extends BaseScene {
     this.video.play(false);
   }
 
-  ensureDialoguePanel() {
-    if (this.dialoguePanel?.isOpen) {
-      return this.dialoguePanel;
-    }
-
-    const panel = new HollyDialoguePanel(
-      this,
-      this.hollyTrust
-    );
-
-    this.dialoguePanel = panel;
-    this.dialogPanel = panel.background;
-    this.dialogText = panel.text;
-    this.continueText = panel.leaveButton;
-
-    return panel;
-  }
-
   layoutDialogue() {
     const { width, height } = this.scale;
 
@@ -1119,9 +478,64 @@ export class HollyIntroScene extends BaseScene {
     this.tryFitVideo(this.bgVideo);
   }
 
-  showDialogueLayout() {
+  // ------------------------------------------------------------
+  // Wspólny panel rozmowy
+  // ------------------------------------------------------------
+
+  showView(view) {
+    if (
+      this._cleanupDone ||
+      !this.dialogue ||
+      this.dialogue.destroyed
+    ) {
+      return;
+    }
+
     this.overlay?.setVisible(true);
-    this.ensureDialoguePanel();
+    this.currentView = view;
+
+    this.dialogue.show({
+      ...view,
+      depth: DIALOGUE_DEPTH,
+      npcId: TRUST_VIEW_ID,
+      showTrust: true,
+      scoreTrust: false,
+      startTrust: this.hollyTrust,
+      onDraw: () => this.afterDraw()
+    });
+  }
+
+  afterDraw() {
+    const panel = this.dialogue?.panel;
+
+    if (!panel) return;
+
+    // To wymuszona scena: nie ma przycisku wyjścia z rozmowy.
+    panel.byeBtn?.rect?.setVisible(false);
+    panel.byeBtn?.text?.setVisible(false);
+
+    this.drawStamp();
+  }
+
+  handleUserLeave() {
+    if (
+      this._cleanupDone ||
+      this.phase === 'finished' ||
+      !this.currentView
+    ) {
+      return;
+    }
+
+    this.showView(this.currentView);
+  }
+
+  syncTrustLabel() {
+    const dialogue = this.dialogue;
+
+    if (!dialogue?.data) return;
+
+    dialogue.data.startTrust = this.hollyTrust;
+    dialogue.refreshTrust();
   }
 
   hideDialogueLayout() {
@@ -1130,13 +544,8 @@ export class HollyIntroScene extends BaseScene {
 
     this.overlay?.setVisible(false);
 
-    this.dialoguePanel?.destroy();
-    this.dialoguePanel = null;
-    this.dialogPanel = null;
-    this.nameText = null;
-    this.dialogText = null;
-    this.continueText = null;
-    this.hollyPortrait = null;
+    this.dialogue?.close(false);
+    this.currentView = null;
 
     this._optionsToken++;
   }
@@ -1146,27 +555,7 @@ export class HollyIntroScene extends BaseScene {
     this.nextPhaseAfterDialogue = nextPhase;
     this.phase = 'dialogue';
 
-    this.showDialogueLayout();
     this.advance();
-  }
-
-  handleAdvance(event) {
-    if (event?.repeat || this.phase !== 'dialogue') return;
-
-    const target = event?.target;
-
-    if (
-      event?.ctrlKey ||
-      event?.metaKey ||
-      event?.altKey ||
-      target?.isContentEditable ||
-      ['INPUT', 'TEXTAREA', 'SELECT'].includes(target?.tagName)
-    ) {
-      return;
-    }
-
-    event?.preventDefault?.();
-    this.dialoguePanel?.advance();
   }
 
   advance() {
@@ -1201,101 +590,148 @@ export class HollyIntroScene extends BaseScene {
   showLine(item) {
     this.clearChoices();
 
-    const panel = this.ensureDialoguePanel();
-
-    panel.leaveButton.setVisible(true);
-    this.setSpeaker(item.speaker);
-
     if (item.stamp) {
-      this.showStamp(item.stamp);
+      this.stampLabel = item.stamp;
+      this.stampShown = true;
+      this.stampSlam = true;
     }
 
-    this.typeLine(item.text);
-  }
+    const serial = ++this._lineSerial;
+    this.fullText = item.text;
 
-  typeLine(text) {
-    this.stopTyping();
-    this.fullText = text;
-    this.ensureDialoguePanel().setText(text);
+    this.showView({
+      title: item.speaker,
+      text: item.text,
+      messages: [{
+        speaker: item.speaker === DETECTIVE ? 'player' : 'npc',
+        text: item.text
+      }],
+      choices: [{
+        id: `holly_intro_continue:${serial}`,
+        label: 'Continue',
+        attitude: 'neutral',
+        scoreTrust: false,
+        action: () => this.dialogue?.advance()
+      }],
+      nodeId: `holly_intro_line:${serial}`,
+      onAdvance: () => {
+        if (this.phase === 'dialogue') {
+          this.advance();
+        }
+      }
+    });
   }
 
   stopTyping() {
     this.typingEvent?.remove(false);
     this.typingEvent = null;
-    this.dialoguePanel?.stopTypewriter();
     this.isTyping = false;
   }
 
-  finishTyping() {
-    this.dialoguePanel?.completeTypewriter();
-  }
+  drawStamp() {
+    this.destroyStampObject();
 
-  setSpeaker(speaker) {
-    const panel = this.ensureDialoguePanel();
+    const label = this.stampLabel;
+    const panel = this.dialogue?.panel;
 
-    panel.setSpeaker({
-      name: speaker,
-      portrait: {
-        kind: 'texture',
-        key: speaker === HOLLY ? 'holly' : 'portrait_fallback'
+    if (!label || !panel) return;
+
+    const { lx, lw, py, s } = panel.L;
+    const slam = this.stampSlam;
+
+    this.stampSlam = false;
+
+    const stamp = this.add.text(
+      lx + lw / 2,
+      py - 64 * s,
+      label,
+      {
+        fontFamily: PRESS,
+        fontSize: `${18 * s}px`,
+        color: '#c0392b',
+        stroke: '#17110a',
+        strokeThickness: 5 * s,
+        padding: {
+          x: 10 * s,
+          y: 8 * s
+        }
       }
-    });
+    )
+      .setOrigin(0.5)
+      .setAngle(-8)
+      .setResolution(2)
+      .setDepth(STAMP_DEPTH);
 
-    this.nameText = panel.nameText;
-    this.hollyPortrait = panel.portraitObjects[0] || null;
+    const maxWidth = Math.max(1, lw - 32 * s);
+    const fitScale = Math.min(1, maxWidth / stamp.width);
+
+    stamp.setScale(fitScale);
+
+    if (slam) {
+      stamp.setScale(fitScale * 1.5);
+
+      this.tweens.add({
+        targets: stamp,
+        scaleX: fitScale,
+        scaleY: fitScale,
+        duration: 150,
+        ease: 'Quad.easeOut'
+      });
+    }
+
+    this.stampText = stamp;
   }
 
-  showStamp(label) {
-    this.dialoguePanel?.setStamp(label, {
-      slam: true,
-      color: '#c0392b'
-    });
+  destroyStampObject() {
+    if (!this.stampText) return;
 
-    this.stampText = this.dialoguePanel?.stamp || null;
-    this.stampShown = true;
+    this.tweens?.killTweensOf(this.stampText);
+    this.stampText.destroy();
+    this.stampText = null;
   }
 
   hideStamp() {
-    if (!this.stampShown) return;
+    this.destroyStampObject();
 
-    this.dialoguePanel?.clearStamp();
-    this.stampText = null;
+    this.stampLabel = null;
     this.stampShown = false;
+    this.stampSlam = false;
   }
 
   showOptions({ speaker, prompt, entries, onPick }) {
     this.stopTyping();
     this.hideStamp();
-    this.showDialogueLayout();
-    this.setSpeaker(speaker);
 
-    const panel = this.dialoguePanel;
     const token = ++this._optionsToken;
 
-    panel.setText(prompt, { instant: true });
-    panel.leaveButton.setVisible(false);
-
-    panel.setTopics(
-      entries.map((entry, index) => ({
-        id: `choice_${index}`,
+    this.showView({
+      title: speaker,
+      text: prompt,
+      messages: [{
+        speaker: speaker === DETECTIVE ? 'player' : 'npc',
+        text: prompt
+      }],
+      choices: entries.map((entry, index) => ({
+        id: `holly_intro_option:${token}:${index}`,
         label: entry.label,
-        onSelect: () => {
+        attitude: 'neutral',
+        scoreTrust: false,
+        action: () => {
           if (
             this._optionsToken === token &&
-            this.dialoguePanel === panel &&
-            panel.isOpen
+            !this._cleanupDone
           ) {
             onPick(index);
           }
         }
-      }))
-    );
+      })),
+      nodeId: `holly_intro_options:${token}`
+    });
   }
 
   clearChoices() {
     this._optionsToken++;
     this.choiceNodes = [];
-    this.dialoguePanel?.setTopics([]);
   }
 
   showDialogueChoice(item) {
@@ -1320,6 +756,13 @@ export class HollyIntroScene extends BaseScene {
     this.pickedTones.push(option.tone);
     this.clearChoices();
 
+    this.hollyTrust = applyToneToTrust(
+      this.hollyTrust,
+      option.tone
+    );
+
+    this.syncTrustLabel();
+
     this.time.delayedCall(80, () => {
       if (this._cleanupDone) return;
 
@@ -1327,12 +770,6 @@ export class HollyIntroScene extends BaseScene {
       this.phase = 'dialogue';
       this.advance();
     });
-
-    this.hollyTrust = clampTrust(
-      this.hollyTrust + (TRUST_BY_TONE[option.tone] ?? 0)
-    );
-
-    this.dialoguePanel?.setTrust(this.hollyTrust);
   }
 
   showRewardChoices() {
@@ -1415,7 +852,7 @@ export class HollyIntroScene extends BaseScene {
     this._applyingReward = true;
 
     try {
-      this.grantHollyChoiceReward(choice.id);
+      grantHollyChoiceReward(choice.id);
 
       gameState.updateState({
         hollyIntroSeen: true,
@@ -1446,51 +883,6 @@ export class HollyIntroScene extends BaseScene {
       throw error;
     } finally {
       this._applyingReward = false;
-    }
-  }
-
-  grantHollyChoiceReward(choiceId) {
-    const fullState = gameState.getState
-      ? gameState.getState()
-      : {};
-
-    switch (choiceId) {
-      case 'cash':
-        moneyManager.addCash(250, {
-          category: ECONOMY_CATEGORY.AGENCY_ADVANCE,
-          description: T('t_a7ef26be8904c900b45f'),
-          missionId: 'black-lady-main-case',
-          metadata: {
-            source: 'holly_intro_choice',
-            choiceId
-          }
-        });
-        break;
-
-      case 'rest':
-        gameState.updateState({
-          restVouchers: Number(fullState.restVouchers || 0) + 2
-        });
-        break;
-
-      case 'kit':
-        hintManager.grantOnce(
-          'holly_intro_field_support',
-          2,
-          T('t_0da52c91c65a43f635d8')
-        );
-        break;
-
-      case 'travel':
-        gameState.updateState({
-          freeTransfers: Number(fullState.freeTransfers || 0) + 2
-        });
-        break;
-
-      default:
-        throw new Error(
-          `[HollyIntroScene] Unknown reward choice: ${choiceId}`
-        );
     }
   }
 
@@ -1542,13 +934,14 @@ export class HollyIntroScene extends BaseScene {
     this.clearChoices();
     this.hideDialogueLayout();
 
+    this.dialogue?.destroy();
+    this.dialogue = null;
+
     this.destroyVideo(this.video);
     this.destroyVideo(this.bgVideo);
 
     this.video = null;
     this.bgVideo = null;
-    this.hollyPortrait = null;
-    this.stampText = null;
 
     super.cleanup();
   }

@@ -8,32 +8,42 @@ import { EventBus } from '../EventBus.js';
 import { getBoardEvidenceRecord } from './BoardEvidenceModel.js';
 import { loadJson } from '../config/loadJson.js';
 
-const manifest = await loadJson('../assets/manifests/catalog/suspects.json', import.meta.url);
-const suspectImages = new Map(
-  (Array.isArray(manifest?.assets) ? manifest.assets : [])
-    .filter(asset => asset?.type === 'image' && typeof asset.key === 'string' &&
-      typeof asset.url === 'string' && /^assets\/suspects\//.test(asset.url))
-    .map(asset => [asset.key, asset.url])
-);
+const suspectImages = new Map();
 const gameRoot = new URL('../', import.meta.url);
+let manifestReady = false;
+let manifestRequest = null;
+
+function ensureSuspectImages() {
+  if (manifestReady) return Promise.resolve(true);
+  if (manifestRequest) return manifestRequest;
+  manifestRequest = Promise.resolve()
+    .then(() => loadJson('../assets/manifests/catalog/suspects.json', import.meta.url))
+    .then(manifest => {
+      if (!Array.isArray(manifest?.assets)) throw new Error('Invalid suspects manifest: assets must be an array.');
+      const images = manifest.assets.filter(asset => asset?.type === 'image' &&
+        typeof asset.key === 'string' && typeof asset.url === 'string' &&
+        /^assets\/suspects\//.test(asset.url));
+      for (const asset of images) suspectImages.set(asset.key, asset.url);
+      manifestReady = true;
+      return true;
+    })
+    .catch(error => {
+      console.warn('[BoardEvidenceRuntime] Suspect photos unavailable; the board remains usable.', error);
+      return false;
+    })
+    .finally(() => { manifestRequest = null; });
+  return manifestRequest;
+}
 
 function resolveSuspectPhoto(suspect) {
-  // Po wystawieniu nakazu suspect jest rekordem wybranym z bazy suspects.
-  // Nie zapisujemy source.src z tekstury: może być tymczasowym adresem blob.
-  const candidates = [
-    suspect.portraitKey,
-    suspect.suspectImageKey,
-    suspect.imageKey,
-    suspect.photoKey,
-    suspect.spriteKey,
-    suspect.id
-  ];
+  // Never store texture source.src: it can be a temporary blob URL.
+  const candidates = [suspect.portraitKey, suspect.suspectImageKey,
+    suspect.imageKey, suspect.photoKey, suspect.spriteKey, suspect.id];
   for (const key of candidates) {
     if (typeof key !== 'string') continue;
     const path = suspectImages.get(key);
     if (path) return { imageKey: key, image: new URL(path, gameRoot).href };
   }
-  console.warn('[BoardEvidenceRuntime] No suspect photo found in suspects manifest:', suspect.id);
   return { imageKey: null, image: '' };
 }
 
@@ -107,16 +117,38 @@ export function recordWarrantIdentity(scene, suspect, state = gameState) {
       String(state.warrantSuspectId) !== String(suspect.id)) return false;
   const photo = resolveSuspectPhoto(suspect);
   const previous = getBoardEvidenceRecord(state);
+  const sameSuspect = String(previous.warrant?.id) === String(suspect.id);
   const warrant = {
     id: String(suspect.id),
     name: suspect.name || state.warrantSuspectName,
-    image: photo.image,
-    imageKey: photo.imageKey
+    image: photo.image || (sameSuspect ? previous.warrant.image : '') || '',
+    imageKey: photo.imageKey || (sameSuspect ? previous.warrant.imageKey : null) || null
   };
-  if (JSON.stringify(previous.warrant) === JSON.stringify(warrant)) return true;
-  write({ ...previous, warrant }, state);
+  if (JSON.stringify(previous.warrant) !== JSON.stringify(warrant)) {
+    write({ ...previous, warrant }, state);
+  }
+  if (!manifestReady) {
+    const caseKey = getEvidenceCaseKey(state);
+    const caseId = state.currentCaseId;
+    const campaignId = state._createdAt;
+    const startedAt = state.investigationStartTime;
+    const snapshot = { ...suspect };
+    // Preserve the synchronous API; only enrich the same active warrant later.
+    void ensureSuspectImages().then(loaded => {
+      if (!loaded || !state.currentMission ||
+          getEvidenceCaseKey(state) !== caseKey || state.currentCaseId !== caseId ||
+          state._createdAt !== campaignId || state.investigationStartTime !== startedAt ||
+          !state.arrestWarrantIssued || String(state.warrantSuspectId) !== String(snapshot.id)) return;
+      const current = getBoardEvidenceRecord(state);
+      if (String(current.warrant?.id) !== String(snapshot.id)) return;
+      const resolved = resolveSuspectPhoto(snapshot);
+      if (!resolved.image) return;
+      const next = { ...current.warrant, image: resolved.image, imageKey: resolved.imageKey };
+      if (JSON.stringify(current.warrant) !== JSON.stringify(next)) write({ ...current, warrant: next }, state);
+    }).catch(error => console.warn('[BoardEvidenceRuntime] Could not update warrant photo.', error));
+  }
   return true;
 }
 
-// Read-only migration from actual carried items; never from generated apartment contents.
+// No top-level await and no request during import. First warrant loads photos on demand.
 EventBus.on('itemAdded', () => captureApartmentInventory());

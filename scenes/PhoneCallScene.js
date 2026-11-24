@@ -6,16 +6,26 @@ import { advanceCrimeTutorial } from '../tutorials/CrimeCityTutorial.js';
 import { BaseScene } from './BaseScene.js';
 import { IncomingMobileAudio } from './phone/IncomingMobileAudio.js';
 
+const FAILED_CONNECTION = 'CONNECTION FAILED.\nTRY AGAIN OR IGNORE.';
+const FAILED_SAVE = 'SAVE FAILED.\nTRY AGAIN OR IGNORE.';
+
+function captureCallContext() {
+  const mission = gameState.currentMission;
+  return [gameState.currentCaseId, gameState._createdAt, mission?.id, mission?.missionId, mission?.scene, gameState.currentCityId];
+}
+
 export class PhoneCallScene extends BaseScene {
   constructor() {
     super({ key: 'PhoneCallScene' });
     this.ui = []; this.ringTweens = []; this.mobileAudio = null;
-    this._phoneRun = null; this.answerBtn = null; this.laterBtn = null; this.statusText = null;
+    this._phoneRun = null; this._callContext = null; this._failureMessage = FAILED_CONNECTION;
+    this.answerBtn = null; this.laterBtn = null; this.statusText = null;
     this.isAnswered = false; this.isEnding = false; this.isShuttingDown = false;
   }
   init(data = {}) {
     this.mobileAudio?.destroy(); this.mobileAudio = null;
     this._phoneRun = Symbol('phone-call');
+    this._callContext = captureCallContext(); this._failureMessage = FAILED_CONNECTION;
     this.sourceScene = data.sourceScene || 'CrimeCityScene';
     this.cityId = data.cityId || gameState.currentCityId || null;
     this.caseKey = data.caseKey ?? null;
@@ -31,11 +41,17 @@ export class PhoneCallScene extends BaseScene {
   isCurrentPhoneRun(token) {
     return token === this._phoneRun && !this.isShuttingDown && !this._cleanupDone && this.sys.isActive();
   }
+  isCurrentCall(token) {
+    if (!this.isCurrentPhoneRun(token) || !Array.isArray(this._callContext)) return false;
+    const now = captureCallContext();
+    return now.every((value, index) => Object.is(value, this._callContext[index]));
+  }
   getCrimeCityScene() { return this.scene?.manager?.keys?.CrimeCityScene || null; }
   unlockSuspectFiles(choice) {
     const city = this.getCrimeCityScene(), caseKey = this.caseKey ?? city?.getCaseKey?.();
     if (caseKey === null || caseKey === undefined || caseKey === '') {
-      console.error('[PhoneCallScene] Cannot unlock suspect files: missing caseKey.'); return false;
+      console.error('[PhoneCallScene] Cannot unlock suspect files: missing caseKey.');
+      this._failureMessage = FAILED_CONNECTION; return false;
     }
     this.caseKey = caseKey;
     const decisions = gameState.suspectFilesPhoneDecisions;
@@ -43,13 +59,17 @@ export class PhoneCallScene extends BaseScene {
       ...(decisions && typeof decisions === 'object' && !Array.isArray(decisions) ? decisions : {}),
       [String(caseKey)]: choice
     } });
-    saveGameState();
+    // Keep the prepared decision in memory; only continue after the save is confirmed.
+    let saved = false;
+    try { saved = saveGameState() === true; }
+    catch (error) { console.error('[PhoneCallScene] Could not save suspect-file decision:', error); }
     if (city && !city._cleanupDone && city.sys?.isActive()) {
       city.mapUI?.createHeader();
       city.mapUI?.createAvailableLocations({ crimeSceneCompleted: city.isCrimeSceneCompleted(),
         crimeLabCompleted: city.isCrimeLabCompleted(), apartmentAvailable: city.hasAnyDebunkedAlibi() });
     }
-    return true;
+    this._failureMessage = saved ? FAILED_CONNECTION : FAILED_SAVE;
+    return saved;
   }
   disablePhoneInput() {
     for (const object of [this.answerBtn, this.laterBtn]) {
@@ -66,20 +86,35 @@ export class PhoneCallScene extends BaseScene {
     if (!this.isCurrentPhoneRun(token)) return false;
     if (error) console.error('[PhoneCallScene] Hypothesis launch failed:', error);
     this.isAnswered = false; this.isEnding = false;
-    this.statusText?.setText('CONNECTION FAILED.\nTRY AGAIN OR IGNORE.');
+    this.statusText?.setText(this._failureMessage || FAILED_CONNECTION);
     for (const button of [this.answerBtn, this.laterBtn]) {
       if (button?.scene) button.setInteractive({ useHandCursor: true });
     }
     return false;
+  }
+  closeStaleCall(token) {
+    // A different case/campaign is now active; never use this call to open or change it.
+    if (token !== this._phoneRun || this.isShuttingDown || this._cleanupDone || !this.sys.isActive()) return false;
+    this.isEnding = true; this.scene.stop(); return false;
   }
   async answerCall() {
     if (this.isAnswered || this.isEnding || this.isShuttingDown) return false;
     const token = this._phoneRun;
     this.isAnswered = true; this.isEnding = true; this.stopRinging();
     try {
+      if (!this.isCurrentCall(token)) return this.closeStaleCall(token);
       if (!this.unlockSuspectFiles('answer')) return this.recoverPhoneNavigation(token);
+      if (!this.isCurrentCall(token)) return this.closeStaleCall(token);
       advanceCrimeTutorial(gameState, 'phone_lab');
-      EventBus.emit('crimeCityTutorialStep', { step: 'phone_lab' }); saveGameState();
+      if (!this.isCurrentCall(token)) return this.closeStaleCall(token);
+      if (saveGameState() !== true) {
+        this._failureMessage = FAILED_SAVE; return this.recoverPhoneNavigation(token);
+      }
+      if (!this.isCurrentCall(token)) return this.closeStaleCall(token);
+      try { EventBus.emit('crimeCityTutorialStep', { step: 'phone_lab' }); }
+      catch (error) { console.error('[PhoneCallScene] Tutorial notification failed:', error); }
+      if (!this.isCurrentCall(token)) return this.closeStaleCall(token);
+      this._failureMessage = FAILED_CONNECTION;
       const opened = await this.goto('HypothesisScene', {
         cityId: this.cityId, caseKey: this.caseKey,
         sourceScene: this.returnScene, returnScene: this.returnScene,
@@ -94,8 +129,10 @@ export class PhoneCallScene extends BaseScene {
     const token = this._phoneRun;
     this.isEnding = true; this.stopRinging();
     try {
+      if (!this.isCurrentCall(token)) return this.closeStaleCall(token);
       if (!this.unlockSuspectFiles('ignore')) return this.recoverPhoneNavigation(token);
-      saveGameState(); this.scene.stop(); return true;
+      if (!this.isCurrentCall(token)) return this.closeStaleCall(token);
+      this.scene.stop(); return true;
     } catch (error) { return this.recoverPhoneNavigation(token, error); }
   }
   create() {
@@ -142,7 +179,7 @@ export class PhoneCallScene extends BaseScene {
   }
   onShutdown() {
     if (this.isShuttingDown) return;
-    this.isShuttingDown = true; this.isEnding = true; this._phoneRun = null;
+    this.isShuttingDown = true; this.isEnding = true; this._phoneRun = null; this._callContext = null;
     this.events.off(Phaser.Scenes.Events.SHUTDOWN, this.onShutdown, this);
     this.events.off(Phaser.Scenes.Events.DESTROY, this.onShutdown, this);
     this.stopRinging({ disableInput: false });

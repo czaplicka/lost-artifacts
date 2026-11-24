@@ -9,6 +9,7 @@ export const CAR_PARTS = Object.freeze({
   wheel:{file:'stering_wheel',bounds:[466,541,432,433]},
   wiper:{file:'windshield',bounds:[1140,545,780,101]}
 });
+export const CAR_EXTENSIONS = Object.freeze(['webp','png','jpg']);
 export const carKey = id => `drive_car_v1_${id}`;
 export function alphaBounds(data,width,height){
   let left=width,top=height,right=-1,bottom=-1;
@@ -32,14 +33,14 @@ function loadPass(scene,ids,extension){
 }
 export async function loadCarAssets(scene){
   const run=scene._driveRun,ids=Object.keys(CAR_PARTS);
-  for(const ext of ['png','webp','jpg']){
+  for(const ext of CAR_EXTENSIONS){
     if(scene._cleanupDone||scene._driveRun!==run)throw new Error('Car asset loading cancelled.');
     const missing=ids.filter(id=>!scene.textures.exists(carKey(id)));if(!missing.length)break;
     await loadPass(scene,missing,ext);
   }
   if(scene._cleanupDone||scene._driveRun!==run)throw new Error('Car asset loading cancelled.');
   const missing=ids.filter(id=>!scene.textures.exists(carKey(id)));
-  if(missing.length)throw new Error('Missing car graphics: '+missing.map(id=>CAR_PARTS[id].file).join(', ')+'. Expected assets/car/*.png (or .webp / .jpg).');
+  if(missing.length)throw new Error('Missing car graphics: '+missing.map(id=>CAR_PARTS[id].file).join(', ')+'. Expected assets/car/*.webp (or .png / .jpg).');
   scene.carAssets={};
   for(const id of ids){
     const texture=scene.textures.get(carKey(id)),source=texture.getSourceImage();

@@ -1,5 +1,8 @@
 import { dialogueText as __dialogueText } from '../dialogues/DialogueText.js';
 const text = key => __dialogueText('crimeBoard/BoardData.js', key);
+// Document-relative paths, like the rest of the project; they work in a subfolder host.
+const PLACEHOLDER_SUSPECT_IMAGE = 'assets/suspects/unknown.webp';
+const PLACEHOLDER_CLUE_IMAGE = 'assets/artifacts/artifact_unknown.webp';
 const idOrNull = value => (typeof value === 'string' && value.length > 0) ||
   (typeof value === 'number' && Number.isFinite(value)) ? value : null;
 const stringList = value => Array.isArray(value) ? value.filter(item => typeof item === 'string') : [];
@@ -16,7 +19,7 @@ export const BoardData = {
       discovered: true, createdByPlayer: true, editableByPlayer: true
     };
     if (type === 'photo') return {
-      ...base, label: text('t_7a1cf2ca195a10173fea'), image: '/assets/ui/placeholder-suspect.png',
+      ...base, label: text('t_7a1cf2ca195a10173fea'), image: PLACEHOLDER_SUSPECT_IMAGE,
       caption: text('t_a2fa12a43290d210779b'), meta: [text('t_645978287991a6f40bca')]
     };
     if (type === 'evidence') return {
@@ -61,20 +64,29 @@ export const BoardData = {
   },
   normalizeItem(item, index = 0) {
     const safe = item && typeof item === 'object' ? item : {};
+    const type = ['photo', 'note', 'evidence'].includes(safe.type) ? safe.type : 'note';
     return {
       id: safe.id || `item-${crypto.randomUUID()}`,
-      type: ['photo', 'note', 'evidence'].includes(safe.type) ? safe.type : 'note',
+      type,
       x: Number.isFinite(safe.x) ? safe.x : 40 + index * 30,
       y: Number.isFinite(safe.y) ? safe.y : 40 + index * 20,
       z: Number.isFinite(safe.z) ? safe.z : index + 1,
       rotation: Number.isFinite(safe.rotation) ? safe.rotation : this.getInitialRotation(index),
       pinned: Boolean(safe.pinned), label: safe.label || text('t_f59ab8d1331b7b16952f'),
-      image: safe.image || '', caption: safe.caption || '',
+      // Photos without an image use an existing placeholder, so rendering never needs a root path.
+      image: safe.image || (type === 'photo' ? PLACEHOLDER_CLUE_IMAGE : ''), caption: safe.caption || '',
       meta: Array.isArray(safe.meta) ? safe.meta.filter(Boolean) : [],
       text: safe.text || '', metaText: safe.metaText || '',
       color: ['yellow', 'blue', 'pink'].includes(safe.color) ? safe.color : 'yellow',
       tag: safe.tag || text('t_03867aea70acaf4c5dce'), body: safe.body || '',
-      fields: Array.isArray(safe.fields) ? safe.fields.map(row => ({ key: row?.key || '', value: row?.value || '' })) : [],
+      fields: Array.isArray(safe.fields) ? safe.fields.map(row => ({ id: typeof row?.id === 'string' ? row.id : '', key: row?.key || '', value: row?.value || '' })) : [],
+      /* board-data-semantic-fields-v1 */
+      cityId: typeof safe.cityId === 'string' ? safe.cityId : null,
+      sceneId: idOrNull(safe.sceneId), missionId: idOrNull(safe.missionId),
+      sceneSuccess: typeof safe.sceneSuccess === 'boolean' ? safe.sceneSuccess : null,
+      skillId: typeof safe.skillId === 'string' ? safe.skillId : '',
+      identityStatus: safe.identityStatus === 'false' ? 'false' : null,
+      identityBaseLabel: typeof safe.identityBaseLabel === 'string' ? safe.identityBaseLabel : '',
       suspectId: idOrNull(safe.suspectId), clueId: idOrNull(safe.clueId),
       heistExplanation: safe.heistExplanation || '', trueExplanation: safe.trueExplanation || '',
       isRedHerring: Boolean(safe.isRedHerring), tags: stringList(safe.tags),

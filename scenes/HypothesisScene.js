@@ -13,6 +13,8 @@ import { recordHeistAttempt } from '../systems/InvestigationAudit.js';
 
 const text = key => __dialogueText('scenes/HypothesisScene.js', key);
 const transientSource = key => ['PhoneCallScene', 'HypothesisScene', 'TheoryResultCallScene'].includes(key);
+const BOARD_ATTEMPTS_FIELD = 'boardAttemptsLeft';
+const MAX_BOARD_ATTEMPTS = 3;
 
 export class HypothesisScene extends BaseScene {
   constructor() {
@@ -40,16 +42,34 @@ export class HypothesisScene extends BaseScene {
     this.isReturning = false; this.isLaunchingResult = false; this.energyConsumed = false;
     this._finalized = false; this._confirming = false; this._committing = false; this._commitFailed = false;
     this.ensureReconstructionState();
+    // Read before HypothesisState is created: its constructor resets the shared attempts field.
+    const restoredAttempts = this.getRestoredBoardAttempts(gameState.reconstructedHeist);
     this.claims = Array.isArray(gameState.reconstructedHeist.claims) ? gameState.reconstructedHeist.claims : [];
     if (this.claims.length !== 3) console.warn('[HypothesisScene] Expected exactly 3 reconstruction claims.', this.claims);
     this.slotLabels = this.claims.length ? this.claims.map(c => c.prompt || c.questionId || text('t_3d4821e17b5677673e55')) :
       [text('t_fee8181d07a55905cd68'), text('t_810fa3b5d9418487cfa9'), text('t_aa53cb64f826209cc1ec')];
     this.slotQuestionIds = this.claims.length ? this.claims.map(c => c.questionId || null) : [null, null, null];
     this.scoreManager = getScoreManager();
-    this.hypothesisState = new HypothesisState({ reconstruction: gameState.reconstructedHeist, activeSlotCount: 3, attempts: 3 });
+    this.hypothesisState = new HypothesisState({ reconstruction: gameState.reconstructedHeist, activeSlotCount: 3, attempts: MAX_BOARD_ATTEMPTS });
+    if (restoredAttempts !== null) this.hypothesisState.setAttemptsLeft(restoredAttempts);
     this.resultService = new HypothesisResultService({ cityId: this.cityId, sceneId: this.sceneId, scoreManager: this.scoreManager });
     this.availableCards = []; this.correctCards = []; this.distractorCards = [];
     this.energyManager = null; this.boardUI = null;
+  }
+  getRestoredBoardAttempts(reconstruction) {
+    if (!reconstruction || typeof reconstruction !== 'object' || reconstruction.playerTheoryResult) return null;
+    const saved = reconstruction[BOARD_ATTEMPTS_FIELD];
+    if (!Number.isInteger(saved) || saved < 0 || saved > MAX_BOARD_ATTEMPTS) return null;
+    // Zero without a stored result means finalization did not finish; allow one final submission.
+    return Math.max(1, saved);
+  }
+  persistBoardAttempts({ save = true } = {}) {
+    const reconstruction = gameState.reconstructedHeist;
+    if (!reconstruction || typeof reconstruction !== 'object' || !this.hypothesisState) return false;
+    reconstruction[BOARD_ATTEMPTS_FIELD] = this.hypothesisState.attemptsLeft;
+    if (!save) return true;
+    try { return saveGameState() === true; }
+    catch (error) { console.error('[HypothesisScene] Could not save reconstruction attempts:', error); return false; }
   }
   isCurrentHypothesisRun(token) {
     return token === this._hypothesisRun && token != null && !this._cleanupDone && this.sys.isActive();
@@ -177,6 +197,8 @@ export class HypothesisScene extends BaseScene {
         if (narrative) this.boardUI?.showGreenNarrative(slotIndex, narrative, (index + 1) * 450);
       });
       if (!allGreen) this.hypothesisState.consumeAttempt();
+      // The audit save above happens before the attempt is consumed; save the new count too.
+      this.persistBoardAttempts({ save: !evaluation.isFinal });
       if (!evaluation.isFinal) {
         const redHerring = orderedCards.find((card, index) => feedback[index] === 'red' && card?.isRedHerring);
         let message = evaluation.message;
