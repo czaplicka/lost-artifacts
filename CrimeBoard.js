@@ -101,11 +101,17 @@ export class CrimeBoard {
   }
 
   init() {
-    window.addEventListener('resize', this.boundResize);
-    this.createDeductionPanel();
-    this.bindEditor();
-    this.bindSidebar();
-    this.root.addEventListener('click', this.boundRootClick);
+    try {
+      window.addEventListener('resize', this.boundResize);
+      this.createDeductionPanel();
+      this.bindEditor();
+      this.bindSidebar();
+      this.root.addEventListener('click', this.boundRootClick);
+    } catch (error) {
+      // A failed constructor must not leave listeners or the deduction panel behind.
+      this.destroy();
+      throw error;
+    }
   }
 
   destroy() {

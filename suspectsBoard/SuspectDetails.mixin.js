@@ -1,3 +1,5 @@
+// scoped-lab-public-view-v1
+import { isCaseCrimeLabCompleted } from '../scenes/CSI/LabCompletionState.js';
 import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 // Presentation only: never evaluate suspect/evidence compatibility.
 import {CrimeLabManager} from '../scenes/CSI/CrimeLabManager.js';
@@ -58,7 +60,7 @@ export const SuspectDetailsMixin={
   getCompletedCrimeLabResults(){
     const state=this.gameState||{},manager=new CrimeLabManager(state,this.cityId),caseKey=String(manager.getCaseKey());
     const current=state.caseForensics?.[caseKey],assignment=state.caseCsiAssignments?.[caseKey];
-    const labCompletedForCase=state.crimeCityProgress?.[caseKey]?.crimeLabCompleted===true||current?.completed===true||(!current&&state.csiLabCompleted===true);
+    const labCompletedForCase = isCaseCrimeLabCompleted(state, caseKey, this.cityId);
     const byField=new Map();
     const configFor=station=>station==='identity'?assignment?.identityEvidence:/^trace_[01]$/.test(String(station||''))?assignment?.traceEvidence?.[Number(station.slice(-1))]:null;
     const add=(raw,priority,{trusted=false,legacy=false}={})=>{

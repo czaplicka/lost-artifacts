@@ -177,17 +177,6 @@ export function prepareCaseSuspectState(
     }
   }
 
-  console.table(
-    gameState.caseSuspects.map((suspect) => ({
-      id: suspect.id,
-      name: suspect.name,
-      isRealThief: suspect.isRealThief === true,
-      eliminated:
-        suspect.deductionState?.eliminated === true,
-      reasonCount:
-        suspect.deductionState?.eliminationReasons?.length || 0
-    }))
-  );
 
   saveGameState();
 

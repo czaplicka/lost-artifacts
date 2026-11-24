@@ -1,0 +1,153 @@
+{
+  "idle": {
+    "piOfficeNew": [
+      "A bigger office. I now have more room to walk around a difficult question.",
+      "The practice has expanded. I should make sure the standards came with it.",
+      "More space. Same detective. The room is taking a cautious interest.",
+      "I can finally stand somewhere that is not directly beside my next task.",
+      "A proper headquarters. I should avoid expecting the address to solve anything.",
+      "The old office kept me close to the work. This one permits a more ceremonial approach.",
+      "I have upgraded the premises. My judgement will still need to be checked manually.",
+      "The extra space makes every unfinished thought look more deliberately placed.",
+      "I should furnish this place for the work I do, not the interview I imagine giving.",
+      "The office looks ready for a larger operation. I should begin with one well-handled case.",
+      "A bigger business starts with doing the small things properly. Disappointingly familiar advice.",
+      "Plenty of room for professional development. I should not fill all of it with objects."
+    ]
+  },
+  "inspect": {
+    "piOfficeNew": {
+      "computer": [
+        "A larger office has not made the inbox more selective.",
+        "The computer still handles the adverts. Fortunately, the clients do not need a floor plan.",
+        "I should check the case before checking the office shop. There is a relationship between those activities.",
+        "Office Expansion. A modest title for acquiring managerial responsibilities.",
+        "More applications, same need to read the message before replying.",
+        "New premises. The computer continues to expect me to supply the judgement."
+      ],
+      "phone": [
+        "The telephone. My business can sound established from exactly one carefully chosen sentence.",
+        "A bigger office does not make an awkward question any smaller.",
+        "I should check my notes before calling. The room cannot prompt me.",
+        "The client hears my voice, not the square footage. Probably for the best.",
+        "The receiver still has two useful ends: speaking and listening.",
+        "A professional telephone manner is mostly allowing the other person to finish lying."
+      ],
+      "cityDoor": [
+        "The office is worth coming back to. I should now give myself a reason to leave.",
+        "New headquarters, same city. Best not expect anyone outside to applaud.",
+        "An impressive office is not an alibi for avoiding fieldwork.",
+        "I should take the relevant notes. The rest of the business can remain indoors.",
+        "The city has not become less complicated while I was improving the office.",
+        "Time to investigate something that cannot be rearranged on a floor plan."
+      ],
+      "books": [
+        "Books. Useful references, provided I occasionally consult the parts behind the spines.",
+        "A respectable collection. I should resist quoting something I have only read on the cover.",
+        "The answer might be in a book. The question is still my responsibility.",
+        "Reference material. A more reliable source than vaguely remembering a conversation."
+      ],
+      "painting": [
+        "A painting. It gives visitors something to study while deciding how much to tell me.",
+        "An office can have taste without claiming expertise in attribution.",
+        "I bought something to look at. An unusually honest purpose for office decor.",
+        "I should not start deducing the artist from the frame. I have actual work."
+      ],
+      "artifact": [
+        "A display piece. I should keep its decorative role separate from my professional curiosity.",
+        "Interesting object. \"Interesting\" is not a verified provenance.",
+        "The office now contains a conversation piece. I still have to supply the conversation.",
+        "I should not let an impressive display do the work of an actual explanation."
+      ],
+      "chairs": [
+        "Visitor chairs. A practical investment in hearing the entire story.",
+        "Providing a seat is not the same as providing reassurance. It is a reasonable opening.",
+        "The clients can sit down. Their version of events may still need support.",
+        "Chairs make an interview more comfortable. The questions can handle the opposite."
+      ],
+      "coffee": [
+        "Coffee. A courtesy, not an interrogation technique.",
+        "I should let the client finish speaking before offering a second explanation and a second coffee.",
+        "An office with coffee. My professional credentials remain under separate review.",
+        "Coffee improves a meeting. It does not validate the conclusions."
+      ],
+      "tv": [
+        "A television. The city can now bring its problems into my office electronically.",
+        "Local news. Useful context, provided I distinguish reporting from dramatic music.",
+        "An authoritative voice is not the same as a reliable source. Even with a studio.",
+        "I should not mistake being informed for having investigated."
+      ],
+      "crimeBoard": [
+        "A board for my investigations. Each connection still has to earn its place.",
+        "More space for evidence. Not an invitation to collect unrelated suspicions.",
+        "The client wants an answer. The board should show why that answer deserves to be believed.",
+        "A visual theory. Best check that removing the lines would not remove the entire argument."
+      ],
+      "caseFiles": [
+        "Completed cases belong in the records, not in my increasingly heroic recollection.",
+        "A case file should explain what happened without requiring me to stand beside it.",
+        "An archive of my own work. A useful defence against confidently forgetting it.",
+        "Filed properly, a closed case can still answer a new question."
+      ],
+      "printer": [
+        "A printer. For when an electronic document needs the additional vulnerability of paper.",
+        "The documents need checking before printing. Ink is not a form of verification.",
+        "A hard copy. Useful when explaining that I really did read the original.",
+        "I should select the right document. The machine is not responsible for my dramatic timing."
+      ],
+      "notepad": [
+        "Notes in my own words. I should make a small concession to my future ability to read them.",
+        "A useful place for questions. A dangerous place to disguise guesses as facts.",
+        "I need dates, names, and exact wording. \"Odd fellow\" can be a footnote.",
+        "Writing it down prevents forgetting. It does not prevent writing down something foolish."
+      ]
+    }
+  },
+  "events": {
+    "piOfficeNew": {
+      "moveInCompleted": [
+        "Moved in. I should establish where the work happens before deciding where to look successful.",
+        "The new office is real now. Any remaining improvements will require decisions rather than optimism.",
+        "New premises. I should update my habits before they settle in exactly as they were.",
+        "I have more space. The first challenge is remembering why I crossed it.",
+        "The move is complete. Back to the business that was supposed to justify it."
+      ],
+      "itemPurchased": [
+        "Another office improvement. I should let it become useful before ordering its companion.",
+        "Purchase complete. The next stage is using the thing.",
+        "I have added to the office. I should now add something to the investigation.",
+        "A practical upgrade, I hope. The receipt is making no promises."
+      ],
+      "noCase": [
+        "A bigger office and no active job. The classifieds have become particularly relevant.",
+        "No current assignment. I should seek work before redesigning the workspace again.",
+        "The premises are ready. I need a client problem, not another furniture decision.",
+        "I should check the adverts. A business cannot live entirely on looking available."
+      ],
+      "caseAccepted": [
+        "New case accepted. This office is about to acquire a purpose for the afternoon.",
+        "A client request. Best identify the actual problem before involving the entire room.",
+        "Time to put the improved workspace to work. Starting with reading the brief.",
+        "I have promised to investigate. The size of the office has not enlarged that promise."
+      ],
+      "caseCompleted": [
+        "Another case completed. Good to know the business is more than its furnishings.",
+        "Job finished. I should organise the record before the next enquiry arrives.",
+        "That case is complete. I shall enjoy the result without improving the story.",
+        "A finished investigation. The office now has something useful to be proud of."
+      ],
+      "expansionStaffHired": [
+        "A new colleague. I should provide clear instructions rather than mysterious detective gestures.",
+        "Hiring complete. \"I usually just work it out\" is no longer an adequate operating procedure.",
+        "The business now includes somebody else. I should stop calling every mistake a personal system.",
+        "I have hired a professional. Best allow them to demonstrate what that means."
+      ],
+      "expansionRentDue": [
+        "The annex rent is due. The Alibi Fund needs attention before the affected rooms can resume work.",
+        "Overdue annex rent. I should check the fund, not my private spending money.",
+        "The affected rooms are paused. A clear financial explanation is more useful than blaming morale.",
+        "I should review the annex rent in Office Expansion. Floor space has recurring opinions about payment."
+      ]
+    }
+  }
+}

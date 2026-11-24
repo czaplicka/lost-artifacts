@@ -1,0 +1,83 @@
+{
+  "idle": {
+    "archive": [
+      "The agency keeps its past here. Judging by the filing system, it would prefer not to discuss it.",
+      "An archive. Where a loose end becomes a reference number.",
+      "I should be precise. \"Somewhere in a folder\" is not a useful location in this room.",
+      "Paper leaves a trail. Provided nobody files the trail under \"miscellaneous\".",
+      "The silence is impressive. Even the accusations are in writing.",
+      "An old report can be more useful than a fresh confession. Fewer opportunities to improvise.",
+      "I came looking for answers. They will almost certainly require a document number.",
+      "Every file started with somebody saying this would be straightforward.",
+      "Nothing here is ancient history until I have checked the dates.",
+      "A missing document can mean something. So can a document that is suspiciously easy to find.",
+      "The truth is probably in here somewhere. I hope it knows its department.",
+      "Best leave everything where I found it. Accidentally tidying up could destroy the entire system."
+    ]
+  },
+  "inspect": {
+    "archiveArchivist": [
+      "Lieutenant Frank Drebin. I should approach with a clear question and correctly assembled paperwork.",
+      "Frank has the expression of a man who has already checked my attachments.",
+      "I suspect he can hear a missing page.",
+      "He does not look easily impressed. I shall start with legible handwriting.",
+      "A useful person to know. A dangerous person to hand an incomplete form.",
+      "Frank makes eye contact like he is checking a reference number.",
+      "I should keep my question brief. He appears to charge interest on unnecessary words.",
+      "An archivist remembers where things belong. Including visitors who should be elsewhere."
+    ]
+  },
+  "events": {
+    "archive": {
+      "archivistAbsent": [
+        "Frank is out. The files have declined to nominate a replacement.",
+        "No archivist. I should return later rather than develop an adventurous interpretation of access rights.",
+        "He is not here. Asking the room a question will only make this visit harder to explain.",
+        "Frank has left the archive unattended. That is not the same as leaving it open for inspection.",
+        "I need Frank, not merely the general concept of paperwork."
+      ],
+      "reportPending": [
+        "First the report, then the questions. Frank has established an unusually clear agenda.",
+        "I need to print the mission report at the office computer and bring it here.",
+        "A successful investigation apparently remains a rumour until I deliver the paperwork.",
+        "He wants the printed report. Describing it enthusiastically will not count.",
+        "The office computer has MISSION REPORT. I should use that before attempting charm."
+      ],
+      "reportSubmitted": [
+        "Report filed. My investigation now officially exists in a second location.",
+        "Frank accepted the attachments. I shall record that as restrained enthusiasm.",
+        "The report is in. Now I can ask a question without being mistaken for an administrative problem.",
+        "Filed successfully. A remarkably tense way to hand someone paper.",
+        "One report delivered. No pages missing, and only a small amount of dignity lost."
+      ],
+      "indexPuzzleOffered": [
+        "Sort the index cards. Apparently this is what passes for building trust.",
+        "Match the documents to their departments. I should follow the instructions, not my feelings about the departments.",
+        "Frank has offered me work with no travel involved. There must be a catch.",
+        "A little filing assistance. I should remember how often \"a little\" appears in incident reports.",
+        "The index cards can wait. Frank specifically said so. I may need that in writing."
+      ],
+      "duplicateFound": [
+        "JM-041 appears twice. I should ask Frank before deciding what that means.",
+        "A duplicate entry. Possibly routine. Possibly the reason routine is worth checking.",
+        "Two entries, one reference number. A question, not yet an answer.",
+        "I found a discrepancy. Best preserve the details before my imagination improves them.",
+        "JM-041. I should remember the number and let Frank explain the duplication."
+      ],
+      "duplicateDiscussed": [
+        "John McClane's field report. One number, two storage locations. I need to follow the ordinary records first.",
+        "The restricted copy is a lead, not permission. Frank made that distinction unusually clear.",
+        "Someone separated access to the same report. That tells me where to look, not what happened.",
+        "Ordinary records first. A sensible instruction, despite the deeply unhelpful word \"ordinary\".",
+        "I know more about where the report went. What happened to McClane is still a separate question."
+      ],
+      "wrongItem": [
+        "That was not the report. An important distinction I should have made before the presentation.",
+        "Frank requested documentation. I have attempted interpretation.",
+        "I should check what I am holding before calling it supporting evidence.",
+        "The wrong item. Confidence remains an unreliable filing method.",
+        "I need the actual mission report. Frank is not accepting substitutes, symbolic or otherwise."
+      ]
+    }
+  }
+}

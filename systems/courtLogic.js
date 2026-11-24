@@ -1,3 +1,5 @@
+// case-thief-identity-v1
+import { getCaseThiefSuspectId } from '../suspects/suspectHelpers.js';
 import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { isCorrectSuspectChoice } from '../suspects/suspectHelpers.js';
 
@@ -262,15 +264,7 @@ export function buildCourtFacts(state, suspectId) {
     throw new Error('Court requires a case ID and defendant ID.');
   }
 
-  const actualSuspectId =
-    state.trueThiefCaseSuspectId ??
-    state.realThiefSuspectId ??
-    state.caseData?.trueThiefCaseSuspectId ??
-    state.caseData?.realThiefSuspectId ??
-    state.currentThiefCaseSuspectId ??
-    state.currentThief?.caseSuspectId ??
-    state.currentThief?.id ??
-    state.currentThiefId;
+  const actualSuspectId = getCaseThiefSuspectId(state);
 
   if (actualSuspectId == null) {
     throw new Error(

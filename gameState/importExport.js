@@ -1,3 +1,5 @@
+// compact-suspect-save-v1
+import { restoreCaseSuspectProfiles } from './suspectSaveFormat.js';
 import { migrateLegacyTravelState } from './legacyTravelMigration.js';
 import { RouteManager } from '../managers/RouteManager.js';
 import { GAME_VERSION } from '../config/gameVersion.js';
@@ -137,6 +139,7 @@ export function normalizeImportedState(source) {
 
   migrateLegacyTravelState(state);
   normalizeCaseSuspects(state);
+  restoreCaseSuspectProfiles(state);
   state.caseDirector = null;
   state.routeManager = restoreRouteManager(imported.routeManager);
   state._version = GAME_VERSION;

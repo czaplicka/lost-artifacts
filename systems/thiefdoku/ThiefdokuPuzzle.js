@@ -1,4 +1,11 @@
 import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
+export function thiefdokuColumnLabel(col){
+ return String.fromCharCode(65+col);
+}
+export function thiefdokuCellLabel(row,col){
+ return `${thiefdokuColumnLabel(col)}${row+1}`;
+}
+const DIRECTION_WORDS={north:'above',south:'below',west:'to the left of',east:'to the right of'};
 const SIZE = 4;
 const PEOPLE = [
  {id:'curator',name:__dialogueText("systems/thiefdoku/ThiefdokuPuzzle.js", "t_6c00e6ff6ea6bcc6ac12"),role:__dialogueText("systems/thiefdoku/ThiefdokuPuzzle.js", "t_61c91d99533e1b870bc9"),short:'VIC',gender:'m',group:'resident',skin:0xd6a070,hair:0x654431,shirt:0xd7854e},
@@ -224,9 +231,82 @@ export class ThiefdokuPuzzle {
   this.selectedPersonId=null;this.attempts=0;this.maxAttempts=3;this.completed=false;this.failed=false;this.wrongAccusations=[];this.history=[];
   this.save();return this.getState();
  }
+ // Keep rule identifiers stable for saved games; only change player-facing text.
+ displayClueText(clue){
+  return this.ruleDisplayText(clue.rule||clue,clue.family)||clue.text;
+ }
+ ruleDisplayText(rule,family){
+  const finish=text=>text[0].toUpperCase()+text.slice(1)+'.';
+  const groupNoun=(filter,singular=false)=>{
+   const parts=[];
+   if(filter.group)parts.push(({staff:'staff',resident:'resident',visitor:'visitor'})[filter.group]||filter.group);
+   if(filter.gender)parts.push(filter.gender==='f'?(singular?'woman':'women'):(singular?'man':'men'));
+   else if(filter.group==='staff')parts.push(singular?'member':'members');
+   else if(!filter.group)parts.push(singular?'person':'people');
+   else if(!singular)parts[parts.length-1]+='s';
+   return parts.join(' ');
+  };
+  const other=this.people.find(person=>person.id===rule.otherId);
+  let target=other?.name;
+  if(other&&family==='role')target=`the ${other.role.toLowerCase()}`;
+  if(other&&family==='uniqueRole'){
+   const group=other.group==='staff'?'staff members':other.group+'s';
+   target=`the only ${other.gender==='f'?'woman':'man'} among the ${group}`;
+  }
+  if(DIRECTION_WORDS[rule.type]&&target)return finish(`${DIRECTION_WORDS[rule.type]} ${target}`);
+  if(rule.type==='row')return `In row ${rule.value+1}.`;
+  if(rule.type==='col')return `In column ${thiefdokuColumnLabel(rule.value)}.`;
+  if(rule.type==='rowDelta'&&target){
+   const distance=Math.abs(rule.value);
+   return `${distance===1?'One row':`${distance} rows`} ${rule.value>0?'below':'above'} ${target}.`;
+  }
+  if(rule.type==='rowDeltaGroup'){
+   const distance=Math.abs(rule.value),noun=groupNoun(rule.filter||{},true);
+   return `${distance===1?'One row':`${distance} rows`} ${rule.value>0?'below':'above'} a ${noun}.`;
+  }
+  if(rule.type==='countRelative'&&DIRECTION_WORDS[rule.direction]){
+   return `Exactly ${rule.count} ${groupNoun(rule.filter||{},rule.count===1)} ${rule.count===1?'is':'are'} ${DIRECTION_WORDS[rule.direction]} me.`;
+  }
+  if(rule.type==='all'){
+   const parts=rule.rules.map(part=>this.ruleDisplayText(part,family));
+   return parts.every(Boolean)?parts.join(' '):null;
+  }
+  if(rule.type==='room')return `In the ${ROOM_NAMES[rule.roomId].toLowerCase()}.`;
+  const furniture=FURNITURE[rule.kind];
+  if(!furniture)return null;
+  if(rule.type==='on')return rule.kind==='chair'?'Sitting on a chair.':rule.kind==='bench'?'Sitting on a bench.':`On ${furniture.label}.`;
+  if(rule.type==='notOn')return rule.kind==='chair'?'Not sitting on a chair.':`Not on ${furniture.label}.`;
+  if(rule.type==='beside')return `Beside ${furniture.label}.`;
+  if(rule.type==='notBeside')return `Not beside ${furniture.label}.`;
+  return null;
+ }
+ // A negative furniture hint must exclude a walkable alternative in this room.
+ furnitureClueUseful(rule,personId,cache=new Map(),context=[]){
+  const subject=rule.subjectId||personId;
+  if(rule.type==='all')return rule.rules.every((part,index)=>
+   this.furnitureClueUseful(part,subject,cache,[...context,...rule.rules.filter((_,i)=>i!==index)]));
+  if(rule.type==='any')return rule.rules.every(part=>this.furnitureClueUseful(part,subject,cache,context));
+  if(rule.type!=='notBeside'&&rule.type!=='notOn')return true;
+  const key=JSON.stringify([subject,rule,context]);
+  if(cache.has(key))return cache.get(key);
+  const position=this.solution.find(p=>p.personId===subject);
+  if(!position)return false;
+  const room=this.roomAt(position);
+  let passes=false,fails=false;
+  for(let row=0;row<this.size;row++)for(let col=0;col<this.size;col++){
+   if(this.layout[row][col]!==room||this.isBlocked(row,col))continue;
+   const cell={row,col},assigned=new Map([[subject,cell]]);
+   if(context.some(part=>this.evaluateRule(part,assigned,subject)===false))continue;
+   if(this.unary(cell,rule))passes=true;else fails=true;
+   if(passes&&fails){cache.set(key,true);return true;}
+  }
+  cache.set(key,false);return false;
+ }
  makeClues(){
   const pool=[],seen=new Set(),positions=new Map(this.solution.map(p=>[p.personId,p])),kinds=[...new Set(this.objects.map(o=>o.kind))],rooms=[...new Set(this.layout.flat())];
+  const furnitureHintCache=new Map();
   const add=(personId,rule,text,family=rule.type)=>{
+   if(!this.furnitureClueUseful(rule,personId,furnitureHintCache))return;
    const key=personId+JSON.stringify(rule)+family;if(seen.has(key))return;
    const clue={personId,rule,text,family};if(this.matchesClue(this.solution,clue)){pool.push(clue);seen.add(key);}
   };
@@ -299,6 +379,7 @@ export class ThiefdokuPuzzle {
    const reduced=this.clues.filter((_,j)=>j!==i),result=this.solve(reduced,{maxNodes:350});
    if(!result.exhausted&&result.solutions.length===1)this.clues=reduced;
   }
+  this.clues=this.clues.map(clue=>({...clue,text:this.displayClueText(clue)}));
  }
  checkpoint(){this.history.push({board:clone(this.board),crosses:clone(this.crosses),selectedPersonId:this.selectedPersonId});if(this.history.length>40)this.history.shift();}
  selectPerson(id){if(this.completed||this.failed||!this.people.some(p=>p.id===id))return false;this.selectedPersonId=id;this.save();return true;}
@@ -338,7 +419,7 @@ export class ThiefdokuPuzzle {
  }
  getPersonName(id){return this.people.find(p=>p.id===id)?.name||__dialogueText("systems/thiefdoku/ThiefdokuPuzzle.js", "t_b764cdc0eab713746721");}
  getState(){return clone({size:this.size,people:this.people,layout:this.layout,objects:this.objects,board:this.board,crosses:this.crosses,autoCrosses:this.autoCrosses(),allPlaced:this.allPlaced(),placedCount:this.getPlacedPeople().length,
-  theme:this.theme,themeName:THEMES[this.theme].name,roomNames:ROOM_NAMES,theftRoom:this.theftRoom,stolenItem:this.stolenItem,clues:this.clues,selectedPersonId:this.selectedPersonId,
+  theme:this.theme,themeName:THEMES[this.theme].name,roomNames:ROOM_NAMES,theftRoom:this.theftRoom,stolenItem:this.stolenItem,clues:this.clues.map(clue=>({...clue,text:this.displayClueText(clue)})),selectedPersonId:this.selectedPersonId,
   attempts:this.attempts,maxAttempts:this.maxAttempts,completed:this.completed,failed:this.failed,wrongAccusations:this.wrongAccusations,solved:this.solved,nextSize:this.sizeForProgress(),canUndo:this.history.length>0,saveError:this.saveError,migrated:this.migrated});}
  save(){if(!this.storage)return;try{this.storage.setItem(this.storageKey,JSON.stringify({version:3,...this.getState(),solution:this.solution,thiefId:this.thiefId}));this.saveError=false;}catch(_){this.saveError=true;}}
  connectedRoom(room){

@@ -1,0 +1,138 @@
+[
+  {
+    "id": "acrobatics",
+    "label": "Acrobatics"
+  },
+  {
+    "id": "analysis",
+    "label": "Analysis"
+  },
+  {
+    "id": "art history",
+    "label": "Art history"
+  },
+  {
+    "id": "deception",
+    "label": "Deception"
+  },
+  {
+    "id": "deduction",
+    "label": "Deduction"
+  },
+  {
+    "id": "disguise",
+    "label": "Disguise"
+  },
+  {
+    "id": "electronics",
+    "label": "Electronics"
+  },
+  {
+    "id": "engineering",
+    "label": "Engineering"
+  },
+  {
+    "id": "espionage",
+    "label": "Espionage"
+  },
+  {
+    "id": "firearms",
+    "label": "Firearms"
+  },
+  {
+    "id": "forgery",
+    "label": "Forgery"
+  },
+  {
+    "id": "hacking",
+    "label": "Hacking"
+  },
+  {
+    "id": "hand to hand combat",
+    "label": "Hand-to-hand combat"
+  },
+  {
+    "id": "history",
+    "label": "History"
+  },
+  {
+    "id": "interrogation",
+    "label": "Interrogation"
+  },
+  {
+    "id": "intimidation",
+    "label": "Intimidation"
+  },
+  {
+    "id": "investigation",
+    "label": "Investigation"
+  },
+  {
+    "id": "lockpicking",
+    "label": "Lockpicking"
+  },
+  {
+    "id": "manipulation",
+    "label": "Manipulation"
+  },
+  {
+    "id": "martial arts",
+    "label": "Martial arts"
+  },
+  {
+    "id": "museum studies",
+    "label": "Museum studies"
+  },
+  {
+    "id": "negotiation",
+    "label": "Negotiation"
+  },
+  {
+    "id": "parkour",
+    "label": "Parkour"
+  },
+  {
+    "id": "persuasion",
+    "label": "Persuasion"
+  },
+  {
+    "id": "pickpocket",
+    "label": "Pickpocket"
+  },
+  {
+    "id": "problem solving",
+    "label": "Problem-solving"
+  },
+  {
+    "id": "research",
+    "label": "Research"
+  },
+  {
+    "id": "seduction",
+    "label": "Seduction"
+  },
+  {
+    "id": "stealth",
+    "label": "Stealth"
+  },
+  {
+    "id": "surveillance",
+    "label": "Surveillance"
+  },
+  {
+    "id": "survival skills",
+    "label": "Survival skills"
+  },
+  {
+    "id": "tactical planning",
+    "label": "Tactical planning"
+  },
+  {
+    "id": "technical knowledge",
+    "label": "Technical knowledge"
+  },
+  {
+    "id": "tracking",
+    "label": "Tracking"
+  }
+]

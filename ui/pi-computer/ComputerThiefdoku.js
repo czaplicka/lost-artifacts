@@ -1,6 +1,7 @@
 import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { ComputerThiefdokuArt } from './ComputerThiefdokuArt.js';
 import { thiefdokuService, prepareDailyPuzzle } from '../../systems/thiefdoku/ThiefdokuService.js';
+import { thiefdokuColumnLabel, thiefdokuCellLabel } from '../../systems/thiefdoku/ThiefdokuPuzzle.js';
 
 const ROOM_SHORT={bathroom:'BATH',kitchen:'KITCHEN',bedroom:'BEDROOM',living:'LOUNGE',study:'STUDY',dining:'DINING',guest_room:'GUEST',laundry:'LAUNDRY',conservatory:'GARDEN',attic:'ATTIC',gallery:'GALLERY',sculpture_hall:'SCULPTURE',archive:'ARCHIVE',restoration_lab:'LAB',museum_reception:'LOBBY',gift_shop:'SHOP',security:'SECURITY',exhibit_hall:'EXHIBITS',museum_kitchen:'KITCHEN',museum_bathroom:'WC',reception:'RECEPTION',open_office:'CUBICLES',conference:'MEETING',office_kitchen:'KITCHEN',ceo_office:'CEO',library:'LIBRARY',copy_room:'COPIER',accounts:'ACCOUNTS',break_room:'BREAK',office_bathroom:'WC'};
 const GOLD=0xd4af37;
@@ -23,10 +24,30 @@ const WIN_QUIPS=[__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_900b1a
 const LOSE_QUIPS=[__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_2997dd962e402a823110"),__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_0f51fcac2516caa1276e"),__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_1b95f83c3a59c8ceb345")];
 const DENIED_QUIPS=[__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_aa0a7dcbf9a7a5f29c63"),__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_62f5b4c5480109082d3e"),__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_709c72ac3ba81d52bbfa"),__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_0a938a7a4ba852d44f57")];
 const HELP_PAGES=[
- {title:__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_ec7f0d9728178b8c9652"),lines:[__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_7123478e9da00349b5ac"),__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_19eef6b9c9f2c488894e"),__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_e852d119a15536cb7a17"),__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_674786bb0f55a128a69d"),__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_9bdc022fa1456c8fef5f")]},
- {title:__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_f29a4ff320937d3e26e2"),lines:[__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_97c892fe8e0004b2ea8f"),__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_a3a86de14da290d6de1a"),__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_5564640e783c1b9ee7b1"),__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_48df5ba5317a476f5873")]},
- {title:__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_f49dc5768a4e4c11ac67"),lines:[__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_3e446c3c2975694d3b43"),__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_45a5080ba20f298d3e88"),__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_8f5e20ad5e66179cd098"),__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_b4f859ba5598f78d33a0")]},
- {title:__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_49b2ae0b077409ec092c"),lines:[__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_58cb2280f8816dcede2c"),__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_c3c68e501ae8035f76be"),__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_abba4b70f8bbcb5991f8"),__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_beb49e2ddf7c0f096e9d")]}
+ {title:'THE BOARD',lines:[
+  'Place one person in every row, every column AND every room.',
+  'Columns run A, B, C... from left to right. Rows run 1, 2, 3... from top to bottom.',
+  'A1 is the top-left square. C2 means column C, row 2.',
+  'Point at a square to see its coordinate. Zoom keeps the original coordinates.'
+ ]},
+ {title:'READING CLUES',lines:[
+  'Left / right compares columns. The people do not have to share a row.',
+  'Above / below compares rows. The people do not have to share a column.',
+  'One row above means exactly one row higher, not necessarily the square directly above.',
+  'In column C means any available square in column C. Use the other clues to find the row.'
+ ]},
+ {title:'FURNITURE',lines:[
+  'Solid furniture blocks a square. Chairs, benches, beds and rugs can be occupied.',
+  'Beside means sharing an edge with the furniture in the SAME room. Diagonals do not count.',
+  'A wall between rooms breaks furniture adjacency.',
+  'The empty display marks the room where the theft happened.'
+ ]},
+ {title:'CONTROLS',lines:[
+  'Click a portrait or card heading, then a square to place that person.',
+  'X adds your own notes. ERASE removes a placement or note. UNDO reverses your last board edit.',
+  'Faint crosses follow occupied rows, columns and rooms. They do not check every clue.',
+  'Once everyone is placed, click SUSPECT on a card, then click again to accuse. You have three attempts.'
+ ]}
 ];
 
 export class ComputerThiefdoku {
@@ -113,7 +134,7 @@ export class ComputerThiefdoku {
   this.button(x+leftW-52,navY,55,'NEXT',()=>{this.page++;this.ui.render();},{enabled:this.page<pages-1});
   const availableW=w-leftW-85,side=Math.floor(Math.min(h-139,availableW)),bx=x+leftW+29+(availableW-side)/2,by=y+85;
   this.drawBoard(bx,by,side,s);this.drawTools(x+w-48,by,s);
-  a.text(bx,by+side+8,__dialogueText("ui/pi-computer/ComputerThiefdoku.js", "t_bfdcae279693c2a535ff"),10,'#5b474b',side);
+  a.text(bx,by+side+8,'One per row, column AND room. Pale X: automatic. Dark X: your notes.',10,'#5b474b',side);
   this.drawStamp(bx,by,side,s);
   if(this.help)this.drawHelp(bx,by,side);
   const footerY=y+h-32,canNew=thiefdokuService.canIssueCase(),over=s.completed||s.failed,pending=this.confirmNew&&!over;
@@ -189,6 +210,7 @@ export class ComputerThiefdoku {
   const r0=this.zoom?Math.max(0,Math.min(this.offsetRow,n-visible)):0,c0=this.zoom?Math.max(0,Math.min(this.offsetCol,n-visible)):0;this.offsetRow=r0;this.offsetCol=c0;
   const shadow=a.graphic();shadow.fillStyle(0x2e2537,0.2);shadow.fillRect(x+6,y+8,side,side);
   const frame=a.graphic();frame.fillStyle(0x3a2f3f,1);frame.fillRoundedRect(x-4,y-4,side+8,side+8,5);frame.lineStyle(2,GOLD,0.9);frame.strokeRoundedRect(x-4,y-4,side+8,side+8,5);
+  const coordinateLabel=a.text(x+side,y-31,this.hoverCell?thiefdokuCellLabel(this.hoverCell.r,this.hoverCell.c):'A1 = top-left',10,'#5b474b').setOrigin(1,0);
   const layer=sc.add.container(x,y);this.ui.drawing.add(layer);a.parent=layer;
   let hover=null,showHover=null;
   try{
@@ -203,6 +225,7 @@ export class ComputerThiefdoku {
     if(this.destroyed||!hover.scene)return;
     hover.clear();
     const r=r0+vr,c=c0+vc,room=s.layout[r][c],blocked=this.puzzle.isBlocked(r,c);
+    coordinateLabel.setText(thiefdokuCellLabel(r,c));
     hover.fillStyle(0xffffff,0.16);hover.fillRect(0,vr*cell,side,cell);hover.fillRect(vc*cell,0,cell,side);
     hover.fillStyle(0xfff2b0,0.18);
     for(let i=0;i<visible;i++)for(let j=0;j<visible;j++)if(s.layout[r0+i][c0+j]===room)hover.fillRect(j*cell,i*cell,cell,cell);
@@ -267,14 +290,15 @@ export class ComputerThiefdoku {
    const mask=maskGraphic.createGeometryMask();layer.setMask(mask);layer.once('destroy',()=>{mask.destroy();maskGraphic.destroy();});
   }
   for(let i=0;i<visible;i++){
-   a.text(x+i*cell+cell/2,y-15,String(c0+i+1),10,'#6f6069').setOrigin(0.5,0);a.text(x-11,y+i*cell+cell/2,String(r0+i+1),10,'#6f6069').setOrigin(0.5);
+   a.text(x+i*cell+cell/2,y-15,thiefdokuColumnLabel(c0+i),10,'#6f6069').setOrigin(0.5,0);
+   a.text(x-11,y+i*cell+cell/2,String(r0+i+1),10,'#6f6069').setOrigin(0.5);
   }
   const border=a.graphic();border.lineStyle(4,0x201e27,1);border.strokeRect(x,y,side,side);
   if(!locked){
    for(let vr=0;vr<visible;vr++)for(let vc=0;vc<visible;vc++){
     const r=r0+vr,c=c0+vc,zone=this.hit(x+vc*cell+2,y+vr*cell+2,cell-4,cell-4,()=>this.clickCell(r,c));
     zone.on('pointerover',()=>{this.hoverCell={r,c};showHover(vr,vc);});
-    zone.on('pointerout',()=>{this.hoverCell=null;if(hover.scene)hover.clear();});
+    zone.on('pointerout',()=>{this.hoverCell=null;if(hover.scene)hover.clear();if(coordinateLabel.scene)coordinateLabel.setText('A1 = top-left');});
    }
    if(this.hoverCell){const vr=this.hoverCell.r-r0,vc=this.hoverCell.c-c0;if(vr>=0&&vc>=0&&vr<visible&&vc<visible)showHover(vr,vc);}
   }

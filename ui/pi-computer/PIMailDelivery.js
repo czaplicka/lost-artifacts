@@ -1,3 +1,4 @@
+import { acknowledgeAdvertisingMailDelivery } from '../../managers/PIAgencyAdvertising.js';
 import { gameState } from '../../GameData.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
 
@@ -93,10 +94,12 @@ export class PIMailDelivery {
     }
     if(!state.initialized&&!this.bootstrapping)changed=true;
     if(changed)saveState({version:1,initialized:state.initialized||!this.bootstrapping,records:[...records.values()]});
-    return items.filter(message=>{
+    const visible = items.filter(message=>{
       if(!isIncomingMessage(message)||NATIVE_ARTHUR_IDS.has(message.id))return true;
       return(records.get(message.id)?.dueAt??Infinity)<=now;
     });
+    acknowledgeAdvertisingMailDelivery(visible);
+    return visible;
   }
   destroy() {
     if(this.dead)return;

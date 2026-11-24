@@ -6,7 +6,7 @@ import { SPY_SHOP_STOCK } from '../config/spyShopStock.js';
 import { moneyManager, MONEY_SOURCE } from '../managers/MoneyManager.js';
 import { spyShopPurchaseService } from '../managers/SpyShopPurchaseService.js';
 import { SpyShopHudBridge } from '../ui/SpyShopHudBridge.js';
-import { LocationDialoguePanel, LOCATION_PANEL } from '../ui/LocationDialoguePanel.js';
+import { SpyShopDialogue, SPY_SHOP_PANEL_COLORS } from '../ui/SpyShopDialogue.js';
 import { preloadShopPurchaseAudio, playShopPurchaseAudio } from './shop/ShopPurchaseAudio.js';
 
 const KEY = 'SpyShopScene';
@@ -18,10 +18,6 @@ const HOVER_HINTS = {
   browse: __dialogueText("scenes/SpyShopScene.js", "t_b637cfd251db6a898777")
 };
 const GREETING = __dialogueText("scenes/SpyShopScene.js", "t_d8c647ff54d101c0a001");
-
-// Współrzędne produktów w gablocie (znormalizowane, środek + rozmiar).
-// Dopasuj w trybie debug (klawisz D); eksport (C) wypisuje gotowy obiekt do configu:
-// SPY_SHOP_CONFIG.itemHotspots = { camera: {x,y,w,h}, ... }
 const DEFAULT_ITEM_HOTSPOTS = {
   camera:           { x: 0.814, y: 0.317, w: 0.125, h: 0.150 },
   mobilePhone:      { x: 0.930, y: 0.300, w: 0.060, h: 0.186 },
@@ -30,14 +26,12 @@ const DEFAULT_ITEM_HOTSPOTS = {
   piBadge:          { x: 0.782, y: 0.781, w: 0.090, h: 0.166 },
   detectiveMonthly: { x: 0.889, y: 0.792, w: 0.100, h: 0.193 }
 };
-
 const FONT = {
   body: __dialogueText("scenes/SpyShopScene.js", "t_749639cb7eb80c7ff9a7"),
   pixel: __dialogueText("scenes/SpyShopScene.js", "t_8579050150a2d7c2e239")
 };
 const GOLD = 0xd4af37, GOLD_DIM = 0x8a6d1f, BROWN = 0x201409, PHOSPHOR = 0x85d4a4;
-const P = LOCATION_PANEL;
-
+const P = SPY_SHOP_PANEL_COLORS;
 function brackets(g, x, y, w, h, len, color, alpha = 1, width = 2) {
   g.lineStyle(width, color, alpha);
   const r = x + w, b = y + h;
@@ -46,33 +40,27 @@ function brackets(g, x, y, w, h, len, color, alpha = 1, width = 2) {
   g.lineBetween(x, b, x + len, b); g.lineBetween(x, b, x, b - len);
   g.lineBetween(r, b, r - len, b); g.lineBetween(r, b, r, b - len);
 }
-
-// złota podwójna ramka jak w panelu rozmów
 function goldPlate(g, x, y, w, h, alpha = 0.92) {
   g.fillStyle(0x000000, 0.35); g.fillRect(x + 4, y + 5, w, h);
   g.fillStyle(BROWN, alpha); g.fillRect(x, y, w, h);
   g.lineStyle(3, GOLD, 1); g.strokeRect(x + 1.5, y + 1.5, w - 3, h - 3);
   g.lineStyle(1, GOLD_DIM, 0.9); g.strokeRect(x + 6, y + 6, w - 12, h - 12);
 }
-
 export class SpyShopScene extends BaseScene {
   constructor() { super({ key: KEY }); }
-
   init() {
     this.disposed = false; this.navigating = false; this.buying = false; this.runToken = Symbol(KEY);
     this.hotspotDefs = SPY_SHOP_CONFIG.hotspots.map(h => ({ ...h })); this.hotspots = [];
-    // Pola zgodne z SpyShopAnimations (animacje tła mają działać także przy otwartym dialogu):
+    // Zgodność z animacjami tła.
     this.panel = null; this.confirmation = null; this.confirmedProduct = null;
     this.feedbackTimer = null; this.debugMode = false; this.selectedIndex = 0;
     this.balanceElapsed = 0; this.lastDisplayedCash = null; this.topHud = null;
-
     this.dialogue = null; this.dialogueMode = null; this.pendingPurchase = null;
     this.currentProductIndex = 0; this.askedTopics = new Set(); this.stamps = new Map();
     this.commLine = ''; this.typeEvent = null;
     this.header = null; this.cashBar = null; this.comm = null; this.cursor = null;
     this.feedback = null; this.moneyText = null; this.debugText = null;
   }
-
   preload() {
     preloadShopPurchaseAudio(this);
     const cfg = SPY_SHOP_CONFIG;
@@ -80,17 +68,11 @@ export class SpyShopScene extends BaseScene {
     if (this.cache.json.exists(CATALOG_KEY)) this.cache.json.remove(CATALOG_KEY);
     this.load.json(CATALOG_KEY, 'assets/data/ItemsCatalog.json');
   }
-
-  // ===========================================================================
-  // CREATE
-  // ===========================================================================
   create() {
     super.create(); this.registry.set('currentSceneKey', KEY);
     this.getRegisteredScene('PlayerHudScene')?.closeAllUIPanels?.(); this.stopSceneIfActive('PlayerHudScene');
     const news = this.getRegisteredScene('NewsHud');
     if (news) { news.setHudVisible?.(false); news.closeMenu?.(true); this.sleepSceneIfActive('NewsHud'); this.scene.setVisible(false, 'NewsHud'); }
-
-    // UWAGA: SpyShopSceneWithAnimations szuka obrazu tła po SPY_SHOP_CONFIG.backgroundKey.
     this.drawBackground(); this.createAtmosphere();
     this.hotspotDefs = [...this.hotspotDefs, ...this.buildItemHotspotDefs()];
     this.hotspots = this.hotspotDefs.map((h, i) => this.createHotspot(h, i));
@@ -106,7 +88,6 @@ export class SpyShopScene extends BaseScene {
     this.typeText(INSTRUCTION);
     this.topHud = new SpyShopHudBridge(this); void this.setupTopHud();
   }
-
   async setupTopHud() {
     const token = this.runToken;
     try {
@@ -118,15 +99,10 @@ export class SpyShopScene extends BaseScene {
       if (!this.disposed && this.runToken === token) console.error('[SpyShopScene] Top HUD setup failed:', error);
     }
   }
-
   style(size = 24) {
     return { fontFamily: 'SpecialElite, monospace', fontSize: `${size}px`, color: '#f5e5be',
       backgroundColor: '#25271f', padding: { x: 12, y: 9 } };
   }
-
-  // ===========================================================================
-  // TŁO (bez zmian) + winieta
-  // ===========================================================================
   drawBackground() {
     const { width: w, height: h } = this.scale, cfg = SPY_SHOP_CONFIG;
     if (cfg.backgroundUrl && this.textures.exists(cfg.backgroundKey)) {
@@ -157,7 +133,6 @@ export class SpyShopScene extends BaseScene {
     this.add.text(w * 0.81, h * 0.63, "BADGE   MAGAZINE", this.style(23)).setOrigin(0.5);
     this.add.text(w / 2, h * 0.87, "Temporary background — no image required.", this.style(18)).setOrigin(0.5);
   }
-
   createAtmosphere() {
     const key = 'spyshop_vignette', { width, height } = this.scale;
     if (!this.textures.exists(key)) {
@@ -170,17 +145,11 @@ export class SpyShopScene extends BaseScene {
     }
     this.add.image(width / 2, height / 2, key).setDisplaySize(width, height).setDepth(4);
   }
-
-  // ===========================================================================
-  // PRODUKTY
-  // ===========================================================================
   getProducts() {
     const catalog = this.cache.json.get(CATALOG_KEY);
     return SPY_SHOP_STOCK.map(ref => ({ ...ref, item: catalog?.[ref.category]?.[ref.key] ?? null }));
   }
-
   itemSpots() { return SPY_SHOP_CONFIG.itemHotspots ?? DEFAULT_ITEM_HOTSPOTS; }
-
   buildItemHotspotDefs() {
     const spots = this.itemSpots();
     return this.getProducts().flatMap((product, index) => {
@@ -190,10 +159,6 @@ export class SpyShopScene extends BaseScene {
         productKey: product.key, productIndex: index, ...spot }];
     });
   }
-
-  // ===========================================================================
-  // NAGŁÓWEK, PASEK GOTÓWKI, PASEK KOMUNIKATÓW (styl paneli z LocationScene)
-  // ===========================================================================
   createHeader() {
     const x = 24, y = 170, W = 430, H = 92;
     const c = this.add.container(x, y).setDepth(100), g = this.add.graphics();
@@ -203,15 +168,12 @@ export class SpyShopScene extends BaseScene {
     const led = this.add.circle(W - 26, 24, 4, PHOSPHOR, 1);
     this.tweens.add({ targets: led, alpha: { from: 1, to: 0.15 }, duration: 900, yoyo: true, repeat: -1 });
     c.add([g, title, sub, led]); this.header = c;
-
-    // zapasowy wyświetlacz gotówki (chowany, gdy działa górny HUD)
     const cash = this.add.container(x, y + H + 10).setDepth(100), cg = this.add.graphics();
     goldPlate(cg, 0, 0, W, 42);
     const label = this.add.text(24, 22, "PRIVATE CASH", { fontFamily: FONT.pixel, fontSize: '9px', color: P.TOPIC_USED }).setOrigin(0, 0.5);
     this.moneyText = this.add.text(W - 22, 23, "$0", { fontFamily: FONT.pixel, fontSize: '16px', color: P.AMBER }).setOrigin(1, 0.5);
     cash.add([cg, label, this.moneyText]); this.cashBar = cash;
   }
-
   createCommBar() {
     const { width, height } = this.scale, x = 24, W = width - 48, H = 58, y = height - 84;
     const c = this.add.container(x, y).setDepth(110), g = this.add.graphics();
@@ -222,11 +184,9 @@ export class SpyShopScene extends BaseScene {
     this.tweens.add({ targets: this.cursor, alpha: { from: 0.9, to: 0.1 }, duration: 420, yoyo: true, repeat: -1 });
     c.add([g, prompt, this.feedback, this.cursor]); this.comm = c;
   }
-
   placeCursor() {
     if (this.cursor?.active && this.feedback?.active) this.cursor.setX(this.feedback.x + this.feedback.width + 6);
   }
-
   typeText(str) {
     if (this.disposed || !this.feedback?.active || str === this.commLine) return;
     this.commLine = str; this.typeEvent?.remove(false);
@@ -237,7 +197,6 @@ export class SpyShopScene extends BaseScene {
       if (n >= str.length) { this.typeEvent?.remove(false); this.typeEvent = null; }
     } });
   }
-
   say(text) {
     if (this.disposed || !this.feedback?.active) return;
     this.feedbackTimer?.remove(false); this.typeText(text);
@@ -246,30 +205,22 @@ export class SpyShopScene extends BaseScene {
       if (!this.disposed && this.feedback?.active) this.typeText(INSTRUCTION);
     });
   }
-
-  // ===========================================================================
-  // HOTSPOTY - celownik z linią skanującą
-  // ===========================================================================
   canInteract() { return !this.disposed && !this._cleanupDone && !this.navigating && !this.buying; }
-
   itemHint(cfg) {
     const product = this.getProducts()[cfg.productIndex], item = product?.item;
     if (!item) return INSTRUCTION;
     const first = String(item.description || '').split(/(?<=[.!?])\s/)[0];
     return `${item.name}, $${product.price}. ${first}`.slice(0, 150);
   }
-
   hotspotLabel(cfg) {
     if (cfg.action !== 'item') return `> ${String(cfg.label).toUpperCase()}`;
     const product = this.getProducts()[cfg.productIndex];
     const owned = product && spyShopPurchaseService.inspect(product).reason === 'owned';
     return `> ${String(cfg.label).toUpperCase()}  ${owned ? 'OWNED' : `$${product?.price ?? '?'}`}`;
   }
-
   updateItemLabels() {
     for (const hot of this.hotspots) if (hot.cfg.action === 'item') hot.label.setText(this.hotspotLabel(hot.cfg));
   }
-
   createHotspot(cfg, index) {
     const isItem = cfg.action === 'item';
     const rect = this.add.rectangle(0, 0, 1, 1, 0xffd27d, 0).setDepth(isItem ? 12 : 10).setInteractive({ useHandCursor: true });
@@ -296,14 +247,12 @@ export class SpyShopScene extends BaseScene {
       if (cfg.action === 'item') this.showItem(cfg.productIndex);
     }); this.syncHotspot(hotspot); return hotspot;
   }
-
   syncHotspot({ cfg, rect, label }) {
     const { width: w, height: h } = this.scale;
     const rw = Math.max(20, cfg.w * w), rh = Math.max(20, cfg.h * h);
     rect.setPosition(cfg.x * w, cfg.y * h).setSize(rw, rh); rect.input?.hitArea?.setTo(0, 0, rw, rh);
     label.setPosition(cfg.x * w, Math.max(150, cfg.y * h - rh / 2 - 6));
   }
-
   drawHotspotFrame(hot, time) {
     const g = hot.frame; if (!g?.active) return;
     g.clear();
@@ -312,7 +261,7 @@ export class SpyShopScene extends BaseScene {
     const r = hot.rect, w = r.width, h = r.height, l = r.x - w / 2, t = r.y - h / 2, rr = l + w, b = t + h;
     const pulse = 0.5 + 0.5 * Math.sin(time / 150);
     g.fillStyle(PHOSPHOR, 0.04 + 0.04 * pulse); g.fillRect(l, t, w, h);
-    const sy = t + ((time / 9) % h);                       // linia skanująca
+    const sy = t + ((time / 9) % h);
     g.fillStyle(PHOSPHOR, 0.1); g.fillRect(l, Math.max(t, sy - 10), w, Math.min(10, sy - t));
     g.fillStyle(PHOSPHOR, 0.45); g.fillRect(l, sy, w, 2);
     brackets(g, l - 4, t - 4, w + 8, h + 8, Math.min(36, w / 3, h / 3), PHOSPHOR, 0.7 + 0.3 * pulse, 3);
@@ -320,7 +269,6 @@ export class SpyShopScene extends BaseScene {
     g.lineBetween(r.x - 8, t - 4, r.x + 8, t - 4); g.lineBetween(r.x - 8, b + 4, r.x + 8, b + 4);
     g.lineBetween(l - 4, r.y - 8, l - 4, r.y + 8); g.lineBetween(rr + 4, r.y - 8, rr + 4, r.y + 8);
   }
-
   refreshHotspots() {
     if (this.disposed) return;
     const enabled = this.canInteract();
@@ -339,7 +287,6 @@ export class SpyShopScene extends BaseScene {
       __dialogueText("scenes/SpyShopScene.js", "t_f7371edff8b7159ace9e"), __dialogueText("scenes/SpyShopScene.js", "t_458f8836a23129874150")
     ].join(__dialogueText("scenes/SpyShopScene.js", "t_01ba4719c80b6fe911b0")) : '');
   }
-
   onHotspotDrag(_pointer, object, x, y) {
     if (!this.canInteract() || !this.debugMode) return;
     const index = object.getData('hotspotIndex'); if (!Number.isInteger(index)) return;
@@ -347,7 +294,6 @@ export class SpyShopScene extends BaseScene {
     hot.cfg.x = Math.max(0, Math.min(1, x / this.scale.width)); hot.cfg.y = Math.max(0, Math.min(1, y / this.scale.height));
     this.syncHotspot(hot); this.refreshHotspots();
   }
-
   exportHotspots() {
     const round = value => Math.round(value * 1000) / 1000;
     const base = this.hotspotDefs.filter(h => h.action !== 'item');
@@ -357,10 +303,9 @@ export class SpyShopScene extends BaseScene {
     console.log('SPY_SHOP_CONFIG.itemHotspots =', JSON.stringify(items, null, 2));
     this.say(__dialogueText("scenes/SpyShopScene.js", "t_aa538dbe205dd1955c2a"));
   }
-
   onKey(event) {
     const target = event.target;
-    if (target?.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target?.tagName) || this.disposed || this.navigating || this.buying) return;
+    if (event.defaultPrevented || target?.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target?.tagName) || this.disposed || this.navigating || this.buying) return;
     if (event.code === "Escape") {
       event.preventDefault();
       if (this.pendingPurchase) this.showItem(this.pendingPurchase.index);
@@ -382,8 +327,6 @@ export class SpyShopScene extends BaseScene {
       hot.cfg[field] = Math.max(event.shiftKey ? 20 / size : 0, Math.min(1, hot.cfg[field] + direction * (event.altKey ? 1 : 5) / size)); this.syncHotspot(hot);
     } this.refreshHotspots();
   }
-
-  // klawisze w dialogu: 1-9 = tematy, strzałki = poprzedni/następny przedmiot
   onDialogueKey(event) {
     const m = /^(Digit|Numpad)([1-9])$/.exec(event.code);
     if (m) { event.preventDefault(); this.dialogue?.triggerTopic(Number(m[2]) - 1); return; }
@@ -391,10 +334,6 @@ export class SpyShopScene extends BaseScene {
       event.preventDefault(); this.showItem(this.currentProductIndex + (event.code === 'ArrowLeft' ? -1 : 1));
     }
   }
-
-  // ===========================================================================
-  // PRZYCISK (EXIT) - styl panelu z LocationScene
-  // ===========================================================================
   makeButton(parent, x, y, text, callback, size = 13, role = 'normal') {
     const c = this.add.container(x, y);
     const t = this.add.text(0, 0, text, { fontFamily: FONT.pixel, fontSize: `${size}px`, color: '#d4af37' }).setOrigin(0, 0.5);
@@ -416,19 +355,14 @@ export class SpyShopScene extends BaseScene {
     if (parent) parent.add(c); else c.setDepth(500);
     return c;
   }
-
-  // ===========================================================================
-  // DIALOG (jeden panel dla rozmowy i prezentacji towaru - jak w LocationScene)
-  // ===========================================================================
   ensureDialogue() {
     if (this.dialogue?.isOpen) return this.dialogue;
-    this.dialogue = new LocationDialoguePanel(this, {
-      depth: 700, menuWidth: 340, leaveLabel: __dialogueText("scenes/SpyShopScene.js", "t_b863269ea03e6e01e9fa"), onLeave: () => this.closeDialogue()
+    this.dialogue = new SpyShopDialogue(this, {
+      leaveLabel: __dialogueText("scenes/SpyShopScene.js", "t_b863269ea03e6e01e9fa"), onLeave: () => this.closeDialogue()
     });
     this.comm?.setVisible(false);
     return this.dialogue;
   }
-
   closeDialogue() {
     if (this.buying) return;
     this.dialogue?.destroy(); this.dialogue = null;
@@ -436,12 +370,9 @@ export class SpyShopScene extends BaseScene {
     this.comm?.setVisible(true); this.commLine = ''; this.typeText(INSTRUCTION);
     this.refreshHotspots();
   }
-
   shopkeeperName() {
     return this.hotspotDefs.find(h => h.id === 'shopkeeper')?.label ?? __dialogueText("scenes/SpyShopScene.js", "t_750db8444cd74ad2d575");
   }
-
-  // --- rozmowa ---------------------------------------------------------------
   openShopkeeper(text = GREETING) {
     if (!this.canInteract()) return;
     const d = this.ensureDialogue();
@@ -457,7 +388,6 @@ export class SpyShopScene extends BaseScene {
     d.setText(text);
     this.buildShopkeeperTopics();
   }
-
   buildShopkeeperTopics() {
     const d = this.dialogue; if (!d?.isOpen) return;
     const topics = SPY_SHOP_CONFIG.dialogue.map((line, i) => ({
@@ -467,14 +397,11 @@ export class SpyShopScene extends BaseScene {
     topics.push({ id: 'gear', label: __dialogueText("scenes/SpyShopScene.js", "t_5057c9bf06775fdb569d"), state: 'accent', onSelect: () => this.showItem(this.currentProductIndex, { intro: true }) });
     d.setTopics(topics);
   }
-
   askQuestion(i) {
     const line = SPY_SHOP_CONFIG.dialogue[i], d = this.dialogue;
     if (!line || !d?.isOpen || this.dialogueMode !== 'shopkeeper') return;
     this.askedTopics.add(`q${i}`); d.setText(line.answer); this.buildShopkeeperTopics();
   }
-
-  // --- prezentacja towaru ----------------------------------------------------
   itemPortrait(product) {
     const key = SPY_SHOP_CONFIG.backgroundKey;
     const spot = this.hotspotDefs.find(h => h.productKey === product.key);
@@ -485,14 +412,12 @@ export class SpyShopScene extends BaseScene {
     }
     return { kind: 'emoji', text: product.item?.icon || __dialogueText("scenes/SpyShopScene.js", "t_8a8de823d5ed3e12746a") };
   }
-
   itemFooter(product, state) {
     const cash = moneyManager.getBalance(MONEY_SOURCE.CASH);
     if (state.reason === 'owned') return { text: `${__dialogueText("scenes/SpyShopScene.js", "t_09fc96082d34c2dfc129")}${product.price}${__dialogueText("scenes/SpyShopScene.js", "t_8b9809b52014ff237c95")}`, color: P.GREEN };
     if (state.ok) return { text: `${__dialogueText("scenes/SpyShopScene.js", "t_09fc96082d34c2dfc129")}${product.price}${__dialogueText("scenes/SpyShopScene.js", "t_53c4555390668997fa1d")}${cash}`, color: P.AMBER };
     return { text: `${__dialogueText("scenes/SpyShopScene.js", "t_09fc96082d34c2dfc129")}${product.price}${__dialogueText("scenes/SpyShopScene.js", "t_32ac743cd5a3889a48ce")}${state.reason === "funds" ? `${__dialogueText("scenes/SpyShopScene.js", "t_dc2e6b294dc383defb89")}${product.price - cash}` : state.reason === "full" ? __dialogueText("scenes/SpyShopScene.js", "t_96f11bab701ebcef79d7") : __dialogueText("scenes/SpyShopScene.js", "t_eb0be6d636d52794e3ab")}`, color: P.RED };
   }
-
   buyLabel(product, state) {
     const cash = moneyManager.getBalance(MONEY_SOURCE.CASH);
     if (state.ok) return `${__dialogueText("scenes/SpyShopScene.js", "t_dc122e9c2f4754a657d9")}${product.price}${__dialogueText("scenes/SpyShopScene.js", "t_ba5ec51d07a4ac0e9516")}`;
@@ -501,7 +426,6 @@ export class SpyShopScene extends BaseScene {
     if (state.reason === 'full') return __dialogueText("scenes/SpyShopScene.js", "t_b4ed9331951478509b24");
     return __dialogueText("scenes/SpyShopScene.js", "t_7cca57679e8fa0110699");
   }
-
   showItem(index, { text = null, intro = false } = {}) {
     if (!this.canInteract()) return;
     const products = this.getProducts(); if (!products.length) return;
@@ -517,7 +441,6 @@ export class SpyShopScene extends BaseScene {
     d.setText(text ?? `${lead}${description}`, { footer: footer.text, footerColor: footer.color });
     this.buildItemTopics(idx);
   }
-
   buildItemTopics(idx) {
     const d = this.dialogue; if (!d?.isOpen) return;
     const product = this.getProducts()[idx], state = spyShopPurchaseService.inspect(product);
@@ -529,8 +452,6 @@ export class SpyShopScene extends BaseScene {
       { id: 'talk', label: __dialogueText("scenes/SpyShopScene.js", "t_3c905c1f58b8f8de92af"), state: 'normal', onSelect: () => this.openShopkeeper(__dialogueText("scenes/SpyShopScene.js", "t_b49d66ff0b706dc4f7e6")) }
     ]);
   }
-
-  // odświeża tylko stopkę i menu (np. gdy zmieni się saldo), bez ponownego pisania tekstu
   refreshItemUi() {
     const d = this.dialogue;
     if (!d?.isOpen || this.dialogueMode !== 'item' || this.pendingPurchase) return;
@@ -538,7 +459,6 @@ export class SpyShopScene extends BaseScene {
     const state = spyShopPurchaseService.inspect(product), footer = this.itemFooter(product, state);
     d.setFooter(footer.text, footer.color); this.buildItemTopics(this.currentProductIndex);
   }
-
   testDrive(idx) {
     const product = this.getProducts()[idx], d = this.dialogue;
     if (!product?.item || !d?.isOpen) return;
@@ -547,8 +467,6 @@ export class SpyShopScene extends BaseScene {
     const state = spyShopPurchaseService.inspect(product), footer = this.itemFooter(product, state);
     d.setText(quip, { footer: footer.text, footerColor: footer.color }); this.buildItemTopics(idx);
   }
-
-  // --- zakup (potwierdzenie w tym samym panelu) -----------------------------
   askBuy(idx) {
     const product = this.getProducts()[idx], d = this.dialogue;
     if (!product || !d?.isOpen || this.buying) return;
@@ -563,7 +481,6 @@ export class SpyShopScene extends BaseScene {
       { id: 'no', label: __dialogueText("scenes/SpyShopScene.js", "t_48e350c18e144bd5e9c0"), state: 'normal', onSelect: () => this.showItem(idx) }
     ]);
   }
-
   confirmPurchase() {
     if (!this.pendingPurchase || this.buying || this.disposed || this.navigating || !this.dialogue?.isOpen) return;
     const quote = { ...this.pendingPurchase }, product = this.getProducts()[quote.index];
@@ -588,8 +505,6 @@ export class SpyShopScene extends BaseScene {
       if (spot) this.purchaseSparks(spot.x * this.scale.width, spot.y * this.scale.height);
     }
   }
-
-  // stempel "SOLD" na kupionych przedmiotach w gablocie
   refreshOwnedStamps() {
     if (this.disposed) return;
     const products = this.getProducts();
@@ -601,7 +516,6 @@ export class SpyShopScene extends BaseScene {
       else if (!owned && existing) { existing.destroy(); this.stamps.delete(hot.cfg.id); }
     }
   }
-
   makeSoldStamp(hot) {
     const t = this.add.text(0, 1, "SOLD", { fontFamily: FONT.pixel, fontSize: '10px', color: '#ff5a4d' }).setOrigin(0.5);
     const w = t.width + 14, h = t.height + 12, g = this.add.graphics();
@@ -609,7 +523,6 @@ export class SpyShopScene extends BaseScene {
     g.lineStyle(2, 0xd9382f, 1); g.strokeRect(-w / 2, -h / 2, w, h);
     return this.add.container(hot.rect.x, hot.rect.y, [g, t]).setDepth(14).setAngle(-9).setAlpha(0.9);
   }
-
   purchaseSparks(x, y) {
     if (this.disposed) return;
     for (let i = 0; i < 12; i++) {
@@ -619,16 +532,11 @@ export class SpyShopScene extends BaseScene {
         duration: 600 + Math.random() * 300, ease: 'Cubic.easeOut', onComplete: () => { if (p.active) p.destroy(); } });
     }
   }
-
-  // ===========================================================================
-  // SALDO, PĘTLA, WYJŚCIE
-  // ===========================================================================
   refreshMoney() {
     if (this.disposed) return;
     const cash = moneyManager.getBalance(MONEY_SOURCE.CASH); this.lastDisplayedCash = cash;
     this.moneyText?.setText(`${__dialogueText("scenes/SpyShopScene.js", "t_09fc96082d34c2dfc129")}${cash}`); this.topHud?.refreshMoney();
   }
-
   update(time, delta) {
     if (this.disposed) return;
     for (const hot of this.hotspots) if (hot.hovered) this.drawHotspotFrame(hot, time);
@@ -639,7 +547,6 @@ export class SpyShopScene extends BaseScene {
       this.refreshMoney(); this.refreshOwnedStamps(); this.updateItemLabels(); this.refreshItemUi();
     }
   }
-
   async exitShop() {
     if (this.disposed || this.navigating || this.buying) return false;
     this.dialogue?.destroy(); this.dialogue = null; this.dialogueMode = null; this.pendingPurchase = null;
@@ -649,7 +556,6 @@ export class SpyShopScene extends BaseScene {
     this.navigating = false; this.comm?.setVisible(true); this.refreshHotspots();
     if (moved === false) this.say(__dialogueText("scenes/SpyShopScene.js", "t_cd113bd0b51d4c8d24f3")); return moved !== false;
   }
-
   disposeShop() {
     if (this.disposed) return;
     this.disposed = true; this.runToken = null; this.topHud?.destroy(); this.topHud = null;

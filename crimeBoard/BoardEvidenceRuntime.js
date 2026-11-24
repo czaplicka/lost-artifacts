@@ -6,54 +6,16 @@ import { getKnownApartmentIdentityClues, getApartmentIdentityContext } from '../
 import { requestAutosave } from '../gameStatePersistence.js';
 import { EventBus } from '../EventBus.js';
 import { getBoardEvidenceRecord } from './BoardEvidenceModel.js';
-import { loadJson } from '../config/loadJson.js';
-
-const suspectImages = new Map();
-const gameRoot = new URL('../', import.meta.url);
-let manifestReady = false;
-let manifestRequest = null;
-
-function ensureSuspectImages() {
-  if (manifestReady) return Promise.resolve(true);
-  if (manifestRequest) return manifestRequest;
-  manifestRequest = Promise.resolve()
-    .then(() => loadJson('../assets/manifests/catalog/suspects.json', import.meta.url))
-    .then(manifest => {
-      if (!Array.isArray(manifest?.assets)) throw new Error('Invalid suspects manifest: assets must be an array.');
-      const images = manifest.assets.filter(asset => asset?.type === 'image' &&
-        typeof asset.key === 'string' && typeof asset.url === 'string' &&
-        /^assets\/suspects\//.test(asset.url));
-      for (const asset of images) suspectImages.set(asset.key, asset.url);
-      manifestReady = true;
-      return true;
-    })
-    .catch(error => {
-      console.warn('[BoardEvidenceRuntime] Suspect photos unavailable; the board remains usable.', error);
-      return false;
-    })
-    .finally(() => { manifestRequest = null; });
-  return manifestRequest;
-}
-
-function resolveSuspectPhoto(suspect) {
-  // Never store texture source.src: it can be a temporary blob URL.
-  const candidates = [suspect.portraitKey, suspect.suspectImageKey,
-    suspect.imageKey, suspect.photoKey, suspect.spriteKey, suspect.id];
-  for (const key of candidates) {
-    if (typeof key !== 'string') continue;
-    const path = suspectImages.get(key);
-    if (path) return { imageKey: key, image: new URL(path, gameRoot).href };
-  }
-  return { imageKey: null, image: '' };
-}
+import { getSuspectPhotoKey, normalizeWarrantIdentity } from './BoardSuspectPhotos.js';
 
 function write(record, state = gameState) {
   const key = getEvidenceCaseKey(state);
+  const normalized = record.warrant
+    ? { ...record, warrant: normalizeWarrantIdentity(record.warrant) } : record;
   const caseData = {
     ...(state.caseData || {}),
     boardEvidenceCases: {
-      ...(state.caseData?.boardEvidenceCases || {}),
-      [key]: record
+      ...(state.caseData?.boardEvidenceCases || {}), [key]: normalized
     }
   };
   if (typeof state.updateState === 'function') state.updateState({ caseData });
@@ -61,33 +23,53 @@ function write(record, state = gameState) {
   requestAutosave();
 }
 
-export function captureApartmentInventory(state = gameState) {
-  if (!state.currentMission) return false;
+function isRelevant(raw, state) {
+  return Boolean(state?.currentMission && raw?.metadata?.apartment &&
+    Number(raw.quantity ?? 1) > 0 && evidenceMatchesCase(raw, state));
+}
+
+function captureItems(items, state) {
+  if (!state?.currentMission) return false;
   const previous = getBoardEvidenceRecord(state);
-  const next = JSON.parse(JSON.stringify(previous));
-  next.materials ||= {};
-  next.recoveredArtifacts ||= [];
-  for (const raw of inventoryManager.getAllItems()) {
-    if (!raw?.metadata?.apartment || Number(raw.quantity ?? 1) <= 0 || !evidenceMatchesCase(raw, state)) continue;
-    const item = readApartmentEvidence(raw);
-    next.materials[raw.id] = {
-      name: raw.name || item.label || __dialogueText('crimeBoard/BoardEvidenceRuntime.js', 't_985f13ce263cb00b201b'),
-      originalId: item.originalId
-    };
-    const key = item.artifactKey;
-    if (item.isArtifact === true && key && key === state.currentMission.artifactKey &&
-        !next.recoveredArtifacts.some(entry => entry.artifactKey === key)) {
-      next.recoveredArtifacts.push({
-        artifactKey: key,
-        name: raw.name || item.label,
-        sourceItemId: raw.id,
-        recoveredAt: new Date().toISOString()
-      });
+  let next = previous;
+  let materials = previous.materials || {};
+  let recoveredArtifacts = previous.recoveredArtifacts || [];
+  const change = () => { if (next === previous) next = { ...previous }; };
+  if (previous.warrant) {
+    const warrant = normalizeWarrantIdentity(previous.warrant);
+    if (Object.hasOwn(previous.warrant, 'image') || previous.warrant.imageKey !== warrant.imageKey) {
+      change(); next.warrant = warrant;
     }
   }
-  if (JSON.stringify(previous) === JSON.stringify(next)) return false;
+  for (const raw of items) {
+    if (!isRelevant(raw, state)) continue;
+    const item = readApartmentEvidence(raw);
+    const name = raw.name || item.label || __dialogueText('crimeBoard/BoardEvidenceRuntime.js', 't_985f13ce263cb00b201b');
+    const old = materials[raw.id];
+    if (!old || old.name !== name || old.originalId !== item.originalId) {
+      change();
+      materials = { ...materials, [raw.id]: { ...old, name, originalId: item.originalId } };
+      next.materials = materials;
+    }
+    const key = item.artifactKey;
+    if (item.isArtifact === true && key && key === state.currentMission.artifactKey &&
+        !recoveredArtifacts.some(entry => entry.artifactKey === key)) {
+      change();
+      recoveredArtifacts = [...recoveredArtifacts, {
+        artifactKey: key, name: raw.name || item.label,
+        sourceItemId: raw.id, recoveredAt: new Date().toISOString()
+      }];
+      next.recoveredArtifacts = recoveredArtifacts;
+    }
+  }
+  if (next === previous) return false;
   write(next, state);
   return true;
+}
+
+export function captureApartmentInventory(state = gameState) {
+  if (!state?.currentMission) return false;
+  return captureItems(inventoryManager.getAllItems(), state);
 }
 
 export function recordEnvelopeViewed(raw, state = gameState) {
@@ -103,10 +85,8 @@ export function recordEnvelopeViewed(raw, state = gameState) {
   write({
     ...previous,
     envelopeViewed: {
-      inventoryItemId: raw.id,
-      actualId: context.actualId,
-      viewedAt: new Date().toISOString(),
-      clue: JSON.parse(JSON.stringify(clue))
+      inventoryItemId: raw.id, actualId: context.actualId,
+      viewedAt: new Date().toISOString(), clue: JSON.parse(JSON.stringify(clue))
     }
   }, state);
   return true;
@@ -115,40 +95,30 @@ export function recordEnvelopeViewed(raw, state = gameState) {
 export function recordWarrantIdentity(scene, suspect, state = gameState) {
   if (!state.arrestWarrantIssued || !suspect?.id ||
       String(state.warrantSuspectId) !== String(suspect.id)) return false;
-  const photo = resolveSuspectPhoto(suspect);
   const previous = getBoardEvidenceRecord(state);
-  const sameSuspect = String(previous.warrant?.id) === String(suspect.id);
   const warrant = {
-    id: String(suspect.id),
-    name: suspect.name || state.warrantSuspectName,
-    image: photo.image || (sameSuspect ? previous.warrant.image : '') || '',
-    imageKey: photo.imageKey || (sameSuspect ? previous.warrant.imageKey : null) || null
+    id: String(suspect.id), name: suspect.name || state.warrantSuspectName,
+    imageKey: getSuspectPhotoKey(suspect)
   };
-  if (JSON.stringify(previous.warrant) !== JSON.stringify(warrant)) {
-    write({ ...previous, warrant }, state);
-  }
-  if (!manifestReady) {
-    const caseKey = getEvidenceCaseKey(state);
-    const caseId = state.currentCaseId;
-    const campaignId = state._createdAt;
-    const startedAt = state.investigationStartTime;
-    const snapshot = { ...suspect };
-    // Preserve the synchronous API; only enrich the same active warrant later.
-    void ensureSuspectImages().then(loaded => {
-      if (!loaded || !state.currentMission ||
-          getEvidenceCaseKey(state) !== caseKey || state.currentCaseId !== caseId ||
-          state._createdAt !== campaignId || state.investigationStartTime !== startedAt ||
-          !state.arrestWarrantIssued || String(state.warrantSuspectId) !== String(snapshot.id)) return;
-      const current = getBoardEvidenceRecord(state);
-      if (String(current.warrant?.id) !== String(snapshot.id)) return;
-      const resolved = resolveSuspectPhoto(snapshot);
-      if (!resolved.image) return;
-      const next = { ...current.warrant, image: resolved.image, imageKey: resolved.imageKey };
-      if (JSON.stringify(current.warrant) !== JSON.stringify(next)) write({ ...current, warrant: next }, state);
-    }).catch(error => console.warn('[BoardEvidenceRuntime] Could not update warrant photo.', error));
-  }
+  const old = previous.warrant;
+  if (old && !Object.hasOwn(old, 'image') && old.id === warrant.id &&
+      old.name === warrant.name && old.imageKey === warrant.imageKey) return true;
+  write({ ...previous, warrant }, state);
   return true;
 }
 
-// No top-level await and no request during import. First warrant loads photos on demand.
-EventBus.on('itemAdded', () => captureApartmentInventory());
+// Application-lifetime service, not a scene listener. Explicit owner and detachable callback.
+const OWNER = 'crimeBoard:BoardEvidenceRuntime';
+function onItemAdded(raw) {
+  // Ordinary purchases and evidence from another case do no record work at all.
+  if (!isRelevant(raw, gameState) || !inventoryManager.hasItem(raw.id)) return;
+  captureItems([raw], gameState);
+}
+export function startBoardEvidenceRuntime() {
+  EventBus.clearScope(OWNER);
+  EventBus.on('itemAdded', onItemAdded, null, OWNER);
+}
+export function stopBoardEvidenceRuntime() {
+  EventBus.clearScope(OWNER);
+}
+startBoardEvidenceRuntime();

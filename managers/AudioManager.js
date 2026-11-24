@@ -1,7 +1,7 @@
 import { dialogueText as __dialogueText } from '../dialogues/DialogueText.js';
 
 const STORAGE = {
-  MUSIC: 'la_musicVol', SFX: 'la_sfxVol', MUTED: 'la_muted',
+  MUSIC: 'la_musicVol', SFX: 'la_sfxVol', VOICE: 'la_voiceVol', MUTED: 'la_muted',
   TRACK: 'la_jukeboxTrack', MODE: 'la_jukeboxMode'
 };
 const DEFAULTS = { MUSIC: 0.1, SFX: 0.8, MUTED: false };
@@ -74,6 +74,7 @@ class AudioManager {
     this.scene = null; this.game = null;
     this.musicVolume = loadNumber(STORAGE.MUSIC, DEFAULTS.MUSIC);
     this.sfxVolume = loadNumber(STORAGE.SFX, DEFAULTS.SFX);
+    this.voiceVolume = loadNumber(STORAGE.VOICE, this.sfxVolume);
     const muted = safeGet(STORAGE.MUTED);
     this.muted = muted === null ? DEFAULTS.MUTED : muted === 'true';
     this.activeMusic = new Map(); this.activeAmbient = new Map();
@@ -98,7 +99,6 @@ class AudioManager {
       this.game = scene.game;
       this.game.events.once(Phaser.Core.Events.DESTROY, this._boundGameDestroy);
     }
-    // Legacy default only. New scene-bound requests should pass config.scene.
     this.scene = scene; this._bindScene(scene); this._ensureAudioHost(); this._applyMuteState();
     return this;
   }
@@ -196,15 +196,19 @@ class AudioManager {
       if (this._isValidSound(s)) s.setMute?.(this.muted);
     }
   }
-  _mixMaster(mix) { return mix.channel === 'music' ? this.musicVolume : this.sfxVolume; }
+  _mixMaster(mix) {
+    if (mix.channel === 'music') return this.musicVolume;
+    if (mix.channel === 'voice') return this.voiceVolume;
+    return this.sfxVolume;
+  }
   _resolveGain(config, master, volume = config.volume ?? master) {
     if (config.gain !== undefined && Number.isFinite(Number(config.gain))) return Math.max(0, Number(config.gain));
     if (config.volume == null || master <= 0) return 1;
     return clamp01(volume) / master;
   }
   _trackMix(sound, config, store, volume) {
-    const channel = store === this.activeMusic ? 'music' : 'sfx';
-    const master = channel === 'music' ? this.musicVolume : this.sfxVolume;
+    const channel = store === this.activeMusic ? 'music' : store === this.activeVoice ? 'voice' : 'sfx';
+    const master = this._mixMaster({ channel });
     this._soundMix.set(sound, { channel, gain: this._resolveGain(config, master, volume), lastMaster: master, lastVolume: null });
     return clamp01(master * this._soundMix.get(sound).gain);
   }
@@ -231,7 +235,8 @@ class AudioManager {
   }
   _applyGlobalAudioState() {
     this._applyMuteState(); this._syncChannelVolumes(this.activeMusic.values(), this.musicVolume);
-    for (const sounds of [this.activeAmbient.values(), this.activeSfx, this.activeVoice, this.activeOneShots]) this._syncChannelVolumes(sounds, this.sfxVolume);
+    for (const sounds of [this.activeAmbient.values(), this.activeSfx, this.activeOneShots]) this._syncChannelVolumes(sounds, this.sfxVolume);
+    this._syncChannelVolumes(this.activeVoice, this.voiceVolume);
   }
   _cancelFade(sound) {
     const r = this._fades.get(sound); if (!r) return;
@@ -300,7 +305,7 @@ class AudioManager {
     if (!this._isValidSound(sound)) return null;
     let mix = this._captureMix(sound);
     if (!mix) {
-      const store = [...this.activeMusic.values()].includes(sound) ? this.activeMusic : this.activeSfx;
+      const store = [...this.activeMusic.values()].includes(sound) ? this.activeMusic : this.activeVoice.has(sound) ? this.activeVoice : this.activeSfx;
       this._trackMix(sound, { volume: sound.volume }, store, sound.volume); mix = this._soundMix.get(sound);
     }
     this._cancelFade(sound);
@@ -339,7 +344,11 @@ class AudioManager {
   }
   setSfxVolume(value) {
     this.sfxVolume = clamp01(value); safeSet(STORAGE.SFX, String(this.sfxVolume)); this._applyMuteState();
-    for (const sounds of [this.activeAmbient.values(), this.activeSfx, this.activeVoice, this.activeOneShots]) this._syncChannelVolumes(sounds, this.sfxVolume);
+    for (const sounds of [this.activeAmbient.values(), this.activeSfx, this.activeOneShots]) this._syncChannelVolumes(sounds, this.sfxVolume);
+  }
+  setVoiceVolume(value) {
+    this.voiceVolume = clamp01(value); safeSet(STORAGE.VOICE, String(this.voiceVolume));
+    this._applyMuteState(); this._syncChannelVolumes(this.activeVoice, this.voiceVolume);
   }
   toggleMute() { return this.setMute(!this.muted); }
   setMute(value) { this.muted = Boolean(value); safeSet(STORAGE.MUTED, String(this.muted)); this._applyMuteState(); return this.muted; }
@@ -360,7 +369,8 @@ class AudioManager {
     if (!owner || !this._canPlay(key)) return null;
     const { overlap = false, ...soundConfig } = config, trackRecent = recent && !overlap;
     if (trackRecent) this._destroySound(recent.get(key));
-    let volume = clamp01(soundConfig.volume ?? this.sfxVolume);
+    const master = store === this.activeVoice ? this.voiceVolume : this.sfxVolume;
+    let volume = clamp01(soundConfig.volume ?? master);
     const { gain, scene, ...phaserConfig } = soundConfig;
     const sound = this.game.sound.add(key, { ...phaserConfig, loop: false, volume, mute: this.muted });
     volume = this._trackMix(sound, soundConfig, store, volume);
@@ -422,6 +432,7 @@ class AudioManager {
   }
   getMusicVolume() { return this.musicVolume; }
   getSfxVolume() { return this.sfxVolume; }
+  getVoiceVolume() { return this.voiceVolume; }
   getMuted() { return this.muted; }
   getJukeboxTracks() { return JUKEBOX_TRACKS.map(t => ({ ...t })); }
   async loadJukeboxCatalog(options = {}) {
@@ -518,7 +529,6 @@ class AudioManager {
     if (this._jukeboxTask) return this._jukeboxTask;
     if (this._jukeboxSound()?.isPlaying && !this.game.sound.locked) return Promise.resolve(this._jukeboxSound());
     if (!retry && catalogError && Date.now() < catalogRetryAt) return Promise.resolve(null);
-    // Handle the rejection here too: legacy callers intentionally ignore the promise.
     return this.playJukebox(null, { retry }).catch(error => { console.warn('[Jukebox]', error); return null; });
   }
   playJukebox(id = null, { retry = true } = {}) {

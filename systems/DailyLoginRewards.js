@@ -10,7 +10,7 @@ import { AgencyMailApp } from '../ui/mark-agency/AgencyMailApp.js';
 import { EventBus } from '../EventBus.js';
 
 const REWARDS = [
- {label:'$100 cash',kind:'cash',joke:'This is not a raise. Please stop calling it that.'},
+ {label:'$100 agency budget',kind:'cash',joke:'Agency funds. Your personal yacht remains unfunded.'},
  {label:'1 Coffee',kind:'coffee',joke:'For legal reasons, we call this coffee.'},
  {label:'1 Rest Voucher',kind:'rest',joke:'Permission to stop working. Temporarily.'},
  {label:'1 Hint',kind:'hint',joke:'One useful thought, courtesy of someone else.'},
@@ -80,7 +80,7 @@ class DailyRewards {
   const reward=REWARDS[r.index],done=r.state==='delivered';
   return [{id:idOf(r),from:'Mark Agency // Human Resources',
    subject:`Attendance bonus: ${reward.label}`,date:r.day+' UTC',category:'memo',priority:10000,
-   body:`You showed up again. We appreciate your commitment, or your inability to find the exit.\n\nAttendance reward ${r.index+1} of ${REWARDS.length}: ${reward.label}.\n\n${reward.joke}\n\n${done?'Reward collected. HR has filed the paperwork.':'Collect your reward below. Coffee is delivered to your inventory; vouchers and hints are added to your existing resources.'}\n\nMissed a day? Your place in the rotation is safe.\n\nHuman Resources\nMark Agency`,
+   body:`You showed up again. We appreciate your commitment, or your inability to find the exit.\n\nAttendance reward ${r.index+1} of ${REWARDS.length}: ${reward.label}.\n\n${reward.joke}\n\n${done?'Reward collected. HR has filed the paperwork.':'Collect your reward below. Money is added to your agency budget, not your personal cash. Coffee is delivered to your inventory; vouchers and hints are added to your existing resources.'}\n\nMissed a day? Your place in the rotation is safe.\n\nHuman Resources\nMark Agency`,
    action:{type:'daily_login_reward',label:done?'Collected':this.busy?'Collecting...':'Claim reward'},
    actionEnabled:!done&&!this.busy}];
  }
@@ -149,14 +149,14 @@ class DailyRewards {
  }
  apply(r){
   const grantId=idOf(r),kind=REWARDS[r.index].kind;
-  const before={cash:gameState.cash,moneyLog:structuredClone(gameState.moneyLog||[]),
+  const before={cash:gameState.cash,agencyBudget:gameState.agencyBudget,moneyLog:structuredClone(gameState.moneyLog||[]),
    restVouchers:gameState.restVouchers,freeTransfers:gameState.freeTransfers,
    hintState:structuredClone(gameState.hintState??null),inventory:inventoryManager.exportState(),
    receipts:structuredClone(receipts())};
   try{
-   // Receipt is in memory before managers emit events or request a save.
+   // Keep the existing receipt IDs to prevent duplicate deliveries.
    MainStoryManager.setSideClue(RECEIPTS,{...before.receipts,[grantId]:{day:r.day,index:r.index}});
-   if(kind==='cash')moneyManager.addCash(100,{category:'daily_login',description:'HR attendance bonus',metadata:{grantId}});
+   if(kind==='cash')moneyManager.addAgencyBudget(100,{category:'daily_login',description:'HR attendance bonus',metadata:{grantId}});
    if(kind==='coffee'&&!inventoryManager.addItem({...structuredClone(ItemsLoader.get('consumables','coffee')),quantity:1}))throw Error('Could not add coffee.');
    if(kind==='rest')gameState.updateState({restVouchers:Number(gameState.restVouchers||0)+1});
    if(kind==='transfer')gameState.updateState({freeTransfers:Number(gameState.freeTransfers||0)+1});
@@ -167,7 +167,7 @@ class DailyRewards {
    }
    if(saveGameState()!==true)throw Error('Reward could not be saved. Try again.');
   }catch(error){
-   gameState.updateState({cash:before.cash,moneyLog:before.moneyLog,restVouchers:before.restVouchers,
+   gameState.updateState({cash:before.cash,agencyBudget:before.agencyBudget,moneyLog:before.moneyLog,restVouchers:before.restVouchers,
     freeTransfers:before.freeTransfers,hintState:before.hintState});
    inventoryManager.importState(before.inventory);
    MainStoryManager.setSideClue(RECEIPTS,before.receipts);
@@ -188,7 +188,7 @@ export function installDailyLoginRewards(game){
    this.ui.scene.events.once('shutdown',()=>service.listeners.delete(this.ui));
    this.ui.scene.events.once('destroy',()=>service.listeners.delete(this.ui));
   }
-  // Never issue an asynchronous render from within the synchronous render path.
+  // Never render asynchronously inside the synchronous render path.
   return [...service.mail(),...originalGetMail.call(this)];
  };
  AgencyMailApp.prototype.renderActionBar=function(selected,paper,barY,x0){

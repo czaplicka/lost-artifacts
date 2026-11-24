@@ -1,0 +1,216 @@
+{
+  "idle": {
+    "office": [
+      "I should probably focus. Right after this dramatic pause.",
+      "This office smells like dust, secrets, and coffee that lost its will to live.",
+      "An agent's greatest weapon is observation. The second greatest is a receipt for expenses.",
+      "I should look busy. In this business, looking busy is half the investigation.",
+      "Somewhere out there, a criminal is making a mistake. Ideally one involving paperwork.",
+      "The agency calls it an open-door policy. Most of the doors are locked.",
+      "I joined a detective agency. Naturally, everyone has something to hide.",
+      "Somebody straightened the picture again. There are limits to what I will investigate.",
+      "The clock is loud for someone contributing so little.",
+      "I can recognise six kinds of forged signature. Still cannot identify my lunch in the fridge.",
+      "A good question saves hours. A bad question gets you invited to a meeting.",
+      "This building has excellent acoustics. Everyone hears the gossip. Nobody hears their name being called.",
+      "There is a difference between a theory and a hunch. Usually about three witnesses.",
+      "Every department says the problem belongs to another department. An unusually well-coordinated alibi.",
+      "I should stretch my legs. They have been supporting this investigation from the beginning.",
+      "The office plant is leaning towards the exit. Observant little thing."
+    ],
+    "lab": [
+      "Nothing says justice like fluorescent lighting.",
+      "If this machine explodes, I am blaming science."
+    ],
+    "hotel": [
+      "A hotel room: temporary headquarters, permanent source of suspicious carpet patterns.",
+      "I should sleep. The case will still be confusing in the morning.",
+      "The minibar is staring at me like it knows I cannot expense this.",
+      "Some detectives chase leads. I am currently chasing eight uninterrupted hours of sleep.",
+      "New city, new room, same problem: criminals refuse to work office hours.",
+      "The wallpaper has seen things. None of them are admissible in court.",
+      "I could review the evidence. Or I could lie down and call it strategic thinking.",
+      "A good detective follows the clues. A tired detective follows the smell of hotel coffee."
+    ]
+  },
+  "inspect": {
+    "lockedDrawer": [
+      "Locked. Which is rude, but informative.",
+      "Someone really didn’t want visitors."
+    ],
+    "desk": [
+      "A desk. The natural habitat of unpaid invoices.",
+      "Nothing suspicious here. Which is, frankly, suspicious.",
+      "Three drawers. All of them judging me.",
+      "The desk is clean. That is either professionalism or an alibi.",
+      "A place to assemble a warrant. Preferably before assembling an apology.",
+      "The blotter has absorbed decades of ink. It knows better than to talk.",
+      "The pen is chained to the desk. Finally, some effective crime prevention.",
+      "I should check the details before signing. My signature is not a substitute for evidence."
+    ],
+    "globe": [
+      "A globe. Proof that trouble can be geographically ambitious.",
+      "So many cities. So little budget for taxis.",
+      "Spin the globe, pick a city, ruin a criminal's afternoon.",
+      "No borders on the oceans. Criminals find that encouraging.",
+      "The whole world, balanced on a small metal pin. I understand the feeling.",
+      "From this distance, every getaway looks poorly planned.",
+      "The globe rotates freely. International cooperation is a little stiffer.",
+      "A useful reminder: a flight ticket is not an alibi."
+    ],
+    "fakePainting": [
+      "A fake. And not even an ambitious one."
+    ],
+    "ledger": [
+      "Lord, please no!",
+      "All these columns, and not one offers emotional support.",
+      "The accounts should balance. Unlike most witness statements.",
+      "A receipt is just evidence with a tax number.",
+      "Financial irregularities. Finally, suspects that stay on the page.",
+      "Every expense needs a category. Apparently, \"it seemed sensible at the time\" is not one.",
+      "The ledger records what we spent. It politely omits what we were thinking.",
+      "Numbers do not lie. They do, however, require unusually close supervision."
+    ],
+    "crimeBoard": [
+      "The crime board: string, pins, and the fragile illusion that I know what I am doing.",
+      "Every clue has a place. Usually directly under another clue I forgot to read.",
+      "The board is ready. Now I only need facts, motive, opportunity, and several miracles.",
+      "A connecting thread proves a connection between two pins. The rest still needs evidence.",
+      "The neatest theory is not necessarily the right one. Annoying, but important.",
+      "If every suspect fits, I have probably described a person rather than a criminal.",
+      "A good timeline is hard to argue with. People still try.",
+      "I need to separate what happened from what would make an excellent ending."
+    ],
+    "caseFileCabinet": [
+      "Case files: the place where every mystery begins with too much paperwork.",
+      "Some detectives trust instinct. I trust folders labelled 'URGENT'.",
+      "A filing cabinet. The natural predator of forgotten leads.",
+      "Filed alphabetically. Except for the things filed emotionally.",
+      "The important details rarely announce themselves. They hide halfway down page seven.",
+      "A folder can look innocent and still contain an entire afternoon.",
+      "Official records. Where a missing comma can acquire a supervisor.",
+      "Best read the brief before developing a strongly held opinion about it."
+    ],
+    "notesBook": [
+      "My notes. Written in a code known only to me and future forensic linguists.",
+      "If I cannot read my own handwriting, neither can the criminals.",
+      "A good detective keeps notes. A great detective remembers where they put them.",
+      "A question mark is not evidence. I have underlined this several times.",
+      "Past me wrote \"obvious\" and provided no further assistance.",
+      "The margins contain my best ideas and an increasingly elaborate duck.",
+      "Write down the exact words. Memory enjoys a little creative editing.",
+      "No loose pages. A gust of wind should not be able to solve the case before I do."
+    ],
+    "wantedDatabase": [
+      "Wanted suspects. Mostly terrible people with surprisingly good cheekbones.",
+      "A database full of faces. One of them is probably about to make my day worse.",
+      "Criminal records: social media, but with more warrants.",
+      "An alias is useful. Remembering which alias you gave the police is apparently harder.",
+      "The photograph identifies a face. It does not explain what that face was doing on Tuesday.",
+      "Some of these disguises rely heavily on people being polite.",
+      "One distinguishing feature is not an identification. Even if it is an extraordinary moustache.",
+      "A criminal record is a lead, not permission to skip the investigation."
+    ],
+    "recoveredArtifacts": [
+      "Recovered artefacts. History has a habit of getting stolen by people with poor taste.",
+      "Every artefact has survived centuries. Then someone tried to sell it online.",
+      "A shelf of treasures, each with a story and an insurance claim.",
+      "Museums call it provenance. I call it finding out whose attic it passed through.",
+      "Centuries of craftsmanship. Defeated by someone carrying a sports bag.",
+      "Please do not touch. Good advice for visitors, burglars, and curious detectives.",
+      "Authenticity matters. A dramatic backstory is not a certificate.",
+      "The oldest things in this building are not necessarily the most out of date."
+    ],
+    "atlas": [
+      "An atlas. Because criminals insist on fleeing somewhere picturesque.",
+      "Maps never show the queues, the jet lag, or the suspiciously expensive airport sandwiches.",
+      "The world is large. Fortunately, criminals are fond of leaving clues.",
+      "An index. For when my extensive geographical knowledge needs alphabetical assistance.",
+      "Distance is straightforward. Connections are where the trouble starts.",
+      "A place name can be a clue. It can also be a restaurant. Context matters.",
+      "Tiny print, enormous countries. A bold editorial decision.",
+      "The map is not out of date. The world has been making unauthorised changes."
+    ],
+    "brokenElevator": [
+      "Out of order. A bold career choice for an elevator.",
+      "The elevator is dead. It had a good run. Mostly between floors.",
+      "A sign says 'Out of Order.' At least someone here is being honest.",
+      "The button lights up. A convincing performance, but no actual movement.",
+      "The doors are closed. The investigation into why they remain closed is ongoing.",
+      "A machine with one job and a firm commitment to boundaries.",
+      "I pressed once. Pressing twelve more times would be interrogation, not maintenance.",
+      "The floor indicator has chosen a floor and intends to defend its position."
+    ],
+    "hotelBed": [
+      "A hotel bed. It has seen worse decisions than sleeping before checking the clues.",
+      "The mattress is lumpy, but the detective is tired enough to call it character.",
+      "Sleep now, solve crimes later. That is not procrastination. It is field recovery.",
+      "The pillow has the emotional support rating of a folded receipt."
+    ],
+    "hotelTv": [
+      "Local news is on. Somewhere, a reporter is using the phrase 'shocking development'.",
+      "The television knows more about the city than I do. Rude, but useful.",
+      "Breaking news: crime continues to exist. Experts remain unsurprised.",
+      "The anchor looks concerned. Either there is a crime wave or the teleprompter broke."
+    ],
+    "hotelDesk": [
+      "A hotel desk: small, wobbly, and still somehow better organised than my office.",
+      "The desk is perfect for reviewing clues, writing notes, and hiding the minibar bill.",
+      "Evidence, string, pins, and room service receipts. A proper mobile headquarters.",
+      "A crime board in a hotel room is either dedication or a very specific kind of problem."
+    ],
+    "hotelWindow": [
+      "The city is out there. Somewhere in it, a criminal is ruining my schedule.",
+      "A beautiful view. Statistically, at least three people outside are lying.",
+      "The streets are calling. Unfortunately, they are also charging taxi fares.",
+      "Time to leave the room before the wallpaper starts offering legal advice."
+    ]
+  },
+  "events": {
+    "office": {
+      "noMission": [
+        "No active assignment. A rare opportunity to read the instructions before ignoring them.",
+        "I should check the agency computer for a case. Staring meaningfully at the door has produced nothing.",
+        "No case on my desk. Best enjoy the visible wood while it lasts.",
+        "I can organise my notes now, or rediscover this opportunity halfway through a crisis.",
+        "Between assignments. The only time \"nothing to report\" sounds promising."
+      ],
+      "missionAccepted": [
+        "New assignment. First, establish what is missing. Then establish who is exaggerating.",
+        "I should read the brief before booking anything. Geography is less forgiving than enthusiasm.",
+        "The case is open. My conclusions can remain closed until I have some evidence.",
+        "An artefact, a theft, and an official account of events. One of those may need correcting.",
+        "Time to get the facts in order. They rarely arrive that way."
+      ],
+      "missionSuccess": [
+        "One case closed. I should write the report while the facts still outnumber the anecdotes.",
+        "The result held up. Always satisfying when the evidence survives meeting other people.",
+        "Back at the agency with a successful case. I shall try not to walk past the same colleagues twice.",
+        "For the record, that was deduction. Any sweating was incidental.",
+        "A good result. Now comes the difficult part: explaining it without moving my hands."
+      ],
+      "missionFailure": [
+        "That did not work. The useful question is where it stopped working.",
+        "I need to review the case, not rewrite it with a more flattering ending.",
+        "The next investigation needs better checks, not a more confident expression.",
+        "A bad result is not a mystery. There will be a point where I missed something.",
+        "Back to the evidence. It deserves another look, even if my pride would prefer a transfer."
+      ],
+      "ledgerLowBudget": [
+        "The remaining budget is beginning to look like a rounding error.",
+        "I should plan the next expense carefully. The ledger has stopped finding me charming.",
+        "These figures suggest a strategy best described as \"nearby\".",
+        "Not much room for unnecessary spending. I should establish what is necessary before the airport does.",
+        "The available funds could use a witness protection programme. There are very few of them left.",
+        "Before I authorise another expense, I should check whether the decimal point is where I hoped."
+      ],
+      "ledgerHealthyBudget": [
+        "There is room in the budget. That is not the same as an invitation.",
+        "The funds are available. Accounting will still want to know why.",
+        "A workable budget. I can investigate the crime instead of the price of a sandwich.",
+        "The accounts leave us some options. Best choose one that also produces evidence.",
+        "Enough funding to proceed sensibly. I shall resist the urge to celebrate on expenses."
+      ]
+    }
+  }
+}

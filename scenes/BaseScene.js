@@ -50,10 +50,16 @@ import {
   uninstallRainThunderAudio
 } from '../systems/RainThunderAudio.js';
 
+import {
+  installSceneMonologues,
+  uninstallSceneMonologues
+} from '../systems/SceneMonologues.js';
+
 export class BaseScene extends BaseSceneCore {
   create() {
     super.create();
 
+    installSceneMonologues(this);
     installStartupTheme(this);
 
     installWorldReactions(this.game);
@@ -135,6 +141,7 @@ export class BaseScene extends BaseSceneCore {
   cleanup() {
     if (this._cleanupDone) return;
 
+    uninstallSceneMonologues(this);
     this.events.off(
       Phaser.Scenes.Events.CREATE,
       this.createPIInventory,

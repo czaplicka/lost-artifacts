@@ -1,6 +1,7 @@
 import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { initCrimeBoard } from '../CrimeBoardInit.js';
 import { EventBus } from '../EventBus.js';
+import { requestAutosave } from '../gameStatePersistence.js';
 import { syncCrimeBoardSuspects } from '../crimeBoard/BoardSuspects.js';
 import {
   installBoardWorkspace,
@@ -20,12 +21,13 @@ function asArray(value) {
   return Array.isArray(value) ? value : [];
 }
 
+// File extension and URLs are code, not player-facing text.
 function sceneImagePath(value) {
   if (typeof value !== 'string') return value;
 
   return value
     .trim()
-    .replace(/\.jpe?g(?=[?#]|$)/i, ".webp");
+    .replace(/\.jpe?g(?=[?#]|$)/i, '.webp');
 }
 
 function photoKey(photo) {
@@ -107,16 +109,43 @@ function mergeFoundObjects(...collections) {
 }
 
 function recoverPhotosFromBoard(saved) {
-  return asArray(saved?.items).filter(item => item && !item.createdByPlayer &&
-    (item.tags?.includes('scene-photo') || String(item.id || '').startsWith('scene-photo-')))
-    .map(item => ({
-      sceneId: item.sceneId || String(item.id).replace(/^scene-photo-/, ''),
-      cityId: item.cityId || '',
-      displayName: item.label || 'Crime scene',
-      imagePath: sceneImagePath(item.image),
-      missionId: item.missionId ?? null,
-      success: item.sceneSuccess === false || item.tags?.includes('scene-failed') ? false : true
-    }));
+  return asArray(saved?.items)
+    .filter(item => {
+      return (
+        item &&
+        !item.createdByPlayer &&
+        (
+          item.tags?.includes('scene-photo') ||
+          String(item.id || '').startsWith('scene-photo-')
+        )
+      );
+    })
+    .map(item => {
+      const meta = asArray(item.meta);
+
+      // The city is stored first when a status is present; no visible status text is compared.
+      const cityId =
+        typeof item.cityId === 'string'
+          ? item.cityId
+          : meta.length >= 2 && typeof meta[0] === 'string'
+            ? meta[0]
+            : '';
+
+      return {
+        sceneId:
+          item.sceneId ||
+          String(item.id).replace(/^scene-photo-/, ''),
+        cityId,
+        displayName: item.label || __dialogueText("ui/CrimeBoardUI.js", "t_7624a8b8c9d8d5d1ee22"),
+        imagePath: sceneImagePath(item.image),
+        missionId: item.missionId ?? null,
+        success:
+          item.sceneSuccess === false ||
+          item.tags?.includes('scene-failed')
+            ? false
+            : true
+      };
+    });
 }
 
 function recoverSceneData(state, saved) {
@@ -255,6 +284,7 @@ export class CrimeBoardUI {
     this.boardApi = null;
     this.templateHtml = null;
     this.disabledScenesInput = [];
+    this.hostKeyboardInput = null;
     this._openToken = 0;
     this._activeGameState = null;
     this._hudHidden = false;
@@ -262,6 +292,8 @@ export class CrimeBoardUI {
     this.boundEscHandler = this.onKeyDown.bind(this);
     this.boundOverlayClickHandler =
       this.onOverlayClick.bind(this);
+    this.boundOverlayKeyHandler =
+      this.onOverlayKey.bind(this);
     this.boundCloseClickHandler = () => this.close();
 
     this.createOverlay();
@@ -271,7 +303,15 @@ export class CrimeBoardUI {
     this.overlay = document.createElement('div');
     this.overlay.className = 'crime-board-ui-overlay';
 
-    this.overlay.innerHTML = `${"\n      <div class=\"crime-board-ui-modal\">\n        <button\n          type=\"button\"\n          class=\"crime-board-ui-close\"\n        >Close</button>\n        <div class=\"crime-board-ui-root\"></div>\n      </div>\n    "}`;
+    this.overlay.innerHTML = `
+      <div class="crime-board-ui-modal">
+        <button
+          type="button"
+          class="crime-board-ui-close"
+        >Close</button>
+        <div class="crime-board-ui-root"></div>
+      </div>
+    `;
 
     document.body.appendChild(this.overlay);
 
@@ -296,6 +336,20 @@ export class CrimeBoardUI {
       'click',
       this.boundOverlayClickHandler
     );
+
+    // Typing in board fields must not reach Phaser/HUD hotkeys (M, N, F, T, A, P, B, I).
+    for (const type of ['keydown', 'keyup', 'keypress']) {
+      this.overlay.addEventListener(
+        type,
+        this.boundOverlayKeyHandler
+      );
+    }
+  }
+
+  onOverlayKey(event) {
+    if (event.type === 'keydown' && event.key === 'Escape') return;
+
+    event.stopPropagation();
   }
 
   canOpen() {
@@ -329,7 +383,7 @@ export class CrimeBoardUI {
     if (this.templateHtml) return this.templateHtml;
 
     const url = new URL(
-      "../crime-board.html",
+      '../crime-board.html',
       import.meta.url
     ).toString();
 
@@ -474,8 +528,11 @@ export class CrimeBoardUI {
 
     this._openToken++;
 
+    let saved = false;
+
     try {
       this.saveToGameState();
+      saved = true;
     } catch (error) {
       console.error(
         'CrimeBoardUI save failed:',
@@ -493,6 +550,18 @@ export class CrimeBoardUI {
         'CrimeBoardUI cleanup failed:',
         error
       );
+    }
+
+    // Destroying the workspace persists the final board state, so request the file save afterwards.
+    if (saved) {
+      try {
+        requestAutosave();
+      } catch (error) {
+        console.error(
+          'CrimeBoardUI autosave request failed:',
+          error
+        );
+      }
     }
 
     if (this.root) this.root.innerHTML = '';
@@ -575,7 +644,19 @@ export class CrimeBoardUI {
   }
 
   disableUnderlyingScenesInput() {
-    if (this.disabledScenesInput.length) return;
+    if (this.disabledScenesInput.length || this.hostKeyboardInput) return;
+
+    // The host scene (PlayerHudScene) owns the HUD hotkeys, so its keyboard is blocked too.
+    const hostKeyboard = this.scene?.input?.keyboard;
+
+    if (hostKeyboard) {
+      this.hostKeyboardInput = {
+        keyboard: hostKeyboard,
+        enabled: hostKeyboard.enabled
+      };
+
+      hostKeyboard.enabled = false;
+    }
 
     this.scene.scene.manager
       .getScenes(true)
@@ -599,6 +680,14 @@ export class CrimeBoardUI {
   }
 
   enableUnderlyingScenesInput() {
+    const host = this.hostKeyboardInput;
+    this.hostKeyboardInput = null;
+
+    if (host?.keyboard && host.enabled !== undefined) {
+      host.keyboard.enabled = host.enabled;
+      host.keyboard.resetKeys?.();
+    }
+
     const records = this.disabledScenesInput;
     this.disabledScenesInput = [];
 
@@ -650,6 +739,13 @@ export class CrimeBoardUI {
       this.boundOverlayClickHandler
     );
 
+    for (const type of ['keydown', 'keyup', 'keypress']) {
+      this.overlay?.removeEventListener(
+        type,
+        this.boundOverlayKeyHandler
+      );
+    }
+
     this.overlay?.remove();
 
     this.overlay = null;
@@ -660,5 +756,6 @@ export class CrimeBoardUI {
     this.scene = null;
     this._activeGameState = null;
     this.disabledScenesInput = [];
+    this.hostKeyboardInput = null;
   }
 }

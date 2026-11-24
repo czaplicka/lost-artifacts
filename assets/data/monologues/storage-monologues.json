@@ -1,0 +1,86 @@
+{
+  "idle": {
+    "agencyStorage": [
+      "This is where the agency keeps its equipment and its expectations of getting it back.",
+      "Everything here has a purpose. My job is to establish it before touching anything.",
+      "The difference between equipment and evidence is often who signed for it.",
+      "I should ask before borrowing anything. Alex appears to remember objects individually.",
+      "A supply room. Where \"just in case\" becomes a quantity someone has to count.",
+      "The boxes look harmless. So do most requests before someone reads the small print.",
+      "There is probably a procedure for standing here. I hope I am facing the approved direction.",
+      "Good equipment helps. Knowing how to use it is apparently a separate requirement.",
+      "A room full of practical solutions. I should try having a practical problem.",
+      "Nothing says field readiness like being told to read a book.",
+      "If an item has an instruction label, I should read it before providing a demonstration.",
+      "The agency can replace equipment. I should avoid testing the policy on personnel."
+    ]
+  },
+  "inspect": {
+    "storageManager": [
+      "Alex Murphy. Equipment, storage, and the controlled distribution of disappointment.",
+      "He introduced himself by calling recruitment \"restocking\". An encouraging commitment to inventory accuracy.",
+      "Alex looks like he can tell whether a box is missing something without opening it.",
+      "I should make the request specific. He seems well prepared for the word \"no\".",
+      "He counts emergency parachutes. I can understand wanting an exact figure.",
+      "A useful person to know before departure. Probably a less patient person to know after losing something.",
+      "Alex does not seem impressed by enthusiasm. I should try preparation.",
+      "I suspect \"borrowed indefinitely\" is not one of his stock categories."
+    ],
+    "agencyFieldManual": [
+      "The Agency Field Manual. A chance to make a mistake nobody anticipated.",
+      "Evidence handling, travel procedures, paperwork. Adventure comes with a contents page.",
+      "I should read the manual before improvising a policy.",
+      "The electronic service procedure is only half the instructions. The device-specific note matters too.",
+      "Alex suggested using it under a wobbly desk. I should read it before promoting it to furniture.",
+      "A replacement is free. Repeating the conversation is the actual cost.",
+      "The manual explains the general procedure. It cannot identify a device on my behalf.",
+      "An instruction book. Less dramatic than instinct, but considerably easier to consult twice."
+    ]
+  },
+  "events": {
+    "agencyStorage": {
+      "manualReceived": [
+        "Manual received. I am now officially equipped to find out what equipment I need.",
+        "First assignment from Stores: read. The physical demands are escalating.",
+        "I should open the manual from my inventory before I need it under pressure.",
+        "Alex has provided the instructions. Any remaining improvisation will be harder to defend.",
+        "A book of agency procedures. I should learn which mistakes already have chapter headings."
+      ],
+      "manualReplacement": [
+        "Replacement copy. I should avoid making this a subscription.",
+        "The book is free. Alex has made his opinion available at no extra charge.",
+        "I have the instructions again. This time I should investigate where I put them.",
+        "A fresh copy, with the same entirely reasonable expectation that I keep it.",
+        "The manual has returned to my inventory. I should stop treating it as a migratory species."
+      ],
+      "inventoryFull": [
+        "I need room for the manual. Apparently preparation requires actual pocket space.",
+        "Before collecting the book, I should establish what I can put away.",
+        "My inventory is full. An awkward moment to be offered advice on organisation.",
+        "I can come back for the manual once I have room. Folding the instructions is not a solution.",
+        "Alex issues books, not larger pockets. I should solve the correct problem."
+      ],
+      "alexRefusal": [
+        "Alex wants an authorised account of the transport. I should establish what the archive actually holds.",
+        "He will not discuss a restricted operation on the strength of scraps. I need the records and their attachments.",
+        "A refusal is not a confession. I should find the documents before interpreting his tone.",
+        "The redacted copy is in the archive. That is a next step, not a dead end.",
+        "Equipment records matter to Alex. I should bring something he can verify."
+      ],
+      "alexAccountHeard": [
+        "Alex described what he witnessed. I need to keep that separate from what he concluded.",
+        "He saw the aircraft go down. He did not identify a body. Those are different facts.",
+        "The artefact was already aboard before departure. This was a return transport, not an outbound theft.",
+        "The cargo never received a completed return entry. I should not turn \"missing\" into a more convenient word.",
+        "The records and his account need to agree on the sequence. Confidence is not a timestamp."
+      ],
+      "crashTimelineCompleted": [
+        "The sequence is in place. I should be precise about what it establishes.",
+        "A timeline puts events in order. It does not automatically supply a motive.",
+        "I should carry the reconstruction forward without quietly adding facts to it.",
+        "The operation makes more sense in sequence. The unanswered questions remain unanswered.",
+        "One reconstruction completed. Best record the result before the next conversation complicates it."
+      ]
+    }
+  }
+}

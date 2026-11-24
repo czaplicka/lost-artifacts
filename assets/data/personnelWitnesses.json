@@ -210,5 +210,17 @@
       "note": "The trustees' secretary and recorded attendance confirm that all directors and department heads stayed throughout.",
       "hint": "Match the responsibilities described in this account to the job titles. A shared task can include several different titles. The assigned floor and appearance are not the criterion for this account."
     }
+  },
+  "attendance": {
+    "clockDay": "{time} (day {day})",
+    "hintInstructions": "The gate times are verified first entry and last exit, not an uninterrupted stay. Intermediate trips are omitted. A time span overlapping the theft is not an alibi.",
+    "theftWindow": "Theft window: {from}–{to}",
+    "gateSummary": "First entry / last exit. Intermediate trips are omitted.",
+    "gateDetailsTitle": "Verified gate records",
+    "gateDetails": "Personal identity checks, all perimeter gates and entrance cameras were audited. The displayed entries are the earliest arrival and latest departure in the investigation period. A last exit strictly before the theft window or a first entry strictly after it rules out presence during the theft. An overlapping span does not prove continuous presence or guilt. Day offsets, if any, appear in the time tooltips; day 0 is the day of the theft.",
+    "firstEntry": "First entry",
+    "lastExit": "Last exit",
+    "timeTooltip": "{label}: {time}",
+    "jobCategoryHint": "This category includes: {jobs}. Match these job titles on the cards; ignore floors and appearance."
   }
 }

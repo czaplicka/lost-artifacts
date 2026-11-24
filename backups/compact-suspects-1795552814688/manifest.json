@@ -1,0 +1,18 @@
+[
+  {
+    "path": "suspects/SuspectCaseState.js",
+    "created": false
+  },
+  {
+    "path": "gameState/GameStateManager.js",
+    "created": false
+  },
+  {
+    "path": "gameState/importExport.js",
+    "created": false
+  },
+  {
+    "path": "gameState/suspectSaveFormat.js",
+    "created": true
+  }
+]

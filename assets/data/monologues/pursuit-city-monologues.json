@@ -1,0 +1,150 @@
+{
+  "idle": {
+    "pursuitCity": [
+      "I am following a person, not collecting destinations. The distinction should appear in the expenses.",
+      "A fugitive can change cities. Unfortunately, so can I.",
+      "I should establish what the trail actually says before adding another place to it.",
+      "The local population has not been briefed on how helpful I would like them to be.",
+      "An ordinary day for everyone else. I should introduce the investigation gently.",
+      "I need useful information. Enthusiastic directions to a good lunch remain a separate category.",
+      "I should check the description before asking whether anyone has seen \"someone suspicious\".",
+      "Travelling for work sounds better before the work starts travelling ahead of you.",
+      "The map offers possibilities. It has declined to take responsibility for my choice.",
+      "A useful question can save a journey. I should have several ready.",
+      "I should write down the answer before memory improves its dramatic structure.",
+      "Someone may have noticed something. My task is to make that sentence less vague.",
+      "A convincing story travels well. That is precisely why I should check it.",
+      "I can look like I belong here or ask for directions. Ideally both, but the timing is delicate.",
+      "Another conversation might help. Preferably one in which I do more listening than demonstrating my theory.",
+      "The chase needs evidence. My growing expertise in arrival procedures is not enough."
+    ]
+  },
+  "inspect": {
+    "pursuitCity": {
+      "contact": [
+        "A possible source. I should begin with a question, not the entire history of my journey.",
+        "They may know something useful. Best not start by explaining what that must be.",
+        "I need to distinguish what they saw from what somebody else told them.",
+        "An ordinary conversation, with an unusually specific interest in somebody else's travel arrangements.",
+        "I should have the details ready. \"Recently\" is a large period when somebody is trying to remember.",
+        "People notice different things. I should not reject a useful answer because it arrived with an anecdote.",
+        "The most useful person is not always the one who looks pleased to see me.",
+        "I should let the answer finish before deciding which part belongs in my notes."
+      ],
+      "revisitedContact": [
+        "I have been here before. I should review the earlier answer before ordering another one.",
+        "A repeat visit needs a reason. \"I forgot to listen\" is honest but not ideal.",
+        "Best compare my notes before asking somebody to reproduce their memory on demand.",
+        "I should check whether I have a new question or merely renewed optimism.",
+        "An answer does not become independent confirmation because I hear it twice.",
+        "I can revisit the conversation. I should avoid bringing exactly the same confusion."
+      ],
+      "place": [
+        "A place to investigate. What it might tell me depends on what is actually here.",
+        "I should arrive with a question and leave with something more precise than an impression.",
+        "A promising stop. The promise is mine; the place has made no commitments.",
+        "Best observe before deciding which detail is important.",
+        "I should not confuse an interesting location with a relevant one.",
+        "An address can be a lead without being the answer."
+      ],
+      "hotel": [
+        "A hotel. Somewhere to stop moving without calling off the investigation.",
+        "Rest might improve my judgement. Continuing until I agree with every theory probably will not.",
+        "I should weigh the rest against the remaining time. Both require attention.",
+        "A temporary base. Ideally, I will leave it with the same case and a clearer head.",
+        "I can review the notes after recovering. They are unlikely to flee independently.",
+        "A room is not progress, but being able to think may contribute to some."
+      ],
+      "shop": [
+        "Supplies should support the chase. I do not need to furnish the journey.",
+        "I should check my inventory before giving the same problem a second receipt.",
+        "The useful purchase is the one I need, not the one with the most reassuring packaging.",
+        "A shopkeeper can sell me supplies. A reliable next destination remains my responsibility.",
+        "I should decide what is missing before browsing for things to miss.",
+        "I am here to follow a trail, not create one made entirely of purchases."
+      ],
+      "destinations": [
+        "The next destination should come from the clues, not my preference for the name.",
+        "I should compare the descriptions before committing to another journey.",
+        "A ticket makes a decision official. It does not make it correct.",
+        "If two places seem to fit, I should find out what distinguishes them.",
+        "The route needs a reason I can explain without waving at the map.",
+        "A confident departure is still a departure. Best make it an informed one."
+      ]
+    }
+  },
+  "events": {
+    "pursuitCity": {
+      "arrived": [
+        "Arrived. I should find out what this place can tell me before deciding what it proves.",
+        "New stop. Same case. Best keep those facts connected.",
+        "I have reached the city. Reaching a conclusion will require a separate effort.",
+        "First, check the available leads. Looking purposeful can continue during the process.",
+        "Here I am. The investigation would appreciate knowing what I intend to do next."
+      ],
+      "newTravelClue": [
+        "A new detail about the route. I should record the exact wording before it becomes a destination in my head.",
+        "That may help narrow the options. \"May\" is doing useful work in that sentence.",
+        "A travel clue. Best compare it with the other information rather than immediately with the booking options.",
+        "I have something new to work with. I should check what it rules out as well as what it suggests.",
+        "The route is becoming more specific. My interpretation should not become more specific than the clue."
+      ],
+      "conflictingClues": [
+        "The clues point in different directions. I need to resolve that before paying to demonstrate it.",
+        "Two incompatible accounts. I should establish whether they describe the same part of the journey.",
+        "I may have misunderstood a detail. That is cheaper to check here than after departure.",
+        "The information does not agree. Choosing the more convenient version is not a method.",
+        "I need a distinction, not a favourite. Best review the clues together."
+      ],
+      "deadEndConfirmed": [
+        "This lead has not held up. I should return to the last supported part of the route.",
+        "A dead end. Useful to recognise before I build an itinerary around it.",
+        "I need to correct the route, not defend the money already spent following it.",
+        "That direction did not produce the trail I needed. Back to what I can actually support.",
+        "A wrong turn is information. Repeating it would be a preference."
+      ],
+      "locationClosed": [
+        "Closed. An exceptionally clear answer to a question I had not intended to ask.",
+        "I should check the opening hours. Knocking with greater conviction is not a scheduling tool.",
+        "The place is closed. I can plan another stop instead of examining the entrance professionally.",
+        "A closed location is not concealing evidence merely by having business hours.",
+        "I need to compare waiting with the other available leads. The door is unlikely to advise me."
+      ],
+      "departureReady": [
+        "The next stop has support. I should check the destination once more before confirming the journey.",
+        "I have enough to choose the next destination. Best take the reasoning with me.",
+        "Time to move on. Ideally without leaving the useful part of the investigation in my notes here.",
+        "The route is ready for another step. Not an invitation to skip the next questions.",
+        "I should finish checking the travel details. A near match is an expensive way to describe a ticket."
+      ],
+      "lowEnergy": [
+        "I am beginning to mistake movement for progress. Rest deserves consideration.",
+        "My concentration is travelling separately. I need it back before the next decision.",
+        "I should recover before I start agreeing with the last person who spoke.",
+        "Tiredness makes every destination sound equally plausible. An unhelpful talent.",
+        "A short assessment of my options would help. Provided I can finish remembering the options."
+      ],
+      "timeRunningLow": [
+        "The remaining time needs a plan, not a motivational speech.",
+        "I need the most useful next step. Visiting everything is no longer even an attractive bad idea.",
+        "The deadline is close. I should cut unnecessary detours, not necessary checks.",
+        "Time is short. My reasoning should become more focused, not more imaginative.",
+        "I should review what remains unresolved before spending more time confirming what I already know."
+      ],
+      "warrantMissing": [
+        "I still need the warrant. A convincing journey does not authorise an arrest.",
+        "The paperwork needs to catch up before I try to catch anyone else.",
+        "I should complete the warrant before relying on handcuffs to introduce the subject.",
+        "An arrest needs the proper warrant. My travel history is not an acceptable substitute.",
+        "I have followed the case this far. Best not lose it to a preventable omission on a form."
+      ],
+      "finalIdentificationReady": [
+        "Time to identify the suspect. The description matters more than who looks suitably guilty.",
+        "I need the person supported by the evidence, not the face that would improve the story.",
+        "The identification deserves one careful comparison. Familiarity is not a distinguishing feature.",
+        "I should check the recorded details before committing to a face.",
+        "The journey has brought me to this choice. It has not made the choice on my behalf."
+      ]
+    }
+  }
+}

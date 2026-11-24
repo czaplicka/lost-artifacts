@@ -1,0 +1,152 @@
+{
+  "idle": {
+    "crimeCity": [
+      "A whole city, and I need the small part of it that contradicts somebody.",
+      "Everyone else is having an ordinary day. I should try not to introduce myself as the reason that changes.",
+      "The city has a perfectly good layout. My investigation is still negotiating one.",
+      "A sensible route would help. So would witnesses who describe sensible routes.",
+      "I should distinguish a promising lead from somewhere I would enjoy visiting.",
+      "The map makes the distances look manageable. Maps have never had to submit travel expenses.",
+      "Local knowledge is useful. Local certainty requires checking.",
+      "Somewhere in this city is an explanation. Ideally, it is available for questions.",
+      "I should check my notes before setting off. A purposeful expression is not navigation.",
+      "A beautiful place to work. I should remember which of those words matters at the moment.",
+      "People remember unusual events. Unfortunately, they disagree on what counts as unusual.",
+      "The investigation needs a next step. Pacing thoughtfully is only a style of walking.",
+      "An address is not a conclusion. It is where I go to test one.",
+      "I should keep observation and interpretation in separate columns. Interpretation likes to spread out.",
+      "Every detour should have a reason. \"It looked investigative\" will not survive the report.",
+      "The city is not obliged to arrange its clues in visiting order."
+    ]
+  },
+  "inspect": {
+    "crimeCity": {
+      "crimeScene": [
+        "The place where it happened. A better starting point than the version already circulating.",
+        "I should look for what the thief did, not just what the owner is most upset about.",
+        "A missing artefact is conspicuous. The useful details may be less theatrical.",
+        "The scene may answer a question I have not thought to ask yet. Best arrive observant.",
+        "I should leave the grand reconstruction until after examining the ordinary details.",
+        "An important location. Not an invitation to collect everything that looks expensive."
+      ],
+      "crimeLab": [
+        "The lab. Where \"looks suspicious\" becomes a question somebody can actually test.",
+        "I should bring evidence, not my preferred conclusion in a bag.",
+        "A test result has limits. I should read those before developing a speech.",
+        "The lab can analyse the material. It cannot make my reasoning less convenient.",
+        "Science is useful precisely because it does not care which suspect annoys me.",
+        "Best know what I am asking the lab to establish. \"Something incriminating\" lacks precision."
+      ],
+      "suspectFiles": [
+        "The suspect files. An opportunity to replace vague suspicion with specific questions.",
+        "A convincing match deserves checking. An unconvincing match deserves less string.",
+        "I should eliminate people by evidence, not by how much I dislike their photograph.",
+        "Each file is a person, not a spare ending for the case.",
+        "The results need comparing carefully. A familiar detail is not the same as a complete match.",
+        "I should be able to explain each exclusion without pointing at my own instincts."
+      ],
+      "alibiWitness": [
+        "A witness. Someone who may know where another person was, and will almost certainly explain something else first.",
+        "I need the time, the place, and what they actually saw. Their general opinion can wait.",
+        "Best ask a question that does not contain the answer I would like.",
+        "A confident witness is still a witness. Confidence is not an additional sense.",
+        "I should compare the accounts before deciding which one sounds more professional.",
+        "People remember faces, conversations, weather. Exact times often require negotiation."
+      ],
+      "apartment": [
+        "An address to check. I should make sure the reasoning arrives before I do.",
+        "A broken alibi needs following up. It does not issue its own verdict.",
+        "I should check whose address I have selected. A dramatic knock is difficult to retract.",
+        "The right address matters. Neighbours are rarely grateful for investigative enthusiasm.",
+        "Before heading there, I should review the evidence behind the choice.",
+        "This is where a theory becomes a visit. Best ensure it is the correct theory."
+      ],
+      "hotel": [
+        "The hotel. A place to recover before fatigue starts supplying its own deductions.",
+        "Rest is part of the plan. I should make sure the plan allows for it.",
+        "I can review the case more usefully when the notes stop looking like decorative patterns.",
+        "A hotel is a temporary headquarters, not permission to forget why I came to the city.",
+        "An investigation needs attention. Mine occasionally requires a pillow.",
+        "I should check the travel cost before calling this the sensible option."
+      ],
+      "shop": [
+        "A shop. I should establish what I need before becoming interested in what is available.",
+        "A purchase should solve a problem. Preferably one that existed before I saw the shelf.",
+        "I need supplies, not a souvenir of an unfinished investigation.",
+        "The shopkeeper is not responsible for distinguishing fieldwork from impulse buying.",
+        "I should check what I am already carrying. Buying a second solution is still spending.",
+        "A useful stop, if I can state the purpose without saying \"while I am here\"."
+      ]
+    }
+  },
+  "events": {
+    "crimeCity": {
+      "arrived": [
+        "Arrived. First, establish where the investigation stands. Then decide where I stand.",
+        "I should get my bearings before acquiring opinions about the local suspects.",
+        "The city is ready. I should begin with the case, not the sightseeing.",
+        "New surroundings. The same useful rule: check before concluding."
+      ],
+      "crimeSceneCompleted": [
+        "The initial search is complete. The lab should see the material before my theory gets attached to it.",
+        "I have collected what I need from the scene. Now to establish what it means.",
+        "Search completed. The evidence has earned an examination, not an immediate suspect.",
+        "Time to take the collected evidence to the lab. My commentary is optional; analysis is not."
+      ],
+      "crimeLabCompleted": [
+        "The analysis is complete. I should compare the findings without adding a convenient identity.",
+        "I have results. The case now requires careful interpretation rather than additional confidence.",
+        "The lab has answered its questions. I should be precise about which questions remain.",
+        "Forensic findings in hand. Best read them before rehearsing the arrest."
+      ],
+      "reconstructionCompleted": [
+        "The sequence fits. Now I need to establish who could actually have carried it out.",
+        "I have a reconstruction. It explains the method, not the entire person.",
+        "One part of the case makes sense. I should avoid celebrating by guessing the rest.",
+        "The order matters. A criminal plan is considerably less impressive when the escape comes before the theft."
+      ],
+      "suspectEliminationCompleted": [
+        "The exclusions are recorded. I should test the remaining accounts, not choose the more suspicious expression.",
+        "I have narrowed the field. Time to ask where the remaining candidates actually were.",
+        "The surviving candidates need their alibis checked. A matching profile cannot attend an interview on their behalf.",
+        "Now for the witnesses. The paperwork has reached the limit of what it can say without people."
+      ],
+      "alibiSupported": [
+        "That alibi has support. I should record what backs it up, not just how reassuring it sounds.",
+        "The account checks out. An inconvenient fact is still a fact.",
+        "A supported alibi. Good reason to update the theory rather than interrogate the wording.",
+        "This part of the account holds together. I should preserve the details that establish it."
+      ],
+      "alibiContradicted": [
+        "That account conflicts with the evidence. I need the contradiction recorded precisely.",
+        "A problem with the alibi. Not yet permission to stop thinking.",
+        "The story does not hold up. I should establish what that changes before heading anywhere.",
+        "A contradiction is useful. Turning it into a complete confession would be my contribution, not theirs."
+      ],
+      "apartmentLeadAvailable": [
+        "I have an address worth checking. Best review the connection before committing to it.",
+        "The next step is an apartment visit. The choice of apartment deserves the same care as the deduction.",
+        "I should compare the available address with the suspect I actually mean to visit.",
+        "An address has become actionable. My enthusiasm should remain accompanied by the evidence."
+      ],
+      "apartmentEvidenceReady": [
+        "The apartment evidence needs analysis. I should not confuse leaving the building with finishing the work.",
+        "New material for the lab. The case has declined to become simpler on request.",
+        "I should have the apartment evidence examined before giving it a starring role in the theory.",
+        "Back to the lab with the new evidence. A return visit is preferable to an avoidable assumption."
+      ],
+      "lowEnergy": [
+        "I am tired enough to find every witness convincing. Time to address that.",
+        "I should plan for rest. Re-reading the same note is not a second source.",
+        "My attention is slipping. The investigation cannot afford to follow it.",
+        "I need to recover some energy before fatigue starts promoting guesses to findings."
+      ],
+      "timeRunningLow": [
+        "Time is running short. I need the next useful action, not three increasingly dramatic alternatives.",
+        "I should focus on what still needs establishing. Repeating a completed step will not improve the clock.",
+        "Less time. Same obligation to choose correctly.",
+        "The deadline is approaching. Best check the outstanding facts rather than watch it approach."
+      ]
+    }
+  }
+}

@@ -1,3 +1,4 @@
+import { installAdvertisingMail } from './AdvertisingMail.js';
 import { installPINewMailButton } from './PINewMailButton.js';
 import {
   ComputerDocuments as ComputerDocumentsCore
@@ -81,6 +82,7 @@ export class ComputerDocuments extends ComputerDocumentsCore {
 
   constructor(ui) {
     super(ui);
+    this.advertisingMail = installAdvertisingMail(ui, this);
 
     this.grandConspiracyComputer = null;
     this.momsNotProudComputer = null;

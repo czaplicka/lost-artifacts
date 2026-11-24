@@ -1,0 +1,22 @@
+[
+  {
+    "path": "scenes/crimeCity/CrimeCityProgressService.js",
+    "created": false
+  },
+  {
+    "path": "suspectsBoard/SuspectDetails.mixin.js",
+    "created": false
+  },
+  {
+    "path": "ui/suspectUtils.js",
+    "created": false
+  },
+  {
+    "path": "ui/SuspectDisclosure.js",
+    "created": true
+  },
+  {
+    "path": "scenes/CSI/LabCompletionState.js",
+    "created": true
+  }
+]

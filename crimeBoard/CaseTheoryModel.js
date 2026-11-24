@@ -1,3 +1,5 @@
+export { normalizeSkillId } from './skillNormalization.js';
+import { normalizeSkillId } from './skillNormalization.js';
 import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { getCaseKey } from '../crimeCaseKey.js';
 import { getOpportunityFacts, evaluateOpportunity } from '../systems/OpportunityRules.js';
@@ -13,10 +15,6 @@ export const THEORY_OPTIONS={opportunity:[
  ['security_gap',__dialogueText("crimeBoard/CaseTheoryModel.js", "t_14d0d83e7f52e74fdeca")],
  ['public_access',__dialogueText("crimeBoard/CaseTheoryModel.js", "t_87416750a6e8cf8a60ae")]
 ]};
-export function normalizeSkillId(value){
- const id=String(value??'').trim().toLowerCase().replace(/[_-]+/g,' ').replace(/\s+/g,' ');
- return ['pickpocket','pickpocketing',"pick pocketing"].includes(id)?'pickpocket':id;
-}
 const strings=values=>[...new Set((Array.isArray(values)?values:[])
  .filter(value=>typeof value==='string'&&value.trim()).map(value=>value.trim()))];
 export function theoryCaseKey(state){

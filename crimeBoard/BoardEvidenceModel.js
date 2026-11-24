@@ -1,17 +1,11 @@
+import { normalizeSkillId as skill } from './skillNormalization.js';
 import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { getEvidenceCaseKey } from '../managers/ApartmentEvidenceModel.js';
+import { getWarrantPhotoPath, getWarrantImageKey } from './BoardSuspectPhotos.js';
 
 const copy = value => JSON.parse(JSON.stringify(value));
 const list = value => Array.isArray(value) ? value : [];
 const text = value => typeof value === 'string' ? value.trim() : '';
-const skill = value => {
-  const id = text(value).toLowerCase().replace(/[_-]+/g,' ').replace(/\s+/g,' ');
-  return ['pickpocket','pickpocketing',"pick pocketing"].includes(id) ? 'pickpocket' : id;
-};
-// Same slug as the crime-board generator uses in hypothesis-skill card IDs.
-const slug = value => String(value ?? '').toLowerCase().normalize('NFD')
-  .replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
-const SKILL_CARD_PREFIX = 'hypothesis-skill-';
 const token = value => encodeURIComponent(String(value));
 export function getBoardEvidenceRecord(state) {
   return state.caseData?.boardEvidenceCases?.[getEvidenceCaseKey(state)] || {};
@@ -71,17 +65,21 @@ export function decorateBoardEvidence(input,state) {
     const matching=warrant && String(warrant.id)===id ? warrant : null;
     const name=text(matching?.name)||text(state.warrantSuspectName);
     if(name) {
+      const imageKey=getWarrantImageKey(matching);
       put({id:`warrant-identity-${token(id)}`,type:'photo',
         x:70,y:125,z:9,rotation:-1.4,pinned:true,
-        label:name,image:text(matching?.image)||'assets/suspects/unknown.webp',
+        label:name,imageKey,image:getWarrantPhotoPath(matching),
         caption:__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_95f725137a57609f2c57"),
-        meta:[__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_878c7d9cd9d443ed07a1"),matching?.image?__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_c0bfdc0c2ff07aa72c0a"):__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_77f96ea433d744c50f06")],
+        meta:[__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_878c7d9cd9d443ed07a1"),imageKey?__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_c0bfdc0c2ff07aa72c0a"):__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_77f96ea433d744c50f06")],
         suspectId:id,clueId:`warrant-${id}`,tags:['board-evidence-v2','suspect','warrant-identity'],
         discovered:true,createdByPlayer:false,editableByPlayer:false});
       for(const item of data.items) {
         if(!item.tags?.includes('false-identity'))continue;
         if(viewed?.actualId && String(viewed.actualId)===id) {
-          item.text=[...["The name and occupation in the suspect file are false.","An order for forged identification recovered from the apartment matches those details."], "The issued warrant names " + name + ". See the warrant identity card.", "Use the recovered appearance detail to narrow the wanted records."].join('\n\n');
+          item.text=String(item.text || '').replace(
+            __dialogueText("crimeBoard/BoardEvidenceModel.js", "t_bf87a2f06de395a96d1e"),
+            `${__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_18b4b1fe6487442543c4")}${name}${__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_41461bc5bdbbbe8b3928")}`
+          );
         }
       }
     }
@@ -121,27 +119,11 @@ export function decorateBoardEvidence(input,state) {
     const claim=list(reconstruction.claims).find(c=>String(c?.solutionItemId)===String(card.id));
     if(!claim?.thiefSkill)return;
     const id=skill(claim.thiefSkill),old=accepted.get(id);
-    const slugs=new Set([...(old?.slugs||[]),slug(claim.thiefSkill)]);
-    if(!old || (old.feedback==='yellow' && feedback==='green'))accepted.set(id,{card,feedback,slugs});
-    else old.slugs=slugs;
+    if(!old || (old.feedback==='yellow' && feedback==='green'))accepted.set(id,{card,feedback});
   });
-  // Match by the stable card ID, not by the visible label.
-  const findAcceptedSkill=item=>{
-    const id=String(item.id || '');
-    if(id.startsWith(SKILL_CARD_PREFIX)) {
-      const key=id.slice(SKILL_CARD_PREFIX.length);
-      for(const entry of accepted.values())if(entry.slugs.has(key))return entry;
-    }
-    // Compatibility for cards that do not use the generated ID.
-    return accepted.get(skill(item.skillId || '')) || [...accepted.entries()].find(([id]) => {
-      const slug = value => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
-      return item.id === 'hypothesis-skill-' + slug(id) || list(reconstruction.claims).some(c =>
-        skill(c?.thiefSkill || '') === id && item.id === 'hypothesis-skill-' + slug(c.thiefSkill));
-    })?.[1];
-  };
   for(const item of data.items) {
     if(!item.tags?.includes('hypothesis-skill'))continue;
-    const source=findAcceptedSkill(item);
+    const source=accepted.get(skill(String(item.label || '').replace(/\s*\?$/,'')));
     if(!source)continue;
     const name=text(source.card.item)||text(source.card.label)||text(source.card.title)||text(source.card.name);
     if(!name)continue;
@@ -155,11 +137,13 @@ export function decorateBoardEvidence(input,state) {
     item.metaText=`${__dialogueText("crimeBoard/BoardEvidenceModel.js", "t_4f997b90335a7aada43d")}${name}`;
   }
   const ids=new Set(data.items.map(item=>item.id));
-  data.links=data.links.filter(link=>ids.has(link.from)&&ids.has(link.to));
+  data.links=data.links.filter(link=>ids.has(link.from)&&ids.has(link.to) &&
+    !(typeof link.id==='string' && link.id.startsWith('evidence-link-') &&
+      !link.createdByPlayer && !link.editableByPlayer));
   const pairs=new Set(data.links.map(link=>[link.from,link.to].sort().join('\u0000')));
-  const suspect=data.items.find(item=>item.tags?.includes('warrant-identity')) ||
-    data.items.find(item=>item.tags?.includes('case-suspect')) ||
-    data.items.find(item=>item.tags?.includes('suspect'));
+  const suspect=activeWarrant ? data.items.find(item=>
+    !item.createdByPlayer && item.tags?.includes('warrant-identity') &&
+    String(item.suspectId)===String(state.warrantSuspectId)) : null;
   if(suspect)for(const item of data.items) {
     if(!item.tags?.includes('board-evidence-v2') || item.id===suspect.id)continue;
     const pair=[suspect.id,item.id].sort().join('\u0000');
@@ -169,5 +153,3 @@ export function decorateBoardEvidence(input,state) {
   }
   return data;
 }
-
-/* board-skill-semantic-match-v1 */

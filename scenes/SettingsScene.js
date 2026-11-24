@@ -9,6 +9,7 @@ export class SettingsScene extends BaseScene {
     super({ key: 'SettingsScene' });
     this.sfxSlider = null;
     this.musicSlider = null;
+    this.voiceSlider = null;
     this.muteLabel = null;
     this.restoreHudOnClose = false;
     this.isClosing = false;
@@ -24,6 +25,10 @@ export class SettingsScene extends BaseScene {
     this.childOpening = false;
     this.childBinding = null;
     this.input.enabled = true;
+    if (this.input.keyboard) {
+      this.input.keyboard.enabled = true;
+      this.input.keyboard.resetKeys?.();
+    }
     audioManager.init(this);
     const hud = document.getElementById('hud-container');
     this.restoreHudOnClose = Boolean(hud && window.getComputedStyle(hud).display !== 'none');
@@ -33,9 +38,9 @@ export class SettingsScene extends BaseScene {
       ? this.add.image(0, 0, 'backgroundset').setOrigin(0).setDisplaySize(1920, 1080)
       : this.add.rectangle(0, 0, 1920, 1080, 0x0d1320).setOrigin(0);
     bg.setDepth(0).setInteractive();
-    bg.on('pointerdown', (_p, _x, _y, event) => event.stopPropagation());
+    bg.on('pointerdown', (_p, _x, _y, event) => event?.stopPropagation());
     const cx = 960, cy = 540, pw = 760;
-    const ph = this.restoreHudOnClose ? 860 : 700;
+    const ph = this.restoreHudOnClose ? 940 : 780;
     const top = cy - ph / 2;
     const panel = this.add.graphics().setDepth(10);
     panel.fillStyle(0x1a1a2e, 0.94);
@@ -45,12 +50,14 @@ export class SettingsScene extends BaseScene {
     this.add.text(cx, top + 60, 'SETTINGS', {
       fontFamily: 'PressStart2P', fontSize: '28px', color: '#c9a227'
     }).setOrigin(0.5).setDepth(20);
-    this.sfxSlider = new UISlider(this, cx - 280, top + 130, 560,
-      __dialogueText('scenes/SettingsScene.js', 't_3befee2005977f36475c'), audioManager.getSfxVolume(), value => audioManager.setSfxVolume(value));
-    this.musicSlider = new UISlider(this, cx - 280, top + 230, 560,
+    this.voiceSlider = new UISlider(this, cx - 280, top + 130, 560,
+      'DIALOGUE', audioManager.getVoiceVolume(), value => audioManager.setVoiceVolume(value));
+    this.sfxSlider = new UISlider(this, cx - 280, top + 230, 560,
+      'SFX', audioManager.getSfxVolume(), value => audioManager.setSfxVolume(value));
+    this.musicSlider = new UISlider(this, cx - 280, top + 330, 560,
       'MUSIC', audioManager.getMusicVolume(), value => audioManager.setMusicVolume(value));
-    this.createMuteToggle(cx, top + 350);
-    let navigationY = top + 455;
+    this.createMuteToggle(cx, top + 450);
+    let navigationY = top + 535;
     if (this.restoreHudOnClose) {
       this.createButton(cx, navigationY, 'JUKEBOX', () => this.openChild('JukeboxScene'));
       navigationY += 80;
@@ -135,7 +142,7 @@ export class SettingsScene extends BaseScene {
   closeSettings() {
     if (this.isClosing || this.childOpening || this.childBinding) return;
     this.isClosing = true;
-    audioManager.playSfx('buttonclick');
+    audioManager.playSfx('buttonclick', { scene: this });
     this.scene.stop();
   }
 
@@ -153,6 +160,7 @@ export class SettingsScene extends BaseScene {
     this.childOpening = false;
     this.sfxSlider = null;
     this.musicSlider = null;
+    this.voiceSlider = null;
     this.muteLabel = null;
     this.errorLabel = null;
     if (restore) EventBus.emit('showHUD');
@@ -170,7 +178,7 @@ export class SettingsScene extends BaseScene {
     this.muteLabel.on('pointerdown', () => {
       const muted = audioManager.toggleMute();
       this.applyAudioUiState(muted);
-      if (!muted) audioManager.playSfx('buttonclick');
+      if (!muted) audioManager.playSfx('buttonclick', { scene: this });
     });
     this.refreshMuteLabel(audioManager.getMuted());
   }
@@ -184,8 +192,10 @@ export class SettingsScene extends BaseScene {
     this.refreshMuteLabel(muted);
     this.sfxSlider?.setEnabled?.(!muted);
     this.musicSlider?.setEnabled?.(!muted);
+    this.voiceSlider?.setEnabled?.(!muted);
     this.sfxSlider?.setValue?.(audioManager.getSfxVolume(), true);
     this.musicSlider?.setValue?.(audioManager.getMusicVolume(), true);
+    this.voiceSlider?.setValue?.(audioManager.getVoiceVolume(), true);
   }
 
   createButton(x, y, text, callback) {

@@ -1,0 +1,74 @@
+{
+  "idle": {
+    "piOfficeOld": [
+      "My own office. Every decision is mine. So is every consequence.",
+      "A small practice. Ideally, the practice will make me better at it.",
+      "No department to transfer the call to. I have checked.",
+      "There is something reassuring about a workplace where I know who moved my things. Usually me.",
+      "I should check the classifieds. Clients rarely introduce themselves as a sustainable business model.",
+      "Being self-employed means I can choose which problem to worry about first.",
+      "A modest headquarters. The mysteries will have to be impressed by the service.",
+      "I can call it a private practice. \"One person with a telephone\" sounds less established.",
+      "A small office encourages focus. There are fewer places to avoid the work.",
+      "I should keep the cases separate. \"A suspicious person\" is not a filing category.",
+      "There is no supervisor here. I shall have to provide my own disappointed silence.",
+      "The business needs a reputation. Preferably one I do not have to explain."
+    ]
+  },
+  "inspect": {
+    "piOfficeOld": {
+      "computer": [
+        "The computer. Receptionist, noticeboard, and the only colleague I can restart.",
+        "Classified ads. Somewhere between the ordinary requests is an extraordinary amount of trouble.",
+        "I should read what the client actually wants before deciding what I can promise.",
+        "An inbox is not a business plan. It is, however, a place to start.",
+        "The office shop is dangerously close to the work I opened the computer to do.",
+        "The computer stores my cases. I remain responsible for not confusing them."
+      ],
+      "phone": [
+        "My business line. I should sound like a detective, not someone surprised to receive a call.",
+        "A telephone turns a promising theory into a question somebody can refuse to answer.",
+        "I should have the name ready before I dial. \"You know, the suspicious one\" rarely helps.",
+        "One receiver. Several possible versions of the truth.",
+        "An incoming call could be work. An outgoing call could establish whether I understand the work.",
+        "I should listen for what they say, not what would improve the case."
+      ],
+      "cityDoor": [
+        "The city is outside. The investigation is unlikely to deliver itself.",
+        "I should know where I am going before making an impressive exit.",
+        "A private office is useful. Private investigations occasionally require leaving it.",
+        "Out there, people have answers. They also have their own ideas about sharing them.",
+        "Best take a clear question into the city. It is large enough without a vague one.",
+        "I can investigate the neighbourhood, or continue establishing that I own a door."
+      ]
+    }
+  },
+  "events": {
+    "piOfficeOld": {
+      "noCase": [
+        "No active job. I should look through the classifieds instead of waiting for a dramatic knock.",
+        "An empty caseload. Good for organisation, less convincing as a profession.",
+        "I have room for a client. Physically and professionally.",
+        "Time to read the adverts carefully. The shortest request is not always the simplest."
+      ],
+      "caseAccepted": [
+        "A new client request. I should record what was agreed before the story starts growing.",
+        "Job accepted. First, separate the request from my assumptions about it.",
+        "I have a case. The office is now a headquarters rather than an expensive place to sit.",
+        "A client has trusted me with a problem. Best return something more useful than confidence."
+      ],
+      "caseCompleted": [
+        "One job finished. I should keep the notes; my next brilliant idea may be something I already checked.",
+        "That case is complete. A useful reminder that asking the right questions works.",
+        "A finished job. I should review the correspondence before answering anything else.",
+        "Case completed. I shall allow myself one professional nod."
+      ],
+      "computerLowCash": [
+        "I should compare the price with my own cash, not with how successful the furniture makes me feel.",
+        "The shop has excellent suggestions. My wallet has submitted a shorter list.",
+        "I need to earn the next improvement before admiring it as a business necessity.",
+        "A new office would be nice. Having money after buying it would also have its uses."
+      ]
+    }
+  }
+}

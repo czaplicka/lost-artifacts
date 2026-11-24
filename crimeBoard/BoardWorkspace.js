@@ -5,8 +5,16 @@ import {
 } from '../scenes/apartament/ApartmentIdentityEvidence.js';
 
 const copy = value => JSON.parse(JSON.stringify(value));
-const LABELS = { features: __dialogueText("crimeBoard/BoardWorkspace.js", "t_5697d03daef4de9cf8db"), race: __dialogueText("crimeBoard/BoardWorkspace.js", "t_9667a418b91c9c8b8155"), eyes: __dialogueText("crimeBoard/BoardWorkspace.js", "t_a39e9d9816a99fc02aa4"), hair: __dialogueText("crimeBoard/BoardWorkspace.js", "t_ababed4823ab79d226ba"), gender: __dialogueText("crimeBoard/BoardWorkspace.js", "t_a04630ef8bc3da8c864a") };
 const APPEARANCE_TAG = 'apartment-identity-board';
+function appearanceLabels() {
+  return {
+    features: __dialogueText("crimeBoard/BoardWorkspace.js", "t_5697d03daef4de9cf8db"),
+    race: __dialogueText("crimeBoard/BoardWorkspace.js", "t_9667a418b91c9c8b8155"),
+    eyes: __dialogueText("crimeBoard/BoardWorkspace.js", "t_a39e9d9816a99fc02aa4"),
+    hair: __dialogueText("crimeBoard/BoardWorkspace.js", "t_ababed4823ab79d226ba"),
+    gender: __dialogueText("crimeBoard/BoardWorkspace.js", "t_a04630ef8bc3da8c864a")
+  };
+}
 
 export function boardCaseKey(state) {
   const m = state.currentMission || {};
@@ -30,6 +38,7 @@ function addKnownIdentityEvidence(data, state) {
   const clues = getKnownApartmentIdentityClues(state);
   const context = getApartmentIdentityContext(state);
   if (!context || !clues.length) return data;
+  const labels = appearanceLabels();
   const subjectIds = new Set([context.caseId, context.actualId]);
   const subjects = state.caseSuspects || state.suspects || state.suspectList || [];
   const subject = subjects.find(s => subjectIds.has(s.id));
@@ -38,9 +47,9 @@ function addKnownIdentityEvidence(data, state) {
   for (const item of data.items) {
     if (!subjectIds.has(item.suspectId) || item.createdByPlayer) continue;
     targetIds.push(item.id);
-    if (item.tags?.includes('unknown') && publicName) item.label = publicName;
-    // The marker is data; the displayed label is never used as a condition.
-    if (item.identityStatus !== 'false') item.identityBaseLabel = String(item.label || '');
+    // Render from the stored base, never inspect translated label text.
+    if (typeof publicName === 'string' && publicName) item.identityBaseLabel = publicName;
+    else if (typeof item.identityBaseLabel !== 'string') item.identityBaseLabel = String(item.label || '');
     item.identityStatus = 'false';
     item.label = item.identityBaseLabel + __dialogueText("crimeBoard/BoardWorkspace.js", "t_783801ce828143b78c91");
     if (item.type === 'evidence') {
@@ -52,7 +61,7 @@ function addKnownIdentityEvidence(data, state) {
   }
   clues.forEach((clue, index) => {
     const id = `board-${clue.id}`;
-    const label = LABELS[clue.category] || clue.category;
+    const label = labels[clue.category] || clue.category;
     const item = {
       id, type: 'evidence', x: 820 + (index % 2) * 260,
       y: 90 + Math.floor(index / 2) * 230, z: 8, rotation: -1.2,
@@ -61,7 +70,7 @@ function addKnownIdentityEvidence(data, state) {
       body: clue.text,
       fields: [
         { key: 'Photo reference', value: `${label}: ${clue.value}` },
-        { key: 'Identity', value: __dialogueText("crimeBoard/BoardWorkspace.js", "t_c3431ab21b76fa4b59e8") },
+        { id: 'identity-status', key: 'Identity', value: __dialogueText("crimeBoard/BoardWorkspace.js", "t_c3431ab21b76fa4b59e8") },
         { key: 'Real name', value: __dialogueText("crimeBoard/BoardWorkspace.js", "t_b764cdc0eab713746721") }
       ],
       clueId: clue.id, tags: [APPEARANCE_TAG, 'identity-evidence'],
@@ -91,12 +100,13 @@ export function installBoardWorkspace(api, state, saved) {
   const listen = (target, type, handler, options = {}) =>
     target.addEventListener(type, handler, { ...options, signal: abort.signal });
   const originalLoad = board.loadBoard.bind(board);
+  const originalImport = board.importBoard;
   const originalSync = board.syncJsonOutput.bind(board);
   const originalDestroy = api.destroy.bind(api);
   const originalRefresh = api.refresh.bind(api);
   let activeState = state;
   let activeKey = boardCaseKey(state);
-  let busy = false, dead = false, gesture = null, suppressClick = false;
+  let busy = false, importing = false, dead = false, gesture = null, suppressClick = false;
   let resetClickTimer;
 
   const persist = () => {
@@ -139,10 +149,19 @@ export function installBoardWorkspace(api, state, saved) {
   };
   const decorate = data => addKnownIdentityEvidence(data, activeState);
   board.loadBoard = data => {
-    const merged = busy ? copy(data) : restore(data, api.getData());
+    const merged = busy || importing ? copy(data) : restore(data, api.getData());
     const result = originalLoad(decorate(merged));
     persist(); return result;
   };
+  // Explicit JSON import replaces player content. Ordinary refresh still restores it.
+  if (typeof originalImport === 'function') {
+    board.importBoard = function (...args) {
+      const previousImporting = importing;
+      importing = true;
+      try { return originalImport.apply(this, args); }
+      finally { importing = previousImporting; }
+    };
+  }
   board.syncJsonOutput = () => { originalSync(); persist(); };
   busy = true;
   try { originalLoad(decorate(restore(api.getData(), saved))); }
@@ -176,7 +195,7 @@ export function installBoardWorkspace(api, state, saved) {
       board.deductionPanel.parentNode, board.deductionPanel);
     content.append(board.deductionPanel);
   }
-  const { panel: toolbar, content: tools } = makePanel('tools', __dialogueText("crimeBoard/BoardWorkspace.js", "t_3318753726f4fd2c8e48"),
+  const { content: tools } = makePanel('tools', __dialogueText("crimeBoard/BoardWorkspace.js", "t_3318753726f4fd2c8e48"),
     board.root.parentNode, board.root);
   const addNote = document.createElement('button');
   addNote.type = 'button'; addNote.className = 'crime-board-btn'; addNote.textContent = __dialogueText("crimeBoard/BoardWorkspace.js", "t_af053c75df708df1978a");
@@ -184,9 +203,16 @@ export function installBoardWorkspace(api, state, saved) {
   hint.className = 'crime-board-hint';
   hint.textContent = __dialogueText("crimeBoard/BoardWorkspace.js", "t_9b00ca835676799a725d");
   tools.append(addNote, hint);
-  // Functional rules only. All colours / fonts live in crime-board.css and crime-board-layout.css.
   const style = document.createElement('style');
-  style.textContent = `${"\n    .crime-board-workspace-panel{position:relative;z-index:6}\n    .crime-board-workspace-panel:not([open])>.crime-board-workspace-panel__content{display:none!important}\n    .crime-board-workspace-panel__content{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:10px}\n    .crime-board-workspace-panel__content>.crime-board-deduction{width:100%;box-sizing:border-box}\n    .crime-board__item,.crime-board__anchor{touch-action:none}\n    .crime-board__anchor{cursor:crosshair}\n    .crime-board__temp-link{pointer-events:none}\n  "}`;
+  style.textContent = `
+    .crime-board-workspace-panel{position:relative;z-index:6}
+    .crime-board-workspace-panel:not([open])>.crime-board-workspace-panel__content{display:none!important}
+    .crime-board-workspace-panel__content{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:10px}
+    .crime-board-workspace-panel__content>.crime-board-deduction{width:100%;box-sizing:border-box}
+    .crime-board__item,.crime-board__anchor{touch-action:none}
+    .crime-board__anchor{cursor:crosshair}
+    .crime-board__temp-link{pointer-events:none}
+  `;
   board.root.parentNode.append(style);
 
   api.refresh = (nextState = activeState) => {
@@ -208,7 +234,18 @@ export function installBoardWorkspace(api, state, saved) {
 
   const dialog = document.createElement('dialog');
   dialog.className = 'cb-note-dialog';
-  dialog.innerHTML = `${"<form method=\"dialog\" class=\"cb-note-form\">\n    <h2 class=\"cb-note-dialog__title\">New note</h2>\n    <p class=\"cb-note-dialog__sub\">Write something brilliant. Or at least plausible.</p>\n    <label class=\"cb-note-field\"><span>Title</span><input name=\"title\" maxlength=\"120\"></label>\n    <label class=\"cb-note-field\"><span>Note</span><textarea name=\"text\" rows=\"7\" maxlength=\"8000\"></textarea></label>\n    <label class=\"cb-note-field\"><span>Colour</span><select name=\"color\"><option value=\"yellow\">Yellow</option><option value=\"blue\">Blue</option><option value=\"pink\">Pink</option></select></label>\n    <div class=\"cb-note-dialog__actions\">\n      <button value=\"save\" class=\"crime-board-btn\">Save note</button>\n      <button value=\"cancel\" formnovalidate class=\"crime-board-btn crime-board-btn--ghost\">Cancel</button>\n      <button type=\"button\" data-delete class=\"crime-board-btn crime-board-btn--danger\">Delete note</button>\n    </div>\n  </form>"}`;
+  dialog.innerHTML = `<form method="dialog" class="cb-note-form">
+    <h2 class="cb-note-dialog__title">New note</h2>
+    <p class="cb-note-dialog__sub">Write something brilliant. Or at least plausible.</p>
+    <label class="cb-note-field"><span>Title</span><input name="title" maxlength="120"></label>
+    <label class="cb-note-field"><span>Note</span><textarea name="text" rows="7" maxlength="8000"></textarea></label>
+    <label class="cb-note-field"><span>Colour</span><select name="color"><option value="yellow">Yellow</option><option value="blue">Blue</option><option value="pink">Pink</option></select></label>
+    <div class="cb-note-dialog__actions">
+      <button value="save" class="crime-board-btn">Save note</button>
+      <button value="cancel" formnovalidate class="crime-board-btn crime-board-btn--ghost">Cancel</button>
+      <button type="button" data-delete class="crime-board-btn crime-board-btn--danger">Delete note</button>
+    </div>
+  </form>`;
   document.body.append(dialog);
   const form = dialog.querySelector('form');
   const dialogTitle = dialog.querySelector(".cb-note-dialog__title");

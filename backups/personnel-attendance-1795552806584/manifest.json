@@ -1,0 +1,18 @@
+[
+  {
+    "path": "suspects/PersonnelRoster.js",
+    "created": false
+  },
+  {
+    "path": "assets/data/personnelWitnesses.json",
+    "created": false
+  },
+  {
+    "path": "suspects/PersonnelAttendance.js",
+    "created": false
+  },
+  {
+    "path": "suspects/PersonnelClock.js",
+    "created": true
+  }
+]

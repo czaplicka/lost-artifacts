@@ -1,0 +1,10 @@
+import {readFile, writeFile} from 'node:fs/promises';
+const root=new URL('../',import.meta.url);
+const manifest=JSON.parse(await readFile(new URL('assets/manifests/catalog/suspects.json',root),'utf8'));
+const images=Object.fromEntries((manifest.assets||[]).filter(a=>a?.type==='image'&&typeof a.key==='string'&&/^assets\/suspects\/[a-zA-Z0-9_-]+\.(webp|png|jpe?g|avif|gif)$/.test(a.url)).map(a=>[a.key,a.url]));
+const target=new URL('crimeBoard/BoardSuspectPhotos.js',root);
+const source=await readFile(target,'utf8');
+const start=source.indexOf('const images = '), end=source.indexOf('const keysByPath = ');
+if(start<0||end<=start)throw Error('Photo index markers not found.');
+await writeFile(target,source.slice(0,start)+'const images = new Map(Object.entries('+JSON.stringify(images,null,2)+'));\n'+source.slice(end));
+console.log(`Updated ${Object.keys(images).length} suspect photo keys.`);

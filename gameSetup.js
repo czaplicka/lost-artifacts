@@ -1,3 +1,5 @@
+// canonical-thief-before-csi-v1
+import { createCaseThiefProfile } from './suspects/CaseThiefProfile.js';
 import { dialogueText as __dialogueText } from "./dialogues/DialogueText.js";
 import { gameState, resetGameState, resetCaseOutcomeState, createDefaultReconstructedHeist } from './GameData.js';
 import { debugCaseRoute } from './debugCaseRoute.js';
@@ -217,7 +219,7 @@ function selectCase(suspectsData, missionsData, locationsData, retry = false, fr
     throw new Error('Could not create a valid case.');
   }
   return {
-    thief,
+    thief: createCaseThiefProfile(thief),
     mission,
     crimeCityData,
     crimeCityId: resolveLocationId(crimeCityData, __dialogueText("gameSetup.js", "t_3f29a33f70a5ac625a07"))

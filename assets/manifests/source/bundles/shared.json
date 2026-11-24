@@ -1,6 +1,13 @@
 {
   "bundles": {
     "shared": [
+            "image:royal_observatory_chronometer",
+      "image:music-box",
+      "image:reel",
+      "image:goblet",
+      "image:astrolabe",
+      "image:spotlight",
+      "image:fan",
       "image:dossier",
       "image:file",
       "image:notes",

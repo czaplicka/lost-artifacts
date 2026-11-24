@@ -1,0 +1,14 @@
+[
+  {
+    "path": "gameSetup.js",
+    "created": false
+  },
+  {
+    "path": "suspects/SuspectGenerator.js",
+    "created": false
+  },
+  {
+    "path": "suspects/CaseThiefProfile.js",
+    "created": true
+  }
+]

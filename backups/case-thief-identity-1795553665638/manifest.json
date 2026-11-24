@@ -1,0 +1,14 @@
+[
+  {
+    "path": "systems/courtLogic.js",
+    "created": false
+  },
+  {
+    "path": "suspects/suspectHelpers.js",
+    "created": false
+  },
+  {
+    "path": "suspects/CaseThiefIdentity.js",
+    "created": true
+  }
+]

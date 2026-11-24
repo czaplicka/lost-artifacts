@@ -1,3 +1,5 @@
+// compact-suspect-save-v1
+import { SUSPECT_SAVE_ALIASES, serializeCaseSuspects } from './suspectSaveFormat.js';
 import { dialogueText as __dialogueText } from '../dialogues/DialogueText.js';
 import { createDefaultReconstructedHeist } from './defaultState.js';
 import { GAME_VERSION } from '../config/gameVersion.js';
@@ -96,14 +98,16 @@ export class GameStateManager {
   getState() { return deepFreeze(this._exportData()); }
   getSnapshot() { return this.getState(); }
 
-  _exportData() {
+  _exportData({ compactSuspects = false } = {}) {
     const exported = {};
     for (const [key, value] of Object.entries(this.state)) {
       if (MANAGED_PRIVATE_KEYS.has(key) || BLOCKED_KEYS.has(key) ||
           RUNTIME_KEYS.has(key) || MANAGER_KEYS.has(key)) continue;
+      if (compactSuspects && (key === 'caseSuspects' || SUSPECT_SAVE_ALIASES.has(key))) continue;
       const cloned = cloneGameData(value);
       if (cloned !== undefined) exported[key] = cloned;
     }
+    if (compactSuspects) exported.caseSuspects = serializeCaseSuspects(this.state);
     return exported;
   }
 
@@ -348,7 +352,7 @@ export class GameStateManager {
 
   createCheckpoint() {
     this.state._lastSave = Date.now();
-    this.saveCheckpoint = this._exportData();
+    this.saveCheckpoint = this._exportData({ compactSuspects: true });
     this.dirty = false;
     return true;
   }
@@ -380,7 +384,7 @@ export class GameStateManager {
   exportForSave() {
     this.state._lastSave = Date.now();
     return {
-      ...this._exportData(), _version: GAME_VERSION,
+      ...this._exportData({ compactSuspects: true }), _version: GAME_VERSION,
       _lastSave: this.state._lastSave, _createdAt: this.state._createdAt
     };
   }
