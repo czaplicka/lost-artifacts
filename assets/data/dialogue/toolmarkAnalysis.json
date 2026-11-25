@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "strings": {
+    "exit": "[ EXIT / ESC ]",
+    "invalidSample": "> THIS SAMPLE CANNOT BE ANALYSED HERE. RETURN TO THE LABORATORY.",
+    "ambidextrousSample": "> THIS CONTACT TRACE CANNOT ESTABLISH A SINGLE DOMINANT HAND. RETURN TO THE LABORATORY."
+  }
+}

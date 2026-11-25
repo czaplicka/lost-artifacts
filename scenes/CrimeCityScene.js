@@ -6,6 +6,7 @@ import { CrimeCityReconstructionService } from './crimeCity/CrimeCityReconstruct
 import { CrimeCityTutorialController } from './crimeCity/CrimeCityTutorialController.js';
 
 import { CrimeCityMapUI } from './crimeCity/CrimeCityMapUI.js';
+import { installEvidenceGridMapCosts } from './crimeCity/EvidenceGridMapCosts.js';
 import { CrimeCityNpcManager } from './crimeCity/CrimeCityNpcManager.js';
 
 import { crimeCityHudMethods } from './crimeCity/CrimeCityHudMethods.js';
@@ -119,6 +120,7 @@ export class CrimeCityScene extends BaseScene {
     this.tutorialController.initialize(data);
 
     this.mapUI = new CrimeCityMapUI(this);
+    installEvidenceGridMapCosts(this.mapUI, gameState);
     this.npcManager = new CrimeCityNpcManager(this);
   }
 

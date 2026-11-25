@@ -1,0 +1,248 @@
+{
+  "version": 1,
+  "timeStandard": "UTC",
+  "coverage": {
+    "start": "2026-01-14T00:00:00Z",
+    "end": "2026-01-17T00:00:00Z"
+  },
+  "stations": [
+    {
+      "id": "roussillon",
+      "name": "Perpignan",
+      "region": "Roussillon, France",
+      "baseline": {
+        "condition": "cloudy",
+        "temperatureC": 9,
+        "windKmh": 18
+      },
+      "periods": [
+        {
+          "start": "2026-01-15T00:00:00Z",
+          "end": "2026-01-15T04:00:00Z",
+          "condition": "thunderstorm",
+          "temperatureC": 8,
+          "windKmh": 48
+        },
+        {
+          "start": "2026-01-14T21:00:00Z",
+          "end": "2026-01-15T00:00:00Z",
+          "condition": "rain",
+          "temperatureC": 9,
+          "windKmh": 35
+        },
+        {
+          "start": "2026-01-15T04:00:00Z",
+          "end": "2026-01-15T08:00:00Z",
+          "condition": "rain",
+          "temperatureC": 8,
+          "windKmh": 33
+        }
+      ]
+    },
+    {
+      "id": "marseille",
+      "name": "Marseille",
+      "region": "Provence, France",
+      "baseline": {
+        "condition": "rain",
+        "temperatureC": 8,
+        "windKmh": 22
+      },
+      "periods": []
+    },
+    {
+      "id": "nice",
+      "name": "Nice",
+      "region": "French Riviera, France",
+      "baseline": {
+        "condition": "cloudy",
+        "temperatureC": 11,
+        "windKmh": 12
+      },
+      "periods": []
+    },
+    {
+      "id": "barcelona",
+      "name": "Barcelona",
+      "region": "Catalonia, Spain",
+      "baseline": {
+        "condition": "rain",
+        "temperatureC": 12,
+        "windKmh": 14
+      },
+      "periods": [
+        {
+          "start": "2026-01-14T15:00:00Z",
+          "end": "2026-01-14T19:00:00Z",
+          "condition": "thunderstorm",
+          "temperatureC": 11,
+          "windKmh": 41
+        }
+      ]
+    },
+    {
+      "id": "palma",
+      "name": "Palma",
+      "region": "Balearic Islands, Spain",
+      "baseline": {
+        "condition": "rain",
+        "temperatureC": 14,
+        "windKmh": 19
+      },
+      "periods": [
+        {
+          "start": "2026-01-15T08:00:00Z",
+          "end": "2026-01-15T12:00:00Z",
+          "condition": "thunderstorm",
+          "temperatureC": 13,
+          "windKmh": 46
+        }
+      ]
+    },
+    {
+      "id": "lisbon",
+      "name": "Lisbon",
+      "region": "Lisbon District, Portugal",
+      "baseline": {
+        "condition": "cloudy",
+        "temperatureC": 13,
+        "windKmh": 16
+      },
+      "periods": []
+    },
+    {
+      "id": "cork",
+      "name": "Cork",
+      "region": "County Cork, Ireland",
+      "baseline": {
+        "condition": "rain",
+        "temperatureC": 5,
+        "windKmh": 28
+      },
+      "periods": []
+    },
+    {
+      "id": "bergen",
+      "name": "Bergen",
+      "region": "Vestland, Norway",
+      "baseline": {
+        "condition": "snow",
+        "temperatureC": 2,
+        "windKmh": 21
+      },
+      "periods": []
+    },
+    {
+      "id": "split",
+      "name": "Split",
+      "region": "Dalmatia, Croatia",
+      "baseline": {
+        "condition": "clear",
+        "temperatureC": 7,
+        "windKmh": 15
+      },
+      "periods": []
+    },
+    {
+      "id": "cape_town",
+      "name": "Cape Town",
+      "region": "Western Cape, South Africa",
+      "baseline": {
+        "condition": "clear",
+        "temperatureC": 24,
+        "windKmh": 25
+      },
+      "periods": []
+    },
+    {
+      "id": "apia",
+      "name": "Apia",
+      "region": "Upolu, Samoa",
+      "baseline": {
+        "condition": "rain",
+        "temperatureC": 28,
+        "windKmh": 17
+      },
+      "periods": [
+        {
+          "start": "2026-01-14T23:00:00Z",
+          "end": "2026-01-15T05:00:00Z",
+          "condition": "thunderstorm",
+          "temperatureC": 27,
+          "windKmh": 42
+        }
+      ]
+    },
+    {
+      "id": "auckland",
+      "name": "Auckland",
+      "region": "Auckland Region, New Zealand",
+      "baseline": {
+        "condition": "cloudy",
+        "temperatureC": 23,
+        "windKmh": 18
+      },
+      "periods": [
+        {
+          "start": "2026-01-15T12:00:00Z",
+          "end": "2026-01-15T16:00:00Z",
+          "condition": "thunderstorm",
+          "temperatureC": 21,
+          "windKmh": 39
+        }
+      ]
+    },
+    {
+      "id": "honolulu",
+      "name": "Honolulu",
+      "region": "Oahu, Hawaii",
+      "baseline": {
+        "condition": "clear",
+        "temperatureC": 25,
+        "windKmh": 14
+      },
+      "periods": []
+    },
+    {
+      "id": "lima",
+      "name": "Lima",
+      "region": "Lima Region, Peru",
+      "baseline": {
+        "condition": "cloudy",
+        "temperatureC": 23,
+        "windKmh": 10
+      },
+      "periods": []
+    },
+    {
+      "id": "miami",
+      "name": "Miami",
+      "region": "Florida, United States",
+      "baseline": {
+        "condition": "cloudy",
+        "temperatureC": 20,
+        "windKmh": 16
+      },
+      "periods": [
+        {
+          "start": "2026-01-15T01:00:00Z",
+          "end": "2026-01-15T04:00:00Z",
+          "condition": "thunderstorm",
+          "temperatureC": 21,
+          "windKmh": 38
+        }
+      ]
+    },
+    {
+      "id": "new_york",
+      "name": "New York",
+      "region": "New York, United States",
+      "baseline": {
+        "condition": "snow",
+        "temperatureC": -1,
+        "windKmh": 19
+      },
+      "periods": []
+    }
+  ]
+}

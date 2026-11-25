@@ -6,11 +6,12 @@ import { renderAlibiBooks } from './ComputerAlibiBooks.js';
 
 const FILE = 'ui/pi-computer/ComputerMonitor.js';
 const t = id => __dialogueText(FILE, id);
-const MONITOR_WIDTH = 1120;
+const MONITOR_WIDTH = 1440;
 const MONITOR_HEIGHT = 800;
-const SCREEN = { x: 48, y: 36, w: 1024, h: 700 };
+const SCREEN = { x: 48, y: 36, w: MONITOR_WIDTH - 96, h: 700 };
+const DESKTOP = { x: SCREEN.x + 12, y: SCREEN.y + 12, w: SCREEN.w - 24, h: SCREEN.h - 24 };
 const TEX_SCAN = 'pi_crt_scanlines';
-const TEX_FRAME = 'pi_crt_frame_large_v2';
+const TEX_FRAME = 'pi_crt_frame_wide_v3';
 const ALIBI_APP = 'alibi-books';
 const alibiBooksInstalled = () => ownsNewPIOffice() && !needsOfficeMoveIn();
 
@@ -73,7 +74,7 @@ const COMPACT_WINDOWS = {
 };
 
 export function createPiShellConfig(ui) {
-  const fallback = { x: 60, y: 48, w: 1000, h: 676 };
+  const fallback = { ...DESKTOP };
   return {
     theme: 'pi', apps: APP_INFO,
     groups: {
@@ -228,7 +229,7 @@ export class ComputerMonitor {
     ui.content = ui.scene.add.container(workspace.left, workspace.top).setScale(workspace.scale);
     ui.root.add(ui.content);
     this.drawHousing();
-    ui.layout = { x: 60, y: 48, w: 1000, h: 676 };
+    ui.layout = { ...DESKTOP };
     if (ui.booting) {
       this.drawBoot();
     } else {
@@ -247,14 +248,14 @@ export class ComputerMonitor {
   drawHousing() {
     const ui = this.ui;
     const d = ui.drawing;
-    d.bevel(20, 10, 1080, 780, COLORS.plastic);
-    d.rectangle(25, 14, 1070, 3, 0xe9e5d2, 0.8);
-    d.rectangle(25, 778, 1070, 8, 0x000000, 0.12);
-    d.bevel(34, 23, 1052, 726, 0x6f7168, true);
+    d.bevel(20, 10, MONITOR_WIDTH - 40, 780, COLORS.plastic);
+    d.rectangle(25, 14, MONITOR_WIDTH - 50, 3, 0xe9e5d2, 0.8);
+    d.rectangle(25, 778, MONITOR_WIDTH - 50, 8, 0x000000, 0.12);
+    d.bevel(34, 23, MONITOR_WIDTH - 68, 726, 0x6f7168, true);
     d.bevel(SCREEN.x, SCREEN.y, SCREEN.w, SCREEN.h, 0x0b1016, true);
     const screws = ui.scene.add.graphics();
     d.add(screws);
-    [[29, 19], [1091, 19], [29, 781], [1091, 781]].forEach(([x, y], i) => {
+    [[29, 19], [MONITOR_WIDTH - 29, 19], [29, 781], [MONITOR_WIDTH - 29, 781]].forEach(([x, y], i) => {
       screws.fillStyle(0x9a967f, 1);
       screws.fillCircle(x, y, 5);
       screws.lineStyle(1, 0x1c1e1a, 0.8);
@@ -275,13 +276,13 @@ export class ComputerMonitor {
     d.pixel(518, 758, '66', 12, '#6dff8a');
     d.text(548, 758, 'MHz', 12, '#3d8a58');
     for (let i = 0; i < 9; i++) {
-      d.rectangle(726 + i * 14, 756, 7, 17, 0x64665b);
-      d.rectangle(726 + i * 14, 756, 7, 2, 0x3b3d35);
+      d.rectangle(MONITOR_WIDTH - 394 + i * 14, 756, 7, 17, 0x64665b);
+      d.rectangle(MONITOR_WIDTH - 394 + i * 14, 756, 7, 2, 0x3b3d35);
     }
-    d.text(878, 758, 'PWR', 12, '#5d604f');
-    const led = d.rectangle(916, 758, 10, 10, 0x6dff8a);
+    d.text(MONITOR_WIDTH - 242, 758, 'PWR', 12, '#5d604f');
+    const led = d.rectangle(MONITOR_WIDTH - 204, 758, 10, 10, 0x6dff8a);
     this.tween({ targets: led, alpha: 0.4, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-    d.button(960, 750, 'OFF', () => ui.close());
+    d.button(MONITOR_WIDTH - 160, 750, 'OFF', () => ui.close());
   }
 
   drawBoot() {

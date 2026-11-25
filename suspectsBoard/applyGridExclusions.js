@@ -1,10 +1,11 @@
+import { getCaseKey as resolveCaseKey } from '../crimeCaseKey.js';
+import { migrateLegacyCaseRecords } from '../crimeBoard/CaseKeyCompatibility.js';
 import { dialogueText as __dialogueText } from '../dialogues/DialogueText.js';
 import { manuallyClearSuspect } from '../ui/suspectUtils.js';
 
-// Preserve existing save keys. Migration to a shared resolver is a separate change.
+// Use the same resolver as CSI, the crime board and Case Theory.
 export function getCaseKey(gameState, cityId) {
-  const mission = gameState.currentMission || {};
-  return String(mission.id || mission.caseId || `${cityId}_${mission.artifact || 'default'}`);
+  return resolveCaseKey(gameState, cityId);
 }
 
 // The caller snapshots state and restores it if this operation or its save fails.
@@ -36,10 +37,12 @@ export function applyGridExclusions({ gameState, cityId, suspectIds, unlikelyByI
     }
     clearedIds.push(id);
   }
+  migrateLegacyCaseRecords(gameState, cityId, { collections: ['suspectExclusionState'] });
   const caseKey = getCaseKey(gameState, cityId), previous = gameState.suspectExclusionState || {};
   gameState.suspectExclusionState = {
     ...previous, [caseKey]: { ...(previous[caseKey] || {}), finished: true,
-      finishedAt: Date.now(), manualExclusionIds: clearedIds }
+      finishedAt: Date.now(), manualExclusionIds: clearedIds,
+      caseId: gameState.currentCaseId ?? null, campaignId: gameState._createdAt ?? null }
   };
   return clearedIds;
 }

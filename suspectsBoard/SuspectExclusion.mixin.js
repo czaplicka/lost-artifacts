@@ -6,7 +6,7 @@ import { saveGameState, requestAutosave } from '../gameStatePersistence.js';
 import { getEnergyManager } from '../managers/EnergyManager.js';
 
 
-const EVIDENCE_GRID_ENERGY_COST = 10;
+export const EVIDENCE_GRID_ENERGY_COST = 10;
 
 
 export const SuspectExclusionMixin = {

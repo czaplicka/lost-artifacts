@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "strings": {
+    "strandPickedUp": "Strand picked up. Place it on the slide.",
+    "strandPlaced": "Strand placed on the slide.",
+    "missedBag": "Aim the tweezer tips at the evidence bag. (-3 PTS)",
+    "missedSlide": "Keep hold of the strand and place it on the slide. (-3 PTS)",
+    "reagentApplied": "Reagent applied directly to the strand.",
+    "missedReagent": "Aim the blue pipette tip at the circle around the strand.",
+    "referenceSamples": "Reference samples",
+    "inspectFirst": "Inspect the strand under the microscope first.",
+    "closeMicroscope": "CLICK TO CLOSE — YOU CAN EXAMINE AGAIN",
+    "compareSamples": "Compare the strand with the reference samples."
+  }
+}

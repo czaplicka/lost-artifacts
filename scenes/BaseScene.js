@@ -55,6 +55,11 @@ import {
   uninstallSceneMonologues
 } from '../systems/SceneMonologues.js';
 
+import {
+  installCityDayNight,
+  uninstallCityDayNight
+} from '../systems/CityDayNightManager.js';
+
 export class BaseScene extends BaseSceneCore {
   create() {
     super.create();
@@ -84,6 +89,7 @@ export class BaseScene extends BaseSceneCore {
     }
 
     installCityWeather(this);
+    installCityDayNight(this);
     installPigeonReturnCalls(this.game);
     installRainThunderAudio(this);
   }
@@ -149,6 +155,7 @@ export class BaseScene extends BaseSceneCore {
     );
 
     uninstallRainThunderAudio(this);
+    uninstallCityDayNight(this);
     uninstallCityWeather(this);
 
     super.cleanup();

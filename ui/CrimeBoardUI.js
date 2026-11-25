@@ -1,3 +1,4 @@
+import { getCaseKey } from '../crimeCaseKey.js';
 import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { initCrimeBoard } from '../CrimeBoardInit.js';
 import { EventBus } from '../EventBus.js';
@@ -266,14 +267,7 @@ function preserveSceneData(api, state) {
 }
 
 function getStateCaseKey(state) {
-  const mission = state.currentMission || {};
-
-  return String(
-    mission.id ??
-    mission.caseId ??
-    mission.caseIndex ??
-    `${state.caseSuspectCityId ?? state.crimeCityId ?? state.crimeCity ?? mission.city ?? 'unknown'}_${mission.artifactKey ?? mission.artifact ?? 'default'}`
-  );
+  return getCaseKey(state);
 }
 
 export class CrimeBoardUI {

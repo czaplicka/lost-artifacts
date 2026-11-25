@@ -1,4 +1,4 @@
-<div id="hud-container">
+<div id="hud-container" style="display: none;">
   <button
     id="btn-hud-expand"
     class="hud-expand-btn"

@@ -384,14 +384,22 @@
     "literaryAuthor": "Goh Poh Seng, whose If We Dream Too Long follows Kwang Meng in an island city-state"
   },
   "sydney": {
-    "guidebookNote": "White sails on the horizon",
-    "cityRiver": "Hawkesbury river",
+    "guidebookNote": "a waterfront performing arts complex whose white shell-shaped roofs resemble sails",
+    "cityRiver": "a vast natural harbour crossed by a steel arch bridge nicknamed the Coathanger",
     "currency": {
-      "name": "AU$",
-      "symbol": "AU$",
-      "pennies": "",
-      "nickname": "",
+      "name": "dollar",
+      "symbol": "A$",
+      "pennies": "cents",
+      "nickname": "the dollar whose international currency code is AUD",
       "oldCurrency": null
-    }
+    },
+    "foodIngredient": "sponge cake coated in icing and desiccated coconut, the sweet called a lamington",
+    "specialtyDish": "a traditional beef pie from a local bakery",
+    "drivingFact": "left-hand traffic near a natural harbour crossed by a steel arch bridge nicknamed the Coathanger",
+    "callingCode": "+61",
+    "utcOffsetFact": "ten hours ahead of Greenwich in standard time and eleven during daylight saving time",
+    "plugType": "a plug with two flat pins forming an inverted V, often with a third earth pin",
+    "literaryBook": "The Harp in the South, the novel about the Darcy family and life in the inner-city neighbourhood of Surry Hills",
+    "literaryAuthor": "Ruth Park, whose The Harp in the South follows the Darcy family in Surry Hills"
   }
 }

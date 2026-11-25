@@ -4,7 +4,7 @@ const STORAGE = {
   MUSIC: 'la_musicVol', SFX: 'la_sfxVol', VOICE: 'la_voiceVol', MUTED: 'la_muted',
   TRACK: 'la_jukeboxTrack', MODE: 'la_jukeboxMode'
 };
-const DEFAULTS = { MUSIC: 0.1, SFX: 0.8, MUTED: false };
+const DEFAULTS = { MUSIC: 0.1, SFX: 0.8, VOICE: 0.45, MUTED: false };
 const AUDIO_HOST_KEY = '__LostArtifactsAudioHost';
 const BACKGROUND_KEYS = new Set(['themeMusic', 'themeGame']);
 const CATALOG_URL = new URL('../assets/audio/music/tracks.json', import.meta.url);
@@ -74,7 +74,7 @@ class AudioManager {
     this.scene = null; this.game = null;
     this.musicVolume = loadNumber(STORAGE.MUSIC, DEFAULTS.MUSIC);
     this.sfxVolume = loadNumber(STORAGE.SFX, DEFAULTS.SFX);
-    this.voiceVolume = loadNumber(STORAGE.VOICE, this.sfxVolume);
+    this.voiceVolume = loadNumber(STORAGE.VOICE, DEFAULTS.VOICE);
     const muted = safeGet(STORAGE.MUTED);
     this.muted = muted === null ? DEFAULTS.MUTED : muted === 'true';
     this.activeMusic = new Map(); this.activeAmbient = new Map();

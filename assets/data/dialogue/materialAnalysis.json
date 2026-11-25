@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "strings": {
+    "introLoaded": "> MATERIAL SAMPLE LOADED. DO NOT SNEEZE.",
+    "introSequence": "> REPEAT THE REAGENT SEQUENCE EXACTLY.",
+    "introMemory": "> THE MACHINE HAS A MEMORY. IT EXPECTS YOU TO HAVE ONE TOO.",
+    "briefingTitle": "MATERIAL IDENTIFICATION PROTOCOL",
+    "briefingBody": "Watch the scanner.\nRepeat the colour sequence.\n\nIdentify the material.\nLeave the accusations to the detective.",
+    "startButton": "[ I AM FOCUSED ]",
+    "resultLine": "> RESULT: {material}.",
+    "reportLine": "> {report}",
+    "reportJoke": "> THE MACHINE HAS IDENTIFIED THE MATERIAL. DETECTIVE WORK SOLD SEPARATELY.",
+    "speedBonus": "> SPEED BONUS: +{bonus} PTS",
+    "clueReady": "> CLUE READY FOR CASE FILE.",
+    "errorTitle": "MATERIAL ANALYSIS UNAVAILABLE",
+    "missingProfile": "The saved sample has no material profile. No result or reward was added.",
+    "unsupportedProfile": "This sample uses an unsupported material profile: {profile}. No result or reward was added.",
+    "conflictingProfile": "The sample contains conflicting material profiles. No result or reward was added.",
+    "invalidConfiguration": "The sample configuration could not be read. No result or reward was added.",
+    "catalogueUnavailable": "The material analysis text catalogue could not be loaded. Return to the laboratory and reload the game.",
+    "returnToLab": "[ RETURN TO LABORATORY ]"
+  }
+}

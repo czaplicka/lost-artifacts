@@ -15,6 +15,9 @@ import {
   prepareComputerChatAudio, playComputerChatKey
 } from './ComputerChatAudio.js';
 
+import { ChatTimeline } from './ChatTimeline.js';
+import { queueChatReply, deliverChatReplies } from './ChatConversationModel.js';
+
 const KEY = 'piChat';
 
 function readState() {
@@ -61,8 +64,13 @@ export class ComputerChat {
   constructor(ui) {
     this.ui = ui;
     this.input = '';
-    this.page = 0;
-    this.followLatest = true;
+    this.timeline = new ChatTimeline(this);
+    this.drafts = new Map();
+    this.inputLabel = null;
+    this.lastPollAt = 0;
+    this.lastRenderSignature = '';
+    this.onUpdate = time => this.tick(time);
+    ui.scene.events.on('update', this.onUpdate);
     this.dead = false;
     prepareComputerChatAudio(ui.scene);
     this.integration = installThiefdokuIntegration(ui);
@@ -86,7 +94,10 @@ export class ComputerChat {
   }
 
   destroy() {
+    if (this.dead) return;
     this.dead = true;
+    this.timeline.destroy();
+    this.ui.scene.events.off('update', this.onUpdate);
     this.ui.scene.input.keyboard?.off('keydown', this.onKeyDown);
     this.integration?.destroy();
   }
@@ -102,6 +113,7 @@ export class ComputerChat {
     if (!this.live() || event.defaultPrevented || event.target?.isContentEditable ||
         ['INPUT', 'TEXTAREA', 'SELECT'].includes(tag)) return;
     if (event.ctrlKey || event.metaKey || event.altKey) return;
+    if (this.timeline.key(event.key)) { event.preventDefault(); return; }
     if (event.key === 'Enter') {
       event.preventDefault();
       this.send();
@@ -112,13 +124,14 @@ export class ComputerChat {
       if (!this.input) return;
       this.input = this.input.slice(0, -1);
       playComputerChatKey(ui);
-      this.redraw();
+      this.updateInput();
       return;
     }
     if (event.key?.length === 1 && !event.repeat && this.input.length < 180) {
+      event.preventDefault();
       this.input += event.key;
       playComputerChatKey(ui);
-      this.redraw();
+      this.updateInput();
     }
   }
 
@@ -129,20 +142,20 @@ export class ComputerChat {
     const state = readState();
     ensureProposal(state);
     const contact = CONTACTS.find(item => item.id === state.selected) || CONTACTS[0];
-    const conversation = conversationFor(state, contact.id);
+    const conversation = this.ensureIntro(state, contact);
     const answer = contact.id === 'commandant'
       ? chiefReply(value)
       : normalReply(contact, value, conversation);
-    conversation.messages.push(
-      {from: 'you', text: value, at: Date.now()},
-      {from: contact.id, text: answer, at: Date.now()}
-    );
+    const now = Date.now();
+    conversation.messages.push({from: 'you', text: value, at: now});
+    queueChatReply(conversation, contact.id, answer, now);
     if (/where|alibi|last night|that night|yesterday/.test(normalise(value)) &&
         !conversation.asked.includes('alibi')) conversation.asked.push('alibi');
     state.unread[contact.id] = 0;
     saveState(state);
     this.input = '';
-    this.followLatest = true;
+    this.drafts.delete(contact.id);
+    this.timeline.followContact(contact.id);
     playComputerUiClick(this.ui);
     this.redraw();
   }
@@ -168,12 +181,12 @@ export class ComputerChat {
   selectContact(id) {
     if (!this.live() || !CONTACTS.some(contact => contact.id === id)) return;
     const state = readState();
-    const changed = state.selected !== id || this.input.length > 0;
+    const changed = state.selected !== id;
+    this.drafts.set(state.selected, this.input);
     state.selected = id;
     state.unread[id] = 0;
     saveState(state);
-    this.input = '';
-    this.followLatest = true;
+    this.input = this.drafts.get(id) || '';
     if (changed) playComputerUiClick(this.ui);
     this.redraw();
   }
@@ -196,37 +209,47 @@ export class ComputerChat {
     ];
   }
 
-  paginate(messages, width, height) {
-    const pages = [];
-    const chunks = [];
-    let page = [];
-    let used = 0;
-    const probe = this.ui.scene.add.text(-10000, -10000, '', {
-      fontFamily: 'SpecialElite', fontSize: '14px', lineSpacing: 3,
-      wordWrap: {width}
-    });
-    const lineHeight = 19;
-    const maxLines = Math.max(1, Math.floor((height - 22) / lineHeight));
-    for (const message of messages) {
-      const lines = probe.getWrappedText(String(message.text ?? ''));
-      for (let i = 0; i < lines.length; i += maxLines) {
-        const text = lines.slice(i, i + maxLines).join('\n');
-        probe.setText(text);
-        chunks.push({...message, text, height: Math.max(36, Math.ceil(probe.height) + 18)});
-      }
+  ensureIntro(state, contact) {
+    const conversation = conversationFor(state, contact.id);
+    if (!conversation.messages.length && contact.intro) {
+      conversation.messages.push({from: contact.id, text: contact.intro, at: Date.now()});
+      saveState(state);
     }
-    probe.destroy();
-    for (const chunk of chunks) {
-      if (page.length && used + chunk.height + 8 > height) {
-        pages.push(page);
-        page = [];
-        used = 0;
-      }
-      page.push(chunk);
-      used += chunk.height + 8;
-    }
-    if (page.length) pages.push(page);
-    return pages.length ? pages : [[]];
+    return conversation;
+  }
+
+  signature(state) {
+    return JSON.stringify([state.selected, Object.entries(state.contacts).map(([id,c]) =>
+      [id,c.messages?.length,c.messages?.at(-1)?.text,c.pending?.length,state.unread[id] || 0])]);
+  }
+
+  flushPending() {
+    const state = readState();
+    const readContact = this.live() ? state.selected : null;
+    const delivered = deliverChatReplies(state, Date.now(), readContact);
+    if (delivered) saveState(state);
+    return state;
+  }
+
+  updateInput(time = 0) {
+    const label = this.inputLabel;
+    if (!label?.scene || label.active === false) return;
+    const cursor = this.live() && Math.floor(time / 500) % 2 === 0 ? '|' : '';
+    const value = this.input
+      ? this.input.slice(-65) + cursor
+      : __dialogueText('ui/pi-computer/ComputerChat.js', 't_69518e684f065f0c39a2') + cursor;
+    if (label.text !== value) label.setText(value);
+    label.setColor(this.input ? '#263238' : '#85877f');
+  }
+
+  tick(time = 0) {
+    if (this.dead) return;
+    this.timeline.tick(time);
+    this.updateInput(time);
+    if (time - this.lastPollAt < 120) return;
+    this.lastPollAt = time;
+    const state = this.flushPending();
+    if (this.timeline.frame && this.signature(state) !== this.lastRenderSignature) this.redraw();
   }
 
   render() {
@@ -247,7 +270,7 @@ export class ComputerChat {
     const state = readState();
     ensureProposal(state);
     const selected = CONTACTS.find(contact => contact.id === state.selected) || CONTACTS[0];
-    if (state.unread[selected.id]) {
+    if (this.live() && state.unread[selected.id]) {
       state.unread[selected.id] = 0;
       saveState(state);
     }
@@ -292,38 +315,14 @@ export class ComputerChat {
     const pagerY = inputY - 30;
     const messageTop = y + 49;
     const messageH = Math.max(80, pagerY - messageTop - 8);
-    const conversation = conversationFor(state, selected.id);
-    const messages = conversation.messages.length
-      ? conversation.messages
-      : [{from: selected.id, text: selected.intro, at: 0}];
-    const bubbleW = Math.min(450, pw - 24);
-    const pages = this.paginate(messages, bubbleW - 20, messageH);
-    if (this.followLatest) this.page = pages.length - 1;
-    this.page = Math.max(0, Math.min(this.page, pages.length - 1));
-    let yy = messageTop;
-    for (const message of pages[this.page]) {
-      const own = message.from === 'you';
-      const bx = own ? px + pw - bubbleW - 12 : px + 12;
-      d.rectangle(bx, yy, bubbleW, message.height, own ? 0xb8c9b2 : 0xf2ecda);
-      d.text(bx + 10, yy + 8, message.text, 14, '#273238', bubbleW - 20)
-        .setLineSpacing(3);
-      yy += message.height + 8;
-    }
-    this.button(px + 12, pagerY, 66, 24, 'PREV', () => {
-      this.followLatest = false;
-      this.page--;
-      this.redraw();
-    }, this.page > 0);
-    d.text(px + pw / 2, pagerY + 6, `${this.page + 1} / ${pages.length}`, 11, '#53615d')
-      .setOrigin(0.5, 0);
-    this.button(px + pw - 78, pagerY, 66, 24, 'NEXT', () => {
-      this.followLatest = false;
-      this.page++;
-      this.redraw();
-    }, this.page < pages.length - 1);
+    const thread = this.ensureIntro(state, selected);
+    this.timeline.render(selected.id, thread.messages, {
+      x: px + 12, y: messageTop, w: pw - 24, h: messageH
+    }, pagerY, Boolean(thread.pending?.length));
+    this.lastRenderSignature = this.signature(state);
     d.rectangle(px + 12, inputY, pw - 98, 31, 0xf4f0e4);
     d.frame(px + 12, inputY, pw - 98, 31, 0x66777b, 1, 1);
-    d.text(px + 20, inputY + 8,
+    this.inputLabel = d.text(px + 20, inputY + 8,
       this.input.slice(-65) || __dialogueText('ui/pi-computer/ComputerChat.js', 't_69518e684f065f0c39a2'),
       12, this.input ? '#263238' : '#85877f', pw - 122);
     this.button(px + pw - 78, inputY, 66, 31, 'SEND', () => this.send(), true, false);

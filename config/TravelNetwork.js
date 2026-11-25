@@ -465,6 +465,12 @@ export const TRAVEL_CONNECTIONS = [
     "to": "yokohama",
     "mode": "ship",
     "hours": 96
+  },
+  {
+    "from": "singapore",
+    "to": "sydney",
+    "mode": "ship",
+    "hours": 120
   }
 ];
 

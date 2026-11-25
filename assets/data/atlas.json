@@ -333,10 +333,10 @@
     "id": "country_aus",
     "iso3": "AUS",
     "name": "Australia",
-    "capital": "Sydney",
+    "capital": "Canberra",
     "capitalCoordinates": [
-      150.9319747,
-      -33.8482439
+      149.13,
+      -35.2809
     ],
     "region": "oceania",
     "description": "",

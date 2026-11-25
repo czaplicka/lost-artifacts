@@ -4,6 +4,9 @@ import { requestAutosave } from '../../gameStatePersistence.js';
 import { getDeadMenMail } from '../../managers/DeadMenCallingService.js';
 import { thiefdokuService } from '../../systems/thiefdoku/ThiefdokuService.js';
 import { ComputerAudio } from './ComputerAudio.js';
+import { installComputerWorldTime } from './ComputerWorldTime.js';
+import { installComputerWeather } from './ComputerWeather.js';
+import { installOpenSkiesComputer } from './OpenSkiesComputer.js';
 
 const INSTALL = Symbol.for(__dialogueText("ui/pi-computer/PIComputerApps.js", "t_080e4508c59155384a34"));
 const BASE = ['mail','ledger','classifieds','chat','office-shop','travel'];
@@ -16,7 +19,6 @@ const ICON_APPS = {
   'Thiefdoku':'thiefdoku','OfficeShop':'office-shop'
 };
 const TITLES = {search:__dialogueText("ui/pi-computer/PIComputerApps.js", "t_6f6ca128fbbdf22488f9"),investigations:__dialogueText("ui/pi-computer/PIComputerApps.js", "t_21476f00fdcfab750c7e"),audio:__dialogueText("ui/pi-computer/PIComputerApps.js", "t_5ddde5a18bc919b6ce35"),travel:__dialogueText("ui/pi-computer/PIComputerApps.js", "t_53fb6f891d4e250ec47e"),photo:__dialogueText("ui/pi-computer/PIComputerApps.js", "t_c17959fcc266deba71d6"),thiefdoku:__dialogueText("ui/pi-computer/PIComputerApps.js", "t_5cf46358ab38145b427c")};
-
 function installed() {
   const value = gameState.piQuests?.installedComputerApps;
   return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
@@ -29,14 +31,12 @@ function remember(apps, reason) {
   const next = {...previous};
   for (const app of added) next[app] = {reason};
   gameState.piQuests = {...state,installedComputerApps:next};
-  requestAutosave();
-  return added;
+  requestAutosave();return added;
 }
 export function unlockPIComputerApp(app, reason='case_progress') {
   if (!MANAGED.has(app)) throw new Error(`[PIComputerApps] Unknown app: ${app}`);
   return remember([app],reason).length > 0;
 }
-// Compatibility with callers from the earlier version; travel is now a base app.
 export function unlockPIWorldTravel(clueId='agency_access') {
   return unlockPIComputerApp('travel',`travel_access:${clueId}`);
 }
@@ -58,18 +58,14 @@ export function syncPIComputerApps(ui) {
 }
 export function isPIComputerAppInstalled(app, ui=null) {
   if (!MANAGED.has(app)) return true;
-  syncPIComputerApps(ui);
-  return Boolean(installed()[app]);
+  syncPIComputerApps(ui);return Boolean(installed()[app]);
 }
-
 export function installPIComputerApps(ui) {
   if (ui[INSTALL]) return ui[INSTALL];
-  const restorers = [];
+  const restorers = [],extraApps=[];
   let dead=false,lastCheck=-Infinity;
   function wrap(target,key,factory) {
-    const original=target[key];
-    const replacement=factory(original);
-    target[key]=replacement;
+    const original=target[key],replacement=factory(original);target[key]=replacement;
     restorers.push(()=>{if(target[key]===replacement)target[key]=original;});
   }
   function available(app) {
@@ -85,8 +81,7 @@ export function installPIComputerApps(ui) {
   wrap(ui.desktop,'createIcon',original=>function(...args){
     const label=String(args[3] || '').replace(/\s+/g,'');
     const app=ICON_APPS[label] || (args[4]==='audio'?'audio':null);
-    if(app&&!available(app))return;
-    return original.apply(this,args);
+    if(app&&!available(app))return;return original.apply(this,args);
   });
   wrap(ui.shell,'drawStartMenu',original=>function(layout,items,...args){
     const filtered=items.filter(item=>!item.app||available(item.app));
@@ -95,12 +90,10 @@ export function installPIComputerApps(ui) {
   });
   wrap(ui,'openApp',original=>function(app,...args){
     if(this.destroyed||!this.isOpen||this.suspended||this.booting)return;
-    if(!available(app)){blocked(app);return;}
-    return original.call(this,app,...args);
+    if(!available(app)){blocked(app);return;}return original.call(this,app,...args);
   });
   wrap(ui.shell,'open',original=>function(app,...args){
-    if(!available(app)){blocked(app);return false;}
-    return original.call(this,app,...args);
+    if(!available(app)){blocked(app);return false;}return original.call(this,app,...args);
   });
   wrap(ui.monitor,'renderApplication',original=>function(...args){
     if(!available(ui.app)){
@@ -111,36 +104,28 @@ export function installPIComputerApps(ui) {
     return original.apply(this,args);
   });
   wrap(ui.monitor,'render',original=>function(...args){
-    if(!dead&&!ui.destroyed)syncPIComputerApps(ui);
-    return original.apply(this,args);
+    if(!dead&&!ui.destroyed)syncPIComputerApps(ui);return original.apply(this,args);
   });
   for(const [name,app] of [['onOpenInvestigations','investigations'],['onOpenWorldTravel','travel']]){
     if(typeof ui.options[name]!=='function')continue;
-    wrap(ui.options,name,original=>function(...args){
-      if(!available(app)){blocked(app);return false;}
-      return original.apply(this,args);
-    });
+    wrap(ui.options,name,original=>function(...args){if(!available(app)){blocked(app);return false;}return original.apply(this,args);});
   }
   function step(){
     if(dead||ui.destroyed||!ui.isOpen||ui.suspended||ui.booting)return;
-    const now=ui.scene.time?.now??Date.now();
-    if(now-lastCheck<500)return;
-    lastCheck=now;
-    if(syncPIComputerApps(ui).length)ui.render();
+    const now=ui.scene.time?.now??Date.now();if(now-lastCheck<500)return;
+    lastCheck=now;if(syncPIComputerApps(ui).length)ui.render();
   }
   function destroy(){
-    if(dead)return;
-    dead=true;
-    ui.scene.events.off('update',step);
-    ui.scene.events.off('shutdown',destroy);
-    for(const restore of restorers.reverse())restore();
-    delete ui[INSTALL];
+    if(dead)return;dead=true;
+    for(const app of extraApps.slice().reverse())app.destroy();
+    ui.scene.events.off('update',step);ui.scene.events.off('shutdown',destroy);
+    for(const restore of restorers.reverse())restore();delete ui[INSTALL];
   }
-  const api={destroy};
-  ui[INSTALL]=api;
-  ui.scene.events.on('update',step);
-  ui.scene.events.once('shutdown',destroy);
+  const api={destroy};ui[INSTALL]=api;
+  ui.scene.events.on('update',step);ui.scene.events.once('shutdown',destroy);
   wrap(ui,'destroy',original=>function(...args){destroy();return original.apply(this,args);});
-  syncPIComputerApps(ui);
-  return api;
+  extraApps.push(installComputerWorldTime(ui));
+  extraApps.push(installComputerWeather(ui));
+  extraApps.push(installOpenSkiesComputer(ui));
+  syncPIComputerApps(ui);return api;
 }

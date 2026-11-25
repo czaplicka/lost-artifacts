@@ -1,0 +1,2086 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "pi_open_skies",
+      "revision": 2,
+      "title": "Open Skies — Missing President",
+      "clouds": [
+        {
+          "id": "people",
+          "title": "Organisations"
+        },
+        {
+          "id": "sounds",
+          "title": "Sound hypotheses"
+        },
+        {
+          "id": "places",
+          "title": "Places"
+        }
+      ],
+      "keywords": [
+        {
+          "id": "foundation",
+          "label": "Open Skies Foundation",
+          "cloudId": "people"
+        },
+        {
+          "id": "traffic",
+          "label": "Traffic",
+          "cloudId": "sounds"
+        },
+        {
+          "id": "bells",
+          "label": "Church bells",
+          "cloudId": "sounds"
+        },
+        {
+          "id": "rain",
+          "label": "Rain",
+          "cloudId": "sounds"
+        },
+        {
+          "id": "sea",
+          "label": "Sea",
+          "cloudId": "sounds"
+        },
+        {
+          "id": "train",
+          "label": "Train",
+          "cloudId": "sounds"
+        },
+        {
+          "id": "thunder",
+          "label": "Thunderstorm",
+          "cloudId": "sounds"
+        },
+        {
+          "id": "voices",
+          "label": "Crowd",
+          "cloudId": "sounds"
+        },
+        {
+          "id": "siren",
+          "label": "Siren",
+          "cloudId": "sounds"
+        },
+        {
+          "id": "region_roussillon",
+          "label": "Roussillon, France",
+          "cloudId": "places"
+        },
+        {
+          "id": "region_marseille",
+          "label": "Provence, France",
+          "cloudId": "places"
+        },
+        {
+          "id": "region_nice",
+          "label": "French Riviera, France",
+          "cloudId": "places"
+        },
+        {
+          "id": "region_barcelona",
+          "label": "Catalonia, Spain",
+          "cloudId": "places"
+        },
+        {
+          "id": "region_palma",
+          "label": "Balearic Islands, Spain",
+          "cloudId": "places"
+        },
+        {
+          "id": "region_lisbon",
+          "label": "Lisbon District, Portugal",
+          "cloudId": "places"
+        },
+        {
+          "id": "region_cork",
+          "label": "County Cork, Ireland",
+          "cloudId": "places"
+        },
+        {
+          "id": "region_bergen",
+          "label": "Vestland, Norway",
+          "cloudId": "places"
+        },
+        {
+          "id": "region_split",
+          "label": "Dalmatia, Croatia",
+          "cloudId": "places"
+        },
+        {
+          "id": "region_cape_town",
+          "label": "Western Cape, South Africa",
+          "cloudId": "places"
+        },
+        {
+          "id": "region_apia",
+          "label": "Upolu, Samoa",
+          "cloudId": "places"
+        },
+        {
+          "id": "region_auckland",
+          "label": "Auckland Region, New Zealand",
+          "cloudId": "places"
+        },
+        {
+          "id": "region_honolulu",
+          "label": "Oahu, Hawaii",
+          "cloudId": "places"
+        },
+        {
+          "id": "region_lima",
+          "label": "Lima Region, Peru",
+          "cloudId": "places"
+        },
+        {
+          "id": "region_miami",
+          "label": "Florida, United States",
+          "cloudId": "places"
+        },
+        {
+          "id": "region_new_york",
+          "label": "New York, United States",
+          "cloudId": "places"
+        },
+        {
+          "id": "collioure",
+          "label": "Collioure",
+          "cloudId": "places"
+        },
+        {
+          "id": "argeles",
+          "label": "Argeles-sur-Mer",
+          "cloudId": "places"
+        },
+        {
+          "id": "port_vendres",
+          "label": "Port-Vendres",
+          "cloudId": "places"
+        },
+        {
+          "id": "notre_dame",
+          "label": "Notre-Dame-des-Anges",
+          "cloudId": "places"
+        }
+      ],
+      "initialKeywords": [],
+      "pages": [
+        {
+          "id": "foundation_home",
+          "title": "Open Skies Foundation — Organisation",
+          "brand": "Open Skies Foundation",
+          "address": "openskies.local",
+          "theme": "organisation",
+          "snippet": "Open Skies Foundation — Organisation",
+          "blocks": [
+            [
+              "Open Skies Foundation — community programmes and local partnerships."
+            ],
+            [
+              "The New York office handles programme administration and enquiries."
+            ],
+            [
+              "Financial enquiries should be directed to the Vice President. Individual staff travel arrangements are not published."
+            ]
+          ],
+          "links": []
+        },
+        {
+          "id": "sound_reference",
+          "title": "Environmental Sound Reference",
+          "brand": "Reference Desk",
+          "address": "reference.local/environmental-sounds",
+          "theme": "organisation",
+          "snippet": "Environmental Sound Reference",
+          "blocks": [
+            [
+              "Sound recordings may contain traffic, voices, machinery, weather and bells."
+            ],
+            [
+              "An isolated sound does not identify a place. Record what you actually hear and compare it with independent information."
+            ],
+            [
+              "This reference cannot identify an unknown recording automatically."
+            ]
+          ],
+          "links": []
+        },
+        {
+          "id": "area_roussillon",
+          "title": "Roussillon, France — Visitor Information",
+          "brand": "Regional Directory",
+          "address": "visitors.local/regions/roussillon",
+          "theme": "organisation",
+          "snippet": "Roussillon, France — Visitor Information",
+          "blocks": [
+            [
+              "Coastal places in ",
+              {
+                "keywordId": "region_roussillon",
+                "text": "Roussillon, France"
+              },
+              "."
+            ],
+            [
+              {
+                "keywordId": "argeles",
+                "text": "Argeles-sur-Mer"
+              },
+              ", ",
+              {
+                "keywordId": "collioure",
+                "text": "Collioure"
+              },
+              " and ",
+              {
+                "keywordId": "port_vendres",
+                "text": "Port-Vendres"
+              },
+              " have separate visitor entries."
+            ],
+            [
+              "The regional weather station is listed under Perpignan. A station report is not a street address."
+            ],
+            [
+              "Clock maintenance notices are collected in the regional bulletin."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Argeles-sur-Mer",
+              "pageId": "town_argeles"
+            },
+            {
+              "label": "Collioure",
+              "pageId": "town_collioure"
+            },
+            {
+              "label": "Port-Vendres",
+              "pageId": "town_port_vendres"
+            },
+            {
+              "label": "Regional clock maintenance bulletin",
+              "pageId": "regional_clocks"
+            }
+          ]
+        },
+        {
+          "id": "area_marseille",
+          "title": "Provence, France — Visitor Information",
+          "brand": "Regional Directory",
+          "address": "visitors.local/regions/marseille",
+          "theme": "organisation",
+          "snippet": "Provence, France — Visitor Information",
+          "blocks": [
+            [
+              "Regional visitor information: Provence, France."
+            ],
+            [
+              "Local weather reports cover a wider area than a single town or building."
+            ],
+            [
+              "Consult individual town entries for landmarks, waterfront access and visitor information."
+            ]
+          ],
+          "links": []
+        },
+        {
+          "id": "area_nice",
+          "title": "French Riviera, France — Visitor Information",
+          "brand": "Regional Directory",
+          "address": "visitors.local/regions/nice",
+          "theme": "organisation",
+          "snippet": "French Riviera, France — Visitor Information",
+          "blocks": [
+            [
+              "Regional visitor information: French Riviera, France."
+            ],
+            [
+              "Local weather reports cover a wider area than a single town or building."
+            ],
+            [
+              "Consult individual town entries for landmarks, waterfront access and visitor information."
+            ]
+          ],
+          "links": []
+        },
+        {
+          "id": "area_barcelona",
+          "title": "Catalonia, Spain — Visitor Information",
+          "brand": "Regional Directory",
+          "address": "visitors.local/regions/barcelona",
+          "theme": "organisation",
+          "snippet": "Catalonia, Spain — Visitor Information",
+          "blocks": [
+            [
+              "Regional visitor information: Catalonia, Spain."
+            ],
+            [
+              "Local weather reports cover a wider area than a single town or building."
+            ],
+            [
+              "Consult individual town entries for landmarks, waterfront access and visitor information."
+            ]
+          ],
+          "links": []
+        },
+        {
+          "id": "area_palma",
+          "title": "Balearic Islands, Spain — Visitor Information",
+          "brand": "Regional Directory",
+          "address": "visitors.local/regions/palma",
+          "theme": "organisation",
+          "snippet": "Balearic Islands, Spain — Visitor Information",
+          "blocks": [
+            [
+              "Regional visitor information: Balearic Islands, Spain."
+            ],
+            [
+              "Local weather reports cover a wider area than a single town or building."
+            ],
+            [
+              "Consult individual town entries for landmarks, waterfront access and visitor information."
+            ]
+          ],
+          "links": []
+        },
+        {
+          "id": "area_lisbon",
+          "title": "Lisbon District, Portugal — Visitor Information",
+          "brand": "Regional Directory",
+          "address": "visitors.local/regions/lisbon",
+          "theme": "organisation",
+          "snippet": "Lisbon District, Portugal — Visitor Information",
+          "blocks": [
+            [
+              "Regional visitor information: Lisbon District, Portugal."
+            ],
+            [
+              "Local weather reports cover a wider area than a single town or building."
+            ],
+            [
+              "Consult individual town entries for landmarks, waterfront access and visitor information."
+            ]
+          ],
+          "links": []
+        },
+        {
+          "id": "area_cork",
+          "title": "County Cork, Ireland — Visitor Information",
+          "brand": "Regional Directory",
+          "address": "visitors.local/regions/cork",
+          "theme": "organisation",
+          "snippet": "County Cork, Ireland — Visitor Information",
+          "blocks": [
+            [
+              "Regional visitor information: County Cork, Ireland."
+            ],
+            [
+              "Local weather reports cover a wider area than a single town or building."
+            ],
+            [
+              "Consult individual town entries for landmarks, waterfront access and visitor information."
+            ]
+          ],
+          "links": []
+        },
+        {
+          "id": "area_bergen",
+          "title": "Vestland, Norway — Visitor Information",
+          "brand": "Regional Directory",
+          "address": "visitors.local/regions/bergen",
+          "theme": "organisation",
+          "snippet": "Vestland, Norway — Visitor Information",
+          "blocks": [
+            [
+              "Regional visitor information: Vestland, Norway."
+            ],
+            [
+              "Local weather reports cover a wider area than a single town or building."
+            ],
+            [
+              "Consult individual town entries for landmarks, waterfront access and visitor information."
+            ]
+          ],
+          "links": []
+        },
+        {
+          "id": "area_split",
+          "title": "Dalmatia, Croatia — Visitor Information",
+          "brand": "Regional Directory",
+          "address": "visitors.local/regions/split",
+          "theme": "organisation",
+          "snippet": "Dalmatia, Croatia — Visitor Information",
+          "blocks": [
+            [
+              "Regional visitor information: Dalmatia, Croatia."
+            ],
+            [
+              "Local weather reports cover a wider area than a single town or building."
+            ],
+            [
+              "Consult individual town entries for landmarks, waterfront access and visitor information."
+            ]
+          ],
+          "links": []
+        },
+        {
+          "id": "area_cape_town",
+          "title": "Western Cape, South Africa — Visitor Information",
+          "brand": "Regional Directory",
+          "address": "visitors.local/regions/cape_town",
+          "theme": "organisation",
+          "snippet": "Western Cape, South Africa — Visitor Information",
+          "blocks": [
+            [
+              "Regional visitor information: Western Cape, South Africa."
+            ],
+            [
+              "Local weather reports cover a wider area than a single town or building."
+            ],
+            [
+              "Consult individual town entries for landmarks, waterfront access and visitor information."
+            ]
+          ],
+          "links": []
+        },
+        {
+          "id": "area_apia",
+          "title": "Upolu, Samoa — Visitor Information",
+          "brand": "Regional Directory",
+          "address": "visitors.local/regions/apia",
+          "theme": "organisation",
+          "snippet": "Upolu, Samoa — Visitor Information",
+          "blocks": [
+            [
+              "Regional visitor information: Upolu, Samoa."
+            ],
+            [
+              "Local weather reports cover a wider area than a single town or building."
+            ],
+            [
+              "Consult individual town entries for landmarks, waterfront access and visitor information."
+            ]
+          ],
+          "links": []
+        },
+        {
+          "id": "area_auckland",
+          "title": "Auckland Region, New Zealand — Visitor Information",
+          "brand": "Regional Directory",
+          "address": "visitors.local/regions/auckland",
+          "theme": "organisation",
+          "snippet": "Auckland Region, New Zealand — Visitor Information",
+          "blocks": [
+            [
+              "Regional visitor information: Auckland Region, New Zealand."
+            ],
+            [
+              "Local weather reports cover a wider area than a single town or building."
+            ],
+            [
+              "Consult individual town entries for landmarks, waterfront access and visitor information."
+            ]
+          ],
+          "links": []
+        },
+        {
+          "id": "area_honolulu",
+          "title": "Oahu, Hawaii — Visitor Information",
+          "brand": "Regional Directory",
+          "address": "visitors.local/regions/honolulu",
+          "theme": "organisation",
+          "snippet": "Oahu, Hawaii — Visitor Information",
+          "blocks": [
+            [
+              "Regional visitor information: Oahu, Hawaii."
+            ],
+            [
+              "Local weather reports cover a wider area than a single town or building."
+            ],
+            [
+              "Consult individual town entries for landmarks, waterfront access and visitor information."
+            ]
+          ],
+          "links": []
+        },
+        {
+          "id": "area_lima",
+          "title": "Lima Region, Peru — Visitor Information",
+          "brand": "Regional Directory",
+          "address": "visitors.local/regions/lima",
+          "theme": "organisation",
+          "snippet": "Lima Region, Peru — Visitor Information",
+          "blocks": [
+            [
+              "Regional visitor information: Lima Region, Peru."
+            ],
+            [
+              "Local weather reports cover a wider area than a single town or building."
+            ],
+            [
+              "Consult individual town entries for landmarks, waterfront access and visitor information."
+            ]
+          ],
+          "links": []
+        },
+        {
+          "id": "area_miami",
+          "title": "Florida, United States — Visitor Information",
+          "brand": "Regional Directory",
+          "address": "visitors.local/regions/miami",
+          "theme": "organisation",
+          "snippet": "Florida, United States — Visitor Information",
+          "blocks": [
+            [
+              "Regional visitor information: Florida, United States."
+            ],
+            [
+              "Local weather reports cover a wider area than a single town or building."
+            ],
+            [
+              "Consult individual town entries for landmarks, waterfront access and visitor information."
+            ]
+          ],
+          "links": []
+        },
+        {
+          "id": "area_new_york",
+          "title": "New York, United States — Visitor Information",
+          "brand": "Regional Directory",
+          "address": "visitors.local/regions/new_york",
+          "theme": "organisation",
+          "snippet": "New York, United States — Visitor Information",
+          "blocks": [
+            [
+              "Regional visitor information: New York, United States."
+            ],
+            [
+              "Local weather reports cover a wider area than a single town or building."
+            ],
+            [
+              "Consult individual town entries for landmarks, waterfront access and visitor information."
+            ]
+          ],
+          "links": []
+        },
+        {
+          "id": "town_collioure",
+          "title": "Collioure — Harbour and Old Town",
+          "brand": "Collioure Visitor Office",
+          "address": "collioure.local/harbour",
+          "theme": "organisation",
+          "snippet": "Collioure — Harbour and Old Town",
+          "blocks": [
+            [
+              {
+                "keywordId": "collioure",
+                "text": "Collioure"
+              },
+              " — waterfront visitor information."
+            ],
+            [
+              "The church of ",
+              {
+                "keywordId": "notre_dame",
+                "text": "Notre-Dame-des-Anges"
+              },
+              " stands beside the sea."
+            ],
+            [
+              "The harbour, church and nearby streets are described in separate visitor notices."
+            ],
+            [
+              "For the tower clock and bell schedule, consult the church notice."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Church and clock notice",
+              "pageId": "church_notice"
+            },
+            {
+              "label": "Regional clock bulletin",
+              "pageId": "regional_clocks"
+            },
+            {
+              "label": "Regional directory",
+              "pageId": "area_roussillon"
+            }
+          ]
+        },
+        {
+          "id": "town_argeles",
+          "title": "Argeles-sur-Mer — Visitor Enquiries",
+          "brand": "Regional Visitor Desk",
+          "address": "argeles.local/visitors",
+          "theme": "organisation",
+          "snippet": "Argeles-sur-Mer — Visitor Enquiries",
+          "blocks": [
+            [
+              {
+                "keywordId": "argeles",
+                "text": "Argeles-sur-Mer"
+              },
+              " — visitor information."
+            ],
+            [
+              "Our enquiries cover the old town, beach districts and the port. These are different locations, not interchangeable addresses."
+            ],
+            [
+              "The municipal clock is included in the regional maintenance bulletin."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Regional clock bulletin",
+              "pageId": "regional_clocks"
+            },
+            {
+              "label": "Regional directory",
+              "pageId": "area_roussillon"
+            }
+          ]
+        },
+        {
+          "id": "town_port_vendres",
+          "title": "Port-Vendres — Port Information",
+          "brand": "Port Visitor Desk",
+          "address": "portvendres.local/visitors",
+          "theme": "organisation",
+          "snippet": "Port-Vendres — Port Information",
+          "blocks": [
+            [
+              {
+                "keywordId": "port_vendres",
+                "text": "Port-Vendres"
+              },
+              " — harbour visitor information."
+            ],
+            [
+              "Port sounds can include engines, loading equipment and vessels. Conditions vary with the time and activity."
+            ],
+            [
+              "Clock service information is collected in the regional maintenance bulletin."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Regional clock bulletin",
+              "pageId": "regional_clocks"
+            },
+            {
+              "label": "Regional directory",
+              "pageId": "area_roussillon"
+            }
+          ]
+        },
+        {
+          "id": "church_notice",
+          "title": "Notre-Dame-des-Anges — Clock Notice",
+          "brand": "Parish Noticeboard",
+          "address": "collioure.local/church/clock",
+          "theme": "organisation",
+          "snippet": "Notre-Dame-des-Anges — Clock Notice",
+          "blocks": [
+            [
+              {
+                "keywordId": "notre_dame",
+                "text": "Notre-Dame-des-Anges"
+              },
+              " / ",
+              {
+                "keywordId": "collioure",
+                "text": "Collioure"
+              },
+              "."
+            ],
+            [
+              "The hour bell strikes on a twelve-hour cycle, including overnight. Three hour strikes occur at 03:00 and 15:00."
+            ],
+            [
+              "Maintenance note: the opening interval is short, followed by a longer interval before the third strike. In a three-strike sequence, the approximate onset times are 0, 1 and 4 seconds."
+            ],
+            [
+              "The repair committee insists this is a local tradition. The repair invoice calls it a sticking escapement."
+            ],
+            [
+              "The church stands beside the sea. Match the complete sequence, time and weather; one bell sound alone is not an address."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Regional clock comparison",
+              "pageId": "regional_clocks"
+            },
+            {
+              "label": "Harbour visitor information",
+              "pageId": "town_collioure"
+            }
+          ]
+        },
+        {
+          "id": "regional_clocks",
+          "title": "Coastal Clock Service — Maintenance Bulletin",
+          "brand": "Regional Maintenance Desk",
+          "address": "visitors.local/roussillon/clocks",
+          "theme": "organisation",
+          "snippet": "Coastal Clock Service — Maintenance Bulletin",
+          "blocks": [
+            [
+              "Service profiles for the three coastal town entries in this directory. Three-strike sequences are listed as seconds after the first strike."
+            ],
+            [
+              {
+                "keywordId": "argeles",
+                "text": "Argeles-sur-Mer"
+              },
+              ": regular intervals — 0, 2, 4."
+            ],
+            [
+              {
+                "keywordId": "port_vendres",
+                "text": "Port-Vendres"
+              },
+              ": delayed second strike — 0, 3, 4."
+            ],
+            [
+              {
+                "keywordId": "collioure",
+                "text": "Collioure"
+              },
+              " / ",
+              {
+                "keywordId": "notre_dame",
+                "text": "Notre-Dame-des-Anges"
+              },
+              ": delayed third strike — 0, 1, 4."
+            ],
+            [
+              "The figures describe strike spacing, not a time zone. Check the parish notice for operating hours. No one has successfully billed the sea for corrosion."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Collioure parish notice",
+              "pageId": "church_notice"
+            },
+            {
+              "label": "Regional visitor directory",
+              "pageId": "area_roussillon"
+            }
+          ]
+        }
+      ],
+      "recipes": [
+        {
+          "terms": [
+            "foundation"
+          ],
+          "pageId": "foundation_home"
+        },
+        {
+          "terms": [
+            "traffic"
+          ],
+          "pageId": "sound_reference"
+        },
+        {
+          "terms": [
+            "bells"
+          ],
+          "pageId": "sound_reference"
+        },
+        {
+          "terms": [
+            "rain"
+          ],
+          "pageId": "sound_reference"
+        },
+        {
+          "terms": [
+            "sea"
+          ],
+          "pageId": "sound_reference"
+        },
+        {
+          "terms": [
+            "train"
+          ],
+          "pageId": "sound_reference"
+        },
+        {
+          "terms": [
+            "thunder"
+          ],
+          "pageId": "sound_reference"
+        },
+        {
+          "terms": [
+            "voices"
+          ],
+          "pageId": "sound_reference"
+        },
+        {
+          "terms": [
+            "siren"
+          ],
+          "pageId": "sound_reference"
+        },
+        {
+          "terms": [
+            "region_roussillon"
+          ],
+          "pageId": "area_roussillon"
+        },
+        {
+          "terms": [
+            "region_roussillon",
+            "traffic"
+          ],
+          "pageId": "area_roussillon"
+        },
+        {
+          "terms": [
+            "region_roussillon",
+            "bells"
+          ],
+          "pageIds": [
+            "area_roussillon",
+            "regional_clocks"
+          ]
+        },
+        {
+          "terms": [
+            "region_roussillon",
+            "rain"
+          ],
+          "pageId": "area_roussillon"
+        },
+        {
+          "terms": [
+            "region_roussillon",
+            "sea"
+          ],
+          "pageId": "area_roussillon"
+        },
+        {
+          "terms": [
+            "region_roussillon",
+            "train"
+          ],
+          "pageId": "area_roussillon"
+        },
+        {
+          "terms": [
+            "region_roussillon",
+            "thunder"
+          ],
+          "pageId": "area_roussillon"
+        },
+        {
+          "terms": [
+            "region_roussillon",
+            "voices"
+          ],
+          "pageId": "area_roussillon"
+        },
+        {
+          "terms": [
+            "region_roussillon",
+            "siren"
+          ],
+          "pageId": "area_roussillon"
+        },
+        {
+          "terms": [
+            "region_marseille"
+          ],
+          "pageId": "area_marseille"
+        },
+        {
+          "terms": [
+            "region_marseille",
+            "traffic"
+          ],
+          "pageId": "area_marseille"
+        },
+        {
+          "terms": [
+            "region_marseille",
+            "bells"
+          ],
+          "pageId": "area_marseille"
+        },
+        {
+          "terms": [
+            "region_marseille",
+            "rain"
+          ],
+          "pageId": "area_marseille"
+        },
+        {
+          "terms": [
+            "region_marseille",
+            "sea"
+          ],
+          "pageId": "area_marseille"
+        },
+        {
+          "terms": [
+            "region_marseille",
+            "train"
+          ],
+          "pageId": "area_marseille"
+        },
+        {
+          "terms": [
+            "region_marseille",
+            "thunder"
+          ],
+          "pageId": "area_marseille"
+        },
+        {
+          "terms": [
+            "region_marseille",
+            "voices"
+          ],
+          "pageId": "area_marseille"
+        },
+        {
+          "terms": [
+            "region_marseille",
+            "siren"
+          ],
+          "pageId": "area_marseille"
+        },
+        {
+          "terms": [
+            "region_nice"
+          ],
+          "pageId": "area_nice"
+        },
+        {
+          "terms": [
+            "region_nice",
+            "traffic"
+          ],
+          "pageId": "area_nice"
+        },
+        {
+          "terms": [
+            "region_nice",
+            "bells"
+          ],
+          "pageId": "area_nice"
+        },
+        {
+          "terms": [
+            "region_nice",
+            "rain"
+          ],
+          "pageId": "area_nice"
+        },
+        {
+          "terms": [
+            "region_nice",
+            "sea"
+          ],
+          "pageId": "area_nice"
+        },
+        {
+          "terms": [
+            "region_nice",
+            "train"
+          ],
+          "pageId": "area_nice"
+        },
+        {
+          "terms": [
+            "region_nice",
+            "thunder"
+          ],
+          "pageId": "area_nice"
+        },
+        {
+          "terms": [
+            "region_nice",
+            "voices"
+          ],
+          "pageId": "area_nice"
+        },
+        {
+          "terms": [
+            "region_nice",
+            "siren"
+          ],
+          "pageId": "area_nice"
+        },
+        {
+          "terms": [
+            "region_barcelona"
+          ],
+          "pageId": "area_barcelona"
+        },
+        {
+          "terms": [
+            "region_barcelona",
+            "traffic"
+          ],
+          "pageId": "area_barcelona"
+        },
+        {
+          "terms": [
+            "region_barcelona",
+            "bells"
+          ],
+          "pageId": "area_barcelona"
+        },
+        {
+          "terms": [
+            "region_barcelona",
+            "rain"
+          ],
+          "pageId": "area_barcelona"
+        },
+        {
+          "terms": [
+            "region_barcelona",
+            "sea"
+          ],
+          "pageId": "area_barcelona"
+        },
+        {
+          "terms": [
+            "region_barcelona",
+            "train"
+          ],
+          "pageId": "area_barcelona"
+        },
+        {
+          "terms": [
+            "region_barcelona",
+            "thunder"
+          ],
+          "pageId": "area_barcelona"
+        },
+        {
+          "terms": [
+            "region_barcelona",
+            "voices"
+          ],
+          "pageId": "area_barcelona"
+        },
+        {
+          "terms": [
+            "region_barcelona",
+            "siren"
+          ],
+          "pageId": "area_barcelona"
+        },
+        {
+          "terms": [
+            "region_palma"
+          ],
+          "pageId": "area_palma"
+        },
+        {
+          "terms": [
+            "region_palma",
+            "traffic"
+          ],
+          "pageId": "area_palma"
+        },
+        {
+          "terms": [
+            "region_palma",
+            "bells"
+          ],
+          "pageId": "area_palma"
+        },
+        {
+          "terms": [
+            "region_palma",
+            "rain"
+          ],
+          "pageId": "area_palma"
+        },
+        {
+          "terms": [
+            "region_palma",
+            "sea"
+          ],
+          "pageId": "area_palma"
+        },
+        {
+          "terms": [
+            "region_palma",
+            "train"
+          ],
+          "pageId": "area_palma"
+        },
+        {
+          "terms": [
+            "region_palma",
+            "thunder"
+          ],
+          "pageId": "area_palma"
+        },
+        {
+          "terms": [
+            "region_palma",
+            "voices"
+          ],
+          "pageId": "area_palma"
+        },
+        {
+          "terms": [
+            "region_palma",
+            "siren"
+          ],
+          "pageId": "area_palma"
+        },
+        {
+          "terms": [
+            "region_lisbon"
+          ],
+          "pageId": "area_lisbon"
+        },
+        {
+          "terms": [
+            "region_lisbon",
+            "traffic"
+          ],
+          "pageId": "area_lisbon"
+        },
+        {
+          "terms": [
+            "region_lisbon",
+            "bells"
+          ],
+          "pageId": "area_lisbon"
+        },
+        {
+          "terms": [
+            "region_lisbon",
+            "rain"
+          ],
+          "pageId": "area_lisbon"
+        },
+        {
+          "terms": [
+            "region_lisbon",
+            "sea"
+          ],
+          "pageId": "area_lisbon"
+        },
+        {
+          "terms": [
+            "region_lisbon",
+            "train"
+          ],
+          "pageId": "area_lisbon"
+        },
+        {
+          "terms": [
+            "region_lisbon",
+            "thunder"
+          ],
+          "pageId": "area_lisbon"
+        },
+        {
+          "terms": [
+            "region_lisbon",
+            "voices"
+          ],
+          "pageId": "area_lisbon"
+        },
+        {
+          "terms": [
+            "region_lisbon",
+            "siren"
+          ],
+          "pageId": "area_lisbon"
+        },
+        {
+          "terms": [
+            "region_cork"
+          ],
+          "pageId": "area_cork"
+        },
+        {
+          "terms": [
+            "region_cork",
+            "traffic"
+          ],
+          "pageId": "area_cork"
+        },
+        {
+          "terms": [
+            "region_cork",
+            "bells"
+          ],
+          "pageId": "area_cork"
+        },
+        {
+          "terms": [
+            "region_cork",
+            "rain"
+          ],
+          "pageId": "area_cork"
+        },
+        {
+          "terms": [
+            "region_cork",
+            "sea"
+          ],
+          "pageId": "area_cork"
+        },
+        {
+          "terms": [
+            "region_cork",
+            "train"
+          ],
+          "pageId": "area_cork"
+        },
+        {
+          "terms": [
+            "region_cork",
+            "thunder"
+          ],
+          "pageId": "area_cork"
+        },
+        {
+          "terms": [
+            "region_cork",
+            "voices"
+          ],
+          "pageId": "area_cork"
+        },
+        {
+          "terms": [
+            "region_cork",
+            "siren"
+          ],
+          "pageId": "area_cork"
+        },
+        {
+          "terms": [
+            "region_bergen"
+          ],
+          "pageId": "area_bergen"
+        },
+        {
+          "terms": [
+            "region_bergen",
+            "traffic"
+          ],
+          "pageId": "area_bergen"
+        },
+        {
+          "terms": [
+            "region_bergen",
+            "bells"
+          ],
+          "pageId": "area_bergen"
+        },
+        {
+          "terms": [
+            "region_bergen",
+            "rain"
+          ],
+          "pageId": "area_bergen"
+        },
+        {
+          "terms": [
+            "region_bergen",
+            "sea"
+          ],
+          "pageId": "area_bergen"
+        },
+        {
+          "terms": [
+            "region_bergen",
+            "train"
+          ],
+          "pageId": "area_bergen"
+        },
+        {
+          "terms": [
+            "region_bergen",
+            "thunder"
+          ],
+          "pageId": "area_bergen"
+        },
+        {
+          "terms": [
+            "region_bergen",
+            "voices"
+          ],
+          "pageId": "area_bergen"
+        },
+        {
+          "terms": [
+            "region_bergen",
+            "siren"
+          ],
+          "pageId": "area_bergen"
+        },
+        {
+          "terms": [
+            "region_split"
+          ],
+          "pageId": "area_split"
+        },
+        {
+          "terms": [
+            "region_split",
+            "traffic"
+          ],
+          "pageId": "area_split"
+        },
+        {
+          "terms": [
+            "region_split",
+            "bells"
+          ],
+          "pageId": "area_split"
+        },
+        {
+          "terms": [
+            "region_split",
+            "rain"
+          ],
+          "pageId": "area_split"
+        },
+        {
+          "terms": [
+            "region_split",
+            "sea"
+          ],
+          "pageId": "area_split"
+        },
+        {
+          "terms": [
+            "region_split",
+            "train"
+          ],
+          "pageId": "area_split"
+        },
+        {
+          "terms": [
+            "region_split",
+            "thunder"
+          ],
+          "pageId": "area_split"
+        },
+        {
+          "terms": [
+            "region_split",
+            "voices"
+          ],
+          "pageId": "area_split"
+        },
+        {
+          "terms": [
+            "region_split",
+            "siren"
+          ],
+          "pageId": "area_split"
+        },
+        {
+          "terms": [
+            "region_cape_town"
+          ],
+          "pageId": "area_cape_town"
+        },
+        {
+          "terms": [
+            "region_cape_town",
+            "traffic"
+          ],
+          "pageId": "area_cape_town"
+        },
+        {
+          "terms": [
+            "region_cape_town",
+            "bells"
+          ],
+          "pageId": "area_cape_town"
+        },
+        {
+          "terms": [
+            "region_cape_town",
+            "rain"
+          ],
+          "pageId": "area_cape_town"
+        },
+        {
+          "terms": [
+            "region_cape_town",
+            "sea"
+          ],
+          "pageId": "area_cape_town"
+        },
+        {
+          "terms": [
+            "region_cape_town",
+            "train"
+          ],
+          "pageId": "area_cape_town"
+        },
+        {
+          "terms": [
+            "region_cape_town",
+            "thunder"
+          ],
+          "pageId": "area_cape_town"
+        },
+        {
+          "terms": [
+            "region_cape_town",
+            "voices"
+          ],
+          "pageId": "area_cape_town"
+        },
+        {
+          "terms": [
+            "region_cape_town",
+            "siren"
+          ],
+          "pageId": "area_cape_town"
+        },
+        {
+          "terms": [
+            "region_apia"
+          ],
+          "pageId": "area_apia"
+        },
+        {
+          "terms": [
+            "region_apia",
+            "traffic"
+          ],
+          "pageId": "area_apia"
+        },
+        {
+          "terms": [
+            "region_apia",
+            "bells"
+          ],
+          "pageId": "area_apia"
+        },
+        {
+          "terms": [
+            "region_apia",
+            "rain"
+          ],
+          "pageId": "area_apia"
+        },
+        {
+          "terms": [
+            "region_apia",
+            "sea"
+          ],
+          "pageId": "area_apia"
+        },
+        {
+          "terms": [
+            "region_apia",
+            "train"
+          ],
+          "pageId": "area_apia"
+        },
+        {
+          "terms": [
+            "region_apia",
+            "thunder"
+          ],
+          "pageId": "area_apia"
+        },
+        {
+          "terms": [
+            "region_apia",
+            "voices"
+          ],
+          "pageId": "area_apia"
+        },
+        {
+          "terms": [
+            "region_apia",
+            "siren"
+          ],
+          "pageId": "area_apia"
+        },
+        {
+          "terms": [
+            "region_auckland"
+          ],
+          "pageId": "area_auckland"
+        },
+        {
+          "terms": [
+            "region_auckland",
+            "traffic"
+          ],
+          "pageId": "area_auckland"
+        },
+        {
+          "terms": [
+            "region_auckland",
+            "bells"
+          ],
+          "pageId": "area_auckland"
+        },
+        {
+          "terms": [
+            "region_auckland",
+            "rain"
+          ],
+          "pageId": "area_auckland"
+        },
+        {
+          "terms": [
+            "region_auckland",
+            "sea"
+          ],
+          "pageId": "area_auckland"
+        },
+        {
+          "terms": [
+            "region_auckland",
+            "train"
+          ],
+          "pageId": "area_auckland"
+        },
+        {
+          "terms": [
+            "region_auckland",
+            "thunder"
+          ],
+          "pageId": "area_auckland"
+        },
+        {
+          "terms": [
+            "region_auckland",
+            "voices"
+          ],
+          "pageId": "area_auckland"
+        },
+        {
+          "terms": [
+            "region_auckland",
+            "siren"
+          ],
+          "pageId": "area_auckland"
+        },
+        {
+          "terms": [
+            "region_honolulu"
+          ],
+          "pageId": "area_honolulu"
+        },
+        {
+          "terms": [
+            "region_honolulu",
+            "traffic"
+          ],
+          "pageId": "area_honolulu"
+        },
+        {
+          "terms": [
+            "region_honolulu",
+            "bells"
+          ],
+          "pageId": "area_honolulu"
+        },
+        {
+          "terms": [
+            "region_honolulu",
+            "rain"
+          ],
+          "pageId": "area_honolulu"
+        },
+        {
+          "terms": [
+            "region_honolulu",
+            "sea"
+          ],
+          "pageId": "area_honolulu"
+        },
+        {
+          "terms": [
+            "region_honolulu",
+            "train"
+          ],
+          "pageId": "area_honolulu"
+        },
+        {
+          "terms": [
+            "region_honolulu",
+            "thunder"
+          ],
+          "pageId": "area_honolulu"
+        },
+        {
+          "terms": [
+            "region_honolulu",
+            "voices"
+          ],
+          "pageId": "area_honolulu"
+        },
+        {
+          "terms": [
+            "region_honolulu",
+            "siren"
+          ],
+          "pageId": "area_honolulu"
+        },
+        {
+          "terms": [
+            "region_lima"
+          ],
+          "pageId": "area_lima"
+        },
+        {
+          "terms": [
+            "region_lima",
+            "traffic"
+          ],
+          "pageId": "area_lima"
+        },
+        {
+          "terms": [
+            "region_lima",
+            "bells"
+          ],
+          "pageId": "area_lima"
+        },
+        {
+          "terms": [
+            "region_lima",
+            "rain"
+          ],
+          "pageId": "area_lima"
+        },
+        {
+          "terms": [
+            "region_lima",
+            "sea"
+          ],
+          "pageId": "area_lima"
+        },
+        {
+          "terms": [
+            "region_lima",
+            "train"
+          ],
+          "pageId": "area_lima"
+        },
+        {
+          "terms": [
+            "region_lima",
+            "thunder"
+          ],
+          "pageId": "area_lima"
+        },
+        {
+          "terms": [
+            "region_lima",
+            "voices"
+          ],
+          "pageId": "area_lima"
+        },
+        {
+          "terms": [
+            "region_lima",
+            "siren"
+          ],
+          "pageId": "area_lima"
+        },
+        {
+          "terms": [
+            "region_miami"
+          ],
+          "pageId": "area_miami"
+        },
+        {
+          "terms": [
+            "region_miami",
+            "traffic"
+          ],
+          "pageId": "area_miami"
+        },
+        {
+          "terms": [
+            "region_miami",
+            "bells"
+          ],
+          "pageId": "area_miami"
+        },
+        {
+          "terms": [
+            "region_miami",
+            "rain"
+          ],
+          "pageId": "area_miami"
+        },
+        {
+          "terms": [
+            "region_miami",
+            "sea"
+          ],
+          "pageId": "area_miami"
+        },
+        {
+          "terms": [
+            "region_miami",
+            "train"
+          ],
+          "pageId": "area_miami"
+        },
+        {
+          "terms": [
+            "region_miami",
+            "thunder"
+          ],
+          "pageId": "area_miami"
+        },
+        {
+          "terms": [
+            "region_miami",
+            "voices"
+          ],
+          "pageId": "area_miami"
+        },
+        {
+          "terms": [
+            "region_miami",
+            "siren"
+          ],
+          "pageId": "area_miami"
+        },
+        {
+          "terms": [
+            "region_new_york"
+          ],
+          "pageId": "area_new_york"
+        },
+        {
+          "terms": [
+            "region_new_york",
+            "traffic"
+          ],
+          "pageId": "area_new_york"
+        },
+        {
+          "terms": [
+            "region_new_york",
+            "bells"
+          ],
+          "pageId": "area_new_york"
+        },
+        {
+          "terms": [
+            "region_new_york",
+            "rain"
+          ],
+          "pageId": "area_new_york"
+        },
+        {
+          "terms": [
+            "region_new_york",
+            "sea"
+          ],
+          "pageId": "area_new_york"
+        },
+        {
+          "terms": [
+            "region_new_york",
+            "train"
+          ],
+          "pageId": "area_new_york"
+        },
+        {
+          "terms": [
+            "region_new_york",
+            "thunder"
+          ],
+          "pageId": "area_new_york"
+        },
+        {
+          "terms": [
+            "region_new_york",
+            "voices"
+          ],
+          "pageId": "area_new_york"
+        },
+        {
+          "terms": [
+            "region_new_york",
+            "siren"
+          ],
+          "pageId": "area_new_york"
+        },
+        {
+          "terms": [
+            "collioure"
+          ],
+          "pageId": "town_collioure"
+        },
+        {
+          "terms": [
+            "collioure",
+            "traffic"
+          ],
+          "pageId": "town_collioure"
+        },
+        {
+          "terms": [
+            "collioure",
+            "bells"
+          ],
+          "pageId": "town_collioure"
+        },
+        {
+          "terms": [
+            "collioure",
+            "rain"
+          ],
+          "pageId": "town_collioure"
+        },
+        {
+          "terms": [
+            "collioure",
+            "sea"
+          ],
+          "pageId": "town_collioure"
+        },
+        {
+          "terms": [
+            "collioure",
+            "train"
+          ],
+          "pageId": "town_collioure"
+        },
+        {
+          "terms": [
+            "collioure",
+            "thunder"
+          ],
+          "pageId": "town_collioure"
+        },
+        {
+          "terms": [
+            "collioure",
+            "voices"
+          ],
+          "pageId": "town_collioure"
+        },
+        {
+          "terms": [
+            "collioure",
+            "siren"
+          ],
+          "pageId": "town_collioure"
+        },
+        {
+          "terms": [
+            "argeles"
+          ],
+          "pageId": "town_argeles"
+        },
+        {
+          "terms": [
+            "argeles",
+            "traffic"
+          ],
+          "pageId": "town_argeles"
+        },
+        {
+          "terms": [
+            "argeles",
+            "bells"
+          ],
+          "pageId": "town_argeles"
+        },
+        {
+          "terms": [
+            "argeles",
+            "rain"
+          ],
+          "pageId": "town_argeles"
+        },
+        {
+          "terms": [
+            "argeles",
+            "sea"
+          ],
+          "pageId": "town_argeles"
+        },
+        {
+          "terms": [
+            "argeles",
+            "train"
+          ],
+          "pageId": "town_argeles"
+        },
+        {
+          "terms": [
+            "argeles",
+            "thunder"
+          ],
+          "pageId": "town_argeles"
+        },
+        {
+          "terms": [
+            "argeles",
+            "voices"
+          ],
+          "pageId": "town_argeles"
+        },
+        {
+          "terms": [
+            "argeles",
+            "siren"
+          ],
+          "pageId": "town_argeles"
+        },
+        {
+          "terms": [
+            "port_vendres"
+          ],
+          "pageId": "town_port_vendres"
+        },
+        {
+          "terms": [
+            "port_vendres",
+            "traffic"
+          ],
+          "pageId": "town_port_vendres"
+        },
+        {
+          "terms": [
+            "port_vendres",
+            "bells"
+          ],
+          "pageId": "town_port_vendres"
+        },
+        {
+          "terms": [
+            "port_vendres",
+            "rain"
+          ],
+          "pageId": "town_port_vendres"
+        },
+        {
+          "terms": [
+            "port_vendres",
+            "sea"
+          ],
+          "pageId": "town_port_vendres"
+        },
+        {
+          "terms": [
+            "port_vendres",
+            "train"
+          ],
+          "pageId": "town_port_vendres"
+        },
+        {
+          "terms": [
+            "port_vendres",
+            "thunder"
+          ],
+          "pageId": "town_port_vendres"
+        },
+        {
+          "terms": [
+            "port_vendres",
+            "voices"
+          ],
+          "pageId": "town_port_vendres"
+        },
+        {
+          "terms": [
+            "port_vendres",
+            "siren"
+          ],
+          "pageId": "town_port_vendres"
+        },
+        {
+          "terms": [
+            "notre_dame"
+          ],
+          "pageId": "church_notice"
+        },
+        {
+          "terms": [
+            "notre_dame",
+            "traffic"
+          ],
+          "pageId": "church_notice"
+        },
+        {
+          "terms": [
+            "notre_dame",
+            "bells"
+          ],
+          "pageId": "church_notice"
+        },
+        {
+          "terms": [
+            "notre_dame",
+            "rain"
+          ],
+          "pageId": "church_notice"
+        },
+        {
+          "terms": [
+            "notre_dame",
+            "sea"
+          ],
+          "pageId": "church_notice"
+        },
+        {
+          "terms": [
+            "notre_dame",
+            "train"
+          ],
+          "pageId": "church_notice"
+        },
+        {
+          "terms": [
+            "notre_dame",
+            "thunder"
+          ],
+          "pageId": "church_notice"
+        },
+        {
+          "terms": [
+            "notre_dame",
+            "voices"
+          ],
+          "pageId": "church_notice"
+        },
+        {
+          "terms": [
+            "notre_dame",
+            "siren"
+          ],
+          "pageId": "church_notice"
+        },
+        {
+          "terms": [
+            "collioure",
+            "notre_dame"
+          ],
+          "pageId": "church_notice"
+        }
+      ]
+    }
+  ]
+}

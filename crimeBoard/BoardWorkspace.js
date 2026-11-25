@@ -1,3 +1,5 @@
+import { getCaseKey } from '../crimeCaseKey.js';
+import { migrateLegacyCaseRecords, hasProvenCaseScope, hasConflictingCaseScope } from './CaseKeyCompatibility.js';
 import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import {
   getKnownApartmentIdentityClues,
@@ -17,20 +19,22 @@ function appearanceLabels() {
 }
 
 export function boardCaseKey(state) {
-  const m = state.currentMission || {};
-  return String(m.id ?? m.caseId ?? m.caseIndex ??
-    `${state.caseSuspectCityId ?? state.crimeCityId ?? state.crimeCity ?? m.city ?? 'unknown'}_${m.artifactKey ?? m.artifact ?? 'default'}`);
+  return getCaseKey(state);
 }
 
 export function savedBoard(state) {
+  migrateLegacyCaseRecords(state);
   const key = boardCaseKey(state);
   const scoped = state.crimeBoardWorkspaces?.[key];
-  if (scoped) return copy(scoped);
+  if (Object.hasOwn(state.crimeBoardWorkspaces || {}, key)) {
+    return scoped && Array.isArray(scoped.items) && !hasConflictingCaseScope(scoped, state)
+      ? copy(scoped) : null;
+  }
   const legacy = state.crimeBoardData;
   if (!legacy?.items) return null;
-  const m = state.currentMission || {};
+  if (hasConflictingCaseScope(legacy, state)) return null;
   const matches = legacy.meta?.workspaceKey === key ||
-    (!legacy.meta?.workspaceKey && (!legacy.meta?.caseId || legacy.meta.caseId === m.artifactKey));
+    (!legacy.meta?.workspaceKey && hasProvenCaseScope(legacy, state));
   return matches ? copy(legacy) : null;
 }
 
@@ -112,7 +116,8 @@ export function installBoardWorkspace(api, state, saved) {
   const persist = () => {
     if (busy || dead) return;
     const data = api.getData();
-    data.meta = { ...data.meta, workspaceKey: activeKey };
+    data.meta = { ...data.meta, workspaceKey: activeKey,
+      caseInstanceId: activeState.currentCaseId ?? null, campaignId: activeState._createdAt ?? null };
     activeState.crimeBoardWorkspaces = {
       ...(activeState.crimeBoardWorkspaces || {}), [activeKey]: copy(data)
     };
