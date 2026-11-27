@@ -4,6 +4,7 @@ import { MainStoryManager } from '../managers/MainStoryManager.js';
 import { inventoryManager } from '../managers/InventoryManager.js';
 import { getEnergyManager, energyRestoreData } from '../managers/EnergyManager.js';
 import { createCaseDirectorFromState } from '../restoreCaseDirector.js';
+import { getRestoreParticipants } from './restoreParticipants.js';
 
 let restoring = false;
 export function isStateRestoreInProgress() { return restoring; }
@@ -56,6 +57,11 @@ export function restoreSavedGameState(savedState) {
     checkpoint: gameState.saveCheckpoint,
     director: gameState.caseDirector
   };
+  // Runtime memory (e.g. DialogueManager) is captured before anything changes,
+  // so a failed load returns both gameState and that memory to this point.
+  const participants = getRestoreParticipants().map(entry => ({
+    ...entry, snapshot: entry.participant.snapshot()
+  }));
   let stateAttempted = false;
   let storyAttempted = false;
   let inventoryAttempted = false;
@@ -76,6 +82,9 @@ export function restoreSavedGameState(savedState) {
     }
     gameState.mainStory = MainStoryManager.serialize();
     gameState.inventory = inventoryManager.exportState();
+    for (const entry of participants) {
+      if (entry.participant.restore(savedState) === false) throw new Error(`${entry.name} rejected.`);
+    }
     energyAttempted = true;
     // EnergyManager owns the only field list and the shared restore-data export.
     // Called AFTER import: omitted values come from the normalized loaded state.
@@ -84,6 +93,11 @@ export function restoreSavedGameState(savedState) {
     gameState.saveCheckpoint = null;
     // Schedules UI/time effects for the next task, not inside this transaction.
     energy.resumeRestoredEffects();
+    // Committed: let participants retire runtime objects bound to the old save.
+    for (const entry of participants) {
+      try { entry.participant.commit?.(); }
+      catch (error) { console.error('[SaveRestore] Post-restore cleanup failed:', entry.name, error); }
+    }
     return gameState;
   } catch (cause) {
     const rollbackErrors = [];
@@ -111,6 +125,12 @@ export function restoreSavedGameState(savedState) {
     if (energyAttempted) energyRolledBack = rollback('energy', () => {
       energy.restore(previous.energy, { resumeEffects: false });
     });
+    // After the state rollback, so participants can re-bind to the restored data.
+    // Every participant is rolled back: importFromSave already replaced the
+    // objects their memory was bound to, even if their own restore never ran.
+    for (const entry of [...participants].reverse()) {
+      rollback(entry.name, () => entry.participant.rollback(entry.snapshot, { stateRolledBack }));
+    }
     if (stateRolledBack) rollback('metadata', () => {
       gameState.saveCheckpoint = previous.checkpoint;
       gameState.dirty = previous.dirty;

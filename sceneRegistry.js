@@ -21,6 +21,10 @@ export const sceneRegistry = {
     import('./scenes/CrimeCityWithCaseRoom.js')
       .then(m => m.CrimeCityScene),
 
+  CrimeLabScene: () =>
+    import('./scenes/CSI/CrimeLabSceneWithCaseRoom.js')
+      .then(m => m.CrimeLabScene),
+
   CaseRoomScene: () =>
     import('./scenes/CaseRoomScene.js')
       .then(m => m.CaseRoomScene),

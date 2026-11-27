@@ -35,7 +35,7 @@ export const DriveTrip={
   },
   onCam(){
     if(this.state!=='driving'||this.pendingFine||this.settlementError)return;
-    if(this.speedMul<=CAMERA_LIMIT){this.say(pick(FLAVOUR.camSafe),2400);return;}
+    if(this.speedMul<=CAMERA_LIMIT){if(Math.random()<.5)this.say(pick(FLAVOUR.camSafe),2400);return;}
     this.pendingFine={id:`camera-${++this.fineSequence}`,amount:FINE_AMOUNT};this.settlePendingFine();
   },
   settlePendingFine(){
@@ -43,7 +43,7 @@ export const DriveTrip={
     try{
       const r=chargeRoadTripFine(this.quote,this.tripId,p.amount,p.id);
       this.pendingFine=null;this.stats.fines=r.assessed;
-      this.cameras.main.flash(110,190,180,150);this.say(pick(FLAVOUR.camFlash),3000,true);
+      this.cameras.main.flash(110,190,180,150);this.onFineBanter();
       this.floatText(`FINE: $${p.amount}`,'#e6ad83');this.refreshStats();
     }catch(error){this.showSettlementError(error);}
   },
@@ -116,7 +116,7 @@ export const DriveTrip={
   onSceneShutdown(){
     this.ready=false;this.disposeDriveRuntime();this.restoreTravelUi();
     this.objects=[];this.drops=[];this.clouds=[];this._rainParticles=[];
-    this._rainStreaks=null;this.wiper=null;this._roadWarning=null;this._driveButtons=[];
+    this._rainStreaks=null;this.wiper=null;this.wiperLeft=null;this._roadWarning=null;this._driveButtons=[];this._driveWheelCtl=null;
     this.pendingFine=null;this.settlementError=null;this._settlementPanel=null;
   }
 };

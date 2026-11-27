@@ -30,6 +30,7 @@ import {
   getProfile,
   getEffectiveStats
 } from '../ui/characterCreation/CharacterCreationData.js';
+import { startThiefdokuProfileWatcher } from '../systems/thiefdoku/ThiefdokuService.js';
 
 const ENERGY_CIRCUMFERENCE = 251.327;
 const MONEY_EVENT = 'lost-artifacts:money-changed';
@@ -106,6 +107,8 @@ export class UIScene extends BaseScene {
 
   async create() {
     super.create();
+    // Shows the police medal row in the profile modal. Safe to call more than once.
+    startThiefdokuProfileWatcher();
 
     this._isDestroyed = false;
     this._spendingSkillPoint = false;

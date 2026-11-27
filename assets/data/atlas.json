@@ -338,20 +338,27 @@
       149.13,
       -35.2809
     ],
-    "region": "oceania",
-    "description": "",
-    "knownFor": "",
+    "region": "Oceania",
+    "description": "Australia is a continent that decided to be a country and then filled itself with creatures that all seem slightly offended by visitors. Canberra is the capital, but nearly everyone is on the coast, which is where the beaches, the barbecues and the better weather are. Expect enormous distances, very casual greetings and a firm local rule that anything small enough to fit in a shoe should be checked before putting the shoe on.",
+    "knownFor": "Beaches, kangaroos, the Outback",
     "cities": [
       {
         "id": "sydney",
         "name": "Sydney",
         "coordinates": [
-          150.9319747,
-          -33.8482439
+          151.2093,
+          -33.8688
         ],
         "description": "Sydney is a vibrant coastal city built around a vast natural harbor, famous for the sail-like roofs of the Opera House, the sweeping arch of the Harbour Bridge, and golden surf beaches like Bondi. Blending historic sandstone lanes with sleek skyscrapers and laid-back outdoor culture, it feels both bustling and effortlessly breezy.",
-        "knownFor": ""
+        "knownFor": "Opera House, Harbour Bridge, Bondi Beach"
       }
-    ]
+    ],
+    "mapBounds": [
+      112,
+      -44,
+      154,
+      -10
+    ],
+    "mapLabel": "AUSTRALIA"
   }
 ]

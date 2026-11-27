@@ -15,7 +15,8 @@ export const ROAD_TRIP_TOWNS = {
     gate: text("t_b183675bce0e92c4ee0d"),
     leaving: text("t_4e4402edd15afa423efe"),
     arrival: text("t_9be3ff583b6e4187c5b3"),
-    signs: [text("t_fd96efde88a93bea3c2a")]
+    signs: [text("t_fd96efde88a93bea3c2a"), text("t_05bfb5b821a167d0386d"), text("t_875af0dc0ccd42cb2634")],
+    news: [text("t_a9f161cbc82c8ddfb06d"), text("t_3b7bdd7c211a9b293c64")]
   },
   dont_remember_city: {
     id: "dont_remember_city",
@@ -27,7 +28,8 @@ export const ROAD_TRIP_TOWNS = {
     gate: text("t_cc0009e5e090119cfede"),
     leaving: text("t_3aecca834dea39bc7143"),
     arrival: text("t_c19e28495a4f980cf4ec"),
-    signs: [text("t_e10ad8be8e9fa6e834bd"), text("t_7f11dd35ea916d7726c3")]
+    signs: [text("t_e10ad8be8e9fa6e834bd"), text("t_7f11dd35ea916d7726c3"), text("t_61237c7a22cd1f34dab8"), text("t_563653e64312dbfe8787")],
+    news: [text("t_f172dee1f52ee0a09895"), text("t_8be9584188165f60a3ea")]
   },
   whateverville: {
     id: "whateverville",
@@ -39,7 +41,8 @@ export const ROAD_TRIP_TOWNS = {
     gate: text("t_0a2ec1e72c908a635efd"),
     leaving: text("t_5a679973ac745c4ec0b6"),
     arrival: text("t_3e59b7328bdff3a0bb33"),
-    signs: [text("t_635f697ef58dd77c9393")]
+    signs: [text("t_635f697ef58dd77c9393"), text("t_9818bac020367f99dea2"), text("t_7efc47e9207f4a74cec7")],
+    news: [text("t_cbce781d3c8086156677"), text("t_4ca96662198e6c8b250b")]
   },
   something_upon_something: {
     id: "something_upon_something",
@@ -51,7 +54,8 @@ export const ROAD_TRIP_TOWNS = {
     gate: text("t_2fafd2d677dc085e58e4"),
     leaving: text("t_216b78fe99b0a1ad43c0"),
     arrival: text("t_2c89fa91c7db88955f9b"),
-    signs: [text("t_3bba46dce96f75c2627a")]
+    signs: [text("t_3bba46dce96f75c2627a"), text("t_5d2362600597d70d4ee3"), text("t_4186425b03842d0bdbe1")],
+    news: [text("t_ca6e204d67131235226d"), text("t_b5d55725bb83ff6565ef")]
   },
   mildly_damp: {
     id: "mildly_damp",
@@ -63,7 +67,8 @@ export const ROAD_TRIP_TOWNS = {
     gate: text("t_7d2c7ee30ec474047915"),
     leaving: text("t_3d6d156b46c2c713cba2"),
     arrival: text("t_1689a80567fe50d24141"),
-    signs: [text("t_2bd6f2cbec6e740db30d")]
+    signs: [text("t_2bd6f2cbec6e740db30d"), text("t_cfd60ab434527d3186f0"), text("t_e7e37f520e34a43feec8")],
+    news: [text("t_6199dc20b2e2a8405eea"), text("t_c572c5479ffb7b3341d7")]
   },
   nothing_to_see_here: {
     id: "nothing_to_see_here",
@@ -75,7 +80,8 @@ export const ROAD_TRIP_TOWNS = {
     gate: text("t_2874fce15aadd6cda78f"),
     leaving: text("t_58c9cd7ffda4263e456b"),
     arrival: text("t_1806b3b488bdddf12aa0"),
-    signs: [text("t_4b8a9a8c55b72c20fa22")]
+    signs: [text("t_4b8a9a8c55b72c20fa22"), text("t_8e81bfd0f7e5e39519b5"), text("t_1733a5ce8d61a02a7387")],
+    news: [text("t_e71c0b61e0c331c8324c"), text("t_f0221ea7159ce2654d58")]
   },
   upper_downington: {
     id: "upper_downington",
@@ -87,7 +93,8 @@ export const ROAD_TRIP_TOWNS = {
     gate: text("t_ae0f68dfa098e10f9976"),
     leaving: text("t_683174685ee6c60c08a8"),
     arrival: text("t_c741a2e7f6ca105ffd54"),
-    signs: [text("t_cecb143169bde5ce339e")]
+    signs: [text("t_cecb143169bde5ce339e"), text("t_6edaf2b32b155343cdd2"), text("t_55aff5fad25e2efa1828")],
+    news: [text("t_4b1550a927332c37edc4"), text("t_43e3d2c25de3d686f8e7")]
   },
   are_we_there_yet: {
     id: "are_we_there_yet",
@@ -99,7 +106,8 @@ export const ROAD_TRIP_TOWNS = {
     gate: text("t_c8be822e9977780c6628"),
     leaving: text("t_4ac35ed337a9a9849186"),
     arrival: text("t_4340fd3a7caad506e53b"),
-    signs: [text("t_15077bba5fb4a1bf7529")]
+    signs: [text("t_15077bba5fb4a1bf7529"), text("t_cdf885c61599afd772f3"), text("t_d25d8969fa11f7ed50d7")],
+    news: [text("t_32813156ebd378f3ea01"), text("t_d09a83d2a63794ccd0ba")]
   },
 };
 export const ROAD_TRIP_TOWN_LIST = Object.values(ROAD_TRIP_TOWNS);
@@ -228,13 +236,86 @@ export const FLAVOUR = {
     text("t_156825ba4472875cb659")
   ],
   radio: [
-    { name: text("t_2c9520c870f4fa2df8ab"), line: text("t_cf17673a4d30625e87e3") },
-    { name: text("t_d0ec3a116b2bbb6d2287"), line: text("t_b5100d661b014f973c69") },
-    { name: text("t_673ee49f7a8ffbd4e101"), line: text("t_3542ece7eecb60cae16b") },
-    { name: text("t_e0640a4ac1cfc26458e3"), line: text("t_3a8cbb382761c93bef24") },
-    { name: text("t_cff0ab961e10223c0d1f"), line: text("t_04cbb97720feef7f6ad8") },
-    { name: text("t_d4bbe197ad6e2edcf5e3"), line: text("t_ac6f07013d80667a49bb") },
+    { id: "rock", name: text("t_2c9520c870f4fa2df8ab"), line: text("t_cf17673a4d30625e87e3"),
+      lines: [text("t_cf17673a4d30625e87e3"), text("t_5793e8f9ad8593d6246f"), text("t_24c4696cb1e375ef7b75"), text("t_fa1b79afa0620a3733fb"), text("t_1aa7adeeeeac5610d820")] },
+    { id: "jazz", name: text("t_d0ec3a116b2bbb6d2287"), line: text("t_b5100d661b014f973c69"),
+      lines: [text("t_b5100d661b014f973c69"), text("t_c69d2ea71dbe1e2c3dac"), text("t_68bfc1506cb590c39d31"), text("t_43e55814bc62fcc75da6"), text("t_7400b9ec8c905c0af782")] },
+    { id: "news", name: text("t_673ee49f7a8ffbd4e101"), line: text("t_3542ece7eecb60cae16b"),
+      lines: [text("t_3542ece7eecb60cae16b"), text("t_b74259123eb00d0217f0"), text("t_9a42e346fb3f48c79486"), text("t_932f012dacc06fc39a2b"), text("t_e42b1cce4167cbb1b87a")] },
+    { id: "polka", name: text("t_e0640a4ac1cfc26458e3"), line: text("t_3a8cbb382761c93bef24"),
+      lines: [text("t_3a8cbb382761c93bef24"), text("t_16d8d288136ef99b7c5b"), text("t_7e5d6b7e1a20a5a33f17"), text("t_843cfe7243dd6a7d8d09")] },
+    { id: "crime", name: text("t_cff0ab961e10223c0d1f"), line: text("t_04cbb97720feef7f6ad8"),
+      lines: [text("t_04cbb97720feef7f6ad8"), text("t_4e6043199f84a8edfc4b"), text("t_071a35c4ea49fbe97f4a"), text("t_d694223a2b9637856cc3"), text("t_1fd9bfeeaf2ca2bbb72f")] },
+    { id: "static", name: text("t_d4bbe197ad6e2edcf5e3"), line: text("t_ac6f07013d80667a49bb"),
+      lines: [text("t_ac6f07013d80667a49bb"), text("t_c56b7fea80a663d04d8f"), text("t_e54531f9e9c7380cb142"), text("t_76da1e37970ab47af91e")] },
   ],
+  dinoFine: [
+    text("t_eb6620c2ea4f20036356"),
+    text("t_ef4f61a72a0d453b05e7"),
+    text("t_4e39d2f11e6e7540b47b"),
+    text("t_a016da1aeb9910a8b853")
+  ],
+  dinoFineAgain: [
+    text("t_081f1e3a1dfa5a8da302"),
+    text("t_f80c1d34596bc479d187")
+  ],
+  dinoNearMiss: [
+    text("t_292e54802128059932de"),
+    text("t_839f2e872a400dea0575"),
+    text("t_6b6b72d72735ce8d9303"),
+    text("t_ac3fdb14dd443a8ada1f")
+  ],
+  dinoOffroad: [
+    text("t_6e1345cde10d8be4580e"),
+    text("t_8819423bdc29c66d336a"),
+    text("t_43455c8a51b5d00d529e")
+  ],
+  dinoBendLeft: [
+    text("t_50a0211415993ab5a2de"),
+    text("t_72fc806fe7ee8a2be62d")
+  ],
+  dinoBendRight: [
+    text("t_1a2c0974df3161f023c6"),
+    text("t_a77f3428019b5a2b2a0f")
+  ],
+  dinoFast: [
+    text("t_b529a911d3d644cf6c29"),
+    text("t_1637a7a9a34eafef7ce4"),
+    text("t_16c60150a46196eeac5e")
+  ],
+  dinoStopped: [
+    text("t_cac111cf1f56df73c3e9"),
+    text("t_4e2107abdb32d0c8fade"),
+    text("t_6812196a592e6aeab3e3")
+  ],
+  dinoHalfway: [
+    text("t_577d2b7c8004d6fa512f"),
+    text("t_b9de247a710de49ea719")
+  ],
+  dinoAlmost: [
+    text("t_f96e46eee2cc2a8ab1b7"),
+    text("t_bca9a759c39e90e4fd65")
+  ],
+  dinoSecondDent: [
+    text("t_56be074613c4d833aca1"),
+    text("t_b6565100d73660a18bf3")
+  ],
+  dinoClean: [
+    text("t_1121ba8818b8e3545985"),
+    text("t_402b61bbd95ebb47ab7d")
+  ],
+  weatherLines: {
+    rain: text("t_a216054a9f36d2194828"),
+    fog: text("t_a30992663e53d273a8d5"),
+    night: text("t_885238e92a75003244c2"),
+    snow: text("t_59e4d1715fa1637a9a03"),
+    clear: text("t_c0cee72f5df2f110fe61")
+  },
+  radioFlashName: text("t_715df93f46d3c83fb64d"),
+  radioFlash: {
+    fine: [text("t_7ddcf6a2b523331b5d0a"), text("t_87d280c41b6898381207"), text("t_3af0fb352fc14304890a")],
+    hit: [text("t_3fb41ed841ecdbdfd91a"), text("t_0e64c04ffcfd75e05076"), text("t_1698342f7fc3db6daab4")]
+  },
   verdicts: {
     perfect: text("t_2ce852c22f500e29c0dd"),
     minor: text("t_2e196b402d2d89d0680b"),

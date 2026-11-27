@@ -6,6 +6,7 @@ import {
   ownsNewPIOffice,
   needsOfficeMoveIn
 } from '../../managers/PIOfficeShopManager.js';
+import { DesktopGrid, GRID } from './DesktopGrid.js';
 
 const INK = 0x1b2530;
 const FILE = 'ui/pi-computer/ComputerDesktop.js';
@@ -27,10 +28,12 @@ const SEARCH_ICON_Y = 310;
 const THIEFDOKU_ICON_Y = SEARCH_ICON_Y - 100;
 const AUDIO_ICON_Y = SEARCH_ICON_Y + 100;
 const ALIBI_BOOKS_ICON_Y = 210;
+const NO_ART_KINDS = ['alibi-books', 'clock', 'weather'];
 
 export class ComputerDesktop {
   constructor(ui) {
     this.ui = ui;
+    this.grid = new DesktopGrid();
   }
 
   render() {
@@ -38,6 +41,12 @@ export class ComputerDesktop {
     const d = ui.drawing;
     const { x, y, w, h } = ui.layout;
     const dh = h - 36;
+
+    this.grid.reset(ui.layout);
+    this.grid.reserveRect({ x: w - 300, y: 0, w: 300, h: 140 });
+    this.grid.reserveRect(this.grid.noteRect());
+    this.grid.reserveRect({ x: w - 290, y: dh - 108, w: 128, h: 94 });
+    this.grid.reserveRect({ x: w - 150, y: dh - 108, w: 128, h: 94 });
 
     const entries = [
       ['mail', text('t_07ed6ccf6bf6393d1868'), 'envelope', 0xe6d9ab],
@@ -77,19 +86,20 @@ export class ComputerDesktop {
       () => ui.openApp('audio')
     );
 
-    this.createIcon(
+    this.drawIcon(
       x + w - 290, y + dh - 108, 128,
       text('t_f4493be34bca100d58f4'), 'cat', 0xe0a458,
       () => this.joke(CAT_JOKES)
     );
 
-    this.createIcon(
+    this.drawIcon(
       x + w - 150, y + dh - 108, 128,
       text('t_718039dbb2044f35d9a5'), 'trash', 0x8b99a3,
       () => this.joke(TRASH_JOKES)
     );
 
-    this.renderStickyNote(x + 252, y + 130);
+    const note = this.grid.noteCenter();
+    this.renderStickyNote(x + note.x, y + note.y);
 
     d.pixel(x + w - 22, y + 22, text('t_feb0d25e891e512dec77'), 12, '#e6edf5')
       .setOrigin(1, 0)
@@ -198,8 +208,6 @@ export class ComputerDesktop {
 
   createIcon(x, y, width, label, kind, color, callback) {
     const ui = this.ui;
-    const d = ui.drawing;
-    const scene = ui.scene;
 
     if (label === text('t_d04fc7d7e19702f8b611') ||
         label === text('t_6f6ca128fbbdf22488f9')) {
@@ -213,10 +221,19 @@ export class ComputerDesktop {
       y = ui.layout.y + AUDIO_ICON_Y;
     }
 
+    const pos = this.grid.claim(x, y);
+    this.drawIcon(pos.x, pos.y, width, label, kind, color, callback);
+  }
+
+  drawIcon(x, y, width, label, kind, color, callback) {
+    const ui = this.ui;
+    const d = ui.drawing;
+    const scene = ui.scene;
+
     const cx = x + width / 2;
     const top = y + 5;
-    const highlight = d.rectangle(x + 4, y, width - 8, 94, 0x2b5a9a, 0);
-    const key = kind === 'alibi-books' ? null : ui.shell?.iconKey(kind);
+    const highlight = d.rectangle(x + 4, y, width - 8, GRID.iconH, 0x2b5a9a, 0);
+    const key = NO_ART_KINDS.includes(kind) ? null : ui.shell?.iconKey(kind);
 
     if (key) {
       d.rectangle(cx - 20, top + 50, 40, 6, 0x000000, 0.28);
@@ -232,7 +249,7 @@ export class ComputerDesktop {
       .setAlign('center')
       .setShadow(1, 1, '#0a1226', 0, true, true);
 
-    const hit = d.rectangle(x, y, width, 94, 0x000000, 0)
+    const hit = d.rectangle(x, y, width, GRID.iconH, 0x000000, 0)
       .setInteractive({ useHandCursor: true });
 
     hit.on('pointerover', () => {
@@ -379,6 +396,25 @@ export class ComputerDesktop {
         g.strokeEllipse(cx, top + 24, 22, 46);
         line(-23, 24, 23, 24);
         line(-14, 50, 14, 50);
+        break;
+
+      case 'clock':
+        ellipse(3, 52, 38, 8, 0x000000, 0.3);
+        circle(0, 24, 23, color);
+        circleLine(0, 24, 23);
+        line(0, 24, 0, 10);
+        line(0, 24, 11, 29);
+        break;
+
+      case 'weather':
+        ellipse(3, 52, 38, 8, 0x000000, 0.3);
+        circle(11, 15, 14, 0xe3bc61);
+        circle(-10, 25, 12, 0xb6d2dd);
+        circle(3, 21, 15, 0xb6d2dd);
+        circle(18, 27, 10, 0xb6d2dd);
+        fill(-13, 24, 32, 12, 0xb6d2dd);
+        g.lineStyle(3, 0x71b5db, 1);
+        for (let i = 0; i < 3; i++) line(-11 + i * 13, 43, -16 + i * 13, 52);
         break;
 
       case 'trash': {

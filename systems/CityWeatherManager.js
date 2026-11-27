@@ -253,7 +253,18 @@ registerClimate(
   'equatorial_highland',
   NAIROBI_MONTHS
 );
+registerClimate(['singapore'], 'tropical', TROPICAL_MONTHS);
 
+registerClimate(['nyc'], 'cold', COLD_MONTHS);
+
+// Półkula południowa: zimą (czerwiec-sierpień) bez śniegu, najwięcej deszczu latem.
+const SYDNEY_MONTHS = [
+  [50, 42, 0, 8], [48, 44, 0, 8], [52, 40, 0, 8], [55, 38, 0, 7],
+  [58, 35, 0, 7], [60, 32, 0, 8], [62, 30, 0, 8], [64, 28, 0, 8],
+  [62, 30, 0, 8], [58, 35, 0, 7], [54, 38, 0, 8], [50, 42, 0, 8]
+];
+
+registerClimate(['sydney'], 'temperate_southern', SYDNEY_MONTHS);
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }

@@ -325,6 +325,9 @@ export class HomeCityBuildings extends HomeCityGround {
       ctx.closePath(); ctx.fill(); circle(ctx, 0, 0, 4, 0x2f4a82);
     } else if (kind === 'pawn') {
       for (const [bx, by] of [[-6, -6], [6, -6], [0, 6]]) { circle(ctx, bx, by, 6.5, 0xc8962a); circle(ctx, bx - 1.5, by - 1.5, 4.5, 0xe8be4a); circle(ctx, bx - 2.5, by - 2.5, 1.5, 0xfff3c4); }
+    } else if (kind === 'target') {
+      circle(ctx, 0, 0, 14, 0xf2ead2); circle(ctx, 0, 0, 10.5, 0xc8452f); circle(ctx, 0, 0, 7, 0xf2ead2); circle(ctx, 0, 0, 3.5, 0xc8452f);
+      line(ctx, -16, 0, 16, 0, 0x1d1d1d, 1); line(ctx, 0, -16, 0, 16, 0x1d1d1d, 1);
     } else if (kind === 'cross') {
       rect(ctx, -3, -14, 6, 28, 0xe0c070); rect(ctx, -10, -7, 20, 6, 0xe0c070); rect(ctx, -1, -12, 2, 24, 0xfff0b8);
     } else {

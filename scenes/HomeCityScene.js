@@ -16,7 +16,9 @@ import { PALETTES } from './homeCity/HomeCityConfig.js';
 import { HomeCityRendererCore } from './homeCity/HomeCityRendererCore.js';
 import { LOMBARD_BUILDING, LOMBARD_PROPS } from './homeCity/HomeCityLombard.js';
 import { CHURCH_BUILDING, CHURCH_CLEARED_PROPS, CHURCH_PROPS, CHURCH_PROP_QUIPS, CHURCH_LABEL_LIFT } from './homeCity/HomeCityChurch.js';
-import { CONSTRUCTION_SITE_BUILDING, CONSTRUCTION_SITE_PROPS, CONSTRUCTION_PROP_QUIPS } from './homeCity/HomeCityConstruction.js';
+import { CONSTRUCTION_PROP_QUIPS } from './homeCity/HomeCityConstruction.js';
+import { SHOOTING_RANGE_BUILDING, SHOOTING_RANGE_PROPS } from './homeCity/HomeCityShootingRange.js';
+import { ShootingRangeScene } from './ShootingRangeScene.js';
 
 // Keep both existing translation namespaces. Do not remove their dialogue data.
 const T=id=>__dialogueText('scenes/HomeCityScene.js',id);
@@ -39,7 +41,7 @@ const EXTRA_BUILDINGS=[
   {id:'business-center',name:E('t_a16572219d4cbc8fe62b'),x:29,y:3,w:4,h:3,color:0x8e9b9b,message:'',sceneKey:'BusinessCenterScene',SceneClass:BusinessCenterScene},
   {...CHURCH_BUILDING,SceneClass:ChurchScene},
   {...LOMBARD_BUILDING,SceneClass:LombardScene},
-  {...CONSTRUCTION_SITE_BUILDING},
+  {...SHOOTING_RANGE_BUILDING,SceneClass:ShootingRangeScene},
 ];
 const PROPS=[
   {x:8,y:6,kind:'lamp'},{x:12,y:7,kind:'lamp'},{x:8,y:17,kind:'lamp'},{x:19,y:12,kind:'lamp'},
@@ -59,7 +61,7 @@ const HOSPITAL_PROPS=[
   {x:34,y:13,kind:'tree',variant:1},{x:27,y:16,kind:'planter'},{x:35,y:16,kind:'planter'},
   {x:29,y:17,kind:'bench'},{x:33,y:17,kind:'bench'},{x:28,y:17,kind:'lamp'},{x:34,y:17,kind:'lamp'},
 ];
-const EXTRA_PROPS=[...HOSPITAL_PROPS,...CHURCH_PROPS,...LOMBARD_PROPS,...CONSTRUCTION_SITE_PROPS];
+const EXTRA_PROPS=[...HOSPITAL_PROPS,...CHURCH_PROPS,...LOMBARD_PROPS,...SHOOTING_RANGE_PROPS];
 const PROP_QUIPS={
   lamp:[T('t_32874e1a6e965eabc9d9'),T('t_79fda5d986c17d5e38d8')],
   bench:[T('t_31115bf96d69447c27b4'),T('t_2b091f903af17d44c46a')],

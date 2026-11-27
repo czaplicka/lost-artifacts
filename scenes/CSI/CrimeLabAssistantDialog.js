@@ -1,4 +1,4 @@
-import { dialogueText } from '../../dialogues/DialogueText.js';
+import { dialogueText, formatDialogueText } from '../../dialogues/DialogueText.js';
 import { HomeTownDialogue } from '../../ui/HomeTownDialogue.js';
 import { getTrustLevel } from '../../managers/TrustManager.js';
 import { audioManager } from '../../managers/AudioManager.js';
@@ -274,7 +274,7 @@ export class CrimeLabAssistantDialog {
     const base = Array.isArray(raw) ? pick(raw) : String(raw);
     const dynamic = [].concat(node.dynamic || [])
       .map(key => this.resolveDynamicText(key, ctx)).filter(Boolean);
-    return this.interpolate([String(base || '').trim(), ...dynamic].filter(Boolean).join('\n\n'), ctx);
+    return this.interpolate([String(base || '').trim(), ...dynamic].filter(Boolean).join('\n'), ctx);
   }
 
   resolveDynamicText(key, ctx) {
@@ -292,7 +292,8 @@ export class CrimeLabAssistantDialog {
     if (!summaries.length) return (this.scene?.getPendingAssistantCount?.() || 0)
       ? pick([text('t_32fffe82bc2e53aa6ecd'), text('t_3a5852aac6b0986e7348')])
       : pick([text('t_40c755d9880ed14b1672'), text('t_2f45d446c4e010a0c9af')]);
-    return summaries.map(result => `• ${result.label}\n${result.text}`).join('\n\n');
+    // One line per result and no blank lines, so the summary fits one dialogue page.
+    return summaries.map(result => formatDialogueText(dialogueText("scenes/CSI/CrimeLabAssistantDialog.js", "t_d6030933e483bef2b5e5"), { label: result.label, text: result.text })).join('\n');
   }
 
   getRemainingWorkText() {

@@ -59,10 +59,10 @@ export const DEFAULT_INVENTORY_SHOPS = {
         "id": "energy_drink",
         "type": "rotating",
         "label": "Energy Drink",
-        "x": 900,
-        "y": 380,
-        "w": 120,
-        "h": 160,
+        "x": 919,
+        "y": 405,
+        "w": 150,
+        "h": 130,
         "price": 7,
         "category": "consumables",
         "key": "energyDrink"
@@ -143,8 +143,8 @@ export const DEFAULT_INVENTORY_SHOPS = {
           "new_york_city"
         ],
         "label": "Foam Liberty Crown",
-        "x": 1150,
-        "y": 620,
+        "x": 1080,
+        "y": 654,
         "w": 140,
         "h": 140,
         "price": 12,
@@ -255,6 +255,21 @@ export const DEFAULT_INVENTORY_SHOPS = {
         "price": 14,
         "category": "souvenirs",
         "key": "tokyoLuckyCat"
+      },
+      {
+        "id": "souvenir_singapore",
+        "type": "permanent",
+        "cities": [
+          "singapore"
+        ],
+        "label": "Tiny Merlion",
+        "x": 1150,
+        "y": 620,
+        "w": 140,
+        "h": 140,
+        "price": 12,
+        "category": "souvenirs",
+        "key": "singaporeMerlion"
       }
     ]
   },

@@ -1,10 +1,11 @@
-import { dialogueText as __dialogueText } from '../dialogues/DialogueText.js';
+import { dialogueText as __dialogueText, formatDialogueText } from '../dialogues/DialogueText.js';
 import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
 import { moneyManager, MONEY_SOURCE, ECONOMY_CATEGORY } from '../managers/MoneyManager.js';
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { NEWSSTAND_CONFIG, normalizeNewsstandCityId, isEditableTarget } from '../config/newsstandConfig.js';
+import { SPILL_BRAND as B } from '../config/spillBrand.js';
 import { NewsstandPurchaseFeedback } from '../systems/newsstand/NewsstandPurchaseFeedback.js';
 import { NewsstandBackground } from '../systems/newsstand/NewsstandBackground.js';
 import { NewsstandHotspots } from '../systems/newsstand/NewsstandHotspots.js';
@@ -16,6 +17,7 @@ import { MONTHLY_SPILL_ISSUE as ISSUE } from '../systems/newsstand/MonthlySpillI
 import { NewspaperLayoutConfig } from '../NewspaperLayoutConfig.js';
 import { ensureDailyPaperTexture } from '../ui/NewspaperPaper.js';
 
+
 const T=id=>__dialogueText('scenes/NewsstandScene.js',id);
 const COMIC_TITLES=Object.freeze({
   comix_1:T('t_1440c04fa9bd6b64073a'),comix_2:T('t_fc3a4140d3d6bae0d001'),
@@ -23,8 +25,15 @@ const COMIC_TITLES=Object.freeze({
 });
 const MONTHLY_ID='monthly_spill';
 const PAPER_KEY='paper_monthly_spill_clean';
-const RED=0xa91822,YELLOW=0xffd943,BLACK=0x1e1916;
-const WHITE='#fff8e8',INK='#211a17',HEADLINE='Impact, Arial Black, sans-serif';
+// Kolory i fonty wspólne z Daily Spill online (config/spillBrand.js).
+const PRIMARY=B.banner,DARK=B.bannerDark,ACCENT=B.accent,CREAM=B.panel;
+const WHITE='#fff8e8',INK=B.ink,HEADLINE='Impact, Arial Black, sans-serif';
+const HUD_SCENE_KEYS=['PlayerHudScene','UIScene','NewsHud'];
+// Odległość prawej krawędzi licznika kasy od prawej krawędzi ekranu (px).
+// Zwiększ, żeby przesunąć licznik bardziej w lewo.
+const CASH_RIGHT_MARGIN=260;
+const CASH_TOP=20;
+
 
 function getComicTitle(config){
   return COMIC_TITLES[config.textureKey]||COMIC_TITLES[config.id]||config.title||config.label||T('t_57f03717b2540f999475');
@@ -32,6 +41,7 @@ function getComicTitle(config){
 function validTimeData(json){
   return (Array.isArray(json.covers)&&json.covers.some(cover=>hasReadableCoverLines(cover?.coverLines)))||hasReadableCoverLines(json.coverLines);
 }
+
 
 class MonthlySpillTabloidReader extends MonthlySpillReader {
   open(){
@@ -58,7 +68,8 @@ class MonthlySpillTabloidReader extends MonthlySpillReader {
     const text=(value,left,top,w,h,size,options={})=>{
       if(value==null||value==='')return;
       const label=this.scene.add.text(left,top,String(value),{
-        fontFamily:options.headline?HEADLINE:'SpecialElite',fontStyle:options.headline?'bold':'',
+        fontFamily:options.display?B.fontDisplay:options.headline?HEADLINE:B.fontBody,
+        fontStyle:options.headline&&!options.display?'bold':'',
         fontSize:`${size}px`,color:options.color||INK,lineSpacing:options.headline?-2:5,
         wordWrap:{width:w,useAdvancedWrap:true},
       });
@@ -69,32 +80,32 @@ class MonthlySpillTabloidReader extends MonthlySpillReader {
     };
     const banner=(value,left,top,w,color,ink=WHITE)=>{
       box(left,top,w,37,color);
-      text(value,left+9,top+3,w-18,31,24,{headline:true,color:ink,center:true});
+      text(value,left+9,top+3,w-18,31,18,{display:true,color:ink,center:true});
     };
     const big=(value,left,top,w,h,size)=>text(String(value??'').toUpperCase(),left,top,w,h,size,{headline:true});
     if(data.type==='cover'){
-      text(ISSUE.edition,34,23,672,25,17);box(34,54,672,111,RED);
-      text(ISSUE.title.toUpperCase(),48,63,644,87,78,{headline:true,color:WHITE,center:true});
-      text(ISSUE.tagline,34,180,672,40,23);banner('EXCLUSIVE',34,232,197,YELLOW,INK);
+      text(ISSUE.edition,34,23,672,25,17,{color:B.muted});box(34,54,672,111,PRIMARY);
+      text(B.monthlyTitle,48,63,644,87,78,{display:true,color:B.headline,center:true});
+      text(B.tagline,34,180,672,40,23,{color:B.heading});banner('EXCLUSIVE',34,232,197,ACCENT,INK);
       big(data.headline,34,289,672,375,130);text(data.deck,34,682,672,120,30);
       const teasers=(data.teasers||[]).slice(0,3);
       teasers.forEach((line,i)=>{
         const w=(672-(teasers.length-1)*7)/teasers.length,left=34+i*(w+7);
-        box(left,814,w,120,i%2?YELLOW:RED);
+        box(left,814,w,120,i%2?ACCENT:PRIMARY);
         text(String(line).toUpperCase(),left+10,826,w-20,99,31,{headline:true,color:i%2?INK:WHITE});
       });
     }else{
-      banner(data.section||ISSUE.title,34,30,672,RED);big(data.headline,34,87,672,178,75);
+      banner(data.section||B.monthlyTitle,34,30,672,PRIMARY);big(data.headline,34,87,672,178,75);
       text(data.deck,34,269,672,72,26);
       const body=Array.isArray(data.body)?data.body.join('\n\n'):data.body;
       if(data.type==='contents'){
         text(body,34,376,672,190,25);
-        if(data.quote)text(`“${data.quote}”`,34,580,672,85,28);
-        banner('IN THIS ISSUE',34,674,672,BLACK);
+        if(data.quote)text(`“${data.quote}”`,34,580,672,85,28,{color:B.heading});
+        banner('IN THIS ISSUE',34,674,672,DARK);
         const rows=data.contents||[],rowHeight=Math.min(42,215/Math.max(1,rows.length));
         rows.forEach(([number,label],i)=>{
           const top=719+i*rowHeight;
-          const hit=box(34,top,672,rowHeight-2,i%2?0xf1e2b7:YELLOW).setInteractive({useHandCursor:true});
+          const hit=box(34,top,672,rowHeight-2,i%2?CREAM:ACCENT).setInteractive({useHandCursor:true});
           text(label,46,top+4,586,rowHeight-8,23,{headline:true});
           text(number,650,top+4,46,rowHeight-8,23,{headline:true});
           hit.on('pointerup',(_pointer,_x,_y,event)=>{
@@ -107,7 +118,7 @@ class MonthlySpillTabloidReader extends MonthlySpillReader {
         const entries=data.entries||[],rowHeight=Math.min(57,556/Math.max(1,entries.length));
         entries.forEach(([sign,prediction],i)=>{
           const top=373+i*rowHeight;
-          box(34,top,142,rowHeight-3,i%2?YELLOW:RED);
+          box(34,top,142,rowHeight-3,i%2?ACCENT:PRIMARY);
           text(sign,43,top+5,124,rowHeight-10,22,{headline:true,color:i%2?INK:WHITE});
           text(prediction,190,top+5,516,rowHeight-10,22);
         });
@@ -119,13 +130,14 @@ class MonthlySpillTabloidReader extends MonthlySpillReader {
         const bodyHeight=data.quote||data.fine?380:550;
         text(left,34,376,right?317:672,bodyHeight,26);
         if(right)text(right,389,376,317,bodyHeight,26);
-        if(data.quote){box(34,774,672,106,YELLOW);text(`“${data.quote}”`,49,787,642,80,37,{headline:true});}
-        if(data.fine)text(data.fine,34,896,672,38,17);
+        if(data.quote){box(34,774,672,106,ACCENT);text(`“${data.quote}”`,49,787,642,80,37,{headline:true});}
+        if(data.fine)text(data.fine,34,896,672,38,17,{color:B.muted});
       }
     }
-    text(ISSUE.edition,34,961,600,25,16);text(index+1,661,959,45,28,21,{headline:true});
+    text(ISSUE.edition,34,961,600,25,16,{color:B.muted});text(index+1,661,959,45,28,21,{headline:true,color:B.heading});
   }
 }
+
 
 export class NewsstandScene extends BaseScene {
   constructor(){
@@ -138,6 +150,7 @@ export class NewsstandScene extends BaseScene {
     this.cityId=normalizeNewsstandCityId(data.cityId||gameState.currentCityId||this.registry.get('currentCityId')||this.registry.get('currentCity')||'paris');
     this.isOpeningNewspaper=false;this.isShuttingDown=false;this.sceneRunToken={};
     this.background=null;this.hotspots=null;this.comix=null;this.closeButton=null;this.monthlyReader=null;
+    this.cashLabel=null;this.cashTimer=null;this.hiddenHud=null;
   }
   preload(){preloadShopPurchaseAudio(this);}
   create(){
@@ -146,11 +159,58 @@ export class NewsstandScene extends BaseScene {
     this.scale.on('resize',this.handleResize);
     if(this.input.keyboard)this.trackInputEvent(this.input.keyboard,'keydown-ESC',this.handleEscape);
     EventBus.emit('hideHUD');
+    this.hideBottomMenu();
     this.purchaseFeedback=new NewsstandPurchaseFeedback(this);
     this.background=new NewsstandBackground(this,()=>this.hotspots?.resize());this.background.create();
     this.comix=new NewsstandComix(this);this.comix.create();
     this.hotspots=new NewsstandHotspots(this,this.background);this.hotspots.create();
-    this.createCloseButton();this.monthlyReader=new MonthlySpillTabloidReader(this);
+    this.createCloseButton();this.createCashLabel();
+    this.monthlyReader=new MonthlySpillTabloidReader(this);
+  }
+  hideBottomMenu(){
+    try{
+      const manager=this.game.scene;
+      const hudPlayer=manager.keys?.PlayerHudScene;
+      hudPlayer?.closeAllUIPanels?.();
+      hudPlayer?._panelInstances?.get('playerMenu')?.close?.();
+      const news=manager.keys?.NewsHud;
+      news?.closeMenu?.(true);
+      news?.setHudVisible?.(false);
+      const dom=document.getElementById('hud-container');
+      this.hiddenHud={
+        scenes:HUD_SCENE_KEYS.filter(key=>manager.keys?.[key]).map(key=>({key,visible:manager.keys[key].sys.settings.visible!==false})),
+        news,newsEnabled:news?.hudEnabled,dom,display:dom?.style.display
+      };
+      for(const {key} of this.hiddenHud.scenes)manager.keys[key].sys.setVisible(false);
+      if(dom)dom.style.display='none';
+    }catch(error){console.warn('[NewsstandScene] Could not hide bottom menu:',error);}
+  }
+  restoreBottomMenu(){
+    const saved=this.hiddenHud;this.hiddenHud=null;
+    if(!saved)return;
+    try{
+      const manager=this.game.scene;
+      for(const {key,visible} of saved.scenes)manager.keys?.[key]?.sys.setVisible(visible);
+      if(saved.news&&saved.newsEnabled!==false)saved.news.setHudVisible?.(true);
+      if(saved.dom)saved.dom.style.display=saved.display??'';
+    }catch(error){console.warn('[NewsstandScene] Could not restore bottom menu:',error);}
+  }
+  readCash(){
+    try{return Number(moneyManager.getBalance(MONEY_SOURCE.CASH))||0;}catch{return 0;}
+  }
+  getCashX(){
+    return Math.max(120,this.scale.width-CASH_RIGHT_MARGIN);
+  }
+  createCashLabel(){
+    this.cashLabel=this.add.text(this.getCashX(),CASH_TOP,formatDialogueText(__dialogueText("scenes/NewsstandScene.js", "t_0e8ba4f4b9de20a7acad"),{amount:this.readCash()}),{
+      fontFamily:'PressStart2P',fontSize:'16px',color:'#ffd943',backgroundColor:'#111111',padding:{x:10,y:8},
+    }).setOrigin(1,0).setDepth(30).setScrollFactor(0);
+    this.cashTimer=this.time.addEvent({delay:300,loop:true,callback:()=>this.refreshCash()});
+  }
+  refreshCash(){
+    if(!this.cashLabel?.active)return;
+    this.cashLabel.setText(formatDialogueText(__dialogueText("scenes/NewsstandScene.js", "t_0e8ba4f4b9de20a7acad"),{amount:this.readCash()}));
+    this.cashLabel.setPosition(this.getCashX(),CASH_TOP);
   }
   getActiveCityId(){
     return normalizeNewsstandCityId(gameState.currentCityId||this.cityId||this.registry.get('currentCityId')||this.registry.get('currentCity')||'paris');
@@ -220,6 +280,7 @@ export class NewsstandScene extends BaseScene {
         purchaseId=purchase.transaction?.id||null;
         if(Number(config.price)>0)playShopPurchaseAudio(this);
         this.markNewspaperAccessForToday(cityId,config.id);
+        this.refreshCash();
       }
       this.showPurchaseConfirmation(config.label,alreadyPaidToday?0:config.price,alreadyPaidToday);
       this.cityId=cityId;this.stopSceneIfActive('NewspaperOverlayScene');
@@ -246,6 +307,7 @@ export class NewsstandScene extends BaseScene {
     });
     if(!purchase.ok){this.showNotEnoughMoneyMessage(comicTitle,purchase.required,purchase.available);return;}
     if(Number(config.price)>0)playShopPurchaseAudio(this);
+    this.refreshCash();
     this.showPurchaseConfirmation(comicTitle,config.price);
     this.comix.open(config.textureKey);
   }
@@ -267,6 +329,7 @@ export class NewsstandScene extends BaseScene {
         if(!access||typeof access!=='object'||Array.isArray(access))gameState.monthlyMagazineAccess={};
         gameState.monthlyMagazineAccess[ISSUE.id]=true;requestAutosave();
         if(ISSUE.price>0)playShopPurchaseAudio(this);
+        this.refreshCash();
       }
       this.showPurchaseConfirmation(ISSUE.title,alreadyOwned?0:ISSUE.price,alreadyOwned);
       reader.open();
@@ -321,6 +384,7 @@ export class NewsstandScene extends BaseScene {
   }
   handleResize(){
     this.background?.resize();this.hotspots?.resize();this.comix?.resize();this.monthlyReader?.resize();
+    this.refreshCash();
   }
   closeScene(){
     if(this.isOpeningNewspaper||this.comix?.isAnimating||this.isShuttingDown)return;
@@ -329,12 +393,15 @@ export class NewsstandScene extends BaseScene {
   handleShutdown(){
     if(this.isShuttingDown)return;
     this.isShuttingDown=true;this.sceneRunToken=null;
+    this.cashTimer?.remove(false);this.cashTimer=null;this.cashLabel=null;
     this.purchaseFeedback?.destroy();this.purchaseFeedback=null;
     this.monthlyReader?.destroy();this.monthlyReader=null;
     this.scale.off('resize',this.handleResize);
     this.stopSceneIfActive('NewspaperOverlayScene');
     this.hotspots?.destroy();this.comix?.destroy();this.background?.destroy();
     this.hotspots=null;this.comix=null;this.background=null;this.closeButton=null;
-    this.isOpeningNewspaper=false;EventBus.emit('showHUD');
+    this.isOpeningNewspaper=false;
+    this.restoreBottomMenu();
+    EventBus.emit('showHUD');
   }
 }

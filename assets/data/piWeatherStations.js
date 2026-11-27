@@ -14,5 +14,17 @@ export const PI_WEATHER_STATIONS=[
  {id:'honolulu',name:'Honolulu',region:'Oahu, Hawaii',zone:'Pacific/Honolulu',latitude:21.3,baseC:25},
  {id:'lima',name:'Lima',region:'Lima Region, Peru',zone:'America/Lima',latitude:-12.1,baseC:21},
  {id:'miami',name:'Miami',region:'Florida, United States',zone:'America/New_York',latitude:25.8,baseC:24},
- {id:'new_york',name:'New York',region:'New York, United States',zone:'America/New_York',latitude:40.7,baseC:13}
+ {id:'new_york',name:'New York',region:'New York, United States',zone:'America/New_York',latitude:40.7,baseC:13},
+ {id:'paris',name:'Paris',region:'Ile-de-France, France',zone:'Europe/Paris',latitude:48.9,baseC:12},
+ {id:'london',name:'London',region:'England, United Kingdom',zone:'Europe/London',latitude:51.5,baseC:11},
+ {id:'warsaw',name:'Warsaw',region:'Masovia, Poland',zone:'Europe/Warsaw',latitude:52.2,baseC:9},
+ {id:'berlin',name:'Berlin',region:'Berlin, Germany',zone:'Europe/Berlin',latitude:52.5,baseC:10},
+ {id:'tokyo',name:'Tokyo',region:'Kanto, Japan',zone:'Asia/Tokyo',latitude:35.7,baseC:16},
+ {id:'new_delhi',name:'New Delhi',region:'Delhi, India',zone:'Asia/Kolkata',latitude:28.6,baseC:25},
+ {id:'nairobi',name:'Nairobi',region:'Nairobi County, Kenya',zone:'Africa/Nairobi',latitude:-1.3,baseC:19},
+ {id:'kotte',name:'Kotte',region:'Western Province, Sri Lanka',zone:'Asia/Colombo',latitude:6.9,baseC:28},
+ {id:'islamabad',name:'Islamabad',region:'Islamabad Capital Territory, Pakistan',zone:'Asia/Karachi',latitude:33.7,baseC:23},
+ {id:'toronto',name:'Toronto',region:'Ontario, Canada',zone:'America/Toronto',latitude:43.7,baseC:8},
+ {id:'singapore',name:'Singapore',region:'Singapore',zone:'Asia/Singapore',latitude:1.4,baseC:28},
+ {id:'sydney',name:'Sydney',region:'New South Wales, Australia',zone:'Australia/Sydney',latitude:-33.9,baseC:18}
 ];

@@ -43,6 +43,23 @@ function commitManager() {
   dialogueManager._commit();
 }
 
+// Token of the currently loaded dialogue data (bumped by every save load).
+// Conversations capture it when they open and check it before each action.
+export function getHomeTownDialogueGeneration() {
+  syncManager();
+  return dialogueManager.generation;
+}
+
+export function isHomeTownDialogueGenerationCurrent(token) {
+  try { syncManager(); }
+  catch (error) { console.error('[HomeTownTrust] Sync failed:', error); return false; }
+  return dialogueManager.isCurrentGeneration(token);
+}
+
+export function onHomeTownDialogueInvalidated(listener) {
+  return dialogueManager.onInvalidated(listener);
+}
+
 function choiceKey(choiceId) {
   return CHOICE_PREFIX + requireId(choiceId, 'Choice id');
 }
@@ -102,11 +119,19 @@ export function applyHomeTownTrustChoice({
   trustDelta,
   reactions = {},
   startTrust = TRUST_DEFAULT,
+  generation,
 }) {
   const id = requireId(npcId, 'NPC id');
   const key = choiceKey(choiceId);
 
   syncManager();
+
+  // A conversation opened before a load (or during one) must not write trust
+  // into the save that replaced it.
+  if (dialogueManager.isRestoring ||
+      (generation !== undefined && !dialogueManager.isCurrentGeneration(generation))) {
+    return { npcId: id, before: null, after: null, delta: 0, repeated: false, stale: true, level: null };
+  }
 
   const trust = dialogueManager.trust;
   const state = dialogueManager._state(id);

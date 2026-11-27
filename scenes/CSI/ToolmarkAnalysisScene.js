@@ -3,6 +3,7 @@ import { BaseScene } from '../BaseScene.js';
 import { LabTerminal, TERM } from './LabTerminal.js';
 import { getDustProfile } from '../../suspects/DustEvidence.js';
 import { toolmarkText } from './ToolmarkAnalysisText.js';
+import { createForensicExitButton } from './BaseForensicMinigame.js';
 const BAR=41,ZONE=7;
 const text=key=>__dialogueText('scenes/CSI/ToolmarkAnalysisScene.js',key);
 const editable=event=>Boolean(event?.target?.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"])'));
@@ -62,10 +63,7 @@ export class ToolmarkAnalysisScene extends BaseScene {
   }
   createExitControl(){
     const terminal=this.term,session=this._toolmarkSession;
-    this.exitButton=this.add.text(terminal.x+terminal.w-10,terminal.y+17,toolmarkText('exit'),{
-      fontFamily:'PressStart2P',fontSize:'9px',color:TERM.amber,backgroundColor:'#07110d',padding:{x:6,y:6}
-    }).setOrigin(1,.5).setDepth(10000).setInteractive({useHandCursor:true});
-    this.exitButton.on('pointerdown',(p,x,y,event)=>{event?.stopPropagation();if(this.isCurrentSession(session,terminal))this.abortMinigame();});
+    this.exitButton=createForensicExitButton(this,()=>{if(this.isCurrentSession(session,terminal))this.abortMinigame();});
     if(this.input.keyboard){
       this._escapeHandler=event=>{if(editable(event)||event?.repeat||!this.isCurrentSession(session,terminal))return;event?.preventDefault?.();this.abortMinigame();};
       this.trackInputEvent(this.input.keyboard,'keydown-ESC',this._escapeHandler,this);

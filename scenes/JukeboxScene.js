@@ -1,13 +1,15 @@
-import { dialogueText as __dialogueText } from '../dialogues/DialogueText.js';
+import { dialogueText as __dialogueText, formatDialogueText } from '../dialogues/DialogueText.js';
 import { audioManager } from '../managers/AudioManager.js';
+import { refreshMusicEntitlements } from '../managers/MusicEntitlements.js';
 import { preloadMenuActionAudio, playMenuActionAudio } from './archive/MenuActionAudio.js';
 const BACKGROUND_URL = new URL('../assets/local/jukebox.webp', import.meta.url).href;
+const LOCKED_NOTICE_MS = 2600;
 export class JukeboxScene extends Phaser.Scene {
   constructor() { super({ key: 'JukeboxScene' }); }
   init() {
     this.ui = null; this.listeners = []; this.closing = false;
     this.lastState = ''; this.lastBounds = ''; this.trackSignature = null;
-    this.tracks = []; this.buttons = []; this.session = (this.session || 0) + 1;
+    this.tracks = []; this.buttons = []; this.titles = []; this.noticeTimers = []; this.session = (this.session || 0) + 1;
   }
   preload() { preloadMenuActionAudio(this); }
   create() {
@@ -39,6 +41,10 @@ export class JukeboxScene extends Phaser.Scene {
       if (session === this.session && this.ui && !this.closing) this.refresh();
     }).catch(error => {
       console.warn('[Jukebox] Catalog unavailable:', error);
+      if (session === this.session && this.ui && !this.closing) this.refresh();
+    });
+    // Purchased packs unlock their tracks as soon as the purchases are read.
+    refreshMusicEntitlements().then(() => {
       if (session === this.session && this.ui && !this.closing) this.refresh();
     });
   }
@@ -81,10 +87,14 @@ export class JukeboxScene extends Phaser.Scene {
       audioManager.setMusicVolume(Number(event.target.value) / 100); this.refresh();
     });
   }
+  clearNotices() {
+    for (const timer of this.noticeTimers) clearTimeout(timer);
+    this.noticeTimers = [];
+  }
   renderTracks() {
     if (!this.ui) return;
     const tracks = audioManager.getJukeboxTracks();
-    const signature = JSON.stringify(tracks.map(track => [track.id, track.title]));
+    const signature = JSON.stringify(tracks.map(track => [track.id, track.title, track.locked]));
     if (signature === this.trackSignature) return;
     const list = this.ui.querySelector(__dialogueText('scenes/JukeboxScene.js', 't_25a870d323b07aa83ec2'));
     const oldButtons = new Set(this.buttons);
@@ -92,27 +102,44 @@ export class JukeboxScene extends Phaser.Scene {
       if (!oldButtons.has(binding.element)) return true;
       binding.element.removeEventListener(binding.type, binding.handler); return false;
     });
-    list.replaceChildren(); this.buttons = []; this.tracks = tracks; this.trackSignature = signature;
+    this.clearNotices();
+    list.replaceChildren(); this.buttons = []; this.titles = []; this.tracks = tracks; this.trackSignature = signature;
     this.lastState = '';
     this.tracks.forEach((track, index) => {
       const button = document.createElement('button'); button.type = 'button'; button.className = 'jb-track';
       const number = document.createElement('span'); number.className = 'jb-track-number'; number.textContent = String(index + 1).padStart(2, '0');
       const title = document.createElement('span'); title.className = 'jb-track-title'; title.textContent = track.title;
       const marker = document.createElement('span'); marker.className = 'jb-track-marker'; marker.setAttribute('aria-hidden', 'true');
-      button.append(number, title, marker); list.appendChild(button); this.buttons.push(button);
+      if (track.locked) {
+        marker.textContent = '\u{1F512}';
+        button.dataset.locked = 'true'; button.setAttribute('aria-disabled', 'true');
+        button.title = formatDialogueText(__dialogueText("scenes/JukeboxScene.js", "t_a0e8d20cf2d5753f9609"), { pack: track.packTitle || __dialogueText("scenes/JukeboxScene.js", "t_7c6f33b8451d66c652b8") });
+        Object.assign(button.style, { opacity: '0.55', cursor: 'not-allowed' });
+      }
+      button.append(number, title, marker); list.appendChild(button); this.buttons.push(button); this.titles.push(title);
       this.listen(button, 'click', () => this.play(track.id));
     });
   }
+  showLockedNotice(index) {
+    const track = this.tracks[index], title = this.titles[index];
+    if (!track || !title) return;
+    title.textContent = formatDialogueText(__dialogueText("scenes/JukeboxScene.js", "t_4eb194192e07590101c9"), { pack: track.packTitle || __dialogueText("scenes/JukeboxScene.js", "t_7c6f33b8451d66c652b8") });
+    const timer = setTimeout(() => { if (title.isConnected) title.textContent = track.title; }, LOCKED_NOTICE_MS);
+    this.noticeTimers.push(timer);
+  }
   play(id) {
+    const index = this.tracks.findIndex(track => track.id === id);
+    if (index >= 0 && this.tracks[index].locked) { this.showLockedNotice(index); return; }
     audioManager.game?.sound?.unlock?.();
     audioManager.playJukebox(id, { retry: true }).catch(error => console.warn('[Jukebox]', error));
     this.refresh();
   }
   step(direction) {
-    if (!this.tracks.length) return;
-    const state = audioManager.getJukeboxState(), current = this.tracks.findIndex(track => track.id === state.selectedId);
-    const index = (Math.max(0, current) + direction + this.tracks.length) % this.tracks.length;
-    this.play(this.tracks[index].id);
+    const open = this.tracks.filter(track => !track.locked);
+    if (!open.length) return;
+    const state = audioManager.getJukeboxState(), current = open.findIndex(track => track.id === state.selectedId);
+    const index = (Math.max(0, current) + direction + open.length) % open.length;
+    this.play(open[index].id);
   }
   refresh() {
     if (!this.ui) return;
@@ -160,10 +187,10 @@ export class JukeboxScene extends Phaser.Scene {
   update() { this.fitInterface(); this.refresh(); }
   close() { if (this.closing) return; this.closing = true; this.scene.stop(); }
   cleanup() {
-    this.session += 1;
+    this.session += 1; this.clearNotices();
     this.scale.off('resize', this.fitInterface, this); window.removeEventListener('keydown', this.onKey, true);
     for (const { element, type, handler } of this.listeners) element.removeEventListener(type, handler);
-    this.listeners = []; this.buttons = []; this.ui?.remove(); this.ui = null;
+    this.listeners = []; this.buttons = []; this.titles = []; this.ui?.remove(); this.ui = null;
     if (this.previousFocus?.isConnected) this.previousFocus.focus();
   }
 }

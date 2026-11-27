@@ -569,5 +569,3 @@ export class CrimeLabScene extends BaseScene {
     this.labView?.destroy?.();this.labView=null;this.evidenceService=null;this.labManager=null;
   }
 }
-
-// CSI reliability fixes: 2026-11-20-v1

@@ -66,10 +66,8 @@ export function installComputerWeather(ui){
  const wrap=(target,key,fn)=>{const old=target[key],next=fn(old);target[key]=next;restorers.push(()=>{if(target[key]===next)target[key]=old;});};
  const previous=ui.shell.cfg.apps[APP];ui.shell.cfg.apps[APP]={title:'Weather',color:0x83b9cc,kind:null};
  wrap(ui,'openApp',old=>function(id,...args){if(id!==APP)return old.call(this,id,...args);if(this.destroyed||!this.isOpen||this.suspended||this.booting)return;this.menuOpen=false;this.shell.open(APP);this.render();});
- wrap(ui.desktop,'render',old=>function(...args){const result=old.apply(this,args),d=ui.drawing,{x,y}=ui.layout,cx=x+496,cy=y+46,g=ui.scene.add.graphics();d.add(g);
-  g.fillStyle(0xe3bc61,1);g.fillCircle(cx+11,cy-9,14);g.fillStyle(0xb6d2dd,1);g.fillCircle(cx-10,cy+1,12);g.fillCircle(cx+3,cy-3,15);g.fillCircle(cx+18,cy+3,10);g.fillRect(cx-13,cy,32,12);
-  g.lineStyle(3,0x71b5db,1);for(let i=0;i<3;i++)g.lineBetween(cx-11+i*13,cy+19,cx-16+i*13,cy+28);
-  d.text(cx,cy+35,'Weather',15,'#fff').setOrigin(.5,0);d.rectangle(x+436,y+10,120,94,0,0).setInteractive({useHandCursor:true}).on('pointerdown',()=>ui.openApp(APP));return result;});
+ wrap(ui.desktop,'render',old=>function(...args){const result=old.apply(this,args),{x,y}=ui.layout;
+  ui.desktop.createIcon(x+572,y+10,128,'Weather','weather',0x83b9cc,()=>ui.openApp(APP));return result;});
  wrap(ui.shell,'drawStartMenu',old=>function(layout,items,...args){const copy=items.slice();if(!copy.some(i=>i.app===APP))copy.unshift({app:APP,label:'Weather',color:0x83b9cc,kind:null});return old.call(this,layout,copy,...args);});
  wrap(ui.monitor,'renderApplication',old=>function(...args){if(ui.app!==APP)return old.apply(this,args);const l=ui.layout,d=ui.drawing,b=ui.shell.rectFor({x:l.x+12,y:l.y+10,w:l.w-24,h:l.h-58});ui.window=b;
   d.bevel(b.x,b.y,b.w,b.h,0xc9c7bb);d.rectangle(b.x+4,b.y+4,b.w-8,34,0x23496d);d.pixel(b.x+16,b.y+15,'WEATHER ARCHIVE',11,'#fff');

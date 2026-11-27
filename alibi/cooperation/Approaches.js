@@ -1,7 +1,7 @@
 import { APPROACHES, RECOVERY_APPROACHES } from './Config.js';
 import { getCooperationState, getWitnessPersonality } from './State.js';
 import { getRapport, addEntry, spendMinutes } from './Runtime.js';
-import { voiceLine, detectiveLine } from './Dialogue.js';
+import { savedLine, voiceLine, detectiveLine } from './Dialogue.js';
 import { getInterviewView } from './View.js';
 export function applyApproach(
   caseKey,

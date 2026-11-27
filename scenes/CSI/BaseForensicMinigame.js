@@ -1,8 +1,19 @@
 import { dialogueText as __dialogueText } from '../../dialogues/DialogueText.js';
 import { BaseScene } from '../BaseScene.js';
-
+import { normalizeCorrectValue as normalizeForensicCorrectValue } from './ForensicValuePolicy.js';
 const text=key=>__dialogueText('scenes/CSI/BaseForensicMinigame.js',key);
 const own=(object,key)=>Object.prototype.hasOwnProperty.call(object,key);
+
+// Shared red "X" exit control used by every forensic minigame (also scenes not extending this class).
+export function createForensicExitButton(scene,onExit) {
+  const {width}=scene.scale;
+  const button=scene.add.text(width-24,18,'X',{fontFamily:'PressStart2P',fontSize:'12px',color:'#ff6666',backgroundColor:'#200808',padding:{left:6,right:6,top:4,bottom:4}})
+    .setOrigin(1,0).setScrollFactor(0).setDepth(10000).setInteractive({useHandCursor:true});
+  button.on('pointerover',()=>button.active&&button.setStyle({color:'#ffaaaa'}));
+  button.on('pointerout',()=>button.active&&button.setStyle({color:'#ff6666'}));
+  button.on('pointerdown',(pointer,x,y,event)=>{event?.stopPropagation?.();onExit();});
+  return button;
+}
 
 export class BaseForensicMinigame extends BaseScene {
   constructor(sceneKey='BaseForensicMinigame') {
@@ -16,6 +27,9 @@ export class BaseForensicMinigame extends BaseScene {
     for(const key of ['titleText','subtitleText','instructionsText','instructionsBg','dialogueText','dialogueBg','scoreText','timerText','progressGroup','hudBg','playArea','playAreaBg','exitButton'])this[key]=null;
     this._forensicCleanupDone=false;this._minigameClosing=false;
     this._choiceButtonContext=null;this._optionSequence=0;this._forensicRunToken=null;
+  }
+  normalizeCorrectValue(allowed,fallback=null) {
+    return normalizeForensicCorrectValue.call(this,allowed,fallback);
   }
   init(data={}) {
     this.evidenceConfig=data.evidenceConfig||{};
@@ -41,12 +55,7 @@ export class BaseForensicMinigame extends BaseScene {
     this.createExitButton();this.startTimer();this.startEvidenceFlow();
   }
   createExitButton() {
-    const {width}=this.scale;
-    this.exitButton=this.add.text(width-24,18,'X',{fontFamily:'PressStart2P',fontSize:'12px',color:'#ff6666',backgroundColor:'#200808',padding:{left:6,right:6,top:4,bottom:4}})
-      .setOrigin(1,0).setScrollFactor(0).setDepth(999).setInteractive({useHandCursor:true});
-    this.exitButton.on('pointerover',()=>this.exitButton?.setStyle({color:'#ffaaaa'}));
-    this.exitButton.on('pointerout',()=>this.exitButton?.setStyle({color:'#ff6666'}));
-    this.exitButton.on('pointerdown',()=>this.abortMinigame());
+    this.exitButton=createForensicExitButton(this,()=>this.abortMinigame());
   }
   getCloseEnvelope(payload,aborted) {
     return {schemaVersion:1,aborted,completed:!aborted&&payload.completed===true,payload};
@@ -63,7 +72,6 @@ export class BaseForensicMinigame extends BaseScene {
   abortMinigame() {
     if(this.resolved||this._minigameClosing)return;
     this._minigameClosing=true;this.timerEvent?.remove(false);this.timerEvent=null;
-    // Cancellation does not need to broadcast the answer or the secret config.
     const payload={aborted:true,completed:false,stationId:this.stationId,cityId:this.cityId,caseKey:this.caseKey,
       evidenceType:this.evidenceType,score:this.score,mistakes:this.mistakes,secondsElapsed:this.secondsElapsed};
     try {
@@ -160,15 +168,11 @@ export class BaseForensicMinigame extends BaseScene {
     bg.on('pointerout',()=>{if(!container.optionFeedback)bg.setFillStyle(bgColor,1);});
     bg.on('pointerdown',()=>{
       if(!canUse())return;
-      const previous=this._choiceButtonContext;
-      this._choiceButtonContext=container;
-      try { onClick(container); }
-      finally { this._choiceButtonContext=previous; }
+      const previous=this._choiceButtonContext;this._choiceButtonContext=container;
+      try { onClick(container); } finally { this._choiceButtonContext=previous; }
     });
     this.optionButtons.push(container);return container;
   }
-  // New callers may explicitly associate a value. Existing synchronous choice
-  // callbacks are associated automatically by resolveChoice().
   createChoiceButton(x,y,w,h,label,value,onClick,opts={}) {
     return this.createButton(x,y,w,h,label,onClick,{...opts,optionValue:value});
   }
@@ -181,9 +185,7 @@ export class BaseForensicMinigame extends BaseScene {
   resolveChoice(value,isCorrect,penalty=10) {
     if(this.resolved||this._minigameClosing)return;
     const clicked=this._choiceButtonContext;
-    if(clicked&&this.optionButtons.includes(clicked)){
-      clicked.optionValue=value;clicked.hasOptionValue=true;
-    }
+    if(clicked&&this.optionButtons.includes(clicked)){clicked.optionValue=value;clicked.hasOptionValue=true;}
     if(!isCorrect){this.penalize(penalty);this.flashWrongSelection(value);this.onWrongChoice(value);return;}
     this.resolved=true;this.selectedValue=value;this.timerEvent?.remove(false);this.timerEvent=null;
     const bonus=this.applyTimeBonus();this.onCorrectChoice(value);this.setDialogue(this.getSuccessMessage(value,bonus));

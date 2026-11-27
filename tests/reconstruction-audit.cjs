@@ -165,6 +165,8 @@ async function loadGenerator() {
     fetch: localFetch,
     setTimeout,
     clearTimeout,
+    AbortController,
+    AbortSignal,
     TextEncoder,
     TextDecoder
   });

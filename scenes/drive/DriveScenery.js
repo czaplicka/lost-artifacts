@@ -35,7 +35,7 @@ export const DriveScenery={
   },
   buildWeather(){
     const {W,H,horizonY:hz,dashTop,biome:B}=this;
-    this.drops=[];this.wiper=null;this._rainStreaks=null;this._rainParticles=[];
+    this.drops=[];this.wiper=null;this.wiperLeft=null;this._rainStreaks=null;this._rainParticles=[];
     this._wiperClock=1.26;this._wiperPreviousAngle=0;
     const mask=this.buildCarWeatherMask(),masked=o=>o.setMask(mask);
     const dark=B.stars||B.darkness>.15,fog=this.weather==='fog',rain=this.weather==='rain';
@@ -51,6 +51,9 @@ export const DriveScenery={
     // The supplied artwork is horizontal at rest. Keep it parked even in clear weather.
     this._wiperPivotX=1184;this._wiperPivotY=642;this._wiperLength=740;
     this.wiper=masked(makeCarPart(this,'wiper',1184,600,168).setPosition(this._wiperPivotX,this._wiperPivotY).setAngle(0));
+    // Driver-side blade: same artwork and rhythm, so the left half of the glass gets cleared too.
+    this._wiperLeftPivotX=470;
+    this.wiperLeft=masked(makeCarPart(this,'wiper',1184,600,168).setPosition(this._wiperLeftPivotX,this._wiperPivotY).setAngle(0));
     if(!rain)return;
     masked(this.add.rectangle(W/2,dashTop/2,W,dashTop,0x101a25,dark? .12:.18).setDepth(150));
     this._rainStreaks=masked(this.add.graphics().setDepth(160));
@@ -63,13 +66,14 @@ export const DriveScenery={
   refreshDrops(){
     if(!this.wiper||!this.drops.length)return;
     const angle=this.wiper.angle,previous=this._wiperPreviousAngle??angle;
+    const pivots=[this._wiperPivotX,...(this.wiperLeft?[this._wiperLeftPivotX]:[])];
     if(Math.abs(angle-previous)>.001)for(const drop of this.drops){
-      if(drop.scene&&pointInWiperSweep(drop.x,drop.y,this._wiperPivotX,this._wiperPivotY,this._wiperLength,previous,angle))drop.setAlpha(0);
+      if(drop.scene&&pivots.some(px=>pointInWiperSweep(drop.x,drop.y,px,this._wiperPivotY,this._wiperLength,previous,angle)))drop.setAlpha(0);
     }
     this._wiperPreviousAngle=angle;
   },
   updateScenery(dt){
-    const sp=Math.max(0,this.speed/BASE_SPEED),turn=this.curveAt(this.pos+250)*sp,m=this._sceneryMotion;
+    const sp=Math.max(0,this.speed/BASE_SPEED),turn=this.curveAt(this.pos+60)*sp*2.2,m=this._sceneryMotion;
     m.previousLook=m.look;m.look=smooth(m.look,this.playerX*9*this.sx,4,dt);
     const delta=m.look-m.previousLook;
     this.hillsFar.tilePositionX+=turn*dt*45+delta*.35;this.hillsNear.tilePositionX+=turn*dt*95+delta*.8;
@@ -88,6 +92,6 @@ export const DriveScenery={
       g.lineBetween(p.x,p.y,Math.max(minX,p.x-length*.3),Math.min(dashTop,p.y+length));
     }
     for(const d of this.drops)if(d.scene)d.setAlpha(Math.min(d.getData('targetAlpha'),d.alpha+d.getData('recovery')*dt));
-    this._wiperClock=(this._wiperClock+dt)%2.41;this.wiper.setAngle(wiperAngle(this._wiperClock));this.refreshDrops();
+    this._wiperClock=(this._wiperClock+dt)%2.41;const angle=wiperAngle(this._wiperClock);this.wiper.setAngle(angle);this.wiperLeft?.setAngle(angle);this.refreshDrops();
   }
 };

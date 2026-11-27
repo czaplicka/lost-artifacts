@@ -7,11 +7,12 @@ export const NEWSSTAND_CONFIG = {
   designWidth:1920,
   designHeight:1080,
   backgroundKey:'newsstand_bg',
-  imageZoom:1.30,
-  videoZoom:1.25,
+  imageZoom:1.25,
+  videoZoom:1.15,
   dimAlpha:0.42,
   // Asset paths are technical data, not translatable dialogue.
   videoUrl:new URL('../assets/video/newsstand.mp4',import.meta.url).href,
+  videoIntervalMs:10000,
   videoDelayMs:250,
   videoCheckDelayMs:5000,
   newspaperAccessKey:'dailyNewspaperAccess'

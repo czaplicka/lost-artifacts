@@ -194,7 +194,8 @@ export function getRoadTripQuote(fromId, toId) {
     baseHours: Math.max(1, Math.round(km / 55)),
     fuelCost: Math.max(5, Math.round(km * 0.15)),
     energyCost: 0,
-    tripLength: clamp(km * 45, 1800, 5600)
+    // Road units at ~200/s cruising: a 60 km trip lasts about a minute, the longest under two.
+    tripLength: clamp(km * 170, 6000, 20000)
   };
 }
 

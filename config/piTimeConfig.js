@@ -5,7 +5,8 @@ export const PI_LOCATION_HOURS = Object.freeze({
   'spy-shop': [[600, 1200]],
   tavern: [[960, 120]],
   'police-station': [[0, 1440]],
-  cemetery: [[0, 1440]]
+  cemetery: [[0, 1440]],
+  'shooting-range': [[480, 1320]]
 });
 // Recurring daily windows, in minutes. Overnight windows cross midnight.
 export const PI_NPC_HOURS = Object.freeze({
@@ -16,5 +17,5 @@ export const PI_NPC_HOURS = Object.freeze({
 export const PI_SCENE_LOCATIONS = Object.freeze({
   DetectiveOfficeScene: 'pi-office', PigeonLoftScene: 'your-home',
   SpyShopScene: 'spy-shop', TavernScene: 'tavern',
-  PoliceStationScene: 'police-station'
+  PoliceStationScene: 'police-station', ShootingRangeScene: 'shooting-range'
 });

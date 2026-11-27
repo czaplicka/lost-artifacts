@@ -10,10 +10,22 @@ export const DRIVE = Object.freeze({
   maxSpeed: BASE_SPEED * 1.4, acceleration: BASE_SPEED * .36,
   braking: BASE_SPEED * .95, coasting: BASE_SPEED * .10,
   airResistance: BASE_SPEED * .055, offroadDrag: BASE_SPEED * .50,
-  offroadMaxSpeed: BASE_SPEED * .65, steeringResponse: 13,
-  steeringReturn: 18, steeringRate: 1.65, curveForce: .42,
+  offroadMaxSpeed: BASE_SPEED * .65, steeringResponse: 7,
+  steeringReturn: 9, steeringRate: 1.9, curveForce: .5,
   arrivalSpeed: BASE_SPEED * .32, arrivalResponse: BASE_SPEED * .70,
   coffeeMultiplier: 1.18
+});
+// Track geometry: the road is a list of straights and eased bends (Test Drive style),
+// sampled every TRACK.step units. `bend` turns curvature into lateral road offset.
+export const TRACK = Object.freeze({step: 4, bend: 1.1e-4, startStraight: 450, endStraight: 650});
+// Balance knobs, tuned with simulated trips (careful / average / reckless driving bots).
+// Targets: careful driving roughly pays for its fuel, average breaks even, reckless loses money.
+export const BALANCE = Object.freeze({
+  obstacleLanes: [-.55, -.2, 0, .2, .55],
+  pairFrom: .35, pairChance: .3,           // second obstacle in another lane, late in the trip
+  coinsMin: 2, coinsMax: 3,                // coins per row
+  camGap: [2600, 3600],                    // road units between speed cameras
+  idleChat: [13, 19]                       // seconds between idle dino remarks
 });
 export const rand = (a,b) => a + Math.random() * (b-a);
 export const pick = arr => arr[Math.floor(Math.random() * arr.length)];

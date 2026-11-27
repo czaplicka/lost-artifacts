@@ -1,9 +1,13 @@
 import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { deadMenWebContacts, isDeadMenWebContactVisible } from '../../managers/DeadMenWebIntegration.js';
+import { advertisingContact } from '../../managers/PIAgencyAdvertising.js';
 import { DW, DH, FONT_TEXT, FONT_PIXEL, SFX } from './PhoneConfig.js';
 import { savedPhoneContacts } from '../pi-computer/AlibiContactBook.js';
 function directoryContacts(phone){
  const contacts=new Map((phone.contacts||[]).filter(c=>c.listed===true).map(c=>[c.number,c]));
+ // Dział reklam w gazecie (207) jest zawsze w książce.
+ const advert=advertisingContact();
+ if(!contacts.has(advert.number))contacts.set(advert.number,advert);
  for(const contact of savedPhoneContacts())if(!contacts.has(contact.number))contacts.set(contact.number,contact);
  for(const contact of deadMenWebContacts())contacts.set(contact.number,contact);
  return [...contacts.values()].filter(isDeadMenWebContactVisible);

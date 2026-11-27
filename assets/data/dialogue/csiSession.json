@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "strings": {
+    "title": "CSI ANALYSIS",
+    "body": "Prepare the sample, inspect the observations and complete the analysis. You have {minutes} minutes. Reading this screen does not use your time.",
+    "start": "START ANALYSIS",
+    "exit": "RETURN TO LAB",
+    "resumeTitle": "ANALYSIS PAUSED",
+    "resumeBody": "Your sample has waited patiently. Resume when you are ready.",
+    "resume": "RESUME ANALYSIS",
+    "countdown": "Analysis: {time}",
+    "elapsed": "Time: {time}",
+    "idle": "Still investigating, or has the microscope hypnotised you?",
+    "continue": "CONTINUE ANALYSIS",
+    "time_limit": "Analysis timed out. No result was recorded. You can try again.",
+    "inactivity": "Analysis cancelled after inactivity. No result was recorded. You can try again.",
+    "invalid_input": "This sample has invalid or unsupported data. No result was recorded.",
+    "runtime_error": "The analysis could not continue. No result was recorded.",
+    "cancelled": "Analysis cancelled. No result was recorded.",
+    "HairAnalysisScene": "Use the tweezers to prepare the strand, apply the reagent and compare it under the microscope.",
+    "BloodAnalysisScene": "Prepare the blood sample, apply each reagent to its matching well and compare the reactions.",
+    "DnaGenderScene": "Follow the sample preparation instructions and interpret the genetic profile.",
+    "FingerprintPatternScene": "Prepare and focus the print, then identify its ridge pattern.",
+    "FingerprintScene": "Recover the partial fingerprint and complete the analysis.",
+    "ShoeprintScene": "Inspect the recovered shoeprint and compare the available samples.",
+    "ToolmarkAnalysisScene": "Press SPACE or tap LOCK FOCUS when the marker is in the target zone. Complete three scans.",
+    "ChemicalResidueScene": "Process the recovered microscopic residue and complete the analysis.",
+    "FiberAnalysisScene": "Watch the scanner, then repeat the colour sequence. Complete all rounds.",
+    "MaterialAnalysisScene": "Watch the scanner, then repeat the colour sequence to identify the recovered material."
+  }
+}

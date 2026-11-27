@@ -74,6 +74,9 @@ export const GridDrawMixin = {
       this.modalRoot.destroy(true);
       this.modalRoot = null;
     }
+    // A rebuild (resize, fullscreen, refresh) removes an open confirm box.
+    // Without this the flag stayed true and every scroll/drag input was ignored.
+    this.modalOpen = false;
 
     this.bodyContainer = null;
     this.headerContainer = null;
@@ -412,7 +415,7 @@ export const GridDrawMixin = {
 
     this.uiRoot.add([track, thumb]);
     (this.scrollbars ??= {})[key] = {
-      thumb, vertical, start, fixed, trackLen, thumbLen, getScroll, getMin
+      thumb, vertical, start, fixed, trackLen, thumbLen, thickness: T, getScroll, getMin
     };
   },
 

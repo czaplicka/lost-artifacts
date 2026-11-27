@@ -6,6 +6,8 @@ import {
   caseRoomContext
 } from '../systems/CaseRoomFlow.js';
 
+const CASE_ROOM_NODE = 'case_room';
+
 export class CrimeCityScene extends CrimeCityBase {
   init(data = {}) {
     super.init({
@@ -48,6 +50,35 @@ export class CrimeCityScene extends CrimeCityBase {
     map.areSuspectFilesUnlocked = () =>
       context().completed;
 
+    // Case Room jest darmowy: własny węzeł kosztów z zerowym kosztem.
+    if (!map.caseRoomCostsInstalled) {
+      map.caseRoomCostsInstalled = true;
+
+      const getDisplayCost = map.getDisplayCost;
+      const getLocationCostLabel = map.getLocationCostLabel;
+
+      map.getDisplayCost = function(nodeId, ...args) {
+        if (nodeId === CASE_ROOM_NODE) {
+          return { energy: 0, money: 0 };
+        }
+
+        return getDisplayCost.call(this, nodeId, ...args);
+      };
+
+      map.getLocationCostLabel = function(title, nodeId, ...args) {
+        if (nodeId === CASE_ROOM_NODE) {
+          return `${title}\nFREE`;
+        }
+
+        return getLocationCostLabel.call(
+          this,
+          title,
+          nodeId,
+          ...args
+        );
+      };
+    }
+
     const locations =
       map.createAvailableLocations.bind(map);
 
@@ -70,7 +101,7 @@ export class CrimeCityScene extends CrimeCityBase {
 
         textureKey: 'crime_lab',
         label: 'Case Room',
-        costNodeId: 'crime_lab',
+        costNodeId: CASE_ROOM_NODE,
 
         fallbackColor: 0x496461,
         fallbackStroke: 0xd4af37,
@@ -165,18 +196,9 @@ export class CrimeCityScene extends CrimeCityBase {
         return false;
       }
 
-      // Ten sam węzeł podróży co CSI.
-      // Nie pobieramy ponownie opłaty za analizy.
+      // Case Room jest darmowy: bez opłaty za podróż i bez
+      // zmiany węzła podróży.
       if (
-        !this.progressService.moveToCrimeCityNode(
-          'crime_lab'
-        )
-      ) {
-        return false;
-      }
-
-      if (
-        !this.isCurrentRun(token) ||
         !caseRoomContext(
           this.cityId,
           context.caseKey

@@ -8,6 +8,7 @@ const FILE = 'ui/pi-computer/ComputerMonitor.js';
 const t = id => __dialogueText(FILE, id);
 const MONITOR_WIDTH = 1440;
 const MONITOR_HEIGHT = 800;
+const MONITOR_SHIFT_LEFT = 60;
 const SCREEN = { x: 48, y: 36, w: MONITOR_WIDTH - 96, h: 700 };
 const DESKTOP = { x: SCREEN.x + 12, y: SCREEN.y + 12, w: SCREEN.w - 24, h: SCREEN.h - 24 };
 const TEX_SCAN = 'pi_crt_scanlines';
@@ -202,7 +203,8 @@ export class ComputerMonitor {
       Math.max(1, width - margin * 2) / MONITOR_WIDTH,
       Math.max(1, height - margin * 2) / MONITOR_HEIGHT
     ));
-    const left = (width - MONITOR_WIDTH * scale) / 2;
+    const centered = (width - MONITOR_WIDTH * scale) / 2;
+    const left = Math.max(margin, centered - MONITOR_SHIFT_LEFT);
     const top = (height - MONITOR_HEIGHT * scale) / 2;
     return {
       scale, left, top,

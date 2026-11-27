@@ -5,6 +5,9 @@
   "main": "index.js",
   "scripts": {
     "copy:phaser": "node -e \"const fs = require('node:fs'); fs.mkdirSync('assets/vendor/phaser', { recursive: true }); fs.copyFileSync('node_modules/phaser/dist/phaser.min.js', 'assets/vendor/phaser/phaser-3.90.0.min.js'); fs.copyFileSync('node_modules/phaser/LICENSE.md', 'assets/vendor/phaser/LICENSE.md');\"",
+    "build:supabase": "esbuild node_modules/@supabase/supabase-js/dist/index.mjs --bundle --format=esm --platform=browser --target=es2020 --minify --legal-comments=eof --outfile=assets/vendor/supabase/supabase-js-2.119.2.js",
+    "build:preload":"node tools/gen-modulepreload.cjs",
+    "check:preload": "node tools/gen-modulepreload.cjs --check",
     "test": "npm run test:reconstruction",
     "test:reconstruction": "node tests/reconstruction-audit.cjs"
   },
@@ -16,6 +19,9 @@
     "phaser": "3.90.0"
   },
   "devDependencies": {
-    "acorn": "^8.19.0"
+    "@supabase/supabase-js": "2.119.2",
+    "acorn": "^8.19.0",
+    "esbuild": "0.28.2",
+    "supabase": "^3.4.0"
   }
 }

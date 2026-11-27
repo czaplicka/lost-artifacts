@@ -74,6 +74,20 @@ export class LocalAreaTownScene extends Phaser.Scene {
 
     this.controller?.arrive(this);
 
+    // Home Town to miasto startowe: nie pokazujemy ekranu "bored",
+    // tylko od razu wracamy tam, skąd gracz wyjechał.
+    if (this.controller?.isHome()) {
+      const run = this.run;
+      const controller = this.controller;
+
+      this.time.delayedCall(0, () => {
+        if (this.run !== run) return;
+        controller.finish();
+      });
+
+      return;
+    }
+
     this.draw();
   }
 

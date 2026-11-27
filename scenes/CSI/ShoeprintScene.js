@@ -1,1460 +1,645 @@
-import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 import { BaseScene } from '../BaseScene.js';
+import { SHOEPRINT_TEXT as TEXT } from './ShoeprintText.js';
+import { createForensicExitButton } from './BaseForensicMinigame.js';
 
-
-/* ------------------------------------------------------------------ */
-/*  CONSTANTS                                                          */
-/* ------------------------------------------------------------------ */
-
-const FONT_PIXEL = __dialogueText("scenes/CSI/ShoeprintScene.js", "t_eacaaf590ded2e581c69");
-const FONT_TYPE = __dialogueText("scenes/CSI/ShoeprintScene.js", "t_3e0e647223265856573a");
-
+const FONT_PIXEL = 'PressStart2P';
+const FONT_TYPE = 'SpecialElite';
+const FIELD = 'shoe_size_category';
+const PROFILES = Object.freeze({
+  small: Object.freeze({ size: 38, sole: 'RUBBER', wear: 'right_toe', value: 'small' }),
+  medium: Object.freeze({ size: 41, sole: 'VIBRAM', wear: 'left_heel', value: 'medium' }),
+  large: Object.freeze({ size: 44, sole: 'LUGGED', wear: 'outer_edge', value: 'large' })
+});
+const VALUES = Object.freeze(Object.keys(PROFILES));
 const PAL = {
-  bgTop: 0x13262c,
-  bgBottom: 0x070d10,
-  tile: 0x1d3a42,
-  panel: 0x0a1519,
-  panelEdge: 0x2f6b5c,
-
-  green: 0x39ff88,
-  amber: 0xffc247,
-  red: 0xff4d5e,
-  text: 0xd7efe3,
-  dim: 0x6f9a8a,
-
-  plaster: 0xd8cbae,
-  plasterDark: 0xbba982,
-  plasterLight: 0xf2e8cf,
-  plasterShadow: 0x8c7c5c,
-  plasterTread: 0x6a5a3c
+  bgTop: 0x13262c, bgBottom: 0x070d10, tile: 0x1d3a42,
+  panel: 0x0a1519, panelEdge: 0x2f6b5c, green: 0x39ff88,
+  amber: 0xffc247, red: 0xff4d5e, text: 0xd7efe3, dim: 0x6f9a8a,
+  plaster: 0xd8cbae, plasterDark: 0xbba982, plasterLight: 0xf2e8cf,
+  plasterShadow: 0x8c7c5c, plasterTread: 0x6a5a3c
 };
-
+const OUTLINE = [[0,0],[.02,.42],[.06,.66],[.14,.88],[.26,1],[.40,.93],
+  [.55,.72],[.68,.66],[.80,.74],[.90,.76],[.96,.62],[.99,.40],[1,0]];
+const PATTERNS = { RUBBER: 'ribs', VIBRAM: 'studs', LUGGED: 'blocks' };
 const css = n => `#${n.toString(16).padStart(6, '0')}`;
-
-const lerpColor = (a, b, t) => {
-  const ar = (a >> 16) & 255;
-  const ag = (a >> 8) & 255;
-  const ab = a & 255;
-  const br = (b >> 16) & 255;
-  const bg = (b >> 8) & 255;
-  const bb = b & 255;
-
-  return (
-    (Math.round(ar + (br - ar) * t) << 16) |
-    (Math.round(ag + (bg - ag) * t) << 8) |
-    Math.round(ab + (bb - ab) * t)
-  );
-};
-
-const SHOEPRINT_PROFILES = {
-  small: {
-    size: 38,
-    sole: 'RUBBER',
-    wear: __dialogueText("scenes/CSI/ShoeprintScene.js", "t_8b40281cc4f0786a6d92"),
-    value: 'small'
-  },
-
-  medium: {
-    size: 41,
-    sole: 'VIBRAM',
-    wear: __dialogueText("scenes/CSI/ShoeprintScene.js", "t_8cc1bac4d7f3c38a0cb1"),
-    value: 'medium'
-  },
-
-  large: {
-    size: 44,
-    sole: 'LUGGED',
-    wear: __dialogueText("scenes/CSI/ShoeprintScene.js", "t_21c5aefcbed22fba193f"),
-    value: 'large'
-  }
-};
-
-const SOLE_PATTERN = {
-  RUBBER: 'ribs',
-  VIBRAM: 'studs',
-  LUGGED: 'blocks'
-};
-
-// [t, halfWidth] — t: 0 = toe (top), 1 = heel (bottom)
-const SOLE_OUTLINE = [
-  [0, 0],
-  [0.02, 0.42],
-  [0.06, 0.66],
-  [0.14, 0.88],
-  [0.26, 1],
-  [0.40, 0.93],
-  [0.55, 0.72],
-  [0.68, 0.66],
-  [0.80, 0.74],
-  [0.90, 0.76],
-  [0.96, 0.62],
-  [0.99, 0.40],
-  [1, 0]
-];
-
-const MISS_QUIPS = [
-  __dialogueText("scenes/CSI/ShoeprintScene.js", "t_7d550c44b6b6c37803f3"),
-  __dialogueText("scenes/CSI/ShoeprintScene.js", "t_111cda6cc11292a96fa7"),
-  __dialogueText("scenes/CSI/ShoeprintScene.js", "t_c27e0b703cfbd81f7f7c"),
-  __dialogueText("scenes/CSI/ShoeprintScene.js", "t_23901a6a4bdd149f1389"),
-  __dialogueText("scenes/CSI/ShoeprintScene.js", "t_709a33247c6cd3a6e397"),
-  __dialogueText("scenes/CSI/ShoeprintScene.js", "t_6b880b955744da921ac3")
-];
-
-const DEFAULT_EVIDENCE = {
-  id: 'museum_windowsill_shoeprint',
-  slot: 'trace',
-  attribute: 'shoe_size_category',
-  thief_value: 'medium',
-  source: 'footwear_cast',
-  label: __dialogueText("scenes/CSI/ShoeprintScene.js", "t_c06b511bbf1c59840513"),
-  clueText: __dialogueText("scenes/CSI/ShoeprintScene.js", "t_44aa3823c377b07a819f"),
-  allowedValues: ['small', 'medium', 'large']
-};
-
-
-/* ------------------------------------------------------------------ */
-/*  DRAWING HELPERS                                                    */
-/* ------------------------------------------------------------------ */
-
+const own = (object, key) => Object.prototype.hasOwnProperty.call(object, key);
+const record = v => v !== null && typeof v === 'object' && !Array.isArray(v);
+const normalize = v => typeof v === 'string' ? v.trim().toLowerCase() : null;
+function t(key, vars = {}) {
+  const template = TEXT[key];
+  if (typeof template !== 'string') throw Error(`Missing shoeprint text: ${key}`);
+  return template.replace(/\{(\w+)\}/g, (_, name) => String(vars[name] ?? `{${name}}`));
+}
+function label(group, key) {
+  const value = TEXT[group]?.[key];
+  if (typeof value !== 'string' || !value.trim()) throw Error(`Missing shoeprint label: ${group}/${key}`);
+  return value;
+}
+function mix(a, b, k) {
+  return [16, 8, 0].reduce((n, shift) => n | (Math.round(
+    ((a >> shift) & 255) + (((b >> shift) & 255) - ((a >> shift) & 255)) * k
+  ) << shift), 0);
+}
 function halfWidthAt(t) {
-  const c = Phaser.Math.Clamp(t, 0, 1);
-
-  for (let i = 1; i < SOLE_OUTLINE.length; i++) {
-    const [t1, w1] = SOLE_OUTLINE[i];
-
-    if (c <= t1) {
-      const [t0, w0] = SOLE_OUTLINE[i - 1];
-      const k = (c - t0) / ((t1 - t0) || 1);
-      return w0 + (w1 - w0) * k;
-    }
+  t = Math.max(0, Math.min(1, t));
+  for (let i = 1; i < OUTLINE.length; i++) {
+    const [b, wb] = OUTLINE[i], [a, wa] = OUTLINE[i - 1];
+    if (t <= b) return wa + (wb - wa) * (t - a) / (b - a);
   }
-
   return 0;
 }
-
 function line(g, x1, y1, x2, y2) {
-  g.beginPath();
-  g.moveTo(x1, y1);
-  g.lineTo(x2, y2);
-  g.strokePath();
+  g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.strokePath();
 }
-
-/**
- * Draws a shoe sole print, toe at the top.
- * style: { base, tread, outline, emboss?, light?, shadow? }
- */
 function drawSole(g, cx, top, length, sole, wear, style) {
-  const half = length * 0.19;
-  const hw = t => halfWidthAt(t) * half;
-  const rows = 60;
-
+  const pattern = PATTERNS[sole];
+  if (!pattern || !['right_toe', 'left_heel', 'outer_edge'].includes(wear)) {
+    throw Error('Invalid sole geometry identifier.');
+  }
+  const half = length * .19, hw = t => halfWidthAt(t) * half;
   const outline = (dx = 0, dy = 0) => {
     g.beginPath();
-
-    for (let i = 0; i <= rows; i++) {
-      const t = i / rows;
-      const x = cx - hw(t) + dx;
-      const y = top + t * length + dy;
-      if (i === 0) g.moveTo(x, y);
-      else g.lineTo(x, y);
+    for (let i = 0; i <= 60; i++) {
+      const t = i / 60, x = cx - hw(t) + dx, y = top + t * length + dy;
+      if (i === 0) g.moveTo(x, y); else g.lineTo(x, y);
     }
-
-    for (let i = rows; i >= 0; i--) {
-      const t = i / rows;
-      g.lineTo(cx + hw(t) + dx, top + t * length + dy);
+    for (let i = 60; i >= 0; i--) {
+      const t = i / 60; g.lineTo(cx + hw(t) + dx, top + t * length + dy);
     }
-
     g.closePath();
   };
-
-  // relief for plaster
   if (style.emboss) {
-    g.fillStyle(style.shadow, 1);
-    outline(2, 2);
-    g.fillPath();
-
-    g.fillStyle(style.light, 1);
-    outline(-2, -2);
-    g.fillPath();
+    g.fillStyle(style.shadow, 1); outline(2, 2); g.fillPath();
+    g.fillStyle(style.light, 1); outline(-2, -2); g.fillPath();
   }
-
-  g.fillStyle(style.base, 1);
-  outline();
-  g.fillPath();
-
-  // tread
-  const pattern = SOLE_PATTERN[sole] || 'ribs';
-  const zones = [[0.07, 0.50], [0.69, 0.94]];
-  const stepT = pattern === 'ribs' ? 0.05 : pattern === 'studs' ? 0.055 : 0.095;
-
+  g.fillStyle(style.base, 1); outline(); g.fillPath();
   g.fillStyle(style.tread, 1);
-  g.lineStyle(Math.max(2, length * 0.011), style.tread, 1);
-
-  zones.forEach(([t0, t1]) => {
+  g.lineStyle(Math.max(2, length * .011), style.tread, 1);
+  const step = pattern === 'ribs' ? .05 : pattern === 'studs' ? .055 : .095;
+  for (const [start, end] of [[.07,.50],[.69,.94]]) {
     let row = 0;
-
-    for (let t = t0; t <= t1; t += stepT, row++) {
-      const y = top + t * length;
-      const w = hw(t) * 0.84;
-
+    for (let t = start; t <= end; t += step, row++) {
+      const y = top + t * length, w = hw(t) * .84;
       if (pattern === 'ribs') {
-        const drop = length * 0.016;
-        g.beginPath();
-        g.moveTo(cx - w, y + drop);
-        g.lineTo(cx, y - drop);
-        g.lineTo(cx + w, y + drop);
-        g.strokePath();
-      }
-
-      if (pattern === 'studs') {
-        const colStep = half * 0.38;
-        const b = length * 0.013;
-        const offset = (row % 2) * colStep * 0.5;
-
+        const d = length * .016;
+        g.beginPath(); g.moveTo(cx - w, y + d); g.lineTo(cx, y - d);
+        g.lineTo(cx + w, y + d); g.strokePath();
+      } else if (pattern === 'studs') {
+        const stepX = half * .38, b = length * .013, offset = (row % 2) * stepX * .5;
         for (let k = -4; k <= 4; k++) {
-          const x = cx + k * colStep + offset;
-          if (Math.abs(x - cx) + b <= w) {
-            g.fillRect(x - b, y - b, b * 2, b * 2);
-          }
+          const x = cx + k * stepX + offset;
+          if (Math.abs(x - cx) + b <= w) g.fillRect(x - b, y - b, b * 2, b * 2);
+        }
+      } else {
+        const bw = half * .44, bh = length * .05;
+        for (const dx of row % 2 ? [-.62 * half, 0, .62 * half] : [-.32 * half, .32 * half]) {
+          if (Math.abs(dx) + bw / 2 <= w) g.fillRect(cx + dx - bw / 2, y - bh / 2, bw, bh);
         }
       }
-
-      if (pattern === 'blocks') {
-        const bw = half * 0.44;
-        const bh = length * 0.05;
-        const xs = row % 2
-          ? [-0.62 * half, 0, 0.62 * half]
-          : [-0.32 * half, 0.32 * half];
-
-        xs.forEach(dx => {
-          if (Math.abs(dx) + bw / 2 <= w) {
-            g.fillRect(cx + dx - bw / 2, y - bh / 2, bw, bh);
-          }
-        });
-      }
     }
-  });
-
-  // shank line between forefoot and heel
-  g.lineStyle(Math.max(1, length * 0.006), style.tread, 0.7);
-  const ts = 0.655;
-  line(
-    g,
-    cx - hw(ts) * 0.9, top + ts * length,
-    cx + hw(ts) * 0.9, top + ts * length
-  );
-
-  // wear = smooth patch with no tread
-  g.fillStyle(style.base, 1);
-
-  if (wear === "RIGHT TOE") {
-    g.fillEllipse(
-      cx + half * 0.42, top + length * 0.15,
-      half * 0.8, length * 0.10
-    );
-  } else if (wear === "LEFT HEEL") {
-    g.fillEllipse(
-      cx - half * 0.30, top + length * 0.84,
-      half * 0.72, length * 0.11
-    );
-  } else if (wear === "OUTER EDGE") {
-    g.beginPath();
-
-    for (let t = 0.28; t <= 0.74; t += 0.02) {
-      const x = cx + hw(t) - 1;
-      const y = top + t * length;
-      if (t === 0.28) g.moveTo(x, y);
-      else g.lineTo(x, y);
-    }
-
-    for (let t = 0.74; t >= 0.28; t -= 0.02) {
-      g.lineTo(cx + hw(t) - half * 0.26, top + t * length);
-    }
-
-    g.closePath();
-    g.fillPath();
   }
-
-  // outline on top
-  g.lineStyle(2, style.outline, 1);
-  outline();
-  g.strokePath();
+  g.lineStyle(Math.max(1, length * .006), style.tread, .7);
+  line(g, cx - hw(.655) * .9, top + .655 * length, cx + hw(.655) * .9, top + .655 * length);
+  g.fillStyle(style.base, 1);
+  if (wear === 'right_toe') {
+    g.fillEllipse(cx + half * .42, top + length * .15, half * .8, length * .10);
+  } else if (wear === 'left_heel') {
+    g.fillEllipse(cx - half * .30, top + length * .84, half * .72, length * .11);
+  } else {
+    g.beginPath();
+    for (let i = 0; i <= 23; i++) {
+      const t = .28 + i * .02, x = cx + hw(t) - 1, y = top + t * length;
+      if (i === 0) g.moveTo(x, y); else g.lineTo(x, y);
+    }
+    for (let i = 23; i >= 0; i--) {
+      const t = .28 + i * .02; g.lineTo(cx + hw(t) - half * .26, top + t * length);
+    }
+    g.closePath(); g.fillPath();
+  }
+  g.lineStyle(2, style.outline, 1); outline(); g.strokePath();
 }
-
-
-/* ------------------------------------------------------------------ */
-/*  SCENE                                                              */
-/* ------------------------------------------------------------------ */
 
 export class ShoeprintScene extends BaseScene {
   constructor() {
     super('ShoeprintScene');
-
-    this.stationId = 'trace_1';
-    this.evidence = null;
-    this.evidenceType = 'shoe_size_category';
-    this.correctValue = 'medium';
-    this.clue = null;
-
-    this.cast = null;
-    this.entries = [];
-    this.cards = [];
-
-    this.score = 100;
-    this.mistakes = 0;
-    this.startedAt = 0;
-    this.timerStarted = false;
-    this.finishedSeconds = null;
-
-    this.finished = false;
-    this.returningToLab = false;
-    this.busy = false;
-    this.introDone = false;
-
-    this.u = 1;
-    this.layout = null;
-    this.castArea = null;
-    this.castStampPos = null;
-
-    this.logRows = null;
-    this.typeEvent = null;
-    this.clockEvent = null;
-    this.lastQuip = -1;
-
-    this.hudScore = null;
-    this.hudErr = null;
-    this.hudTime = null;
-
-    this._shoeprintDisposed = true;
     this._shoeprintSession = 0;
+    this._shoeprintDisposed = true;
+    this._pendingShoeprint = new Set();
+    this._shoeprintTweens = new Set();
   }
-
-
-  /* ---------------------------- init ----------------------------- */
 
   init(data = {}) {
-    const incomingEvidence =
-      data.evidence ||
-      data.evidenceConfig ||
-      {};
-
-    this.evidence = {
-      ...DEFAULT_EVIDENCE,
-      ...incomingEvidence
-    };
-
-    this.stationId =
-      data.stationId ||
-      this.evidence.stationId ||
-      'trace_1';
-
-    this.evidenceType =
-      data.evidenceType ||
-      incomingEvidence.evidenceType ||
-      this.evidence.attribute ||
-      'shoe_size_category';
-
-    const incomingValue = String(
-      data.correctValue ??
-      incomingEvidence.correctValue ??
-      incomingEvidence.thief_value ??
-      DEFAULT_EVIDENCE.thief_value
-    ).trim().toLowerCase();
-
-    this.correctValue = Object.prototype.hasOwnProperty.call(
-      SHOEPRINT_PROFILES,
-      incomingValue
-    )
-      ? incomingValue
-      : 'medium';
-
-    const clueText =
-      data.clueText ||
-      incomingEvidence.clueText ||
-      `${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_543cdee41d956fb03059")}${this.correctValue}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_8f44e99ba367ab92aeb7")}`;
-
-    this.evidence.thief_value = this.correctValue;
-    this.evidence.correctValue = this.correctValue;
-    this.evidence.clueText = clueText;
-
-    const correctProfile = SHOEPRINT_PROFILES[this.correctValue];
-
-    this.clue = data.clue || {
-      id: this.evidence.id,
-      type:
-        data.clueType ||
-        this.evidence.clueType ||
-        'means',
-      text: clueText,
-      facts: {
-        shoeSizeCategory: this.correctValue,
-        size: correctProfile.size,
-        sole: correctProfile.sole,
-        wear: correctProfile.wear
-      }
-    };
-
-    this.score = data.startScore ?? 100;
-    this.mistakes = 0;
-    this.startedAt = 0;
-    this.timerStarted = false;
-    this.finishedSeconds = null;
-
-    this.cast = null;
-    this.entries = [];
-    this.cards = [];
-    this.logRows = null;
-    this.typeEvent = null;
-    this.clockEvent = null;
-    this.lastQuip = -1;
-
-    this.finished = false;
-    this.returningToLab = false;
-    this.busy = false;
-    this.introDone = false;
-
+    this._shoeprintSession++;
     this._shoeprintDisposed = true;
-    this._shoeprintSession += 1;
+    this._pendingShoeprint = new Set();
+    this._shoeprintTweens = new Set();
+    this.evidence = {}; this.evidenceType = FIELD; this.correctValue = null;
+    this.stationId = 'trace_0'; this.cityId = null; this.caseKey = null;
+    this.clue = null; this.inputError = null; this.runtimeError = false;
+    this.onComplete = null; this.onAbort = null;
+    this.score = 100; this.mistakes = 0; this.startedAt = 0;
+    this.timerStarted = false; this.finishedSeconds = null;
+    this.finished = false; this.returningToLab = false; this.busy = false;
+    this.introDone = false; this.cast = null; this.entries = []; this.cards = [];
+    this.logRows = null; this.typeEvent = null; this.clockEvent = null;
+    this._cancelTyping = null; this.lastQuip = -1; this.addButton = null;
+    this.hudScore = null; this.hudErr = null; this.hudTime = null;
+    this.castArea = null; this.castStampPos = null;
+    try {
+      if (!record(data)) throw Error('Scene data must be an object.');
+      for (const key of ['evidence', 'evidenceConfig']) {
+        if (own(data, key) && !record(data[key])) throw Error(`Invalid ${key}.`);
+      }
+      const sources = [data, data.evidence, data.evidenceConfig].filter(record);
+      const incoming = { ...(data.evidenceConfig || {}), ...(data.evidence || {}) };
+      this.stationId = data.stationId ?? incoming.stationId ?? 'trace_0';
+      this.cityId = data.cityId ?? incoming.cityId ?? null;
+      this.caseKey = data.caseKey ?? incoming.caseKey ?? null;
+      this.onComplete = typeof data.onComplete === 'function' ? data.onComplete : null;
+      this.onAbort = typeof data.onAbort === 'function' ? data.onAbort : null;
+      if (!['trace_0', 'trace_1'].includes(this.stationId)) throw Error('Invalid station.');
+      for (const source of sources) {
+        for (const key of ['attribute', 'evidenceType', 'field', 'forensicField']) {
+          if (own(source, key) && source[key] !== FIELD) throw Error(`Invalid ${key}.`);
+        }
+        for (const key of ['stationId', 'caseKey', 'cityId']) {
+          if (source[key] != null && this[key] != null && String(source[key]) !== String(this[key])) {
+            throw Error(`Conflicting ${key}.`);
+          }
+        }
+      }
+      const candidates = [];
+      for (const source of sources) {
+        for (const key of ['correctValue', 'thief_value', 'value', 'normalizedValue']) {
+          if (!own(source, key)) continue;
+          const value = normalize(source[key]);
+          if (!VALUES.includes(value)) throw Error(`Invalid footwear value in ${key}.`);
+          candidates.push(value);
+        }
+      }
+      if (!candidates.length || new Set(candidates).size !== 1) throw Error('Missing or conflicting footwear values.');
+      const value = candidates[0];
+      for (const source of sources) {
+        if (!own(source, 'allowedValues')) continue;
+        const allowed = source.allowedValues;
+        if (!Array.isArray(allowed) || !allowed.length || allowed.some(v => !VALUES.includes(normalize(v))) ||
+            !allowed.some(v => normalize(v) === value)) throw Error('Invalid allowedValues.');
+      }
+      this.correctValue = value;
+      this.score = Number.isFinite(data.startScore) ? Math.max(0, Math.min(120, data.startScore)) : 100;
+      const clueText = data.clueText ?? incoming.clueText ?? t('clue', { value: label('categoryLabels', value) });
+      if (typeof clueText !== 'string' || !clueText.trim()) throw Error('Invalid clue text.');
+      const profile = PROFILES[value];
+      this.evidence = {
+        id: 'museum_windowsill_shoeprint', slot: 'trace', source: 'footwear_cast',
+        label: t('evidenceLabel'), ...incoming,
+        stationId: this.stationId, caseKey: this.caseKey,
+        attribute: FIELD, evidenceType: FIELD, field: FIELD, forensicField: FIELD,
+        correctValue: value, thief_value: value, value, normalizedValue: value,
+        clueText, allowedValues: incoming.allowedValues ? [...incoming.allowedValues] : [...VALUES]
+      };
+      this.clue = {
+        id: this.evidence.id, type: data.clueType ?? incoming.clueType ?? 'trace', text: clueText,
+        facts: { shoeSizeCategory: value, size: profile.size, sole: profile.sole, wear: profile.wear }
+      };
+      if (!Array.isArray(TEXT.quips) || !TEXT.quips.length) throw Error('Missing quips.');
+      for (const p of Object.values(PROFILES)) {
+        label('wearLabels', p.wear); label('soleLabels', p.sole); label('categoryLabels', p.value);
+      }
+    } catch (error) {
+      this.inputError = error;
+      this.correctValue = null; this.clue = null;
+      console.error('[ShoeprintScene] Evidence rejected; no result will be recorded.', error);
+    }
   }
-
-
-  /* --------------------------- create ---------------------------- */
 
   create() {
     super.create();
-
     this._shoeprintDisposed = false;
-    this._shoeprintSession += 1;
-
     this.u = this.scale.height / 720;
     this.layout = this.computeLayout();
-
-    this.buildPuzzle();
-
-    this.buildBackdrop();
-    this.buildHeader();
-    this.buildCastPanel();
-    this.buildCards();
-    this.buildReadout();
-    this.buildOverlay();
-
-    this.updateHud();
-    this.showIntro();
+    this.buildBackdrop(); this.buildHeader(); this.buildExit();
+    if (this.inputError) { this.showError('invalidBody'); return; }
+    try {
+      this.buildPuzzle(); this.buildCastPanel(); this.buildCards();
+      this.buildReadout(); this.buildOverlay(); this.updateHud();
+      void this.showIntro().catch(error => this.failAnalysis(error));
+    } catch (error) { this.failAnalysis(error); }
   }
-
-
-  /* -------------------------- utilities -------------------------- */
-
-  px(n) {
-    return `${Math.max(6, Math.round(n * this.u))}px`;
-  }
-
 
   alive(session = this._shoeprintSession) {
-    return (
-      !this._shoeprintDisposed &&
-      !this._cleanupDone &&
-      !this.returningToLab &&
-      session === this._shoeprintSession
-    );
+    return !this._shoeprintDisposed && !this._cleanupDone && !this.returningToLab && session === this._shoeprintSession;
   }
-
-
+  px(n) { return `${Math.max(6, Math.round(n * this.u))}px`; }
+  text(x, y, value, size = 18, color = PAL.text, pixel = false, depth = 3) {
+    return this.add.text(x, y, String(value), {
+      fontFamily: pixel ? FONT_PIXEL : FONT_TYPE, fontSize: this.px(size), color: css(color)
+    }).setDepth(depth);
+  }
   computeLayout() {
-    const W = this.scale.width;
-    const H = this.scale.height;
-
-    const pad = W * 0.04;
-    const castW = W * 0.32;
-    const gap = W * 0.015;
-    const cardsX = pad + castW + W * 0.04;
-    const cardsW = W - pad - cardsX;
-    const cardW = (cardsW - gap * 2) / 3;
-
-    return {
-      W,
-      H,
-      pad,
-      top: H * 0.14,
-      panelH: H * 0.62,
-      castW,
-      gap,
-      cardsX,
-      cardW,
-      pxPerCm: H * 0.0125,
-      readoutY: H * 0.80,
-      readoutH: H * 0.16
-    };
+    const W = this.scale.width, H = this.scale.height, pad = W * .04;
+    const castW = W * .32, gap = W * .015, cardsX = pad + castW + W * .04;
+    return { W, H, pad, castW, gap, cardsX, cardW: (W - pad - cardsX - 2 * gap) / 3,
+      top: H * .18, panelH: H * .58, pxPerCm: H * .0125, readoutY: H * .80, readoutH: H * .16 };
   }
-
-
   drawPanel(g, x, y, w, h, edge) {
-    const u = this.u;
-
-    g.fillStyle(PAL.panel, 0.9);
-    g.fillRect(x, y, w, h);
-
-    g.lineStyle(2, edge, 1);
-    g.strokeRect(x, y, w, h);
-
-    g.fillStyle(edge, 1);
-    const s = 5 * u;
-    g.fillRect(x - 2, y - 2, s, s);
-    g.fillRect(x + w - s + 2, y - 2, s, s);
-    g.fillRect(x - 2, y + h - s + 2, s, s);
-    g.fillRect(x + w - s + 2, y + h - s + 2, s, s);
+    g.fillStyle(PAL.panel, .9); g.fillRect(x, y, w, h);
+    g.lineStyle(2, edge, 1); g.strokeRect(x, y, w, h);
+    const s = 5 * this.u; g.fillStyle(edge, 1);
+    for (const [cx, cy] of [[x-2,y-2],[x+w-s+2,y-2],[x-2,y+h-s+2],[x+w-s+2,y+h-s+2]]) g.fillRect(cx, cy, s, s);
   }
 
-
-  /* -------------------------- puzzle data ------------------------ */
+  animate(config) {
+    const tween = this.createTrackedTween(config);
+    if (!tween) throw Error('Cannot create shoeprint tween.');
+    this._shoeprintTweens.add(tween);
+    const release = () => {
+      this._shoeprintTweens.delete(tween);
+      tween.off('complete', release); tween.off('stop', release); tween.off('remove', release);
+    };
+    tween.once('complete', release); tween.once('stop', release); tween.once('remove', release);
+    return tween;
+  }
+  stopOwnTweensOf(target) {
+    for (const tween of [...this._shoeprintTweens]) {
+      if (tween.targets?.includes(target)) {
+        this._shoeprintTweens.delete(tween); this.removeTrackedTween(tween);
+      }
+    }
+  }
+  buildExit() {
+    this.exitButton = createForensicExitButton(this, () => this.abortMinigame());
+    this.trackInputEvent(this.input.keyboard, 'keydown-ESC', this.abortMinigame, this);
+  }
+  showError(key) {
+    const { W, H } = this.layout;
+    this.add.rectangle(W/2, H*.47, W*.84, H*.5, PAL.panel, .98)
+      .setStrokeStyle(2, PAL.red).setDepth(800);
+    this.text(W/2, H*.34, t('invalidTitle'), 16, PAL.red, true, 801).setOrigin(.5);
+    this.text(W/2, H*.48, t(key), 22, PAL.text, false, 801)
+      .setOrigin(.5).setWordWrapWidth(W*.72).setAlign('center');
+  }
+  failAnalysis(error) {
+    if (!this.alive() || this.runtimeError) return;
+    this.runtimeError = true; this.finished = false; this.introDone = false;
+    this.busy = false; this.clockEvent?.remove(false); this.clockEvent = null;
+    for (const cancel of [...this._pendingShoeprint]) cancel();
+    console.error('[ShoeprintScene] Analysis failed; no result recorded.', error);
+    this.showError('runtimeError');
+  }
 
   buildPuzzle() {
-    const correct = SHOEPRINT_PROFILES[this.correctValue];
-
-    this.cast = {
-      size: correct.size,
-      sole: correct.sole,
-      wear: correct.wear
-    };
-
-    const wrong = Phaser.Utils.Array.Shuffle(
-      Object.values(SHOEPRINT_PROFILES).filter(
-        p => p.value !== this.correctValue
-      )
-    );
-
-    // Near-misses: each wrong boot shares exactly ONE trait with the cast
-    // (besides the wrong size), so the player must check all three.
-    const entries = [
-      {
-        size: correct.size,
-        sole: correct.sole,
-        wear: correct.wear,
-        value: correct.value,
-        ok: true
-      },
-      {
-        size: wrong[0].size,
-        sole: correct.sole,
-        wear: wrong[0].wear,
-        value: wrong[0].value,
-        ok: false
-      },
-      {
-        size: wrong[1].size,
-        sole: wrong[1].sole,
-        wear: correct.wear,
-        value: wrong[1].value,
-        ok: false
-      }
-    ];
-
-    this.entries = Phaser.Utils.Array.Shuffle(entries);
-
+    const correct = PROFILES[this.correctValue];
+    if (!correct) throw Error('No valid shoeprint profile.');
+    const wrong = Phaser.Utils.Array.Shuffle(Object.values(PROFILES).filter(p => p.value !== correct.value));
+    this.cast = { size: correct.size, sole: correct.sole, wear: correct.wear };
+    this.entries = Phaser.Utils.Array.Shuffle([
+      { ...correct },
+      { ...wrong[0], sole: correct.sole },
+      { ...wrong[1], wear: correct.wear }
+    ]);
     this.entries.forEach((entry, i) => {
-      entry.id = `BOOT-${String(1138 + i * 911).padStart(4, '0')}`;
+      const shared = ['size', 'sole', 'wear'].filter(key => entry[key] === this.cast[key]).length;
+      entry.ok = shared === 3;
+      if (entry.ok !== (entry.value === this.correctValue) || (!entry.ok && shared !== 1)) {
+        throw Error('Ambiguous footwear puzzle.');
+      }
+      entry.id = t('bootId', { id: String(1138 + i * 911).padStart(4, '0') });
     });
+    if (this.entries.filter(e => e.ok).length !== 1) throw Error('Puzzle requires exactly one match.');
   }
-
-
-  /* ------------------------- scene building ---------------------- */
-
   buildBackdrop() {
-    const { W, H } = this.layout;
-    const u = this.u;
-
-    const g = this.add.graphics().setDepth(0);
-
-    const bands = 36;
-    for (let i = 0; i < bands; i++) {
-      g.fillStyle(lerpColor(PAL.bgTop, PAL.bgBottom, i / (bands - 1)), 1);
-      g.fillRect(0, (H / bands) * i, W, H / bands + 1);
+    const { W, H } = this.layout, u = this.u, g = this.add.graphics().setDepth(0);
+    for (let i = 0; i < 36; i++) {
+      g.fillStyle(mix(PAL.bgTop, PAL.bgBottom, i/35), 1); g.fillRect(0, H/36*i, W, H/36+1);
     }
-
-    // lab wall tiles
-    g.lineStyle(1, PAL.tile, 0.35);
-    for (let y = H * 0.1; y < H; y += 48 * u) {
-      line(g, 0, y, W, y);
-    }
-    for (let x = 0; x < W; x += 64 * u) {
-      line(g, x, H * 0.1, x, H);
-    }
+    g.lineStyle(1, PAL.tile, .35);
+    for (let y = H*.1; y < H; y += 48*u) line(g, 0, y, W, y);
+    for (let x = 0; x < W; x += 64*u) line(g, x, H*.1, x, H);
   }
-
-
   buildHeader() {
     const { W, H, pad } = this.layout;
-    const u = this.u;
-
     const g = this.add.graphics().setDepth(2);
-    g.fillStyle(0x050c0e, 0.96);
-    g.fillRect(0, 0, W, H * 0.095);
-    g.fillStyle(PAL.green, 0.8);
-    g.fillRect(0, H * 0.095, W, 2 * u);
-
-    this.add.text(
-      pad,
-      H * 0.0475,
-      "CAST COMPARATOR // FOOTWEAR DB (1994 EDITION)",
-      {
-        fontFamily: FONT_PIXEL,
-        fontSize: this.px(14),
-        color: css(PAL.green)
-      }
-    ).setOrigin(0, 0.5).setDepth(3);
-
-    const hudStyle = {
-      fontFamily: FONT_PIXEL,
-      fontSize: this.px(11),
-      color: css(PAL.text)
-    };
-
-    const y = H * 0.0475;
-
-    this.hudTime = this.add.text(W - pad, y, '', hudStyle)
-      .setOrigin(1, 0.5).setDepth(3);
-    this.hudErr = this.add.text(W - pad - 150 * u, y, '', hudStyle)
-      .setOrigin(1, 0.5).setDepth(3);
-    this.hudScore = this.add.text(W - pad - 300 * u, y, '', hudStyle)
-      .setOrigin(1, 0.5).setDepth(3);
+    g.fillStyle(0x050c0e, .96); g.fillRect(0, 0, W, H*.095);
+    g.fillStyle(PAL.green, .8); g.fillRect(0, H*.095, W, 2*this.u);
+    const title = this.text(pad, H*.0475, t('header'), 14, PAL.green, true).setOrigin(0,.5);
+    const titleMax = W-pad-64; // keep clear of the shared X exit button
+    if (title.width > titleMax-pad) title.setScale((titleMax-pad)/title.width);
+    this.hudScore = this.text(pad, H*.13, '', 11, PAL.text, true).setOrigin(0,.5);
+    this.hudErr = this.text(W*.35, H*.13, '', 11, PAL.text, true).setOrigin(0,.5);
+    this.hudTime = this.text(W*.54, H*.13, '', 11, PAL.text, true).setOrigin(0,.5);
   }
-
-
   buildCastPanel() {
-    const { pad, top, panelH, castW, pxPerCm } = this.layout;
-    const u = this.u;
-
-    const panel = this.add.graphics().setDepth(1);
-    this.drawPanel(panel, pad, top, castW, panelH, PAL.panelEdge);
-
-    this.add.text(
-      pad + 14 * u,
-      top + 12 * u,
-      __dialogueText("scenes/CSI/ShoeprintScene.js", "t_f05f579747058fc1d0d2"),
-      {
-        fontFamily: FONT_PIXEL,
-        fontSize: this.px(9),
-        color: css(PAL.amber)
-      }
-    ).setDepth(3);
-
-    const slabX = pad + 14 * u;
-    const slabY = top + 36 * u;
-    const slabW = castW - 28 * u;
-    const notesH = 84 * u;
-    const slabH = panelH - 36 * u - notesH - 14 * u;
-
+    const { pad, top, panelH, castW, pxPerCm } = this.layout, u = this.u;
+    this.drawPanel(this.add.graphics().setDepth(1), pad, top, castW, panelH, PAL.panelEdge);
+    this.text(pad+14*u, top+12*u, t('castTitle'), 9, PAL.amber, true);
+    const sx = pad+14*u, sy = top+36*u, sw = castW-28*u, sh = panelH-134*u;
     const g = this.add.graphics().setDepth(2);
-
-    // plaster slab
-    g.fillStyle(PAL.plasterShadow, 1);
-    g.fillRoundedRect(slabX + 4 * u, slabY + 5 * u, slabW, slabH, 10 * u);
-    g.fillStyle(PAL.plaster, 1);
-    g.fillRoundedRect(slabX, slabY, slabW, slabH, 10 * u);
-
-    g.fillStyle(PAL.plasterDark, 0.55);
-    for (let i = 0; i < 90; i++) {
-      g.fillRect(
-        slabX + Phaser.Math.Between(8, Math.floor(slabW) - 8),
-        slabY + Phaser.Math.Between(8, Math.floor(slabH) - 8),
-        Phaser.Math.Between(1, 3) * u,
-        Phaser.Math.Between(1, 2) * u
-      );
-    }
-
-    // ruler (0 cm at the heel)
-    const soleBottom = slabY + slabH - 24 * u;
-    const rx = slabX + 8 * u;
-    const rw = 16 * u;
-    const rulerH = 30 * pxPerCm;
-
-    g.fillStyle(0xcfcab4, 1);
-    g.fillRect(rx, soleBottom - rulerH, rw, rulerH);
-    g.lineStyle(1, 0x4a4636, 1);
-
+    g.fillStyle(PAL.plasterShadow); g.fillRoundedRect(sx+4*u, sy+5*u, sw, sh, 10*u);
+    g.fillStyle(PAL.plaster); g.fillRoundedRect(sx, sy, sw, sh, 10*u);
+    g.fillStyle(PAL.plasterDark, .55);
+    for (let i = 0; i < 90; i++) g.fillRect(sx+Math.random()*sw, sy+Math.random()*sh, 2*u, u);
+    const bottom = sy+sh-16*u, rx = sx+8*u, rw = 16*u;
+    const scale = Math.min(pxPerCm, (sh-24*u)/30);
+    g.fillStyle(0xcfcab4); g.fillRect(rx, bottom-30*scale, rw, 30*scale);
+    g.lineStyle(1, 0x4a4636);
     for (let cm = 0; cm <= 30; cm++) {
-      const y = soleBottom - cm * pxPerCm;
-      const len = cm % 5 === 0 ? rw * 0.85 : rw * 0.45;
-      line(g, rx + rw, y, rx + rw - len, y);
-
-      if (cm % 5 === 0 && cm > 0) {
-        this.add.text(rx + rw + 4 * u, y, `${cm}`, {
-          fontFamily: FONT_TYPE,
-          fontSize: this.px(11),
-          color: '#4a4636'
-        }).setOrigin(0, 0.5).setDepth(3);
-      }
+      const y = bottom-cm*scale;
+      line(g, rx+rw, y, rx+rw-rw*(cm%5 ? .45 : .85), y);
+      if (cm && cm%5 === 0) this.text(rx+rw+4*u, y, cm, 11, 0x4a4636).setOrigin(0,.5);
     }
-
-    // the print itself
-    const cx = rx + rw + (slabX + slabW - (rx + rw)) / 2;
-    const length = this.cast.size * (2 / 3) * pxPerCm;
-
-    drawSole(
-      g,
-      cx,
-      soleBottom - length,
-      length,
-      this.cast.sole,
-      this.cast.wear,
-      {
-        base: PAL.plasterDark,
-        tread: PAL.plasterTread,
-        outline: 0x7d6d4e,
-        emboss: true,
-        light: PAL.plasterLight,
-        shadow: PAL.plasterShadow
-      }
-    );
-
-    this.castArea = { x: slabX, y: slabY, w: slabW, h: slabH };
-    this.castStampPos = { x: cx, y: slabY + slabH / 2 };
-
-    // lab notes
-    const notesY = slabY + slabH + 10 * u;
-    const rowsData = [
-      ['SIZE', String(this.cast.size)],
-      ['SOLE', this.cast.sole],
-      ['WEAR', this.cast.wear]
-    ];
-
-    rowsData.forEach(([label, value], i) => {
-      this.add.text(pad + 16 * u, notesY + i * 24 * u, label, {
-        fontFamily: FONT_TYPE,
-        fontSize: this.px(18),
-        color: css(PAL.dim)
-      }).setDepth(3);
-
-      this.add.text(pad + 100 * u, notesY + i * 24 * u, value, {
-        fontFamily: FONT_TYPE,
-        fontSize: this.px(18),
-        color: css(PAL.text)
-      }).setDepth(3);
+    const cx = rx+rw+(sx+sw-rx-rw)/2, length = this.cast.size*(2/3)*scale;
+    drawSole(g, cx, bottom-length, length, this.cast.sole, this.cast.wear, {
+      base: PAL.plasterDark, tread: PAL.plasterTread, outline: 0x7d6d4e,
+      emboss: true, light: PAL.plasterLight, shadow: PAL.plasterShadow
     });
+    this.castArea = { x: sx, y: sy, w: sw, h: sh };
+    this.castStampPos = { x: cx, y: sy+sh/2 };
+    for (const [i, key] of ['size','sole','wear'].entries()) {
+      const y = sy+sh+10*u+i*24*u;
+      this.text(pad+16*u, y, t(key), 18, PAL.dim);
+      this.text(pad+100*u, y, this.trait(this.cast, key), 18);
+    }
   }
-
-
+  trait(entry, key) {
+    return key === 'size' ? String(entry.size) : label(key === 'wear' ? 'wearLabels' : 'soleLabels', entry[key]);
+  }
   buildCards() {
-    const { cardsX, cardW, gap, top, panelH, pxPerCm } = this.layout;
-    const u = this.u;
-
-    const headH = 30 * u;
-    const textH = 88 * u;
-    const areaH = panelH - headH - textH;
-
-    const cardStyle = {
-      base: 0x0f2a22,
-      tread: PAL.green,
-      outline: PAL.green,
-      emboss: false
-    };
-
+    const { cardsX, cardW, gap, top, panelH, pxPerCm } = this.layout, u = this.u;
+    const headH = 30*u, areaH = panelH-headH-88*u;
     this.cards = this.entries.map((entry, i) => {
-      const x = cardsX + i * (cardW + gap);
-      const y = top;
-
-      const container = this.add.container(x, y).setDepth(5);
-
-      // frame + monitor grid
-      const frame = this.add.graphics();
-      this.drawPanel(frame, 0, 0, cardW, panelH, PAL.panelEdge);
-      frame.fillStyle(0x0f2a22, 1);
-      frame.fillRect(2, 2, cardW - 4, headH - 2);
-      frame.lineStyle(1, PAL.green, 0.1);
-      for (let gx = 20 * u; gx < cardW; gx += 20 * u) {
-        line(frame, gx, headH, gx, headH + areaH);
-      }
-      for (let gy = headH + 20 * u; gy < headH + areaH; gy += 20 * u) {
-        line(frame, 0, gy, cardW, gy);
-      }
-
-      // sole
+      const x = cardsX+i*(cardW+gap), container = this.add.container(x, top).setDepth(5);
+      const frame = this.add.graphics(); this.drawPanel(frame, 0, 0, cardW, panelH, PAL.panelEdge);
+      frame.fillStyle(0x0f2a22); frame.fillRect(2, 2, cardW-4, headH-2);
+      frame.lineStyle(1, PAL.green, .1);
+      for (let gx = 20*u; gx < cardW; gx += 20*u) line(frame, gx, headH, gx, headH+areaH);
+      for (let gy = headH+20*u; gy < headH+areaH; gy += 20*u) line(frame, 0, gy, cardW, gy);
       const soleG = this.add.graphics();
-      const length = entry.size * (2 / 3) * pxPerCm * 0.75;
-
-      drawSole(
-        soleG,
-        cardW / 2,
-        headH + (areaH - length) / 2,
-        length,
-        entry.sole,
-        entry.wear,
-        cardStyle
-      );
-
-      // header
-      const header = this.add.text(cardW / 2, headH / 2, entry.id, {
-        fontFamily: FONT_PIXEL,
-        fontSize: this.px(10),
-        color: css(PAL.green)
-      }).setOrigin(0.5);
-
-      // data lines
-      const lineStyle = {
-        fontFamily: FONT_TYPE,
-        fontSize: this.px(17),
-        color: css(PAL.text)
-      };
-      const ty = headH + areaH + 10 * u;
-
-      const lines = {
-        size: this.add.text(14 * u, ty, `${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_84fdf1603b16138ae964")}${entry.size}`, lineStyle),
-        sole: this.add.text(14 * u, ty + 24 * u, `${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_b975f7d35cdec3504049")}${entry.sole}`, lineStyle),
-        wear: this.add.text(14 * u, ty + 48 * u, `${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_214f3ba47b2e555fa4f3")}${entry.wear}`, lineStyle)
-      };
-
-      // hover glow
-      const glow = this.add.graphics();
-      glow.lineStyle(3 * u, PAL.amber, 1);
-      glow.strokeRect(0, 0, cardW, panelH);
-      glow.setAlpha(0);
-
-      const hit = this.add.zone(0, 0, cardW, panelH).setOrigin(0);
-
-      container.add([
-        frame,
-        soleG,
-        header,
-        lines.size,
-        lines.sole,
-        lines.wear,
-        glow,
-        hit
-      ]);
-
-      const card = {
-        entry,
-        container,
-        baseX: x,
-        baseY: y,
-        glow,
-        lines,
-        hit,
-        w: cardW,
-        h: panelH,
-        area: { x, y: y + headH, w: cardW, h: areaH },
-        disabled: false
-      };
-
-      hit.setInteractive({ useHandCursor: true });
-
+      const length = Math.min(entry.size*(2/3)*pxPerCm*.75, areaH-16*u);
+      drawSole(soleG, cardW/2, headH+(areaH-length)/2, length, entry.sole, entry.wear,
+        { base: 0x0f2a22, tread: PAL.green, outline: PAL.green });
+      const header = this.text(cardW/2, headH/2, entry.id, 10, PAL.green, true).setOrigin(.5);
+      const lines = {};
+      ['size','sole','wear'].forEach((key, row) => {
+        lines[key] = this.text(14*u, headH+areaH+10*u+row*24*u, t('traitLine',{trait:t(key),value:this.trait(entry,key)}), 17)
+          .setWordWrapWidth(cardW-20*u);
+      });
+      const glow = this.add.graphics(); glow.lineStyle(3*u, PAL.amber); glow.strokeRect(0,0,cardW,panelH); glow.setAlpha(0);
+      const hit = this.add.zone(0,0,cardW,panelH).setOrigin(0).setInteractive({ useHandCursor: true });
+      container.add([frame, soleG, header, ...Object.values(lines), glow, hit]);
+      const card = { entry, container, baseX:x, baseY:top, glow, lines, hit, w:cardW, h:panelH,
+        area: { x, y:top+headH, w:cardW, h:areaH }, disabled:false };
       hit.on('pointerover', () => {
         if (!this.canPick(card)) return;
-
-        card.glow.setAlpha(1);
-        this.tweens.killTweensOf(card.container);
-        this.tweens.add({
-          targets: card.container,
-          y: card.baseY - 6 * u,
-          duration: 100
-        });
+        glow.setAlpha(1); this.stopOwnTweensOf(container);
+        this.animate({ targets:container, y:top-6*u, duration:100 });
       });
-
       hit.on('pointerout', () => {
-        if (card.disabled || this.finished) return;
-
-        card.glow.setAlpha(0);
-        this.tweens.killTweensOf(card.container);
-        this.tweens.add({
-          targets: card.container,
-          y: card.baseY,
-          duration: 100
-        });
+        if (!this.alive() || card.disabled || this.finished || this.busy) return;
+        glow.setAlpha(0); this.stopOwnTweensOf(container);
+        this.animate({ targets:container, y:top, duration:100 });
       });
-
-      hit.on('pointerdown', () => {
-        this.guessEntry(card);
-      });
-
+      hit.on('pointerdown', () => { void this.guessEntry(card).catch(error => this.failAnalysis(error)); });
       return card;
     });
   }
-
-
   buildReadout() {
-    const { W, pad, readoutY, readoutH } = this.layout;
-    const u = this.u;
-
-    const g = this.add.graphics().setDepth(10);
-    this.drawPanel(g, pad, readoutY, W - pad * 2, readoutH, PAL.green);
-
-    const rowH = (readoutH - 16 * u) / 4;
-    const alphas = [0.4, 0.55, 0.75, 1];
-
-    this.logRows = alphas.map((alpha, i) =>
-      this.add.text(
-        pad + 16 * u,
-        readoutY + 8 * u + i * rowH,
-        '',
-        {
-          fontFamily: FONT_TYPE,
-          fontSize: this.px(18),
-          color: css(PAL.text)
-        }
-      ).setDepth(11).setAlpha(alpha)
-    );
+    const { W, pad, readoutY:y, readoutH:h } = this.layout, u = this.u;
+    this.drawPanel(this.add.graphics().setDepth(10), pad, y, W-pad*2, h, PAL.green);
+    this.logRows = [.4,.55,.75,1].map((a,i) => this.text(pad+16*u, y+8*u+i*(h-16*u)/4, '', 18, PAL.text, false, 11)
+      .setAlpha(a));
   }
-
-
   buildOverlay() {
-    const { W, H, pad, top, panelH, castW } = this.layout;
-    const u = this.u;
-
-    // lamp cone over the cast
-    const lampX = pad + castW / 2;
-    const y0 = H * 0.1;
-    const y1 = top + panelH;
-    const w = castW * 0.5;
-
-    const cone = this.add.graphics().setDepth(4);
-    cone.fillStyle(0xfff4c8, 0.07);
-    cone.fillTriangle(lampX - 14 * u, y0, lampX + 14 * u, y0, lampX + w, y1);
-    cone.fillTriangle(lampX - 14 * u, y0, lampX + w, y1, lampX - w, y1);
-
-    this.tweens.add({
-      targets: cone,
-      alpha: 0.55,
-      duration: 1400,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut'
-    });
-
-    // vignette
+    const { W,H,pad,top,panelH,castW } = this.layout, u = this.u;
+    const x = pad+castW/2, y0 = H*.16, y1 = top+panelH, w = castW*.5;
+    const cone = this.add.graphics().setDepth(4); cone.fillStyle(0xfff4c8,.07);
+    cone.fillTriangle(x-14*u,y0,x+14*u,y0,x+w,y1); cone.fillTriangle(x-14*u,y0,x+w,y1,x-w,y1);
+    this.animate({ targets:cone, alpha:.55, duration:1400, yoyo:true, repeat:-1, ease:'Sine.easeInOut' });
     const vig = this.add.graphics().setDepth(58);
-    for (let i = 0; i < 10; i++) {
-      vig.lineStyle(14 * u, 0x000000, 0.05);
-      vig.strokeRect(i * 10 * u, i * 10 * u, W - i * 20 * u, H - i * 20 * u);
-    }
-
-    // CRT scanlines
-    const scan = this.add.graphics().setDepth(60);
-    scan.lineStyle(1, 0x000000, 0.08);
-    for (let y = 0; y < H; y += 4) {
-      line(scan, 0, y, W, y);
-    }
+    for (let i=0;i<10;i++) { vig.lineStyle(14*u,0,.05); vig.strokeRect(i*10*u,i*10*u,W-i*20*u,H-i*20*u); }
+    const scan = this.add.graphics().setDepth(60); scan.lineStyle(1,0,.08);
+    for (let y=0;y<H;y+=4) line(scan,0,y,W,y);
   }
 
-
-  /* --------------------------- readout --------------------------- */
-
-  say(text, color = css(PAL.text), charDelay = 14) {
-    const session = this._shoeprintSession;
-
+  say(value, color = css(PAL.text), charDelay = 14) {
+    this._cancelTyping?.();
+    if (!this.alive() || !this.logRows?.length) return Promise.resolve(false);
+    const session = this._shoeprintSession, text = String(value ?? ''), rows = this.logRows;
+    for (let i=0;i<rows.length-1;i++) { rows[i].setText(rows[i+1].text); rows[i].setColor(rows[i+1].style.color); }
+    const row = rows[rows.length-1]; row.setText('').setColor(color);
+    if (!text.length || charDelay <= 0) { row.setText(text); return Promise.resolve(true); }
     return new Promise(resolve => {
-      if (!this.alive(session) || !this.logRows) {
-        resolve(false);
-        return;
-      }
-
-      const rows = this.logRows;
-
-      for (let i = 0; i < rows.length - 1; i++) {
-        rows[i].setText(rows[i + 1].text);
-        rows[i].setColor(rows[i + 1].style.color);
-      }
-
-      const row = rows[rows.length - 1];
-      row.setColor(color);
-      row.setText('');
-
-      this.typeEvent?.remove(false);
-
-      let n = 0;
-
-      this.typeEvent = this.time.addEvent({
-        delay: charDelay,
-        repeat: text.length - 1,
-        callback: () => {
-          n += 1;
-
-          if (n >= text.length) {
-            row.setText(text);
-            resolve(true);
-          } else {
-            row.setText(`${text.slice(0, n)}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_d2e2adf7177b7a8afddb")}`);
-          }
-        }
-      });
+      let settled = false, timer = null, n = 0;
+      const finish = ok => {
+        if (settled) return;
+        settled = true; timer?.remove(false);
+        this._pendingShoeprint.delete(cancel);
+        if (this._cancelTyping === cancel) { this._cancelTyping = null; this.typeEvent = null; }
+        resolve(ok);
+      };
+      const cancel = () => finish(false);
+      this._cancelTyping = cancel; this._pendingShoeprint.add(cancel);
+      try {
+        timer = this.time.addEvent({ delay:charDelay, repeat:text.length-1, callback:() => {
+          if (!this.alive(session)) { finish(false); return; }
+          n++;
+          row.setText(n >= text.length ? text : text.slice(0,n)+t('cursor'));
+          if (n >= text.length) finish(true);
+        }});
+        this.typeEvent = timer;
+      } catch (error) { finish(false); throw error; }
     });
   }
-
-
-  /* ----------------------------- HUD ----------------------------- */
-
-  updateHud() {
-    if (this._shoeprintDisposed || !this.hudScore) return;
-
-    const s = this.getSecondsElapsed();
-
-    let timeColor = css(PAL.text);
-    if (this.timerStarted && s <= 15) timeColor = css(PAL.green);
-    else if (this.timerStarted && s <= 30) timeColor = css(PAL.amber);
-
-    this.hudScore.setText(`${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_8781558c8f9241d9bc6c")}${this.score}`);
-
-    this.hudErr
-      .setText(`${"ERR "}${this.mistakes}`)
-      .setColor(this.mistakes > 0 ? css(PAL.red) : css(PAL.text));
-
-    this.hudTime
-      .setText(`${"TIME "}${String(s).padStart(2, "0")}${"s"}`)
-      .setColor(timeColor);
-  }
-
-
-  /* ----------------------------- flow ---------------------------- */
-
-  async showIntro() {
-    const session = this._shoeprintSession;
-
-    const lines = [
-      [
-        "> PLASTER CAST FROM THE MUSEUM WINDOWSILL. IT SMELLS LIKE CRIME.",
-        css(PAL.text)
-      ],
-      [
-        `${"> CAST NOTES: SIZE "}${this.cast.size}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_005e1574a2b5c8163046")}${this.cast.sole}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_0bbb9728d6e9fc87ccac")}${this.cast.wear}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_86577b3808603173873e")}`,
-        css(PAL.amber)
-      ],
-      [
-        "> DATABASE RETURNED 3 BOOTS. CLICK THE ONE THAT FULLY MATCHES.",
-        css(PAL.text)
-      ]
-    ];
-
-    for (const [text, color] of lines) {
-      const ok = await this.say(text, color, 10);
-      if (!ok || !this.alive(session)) return;
-    }
-
-    this.introDone = true;
-    this.timerStarted = true;
-    this.startedAt = this.time.now;
-
-    this.clockEvent = this.time.addEvent({
-      delay: 250,
-      loop: true,
-      callback: () => this.updateHud()
-    });
-  }
-
-
-  canPick(card) {
-    return (
-      this.introDone &&
-      !this.busy &&
-      !this.finished &&
-      !card.disabled &&
-      this.alive()
-    );
-  }
-
-
   sweep(area, color, duration) {
-    return new Promise(resolve => {
-      const u = this.u;
-
-      const beam = this.add.rectangle(
-        area.x, area.y, area.w, 3 * u, color, 0.9
-      ).setOrigin(0, 0.5).setDepth(20);
-
-      const halo = this.add.rectangle(
-        area.x, area.y, area.w, 18 * u, color, 0.18
-      ).setOrigin(0, 0.5).setDepth(19);
-
-      this.tweens.add({
-        targets: [beam, halo],
-        y: area.y + area.h,
-        duration,
-        ease: 'Sine.easeInOut',
-        onComplete: () => {
-          beam.destroy();
-          halo.destroy();
-          resolve(true);
+    if (!this.alive() || !area) return Promise.resolve(false);
+    return new Promise((resolve, reject) => {
+      let settled=false, tween=null, beam=null, halo=null;
+      const finish = ok => {
+        if (settled) return;
+        settled=true; this._pendingShoeprint.delete(cancel);
+        if (tween) {
+          tween.off('stop', cancel); tween.off('remove', cancel);
+          this._shoeprintTweens.delete(tween);
+          this.removeTrackedTween(tween);
         }
-      });
+        beam?.destroy(); halo?.destroy(); resolve(ok);
+      };
+      const cancel = () => finish(false);
+      this._pendingShoeprint.add(cancel);
+      try {
+        beam=this.add.rectangle(area.x,area.y,area.w,3*this.u,color,.9).setOrigin(0,.5).setDepth(20);
+        halo=this.add.rectangle(area.x,area.y,area.w,18*this.u,color,.18).setOrigin(0,.5).setDepth(19);
+        tween=this.animate({ targets:[beam,halo], y:area.y+area.h, duration, ease:'Sine.easeInOut', onComplete:()=>finish(true) });
+        tween.once('stop',cancel); tween.once('remove',cancel);
+      } catch (error) { cancel(); reject(error); }
     });
   }
-
-
-  stamp(x, y, label, color, size, angle) {
-    const t = this.add.text(x, y, label, {
-      fontFamily: FONT_PIXEL,
-      fontSize: this.px(size),
-      color: css(color),
-      stroke: "#000000",
-      strokeThickness: Math.round(4 * this.u)
-    })
-      .setOrigin(0.5)
-      .setAngle(angle)
-      .setDepth(30)
-      .setScale(2.4)
-      .setAlpha(0);
-
-    this.tweens.add({
-      targets: t,
-      scale: 1,
-      alpha: 1,
-      duration: 220,
-      ease: 'Back.easeOut'
-    });
-
-    return t;
+  updateHud() {
+    if (!this.alive() || !this.hudScore) return;
+    const seconds=this.getSecondsElapsed();
+    this.hudScore.setText(t('score',{score:this.score}));
+    this.hudErr.setText(t('errors',{count:this.mistakes})).setColor(css(this.mistakes ? PAL.red : PAL.text));
+    this.hudTime.setText(t('time',{seconds:String(seconds).padStart(2,'0')}))
+      .setColor(css(this.timerStarted && seconds <= 15 ? PAL.green : this.timerStarted && seconds <= 30 ? PAL.amber : PAL.text));
   }
-
-
-  async guessEntry(card) {
-    const session = this._shoeprintSession;
-
-    if (!this.canPick(card)) return;
-
-    this.busy = true;
-
-    this.tweens.killTweensOf(card.container);
-    card.container.y = card.baseY;
-    card.glow.setAlpha(1);
-
+  async showIntro() {
+    const session=this._shoeprintSession;
     try {
-      const entry = card.entry;
-
-      const results = await Promise.all([
-        this.say(
-          `${"> CHECKING "}${entry.id}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_45822f54a0d0e030f756")}${entry.size}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_005e1574a2b5c8163046")}${entry.sole}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_005e1574a2b5c8163046")}${entry.wear}`,
-          css(PAL.text),
-          8
-        ),
-        this.sweep(this.castArea, PAL.amber, 1100),
-        this.sweep(card.area, PAL.green, 1100)
-      ]);
-
-      if (!results[0] || !this.alive(session)) return;
-
-      if (entry.ok) {
-        await this.handleCorrectEntry(card, session);
-      } else {
-        await this.handleWrongEntry(card, session);
+      for (const [key,vars,color] of [
+        ['intro',{},PAL.text], ['notes',{size:this.cast.size,sole:this.trait(this.cast,'sole'),wear:this.trait(this.cast,'wear')},PAL.amber],
+        ['instructions',{},PAL.text]
+      ]) {
+        if (!await this.say(t(key,vars),css(color),10) || !this.alive(session)) return;
       }
     } finally {
-      if (this.alive(session)) {
-        this.busy = false;
+      if (this.alive(session) && !this.runtimeError && !this.inputError) {
+        this.introDone=true; this.timerStarted=true; this.startedAt=this.time.now;
+        this.clockEvent=this.time.addEvent({delay:250,loop:true,callback:()=>this.updateHud()});
       }
     }
   }
-
-
-  async handleCorrectEntry(card, session = this._shoeprintSession) {
-    if (!this.alive(session)) return;
-
-    this.finished = true;
-    this.finishedSeconds = this.getSecondsElapsed();
-    this.clockEvent?.remove(false);
-    this.clockEvent = null;
-
-    const timeBonus = this.getTimeBonus();
-    this.score = Math.min(120, this.score + timeBonus);
-    this.updateHud();
-
-    // visuals
-    Object.values(card.lines).forEach(t => t.setColor(css(PAL.green)));
-
-    card.glow.clear();
-    card.glow.lineStyle(4 * this.u, PAL.green, 1);
-    card.glow.strokeRect(0, 0, card.w, card.h);
-    card.glow.setAlpha(1);
-
-    this.tweens.add({
-      targets: card.glow,
-      alpha: 0.35,
-      duration: 500,
-      yoyo: true,
-      repeat: -1
-    });
-
-    this.cards.forEach(other => {
-      if (other === card) return;
-      this.tweens.add({
-        targets: other.container,
-        alpha: 0.35,
-        duration: 300
-      });
-    });
-
-    this.stamp(
-      this.castStampPos.x,
-      this.castStampPos.y,
-      __dialogueText("scenes/CSI/ShoeprintScene.js", "t_e0e5e9861803b63a2651"),
-      PAL.green,
-      22,
-      -12
-    );
-
-    this.stamp(
-      card.area.x + card.area.w / 2,
-      card.area.y + card.area.h / 2,
-      __dialogueText("scenes/CSI/ShoeprintScene.js", "t_e0e5e9861803b63a2651"),
-      PAL.green,
-      16,
-      10
-    );
-
-    // readout
-    const lines = [
-      [
-        "> FULL MATCH. THE SHOE FITS. SOMEONE IS ABOUT TO HAVE A BAD DAY.",
-        css(PAL.amber)
-      ],
-      [
-        `${"> FORENSIC CATEGORY: "}${this.correctValue.toUpperCase()}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_c7ad34855ada925631ef")}`,
-        css(PAL.text)
-      ]
-    ];
-
-    if (timeBonus > 0) {
-      lines.push([`${"> SPEED BONUS: +"}${timeBonus}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_eeb98a5625408b801794")}`, css(PAL.amber)]);
-    }
-
-    lines.push(["> CLUE READY FOR CASE FILE.", css(PAL.green)]);
-
-    for (const [text, color] of lines) {
-      const ok = await this.say(text, color, 10);
-      if (!ok || !this.alive(session)) return;
-    }
-
-    this.showAddButton(session);
+  canPick(card) {
+    return this.alive() && this.introDone && !this.busy && !this.finished && !this.runtimeError && !this.inputError && !card.disabled;
   }
-
-
-  async handleWrongEntry(card, session = this._shoeprintSession) {
-    if (!this.alive(session)) return;
-
-    const u = this.u;
-
-    this.mistakes += 1;
-    this.score = Math.max(0, this.score - 15);
-    this.updateHud();
-
-    // per-trait verdict
-    const mismatched = [];
-
-    ['size', 'sole', 'wear'].forEach(prop => {
-      const same = card.entry[prop] === this.cast[prop];
-      card.lines[prop].setColor(css(same ? PAL.green : PAL.red));
-      if (!same) mismatched.push(prop.toUpperCase());
-    });
-
-    card.disabled = true;
-    card.glow.setAlpha(0);
-
-    this.stamp(
-      card.area.x + card.area.w / 2,
-      card.area.y + card.area.h / 2,
-      __dialogueText("scenes/CSI/ShoeprintScene.js", "t_16826644e6e0e9fc2c78"),
-      PAL.red,
-      16,
-      -10
-    );
-
-    this.tweens.add({
-      targets: card.container,
-      x: card.baseX + 6 * u,
-      duration: 50,
-      yoyo: true,
-      repeat: 3,
-      onComplete: () => {
-        card.container.x = card.baseX;
-      }
-    });
-
-    this.tweens.add({
-      targets: card.container,
-      alpha: 0.55,
-      duration: 400
-    });
-
-    // pick a quip that isn't the previous one
-    let q = Phaser.Math.Between(0, MISS_QUIPS.length - 1);
-    if (q === this.lastQuip) q = (q + 1) % MISS_QUIPS.length;
-    this.lastQuip = q;
-
-    let ok = await this.say(
-      `${"> MISMATCH: "}${mismatched.join(__dialogueText("scenes/CSI/ShoeprintScene.js", "t_46209f696e32b54882cb"))}${__dialogueText("scenes/CSI/ShoeprintScene.js", "t_8e96c3e3ecdaef85c802")}`,
-      css(PAL.red),
-      10
-    );
-    if (!ok || !this.alive(session)) return;
-
-    await this.say(`${"> "}${MISS_QUIPS[q]}`, css(PAL.text), 10);
-  }
-
-
-  showAddButton(session) {
-    if (!this.alive(session)) return;
-
-    const { W, pad, readoutY, readoutH } = this.layout;
-    const u = this.u;
-
-    const bw = W * 0.2;
-    const bh = readoutH * 0.62;
-    const x = W - pad - bw - 16 * u;
-    const y = readoutY + (readoutH - bh) / 2;
-
-    const container = this.add.container(x, y).setDepth(40);
-
-    const g = this.add.graphics();
-    const paint = fill => {
-      g.clear();
-      g.fillStyle(fill, 1);
-      g.fillRect(0, 0, bw, bh);
-      g.lineStyle(3 * u, PAL.green, 1);
-      g.strokeRect(0, 0, bw, bh);
-    };
-    paint(0x0f3a25);
-
-    const label = this.add.text(bw / 2, bh / 2, "ADD TO\nCASE FILE", {
-      fontFamily: FONT_PIXEL,
-      fontSize: this.px(11),
-      color: css(PAL.green),
-      align: 'center',
-      lineSpacing: 6 * u
-    }).setOrigin(0.5);
-
-    const hit = this.add.zone(0, 0, bw, bh).setOrigin(0);
-    hit.setInteractive({ useHandCursor: true });
-
-    hit.on('pointerover', () => {
-      paint(0x1b6b43);
-      label.setColor('#ffffff');
-    });
-
-    hit.on('pointerout', () => {
-      paint(0x0f3a25);
-      label.setColor(css(PAL.green));
-    });
-
-    hit.on('pointerdown', () => {
+  async guessEntry(card) {
+    if (!this.canPick(card)) return;
+    const session=this._shoeprintSession;
+    this.busy=true; this.stopOwnTweensOf(card.container); card.container.y=card.baseY; card.glow.setAlpha(1);
+    try {
+      const e=card.entry;
+      const results=await Promise.all([
+        this.say(t('checking',{id:e.id,size:e.size,sole:this.trait(e,'sole'),wear:this.trait(e,'wear')}),css(PAL.text),8),
+        this.sweep(this.castArea,PAL.amber,1100),this.sweep(card.area,PAL.green,1100)
+      ]);
       if (!this.alive(session)) return;
-      this.returnResultToCrimeLab();
-    });
-
-    container.add([g, label, hit]);
-
-    this.tweens.add({
-      targets: label,
-      alpha: 0.6,
-      duration: 600,
-      yoyo: true,
-      repeat: -1
-    });
+      if (!results.every(Boolean)) { card.glow.setAlpha(0); return; }
+      if (e.ok) await this.handleCorrectEntry(card,session); else await this.handleWrongEntry(card,session);
+    } finally { if (this.alive(session)) this.busy=false; }
   }
-
-
-  /* --------------------------- scoring --------------------------- */
-
-  getTimeBonus() {
-    const s = this.getSecondsElapsed();
-
-    if (s <= 15) return 20;
-    if (s <= 30) return 10;
-
-    return 0;
+  stamp(x,y,key,color,size,angle) {
+    const stamp=this.text(x,y,t(key),size,color,true,30).setOrigin(.5).setAngle(angle).setScale(2.4).setAlpha(0);
+    stamp.setStroke('#000000',Math.round(4*this.u));
+    this.animate({targets:stamp,scale:1,alpha:1,duration:220,ease:'Back.easeOut'});
+    return stamp;
   }
-
-
+  async handleCorrectEntry(card,session) {
+    if (!this.alive(session)) return;
+    this.finishedSeconds=this.getSecondsElapsed(); this.finished=true;
+    this.clockEvent?.remove(false); this.clockEvent=null;
+    const bonus=this.getTimeBonus(); this.score=Math.min(120,this.score+bonus); this.updateHud();
+    Object.values(card.lines).forEach(row=>row.setColor(css(PAL.green)));
+    card.glow.clear(); card.glow.lineStyle(4*this.u,PAL.green); card.glow.strokeRect(0,0,card.w,card.h); card.glow.setAlpha(1);
+    this.animate({targets:card.glow,alpha:.35,duration:500,yoyo:true,repeat:-1});
+    for (const other of this.cards) if (other!==card) this.animate({targets:other.container,alpha:.35,duration:300});
+    this.stamp(this.castStampPos.x,this.castStampPos.y,'match',PAL.green,22,-12);
+    this.stamp(card.area.x+card.area.w/2,card.area.y+card.area.h/2,'match',PAL.green,16,10);
+    this.showAddButton(session);
+    const messages=[['fullMatch',{},PAL.amber],['category',{value:label('categoryLabels',this.correctValue)},PAL.text]];
+    if (bonus>0) messages.push(['bonus',{bonus},PAL.amber]);
+    messages.push(['ready',{},PAL.green]);
+    for (const [key,vars,color] of messages) {
+      if (!await this.say(t(key,vars),css(color),10) || !this.alive(session)) return;
+    }
+  }
+  async handleWrongEntry(card,session) {
+    if (!this.alive(session)) return;
+    this.mistakes++; this.score=Math.max(0,this.score-15); this.updateHud();
+    const mismatched=[];
+    for (const key of ['size','sole','wear']) {
+      const same=card.entry[key]===this.cast[key];
+      card.lines[key].setColor(css(same ? PAL.green : PAL.red));
+      if (!same) mismatched.push(t(key));
+    }
+    card.disabled=true; card.hit.disableInteractive(); card.glow.setAlpha(0);
+    this.stamp(card.area.x+card.area.w/2,card.area.y+card.area.h/2,'reject',PAL.red,16,-10);
+    this.animate({targets:card.container,x:card.baseX+6*this.u,duration:50,yoyo:true,repeat:3,
+      onComplete:()=>{if(this.alive(session)) card.container.x=card.baseX;}});
+    this.animate({targets:card.container,alpha:.55,duration:400});
+    let q=Phaser.Math.Between(0,TEXT.quips.length-1);
+    if(q===this.lastQuip) q=(q+1)%TEXT.quips.length;
+    this.lastQuip=q;
+    if (!await this.say(t('mismatch',{traits:mismatched.join(t('separator'))}),css(PAL.red),10) || !this.alive(session)) return;
+    await this.say(t('quip',{text:TEXT.quips[q]}),css(PAL.text),10);
+  }
+  showAddButton(session) {
+    if (!this.alive(session) || this.addButton) return;
+    const {W,pad,readoutY,readoutH}=this.layout, u=this.u;
+    const bw=W*.2,bh=readoutH*.62,x=W-pad-bw-16*u,y=readoutY+(readoutH-bh)/2;
+    const container=this.add.container(x,y).setDepth(70),g=this.add.graphics();
+    const paint=fill=>{g.clear();g.fillStyle(fill);g.fillRect(0,0,bw,bh);g.lineStyle(3*u,PAL.green);g.strokeRect(0,0,bw,bh);};
+    paint(0x0f3a25);
+    const caption=this.text(bw/2,bh/2,t('add'),11,PAL.green,true).setOrigin(.5).setAlign('center');
+    const hit=this.add.zone(0,0,bw,bh).setOrigin(0).setInteractive({useHandCursor:true});
+    hit.on('pointerover',()=>{paint(0x1b6b43);caption.setColor('#ffffff');});
+    hit.on('pointerout',()=>{paint(0x0f3a25);caption.setColor(css(PAL.green));});
+    hit.on('pointerdown',()=>{if(this.alive(session)) this.returnResultToCrimeLab();});
+    container.add([g,caption,hit]); this.addButton=container;
+    // Keep the readout clear of the case-file button.
+    for (const row of this.logRows) { row.setWordWrapWidth(x-row.x-20*u); row.setFontSize(this.px(14)); }
+    this.animate({targets:caption,alpha:.6,duration:600,yoyo:true,repeat:-1});
+  }
   getSecondsElapsed() {
     if (this.finishedSeconds !== null) return this.finishedSeconds;
-    if (!this.timerStarted) return 0;
-
-    return Math.floor((this.time.now - this.startedAt) / 1000);
+    return this.timerStarted ? Math.max(0,Math.floor((this.time.now-this.startedAt)/1000)) : 0;
   }
-
-
-  /* --------------------------- exit/cleanup ---------------------- */
-
-  returnResultToCrimeLab() {
-    if (
-      this.returningToLab ||
-      this._shoeprintDisposed ||
-      !this.finished
-    ) {
-      return;
-    }
-
-    this.returningToLab = true;
-
-    const payload = {
-      aborted: false,
-      completed: true,
-
-      stationId: this.stationId,
-
-      evidenceId: this.evidence.id,
-      evidenceType: this.evidenceType,
-
-      attribute: this.evidence.attribute,
-      value: this.correctValue,
-
-      source: this.evidence.source,
-      label: this.evidence.label,
-      clueText: this.evidence.clueText,
-
-      evidence: {
-        ...this.evidence
-      },
-
-      score: this.score,
-      mistakes: this.mistakes,
-      secondsElapsed: this.getSecondsElapsed(),
-
-      clue: this.clue
-    };
-
-    this.events.emit('minigame-complete', payload);
-
-    this.events.emit('minigame-closed', {
-      aborted: false,
-      payload
-    });
-
-    this.scene.stop();
+  getTimeBonus() { const s=this.getSecondsElapsed(); return s<=15 ? 20 : s<=30 ? 10 : 0; }
+  notifySafely(name,payload) {
+    try { this.events.emit(name,payload); } catch(error) { console.error('[ShoeprintScene] Listener failed:',name,error); }
   }
-
-
-  cleanup() {
-    if (this._shoeprintDisposed) {
-      super.cleanup();
-      return;
-    }
-
-    this._shoeprintDisposed = true;
-    this._shoeprintSession += 1;
-    this.returningToLab = true;
-    this.busy = false;
-
+  invokeSafely(callback,payload) {
+    try { callback?.(payload); } catch(error) { console.error('[ShoeprintScene] Result callback failed:',error); }
+  }
+  closeWithPayload(payload,callback) {
+    const session=this._shoeprintSession, scenePlugin=this.scene;
+    this.returningToLab=true; this.busy=false;
+    const envelope={schemaVersion:1,aborted:payload.aborted,completed:payload.completed,payload};
     try {
-      this.typeEvent?.remove(false);
-      this.clockEvent?.remove(false);
-      this.tweens?.killAll();
-    } catch (e) {
-      // scene systems may already be shut down
-    }
-
-    this.typeEvent = null;
-    this.clockEvent = null;
-
-    try {
-      super.cleanup();
+      this.invokeSafely(callback,payload);
+      if (!payload.aborted) this.notifySafely('minigame-complete',payload);
+      this.notifySafely('minigame-closed',envelope);
     } finally {
-      this.cast = null;
-      this.entries = [];
-      this.cards = [];
-      this.logRows = null;
-      this.hudScore = null;
-      this.hudErr = null;
-      this.hudTime = null;
-      this.castArea = null;
-      this.castStampPos = null;
+      if(this._shoeprintSession===session) scenePlugin.stop();
+    }
+  }
+  abortMinigame() {
+    if (!this.alive()) return;
+    const payload={aborted:true,completed:false,stationId:this.stationId,cityId:this.cityId,caseKey:this.caseKey,
+      evidenceType:FIELD,score:this.score,mistakes:this.mistakes,secondsElapsed:this.getSecondsElapsed()};
+    // Cancellation deliberately contains no answer, clue or evidence configuration.
+    this.closeWithPayload(payload,this.onAbort);
+  }
+  returnResultToCrimeLab() {
+    if (!this.alive() || !this.finished || this.inputError || this.runtimeError || !VALUES.includes(this.correctValue)) return;
+    const evidence={...this.evidence,allowedValues:[...this.evidence.allowedValues]};
+    const payload={
+      aborted:false,completed:true,stationId:this.stationId,cityId:this.cityId,caseKey:this.caseKey,
+      evidenceId:evidence.id,evidenceType:FIELD,attribute:FIELD,field:FIELD,forensicField:FIELD,
+      value:this.correctValue,correctValue:this.correctValue,selectedValue:this.correctValue,
+      source:evidence.source,label:evidence.label,clueType:this.clue.type,clueText:evidence.clueText,
+      evidence,evidenceConfig:{...evidence,allowedValues:[...evidence.allowedValues]},
+      score:this.score,mistakes:this.mistakes,secondsElapsed:this.getSecondsElapsed(),
+      clue:{...this.clue,facts:{...this.clue.facts}}
+    };
+    this.closeWithPayload(payload,this.onComplete);
+  }
+  cleanup() {
+    if (this._shoeprintDisposed) { super.cleanup(); return; }
+    this._shoeprintDisposed=true; this._shoeprintSession++; this.returningToLab=true; this.busy=false;
+    for (const cancel of [...this._pendingShoeprint]) {
+      try {cancel();} catch(error) {console.warn('[ShoeprintScene] Cancellation failed.',error);}
+    }
+    this._pendingShoeprint.clear(); this._cancelTyping=null;
+    this.typeEvent?.remove(false); this.clockEvent?.remove(false);
+    this.typeEvent=null; this.clockEvent=null;
+    try {
+      for (const tween of [...this._shoeprintTweens]) this.removeTrackedTween(tween);
+      this._shoeprintTweens.clear();
+    } finally {
+      super.cleanup();
+      this.cast=null; this.entries=[]; this.cards=[]; this.logRows=null;
+      this.hudScore=null; this.hudErr=null; this.hudTime=null;
+      this.castArea=null; this.castStampPos=null; this.addButton=null; this.exitButton=null;
+      this.onComplete=null; this.onAbort=null;
     }
   }
 }

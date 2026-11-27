@@ -1,7 +1,7 @@
 import { APPROACHES, RECOVERY_APPROACHES } from './AlibiCooperationConfig.js';
 import { getCooperationState, getWitnessPersonality } from './AlibiCooperationState.js';
 import { getRapport, addEntry, spendMinutes } from './AlibiCooperationRuntime.js';
-import { voiceLine, detectiveLine } from './AlibiDialogue.js';
+import { savedLine, voiceLine, detectiveLine } from './AlibiDialogue.js';
 import { getInterviewView } from './AlibiInterviewView.js';
 export function applyApproach(
   caseKey,

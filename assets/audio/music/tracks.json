@@ -15,8 +15,13 @@
     "id": "Pavement_Confidential",
     "title": "Pavement Confidential"
   },
-    {
+  {
     "id": "Black_Coffee_and_Secrets",
     "title": "Black Coffee and Secrets"
+  },
+  {
+    "id": "Evidence_at_Three",
+    "title": "Evidence at Three",
+    "pack": "noir_pack_1"
   }
 ]

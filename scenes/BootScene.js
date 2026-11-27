@@ -77,11 +77,6 @@ export class BootScene extends BaseScene {
   preload() {
     this.cameras.main.setBackgroundColor('#000000');
 
-    this.load.audio(
-      'themeMusic',
-      './assets/audio/theme.mp3'
-    );
-
     this.load.image(
       'cozyBackground',
       'assets/local/kitchen.webp'

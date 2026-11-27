@@ -4,10 +4,21 @@ import {
 } from './TrustManager.js';
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
+import { registerRestoreParticipant } from '../gameState/restoreParticipants.js';
 
 const pick = list => list[Math.floor(Math.random() * list.length)];
 const safeRecord = value => Object.assign(Object.create(null), value || {});
 const count = value => Math.max(0, Math.floor(Number(value) || 0));
+const isRecord = value => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
+};
+const cloneNpcState = state => ({
+  visits: state.visits, asked: safeRecord(state.asked), lastResp: safeRecord(state.lastResp),
+  presented: safeRecord(state.presented), unlocked: new Set(state.unlocked),
+  removed: new Set(state.removed), walkedOut: state.walkedOut, returnAt: state.returnAt
+});
 const REPEAT = ['I already answered that.', 'Same question, same answer. Next.'];
 const REFUSE = ["I'd rather not discuss that. With you.", 'Ask me again when I like you more.'];
 const WALKOUT = ["That's it. We're done here.", '*Walks away. Not slowly.*'];
@@ -45,6 +56,77 @@ export class DialogueManager {
     this._storeValue = Symbol('unread');
     this._generation = 0;
     this._acting = false;
+    this._restoring = false;
+    this._invalidationListeners = new Set();
+  }
+
+  // Epoch of the loaded dialogue data. Every load (save restore, new game)
+  // bumps it; sessions and panels opened earlier compare their token with it.
+  get generation() { return this._generation; }
+  isCurrentGeneration(token) { return token === this._generation && !this._restoring; }
+  get isRestoring() { return this._restoring; }
+
+  // UI-only notification after a committed restore: close/detach conversations
+  // bound to the previous save. Listeners must not change game state.
+  onInvalidated(fn) {
+    if (typeof fn !== 'function') throw new TypeError('Listener must be a function.');
+    this._invalidationListeners.add(fn);
+    return () => this._invalidationListeners.delete(fn);
+  }
+
+  _notifyInvalidated() {
+    const generation = this._generation;
+    for (const fn of [...this._invalidationListeners]) {
+      try { fn({ generation }); }
+      catch (error) { console.error('[Dialogue] Invalidation listener failed:', error); }
+    }
+  }
+
+  // --- Save-restore transaction (see gameState/restoreParticipants.js) ---
+  // Trust is not snapshotted separately from the dialogue data: the TrustManager
+  // is the in-memory half of dialogueState.trust and is captured with it.
+  captureRestoreSnapshot() {
+    const synced = Boolean(this.store) && this._storeValue === this.store.read();
+    const states = new Map();
+    for (const [id, state] of this.states) states.set(id, cloneNpcState(state));
+    const trustValues = this.trust.values instanceof Map ? new Map(this.trust.values) : null;
+    return {
+      flags: new Set(this.flags), states, synced, storeValue: this._storeValue,
+      trustValues, trustData: trustValues ? null : this.trust.serialize(),
+      generation: this._generation
+    };
+  }
+
+  // Loads the freshly imported dialogueState. No commit, autosave or events.
+  restoreFromStore() {
+    this._restoring = true;
+    if (!this.store) return true;
+    const saved = this.store.read();
+    this._load(saved);
+    this._storeValue = saved;
+    return true;
+  }
+
+  rollbackRestore(snapshot, { stateRolledBack = false } = {}) {
+    this.flags = new Set(snapshot.flags);
+    const states = new Map();
+    for (const [id, state] of snapshot.states) states.set(id, cloneNpcState(state));
+    this.states = states;
+    if (snapshot.trustValues) this.trust.values = new Map(snapshot.trustValues);
+    else { this.trust.reset(); this.trust.deserialize(snapshot.trustData); }
+    this._generation = snapshot.generation;
+    this._acting = false;
+    // gameState now holds a fresh copy of the old data. Re-bind to it without
+    // reloading, so sessions opened before the failed load stay valid. If the
+    // state itself could not be rolled back, force a reload from whatever it is.
+    if (snapshot.synced) this._storeValue = stateRolledBack ? this.store.read() : Symbol('unread');
+    else this._storeValue = snapshot.storeValue;
+    this._restoring = false;
+  }
+
+  commitRestore() {
+    this._restoring = false;
+    this._notifyInvalidated();
   }
 
   // Tylko hooki aplikacyjne. Dla hooków sceny używaj configureForScene().
@@ -78,7 +160,8 @@ export class DialogueManager {
   }
 
   _sync() {
-    if (!this.store) return;
+    // While a save is being restored, restoreFromStore() owns loading.
+    if (!this.store || this._restoring) return;
     const saved = this.store.read();
     if (saved === this._storeValue) return;
     this._load(saved);
@@ -86,7 +169,8 @@ export class DialogueManager {
   }
 
   _commit() {
-    if (!this.store) return;
+    // Restoring must not write back or request an autosave.
+    if (!this.store || this._restoring) return;
     const data = this._serialize();
     this.store.write(data);
     this._storeValue = this.store.read();
@@ -138,6 +222,7 @@ export class DialogueManager {
   }
 
   _emit(name, data = {}) {
+    if (this._restoring) return;
     const invoke = fn => {
       try {
         const pending = fn(data, name);
@@ -209,13 +294,17 @@ export class DialogueManager {
   serialize() { this._sync(); return this._serialize(); }
 
   _load(data) {
-    if (data != null && ![1, 2].includes(data.version)) throw new Error('Unsupported dialogue save version.');
-    this.flags = new Set(data?.flags || []);
-    this.states.clear();
-    this.trust.reset();
-    if (data?.trust) this.trust.deserialize(data.trust);
+    // Validate and build everything first; memory changes only if all of it is valid.
+    if (data != null && (!isRecord(data) || ![1, 2].includes(data.version))) {
+      throw new Error('Unsupported dialogue save version.');
+    }
+    if (data?.flags != null && !Array.isArray(data.flags)) throw new Error('Invalid dialogue flags.');
+    if (data?.npcs != null && !isRecord(data.npcs)) throw new Error('Invalid dialogue NPC states.');
+    const flags = new Set(data?.flags || []);
+    const states = new Map();
     for (const [id, state] of Object.entries(data?.npcs || {})) {
-      this.states.set(id, {
+      if (!isRecord(state)) throw new Error(`Invalid dialogue state for "${id}".`);
+      states.set(id, {
         visits: count(state.visits), asked: safeRecord(state.asked),
         lastResp: safeRecord(state.lastResp), presented: safeRecord(state.presented),
         unlocked: new Set(state.unlocked || []), removed: new Set(state.removed || []),
@@ -223,12 +312,16 @@ export class DialogueManager {
         returnAt: Number.isFinite(state.returnAt) ? state.returnAt : 0
       });
     }
+    this.flags = flags;
+    this.states = states;
+    this.trust.reset();
+    if (data?.trust) this.trust.deserialize(data.trust);
     for (const [id, def] of this.npcs) this.trust.ensure(id, def.startTrust ?? 40);
     this._generation += 1;
   }
 
   deserialize(data) { this._load(data); this._commit(); return true; }
-  reset() { this._load(null); this._commit(); }
+  reset() { this._load(null); this._commit(); this._notifyInvalidated(); }
 }
 
 export class DialogueSession {
@@ -241,18 +334,34 @@ export class DialogueSession {
     this._closed = false;
     this._generation = manager._generation;
     this.m.trust.ensure(def.id, def.startTrust ?? 40);
+    this._lastTrust = this.trust;
   }
+
+  // A session belongs to the save that was loaded when it was created. After
+  // another load it must neither read nor write the new save's data.
+  isCurrent() {
+    if (this._closed) return false;
+    try { this.m._sync(); }
+    catch (error) { console.error('[Dialogue] Sync failed:', error); return false; }
+    return this.m.isCurrentGeneration(this._generation);
+  }
+  get isStale() { return !this._closed && !this.isCurrent(); }
 
   get state() { return this.m._state(this.npcId); }
   get trust() { return this.m.trust.get(this.npcId); }
   get bribeCost() { return Math.max(0, rollValue(this.def.bribeCost ?? TONES.bribe.cost)); }
-  getTrust() { return { value: this.trust, level: getTrustLevel(this.trust), show: this.def.showTrust !== false }; }
+  getTrust() {
+    const value = this.isCurrent() ? (this._lastTrust = this.trust) : this._lastTrust;
+    return { value, level: getTrustLevel(value), show: this.def.showTrust !== false };
+  }
   setTone(id) { if (this.def.useTones !== false && TONES[id]) this.tone = id; }
   getTones() {
+    const current = this.isCurrent();
     return TONE_ORDER.map(id => ({
       id, label: TONES[id].label, hint: TONES[id].hint,
-      cost: id === 'bribe' ? this.bribeCost : 0,
-      enabled: this.def.useTones !== false && (id !== 'bribe' || this.m.hooks.getMoney() >= this.bribeCost)
+      cost: id === 'bribe' && current ? this.bribeCost : 0,
+      enabled: current && this.def.useTones !== false &&
+        (id !== 'bribe' || this.m.hooks.getMoney() >= this.bribeCost)
     }));
   }
 
@@ -263,8 +372,7 @@ export class DialogueSession {
   _ctx(tone = this._effectiveTone()) { return { state: this.state, trust: this.trust, tone }; }
 
   getTopics() {
-    this.m._sync();
-    if (this._generation !== this.m._generation) return [];
+    if (!this.isCurrent()) return [];
     const st = this.state;
     return (this.def.topics || []).filter(topic =>
       !st.removed.has(topic.id) && (!topic.hidden || st.unlocked.has(topic.id)) &&
@@ -276,6 +384,7 @@ export class DialogueSession {
     });
   }
   getEvidence() {
+    if (!this.isCurrent()) return [];
     return (this.m.hooks.getEvidenceItems() || []).map(item => ({
       id: item.id, label: item.label || item.id, presented: this.state.presented[item.id] > 0
     }));
@@ -288,13 +397,15 @@ export class DialogueSession {
   }
 
   _action(extra, fn) {
-    this.m._sync();
-    const result = this._newResult(extra);
-    if (this._closed || this._generation !== this.m._generation) {
-      result.end = true;
-      result.endedBy = 'stale_session';
-      return result;
+    if (!this.isCurrent()) {
+      // No effects, no trust read from (or written to) the newly loaded save.
+      const value = this._lastTrust;
+      return { npcId: this.npcId, kind: extra?.kind ?? 'topic', tone: null, lines: [],
+        choices: null, end: true, endedBy: 'stale_session', locked: false, repeated: false,
+        spent: 0, toneDelta: 0, gained: [],
+        trust: { before: value, after: value, delta: 0, level: getTrustLevel(value), levelChanged: false } };
     }
+    const result = this._newResult(extra);
     if (this.m._acting) {
       result.lines = this._lines(['One question at a time, Detective.']);
       return result;
@@ -318,6 +429,7 @@ export class DialogueSession {
       this.m._acting = false;
     }
     const after = this.trust;
+    this._lastTrust = after;
     result.trust = { before, after, delta: after - before, level: getTrustLevel(after),
       levelChanged: getTrustLevelIndex(before) !== getTrustLevelIndex(after) };
     return result;
@@ -460,6 +572,11 @@ export class DialogueSession {
   }
 
   summary(endedBy = 'goodbye') {
+    if (!this._closed && !this.isCurrent()) {
+      // Never create or read NPC state in the save that replaced this session's.
+      return { npcId: this.npcId, name: this.def.name, endedBy: 'stale_session', stale: true,
+        trust: this._lastTrust, level: getTrustLevel(this._lastTrust).id, asked: [], presented: [] };
+    }
     const st = this.state;
     return { npcId: this.npcId, name: this.def.name, endedBy, trust: this.trust,
       level: getTrustLevel(this.trust).id,
@@ -467,12 +584,13 @@ export class DialogueSession {
       presented: Object.keys(st.presented).filter(key => st.presented[key] > 0) };
   }
   close(endedBy = 'goodbye') {
+    if (this._closed) return this._closedSummary;
     const summary = this.summary(endedBy);
-    if (!this._closed) {
-      this._closed = true;
-      this._choices = null;
-      this.m._emit('dialogue:close', summary);
-    }
+    this._closed = true;
+    this._choices = null;
+    this._closedSummary = summary;
+    // A stale session closes silently: its listeners belong to the old save.
+    if (!summary.stale) this.m._emit('dialogue:close', summary);
     return summary;
   }
 
@@ -553,3 +671,14 @@ export const dialogueManager = new DialogueManager({
   }
 });
 export function getDialogueManager() { return dialogueManager; }
+
+// Joins every slot/autosave restore (gameState/saveRestore.js) as one transaction.
+export function createDialogueRestoreParticipant(manager) {
+  return {
+    snapshot: () => manager.captureRestoreSnapshot(),
+    restore: () => manager.restoreFromStore(),
+    rollback: (snapshot, info) => manager.rollbackRestore(snapshot, info),
+    commit: () => manager.commitRestore()
+  };
+}
+registerRestoreParticipant('dialogue', createDialogueRestoreParticipant(dialogueManager));

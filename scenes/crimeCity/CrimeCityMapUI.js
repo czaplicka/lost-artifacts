@@ -5,6 +5,7 @@ import { EventBus } from '../../EventBus.js';
 import { saveGameState } from '../../gameStatePersistence.js';
 import { getCrimeCityLocalTravelCost, LOCAL_TRAVEL_MONEY } from './CrimeCityLocalTravelCosts.js';
 
+
 const ICON_SIZE = 132;
 const LABEL_OFFSET = 82;
 const BADGE_OFFSET = 84;
@@ -14,6 +15,58 @@ const BUILDING_KEYS = ['shop_icon', 'apt_icon'];
 const FILE = 'scenes/crimeCity/CrimeCityMapUI.js';
 const text = id => __dialogueText(FILE, id);
 const TARGETS = { search: ['crime-scene'], crime_lab: ['crime-lab'], policja: ['suspect-grid'], apt_icon: ['apartment'] };
+
+
+// Pogoda zapisana przez CityWeatherManager (clear / rain / snow / fog).
+function getCityWeatherType(cityId) {
+  const id = String(cityId || '').trim().toLowerCase().replace(/\s+/g, '_');
+  const type = gameState.cityWeather?.cities?.[`agency:${id}`]?.type;
+  return ['clear', 'rain', 'snow', 'fog'].includes(type) ? type : 'clear';
+}
+
+
+// Środek ikony w (x, y), rozmiar ok. 34 x 34 px.
+function drawWeatherIcon(scene, type, x, y) {
+  const g = scene.add.graphics().setPosition(x, y);
+
+  const cloud = color => {
+    g.fillStyle(color, 1);
+    g.fillCircle(-8, 3, 8);
+    g.fillCircle(2, -3, 10);
+    g.fillCircle(12, 3, 7);
+    g.fillRect(-8, 3, 20, 8);
+  };
+
+  if (type === 'clear') {
+    g.fillStyle(0xffd54a, 1);
+    g.fillCircle(0, 0, 9);
+    g.lineStyle(3, 0xffd54a, 1);
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2;
+      g.lineBetween(
+        Math.cos(a) * 12, Math.sin(a) * 12,
+        Math.cos(a) * 17, Math.sin(a) * 17
+      );
+    }
+  } else if (type === 'rain') {
+    cloud(0x9aa7b4);
+    g.lineStyle(3, 0x6fb4ff, 1);
+    [-8, 1, 10].forEach(dx => g.lineBetween(dx, 12, dx - 3, 18));
+  } else if (type === 'snow') {
+    cloud(0xc9d3dc);
+    g.fillStyle(0xffffff, 1);
+    [-8, 1, 10].forEach(dx => g.fillCircle(dx, 15, 2.5));
+  } else {
+    // fog
+    g.lineStyle(4, 0xcfd8dc, 1);
+    g.lineBetween(-15, -7, 15, -7);
+    g.lineBetween(-11, 0, 17, 0);
+    g.lineBetween(-15, 7, 13, 7);
+  }
+
+  return g;
+}
+
 
 export class CrimeCityMapUI {
   constructor(scene) {
@@ -52,6 +105,7 @@ export class CrimeCityMapUI {
     this.costEvents.forEach(event => EventBus.on(event, this.handleCostChange));
   }
 
+
   getNow() { return Number.isFinite(this.scene?.time?.now) ? this.scene.time.now : Date.now(); }
   track(object, collection) { if (object) collection.push(object); return object; }
   registerInteractive(object) {
@@ -59,6 +113,7 @@ export class CrimeCityMapUI {
     this.scene.interactiveObjects ??= [];
     if (!this.scene.interactiveObjects.includes(object)) this.scene.interactiveObjects.push(object);
   }
+
 
   destroyObjects(collection) {
     const objects = [...new Set(collection.splice(0))];
@@ -80,6 +135,7 @@ export class CrimeCityMapUI {
     for (const object of objects) object?.destroy?.();
   }
 
+
   canRefresh() { return Boolean(this.scene && !this.scene._cleanupDone); }
   registerTutorialTarget(icon, textureKey) {
     const ids = TARGETS[textureKey]; if (!ids) return;
@@ -94,6 +150,7 @@ export class CrimeCityMapUI {
       if (icon?.scene && icon.active && tutorial.hotspots.get(id) !== icon) tutorial.registerHotspot(id, icon);
     }
   }
+
 
   areSuspectFilesUnlocked() {
     const caseKey = this.scene?.getCaseKey?.();
@@ -110,6 +167,7 @@ export class CrimeCityMapUI {
   syncSuspectFilesVisibility(candidates = null) {
     if (this.canRefresh() && this.suspectObjects.length > 0 && !this.shouldShowSuspectFiles(candidates)) this.destroyObjects(this.suspectObjects);
   }
+
 
   getHotelTravelEnergy() { return getCrimeCityLocalTravelCost('hotel', getEnergyManager()).energy; }
   getDisplayCost(nodeId) {
@@ -183,6 +241,7 @@ export class CrimeCityMapUI {
     this.costLabels.push(entry); this.refreshCostLabels(); return entry;
   }
 
+
   async ensureBuildingAssets() {
     if (!this.canRefresh()) return false;
     if (this._assetPromise) return this._assetPromise;
@@ -228,6 +287,7 @@ export class CrimeCityMapUI {
     finally { if (this._assetPromise === task) this._assetPromise = null; }
   }
 
+
   createBackground() {
     this.background?.destroy(); this.background = null;
     const scene = this.scene;
@@ -240,7 +300,8 @@ export class CrimeCityMapUI {
     this.destroyObjects(this.headerObjects);
     const scene = this.scene;
     this.track(scene.add.rectangle(0, 0, scene.scale.width, 76, 0x000000, 0.5).setOrigin(0).setDepth(20), this.headerObjects);
-    this.track(scene.add.text(40, 18, `${scene.cityData.city}${text('t_0a07f659461970d8d8dc')}${scene.cityData.country}`, { fontFamily: 'SpecialElite', fontSize: '28px', color: '#ffffff' }).setDepth(21), this.headerObjects);
+    this.track(drawWeatherIcon(scene, getCityWeatherType(scene.cityId), 58, 38).setDepth(21), this.headerObjects);
+    this.track(scene.add.text(92, 18, `${scene.cityData.city}${text('t_0a07f659461970d8d8dc')}${scene.cityData.country}`, { fontFamily: 'SpecialElite', fontSize: '28px', color: '#ffffff' }).setDepth(21), this.headerObjects);
     const artifact = gameState.currentMission?.artifact;
     let subtitle = text('t_68251b3816503c089c5d');
     if (scene.hasVisitedApartment()) subtitle = text('t_6b737e4fdf59a0f8c250');
@@ -330,6 +391,7 @@ export class CrimeCityMapUI {
     cancel.on('pointerdown', () => this.closeApartmentSelection());
   }
   closeApartmentSelection() { this.destroyObjects(this.selectionObjects); }
+
 
   visitHotel() {
     const scene = this.scene;

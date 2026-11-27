@@ -3,9 +3,11 @@ import { EventBus } from '../EventBus.js';
 import { inventoryManager } from '../managers/InventoryManager.js';
 import { useItem, canUseItem } from '../managers/ItemUseService.js';
 import { createDiscardRequest, discardInventoryItem } from '../managers/InventoryDiscardService.js';
+import { refreshPaidSlots } from '../managers/InventorySlotsService.js';
 import { InventoryView } from './inventory/InventoryView.js';
 import { InventoryDragController } from './inventory/InventoryDragController.js';
 import { InventoryDiscardDialog } from './inventory/InventoryDiscardDialog.js';
+import { InventorySlotsDialog } from './inventory/InventorySlotsDialog.js';
 import { captureApartmentInventory, recordEnvelopeViewed } from '../crimeBoard/BoardEvidenceRuntime.js';
 
 const say=text=>EventBus.emit('showDialogue',{speaker:"Detective",text});
@@ -15,6 +17,7 @@ export class InventoryUI {
     this.view=null;this.dragController=null;this._renderPending=false;this._renderTimer=null;
     this._destroyed=false;this._initialized=false;this.discardDialog=null;
     this.discardButtonBg=null;this.discardButtonText=null;
+    this.slotsDialog=null;this.slotsButtonBg=null;this.slotsButtonText=null;
     this.handleInventoryToggled=open=>this.handleToggle(open);
     this.handleInventoryUpdated=()=>{if(this._destroyed)return;this.cancelDiscard();this.scheduleRender();};
     this.handleInventorySelectionChanged=item=>{
@@ -22,28 +25,30 @@ export class InventoryUI {
       if(this.isVisible)this.scheduleRender();
     };
     this.handleOutsidePointerDown=pointer=>{
-      if(this._destroyed || !this.isVisible || this.discardDialog || this.dragController?.isPending())return;
+      if(this._destroyed || !this.isVisible || this.discardDialog || this.slotsDialog || this.dragController?.isPending())return;
       const rect=this.view?.panelRect;
       if(rect && !Phaser.Geom.Rectangle.Contains(rect,pointer.x,pointer.y))inventoryManager.close();
     };
     this.handleKeyI=event=>{
       if(this._destroyed || this.isTyping() || event?.repeat)return;
+      if(this.slotsDialog){this.closeSlotsDialog();return;}
       if(this.discardDialog){this.cancelDiscard();return;}
       if(this.dragController?.isDragging())this.dragController.cancel(true);
       else inventoryManager.toggleInventory();
     };
     this.handleKeyEsc=()=>{
       if(this._destroyed || this.isTyping())return;
+      if(this.slotsDialog){this.closeSlotsDialog();return;}
       if(this.discardDialog){this.cancelDiscard();return;}
       if(this.dragController?.isPending())this.dragController.cancel(true);
       else if(this.isVisible)inventoryManager.close();
     };
     this.handleResize=()=>{
-      if(!this.hasLiveView())return;this.cancelDiscard(false);this.dragController?.cancel(false);
+      if(!this.hasLiveView())return;this.closeSlotsDialog();this.cancelDiscard(false);this.dragController?.cancel(false);
       if(!this.hasLiveView())return;this.view.layout();this.updateDiscardButton();
     };
     this.handleInactive=()=>{
-      if(this._destroyed)return;this.cancelDiscard(false);this.dragController?.cancel(false);
+      if(this._destroyed)return;this.closeSlotsDialog();this.cancelDiscard(false);this.dragController?.cancel(false);
       if(this.isVisible)inventoryManager.close();
     };
     this.handleSceneShutdown=()=>this.destroy();
@@ -65,15 +70,46 @@ export class InventoryUI {
     catch(error){console.error('[InventoryUI] Initialization failed:',error);this.destroy();return;}
     this.selectedItem=inventoryManager.getSelectedItem();this.render();
     if(inventoryManager.isOpen)this.show(true);
+    // Slots bought with euro are read from the player's account.
+    refreshPaidSlots();
   }
   _buildView() {
     this.view=new InventoryView(this.scene,{
       close:()=>inventoryManager.close(),toggle:()=>inventoryManager.toggleInventory(),
       use:()=>this.useSelectedItem(),tooltip:item=>this.showTooltip(item),
-      press:(item,pointer)=>{if(!this._destroyed && !this.discardDialog)this.dragController?.beginPress(item,pointer);},
-      isDragging:()=>Boolean(this.discardDialog || this.dragController?.isDragging())
+      press:(item,pointer)=>{if(!this._destroyed && !this.discardDialog && !this.slotsDialog)this.dragController?.beginPress(item,pointer);},
+      isDragging:()=>Boolean(this.discardDialog || this.slotsDialog || this.dragController?.isDragging())
     });
-    this.view.create();this.createDiscardButton();
+    this.view.create();this.createDiscardButton();this.createSlotsButton();
+  }
+  createSlotsButton() {
+    if(!this.hasLiveView())return;
+    const view=this.view,x=view.width-64-150-190,y=10,w=170,h=28;
+    this.slotsButtonBg=this.scene.add.rectangle(x,y,w,h,0x2c2439).setOrigin(0)
+      .setStrokeStyle(2,0xd4af37).setInteractive({useHandCursor:true});
+    this.slotsButtonText=this.scene.add.text(x+w/2,y+h/2+1,__dialogueText("ui/InventoryUI.js", "t_f2e44f0d56d38f698fd5"),{
+      fontFamily:'PressStart2P',fontSize:'12px',color:'#d4af37'
+    }).setOrigin(0.5);
+    this.slotsButtonBg.on('pointerdown',(p,lx,ly,event)=>event?.stopPropagation());
+    this.slotsButtonBg.on('pointerup',(pointer,lx,ly,event)=>{
+      event?.stopPropagation();if(pointer?.event?.button!==undefined && pointer.event.button!==0)return;
+      this.openSlotsDialog();
+    });
+    this.slotsButtonBg.on('pointerover',()=>this.slotsButtonBg?.active && this.slotsButtonBg.setFillStyle(0x4a3d22));
+    this.slotsButtonBg.on('pointerout',()=>this.slotsButtonBg?.active && this.slotsButtonBg.setFillStyle(0x2c2439));
+    view.root.add([this.slotsButtonBg,this.slotsButtonText]);
+  }
+  openSlotsDialog() {
+    if(!this.hasLiveView() || !this.isVisible || this.discardDialog || this.slotsDialog || this.dragController?.isPending())return;
+    this.hideTooltip();this.view?.endWindowMove();
+    const dialog=new InventorySlotsDialog(this.scene,{
+      onClose:()=>{if(this.slotsDialog===dialog)this.slotsDialog=null;}
+    });
+    this.slotsDialog=dialog;
+    try {dialog.open();}catch(error){this.closeSlotsDialog();console.error('[InventoryUI] Slot shop failed:',error);}
+  }
+  closeSlotsDialog() {
+    const dialog=this.slotsDialog;this.slotsDialog=null;dialog?.destroy();
   }
   createDiscardButton() {
     if(!this.hasLiveView())return;
@@ -98,9 +134,9 @@ export class InventoryUI {
   }
   _buildDragController() {
     this.dragController=new InventoryDragController(this.scene,{
-      isVisible:()=>!this._destroyed && this.isVisible && !this.discardDialog,
+      isVisible:()=>!this._destroyed && this.isVisible && !this.discardDialog && !this.slotsDialog,
       clicked:item=>{
-        if(!this.isVisible || this._destroyed || this.discardDialog)return;
+        if(!this.isVisible || this._destroyed || this.discardDialog || this.slotsDialog)return;
         this.selectItem(item);this.scheduleRender();
       },
       dragStarted:()=>{
@@ -145,7 +181,7 @@ export class InventoryUI {
   }
   hide() {
     if(this._destroyed)return;
-    this.cancelDiscard(false);this.isVisible=false;
+    this.closeSlotsDialog();this.cancelDiscard(false);this.isVisible=false;
     if(!this.dragController?.isDragging())this.dragController?.cancel(false);
     if(this.hasLiveView())this.view.hide(true);this.updateDiscardButton();
   }
@@ -168,7 +204,7 @@ export class InventoryUI {
     this.updateDiscardButton();
   }
   canDiscardSelected() {
-    return Boolean(this.hasLiveView() && this.isVisible && !this.discardDialog &&
+    return Boolean(this.hasLiveView() && this.isVisible && !this.discardDialog && !this.slotsDialog &&
       !this.dragController?.isPending() && inventoryManager.getSelectedItem());
   }
   updateDiscardButton() {
@@ -201,7 +237,7 @@ export class InventoryUI {
     if(refreshButton && !this._destroyed)this.updateDiscardButton();
   }
   useSelectedItem() {
-    if(!this.hasLiveView() || !this.isVisible || this.discardDialog || this.dragController?.isPending())return;
+    if(!this.hasLiveView() || !this.isVisible || this.discardDialog || this.slotsDialog || this.dragController?.isPending())return;
     const selected=inventoryManager.getSelectedItem();if(!selected || !canUseItem(selected))return;
     recordEnvelopeViewed(selected);
     if(selected.id==='detective_monthly'){
@@ -218,13 +254,13 @@ export class InventoryUI {
     const result=useItem(selected.id);if(result?.message)say(result.message);this.scheduleRender();
   }
   selectItem(item) {
-    if(this._destroyed || this.discardDialog || !item?.id)return;
+    if(this._destroyed || this.discardDialog || this.slotsDialog || !item?.id)return;
     const selected=inventoryManager.getSelectedItem();
     if(selected?.id===item.id){inventoryManager.clearSelection();say(__dialogueText("ui/InventoryUI.js", "t_520837bc0a23b0a68200"));}
     else {inventoryManager.selectItem(item.id);say(`${item.name}${__dialogueText("ui/InventoryUI.js", "t_ed99f5098b4042673a76")}`);}
   }
   showTooltip(item) {
-    if(this.hasLiveView() && this.isVisible && !this.discardDialog){
+    if(this.hasLiveView() && this.isVisible && !this.discardDialog && !this.slotsDialog){
       this.view.showTooltip(item,canUseItem(item));
     }
   }
@@ -261,9 +297,9 @@ export class InventoryUI {
     for(const [event,callback] of [[Phaser.Scenes.Events.SLEEP,this.handleInactive],
       [Phaser.Scenes.Events.PAUSE,this.handleInactive],[Phaser.Scenes.Events.SHUTDOWN,this.handleSceneShutdown],
       [Phaser.Scenes.Events.DESTROY,this.handleSceneShutdown]])scene?.events?.off(event,callback,this);
-    this.cancelDiscard(false);this.dragController?.destroy();this.dragController=null;
+    this.closeSlotsDialog();this.cancelDiscard(false);this.dragController?.destroy();this.dragController=null;
     if(wasVisible && inventoryManager.isOpen)inventoryManager.close();
-    this.discardButtonBg=null;this.discardButtonText=null;
+    this.discardButtonBg=null;this.discardButtonText=null;this.slotsButtonBg=null;this.slotsButtonText=null;
     this.view?.destroy();this.view=null;this.selectedItem=null;this.scene=null;
   }
 }

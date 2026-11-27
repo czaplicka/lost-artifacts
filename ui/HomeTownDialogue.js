@@ -1,7 +1,8 @@
 import { DialoguePanel } from './DialoguePanel.js';
 import { showDialogueBubbles } from './DialogueBubbles.js';
 import { getHomeTownTrust, hasHomeTownTrustChoice, applyHomeTownTrustChoice,
-  resolveHomeTownTrustDelta } from '../managers/HomeTownTrust.js';
+  resolveHomeTownTrustDelta, getHomeTownDialogueGeneration, isHomeTownDialogueGenerationCurrent,
+  onHomeTownDialogueInvalidated } from '../managers/HomeTownTrust.js';
 
 const hasId = value => typeof value === 'string' && value.trim().length > 0;
 function normalizeChoice(raw, index) {
@@ -37,6 +38,14 @@ class HomeTownView extends DialoguePanel {
     this.setTrust(null);
     this._setEntries([]);
     this._show();
+    // The speaker row and the tone controls are hidden here, so the bubble takes
+    // that space (from below the header line to above the page label) and longer
+    // replies fit on one page.
+    const L = this.L;
+    L.bodyY = L.py + 76 * L.s;
+    L.bodyH = L.ph - 122 * L.s;
+    this.textHit?.setPosition(L.lx, L.bodyY - 10 * L.s).setSize(L.lw, L.bodyH + 10 * L.s);
+    this.textHit?.input?.hitArea?.setTo?.(0, 0, L.lw, L.bodyH + 10 * L.s);
     const messages = Array.isArray(data.messages) && data.messages.length
       ? data.messages : [{ speaker: 'npc', text: String(data.text ?? '') }];
     showDialogueBubbles(this, messages);
@@ -56,18 +65,17 @@ class HomeTownView extends DialoguePanel {
   get textPages() { return this.pages.map(text => ({ text })); }
   get pageText() { return this.pages[this.pageIndex] || ''; }
 
+  // Shows the shared half-circle trust gauge with the level word, or hides it.
   setTrust(info) {
-    this.meterObjs.forEach(object => object.setVisible(false));
-    this.numText.setText('').setVisible(false);
-    const visible = Boolean(info);
+    const visible = Boolean(info?.level);
     const L = this.L;
+    this.meterObjs.forEach(object => object.setVisible(visible));
+    this.numText.setText('').setVisible(false);
     this._fitWidth(this.nameText,
       Math.max(20 * L.s, visible ? L.lw - 205 * L.s : L.lw), 14 * L.s, 7 * L.s);
     if (!visible) { this.levelText.setText(''); return; }
-    this.levelText.setText(`TRUST: ${info.level.label}`).setColor(info.level.hex)
-      .setPosition(L.lx + L.lw, L.py + 20 * L.s).setOrigin(1, 0).setVisible(true);
-    this._fitWidth(this.levelText, Math.max(20 * L.s, Math.min(195 * L.s, L.lw * 0.55)),
-      9 * L.s, 5 * L.s);
+    this._renderTrust(info.value, info.level);
+    this._fitWidth(this.levelText, 105 * L.s, 8 * L.s, 5 * L.s);
   }
   renderTextPage() {
     if (!this.isOpen || this._destroyed) return;
@@ -138,11 +146,27 @@ export class HomeTownDialogue {
     this.seen = new Set();
     this.destroyed = false;
     this.choosing = false;
+    this.generation = null;
     this.dispose = () => this.destroy();
     this.resize = () => this.draw();
     scene.events.once('shutdown', this.dispose);
     scene.events.once('destroy', this.dispose);
     scene.scale.on('resize', this.resize);
+    this.offInvalidated = onHomeTownDialogueInvalidated(() => this.detachIfStale());
+  }
+  // The conversation belongs to the save loaded when it opened.
+  isCurrent() {
+    return this.generation !== null && isHomeTownDialogueGenerationCurrent(this.generation);
+  }
+  // After a load: remove the view and forget per-save memory without calling the
+  // scene's onClose (its choice actions and callbacks belong to the old save).
+  detachIfStale() {
+    if (this.destroyed || !this.data || this.generation === null || this.isCurrent()) return false;
+    this.clear();
+    this.data = null;
+    this.seen.clear();
+    this.generation = null;
+    return true;
   }
   get typing() { return Boolean(this.panel?.isTyping); }
   get textPage() { return this.panel?.textPage || 0; }
@@ -164,6 +188,9 @@ export class HomeTownDialogue {
   show(data = {}) {
     if (this.destroyed) return null;
     this.clear();
+    const generation = getHomeTownDialogueGeneration();
+    if (generation !== this.generation) this.seen.clear();
+    this.generation = generation;
     this.data = { title: '', text: '', choices: [], ...data };
     if (!Array.isArray(this.data.choices)) this.data.choices = [];
     if (hasId(this.data.npcId)) this.data.npcId = this.data.npcId.trim();
@@ -171,7 +198,7 @@ export class HomeTownDialogue {
     const panel = this.panel;
     const activeData = this.data;
     panel.advanceAfterPages = () => {
-      if (this.panel === panel && panel.isOpen) activeData.onAdvance?.();
+      if (this.panel === panel && panel.isOpen && !this.detachIfStale()) activeData.onAdvance?.();
     };
     this.root = panel.root;
     this.refreshTrust();
@@ -180,7 +207,7 @@ export class HomeTownDialogue {
     return this.root;
   }
   refreshTrust() {
-    if (!this.panel?.isOpen) return;
+    if (!this.panel?.isOpen || this.detachIfStale()) return;
     this.panel.setTrust(this.trustEnabled
       ? getHomeTownTrust(this.data.npcId, this.data.startTrust) : null);
   }
@@ -190,8 +217,9 @@ export class HomeTownDialogue {
   }
   getSeenKey(choiceId) { return JSON.stringify([this.data.npcId ?? '', choiceId]); }
   updateTopics() {
-    if (!this.data || !this.panel?.isOpen) return;
+    if (!this.data || !this.panel?.isOpen || this.detachIfStale()) return;
     const sourcePanel = this.panel;
+    const generation = this.generation;
     const topics = this.data.choices.map((raw, index) => {
       const choice = normalizeChoice(raw, index);
       const choiceId = this.getChoiceId(choice);
@@ -206,13 +234,15 @@ export class HomeTownDialogue {
         onSelect: () => {
           if (this.choosing || this.destroyed || this.panel !== sourcePanel ||
             !sourcePanel.isOpen || disabled) return;
+          if (generation !== this.generation || this.detachIfStale()) return;
           const data = this.data;
           this.choosing = true;
           try {
             if (scoring) {
-              applyHomeTownTrustChoice({ npcId: data.npcId, choiceId,
+              const applied = applyHomeTownTrustChoice({ npcId: data.npcId, choiceId,
                 attitude: choice.attitude ?? 'neutral', trustDelta: choice.trustDelta,
-                reactions: data.trustReactions, startTrust: data.startTrust });
+                reactions: data.trustReactions, startTrust: data.startTrust, generation });
+              if (applied?.stale) { this.detachIfStale(); return; }
               this.refreshTrust();
             }
             this.seen.add(seenKey);
@@ -229,7 +259,8 @@ export class HomeTownDialogue {
     sourcePanel.setTopics(topics, { preservePage: true });
   }
   draw() {
-    if (this.destroyed || !this.data || !this.panel?.isOpen) return;
+    // A redraw must not re-bind an old conversation to a newly loaded save.
+    if (this.destroyed || !this.data || !this.panel?.isOpen || this.detachIfStale()) return;
     const page = this.textPage, scroll = this.panel.scroll, data = this.data, wasTyping = this.typing;
     this.show(data);
     this.panel.pageIndex = Math.min(page, this.panel.pages.length - 1);
@@ -247,6 +278,7 @@ export class HomeTownDialogue {
   destroy() {
     if (this.destroyed) return;
     this.destroyed = true;
+    this.offInvalidated?.(); this.offInvalidated = null;
     this.close(false);
     this.scene.events.off('shutdown', this.dispose);
     this.scene.events.off('destroy', this.dispose);

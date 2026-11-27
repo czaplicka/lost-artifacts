@@ -6,6 +6,7 @@ const MAX_NAME_LENGTH = 60;
 const MAX_ICON_LENGTH = 16;
 const MAX_DESCRIPTION_LENGTH = 500;
 const MAX_METADATA_DEPTH = 8;
+const MAX_EXTRA_SLOTS = 64;
 const SAVE_VERSION = 1;
 const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 const isSkippableType = type => ['undefined', 'function', 'symbol', 'bigint'].includes(type);
@@ -21,13 +22,20 @@ const toQuantity = value => {
     const number = Math.floor(Number(value));
     return !Number.isFinite(number) || number < 1 ? 1 : Math.min(number, MAX_QUANTITY);
 };
+const toExtraSlots = value => {
+    const number = Math.floor(Number(value));
+    return !Number.isFinite(number) || number < 0 ? 0 : Math.min(number, MAX_EXTRA_SLOTS);
+};
 
 export class InventoryManager {
     constructor() {
         // These two collection objects retain their identity for this manager's lifetime.
         this.items = [];
         this._itemMap = new Map();
-        this.maxSlots = 12;
+        // Capacity = base + slots bought with medals (saved with the game) + slots bought with euro (read from the account).
+        this.baseSlots = 12;
+        this.medalSlots = 0;
+        this.paidSlots = 0;
         this.isOpen = false;
         this.selectedItemId = null;
         this._initialized = false;
@@ -40,6 +48,23 @@ export class InventoryManager {
         this.handleClearInventorySelection = () => this.clearSelection();
         this.initialize();
     }
+    get maxSlots() { return this.baseSlots + this.medalSlots + this.paidSlots; }
+    // Kept for older code that assigned the total capacity directly.
+    set maxSlots(value) {
+        const total = Math.floor(Number(value));
+        if (Number.isFinite(total) && total >= 0) this.baseSlots = Math.max(0, total - this.medalSlots - this.paidSlots);
+    }
+    _setExtraSlots(field, value) {
+        if (this._destroyed) return false;
+        const next = toExtraSlots(value);
+        if (this[field] === next) return false;
+        this[field] = next;
+        EventBus.emit('inventoryUpdated');
+        EventBus.emit('inventoryCapacityChanged', this.getCapacity());
+        return true;
+    }
+    setMedalSlots(value) { return this._setExtraSlots('medalSlots', value); }
+    setPaidSlots(value) { return this._setExtraSlots('paidSlots', value); }
     _busBindings() {
         return [
             ['addInventoryItem', this.handleAddInventoryItem],
@@ -244,6 +269,8 @@ export class InventoryManager {
             stagedMap.set(normalized.id, normalized);
         }
         if (skipped > 0 && validItems.length === 0) console.warn('[InventoryManager] importState: every item in the save was invalid.');
+        // Slots bought with medals travel with the save. Older saves have none.
+        this.medalSlots = toExtraSlots(state.medalSlots);
         if (validItems.length > this.maxSlots) console.warn('[InventoryManager] Saved inventory exceeds acquisition capacity; all valid items were retained.');
         const previousSelectedItem = this.getSelectedItem();
         this.items.length = 0;
@@ -262,7 +289,7 @@ export class InventoryManager {
         }
         return true;
     }
-    exportState() { return { version: SAVE_VERSION, items: this.getAllItemsCopy() }; }
+    exportState() { return { version: SAVE_VERSION, items: this.getAllItemsCopy(), medalSlots: this.medalSlots }; }
     normalizeItem(rawItem) {
         if (!rawItem || typeof rawItem !== 'object') return null;
         const id = normalizeId(rawItem.id);

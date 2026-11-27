@@ -2,14 +2,23 @@ import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
 import { HomeTownDialogue } from '../ui/HomeTownDialogue.js';
+import { CrimeCityTutorial } from '../tutorials/CrimeCityTutorial.js';
+import { uninstallCityDayNight } from '../systems/CityDayNightManager.js';
+import { uninstallCityWeather } from '../systems/CityWeatherManager.js';
 import {
   caseRoomContext, enterCaseRoom, bindRoomReconstruction,
   finishRoomReview, roomAssessment
 } from '../systems/CaseRoomFlow.js';
 
+
+
 const IMAGE = 'case_room_background';
 const WIDTH = 1920;
 const HEIGHT = 1080;
+const BOARD_TARGET = 'case-room-board';
+const ROOM_TUTORIAL_STEPS = ['phone_lab', 'hypothesis'];
+
+
 
 // id, x, y, width, height, hover label; współrzędne lewego górnego rogu.
 const HOTSPOTS = [
@@ -20,8 +29,12 @@ const HOTSPOTS = [
   ['plant', 1327, 613, 97, 155, 'A controlled experiment']
 ];
 
+
+
 export class CaseRoomScene extends BaseScene {
   constructor() { super({ key: 'CaseRoomScene' }); }
+
+
 
   init(data = {}) {
     this.cityId = data.cityId || gameState.crimeCityId ||
@@ -34,7 +47,14 @@ export class CaseRoomScene extends BaseScene {
     this.roomLayer = null;
     this.hint = null;
     this.title = null;
+    this.exitButton = null;
+    this.roomTutorial = null;
+    this.roomTutorialTimer = null;
+    this.newsHudSnapshot = null;
+    this.cityHidden = false;
   }
+
+
 
   preload() {
     if (!this.textures.exists(IMAGE)) {
@@ -42,10 +62,32 @@ export class CaseRoomScene extends BaseScene {
     }
   }
 
+
+
   create() {
     super.create();
+
+
+
+    // Pokój nie ma nocnego filtra ani pogody.
+    uninstallCityDayNight(this);
+    uninstallCityWeather(this);
+
+
+
     // Stare wejście z phonebooka może pozostawić aktywne miasto pod spodem.
     if (this.isSceneActive('CrimeCityScene')) this.scene.pause('CrimeCityScene');
+
+
+
+    // Spauzowane miasto nadal się rysuje (razem z nocnym welonem), więc je chowamy.
+    if (this.isScenePaused('CrimeCityScene')) {
+      this.scene.setVisible(false, 'CrimeCityScene');
+      this.cityHidden = true;
+    }
+
+
+
     this.hideRoomHud();
     this.roomLayer = this.add.container(0, 0);
     this.title = this.add.text(18, 16, 'CASE ROOM', {
@@ -57,6 +99,27 @@ export class CaseRoomScene extends BaseScene {
       backgroundColor: '#171b1be8', padding: { x: 14, y: 8 }, align: 'center'
     }).setOrigin(.5, 1).setDepth(20);
 
+
+
+    this.exitButton = this.add.text(0, 16, 'EXIT', {
+      fontFamily: 'PressStart2P', fontSize: '13px', color: '#ffd86b',
+      backgroundColor: '#171b1bd9', padding: { x: 14, y: 10 }
+    }).setOrigin(1, 0).setDepth(20).setInteractive({ useHandCursor: true });
+    this.exitButton.on('pointerover', () => {
+      this.exitButton?.setStyle({ color: '#ffffff', backgroundColor: '#7a2a22' });
+    });
+    this.exitButton.on('pointerout', () => {
+      this.exitButton?.setStyle({ color: '#ffd86b', backgroundColor: '#171b1bd9' });
+    });
+    this.exitButton.on('pointerdown', (pointer, _x, _y, event) => {
+      event?.stopPropagation();
+      if (pointer?.event?.button != null && pointer.event.button !== 0) return;
+      if (this.openingBoard || this.leavingRoom || this.review?.root) return;
+      void this.leaveRoom('CrimeCityScene');
+    });
+
+
+
     this.onRoomResize = () => { this.renderRoom(); };
     this.onRoomResume = () => {
       this.openingBoard = false;
@@ -65,6 +128,9 @@ export class CaseRoomScene extends BaseScene {
       this.time.delayedCall(0, () => {
         if (token !== this.roomRun || this._cleanupDone || !this.sys.isActive()) return;
         this.hideRoomHud();
+        // Odświeżamy pokój i samouczek po powrocie z rekonstrukcji.
+        this.renderRoom();
+        this.syncRoomTutorial();
         this.offerReview();
       });
     };
@@ -81,12 +147,16 @@ export class CaseRoomScene extends BaseScene {
       }
     };
 
+
+
     this.scale.on('resize', this.onRoomResize);
     this.events.on('resume', this.onRoomResume);
     this.events.on('wake', this.onRoomResume);
     this.input.keyboard?.on('keydown', this.onRoomKey);
     this.events.once('shutdown', this.cleanupRoom, this);
     this.events.once('destroy', this.cleanupRoom, this);
+
+
 
     const context = enterCaseRoom(this.cityId, this.caseKey);
     if (this.caseKey == null) this.caseKey = context.caseKey;
@@ -96,15 +166,125 @@ export class CaseRoomScene extends BaseScene {
         ? 'Click the corkboard to reconstruct the theft.'
         : 'Complete the CSI analyses before using the board.');
     }
+    this.setupRoomTutorial();
     this.offerReview();
   }
+
+
 
   hideRoomHud() {
     EventBus.emit('hideHUD');
     this.game.events.emit('setHudVisible', false);
+
+
+
+    // Dolne menu to NewsHud: chowamy je i zapamiętujemy stan do przywrócenia.
+    const news = this.getRegisteredScene('NewsHud');
+    if (news?.sys?.isActive() && news.menuTab && news.menuPanel) {
+      this.newsHudSnapshot ??= {
+        scene: news,
+        hudEnabled: news.hudEnabled,
+        sceneVisible: news.sys.settings.visible
+      };
+      news.closeMenu?.(true);
+      news.setHudVisible(false);
+      news.sys.setVisible(false);
+    }
   }
 
+
+
+  restoreNewsHud() {
+    const snapshot = this.newsHudSnapshot;
+    this.newsHudSnapshot = null;
+    if (!snapshot) return;
+    const news = snapshot.scene;
+    if (news.isShutDown || !news.menuTab || !news.menuPanel) return;
+    news.setHudVisible(snapshot.hudEnabled);
+    news.sys.setVisible(snapshot.sceneVisible);
+  }
+
+
+
   setHint(value) { this.hint?.setText(value); }
+
+
+
+  // ---- Samouczek w pokoju (ta sama klasa co w mieście) ----
+
+  shouldRunRoomTutorial() {
+    const state = gameState.onboarding?.crimeCity;
+    if (!state || state.completed || state.skipped) return false;
+    if (!ROOM_TUTORIAL_STEPS.includes(state.step)) return false;
+    const context = caseRoomContext(this.cityId, this.caseKey);
+    return context.ready && !context.completed;
+  }
+
+  setupRoomTutorial() {
+    if (this.roomTutorial || !this.shouldRunRoomTutorial()) return;
+
+    const tutorial = new CrimeCityTutorial(this, gameState);
+
+    // W pokoju oba kroki prowadzą do tablicy.
+    for (const step of ROOM_TUTORIAL_STEPS) {
+      if (!tutorial.stepContent[step]) continue;
+      tutorial.stepContent[step] = {
+        ...tutorial.stepContent[step],
+        title: 'THE CASE ROOM',
+        objective: 'Click the corkboard to reconstruct the theft.',
+        hint: 'The analyses tell you what was found. ' +
+          'The reconstruction asks what happened.',
+        targetHotspot: BOARD_TARGET
+      };
+    }
+
+    this.roomTutorial = tutorial;
+    this.syncRoomTutorialHotspot();
+    tutorial.start();
+
+    this.roomTutorialTimer?.remove(false);
+    this.roomTutorialTimer = this.time.addEvent({
+      delay: 300, loop: true, callback: () => this.syncRoomTutorial()
+    });
+  }
+
+  // Pokój jest skalowany do okna, więc podświetlenie dostaje współrzędne ekranowe.
+  syncRoomTutorialHotspot() {
+    const tutorial = this.roomTutorial;
+    if (!tutorial || tutorial.destroyed || !this.roomLayer) return;
+    const spot = HOTSPOTS.find(entry => entry[0] === 'board');
+    if (!spot) return;
+    const [, x, y, w, h] = spot;
+    const scale = this.roomLayer.scaleX || 1;
+    tutorial.registerHotspot(BOARD_TARGET, {
+      scene: this,
+      scrollFactorX: 0,
+      scrollFactorY: 0,
+      hotspotData: {
+        x: this.roomLayer.x + x * scale,
+        y: this.roomLayer.y + y * scale,
+        width: w * scale,
+        height: h * scale
+      }
+    });
+  }
+
+  syncRoomTutorial() {
+    const tutorial = this.roomTutorial;
+    if (!tutorial) return;
+    if (!this.shouldRunRoomTutorial() || this.review?.root) {
+      this.destroyRoomTutorial();
+    }
+  }
+
+  destroyRoomTutorial() {
+    this.roomTutorialTimer?.remove(false);
+    this.roomTutorialTimer = null;
+    this.roomTutorial?.destroy();
+    this.roomTutorial = null;
+  }
+
+
 
   renderRoom() {
     if (!this.roomLayer || this._cleanupDone) return;
@@ -116,6 +296,7 @@ export class CaseRoomScene extends BaseScene {
       (height - HEIGHT * scale) / 2).setScale(scale);
     this.hint.setPosition(width / 2, height - 14)
       .setWordWrapWidth(Math.max(40, width - 40));
+    this.exitButton?.setPosition(width - 18, 16);
     if (!this.textures.exists(IMAGE)) {
       this.setHint('Missing background: assets/local/case_room.webp. ' +
         'Press Escape to return to the city.');
@@ -138,7 +319,10 @@ export class CaseRoomScene extends BaseScene {
         event?.stopPropagation();
         if (pointer?.event?.button != null && pointer.event.button !== 0) return;
         if (this.openingBoard || this.leavingRoom || this.review?.root) return;
-        if (id === 'board') void this.openBoard();
+        if (id === 'board') {
+          this.roomTutorial?.clearHighlight();
+          void this.openBoard();
+        }
         if (id === 'lab') void this.leaveRoom('CrimeLabScene');
         if (id === 'city') void this.leaveRoom('CrimeCityScene');
         if (id === 'coffee') {
@@ -151,7 +335,10 @@ export class CaseRoomScene extends BaseScene {
         }
       });
     }
+    this.syncRoomTutorialHotspot();
   }
+
+
 
   async openBoard() {
     if (this.openingBoard || this.leavingRoom || this.review?.root || gameState.caseFailed) {
@@ -173,21 +360,26 @@ export class CaseRoomScene extends BaseScene {
       if (!opened) {
         throw new Error('The reconstruction could not be opened. Please try again.');
       }
-      if (this.sys.isActive()) this.scene.pause();
+      // Pokój pauzuje HypothesisScene.create() (this.scene.pause(returnScene)).
       return true;
     } catch (error) {
       if (this.roomRun === token && !this._cleanupDone) {
         this.openingBoard = false;
         this.setHint(error.message);
+        this.syncRoomTutorialHotspot();
       }
       return false;
     }
   }
 
+
+
   offerReview() {
     const context = caseRoomContext(this.cityId, this.caseKey);
     if (context.completed && !context.reconstruction.resultCommentSeen) this.openReview();
   }
+
+
 
   openReview() {
     if (this.review?.root) return;
@@ -217,8 +409,11 @@ export class CaseRoomScene extends BaseScene {
       }
     };
     this.review = view;
+    this.destroyRoomTutorial();
     view.show(data);
   }
+
+
 
   closeReview() {
     if (!this.review) return;
@@ -234,6 +429,8 @@ export class CaseRoomScene extends BaseScene {
     this.setHint('Reconstruction filed. ' +
       'The suspect files are available in Crime City.');
   }
+
+
 
   async leaveRoom(target) {
     if (this.leavingRoom || this.openingBoard || this.review?.root || !this.sys.isActive()) {
@@ -253,6 +450,10 @@ export class CaseRoomScene extends BaseScene {
     try {
       if (target === 'CrimeCityScene' &&
         (this.isScenePaused(target) || this.isSceneSleeping(target))) {
+        if (this.cityHidden) {
+          this.scene.setVisible(true, target);
+          this.cityHidden = false;
+        }
         if (this.isSceneSleeping(target)) this.scene.wake(target, data);
         else this.scene.resume(target, data);
         this.scene.bringToTop(target);
@@ -274,6 +475,8 @@ export class CaseRoomScene extends BaseScene {
     }
   }
 
+
+
   cleanupRoom() {
     if (this.roomRun == null) return;
     this.roomRun = null;
@@ -283,10 +486,23 @@ export class CaseRoomScene extends BaseScene {
     this.events.off('shutdown', this.cleanupRoom, this);
     this.events.off('destroy', this.cleanupRoom, this);
     this.input.keyboard?.off('keydown', this.onRoomKey);
+    this.destroyRoomTutorial();
     this.review?.destroy();
     this.review = null;
     this.roomLayer = null;
     this.hint = null;
+    this.exitButton = null;
+
+
+
+    if (this.cityHidden && this.hasScene('CrimeCityScene')) {
+      this.scene.setVisible(true, 'CrimeCityScene');
+    }
+    this.cityHidden = false;
+
+
+
+    this.restoreNewsHud();
     EventBus.emit('showHUD');
     this.game.events.emit('setHudVisible', true);
   }

@@ -152,6 +152,8 @@ function startScoreSession() {
 function resetInventory() {
   inventoryManager.close();
   inventoryManager.clearAll();
+  // Slots bought with medals belong to the save, so a new game starts without them.
+  inventoryManager.setMedalSlots(0);
   gameState.inventory = inventoryManager.exportState();
 }
 

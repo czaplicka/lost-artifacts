@@ -1,5 +1,5 @@
 import { dialogueManager } from '../managers/DialogueManager.js';
-import { TONES, TONE_ORDER, randomBlurb } from '../managers/TrustManager.js';
+import { TONES, TONE_ORDER, TRUST_LEVELS, TRUST_MIN, TRUST_MAX, randomBlurb } from '../managers/TrustManager.js';
 
 const PRESS = 'PressStart2P';
 const ELITE = 'SpecialElite';
@@ -30,6 +30,9 @@ export class DialoguePanel {
     this._destroyed = false; this._inputSnapshots = new Map(); this._modalAcquired = false;
     this._computeLayout(); this._build(); this._bindInput();
     this.root.setVisible(false);
+    // A load replaces the dialogue data; a conversation still on screen detaches.
+    this._offInvalidated = typeof this.m?.onInvalidated === 'function'
+      ? this.m.onInvalidated(() => this._detachIfStale()) : null;
     scene.events.once('shutdown', this.destroy, this);
     scene.events.once('destroy', this.destroy, this);
   }
@@ -71,6 +74,7 @@ export class DialoguePanel {
   destroy() {
     if (this._destroyed) return;
     this._destroyed = true; this.isOpen = false; this.mode = 'closed';
+    this._offInvalidated?.(); this._offInvalidated = null;
     this._cancelTyper(); this._releaseModal();
     const sc = this.scene;
     sc.input?.keyboard?.off('keydown', this._onKey);
@@ -236,14 +240,7 @@ export class DialoguePanel {
     this.nameText=this._txt(L.lx,L.py+16*s,'',PRESS,14*s,COL.goldS);
     this.roleText=this._txt(L.lx,L.py+38*s,'',ELITE,14*s,COL.textAsked);
     const mx=L.lx+L.lw-190*s;
-    this.meterObjs=[this._txt(mx,L.py+16*s,'TRUST',PRESS,8*s,COL.textAsked)];
-    this.segs=[];
-    for(let i=0;i<10;i++) {
-      const segment=sc.add.rectangle(mx+i*18*s,L.py+30*s,15*s,12*s,COL.segEmpty).setOrigin(0).setStrokeStyle(1,COL.divider);
-      this.root.add(segment);this.segs.push(segment);this.meterObjs.push(segment);
-    }
-    this.levelText=this._txt(mx,L.py+46*s,'',PRESS,8*s,COL.goldS);
-    this.meterObjs.push(this.levelText);
+    this._buildTrustGauge(mx);
     this.numText=this._txt(mx+177*s,L.py+16*s,'',PRESS,8*s,COL.textAsked).setOrigin(1,0);
     this.speakerText=this._txt(L.lx,L.py+68*s,'',PRESS,9*s,COL.npc);
     this.body=this._txt(L.lx,L.bodyY,'',ELITE,19*s,COL.textLight,{
@@ -424,8 +421,18 @@ export class DialoguePanel {
     }
     if(result?.choices?.length){this._showChoices(result.choices);return;}this._showTopics();
   }
+  // Closes the view without the scene's onClose: that callback (and the summary
+  // it would get) belongs to the save that was replaced.
+  _detachIfStale() {
+    if(this._destroyed||!this.isOpen||!this.session||this.session.isCurrent?.()!==false)return false;
+    this.session.close('stale_session');
+    this.isOpen=false;this._setMode('closed');this._cancelTyper();this.contArrow.setVisible(false);
+    this.lineQueue=[];this._current=null;this.session=null;this.onClose=null;this._hide();
+    return true;
+  }
   _close() {
     if(!this.isOpen||!this.session)return;
+    if(this._detachIfStale())return;
     const endedBy=this._current?.endedBy||'goodbye',summary=this.session.close(endedBy);
     this.isOpen=false;this._setMode('closed');this._cancelTyper();this.contArrow.setVisible(false);this._hide();
     const callback=this.onClose;this.onClose=null;this.session=null;callback?.(summary);
@@ -522,9 +529,61 @@ export class DialoguePanel {
   _refreshBye(){this.byeBtn.state=this.mode==='topics'?'normal':'disabled';this._styleBtn(this.byeBtn);}
   _updateTrust() {
     if(!this.session)return;
-    const trust=this.session.getTrust(),filled=Math.round(trust.value/10);
-    this.segs.forEach((segment,index)=>segment.setFillStyle(index<filled?trust.level.color:COL.segEmpty));
-    this.levelText.setText(trust.level.label).setColor(trust.level.hex);this.numText.setText(String(trust.value));
+    const trust=this.session.getTrust();
+    // A new conversation starts at its own value instead of sweeping from the last NPC's.
+    if(this._gaugeSession!==this.session){this._gaugeSession=this.session;if(this._gauge)this._gauge.shown=null;}
+    this._renderTrust(trust.value,trust.level);this.numText.setText(String(trust.value));
+  }
+  /* Half-circle trust gauge: one band per trust level (red to green), a needle at the
+     value, and the TRUST label with the level word beside it. Every part is listed in
+     meterObjs, so panels that hide trust keep working. */
+  _buildTrustGauge(mx) {
+    const sc=this.scene,L=this.L,s=L.s,r=30*s;
+    const cx=mx+r+5*s,cy=L.py+53*s,tx=cx+r+12*s;
+    const bands=sc.add.graphics(),needle=sc.add.graphics();
+    this.root.add([bands,needle]);
+    this._gauge={bands,needle,cx,cy,r,s,shown:null};
+    const label=this._txt(tx,L.py+16*s,'TRUST',PRESS,8*s,COL.textAsked);
+    this.levelText=this._txt(tx,L.py+32*s,'',PRESS,8*s,COL.goldS);
+    this.meterObjs=[bands,needle,label,this.levelText];
+    this._drawTrustBands(-1);this._drawTrustNeedle(TRUST_MIN);
+  }
+  _trustAngle(value) {
+    const v=Math.max(TRUST_MIN,Math.min(TRUST_MAX,Number(value)||0));
+    return Math.PI+Math.PI*(v-TRUST_MIN)/(TRUST_MAX-TRUST_MIN);
+  }
+  // The band of the current level is drawn at full strength, the others dimmed.
+  _drawTrustBands(activeIndex) {
+    const g=this._gauge;if(!g?.bands?.scene)return;
+    const {bands,cx,cy,r,s}=g,gap=0.025;bands.clear();
+    TRUST_LEVELS.forEach((level,index)=>{
+      const a0=this._trustAngle(level.min),a1=this._trustAngle(TRUST_LEVELS[index+1]?.min??TRUST_MAX);
+      bands.lineStyle(7*s,level.color,index===activeIndex?1:0.32);
+      bands.beginPath();bands.arc(cx,cy,r,a0+gap,a1-gap,false);bands.strokePath();
+    });
+    bands.lineStyle(Math.max(1,s),COL.divider,1);bands.lineBetween(cx-r-6*s,cy,cx+r+6*s,cy);
+  }
+  _drawTrustNeedle(value) {
+    const g=this._gauge;if(!g?.needle?.scene)return;
+    const {needle,cx,cy,r,s}=g,a=this._trustAngle(value),len=r-5*s;
+    needle.clear();
+    needle.lineStyle(Math.max(2,2.5*s),0xf3e7c4,1);
+    needle.lineBetween(cx,cy,cx+Math.cos(a)*len,cy+Math.sin(a)*len);
+    needle.fillStyle(COL.gold,1);needle.fillCircle(cx,cy,4*s);
+  }
+  _renderTrust(value,level) {
+    const g=this._gauge;if(!g||!level)return;
+    const target=Math.max(TRUST_MIN,Math.min(TRUST_MAX,Number(value)||0));
+    this._drawTrustBands(TRUST_LEVELS.findIndex(entry=>entry.id===level.id));
+    this.levelText.setText(level.label).setColor(level.hex);
+    this._gaugeTween?.stop?.();this._gaugeTween=null;
+    const from=g.shown,settle=()=>{g.shown=target;this._drawTrustNeedle(target);};
+    if(from===null||from===target){settle();return;}
+    // The needle swings to the new value so the change is easy to notice.
+    const state={v:from};
+    this._gaugeTween=this._addTween({targets:state,v:target,duration:450,ease:'Cubic.easeOut',
+      onUpdate:()=>{g.shown=state.v;this._drawTrustNeedle(state.v);},onComplete:settle});
+    if(!this._gaugeTween)settle();
   }
   _showToasts(result) {
     if(!this.session)return;

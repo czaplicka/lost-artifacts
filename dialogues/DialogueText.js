@@ -127,6 +127,22 @@ function validateCatalog(data) {
   });
 }
 
+async function takeEarlyCatalogResponse() {
+  const early = globalThis.__dialogueCatalogRequest;
+
+  if (!early) return null;
+
+  // Use it once; a later reload of this module fetches normally.
+  globalThis.__dialogueCatalogRequest = null;
+
+  try {
+    const response = await early;
+    return response?.ok ? response : null;
+  } catch {
+    return null;
+  }
+}
+
 async function loadCatalog() {
   let timer = null;
   const controller = new AbortController();
@@ -143,8 +159,15 @@ async function loadCatalog() {
     });
 
     const request = (async () => {
-      const response = await fetch(CATALOG_URL, {
-        cache: 'force-cache',
+      // game.html starts this request before the module graph downloads,
+      // so the catalog arrives in parallel with the code instead of after it.
+      let response = await takeEarlyCatalogResponse();
+
+      // 'no-cache' revalidates the cached copy on every start (usually a cheap 304).
+      // 'force-cache' served a stale catalog whenever new texts were added without
+      // changing GAME_VERSION, so the new texts showed as missing.
+      response ??= await fetch(CATALOG_URL, {
+        cache: 'no-cache',
         signal: controller.signal
       });
 
@@ -221,6 +244,13 @@ export function dialogueText(source, id) {
   }
 
   return `[Missing text: ${sourceKey}/${textKey}]`;
+}
+
+// Fills {name} placeholders in a catalog sentence. Unknown placeholders stay visible.
+export function formatDialogueText(template, values = {}) {
+  return String(template).replace(/\{(\w+)\}/g, (match, key) =>
+    Object.hasOwn(values, key) ? String(values[key]) : match
+  );
 }
 
 export function getDialogueTextStatus() {

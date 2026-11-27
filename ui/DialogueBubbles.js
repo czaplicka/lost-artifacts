@@ -9,25 +9,43 @@ export function showDialogueBubbles(panel, messages) {
   const padding = Math.max(2, Math.min(10 * s, lw * 0.06));
   const bubbleWidth = Math.max(1, lw * 0.88);
   const wrapWidth = Math.max(1, bubbleWidth - padding * 2);
-  const fontSize = Math.max(1, 16 * s);
   const spacing = 4 * s;
-  const rowsPerPage = Math.max(
-    1,
-    Math.floor((bodyH - padding) / (fontSize * 1.45 + spacing))
-  );
+  // Text may use the bubble height minus the bottom padding.
+  const available = Math.max(1, bodyH - padding);
+  // Preferred size first; smaller sizes keep a message in one bubble instead of
+  // making the player click through a second page.
+  const sizes = [16, 15, 14, 13].map(size => Math.max(1, size * s));
+  const spoken = messages.filter(({ text }) => String(text ?? '').trim());
 
-  panel.body
-    .setFontSize(fontSize)
-    .setLineSpacing(spacing)
-    .setAlign('left')
-    .setWordWrapWidth(wrapWidth, true);
+  const layoutAt = fontSize => {
+    panel.body
+      .setFontSize(fontSize)
+      .setLineSpacing(spacing)
+      .setAlign('left')
+      .setWordWrapWidth(wrapWidth, true);
+    // Measured line height (Phaser uses the font's real metrics), not an estimate.
+    panel.body.setText('Mg');
+    const step = Math.max(1, panel.body.height + spacing);
+    const rowsPerPage = Math.max(1, Math.floor((available + spacing) / step));
+    const wrapped = spoken.map(({ speaker, text }) => ({
+      speaker, rows: panel.body.getWrappedText(String(text)),
+    }));
+    return { rowsPerPage, wrapped, fits: wrapped.every(({ rows }) => rows.length <= rowsPerPage) };
+  };
+
+  // Largest size where every message fits one bubble; long text pages at the
+  // smallest size so it needs as few pages as possible.
+  let layout = null;
+  for (const size of sizes) {
+    layout = layoutAt(size);
+    if (layout.fits) break;
+  }
+  panel.body.setText('');
 
   const pages = [];
 
-  for (const { speaker, text } of messages) {
-    if (!String(text ?? '').trim()) continue;
-    const rows = panel.body.getWrappedText(String(text));
-
+  for (const { speaker, rows } of layout.wrapped) {
+    const { rowsPerPage } = layout;
     for (let i = 0; i < rows.length; i += rowsPerPage) {
       pages.push({
         speaker,

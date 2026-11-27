@@ -16,8 +16,10 @@ const hex=color=>'#'+color.toString(16).padStart(6,'0');
 const grey=color=>{const v=Math.round(((color>>16)&255)*0.3+((color>>8)&255)*0.59+(color&255)*0.11);return(v<<16)|(v<<8)|v;};
 
 export class ComputerThiefdokuArt {
- constructor(ui){this.ui=ui;this.parent=null;}
- add(o){if(this.parent){this.parent.add(o);return o;}return this.ui.drawing.add(o);}
+ // parent: temporary target (board layer, one card). base: fallback target
+ // used when a whole screen is drawn into a scaled container.
+ constructor(ui){this.ui=ui;this.parent=null;this.base=null;}
+ add(o){const target=this.parent||this.base;if(target){target.add(o);return o;}return this.ui.drawing.add(o);}
  graphic(){return this.add(this.ui.scene.add.graphics());}
  text(x,y,value,size=12,color='#302833',wrap=0,style={}){
   return this.add(this.ui.scene.add.text(x,y,String(value),{fontFamily:FONTS.body,fontSize:`${size}px`,color,wordWrap:wrap?{width:wrap}:undefined,...style}));

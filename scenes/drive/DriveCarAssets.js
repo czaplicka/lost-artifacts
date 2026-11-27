@@ -1,4 +1,4 @@
-export const CAR_DESIGN = Object.freeze({width:1920,height:1080,dashTop:.535,horizon:.31});
+export const CAR_DESIGN = Object.freeze({width:1920,height:1080,dashTop:.535,horizon:.31,vanishX:820,nearU:.5});
 export const CAR_PARTS = Object.freeze({
   cockpit:{file:'cockpit',bounds:[0,0,1920,1080]},
   diceLeft:{file:'dice_left',bounds:[1357,69,118,359]},

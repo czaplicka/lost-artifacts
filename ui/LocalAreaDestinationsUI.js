@@ -11,6 +11,8 @@ import {
   localAreaText as t
 } from '../dialogues/LocalAreaText.js';
 
+const NOTE_SHIFT_Y = 0;
+
 export class LocalAreaDestinationsUI
   extends RoadTripDestinationsUI {
 
@@ -26,7 +28,7 @@ export class LocalAreaDestinationsUI
     super.buildNote();
 
     if (this.noteText) {
-      this.noteText.setY(this.noteText.y - 15);
+      this.noteText.setY(this.noteText.y + NOTE_SHIFT_Y);
     }
   }
 

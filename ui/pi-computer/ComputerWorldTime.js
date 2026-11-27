@@ -47,9 +47,8 @@ export function installComputerWorldTime(ui){
  const wrap=(target,key,factory)=>{const old=target[key],next=factory(old);target[key]=next;restore.push(()=>{if(target[key]===next)target[key]=old;});};
  const previous=ui.shell.cfg.apps[APP];ui.shell.cfg.apps[APP]={title:'World Time',color:0x98b9ce,kind:null};
  wrap(ui,'openApp',old=>function(id,...args){if(id!==APP)return old.call(this,id,...args);if(this.destroyed||!this.isOpen||this.suspended||this.booting)return;this.menuOpen=false;this.shell.open(APP);this.render();});
- wrap(ui.desktop,'render',old=>function(...args){const result=old.apply(this,args),{x,y}=ui.layout,d=ui.drawing,cx=x+376,cy=y+46,g=ui.scene.add.graphics();d.add(g);
-  g.fillStyle(0x98b9ce,1);g.fillCircle(cx,cy,23);g.lineStyle(2,0x172c40,1);g.strokeCircle(cx,cy,23);g.lineBetween(cx,cy,cx,cy-14);g.lineBetween(cx,cy,cx+11,cy+5);
-  d.text(cx,cy+32,'World Time',15,'#fff').setOrigin(.5,0);d.rectangle(x+316,y+10,120,94,0,0).setInteractive({useHandCursor:true}).on('pointerdown',()=>ui.openApp(APP));return result;});
+ wrap(ui.desktop,'render',old=>function(...args){const result=old.apply(this,args),{x,y}=ui.layout;
+  ui.desktop.createIcon(x+432,y+10,128,'World Time','clock',0x98b9ce,()=>ui.openApp(APP));return result;});
  wrap(ui.shell,'drawStartMenu',old=>function(layout,items,...args){const copy=items.slice();if(!copy.some(i=>i.app===APP))copy.unshift({app:APP,label:'World Time',color:0x98b9ce,kind:null});return old.call(this,layout,copy,...args);});
  wrap(ui.monitor,'renderApplication',old=>function(...args){if(ui.app!==APP)return old.apply(this,args);const d=ui.drawing,l=ui.layout,b=ui.shell.rectFor({x:l.x+12,y:l.y+10,w:l.w-24,h:l.h-58});ui.window=b;
   d.bevel(b.x,b.y,b.w,b.h,0xc9c7bb);d.rectangle(b.x+4,b.y+4,b.w-8,34,0x23496d);d.pixel(b.x+16,b.y+15,'WORLD TIME',11,'#fff');d.button(b.x+b.w-48,b.y+6,'X',()=>{ui.shell.close(APP);ui.render();});app.render(b);d.text(b.x+16,b.y+b.h-28,'Manual converter / Historical time zones',13,'#3a3428');});

@@ -1,4 +1,6 @@
-import { dialogueText as __dialogueText } from '../dialogues/DialogueText.js';
+import { dialogueText as __dialogueText, formatDialogueText } from '../dialogues/DialogueText.js';
+import { getMusicPack } from '../config/musicPacks.js';
+
 
 const STORAGE = {
   MUSIC: 'la_musicVol', SFX: 'la_sfxVol', VOICE: 'la_voiceVol', MUTED: 'la_muted',
@@ -13,6 +15,7 @@ export let JUKEBOX_TRACKS = Object.freeze([]);
 let catalogError = '';
 let catalogTask = null;
 let catalogRetryAt = 0;
+
 
 async function fetchJukeboxCatalog() {
   const controller = new AbortController();
@@ -29,14 +32,19 @@ async function fetchJukeboxCatalog() {
       }
       if (used.has(track.id)) throw new Error(`Duplicate track id: ${track.id}`);
       if (typeof track.title !== 'string' || !track.title.trim()) throw new Error(`Track ${index + 1}: title is required.`);
+      const pack = track.pack ?? null;
+      if (pack !== null && (typeof pack !== 'string' || !/^[a-z0-9_]+$/.test(pack))) {
+        throw new Error(`Track ${index + 1}: pack must contain only lowercase letters, numbers or underscores.`);
+      }
       used.add(track.id);
       return Object.freeze({
-        id: track.id, title: track.title.trim(), key: `jukebox_${track.id}`,
+        id: track.id, title: track.title.trim(), key: `jukebox_${track.id}`, pack,
         url: new URL(`${encodeURIComponent(track.id)}.mp3`, CATALOG_URL).href
       });
     }));
   } finally { clearTimeout(timer); }
 }
+
 
 function ensureCatalog({ retry = false } = {}) {
   if (JUKEBOX_TRACKS.length) return Promise.resolve(JUKEBOX_TRACKS);
@@ -55,6 +63,7 @@ function ensureCatalog({ retry = false } = {}) {
   catalogTask = task;
   return task;
 }
+
 
 function safeGet(key) { try { return localStorage.getItem(key); } catch { return null; } }
 function safeSet(key, value) { try { localStorage.setItem(key, value); } catch {} }
@@ -91,6 +100,7 @@ class AudioManager {
     this.jukeboxStatus = 'stopped'; this.jukeboxError = '';
     this._requestId = 0; this._loads = new Map(); this._loadCancels = new Set();
     this._unlockCancels = new Set(); this._jukeboxTask = null; this._jukeboxCompletion = null;
+    this.unlockedPacks = new Set(); this.packsVersion = 0;
   }
   init(scene) {
     if (!scene?.game) { console.warn('[AudioManager] init() requires a Phaser scene.'); return this; }
@@ -434,11 +444,33 @@ class AudioManager {
   getSfxVolume() { return this.sfxVolume; }
   getVoiceVolume() { return this.voiceVolume; }
   getMuted() { return this.muted; }
-  getJukeboxTracks() { return JUKEBOX_TRACKS.map(t => ({ ...t })); }
+  _isTrackLocked(track) { return Boolean(track?.pack) && !this.unlockedPacks.has(track.pack); }
+  _firstUnlockedTrack() { return JUKEBOX_TRACKS.find(t => !this._isTrackLocked(t)) || null; }
+  _lockedMessage(track) {
+    const pack = getMusicPack(track.pack);
+    return formatDialogueText(__dialogueText("managers/AudioManager.js", "t_0eec5671db0635e65e45"), { title: track.title, pack: pack?.title || __dialogueText("managers/AudioManager.js", "t_aec5b16898272347e218") });
+  }
+  setUnlockedPacks(packs = []) {
+    const next = new Set([...packs].filter(pack => typeof pack === 'string' && pack));
+    const same = next.size === this.unlockedPacks.size && [...next].every(pack => this.unlockedPacks.has(pack));
+    if (same) return false;
+    this.unlockedPacks = next; this.packsVersion += 1;
+    const selected = JUKEBOX_TRACKS.find(t => t.id === this.selectedTrack);
+    if (selected && this._isTrackLocked(selected)) {
+      this.stopJukebox(); this.selectedTrack = this._firstUnlockedTrack()?.id || null;
+    }
+    return true;
+  }
+  getJukeboxTracks() {
+    return JUKEBOX_TRACKS.map(t => ({
+      ...t, locked: this._isTrackLocked(t),
+      packTitle: t.pack ? (getMusicPack(t.pack)?.title || t.pack) : null
+    }));
+  }
   async loadJukeboxCatalog(options = {}) {
     const previousError = catalogError;
     const tracks = await ensureCatalog(options);
-    if (!tracks.some(t => t.id === this.selectedTrack)) this.selectedTrack = tracks[0]?.id || null;
+    if (!tracks.some(t => t.id === this.selectedTrack)) this.selectedTrack = this._firstUnlockedTrack()?.id || tracks[0]?.id || null;
     if (this.jukeboxError === previousError) this.jukeboxError = '';
     if (this.jukeboxStatus === 'error' && previousError) this.jukeboxStatus = this.jukeboxMode === 'paused' ? 'paused' : 'stopped';
     return this.getJukeboxTracks();
@@ -454,7 +486,7 @@ class AudioManager {
       playing: !locked && Boolean(sound?.isPlaying), paused: Boolean(sound?.isPaused),
       volume: this.musicVolume, muted: this.muted, error: this.jukeboxError || catalogError, locked,
       catalogStatus: catalogTask ? 'loading' : JUKEBOX_TRACKS.length ? 'ready' : catalogError ? 'error' : 'idle',
-      trackCount: JUKEBOX_TRACKS.length };
+      trackCount: JUKEBOX_TRACKS.length, packsVersion: this.packsVersion };
   }
   _setJukeboxMode(mode) { this.jukeboxMode = mode; safeSet(STORAGE.MODE, mode); }
   _loadTrack(track) {
@@ -518,8 +550,13 @@ class AudioManager {
       this._detachJukeboxCompletion();
       if (request !== this._requestId || game !== this.game || this.jukeboxMode !== 'playing' ||
           this.selectedTrack !== track.id || this.activeMusic.get(track.key) !== sound) return;
-      const index = JUKEBOX_TRACKS.findIndex(t => t.id === track.id);
-      const next = JUKEBOX_TRACKS[(index + 1) % JUKEBOX_TRACKS.length];
+      const index = JUKEBOX_TRACKS.findIndex(t => t.id === track.id), total = JUKEBOX_TRACKS.length;
+      let next = null;
+      // Locked tracks are skipped by the automatic "next track".
+      for (let step = 1; step <= total; step++) {
+        const candidate = JUKEBOX_TRACKS[(index + step) % total];
+        if (!this._isTrackLocked(candidate)) { next = candidate; break; }
+      }
       if (next) this.playJukebox(next.id).catch(error => console.warn('[Jukebox] Next track failed:', error));
     };
     this._jukeboxCompletion = binding; sound.once('complete', binding.onComplete);
@@ -533,6 +570,9 @@ class AudioManager {
   }
   playJukebox(id = null, { retry = true } = {}) {
     if (!this.game) return Promise.reject(new Error(__dialogueText('managers/AudioManager.js', 't_087ac6af55623406694d')));
+    // A locked track is refused before anything changes, so the current song keeps playing.
+    const requested = id == null ? null : JUKEBOX_TRACKS.find(t => t.id === id);
+    if (requested && this._isTrackLocked(requested)) return Promise.reject(new Error(this._lockedMessage(requested)));
     this._detachJukeboxCompletion(); this._cancelUnlockWaits();
     const request = ++this._requestId, game = this.game;
     this._setJukeboxMode('playing'); this.jukeboxError = ''; this.jukeboxStatus = 'loading';
@@ -542,9 +582,16 @@ class AudioManager {
         await this.loadJukeboxCatalog({ retry });
         if (!current()) return null;
         const selected = id ?? this.selectedTrack;
-        const track = JUKEBOX_TRACKS.find(t => t.id === selected);
+        let track = JUKEBOX_TRACKS.find(t => t.id === selected);
         if (!track) throw new Error(`${__dialogueText('managers/AudioManager.js', 't_c11ee2b6a648b4590c03')}${selected}`);
-        this.selectedTrack = track.id; safeSet(STORAGE.TRACK, track.id);
+        let fellBack = false;
+        if (this._isTrackLocked(track)) {
+          if (id != null) throw new Error(this._lockedMessage(track));
+          // The saved favourite is locked (pack not owned or not loaded yet): play a free track, keep the saved choice.
+          track = this._firstUnlockedTrack(); fellBack = true;
+          if (!track) throw new Error(__dialogueText("managers/AudioManager.js", "t_e46975f509a2e525769f"));
+        }
+        this.selectedTrack = track.id; if (!fellBack) safeSet(STORAGE.TRACK, track.id);
         await this._loadTrack(track);
         if (!current()) return null;
         if (game.sound.locked) {

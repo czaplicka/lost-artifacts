@@ -11,6 +11,7 @@ export class NewsstandBackground {
     this.missingText = null;
     this.startTimer = null;
     this.checkTimer = null;
+    this.repeatTimer = null;
     this.requested = false;
     this.visible = false;
     this.finished = false;
@@ -41,13 +42,18 @@ export class NewsstandBackground {
     scene.input.on('pointerdown',this.retryFromPointer);
     scene.events.on('update',this.checkFrame);
     try {
-      this.video.loadURL(cfg.videoUrl,true);
-      this.video.setMute(true).setLoop(true);
+      this.video.loadURL(cfg.videoUrl,'loadeddata',true);
+      this.video.setMute(true).setLoop(false);
       this.configureElement();
     } catch (error) { this.handleVideoError(error); }
-    this.startTimer = scene.time.delayedCall(cfg.videoDelayMs,()=>{
-      this.startTimer = null;
-      if (!this.destroyed && scene.sys.isActive()) this.startVideo();
+    this.scheduleNextPlay();
+  }
+
+  scheduleNextPlay() {
+    this.repeatTimer?.remove(false);
+    this.repeatTimer = this.scene.time.delayedCall(NEWSSTAND_CONFIG.videoIntervalMs,()=>{
+      this.repeatTimer = null;
+      if (!this.destroyed && !this.finished && this.scene.sys.isActive()) this.startVideo();
     });
   }
 
@@ -56,7 +62,7 @@ export class NewsstandBackground {
     if (!element) return;
     element.muted = true;
     element.defaultMuted = true;
-    element.loop = true;
+    element.loop = false;
     element.playsInline = true;
     element.setAttribute('playsinline','');
     element.setAttribute('webkit-playsinline','');
@@ -69,16 +75,20 @@ export class NewsstandBackground {
       events.VIDEO_PLAY || 'play', events.VIDEO_CREATED || 'created',
       events.VIDEO_TEXTURE || 'textureready', events.VIDEO_PLAYING || 'playing'
     ])) this.video.on(name,reveal);
-    this.video.on(events.VIDEO_COMPLETE || 'complete',()=>{
-      // Defensive restart. A completed clip must not permanently switch to the still.
-      if (!this.destroyed && !this.finished && this.scene.sys.isActive()) this.startVideo();
-    });
+    this.video.on(events.VIDEO_COMPLETE || 'complete',()=>this.onVideoComplete());
     this.video.on(events.VIDEO_LOCKED || 'locked',()=>{
       console.warn('[NewsstandBackground] Autoplay blocked; click to retry.');
     });
     for (const name of new Set([
       events.VIDEO_UNSUPPORTED || 'unsupported', events.VIDEO_ERROR || 'error'
     ])) this.video.on(name,error=>this.handleVideoError(error));
+  }
+
+  onVideoComplete() {
+    if (this.destroyed || this.finished || !this.scene.sys.isActive()) return;
+    this.requested = false;
+    this.showImage(true);
+    this.scheduleNextPlay();
   }
 
   handleVideoError(error) {
@@ -95,11 +105,12 @@ export class NewsstandBackground {
   startVideo() {
     if (this.destroyed || !this.video?.scene || this.finished) return;
     this.requested = true;
+    this.visible = false;
     try {
       this.configureElement();
-      this.video.setMute(true).setLoop(true);
+      this.video.setMute(true).setLoop(false);
       this.resizeVideo();
-      this.video.play(true);
+      this.video.play(false);
       this.checkTimer?.remove(false);
       this.checkTimer = this.scene.time.delayedCall(NEWSSTAND_CONFIG.videoCheckDelayMs,()=>{
         this.checkTimer = null;
@@ -109,7 +120,6 @@ export class NewsstandBackground {
   }
 
   checkFrame() {
-    // Creation/play events can occur before a decodable frame is available.
     if (!this.visible && this.requested && !this.finished) this.revealVideo();
   }
 
@@ -133,7 +143,7 @@ export class NewsstandBackground {
     if (this.destroyed || !this.requested || this.visible || this.finished || !this.video?.scene) return;
     this.configureElement();
     try {
-      this.video.setMute(true).setLoop(true).play(true);
+      this.video.setMute(true).setLoop(false).play(false);
       const element = this.video.video;
       if (element?.paused) {
         const result = element.play();
@@ -221,12 +231,12 @@ export class NewsstandBackground {
   destroy() {
     if (this.destroyed) return;
     this.destroyed = true;
-    this.startTimer?.remove(false);this.checkTimer?.remove(false);
+    this.startTimer?.remove(false);this.checkTimer?.remove(false);this.repeatTimer?.remove(false);
     this.scene.input.off('pointerdown',this.retryFromPointer);
     this.scene.events.off('update',this.checkFrame);
     this.video?.removeAllListeners();this.video?.stop();
     for (const object of [this.video,this.image,this.dim,this.missingText]) object?.destroy();
-    this.startTimer = null;this.checkTimer = null;
+    this.startTimer = null;this.checkTimer = null;this.repeatTimer = null;
     this.video = null;this.image = null;this.dim = null;this.missingText = null;
     this.transform = null;this.onTransformChanged = null;
   }

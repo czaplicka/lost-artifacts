@@ -274,57 +274,12 @@ export class CrimeCityTutorialController {
     }
   }
 
+  // Popup "NEW LEAD: SUSPECT FILES" został usunięty. Metoda zostaje jako
+  // bezpieczny no-op, na wypadek gdyby wołał ją inny plik.
   scheduleSuspectTutorial() {
-    if (this.getCommittedGrid()) { this.showSuspectTutorial = false; return; }
-    if (!this.showSuspectTutorial || !this.scene.isCrimeLabCompleted() || !this.scene.isGridCompleted()) return;
     this.showSuspectTutorial = false;
-    this.suspectTutorialTimer = this.scene.time.delayedCall(700, () => {
-      this.suspectTutorialTimer = null;
-      if (!this.scene?.scene.isActive('CrimeCityScene') || this.getCommittedGrid()) return;
-      this.showSuspectFilesTutorial();
-    });
-  }
-
-  showSuspectFilesTutorial() {
-    if (this.getCommittedGrid()) return;
-    const scene = this.scene;
-    const { width, height } = scene.scale;
-    const overlay = scene.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.76)
-      .setDepth(500).setInteractive();
-    const panel = scene.add.rectangle(width / 2, height / 2, 720, 330, 0x1d2733, 0.98)
-      .setStrokeStyle(4, 0xd4af37).setDepth(501);
-    const title = scene.add.text(width / 2, height / 2 - 120, text('t_aaaf9ef538033159d8e4'), {
-      fontFamily: 'PressStart2P', fontSize: '20px', color: '#ffe066', align: 'center'
-    }).setOrigin(0.5).setDepth(502);
-    const body = scene.add.text(width / 2, height / 2 - 25, [
-      text('t_e64e7a674ae19dda3adb'), '', text('t_2d0b80effec92369774a'),
-      text('t_74c6c0e1f57701c4c8db'), text('t_87bb784229967b35e5aa'), '',
-      text('t_96486b81d1aa93ccff3d'), text('t_0e4b12c847d153bebc0a')
-    ].join(text('t_01ba4719c80b6fe911b0')), {
-      fontFamily: 'SpecialElite', fontSize: '21px', color: '#ffffff', align: 'center', lineSpacing: 8
-    }).setOrigin(0.5).setDepth(502);
-    const button = scene.add.text(width / 2, height / 2 + 118, text('t_7de9537f7eec93d33255'), {
-      fontFamily: 'PressStart2P', fontSize: '14px', color: '#17202a', backgroundColor: '#f1c94b',
-      padding: { left: 20, right: 20, top: 14, bottom: 14 }
-    }).setOrigin(0.5).setDepth(502).setInteractive({ useHandCursor: true });
-    button.on('pointerover', () => button.setStyle({ backgroundColor: '#ffe066', color: '#000000' }));
-    button.on('pointerout', () => button.setStyle({ backgroundColor: '#f1c94b', color: '#17202a' }));
-    button.on('pointerdown', () => {
-      if (!Array.isArray(gameState.caseSuspects) || !gameState.caseSuspects.length) {
-        scene.showMessage(text('t_7b4054d6d1e056ee6763') + text('t_7e1ca5374a0b0b18c2e4'),
-          2800, text('t_e09afad9b0dfcb2294f9'));
-        return;
-      }
-      for (const object of [overlay, panel, title, body, button]) object.destroy();
-      scene.closeAllUIPanels();
-      scene.transitionTo('SuspectsScene', {
-        cityId: scene.cityId, returnScene: 'CrimeCityScene', returnData: { cityId: scene.cityId },
-        sourceScene: 'CrimeCityScene', caseSuspects: gameState.caseSuspects,
-        identityEvidence: gameState.identityEvidence, identityEvidenceResult: gameState.identityEvidenceResult,
-        hypothesisEvidence: gameState.hypothesisEvidence, hypothesisEvidenceResult: gameState.hypothesisEvidenceResult,
-        forensicResults: gameState.forensicResults || [], gameState
-      });
-    });
+    this.suspectTutorialTimer?.remove(false);
+    this.suspectTutorialTimer = null;
   }
 
   clearTimers() {

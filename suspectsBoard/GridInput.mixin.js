@@ -57,7 +57,7 @@ function ensureWheelGuard(scene) {
     canvas.removeEventListener(
       'wheel',
       onWheel,
-      true
+      false
     );
 
     scene.events.off('shutdown', cleanup);
@@ -68,11 +68,13 @@ function ensureWheelGuard(scene) {
     }
   };
 
-  // Capture phase runs before Phaser's wheel handler.
-  // passive:false allows cancellation of the browser's page scroll.
+  // Bubble phase, added after Phaser's own canvas listener, so Phaser sees the
+  // wheel first. Phaser ignores events that are already defaultPrevented
+  // (MouseManager.onMouseWheel), so a capture-phase guard broke wheel scrolling.
+  // passive:false still allows cancelling the browser's page scroll.
   canvas.addEventListener('wheel', onWheel, {
     passive: false,
-    capture: true
+    capture: false
   });
 
   scene.events.once('shutdown', cleanup);
@@ -84,7 +86,50 @@ function ensureWheelGuard(scene) {
   });
 }
 
+// The scroll value each scrollbar drives (keys match addScrollbar calls).
+const SCROLL_FIELDS = { gridH: 'scrollX', gridV: 'scrollY', clues: 'clueScrollY' };
+// The bars are drawn 6 px thick; the hit area is wider so they are easy to grab.
+const SCROLLBAR_HIT_PAD = 8;
+
 export const GridInputMixin = {
+  scrollbarAt(pointer) {
+    if (!pointer) return null;
+
+    for (const [key, bar] of Object.entries(this.scrollbars || {})) {
+      if (!bar?.thumb?.scene || !SCROLL_FIELDS[key] || !(bar.getMin() < 0)) continue;
+
+      const along = bar.vertical ? pointer.y : pointer.x;
+      const across = bar.vertical ? pointer.x : pointer.y;
+
+      if (
+        along >= bar.start &&
+        along <= bar.start + bar.trackLen &&
+        across >= bar.fixed - SCROLLBAR_HIT_PAD &&
+        across <= bar.fixed + bar.thickness + SCROLLBAR_HIT_PAD
+      ) {
+        return key;
+      }
+    }
+
+    return null;
+  },
+
+  // grab: distance from the thumb's start to the pointer, kept while dragging.
+  dragScrollbar(key, pointer, grab) {
+    const bar = this.scrollbars?.[key], field = SCROLL_FIELDS[key];
+    if (!bar || !field) return;
+
+    const min = bar.getMin();
+    if (!(min < 0)) return;
+
+    const room = Math.max(1, bar.trackLen - bar.thumbLen);
+    const along = bar.vertical ? pointer.y : pointer.x;
+    const fraction = Phaser.Math.Clamp((along - bar.start - grab) / room, 0, 1);
+
+    this[field] = min * fraction;
+    this.applyScroll();
+  },
+
   inRect(pointer, rect) {
     if (!rect || !pointer) return false;
 
@@ -157,6 +202,7 @@ export const GridInputMixin = {
     this.dragMoved = false;
     this.dragTarget = null;
     this.dragStart = null;
+    this.dragBar = null;
 
     if (
       !pointer ||
@@ -164,6 +210,26 @@ export const GridInputMixin = {
       this.gridLeaving ||
       this._cleanupDone
     ) {
+      return;
+    }
+
+    // Scrollbars sit on top of the grid edge, so they are checked first.
+    const barKey = this.scrollbarAt(pointer);
+
+    if (barKey) {
+      const bar = this.scrollbars[barKey];
+      const along = bar.vertical ? pointer.y : pointer.x;
+      const thumbStart = bar.vertical ? bar.thumb.y : bar.thumb.x;
+      const onThumb = along >= thumbStart && along <= thumbStart + bar.thumbLen;
+
+      // Grabbing the thumb keeps the grab point; a click on the track jumps there.
+      this.dragTarget = 'scrollbar';
+      this.dragBar = { key: barKey, grab: onThumb ? along - thumbStart : bar.thumbLen / 2 };
+      this.dragStart = { x: pointer.x, y: pointer.y, sx: this.scrollX, sy: this.scrollY, cy: this.clueScrollY };
+      // Cell and card release handlers ignore this press.
+      this.dragMoved = true;
+
+      if (!onThumb) this.dragScrollbar(barKey, pointer, this.dragBar.grab);
       return;
     }
 
@@ -205,6 +271,11 @@ export const GridInputMixin = {
       return;
     }
 
+    if (this.dragTarget === 'scrollbar') {
+      if (this.dragBar) this.dragScrollbar(this.dragBar.key, pointer, this.dragBar.grab);
+      return;
+    }
+
     const dx = pointer.x - this.dragStart.x;
     const dy = pointer.y - this.dragStart.y;
 
@@ -243,6 +314,7 @@ export const GridInputMixin = {
   handlePointerUp() {
     this.dragTarget = null;
     this.dragStart = null;
+    this.dragBar = null;
 
     // Keep dragMoved until the next pointerdown:
     // card pointerup handlers use it to ignore drag releases.

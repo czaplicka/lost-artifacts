@@ -1,4 +1,6 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+// Local single-file bundle (npm run build:supabase) instead of esm.sh:
+// one request from our own server instead of a chain of ~13 CDN requests.
+import { createClient } from './assets/vendor/supabase/supabase-js-2.119.2.js';
 
 // Publiczna konfiguracja klienta — niezależna od katalogu dialogów.
 const SUPABASE_URL = "https://oykcjbnxoocdbmgdedzd.supabase.co";

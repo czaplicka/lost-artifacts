@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "strings": {
+    "openVial": "CLICK TO OPEN",
+    "vialOpened": "Vial opened. Transfer the swab into the PCR tube.",
+    "missTube": "The swab needs to go into the PCR tube.",
+    "sampleReadyPcr": "Sample loaded. Press RUN to start amplification.",
+    "runPcr": "RUN PCR",
+    "sample": "SAMPLE",
+    "controlXX": "CONTROL XX",
+    "controlXY": "CONTROL XY",
+    "sampleLoaded": "Sample loaded. Place it in the SAMPLE well.",
+    "drawSampleFirst": "Draw the amplified sample from the PCR tube first.",
+    "missWell": "Aim the pipette at the SAMPLE well on the gel.",
+    "alreadyLoaded": "The sample well is already loaded.",
+    "sampleReadyGel": "Sample loaded. Press RUN to start the electrophoresis.",
+    "runGel": "RUN GEL",
+    "uvHint": "CLICK GEL FOR UV LIGHT",
+    "uvTitle": "UV LIGHT: BAND PATTERN",
+    "uvInstructions": "Compare the positions and arrangement of the sample bands with both controls.",
+    "closeUv": "CLICK TO CLOSE — YOU CAN EXAMINE AGAIN",
+    "compare": "Compare the sample with the reference lanes, then classify the profile.",
+    "classify": "CLASSIFY PROFILE"
+  }
+}

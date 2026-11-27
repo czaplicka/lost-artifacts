@@ -8,6 +8,7 @@ import { DriveCockpit } from './drive/DriveCockpit.js';
 import { DriveRoad } from './drive/DriveRoad.js';
 import { DriveControls } from './drive/DriveControls.js';
 import { DriveTrip } from './drive/DriveTrip.js';
+import { DriveBanter } from './drive/DriveBanter.js';
 import { installDriveEngineAudio } from './drive/DriveEngineAudio.js';
 import { CAR_DESIGN, loadCarAssets } from './drive/DriveCarAssets.js';
 
@@ -78,17 +79,21 @@ export class DriveScene extends BaseScene {
     this.state='driving';
     const W=CAR_DESIGN.width,H=CAR_DESIGN.height;
     Object.assign(this,{W,H,U:1,sx:1,horizonY:H*CAR_DESIGN.horizon,dashTop:H*CAR_DESIGN.dashTop,
-      step:4,curveK:.05});
-    this.rowCount=Math.ceil((H-this.horizonY)/this.step);
+      step:4});
+    // Driver's-eye projection: the vanishing point sits above the steering wheel, and the
+    // dashboard edge cuts the road close to the car (perspective scale NEAR_U there), so the
+    // tarmac fills the lower windscreen instead of looking like a distant strip.
+    this.vpX=CAR_DESIGN.vanishX;this.span=(this.dashTop-this.horizonY)/CAR_DESIGN.nearU;
+    this.rowCount=Math.ceil((this.dashTop+16-this.horizonY)/this.step);
     this.rowCx=new Float32Array(this.rowCount+2);
-    this.cullDz=Z0/((this.dashTop-this.horizonY)/(H-this.horizonY))*.92;
+    this.cullDz=Z0/CAR_DESIGN.nearU*.92;
     this.hitDz=this.cullDz*1.12;
     this.fromTown=this.quote.fromTown;this.town=this.quote.toTown;
     this.biome=BIOMES[this.town.biome]||BIOMES.meadow;
     this.weather=this.town.weather||'clear';this.L=this.quote.tripLength;
     Object.assign(this,{nextDecorZ:40,nextObstacleZ:900,nextBillboardZ:330,
       nextCamZ:1300+rand(0,600),gateSpawned:false,startSignSpawned:false});
-    this.buildTextures();this.buildSky();this.buildWorldLayers();this.buildWeather();
+    this.initBanter();this.buildTrack();this.buildTextures();this.buildSky();this.buildWorldLayers();this.buildWeather();
     this.buildDash();this.buildHud();this.buildInput();this.buildPauseControl();
     this.trackInputEvent(this.scale,Phaser.Scale.Events.RESIZE,this.fitDriveCamera);
     this.fitDriveCamera();this.spawnAhead();this.ready=true;
@@ -218,7 +223,7 @@ export class DriveScene extends BaseScene {
     this.clock+=dt;this.stepDrive(dt);
     if(!['driving','arriving'].includes(this.state)||this.settlementError)return;
     this.spawnAhead();this.drawRoad();this.updateObjects(dt);if(this.settlementError)return;
-    this.updateScenery(dt);this.updateDashboard(dt);
+    this.updateScenery(dt);this.updateDashboard(dt);this.updateBanter(dt);
   }
 }
 export function applyDriveMixins(prototype,entries){
@@ -230,4 +235,4 @@ export function applyDriveMixins(prototype,entries){
   }
   for(const [key,descriptor]of pending)Object.defineProperty(prototype,key,descriptor);
 }
-applyDriveMixins(DriveScene.prototype,[['DriveTextures',DriveTextures],['DriveScenery',DriveScenery],['DriveCockpit',DriveCockpit],['DriveRoad',DriveRoad],['DriveControls',DriveControls],['DriveTrip',DriveTrip]]);
+applyDriveMixins(DriveScene.prototype,[['DriveTextures',DriveTextures],['DriveScenery',DriveScenery],['DriveCockpit',DriveCockpit],['DriveRoad',DriveRoad],['DriveControls',DriveControls],['DriveTrip',DriveTrip],['DriveBanter',DriveBanter]]);

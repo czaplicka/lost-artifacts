@@ -40,7 +40,7 @@ export class SettingsScene extends BaseScene {
     bg.setDepth(0).setInteractive();
     bg.on('pointerdown', (_p, _x, _y, event) => event?.stopPropagation());
     const cx = 960, cy = 540, pw = 760;
-    const ph = this.restoreHudOnClose ? 940 : 780;
+    const ph = 940;
     const top = cy - ph / 2;
     const panel = this.add.graphics().setDepth(10);
     panel.fillStyle(0x1a1a2e, 0.94);
@@ -58,12 +58,10 @@ export class SettingsScene extends BaseScene {
       'MUSIC', audioManager.getMusicVolume(), value => audioManager.setMusicVolume(value));
     this.createMuteToggle(cx, top + 450);
     let navigationY = top + 535;
-    if (this.restoreHudOnClose) {
-      this.createButton(cx, navigationY, 'JUKEBOX', () => this.openChild('JukeboxScene'));
-      navigationY += 80;
-      this.createButton(cx, navigationY, 'HIGHSCORES', () => this.openChild('HighscoreScene'));
-      navigationY += 80;
-    }
+    this.createButton(cx, navigationY, __dialogueText("scenes/SettingsScene.js", "t_bae7625b384ce513a742"), () => this.openChild('JukeboxScene'));
+    navigationY += 80;
+    this.createButton(cx, navigationY, __dialogueText("scenes/SettingsScene.js", "t_4f144853cfd91b5a5eb6"), () => this.openChild('HighscoreScene'));
+    navigationY += 80;
     this.createButton(cx, navigationY, 'CREDITS', () => this.openChild('CreditsScene'));
     this.errorLabel = this.add.text(cx, top + ph - 130, '', {
       fontFamily: 'SpecialElite', fontSize: '18px', color: '#ffb7a6',

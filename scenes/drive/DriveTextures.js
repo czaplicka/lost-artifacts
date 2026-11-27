@@ -1,4 +1,5 @@
 import { poly } from './DriveShared.js';
+import { buildPixelDecor } from './DrivePixelArt.js';
 export const DriveTextures={
   gen(key,w,h,draw){
     if(this.textures.exists(key))return;
@@ -6,6 +7,8 @@ export const DriveTextures={
     try{draw(g,w,h);g.generateTexture(key,w,h);}finally{g.destroy();}
   },
   buildTextures(){
+    // Pixel-art scenery first; the procedural fallbacks below skip keys that already exist.
+    buildPixelDecor(this);
     const gen=(k,w,h,f)=>this.gen(k,w,h,f);
     gen('drv_tree_round',160,260,g=>{
       g.fillStyle(0x6b4a2b);g.fillRect(68,160,24,100);g.fillStyle(0x2c6e2f);
@@ -78,6 +81,13 @@ export const DriveTextures={
     });
     gen('drv_cam',90,200,g=>{
       g.fillStyle(0x55585f);g.fillRect(40,60,10,140);g.fillStyle(0x3b3f47);g.fillRoundedRect(10,10,70,60,6);g.fillStyle(0x111111);g.fillCircle(45,40,14);g.fillStyle(0x4aa3ff);g.fillCircle(45,40,7);g.fillStyle(0xff3b3b);g.fillCircle(70,18,4);
+    });
+    // Curve chevron: arrows point right; flipped for left-hand bends.
+    gen('drv_chevron',100,170,g=>{
+      g.fillStyle(0x4a4d55);g.fillRect(44,70,12,100);
+      g.fillStyle(0x1b1b1f);g.fillRect(4,4,92,70);g.fillStyle(0xf2c230);g.fillRect(9,9,82,60);
+      g.fillStyle(0x1b1b1f);
+      for(const x of [16,46])poly(g,[[x,14],[x+16,14],[x+34,39],[x+16,64],[x,64],[x+18,39]]);
     });
     gen('drv_drop',12,16,g=>{g.fillStyle(0xcfe6ff,.55);g.fillEllipse(6,9,9,13);g.fillStyle(0xffffff,.9);g.fillCircle(4,6,2);});
     gen('drv_cloud',240,90,g=>{g.fillStyle(0xffffff,.85);g.fillCircle(60,55,32);g.fillCircle(105,40,40);g.fillCircle(150,52,34);g.fillRect(60,55,95,32);});
