@@ -3,9 +3,16 @@ import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { getPIQuest } from './PIQuestManager.js';
 import { DEAD_MAIL_MESSAGE } from './DeadMailCorrespondence.js';
+import { hasEntitlement } from '../systems/StoreEntitlements.js';
 
 export const DEAD_MAIL_OFFICE_QUEST = 'pi_dead_mail_preview';
 const ADVERT = 'dead_mail';
+const LOCKED_NOTICE = 'Dead Mail is an extra case. Get it in the Agency Catalog (Extra Cases), with medals or PayPal.';
+
+// Dead Mail must be bought in the Agency Catalog. A case that was already accepted stays playable.
+export function isDeadMailOwned() {
+  return hasEntitlement(ADVERT);
+}
 
 export function syncDeadMailOfficeQuest() {
   const quest = getPIQuest(DEAD_MAIL_OFFICE_QUEST);
@@ -78,6 +85,11 @@ export async function openDeadMailFromOffice(ui, advert) {
   if (!officeAlive(ui) || ui.suspended || ui.app !== 'classifieds' || ui._deadMailLaunching) return false;
   if (advert?.id !== ADVERT || advert.missionId !== DEAD_MAIL_OFFICE_QUEST) return false;
   if (getPIQuest(DEAD_MAIL_OFFICE_QUEST)) return false;
+  if (!isDeadMailOwned()) {
+    ui.notice = LOCKED_NOTICE;
+    ui.render();
+    return false;
+  }
 
   ui._deadMailLaunching = true;
   try {
@@ -114,7 +126,9 @@ export function renderDeadMailOfficeButton(ui, selected, x, y) {
   const label = !connected ? __dialogueText("managers/DeadMailOfficeIntegration.js", "t_51f20505963f7ee9bfd1")
     : busy ? __dialogueText("managers/DeadMailOfficeIntegration.js", "t_9dafd8f8b8d7f70bc7f6")
     : q?.status === 'completed' ? __dialogueText("managers/DeadMailOfficeIntegration.js", "t_f7f37ae3f8a1d3822995")
-    : q ? __dialogueText("managers/DeadMailOfficeIntegration.js", "t_c70cacc1f5ee8c47c3cb") : __dialogueText("managers/DeadMailOfficeIntegration.js", "t_c6d34a3f78e7d2224c67");
+    : q ? __dialogueText("managers/DeadMailOfficeIntegration.js", "t_c70cacc1f5ee8c47c3cb")
+    : !isDeadMailOwned() ? 'BUY IN AGENCY CATALOG'
+    : __dialogueText("managers/DeadMailOfficeIntegration.js", "t_c6d34a3f78e7d2224c67");
   ui.drawing.button(x, y, label, () => void openDeadMailFromOffice(ui, selected), connected && !q && !busy);
   return true;
 }

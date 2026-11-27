@@ -8,6 +8,7 @@ import { pigeonLoftDialogue } from './pigeonLoft/PigeonLoftDialogue.js';
 import { pigeonLoftCollection } from './pigeonLoft/PigeonLoftCollection.js';
 import { pigeonLoftEditor } from './pigeonLoft/PigeonLoftEditor.js';
 import { PigeonLoftNaming } from './pigeonLoft/PigeonLoftNaming.js';
+import { preloadExitButton } from '../ui/ExitImageButton.js';
 
 export { choosePigeonFeedingTarget } from './pigeonLoft/PigeonLoftData.js';
 
@@ -15,6 +16,7 @@ export class PigeonLoftScene extends BaseScene {
   constructor() { super({ key: 'PigeonLoftScene' }); }
 
   preload() {
+    preloadExitButton(this);
     for (const key of ASSETS) if (!this.textures.exists(key)) this.load.image(key, `${__dialogueText("scenes/PigeonLoftScene.js", "t_dd5cc3ea8364c52c82b4")}${key}${__dialogueText("scenes/PigeonLoftScene.js", "t_ed140d91e29553b83699")}`);
   }
 

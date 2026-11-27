@@ -1,11 +1,11 @@
 export const categories=[['place','LOCATION'],['action','ACTIVITY'],['accent','ACCENT'],['features','FEATURE'],['proof','EVIDENCE']];
 export const PROOF_VALUES=['Camera recording','Signed delivery receipt','Independent witness','Access log and camera','No corroboration'];
-export function proofOptions(count){if(![3,5].includes(count))throw Error('Only three or five candidates are supported.');return [...PROOF_VALUES.slice(0,count-1),'No corroboration'];}
+export function proofOptions(count){if(!(Number.isInteger(count)&&count>=2&&count<=5))throw Error('Only two to five candidates are supported.');return [...PROOF_VALUES.slice(0,count-1),'No corroboration'];}
 export function rng(seed){let n=2166136261;for(const c of String(seed)){n^=c.charCodeAt(0);n=Math.imul(n,16777619);}return()=>{n+=0x6D2B79F5;let t=Math.imul(n^(n>>>15),n|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;};}
 const shuffle=(items,r)=>{const a=[...items];for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
 const initialKeys=['place','action','accent','features'];
 export function createPuzzle({caseKey,suspects,accents,features,crimeWindow}){
- if(!caseKey||!Array.isArray(suspects)||![3,5].includes(suspects.length)||suspects.some(s=>typeof s.id!=='string'||!s.id)||new Set(suspects.map(s=>s.id)).size!==suspects.length)throw Error('Three or five distinct suspects are required.');
+ if(!caseKey||!Array.isArray(suspects)||!(suspects.length>=2&&suspects.length<=5)||suspects.some(s=>typeof s.id!=='string'||!s.id)||new Set(suspects.map(s=>s.id)).size!==suspects.length)throw Error('Two to five distinct suspects are required.');
  const thieves=suspects.filter(s=>s.hiddenCaseData?.isTrueThief===true);if(thieves.length!==1)throw Error('Exactly one real thief is required.');
  const thief=thieves[0],profile=thief.hiddenCaseData.realThiefProfile;if(!profile?.accent||!profile?.features)throw Error('Missing canonical thief traits.');
  const count=suspects.length,r=rng(caseKey),people=shuffle(suspects,r).map(s=>({id:s.id,name:s.publicProfile?.displayName||s.name||s.id}));

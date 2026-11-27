@@ -1,7 +1,22 @@
 import { gameState } from '../../GameData.js';
 import { moneyManager, ECONOMY_CATEGORY } from '../../managers/MoneyManager.js';
+import { inventoryManager } from '../../managers/InventoryManager.js';
+import { ItemsLoader } from '../../ItemsLoader.js';
 import hintManager from '../../managers/HintManager.js';
 import { T, REWARD_CHOICES } from './HollyIntroText.js';
+
+const REST_VOUCHER_FALLBACK = {
+  id: 'rest_voucher',
+  name: 'Rest Voucher',
+  icon: '🛏️',
+  description: 'Permission to stop working. Temporarily. Restores full energy, costs no case time.',
+  type: 'item',
+  stackable: true,
+  metadata: {
+    restVoucher: true,
+    useMessage: 'Permission to stop working. Temporarily. I feel suspiciously rested.'
+  }
+};
 
 export function hasCompletedHollyIntro() {
   return (
@@ -30,11 +45,18 @@ export function grantHollyChoiceReward(choiceId) {
       });
       break;
 
-    case 'rest':
-      gameState.updateState({
-        restVouchers: Number(fullState.restVouchers || 0) + 2
+    case 'rest': {
+      const definition =
+        ItemsLoader.get?.('consumables', 'restVoucher') || REST_VOUCHER_FALLBACK;
+      const added = inventoryManager.addItem({
+        ...structuredClone(definition),
+        quantity: 2
       });
+      if (!added) {
+        throw new Error('[HollyIntroScene] Could not add Rest Vouchers to the inventory.');
+      }
       break;
+    }
 
     case 'kit':
       hintManager.grantOnce(

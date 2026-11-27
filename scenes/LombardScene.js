@@ -1,10 +1,11 @@
 import { BaseScene } from './BaseScene.js';
 import { HomeTownDialogue } from '../ui/HomeTownDialogue.js';
 
-import {
-  moneyManager,
-  ECONOMY_CATEGORY,
-} from '../managers/MoneyManager.js';
+import { moneyManager } from '../managers/MoneyManager.js';
+import { lombardPawnService } from '../managers/LombardPawnService.js';
+import { LOMBARD_ASSETS } from '../config/lombardConfig.js';
+import { PawnCatalogMixin } from './lombard/LombardPawnCatalog.js';
+import { preloadShopPurchaseAudio } from './shop/ShopPurchaseAudio.js';
 
 import * as Art from './lombard/LombardArt.js';
 
@@ -13,23 +14,61 @@ import {
   BROKER,
 } from './lombard/LombardText.js';
 
+import {
+  addExitImageButton,
+  preloadExitButton,
+} from '../ui/ExitImageButton.js';
+
 const KEY = 'LombardScene';
 const ZIGGY_ID = 'pi_honest_ziggy';
 const DIALOGUE_DEPTH = 30000;
+const CATALOG_KEY = 'piSpyShopItemCatalog';
 
 let instances = 0;
 
-// Istniejąca pamięć lombardu pozostaje sesyjna.
-// Zaufanie zapisuje wspólny system dialogów.
+// Pamięć lombardu (wizyty, liczniki żartów) pozostaje sesyjna.
+// Kwity zastawne zapisuje LombardPawnService w gameState.
 const memory = {
   visits: 0,
-  watchPawned: false,
   counters: {},
 };
 
 export class LombardScene extends BaseScene {
   constructor() {
     super({ key: KEY });
+  }
+
+  // SpyShopDialogue (pawn catalog) reads these scene flags.
+  get buying() { return this.transactionBusy; }
+  get navigating() { return this.leaving; }
+
+  preload() {
+    if (super.preload) super.preload();
+    preloadExitButton(this);
+    preloadShopPurchaseAudio(this);
+
+    if (!this.cache.json.exists(CATALOG_KEY)) {
+      this.load.json(CATALOG_KEY, 'assets/data/ItemsCatalog.json');
+    }
+
+    const art = [
+      LOMBARD_ASSETS.background,
+      LOMBARD_ASSETS.ziggy,
+      LOMBARD_ASSETS.cage,
+      ...Object.values(LOMBARD_ASSETS.itemImages ?? {}),
+    ];
+
+    for (const img of art) {
+      if (img?.key && img.url && !this.textures.exists(img.key)) {
+        this.load.image(img.key, img.url);
+      }
+    }
+  }
+
+  paintedKey(asset) {
+    return asset?.key && this.textures.exists(asset.key)
+      ? asset.key
+      : null;
   }
 
   init() {
@@ -52,6 +91,12 @@ export class LombardScene extends BaseScene {
 
     this.pendingPlayerLine = null;
 
+    // Pawn catalog (see lombard/LombardPawnCatalog.js).
+    this.shopPanel = null;
+    this.pendingPurchase = null;
+    this.dialogueMode = null;
+    this.currentProductIndex = 0;
+
     this.fit = {
       s: 1,
       x: 0,
@@ -66,6 +111,10 @@ export class LombardScene extends BaseScene {
     this.cameras.main.setBackgroundColor('#0d0b10');
 
     memory.visits += 1;
+
+    lombardPawnService.setCatalog(
+      this.cache.json.get(CATALOG_KEY)
+    );
 
     this.stage = this.add.container(0, 0);
 
@@ -143,22 +192,23 @@ export class LombardScene extends BaseScene {
   }
 
   buildTextures() {
+    // Painted art (config/lombardConfig.js) wins over the canvas fallback.
     this.tex = {
-      bg: this.bake(
+      bg: this.paintedKey(LOMBARD_ASSETS.background) ?? this.bake(
         'bg',
         Art.ART_W,
         Art.ART_H,
         ctx => Art.paintLombardInterior(ctx)
       ),
 
-      ziggy: this.bake(
+      ziggy: this.paintedKey(LOMBARD_ASSETS.ziggy) ?? this.bake(
         'ziggy',
         Art.ZIGGY_SIZE.w,
         Art.ZIGGY_SIZE.h,
         ctx => Art.paintZiggy(ctx)
       ),
 
-      cage: this.bake(
+      cage: this.paintedKey(LOMBARD_ASSETS.cage) ?? this.bake(
         'cage',
         Art.CAGE.w,
         Art.CAGE.h,
@@ -185,7 +235,9 @@ export class LombardScene extends BaseScene {
         0,
         0,
         this.tex.bg
-      ).setOrigin(0)
+      )
+        .setOrigin(0)
+        .setDisplaySize(Art.ART_W, Art.ART_H)
     );
 
     add(
@@ -341,7 +393,9 @@ export class LombardScene extends BaseScene {
         960,
         780,
         this.tex.ziggy
-      ).setOrigin(0.5, 1)
+      )
+        .setOrigin(0.5, 1)
+        .setDisplaySize(Art.ZIGGY_SIZE.w, Art.ZIGGY_SIZE.h)
     );
 
     this.createTrackedTween({
@@ -367,7 +421,9 @@ export class LombardScene extends BaseScene {
         Art.CAGE.x,
         Art.CAGE.y,
         this.tex.cage
-      ).setOrigin(0)
+      )
+        .setOrigin(0)
+        .setDisplaySize(Art.CAGE.w, Art.CAGE.h)
     );
   }
 
@@ -611,22 +667,18 @@ export class LombardScene extends BaseScene {
       }
     ).setDepth(20000);
 
-    this.backText = this.add.text(
-      0,
-      16,
-      TEXT.back,
-      font
-    )
-      .setOrigin(1, 0)
-      .setDepth(20000)
-      .setInteractive({
-        useHandCursor: true,
-      });
-
-    this.backText.on('pointerdown', () => {
-      if (this.canAct()) {
-        void this.leave();
-      }
+    // Shared exit plank (assets/buttons/exit.webp) instead of a text label.
+    this.backText = addExitImageButton(this, {
+      x: 0,
+      y: 12,
+      width: 170,
+      originX: 1,
+      depth: 20000,
+      onClick: () => {
+        if (this.canAct()) {
+          void this.leave();
+        }
+      },
     });
 
     this.panel = this.add.graphics()
@@ -643,7 +695,6 @@ export class LombardScene extends BaseScene {
     for (const text of [
       this.titleText,
       this.hintText,
-      this.backText,
     ]) {
       const x =
         text.x - text.width * text.originX;
@@ -872,6 +923,11 @@ export class LombardScene extends BaseScene {
   closePanel() {
     this.dialogue?.close(false);
 
+    this.shopPanel?.destroy();
+    this.shopPanel = null;
+    this.pendingPurchase = null;
+    this.dialogueMode = null;
+
     this.modal = false;
     this.pendingPlayerLine = null;
 
@@ -1018,56 +1074,24 @@ export class LombardScene extends BaseScene {
 
   pawnMenu() {
     const P = TEXT.pawnChoices;
-    const choices = [];
+    const tickets = lombardPawnService.getTickets().length;
 
-    if (!memory.watchPawned) {
+    const choices = [
+      this.brokerReply(
+        'ziggy_pawn_show_items',
+        P.sell,
+        'neutral',
+        () => this.openSellCatalog()
+      ),
+    ];
+
+    if (tickets > 0) {
       choices.push(
         this.brokerReply(
-          'ziggy_offer_watch',
-          P.watch,
+          'ziggy_pawn_tickets',
+          P.tickets(tickets),
           'neutral',
-          () => {
-            this.brokerLine(
-              'ziggy_watch_offer',
-              TEXT.watchOffer,
-              [
-                this.brokerReply(
-                  'ziggy_accept_watch_offer',
-                  TEXT.watchDeal,
-                  'neutral',
-                  () => this.pawnWatch()
-                ),
-
-                this.brokerReply(
-                  'ziggy_decline_watch_offer',
-                  TEXT.watchNoDeal,
-                  'neutral',
-                  () => {
-                    this.brokerLine(
-                      'ziggy_watch_declined',
-                      TEXT.watchNoDealReply,
-                      [
-                        this.brokerBack(
-                          'ziggy_watch_declined_back',
-                          'Back',
-                          () => this.pawnMenu()
-                        ),
-                      ]
-                    );
-                  }
-                ),
-              ]
-            );
-          }
-        )
-      );
-    } else {
-      choices.push(
-        this.brokerReply(
-          'ziggy_redeem_watch',
-          P.redeem,
-          'neutral',
-          () => this.redeemWatch()
+          () => this.openTicketCatalog()
         )
       );
     }
@@ -1126,132 +1150,6 @@ export class LombardScene extends BaseScene {
       TEXT.pawnMenu,
       choices
     );
-  }
-
-  pawnWatch() {
-    if (
-      this.disposed ||
-      this.leaving ||
-      this.transactionBusy
-    ) {
-      return;
-    }
-
-    if (memory.watchPawned) {
-      this.pawnMenu();
-      return;
-    }
-
-    this.transactionBusy = true;
-
-    try {
-      moneyManager.refund(
-        15,
-        {
-          category: ECONOMY_CATEGORY.ITEM,
-          description: "Pocket watch pawned at Ziggy's",
-        }
-      );
-
-      memory.watchPawned = true;
-    } catch (error) {
-      console.warn(
-        '[LombardScene] Pawn payout failed:',
-        error
-      );
-
-      this.brokerLine(
-        'ziggy_watch_pawn_failed',
-        TEXT.noWatch,
-        [
-          this.brokerBack(
-            'ziggy_watch_pawn_failed_back',
-            'Back',
-            () => this.pawnMenu()
-          ),
-        ]
-      );
-
-      return;
-    } finally {
-      this.transactionBusy = false;
-    }
-
-    this.brokerLine(
-      'ziggy_watch_pawned',
-      TEXT.watchPawned + this.balanceNote(),
-      [
-        this.brokerBack(
-          'ziggy_watch_pawned_back',
-          'Anything else?'
-        ),
-      ]
-    );
-  }
-
-  redeemWatch() {
-    if (
-      this.disposed ||
-      this.leaving ||
-      this.transactionBusy
-    ) {
-      return;
-    }
-
-    if (!memory.watchPawned) {
-      this.pawnMenu();
-      return;
-    }
-
-    this.transactionBusy = true;
-
-    let paid = false;
-
-    try {
-      paid = moneyManager.spend(
-        20,
-        {
-          category: ECONOMY_CATEGORY.ITEM,
-          description: "Pocket watch redeemed at Ziggy's",
-        }
-      )?.ok === true;
-
-      if (paid) {
-        memory.watchPawned = false;
-      }
-    } catch (error) {
-      console.warn(
-        '[LombardScene] Redeem failed:',
-        error
-      );
-    } finally {
-      this.transactionBusy = false;
-    }
-
-    if (paid) {
-      this.brokerLine(
-        'ziggy_watch_redeemed',
-        TEXT.redeemOk + this.balanceNote(),
-        [
-          this.brokerBack(
-            'ziggy_watch_redeemed_back',
-            'Anything else?'
-          ),
-        ]
-      );
-    } else {
-      this.brokerLine(
-        'ziggy_watch_redeem_broke',
-        TEXT.redeemBroke + this.balanceNote(),
-        [
-          this.brokerBack(
-            'ziggy_watch_redeem_broke_back',
-            'Back',
-            () => this.pawnMenu()
-          ),
-        ]
-      );
-    }
   }
 
   onKey(event) {
@@ -1352,6 +1250,10 @@ export class LombardScene extends BaseScene {
     this.dialogue?.destroy();
     this.dialogue = null;
 
+    this.shopPanel?.destroy();
+    this.shopPanel = null;
+    this.pendingPurchase = null;
+
     this.pendingPlayerLine = null;
 
     const textures = this.textures;
@@ -1385,3 +1287,4 @@ export class LombardScene extends BaseScene {
     );
   }
 }
+Object.assign(LombardScene.prototype, PawnCatalogMixin);

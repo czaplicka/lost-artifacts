@@ -1,5 +1,6 @@
 import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
+import { addExitImageButton, ensureExitTexture } from '../ui/ExitImageButton.js';
 import { flushAutosave } from '../gameStatePersistence.js';
 import { NIGHT_EVENTS, NIGHT_FACTS, NIGHT_DEDUCTIONS, COURIER_TOPICS } from '../assets/data/deadMailNightData.js';
 import { requireCemeteryMapEntry, cemeteryMapParent } from './homeCity/CemeteryMapAccess.js';
@@ -16,7 +17,7 @@ export function openDeadMailNightPreview(game=window.game,data={}){
 export class DeadMailNightScene extends BaseScene{
  constructor(){super({key:KEY});}
  init(data={}){this.entrySource=data.entrySource||null;}
- create(){
+ create(){ensureExitTexture(this).then(loaded=>{if(loaded&&this.sys.isActive()&&this.page)this.render();});
   super.create();this.pausedKeys=[];this.hidden=[];this.page=null;this.feedback='';this.selectedEvent=null;this.courierPage='talk';this.deductionIndex=0;
   if(this.entrySource!=='cemetery-map'||!cemeteryMapParent(this.game,'night')||!canStartDeadMailNight()){this.scene.stop();return;}
   beginDeadMailNight();this.events.once('shutdown',this.restore,this);
@@ -33,11 +34,12 @@ export class DeadMailNightScene extends BaseScene{
  fit(){if(!this.page)return;const z=Math.min(this.scale.width/1280,this.scale.height/800);this.page.setScale(z).setPosition((this.scale.width-1280*z)/2,(this.scale.height-800*z)/2);}
  rect(x,y,w,h,color,alpha=1){const r=this.add.rectangle(x,y,w,h,color,alpha).setOrigin(0);this.page.add(r);return r;}
  text(x,y,value,size=22,color='#e8dbc0',width=1160){const t=this.add.text(x,y,value,{fontFamily:'SpecialElite, monospace',fontSize:`${size}px`,color,wordWrap:{width},lineSpacing:7});this.page.add(t);return t;}
+ exitButton(fn){const b=addExitImageButton(this,{x:1090,y:18,width:150,depth:0,onClick:fn});this.page.add(b);return b;}
  button(x,y,label,fn,width=280,enabled=true){const r=this.rect(x,y,width,48,enabled?0x403844:0x24242e).setStrokeStyle(1,0x947956);this.text(x+12,y+12,label,17,enabled?'#f5e1ae':'#827c81',width-24);if(enabled)r.setInteractive({useHandCursor:true}).on('pointerup',fn).on('pointerover',()=>r.setFillStyle(0x625064)).on('pointerout',()=>r.setFillStyle(0x403844));return r;}
  go(stage){if(setDeadMailNightStage(stage)){this.feedback='';this.render();}}
  say(message){this.feedback=message;this.render();}
  render(){
-  this.page?.destroy(true);this.page=this.add.container(0,0);this.rect(0,0,1280,800,0x111522);const s=getDeadMailNightProgress();this.text(40,22,__dialogueText("scenes/DeadMailNightScene.js", "t_4dff5a69fe94fba2c225"),27,'#f5b75a');this.text(40,65,__dialogueText("scenes/DeadMailNightScene.js", "t_f856431b97e692f53c07"),17,'#afa0b7');this.button(1040,24,__dialogueText("scenes/DeadMailNightScene.js", "t_1a77240cbe32baeb7bd4"),()=>this.scene.stop(),200);
+  this.page?.destroy(true);this.page=this.add.container(0,0);this.rect(0,0,1280,800,0x111522);const s=getDeadMailNightProgress();this.text(40,22,__dialogueText("scenes/DeadMailNightScene.js", "t_4dff5a69fe94fba2c225"),27,'#f5b75a');this.text(40,65,__dialogueText("scenes/DeadMailNightScene.js", "t_f856431b97e692f53c07"),17,'#afa0b7');this.exitButton(()=>this.scene.stop());
   [['setup','EQUIPMENT',!s.started],['watch','TIMELINE',s.started],['courier',__dialogueText("scenes/DeadMailNightScene.js", "t_f5fbfc987e38c6562708"),s.eventIndex===NIGHT_EVENTS.length-1],['review','DEDUCTIONS',s.verified&&s.compared]].forEach(([id,label,enabled],i)=>this.button(40+i*300,106,label,()=>this.go(id),280,enabled));
   const views={setup:()=>this.setupView(),watch:()=>this.watchView(),courier:()=>this.courierView(),review:()=>this.reviewView(),end:()=>this.endView()};(views[s.stage]||views.setup)();this.text(40,765,__dialogueText("scenes/DeadMailNightScene.js", "t_6e7d72b1a5ada118e34d"),14,'#998f9c');this.fit();
  }

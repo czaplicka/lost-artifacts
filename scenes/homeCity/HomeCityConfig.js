@@ -1,6 +1,6 @@
 import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
 const HW = 64, HH = 32;                    // keep in sync with HomeCityScene
-const WORLD_W = 3300, WORLD_H = 2000;      // keep in sync with camera bounds in HomeCityScene
+const WORLD_W = 4637, WORLD_H = 2656;      // keep in sync with WORLD_WIDTH/WORLD_HEIGHT in HomeCityScene
 const FONT_UI = __dialogueText("scenes/homeCity/HomeCityConfig.js", "t_799655b6fecfd76b85db"), FONT_PX = __dialogueText("scenes/homeCity/HomeCityConfig.js", "t_6fbf2e36fd327aff69ef");
 const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 
@@ -35,11 +35,12 @@ const STREET_TEXTS = [
   { t: __dialogueText("scenes/homeCity/HomeCityConfig.js", "t_5d0d596c25f054d71671"), u: 10, v: 3.6, rot: 'v', size: 30 },
   { t: __dialogueText("scenes/homeCity/HomeCityConfig.js", "t_8fbb93a95aa6425146e1"), u: 21.5, v: 10.6, rot: 'u', size: 30 },
   { t: __dialogueText("scenes/homeCity/HomeCityConfig.js", "t_f600425715cdd0386ec4"), u: 1.5, v: 15, rot: 'v', size: 26 },
-  { t: __dialogueText("scenes/homeCity/HomeCityConfig.js", "t_9de461d0c62f63ec6b8e"), u: 15, v: 8.45, rot: 'u', size: 24 }
+  { t: __dialogueText("scenes/homeCity/HomeCityConfig.js", "t_9de461d0c62f63ec6b8e"), u: 15, v: 8.45, rot: 'u', size: 24 },
+  { t: 'FOUNDRY LANE', u: 21.5, v: 26.6, rot: 'u', size: 26 }
 ];
 const WALKERS = [
   { tex: 'ped0', speed: 1.0, route: [[2, 20], [23, 20]] },
-  { tex: 'ped1', speed: 0.9, route: [[3, 1], [3, 21]] },
+  { tex: 'ped1', speed: 0.9, route: [[3, 1], [3, 28]] },
   { tex: 'ped2', speed: 1.25, route: [[25, 1], [25, 21]] },
   { tex: 'dog', speed: 1.3, route: [[5, 7], [8, 7, 2.6], [11, 7], [8, 7, 1.2]] }
 ];

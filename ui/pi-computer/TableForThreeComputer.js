@@ -30,11 +30,11 @@ function installBusinessCenterEntry(){
 function registerBuildData(scene){
   const cache=scene.cache.json,cases=cache.get('piCases'),classifieds=cache.get('piOfficeClassifieds');
   if(!Array.isArray(cases?.cases)||!Array.isArray(classifieds?.advertisements))return false;
-  const definition={id:CASE_ID,kind:'side',title:'Table for Three — development build',
-    description:'Investigate late evenings, find the restaurant, document the meeting and identify the companion. Test artwork; no reward in this development build.',
-    requiresBoard:false,reward:0,objectives:[{id:'briefing',text:'Read the client briefing.'}],metadata:{implementedStage:'restaurant_prototype',developmentOnly:true}};
+  const definition={id:CASE_ID,kind:'side',title:'Table for Three',
+    description:'Investigate late evenings, find the restaurant, document the meeting and identify the companion.',
+    requiresBoard:false,reward:C.reward,objectives:[{id:'briefing',text:'Read the client briefing.'}],metadata:{implementedStage:'restaurant_prototype'}};
   if(!cases.cases.some(c=>c.id===CASE_ID)){cache.remove('piCases');cache.add('piCases',{...cases,cases:[...cases.cases,definition]});}
-  const advert={id:AD,kind:'pi',missionId:CASE_ID,title:'Table for Three — development build',contact:'A concerned husband',reward:0,requiresItem:'camera',description:'My wife says she is working late. Her office says otherwise. Playable prototype with test artwork. No payout in this build.'};
+  const advert={id:AD,kind:'pi',missionId:CASE_ID,title:'Table for Three',contact:'A concerned husband',reward:C.reward,requiresItem:'camera',description:'My wife says she is working late. Her office says otherwise. Bring a camera. I pay on results.'};
   if(!classifieds.advertisements.some(a=>a.id===AD)){cache.remove('piOfficeClassifieds');cache.add('piOfficeClassifieds',{...classifieds,advertisements:[...classifieds.advertisements,advert]});}
   return true;
 }
@@ -48,9 +48,9 @@ export function installTableForThreeComputer(ui,documents){
   const mail=function(...args){
     const rows=(oldMail.apply(this,args)||[]).filter(m=>![MAIL,REPLY].includes(m.id));
     if(!quest())return rows;
-    const brief={id:MAIL,from:'A concerned husband',subject:'Table for Three — late evenings',date:'Case correspondence',body:C.briefing.join('\n\n')+'\n\nHer employer is XYZ Consulting, in the Business Center in Home Town. Begin there.\n\nDevelopment build with test artwork. No reward is paid.'};
+    const brief={id:MAIL,from:'A concerned husband',subject:'Table for Three — late evenings',date:'Case correspondence',body:C.briefing.join('\n\n')+'\n\nHer employer is XYZ Consulting, in the Business Center in Home Town. Begin there.\n\nFee: '+C.reward+' cash, payable when the case is closed.'};
     const s=readTableForThree();
-    if(s?.reportSubmitted)return [{id:REPLY,from:'A concerned husband',subject:'Table for Three — I recognise him',date:'Reply received',body:C.clientReply.join('\n\n')+'\n\nDevelopment case: no cash, XP or achievement payment has been added.'},brief,...rows];
+    if(s?.reportSubmitted)return [{id:REPLY,from:'A concerned husband',subject:'Table for Three — I recognise him',date:'Reply received',body:C.clientReply.join('\n\n')+'\n\nAcknowledge the reply to close the case and collect your fee.'},brief,...rows];
     return [brief,...rows];
   };
   const ads=function(...args){
@@ -59,7 +59,7 @@ export function installTableForThreeComputer(ui,documents){
     if(rows.some(a=>a.missionId===CASE_ID))return rows;
     const ad=ui.scene.cache.json.get('piOfficeClassifieds')?.advertisements?.find(a=>a.id===AD);return ad?[...rows,ad]:rows;
   };
-  const canClose=()=>viewingReply()&&quest()?.status==='active';
+  const canClose=()=>viewingReply()&&['active','settling'].includes(quest()?.status);
   const paged=function(body,x,y,w,h){return oldPaged.call(this,body,x,y,w,Math.max(40,h-((viewing()||canClose())?64:0)));};
   const render=function(...args){
     const result=oldRender.apply(this,args),b=ui.window;
@@ -70,7 +70,7 @@ export function installTableForThreeComputer(ui,documents){
     });}
     if(canClose()&&b)ui.drawing.button(b.x+312,b.y+b.h-108,'ACKNOWLEDGE AND CLOSE CASE',()=>{
       const r=dispatchTableForThree({type:'READ_CLIENT_REPLY'});
-      ui.notice=r.ok?(r.warning||'Case closed. No development rewards paid.'):r.reason;
+      ui.notice=r.ok?(r.warning||r.settlement?.message||'Case closed.'):r.reason;
       ui.render();
     });
     return result;

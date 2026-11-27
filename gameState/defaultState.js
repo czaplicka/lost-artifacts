@@ -152,6 +152,15 @@ export const defaultGameState = {
     quests: {}
   },
 
+  // Sgt. Quill's line-up cases in the detective bureau (systems/precinct).
+  precinctCases: {
+    version: 1,
+    met: false,
+    solved: 0,
+    perfect: 0,
+    active: null
+  },
+
   reputationState: {
     version: 1,
 

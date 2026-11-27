@@ -6,16 +6,17 @@
 // the very first frame; only the art on it changes.
 //
 // HOW TO TURN IT INTO A REAL BUILDING LATER (3 steps, nothing else to touch):
-//   1. In HomeCityPostOfficeScene.js replace `{ ...CONSTRUCTION_SITE_BUILDING }`
+//   1. In HomeCityScene.js replace `{ ...CONSTRUCTION_SITE_BUILDING }`
 //      in EXTRA_BUILDINGS with your new building. KEEP the footprint:
-//      `...SITE_FOOTPRINT` (x33, y3, w3, h3, door ends up at 34,6) and give it
+//      `...SITE_FOOTPRINT` (x13, y21, w3, h3, door ends up at 14,24) and give it
 //      a `sceneKey` + `SceneClass` like the church / pawn shop.
+//      (The first site at x33 became Holloway's Shooting Range this way.)
 //   2. Register a PALETTES[...] entry for it (see HomeCityLombard.js).
 //   3. Remove CONSTRUCTION_SITE_PROPS from EXTRA_PROPS (or keep the cones, up to you).
 // The drawing hook below only fires for id 'construction-site', so a new id
 // is drawn by the normal house renderer automatically.
 //
-// Imported by HomeCityPostOfficeScene.js. Side effects: registers 3 new prop
+// Imported by HomeCityScene.js. Side effects: registers 3 new prop
 // arts (cone, barrier, portaloo) and hooks HomeCityBuildings.drawHouse.
 // NOTE: texts are plain strings (not __dialogueText).
 // =============================================================================
@@ -25,7 +26,7 @@ import { PROP_ART } from './HomeCityPropArt.js';
 import { css, mix, dark, hash, pp, pathOf, poly, rect, circle, ellipse, line, shadow, isoBox, blob, S } from './HomeCityDrawing.js';
 
 export const SITE_ID = 'construction-site';
-export const SITE_FOOTPRINT = { x: 33, y: 3, w: 3, h: 3 };   // east end of the north street, next to the Business Center
+export const SITE_FOOTPRINT = { x: 13, y: 21, w: 3, h: 3 };   // Foundry Lane (third street), first lot past the crossroads
 
 export const CONSTRUCTION_SITE_QUIPS = [
   'The gate is locked. The sign says "BACK IN 5 MINUTES". The sign has said that since the Tuesday before last.',
@@ -43,10 +44,10 @@ export const CONSTRUCTION_SITE_BUILDING = {
   color: 0xc9a227, message: '', quips: CONSTRUCTION_SITE_QUIPS
 };
 
-// cones flank the gate, the door cell (34,6) and the cell in front of it (34,7) stay free
+// cones flank the gate, the door cell (14,24) and the cell in front of it (14,25) stay free
 export const CONSTRUCTION_SITE_PROPS = [
-  { x: 33, y: 6, kind: 'cone' }, { x: 35, y: 6, kind: 'cone' },
-  { x: 33, y: 7, kind: 'barrier' }, { x: 35, y: 7, kind: 'portaloo' }
+  { x: 13, y: 24, kind: 'cone' }, { x: 15, y: 24, kind: 'cone' },
+  { x: 13, y: 25, kind: 'barrier' }, { x: 16, y: 24, kind: 'portaloo' }
 ];
 
 export const CONSTRUCTION_PROP_QUIPS = {

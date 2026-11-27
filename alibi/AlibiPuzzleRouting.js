@@ -13,4 +13,4 @@ export function hasLegacyAlibiProgress(state,caseKey){
  if(Object.keys(state.alibiAccusations?.[caseKey]||{}).length||Object.keys(state.alibiAccusationDrafts?.[caseKey]||{}).length)return true;
  return !!state.crimeCityEncounterState?.[caseKey]?.some(e=>e.interviewed||e.dialogueCompleted||e.visited);
 }
-export function usePuzzleAlibi(state,caseKey){if(!caseKey)return false;if(state.caseData?.alibiPuzzles?.[caseKey])return true;return !hasLegacyAlibiProgress(state,caseKey)&&[3,5].includes(selectAlibiCandidates(state,caseKey).length);}
+export function usePuzzleAlibi(state,caseKey){if(!caseKey)return false;if(state.caseData?.alibiPuzzles?.[caseKey])return true;return !hasLegacyAlibiProgress(state,caseKey)&&(n=>n>=2&&n<=5)(selectAlibiCandidates(state,caseKey).length);}

@@ -11,7 +11,7 @@ function validatePuzzle(state,caseKey,activeCaseKey){
  const identity=scope(state,caseKey,activeCaseKey),p=state.caseData?.alibiPuzzles?.[caseKey];
  if(!record(p)||p.version!==1||!equalId(p.caseKey,caseKey)||p.status!=='solved'||!Number.isInteger(p.mistakes)||p.mistakes<0||p.mistakes>=3)throw Error('A completed, successful puzzle is required.');
  if(p.caseId!=null&&!equalId(p.caseId,state.currentCaseId)||p.campaignId!=null&&p.campaignId!==state._createdAt)throw Error('Saved puzzle scope conflicts with this case.');
- const n=p.people?.length;if(![3,5].includes(n)||new Set(p.people.map(x=>x.id)).size!==n)throw Error('Invalid puzzle candidates.');
+ const n=p.people?.length;if(!(n>=2&&n<=5)||new Set(p.people.map(x=>x.id)).size!==n)throw Error('Invalid puzzle candidates.');
  if(!record(p.answers)||!record(p.solution)||Object.keys(p.answers).length!==n*KEYS.length)throw Error('Incomplete puzzle facts.');
  const expected=selectAlibiCandidates(state,caseKey);if(expected.length!==n||!p.people.every(x=>expected.some(s=>s.id===x.id)))throw Error('Puzzle does not match the submitted shortlist.');
  for(const key of KEYS){const values=p.people.map(x=>p.answers[x.id+'|'+key]);if(new Set(values).size!==n||values.some(v=>typeof v!=='string'||!v))throw Error('Duplicate or missing facts.');for(const person of p.people)if(!p.options?.[key]?.includes(p.answers[person.id+'|'+key])||p.answers[person.id+'|'+key]!==p.solution[person.id]?.[key])throw Error('Puzzle solution is inconsistent.');}

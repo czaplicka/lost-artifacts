@@ -11,14 +11,16 @@ import { PROP_ART } from './HomeCityPropArt.js';
 import { dark, light, pp, poly, rect, line, shadow, isoBox } from './HomeCityDrawing.js';
 
 export const CHURCH_BUILDING = {
-  id: 'church', name: 'St. John Church', x: 24, y: 3, w: 4, h: 3,
+  id: 'church', name: 'St. John Church', x: 20, y: 21, w: 4, h: 3,   // Foundry Lane, below the cemetery
   color: 0xc9c3b0, message: '', sceneKey: 'ChurchScene'
 };
 // the tree that used to stand on the footprint
-export const CHURCH_CLEARED_PROPS = [{ kind: 'tree', x: 24, y: 3 }];
+// Base props removed to make room for the church (none since it moved to Foundry Lane).
+export const CHURCH_CLEARED_PROPS = [];
+// bushes on the west side, lamp and notice board flank the door (22,24)
 export const CHURCH_PROPS = [
-  { x: 23, y: 3, kind: 'bush' }, { x: 23, y: 5, kind: 'bush' },
-  { x: 25, y: 6, kind: 'lamp' }, { x: 27, y: 6, kind: 'churchboard' }
+  { x: 19, y: 21, kind: 'bush' }, { x: 19, y: 23, kind: 'bush' },
+  { x: 21, y: 24, kind: 'lamp' }, { x: 23, y: 24, kind: 'churchboard' }
 ];
 export const CHURCH_LABEL_LIFT = 140;   // keeps the nameplate above the steeple
 
@@ -55,5 +57,5 @@ export const CHURCH_PROP_QUIPS = {
   ]
 };
 
-// the pedestrian on column 25 used to stroll straight through the nave
-if (WALKERS[2]?.tex === 'ped2') WALKERS[2].route = [[28, 1], [28, 16]];
+// column 25 crosses the pawn shop; column 28 is clear on all three streets
+if (WALKERS[2]?.tex === 'ped2') WALKERS[2].route = [[28, 1], [28, 25]];

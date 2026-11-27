@@ -1,7 +1,7 @@
 const list=x=>Array.isArray(x)?x:[],same=(a,b)=>a!=null&&b!=null&&String(a)===String(b);
 export function puzzleRows(conclusion,state){
  if(!conclusion||conclusion.source!=='gridPuzzle'||conclusion.locked!==true||!same(conclusion.caseId,state.currentCaseId)||conclusion.campaignId!==state._createdAt)return null;
- const subjects=conclusion.subjects;if(!Array.isArray(subjects)||![3,5].includes(subjects.length)||new Set(subjects.map(s=>s.suspectId)).size!==subjects.length)return null;
+ const subjects=conclusion.subjects;if(!Array.isArray(subjects)||!(subjects.length>=2&&subjects.length<=5)||new Set(subjects.map(s=>s.suspectId)).size!==subjects.length)return null;
  if(subjects.filter(s=>s.status==='uncorroborated').length!==1||subjects.some(s=>!['confirmed','uncorroborated'].includes(s.status)))return null;
  const people=state.caseSuspects||state.suspects||state.suspectList||[];if(subjects.some(s=>!people.some(p=>p.id===s.suspectId)))return null;
  return subjects.map(s=>{const p=people.find(p=>p.id===s.suspectId);return {subjectId:String(s.suspectId),name:p.publicProfile?.displayName||p.name||'The alibi subject',source:'gridPuzzle',legacy:false,exists:true,claimCorrect:true,timelineCorrect:false,documented:true,sound:true,choice:null,chosenRole:'the independent corroboration record',status:s.status,sources:[],comparison:null,retraction:null,risky:false,riskReasons:[],issues:[],facts:structuredClone(s.facts||{})};});

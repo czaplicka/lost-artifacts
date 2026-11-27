@@ -86,14 +86,14 @@ export class HomeCityGround extends HomeCityRendererCore {
     const dash = (u1, v1, u2, v2, c, w) => { ctx.setLineDash([0.42, 0.5]); ctx.strokeStyle = c; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(u1, v1); ctx.lineTo(u2, v2); ctx.stroke(); ctx.setLineDash([]); };
     const solid = (u1, v1, u2, v2, c, w) => { ctx.strokeStyle = c; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(u1, v1); ctx.lineTo(u2, v2); ctx.stroke(); };
     const Y = __dialogueText("scenes/homeCity/HomeCityGround.js", "t_e1f2961e85fb3154754a"), W = __dialogueText("scenes/homeCity/HomeCityGround.js", "t_e60a49ab97ec2198a651");
-    for (const x of [10, 1.5]) for (const [a, b] of [[-9, 6.4], [12.6, 16.4], [20.6, 31]]) dash(x, a, x, b, Y, 0.05);
+    for (const x of [10, 1.5]) for (const [a, b] of [[-9, 6.4], [12.6, 16.4], [20.6, 24.4], [28.6, 39]]) dash(x, a, x, b, Y, 0.05);
     for (const [a, b] of [[-9, 0.4], [3.7, 7.3], [18, 34]]) { solid(a, 9.45, b, 9.45, Y, 0.035); solid(a, 9.56, b, 9.56, Y, 0.035); }
-    for (const [a, b] of [[-9, 0.4], [3.7, 7.3], [12.7, 34]]) dash(a, 18.5, b, 18.5, W, 0.045);
+    for (const [a, b] of [[-9, 0.4], [3.7, 7.3], [12.7, 34]]) { dash(a, 18.5, b, 18.5, W, 0.045); dash(a, 26.5, b, 26.5, W, 0.045); }
     const zebraV = (u0, u1, v) => { for (let u = u0; u < u1 - 0.1; u += 0.5) rect(ctx, u, v - 0.38, 0.26, 0.76, W); };
     const zebraU = (v0, v1, u) => { for (let v = v0; v < v1 - 0.1; v += 0.5) rect(ctx, u - 0.38, v, 0.76, 0.26, W); };
-    for (const v of [7, 12, 17, 20]) { zebraV(8.6, 11.4, v); zebraV(0.6, 2.4, v); }
+    for (const v of [7, 12, 17, 20, 25, 28]) { zebraV(8.6, 11.4, v); zebraV(0.6, 2.4, v); }
     for (const u of [3, 8, 12, 18]) zebraU(7.6, 11.4, u);
-    for (const u of [3, 8, 12]) zebraU(17.6, 19.4, u);
+    for (const u of [3, 8, 12]) { zebraU(17.6, 19.4, u); zebraU(25.6, 27.4, u); }
     for (const [u, v] of [[10, 4], [10, 15], [5, 10], [21, 9.2]]) {
       circle(ctx, u, v, 0.21, 0x2b2e2b); circle(ctx, u, v, 0.17, 0x474b47);
       solid(u - 0.15, v, u + 0.15, v, __dialogueText("scenes/homeCity/HomeCityGround.js", "t_44ab11e3eccb2f7fc92b"), 0.02); solid(u, v - 0.15, u, v + 0.15, __dialogueText("scenes/homeCity/HomeCityGround.js", "t_44ab11e3eccb2f7fc92b"), 0.02);

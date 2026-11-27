@@ -2,6 +2,7 @@ import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
 import { HomeTownDialogue } from '../ui/HomeTownDialogue.js';
+import { preloadExitButton, addExitImageButton } from '../ui/ExitImageButton.js';
 import { CrimeCityTutorial } from '../tutorials/CrimeCityTutorial.js';
 import { uninstallCityDayNight } from '../systems/CityDayNightManager.js';
 import { uninstallCityWeather } from '../systems/CityWeatherManager.js';
@@ -57,6 +58,7 @@ export class CaseRoomScene extends BaseScene {
 
 
   preload() {
+    preloadExitButton(this);
     if (!this.textures.exists(IMAGE)) {
       this.load.image(IMAGE, 'assets/local/case_room.webp');
     }
@@ -101,21 +103,13 @@ export class CaseRoomScene extends BaseScene {
 
 
 
-    this.exitButton = this.add.text(0, 16, 'EXIT', {
-      fontFamily: 'PressStart2P', fontSize: '13px', color: '#ffd86b',
-      backgroundColor: '#171b1bd9', padding: { x: 14, y: 10 }
-    }).setOrigin(1, 0).setDepth(20).setInteractive({ useHandCursor: true });
-    this.exitButton.on('pointerover', () => {
-      this.exitButton?.setStyle({ color: '#ffffff', backgroundColor: '#7a2a22' });
-    });
-    this.exitButton.on('pointerout', () => {
-      this.exitButton?.setStyle({ color: '#ffd86b', backgroundColor: '#171b1bd9' });
-    });
-    this.exitButton.on('pointerdown', (pointer, _x, _y, event) => {
-      event?.stopPropagation();
-      if (pointer?.event?.button != null && pointer.event.button !== 0) return;
-      if (this.openingBoard || this.leavingRoom || this.review?.root) return;
-      void this.leaveRoom('CrimeCityScene');
+    // Shared exit plank (assets/buttons/exit.webp), back to the crime city.
+    this.exitButton = addExitImageButton(this, {
+      x: 0, y: 14, width: 160, originX: 1, depth: 20,
+      onClick: () => {
+        if (this.openingBoard || this.leavingRoom || this.review?.root) return;
+        void this.leaveRoom('CrimeCityScene');
+      },
     });
 
 

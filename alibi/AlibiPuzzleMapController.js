@@ -30,7 +30,7 @@ export class AlibiPuzzleMapController {
   const context={caseKey:s.getCaseKey(),caseId:gameState.currentCaseId,campaignId:gameState._createdAt};
   const candidates=selectAlibiCandidates(gameState,context.caseKey),old=gameState.caseData?.alibiPuzzles?.[context.caseKey];
   if(gameState.caseFailed&&old?.status!=='failed')return;
-  if(!this.enabled()||!s.isCrimeLabCompleted()||!s.isGridCompleted()||![3,5].includes(candidates.length)){s.showMessage?.('The alibi desk requires three or five candidates.',3500);return;}
+  if(!this.enabled()||!s.isCrimeLabCompleted()||!s.isGridCompleted()||!(candidates.length>=2&&candidates.length<=5)){s.showMessage?.('The alibi desk requires two to five candidates.',3500);return;}
   try{
    if(!writable())throw Error('Saving is paused or busy. Enable saving before opening this desk.');
    if(old&&(old.caseId!==context.caseId||old.campaignId!==context.campaignId))throw Error('A mismatched prototype save was preserved. Load a save from before opening that prototype.');

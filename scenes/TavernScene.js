@@ -18,6 +18,7 @@ import {
 } from '../ui/HomeTownDialogue.js';
 
 import { EventBus } from '../EventBus.js';
+import { createDomExitButton } from '../ui/ExitImageButton.js';
 
 import {
   attachPIClockUI,
@@ -551,13 +552,19 @@ export class TavernScene extends BaseScene {
     buttons.className = 'buttons';
 
     buttons.append(
-      this.button(
-        this.text('backToTown'),
+      createDomExitButton(
         () => {
-          if (!this.debugMode && !this.panel) {
+          if (
+            !this.disposed &&
+            !this.navigating &&
+            !this.piTimeModalOpen &&
+            !this.debugMode &&
+            !this.panel
+          ) {
             void this.leave();
           }
-        }
+        },
+        { label: this.text('backToTown') }
       )
     );
 

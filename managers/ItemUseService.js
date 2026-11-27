@@ -30,11 +30,29 @@ function getUseMessage(item){
 function clearPending(){pendingConfirm=null;}
 function isPendingFor(itemId){return Boolean(pendingConfirm&&pendingConfirm.itemId===itemId&&Date.now()-pendingConfirm.timestamp<=CONFIRM_WINDOW_MS);}
 function restoresEnergy(item){const amount=Number(item?.metadata?.effect?.energy);return Boolean(item?.metadata?.consumable&&Number.isFinite(amount)&&amount>0);}
+function isRestVoucher(item){return item?.id==='rest_voucher'||item?.metadata?.restVoucher===true;}
+function useRestVoucher(item){
+  clearPending();
+  const energy=getEnergyManager(),current=energy.getCurrentEnergy(),max=energy.getMaxEnergy();
+  const sleepOwed=typeof energy._needsSleep==='function'&&energy._needsSleep();
+  if(current>=max&&!sleepOwed){
+    return{ok:false,message:'Energy is already full. Saving the voucher for a day you actually earn it.'};
+  }
+  if(current<max){
+    const result=energy.recoverCustom(max-current,`${item.name}: full energy`,{recoveryType:'item',recoverySubtype:item.id});
+    if(!result.success)return{ok:false,message:result.message||'Not now. Rest has to wait.'};
+  }
+  if(typeof energy._saveBalance==='function')energy._saveBalance({awakeMinutes:0,fatigueRemainder:0});
+  inventoryManager.removeQuantity(item.id,1);
+  return{ok:true,consumed:true,recovered:max-current,
+    message:getUseMessage(item)||'Permission granted. I feel rested. HR has no idea how.'};
+}
 export function canUseItem(item){return item?.id!==undefined&&item?.id!==null;}
 export function useItem(itemId){
   const item=inventoryManager.getItem(itemId);
   if(!item){clearPending();return{ok:false,message:__dialogueText("managers/ItemUseService.js", "t_59a6634734decdf37cd3")};}
   if(isAgencyFieldManual(item)){clearPending();return openAgencyFieldManual('overview');}
+  if(isRestVoucher(item))return useRestVoucher(item);
   if(!restoresEnergy(item)){
     clearPending();return{ok:true,commentOnly:true,consumed:false,message:getUseMessage(item)||__dialogueText("managers/ItemUseService.js", "t_b1d92e4be293e453a705")};
   }

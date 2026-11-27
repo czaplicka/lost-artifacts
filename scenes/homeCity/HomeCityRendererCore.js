@@ -35,8 +35,8 @@ export class HomeCityRendererCore {
     if (!fonts?.load) return run();
     Promise.all([fonts.load(__dialogueText("scenes/homeCity/HomeCityRendererCore.js", "t_d7ecb035e53e3b167e6b")), fonts.load(__dialogueText("scenes/homeCity/HomeCityRendererCore.js", "t_e44af1cb7a3385642f4a"))]).then(run, run);
   }
-  isRoad(x, y) { return (x >= 9 && x <= 11) || (y >= 8 && y <= 11) || (y >= 18 && y <= 19) || (x >= 1 && x <= 2); }
-  isSidewalk(x, y) { return [0, 3, 8, 12].includes(x) || [7, 12, 17, 20].includes(y); }
+  isRoad(x, y) { return (x >= 9 && x <= 11) || (y >= 8 && y <= 11) || (y >= 18 && y <= 19) || (y >= 26 && y <= 27) || (x >= 1 && x <= 2); }
+  isSidewalk(x, y) { return [0, 3, 8, 12].includes(x) || [7, 12, 17, 20, 25, 28].includes(y); }
   isPlaza(x, y) { return x >= 13 && x <= 17 && y >= 8 && y <= 11; }
   kind(x, y) {
     const s = this.scene, out = x < 0 || y < 0 || x >= s.cols || y >= s.rows;

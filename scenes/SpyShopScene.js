@@ -8,6 +8,7 @@ import { spyShopPurchaseService } from '../managers/SpyShopPurchaseService.js';
 import { SpyShopHudBridge } from '../ui/SpyShopHudBridge.js';
 import { SpyShopDialogue, SPY_SHOP_PANEL_COLORS } from '../ui/SpyShopDialogue.js';
 import { preloadShopPurchaseAudio, playShopPurchaseAudio } from './shop/ShopPurchaseAudio.js';
+import { preloadExitButton, addExitImageButton } from '../ui/ExitImageButton.js';
 
 const KEY = 'SpyShopScene';
 const CATALOG_KEY = 'piSpyShopItemCatalog';
@@ -63,8 +64,12 @@ export class SpyShopScene extends BaseScene {
   }
   preload() {
     preloadShopPurchaseAudio(this);
+    preloadExitButton(this);
     const cfg = SPY_SHOP_CONFIG;
     if (cfg.backgroundUrl && !this.textures.exists(cfg.backgroundKey)) this.load.image(cfg.backgroundKey, cfg.backgroundUrl);
+    for (const img of Object.values(cfg.itemImages ?? {})) {
+      if (img?.key && img.url && !this.textures.exists(img.key)) this.load.image(img.key, img.url);
+    }
     if (this.cache.json.exists(CATALOG_KEY)) this.cache.json.remove(CATALOG_KEY);
     this.load.json(CATALOG_KEY, 'assets/data/ItemsCatalog.json');
   }
@@ -73,14 +78,17 @@ export class SpyShopScene extends BaseScene {
     this.getRegisteredScene('PlayerHudScene')?.closeAllUIPanels?.(); this.stopSceneIfActive('PlayerHudScene');
     const news = this.getRegisteredScene('NewsHud');
     if (news) { news.setHudVisible?.(false); news.closeMenu?.(true); this.sleepSceneIfActive('NewsHud'); this.scene.setVisible(false, 'NewsHud'); }
-    this.drawBackground(); this.createAtmosphere();
+    this.drawBackground(); this.drawItemImages(); this.createAtmosphere();
     this.hotspotDefs = [...this.hotspotDefs, ...this.buildItemHotspotDefs()];
     this.hotspots = this.hotspotDefs.map((h, i) => this.createHotspot(h, i));
     const { width, height } = this.scale;
     this.createHeader(); this.createCommBar();
     this.debugText = this.add.text(24, height - 330, '', this.style(20)).setDepth(120);
-    const exitBtn = this.makeButton(null, 0, 170, __dialogueText("scenes/SpyShopScene.js", "t_33495d1a11f67c8c7282"), () => void this.exitShop(), 13);
-    exitBtn.setX(width - 24 - exitBtn.btnWidth);
+    // Exit plank next to the shop header (the right side sits under the top HUD).
+    this.exitButton = addExitImageButton(this, {
+      x: 24 + 430 + 16, y: 181, width: 175, depth: 100,
+      onClick: () => { if (!this.navigating && !this.debugMode) void this.exitShop(); },
+    });
     this.trackInputEvent(this.input, 'drag', this.onHotspotDrag);
     if (this.input.keyboard) this.trackInputEvent(this.input.keyboard, 'keydown', this.onKey);
     this.events.once('shutdown', this.disposeShop, this); this.refreshHotspots(); this.refreshMoney();
@@ -132,6 +140,47 @@ export class SpyShopScene extends BaseScene {
     this.add.text(w * 0.81, h * 0.46, "DUCK   GADGET", this.style(23)).setOrigin(0.5);
     this.add.text(w * 0.81, h * 0.63, "BADGE   MAGAZINE", this.style(23)).setOrigin(0.5);
     this.add.text(w / 2, h * 0.87, "Temporary background — no image required.", this.style(18)).setOrigin(0.5);
+  }
+  // Items that are not painted into the background art (e.g. lockpicks).
+  itemImageKey(productKey) {
+    const img = SPY_SHOP_CONFIG.itemImages?.[productKey];
+    if (!img?.key) return null;
+    if (!this.textures.exists(img.key) && productKey === 'lockpick') this.createLockpickPlaceholder(img.key);
+    return this.textures.exists(img.key) ? img.key : null;
+  }
+  drawItemImages() {
+    const { width: w, height: h } = this.scale, spots = this.itemSpots();
+    for (const productKey of Object.keys(SPY_SHOP_CONFIG.itemImages ?? {})) {
+      const spot = spots[productKey];
+      if (!spot || !this.getProducts().some(p => p.key === productKey)) continue;
+      const key = this.itemImageKey(productKey); if (!key) continue;
+      const image = this.add.image(spot.x * w, spot.y * h, key).setDepth(2);
+      const fw = image.frame.realWidth || image.frame.width, fh = image.frame.realHeight || image.frame.height;
+      image.setScale(Math.min(spot.w * w / fw, spot.h * h / fh));
+    }
+  }
+  // Placeholder until a real lockpicks image exists: an open leather roll
+  // with five picks, drawn as 32x14 pixel art scaled 4x.
+  createLockpickPlaceholder(key) {
+    const px = 4, tex = this.textures.createCanvas(key, 32 * px, 14 * px);
+    if (!tex) return;
+    const ctx = tex.getContext();
+    const dot = (x, y, c, ww = 1, hh = 1) => { ctx.fillStyle = c; ctx.fillRect(x * px, y * px, ww * px, hh * px); };
+    dot(1, 9, '#2a160b', 30, 5); dot(1, 8, '#6b3e1f', 30, 5); dot(2, 9, '#7d4a26', 28, 3);
+    dot(1, 8, '#9a5f33', 30, 1); dot(0, 8, '#3d2210', 1, 5); dot(31, 8, '#3d2210', 1, 5);
+    dot(26, 7, '#5a3318', 5, 6); dot(26, 7, '#8a5530', 5, 1); dot(27, 9, '#c79a3a', 2, 1);
+    const picks = [[3, 3, 'hook'], [7, 2, 'diamond'], [11, 4, 'rake'], [15, 2, 'ball'], [19, 3, 'tension']];
+    for (const [x, top, head] of picks) {
+      dot(x, top + 2, '#b9c2c8', 1, 8 - top); dot(x + 1, top + 2, '#6e777d', 1, 8 - top);
+      dot(x - 1, 10, '#1d1d1f', 4, 3); dot(x - 1, 10, '#3a3a3e', 4, 1);
+      if (head === 'hook') { dot(x, top, '#dfe6ea', 1, 2); dot(x + 1, top, '#dfe6ea'); }
+      else if (head === 'diamond') { dot(x, top + 1, '#dfe6ea', 2, 1); dot(x + 1, top, '#dfe6ea'); }
+      else if (head === 'rake') { dot(x, top - 2, '#dfe6ea', 1, 4); dot(x + 1, top - 2, '#dfe6ea'); dot(x + 1, top, '#dfe6ea'); }
+      else if (head === 'ball') dot(x, top, '#dfe6ea', 2, 2);
+      else { dot(x, top, '#dfe6ea', 1, 2); dot(x + 1, top, '#dfe6ea', 2, 1); }
+    }
+    dot(23, 4, '#b9c2c8', 1, 6); dot(23, 4, '#dfe6ea', 3, 1); dot(22, 10, '#1d1d1f', 3, 3);
+    tex.refresh();
   }
   createAtmosphere() {
     const key = 'spyshop_vignette', { width, height } = this.scale;
@@ -381,7 +430,7 @@ export class SpyShopScene extends BaseScene {
     d.setSpeaker({
       name: this.shopkeeperName(),
       portrait: this.textures.exists(key)
-        ? { kind: 'crop', key, cx: 0.592, cy: 0.375, sideFrac: 0.276 }
+        ? { kind: 'crop', key, cx: 0.521, cy: 0.455, sideFrac: 0.276 }
         : { kind: 'emoji', text: __dialogueText("scenes/SpyShopScene.js", "t_8a8de823d5ed3e12746a") }
     });
     d.setStamp(null);
@@ -403,6 +452,8 @@ export class SpyShopScene extends BaseScene {
     this.askedTopics.add(`q${i}`); d.setText(line.answer); this.buildShopkeeperTopics();
   }
   itemPortrait(product) {
+    const imageKey = this.itemImageKey(product.key);
+    if (imageKey) return { kind: 'image', key: imageKey };
     const key = SPY_SHOP_CONFIG.backgroundKey;
     const spot = this.hotspotDefs.find(h => h.productKey === product.key);
     if (spot && this.textures.exists(key)) {

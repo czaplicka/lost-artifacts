@@ -6,6 +6,7 @@ import {getEnergyManager} from '../managers/EnergyManager.js';
 import {getLocationBackgroundCandidates} from '../npcThemeHelper.js';
 import {ensureHud} from '../hudHelpers.js';
 import {EventBus} from '../EventBus.js';
+import {addExitImageButton,ensureExitTexture} from '../ui/ExitImageButton.js';
 export class CityPlaceScene extends BaseScene {
  constructor(){super({key:'CityPlaceScene'});}
  init(data={}){this.cityId=data.cityId;this.placeId=data.placeId;this.leaving=false;this.newsSnapshot=null;}
@@ -29,8 +30,8 @@ export class CityPlaceScene extends BaseScene {
   this.add.rectangle(width/2,height-panelHeight/2,width,panelHeight,0x14212a,.96).setDepth(10);
   this.add.text(24,height-panelHeight+20,place?.name||__dialogueText("scenes/CityPlaceScene.js", "t_e601be73fcffe8c40e1c"),{fontFamily:'SpecialElite',fontSize:'26px',color:'#ebd2a3',wordWrap:{width:Math.max(120,width-48)}}).setDepth(11);
   this.add.text(24,height-panelHeight+70,message,{fontFamily:'SpecialElite',fontSize:'20px',color:'#ece5d4',wordWrap:{width:Math.max(120,width-48)}}).setDepth(11);
-  const back=this.add.text(width-28,height-28,"Return to city",{fontFamily:'SpecialElite',fontSize:'22px',color:'#ffe0a3',backgroundColor:'#263f47',padding:{x:12,y:8}}).setOrigin(1).setDepth(12).setInteractive({useHandCursor:true});
-  back.on('pointerdown',()=>{void this.returnToCity();});ensureHud(this);
+  const addBack=()=>{if(!this.sys.isActive()||this.leaving)return;this.backButton?.destroy();this.backButton=addExitImageButton(this,{x:width-28,y:height-24,width:150,originX:1,originY:1,depth:12,onClick:()=>{void this.returnToCity();}});};
+  addBack();ensureExitTexture(this).then(loaded=>{if(loaded)addBack();});ensureHud(this);
  }
  hideNews(){const news=this.scene.manager.keys.NewsHud;if(!news?.sys?.isActive())return;this.newsSnapshot={scene:news,visible:news.sys.settings.visible,inputEnabled:news.input.enabled};news.closeMenu?.(true);news.scene.setVisible(false);news.input.enabled=false;}
  restoreNews(){const s=this.newsSnapshot;if(s?.scene?.sys?.isActive()){s.scene.scene.setVisible(s.visible);s.scene.input.enabled=s.inputEnabled;}this.newsSnapshot=null;}

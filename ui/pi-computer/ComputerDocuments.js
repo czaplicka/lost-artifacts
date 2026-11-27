@@ -16,6 +16,10 @@ import {
   installTableForThreeComputer
 } from './TableForThreeComputer.js';
 
+import {
+  installShortShortsComputer
+} from './ShortShortsComputer.js';
+
 export * from './ComputerDocumentsCore.js';
 
 const LOCAL_AREA_POSITION = Symbol.for(
@@ -87,6 +91,7 @@ export class ComputerDocuments extends ComputerDocumentsCore {
     this.grandConspiracyComputer = null;
     this.momsNotProudComputer = null;
     this.tableForThreeComputer = null;
+    this.shortShortsComputer = null;
     this.localAreaIconPosition = null;
 
     const isPIComputer =
@@ -111,5 +116,8 @@ export class ComputerDocuments extends ComputerDocumentsCore {
 
     this.tableForThreeComputer =
       installTableForThreeComputer(ui, this);
+
+    this.shortShortsComputer =
+      installShortShortsComputer(ui, this);
   }
 }

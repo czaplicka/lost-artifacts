@@ -1,5 +1,6 @@
 import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
+import { addExitImageButton, ensureExitTexture } from '../ui/ExitImageButton.js';
 import { flushAutosave } from '../gameStatePersistence.js';
 import { STAFF, FACTS, DOCUMENTS, DEDUCTIONS } from '../assets/data/deadMailChapterTwo.js';
 import { DEAD_MAIL_ART, DEAD_MAIL_PORTRAITS, DEAD_MAIL_DAY_TEXTURES, containRect, referenceRect } from '../config/deadMailArtConfig.js';
@@ -27,7 +28,7 @@ export function openDeadMailPreview(game=window.game,data={}){
 export class DeadMailScene extends BaseScene{
  constructor(){super({key:KEY});}
  init(data={}){this.entrySource=data.entrySource||null;this.meetingMode=this.entrySource==='office-meeting';}
- create(){
+ create(){ensureExitTexture(this).then(loaded=>{if(loaded&&this.sys.isActive()&&this.page)this.render();});
   super.create();Object.assign(this,{pausedKeys:[],hidden:[],page:null,feedback:'',person:'admin',documentId:null,deductionIndex:0,
    disposed:false,artReady:false,loadingArt:false,loadError:'',assetScope:null,artToken:null,debugHotspots:false});
   const valid=this.meetingMode?officeMeetingAllowed(this.game):this.entrySource==='cemetery-map'&&cemeteryMapParent(this.game,'day');
@@ -59,6 +60,7 @@ export class DeadMailScene extends BaseScene{
  fit(){if(!this.page)return;const s=Math.min(this.scale.width/1280,this.scale.height/800);this.page.setScale(s).setPosition((this.scale.width-1280*s)/2,(this.scale.height-800*s)/2);}
  text(x,y,value,size=24,color='#e8dbc0',width=1100){const t=this.add.text(x,y,value,{fontFamily:'SpecialElite, monospace',fontSize:`${size}px`,color,wordWrap:{width},lineSpacing:5});this.page.add(t);return t;}
  rect(x,y,w,h,color,alpha=1){const r=this.add.rectangle(x,y,w,h,color,alpha).setOrigin(0);this.page.add(r);return r;}
+ exitButton(fn){const b=addExitImageButton(this,{x:1090,y:18,width:150,depth:0,onClick:fn});this.page.add(b);return b;}
  button(x,y,label,callback,width=260,enabled=true){const r=this.rect(x,y,width,48,enabled?0x493c36:0x28272b).setStrokeStyle(1,0x927955);const t=this.text(x+12,y+12,label,17,enabled?'#f5e1ae':'#8c8581',width-24);if(t.height>32)t.setFontSize(15);if(enabled)r.setInteractive({useHandCursor:true}).on('pointerup',()=>{if(!this.disposed)callback();}).on('pointerover',()=>r.setFillStyle(0x665046)).on('pointerout',()=>r.setFillStyle(0x493c36));return r;}
  imageFit(key,box){const src=this.textures.get(key).getSourceImage(),f=containRect(src.width,src.height,box);this.page.add(this.add.image(f.x,f.y,key).setOrigin(0).setDisplaySize(f.width,f.height));return f;}
  portrait(id,x=45,y=245,w=290,h=425){this.rect(x,y,w,h,0x20232b).setStrokeStyle(1,0x927955);this.imageFit(DEAD_MAIL_PORTRAITS[id],{x:x+5,y:y+5,width:w-10,height:h-10});}
@@ -71,7 +73,7 @@ export class DeadMailScene extends BaseScene{
  say(value){this.feedback=value;this.render();}
  render(){
   if(this.disposed)return;this.page?.destroy(true);this.page=this.add.container(0,0);this.rect(0,0,1280,800,0x141923);
-  this.text(40,22,this.meetingMode?__dialogueText("scenes/DeadMailScene.js", "t_9ad3eda14ec3fee38273"):__dialogueText("scenes/DeadMailScene.js", "t_a7616c7ba997fccf970e"),25,'#f5b75a');this.button(1025,24,this.meetingMode?__dialogueText("scenes/DeadMailScene.js", "t_ff5f9aad3fd2c4689b70"):__dialogueText("scenes/DeadMailScene.js", "t_1a77240cbe32baeb7bd4"),()=>this.scene.stop(),215);
+  this.text(40,22,this.meetingMode?__dialogueText("scenes/DeadMailScene.js", "t_9ad3eda14ec3fee38273"):__dialogueText("scenes/DeadMailScene.js", "t_a7616c7ba997fccf970e"),25,'#f5b75a');this.exitButton(()=>this.scene.stop());
   if(!this.artReady){this.text(45,190,this.loadError?__dialogueText("scenes/DeadMailScene.js", "t_5e39289a23a88bad9516"):__dialogueText("scenes/DeadMailScene.js", "t_4f03f11b80f940cd889a"),25,'#f5b75a');this.text(45,265,this.loadError||__dialogueText("scenes/DeadMailScene.js", "t_bd8d843fa9071fd338a9"),22,'#e8dbc0',1160);if(this.loadError)this.button(45,550,__dialogueText("scenes/DeadMailScene.js", "t_72e79972bd5158ffebb8"),()=>void this.loadArt(),330,!this.loadingArt);this.fit();return;}
   const s=getDeadMailProgress();
   if(this.meetingMode){

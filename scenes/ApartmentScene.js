@@ -218,7 +218,7 @@ export class ApartmentScene extends BaseScene {
     this.roomSystem?.preload();
 
     if (!this.textures.exists('btnExit')) {
-      this.load.image('btnExit', 'assets/exit.png');
+      this.load.image('btnExit', 'assets/buttons/exit.webp');
     }
   }
 

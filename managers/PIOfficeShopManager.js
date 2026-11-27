@@ -17,6 +17,7 @@ const SUPPORTED = new Set([
   NEW_PI_OFFICE_ID,
   'office_case_files',
   'office_printer',
+  'office_rolodex',
   'office_books',
   'office_chairs',
   'office_coffee',
@@ -26,6 +27,17 @@ const SUPPORTED = new Set([
   'office_artifact',
   'office_tv'
 ]);
+
+// Prestige levels: each level can give a bonus.
+export const BASE_CASE_SLOTS = 1;
+
+export const PRESTIGE_LEVELS = [
+  { level: 0, min: 0,  name: 'Unknown',                payoutBonus: 0,    extraSlots: 0 },
+  { level: 1, min: 10, name: 'Mentioned Once',         payoutBonus: 0,    extraSlots: 0 },
+  { level: 2, min: 25, name: 'Locally Tolerated',      payoutBonus: 0.05, extraSlots: 0 },
+  { level: 3, min: 40, name: 'Quietly Respected',      payoutBonus: 0.05, extraSlots: 1 },
+  { level: 4, min: 50, name: 'Suspiciously Successful', payoutBonus: 0.10, extraSlots: 1 }
+];
 
 let busy = false;
 
@@ -104,6 +116,102 @@ export function completeOfficeMoveIn() {
 
   return true;
 }
+
+/* ------------------------------------------------------------------ */
+/* Bonuses calculated from owned items (catalog = piOfficeShop.json)   */
+/* ------------------------------------------------------------------ */
+
+function prestigeLevelFor(points) {
+  let current = PRESTIGE_LEVELS[0];
+
+  for (const level of PRESTIGE_LEVELS) {
+    if (points >= level.min) current = level;
+  }
+
+  return current;
+}
+
+export function getOfficeBonuses(catalog) {
+  const items = Array.isArray(catalog?.items) ? catalog.items : [];
+  const owned = state().owned;
+
+  const result = {
+    prestige: 0,
+    score: 0,
+    caseSlotsFromItems: 0,
+    payoutMultiplierFromItems: 1
+  };
+
+  for (const item of items) {
+    if (!record(item) || !Object.prototype.hasOwnProperty.call(owned, item.id)) continue;
+    if (!Array.isArray(item.effects)) continue;
+
+    for (const effect of item.effects) {
+      if (!record(effect)) continue;
+
+      if (effect.type === 'add_prestige' && integer(effect.amount)) {
+        result.prestige += effect.amount;
+      } else if (effect.type === 'add_score' && integer(effect.amount)) {
+        result.score += effect.amount;
+      } else if (effect.type === 'add_case_slots' && integer(effect.amount)) {
+        result.caseSlotsFromItems += effect.amount;
+      } else if (
+        effect.type === 'job_payout_multiplier' &&
+        Number.isFinite(effect.multiplier) &&
+        effect.multiplier > 0
+      ) {
+        result.payoutMultiplierFromItems *= effect.multiplier;
+      }
+    }
+  }
+
+  return result;
+}
+
+export function getPrestigeStatus(catalog) {
+  const bonuses = getOfficeBonuses(catalog);
+  const points = bonuses.prestige;
+  const level = prestigeLevelFor(points);
+  const next = PRESTIGE_LEVELS.find(entry => entry.min > points) || null;
+
+  const from = level.min;
+  const to = next ? next.min : level.min;
+  const ratio = next && to > from
+    ? Math.min(1, Math.max(0, (points - from) / (to - from)))
+    : 1;
+
+  return {
+    points,
+    level: level.level,
+    name: level.name,
+    nextName: next ? next.name : null,
+    nextAt: next ? next.min : null,
+    ratio,
+    maxed: !next
+  };
+}
+
+export function getOfficeCaseSlots(catalog) {
+  const bonuses = getOfficeBonuses(catalog);
+  const level = prestigeLevelFor(bonuses.prestige);
+
+  return BASE_CASE_SLOTS + bonuses.caseSlotsFromItems + level.extraSlots;
+}
+
+export function getOfficePayoutMultiplier(catalog) {
+  const bonuses = getOfficeBonuses(catalog);
+  const level = prestigeLevelFor(bonuses.prestige);
+
+  return bonuses.payoutMultiplierFromItems * (1 + level.payoutBonus);
+}
+
+export function getOfficeScore(catalog) {
+  return getOfficeBonuses(catalog).score;
+}
+
+/* ------------------------------------------------------------------ */
+/* Shop                                                                */
+/* ------------------------------------------------------------------ */
 
 export function getOfficeShopAvailability(item) {
   if (!validItem(item)) {

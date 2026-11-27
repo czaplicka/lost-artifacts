@@ -2,6 +2,8 @@ import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { mountOfficeExpansion } from './pi-office/OfficeExpansion.js';
+import { mountPrestigeBar } from './pi-office/OfficePrestigeBar.js';
+import { preloadExitButton, addExitImageButton } from '../ui/ExitImageButton.js';
 import {
   OFFICE_CONFIG
 } from '../config/detectiveOfficeConfig.js';
@@ -64,7 +66,8 @@ const DATA_FILES = [
   ['piOfficeClassifieds', 'assets/data/piClassifieds.json'],
   ['piPhoneDirectory', 'assets/data/piPhoneDirectory.json'],
   ['piPhoneDialogues', 'assets/data/piPhoneDialogues.json'],
-  ['piCases', 'assets/data/piCases.json']
+  ['piCases', 'assets/data/piCases.json'],
+  ['piOfficeShop', 'assets/data/piOfficeShop.json']
 ];
 
 const PHONE_ART = [
@@ -133,6 +136,8 @@ export class DetectiveOfficeScene extends BaseScene {
   }
 
   preload() {
+    preloadExitButton(this);
+
     const images = [
       [
         OFFICE_CONFIG.backgroundKey || 'pi_office_bg',
@@ -192,10 +197,22 @@ export class DetectiveOfficeScene extends BaseScene {
       .setDepth(200)
       .setVisible(false);
 
+    // Visible way back to town (the door hotspot and Esc still work too).
+    this.exitPlank = addExitImageButton(this, {
+      x: 18,
+      y: 14,
+      width: 170,
+      depth: 150,
+      onClick: () => {
+        if (this.canUseOffice()) void this.goToCity();
+      },
+    });
+
     this.createPanels();
     this.bindEvents();
     this.rebuildOffice();
-mountOfficeExpansion(this);
+    mountOfficeExpansion(this);
+    mountPrestigeBar(this);
     this.hideGameplayHud({ closePanels: true });
 
     if (needsOfficeMoveIn()) {
@@ -573,7 +590,7 @@ mountOfficeExpansion(this);
     this.hotspots.push(hotspot);
   }
 
-    createLayer(config, index) {
+  createLayer(config, index) {
     if (!this.textures.exists(config.key)) {
       console.warn(
         '[DetectiveOfficeScene] Layer missing:',
@@ -1203,6 +1220,8 @@ mountOfficeExpansion(this);
     this.enforceHiddenOverlays();
 
     const usable = this.canUseOffice();
+
+    this.exitPlank?.setVisible(usable);
 
     for (const { rect } of this.hotspots) {
       if (rect.input) {

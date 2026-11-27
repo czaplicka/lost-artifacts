@@ -16,6 +16,7 @@ const REWARDS = [
  {label:'1 Hint',kind:'hint',joke:'One useful thought, courtesy of someone else.'},
  {label:'1 Free Transfer',kind:'transfer',joke:'Go somewhere. Preferably work-related.'}
 ];
+const ITEM_KEYS={coffee:'coffee',rest:'restVoucher'};
 const RECEIPTS='daily_login_reward_receipts_v1';
 const PREFIX='lost-artefacts:daily-login-delivery:v1:';
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -80,7 +81,7 @@ class DailyRewards {
   const reward=REWARDS[r.index],done=r.state==='delivered';
   return [{id:idOf(r),from:'Mark Agency // Human Resources',
    subject:`Attendance bonus: ${reward.label}`,date:r.day+' UTC',category:'memo',priority:10000,
-   body:`You showed up again. We appreciate your commitment, or your inability to find the exit.\n\nAttendance reward ${r.index+1} of ${REWARDS.length}: ${reward.label}.\n\n${reward.joke}\n\n${done?'Reward collected. HR has filed the paperwork.':'Collect your reward below. Money is added to your agency budget, not your personal cash. Coffee is delivered to your inventory; vouchers and hints are added to your existing resources.'}\n\nMissed a day? Your place in the rotation is safe.\n\nHuman Resources\nMark Agency`,
+   body:`You showed up again. We appreciate your commitment, or your inability to find the exit.\n\nAttendance reward ${r.index+1} of ${REWARDS.length}: ${reward.label}.\n\n${reward.joke}\n\n${done?'Reward collected. HR has filed the paperwork.':'Collect your reward below. Money is added to your agency budget, not your personal cash. Coffee and Rest Vouchers are delivered to your inventory; hints and transfers are added to your existing resources.'}\n\nMissed a day? Your place in the rotation is safe.\n\nHuman Resources\nMark Agency`,
    action:{type:'daily_login_reward',label:done?'Collected':this.busy?'Collecting...':'Claim reward'},
    actionEnabled:!done&&!this.busy}];
  }
@@ -118,8 +119,8 @@ class DailyRewards {
    if(idOf(r)!==messageId)throw Error('The daily offer changed. Refresh your mail.');
    if(r.state==='delivered')throw Error('Reward already collected.');
    if(r.state==='reserved')throw Error('Finish the pending delivery in the browser where you started it.');
-   if(REWARDS[r.index].kind==='coffee'){
-    await ItemsLoader.load();this.checkCoffee();
+   if(ITEM_KEYS[REWARDS[r.index].kind]){
+    await ItemsLoader.load();this.checkItemSpace(REWARDS[r.index].kind);
    }
    if(saveGameState()!==true)throw Error('Save failed. Reward was not collected.');
    p={userId,scope:campaign,day:r.day,token:crypto.randomUUID()};this.journal(p);
@@ -130,7 +131,7 @@ class DailyRewards {
   const grantId=idOf(r);
   if(r.state==='delivered'){localStorage.removeItem(PREFIX+userId);this.row=r;return REWARDS[r.index].label+' (previously collected)';}
   if(!Object.prototype.hasOwnProperty.call(receipts(),grantId)){
-   if(REWARDS[r.index].kind==='coffee'){await ItemsLoader.load();this.checkCoffee();}
+   if(ITEM_KEYS[REWARDS[r.index].kind]){await ItemsLoader.load();this.checkItemSpace(REWARDS[r.index].kind);}
    if(await this.user()!==userId||scope()!==campaign)throw Error('Account or campaign changed.');
    this.apply(r);
   }else if(saveGameState()!==true)throw Error('Save failed. Try collecting again.');
@@ -140,12 +141,13 @@ class DailyRewards {
   this.row=ack;this.userId=userId;this.error='';
   return REWARDS[r.index].label;
  }
- checkCoffee(){
-  const item=ItemsLoader.get('consumables','coffee');
-  if(!item?.id)throw Error('Coffee is missing from the item catalogue.');
+ checkItemSpace(kind){
+  const name=kind==='rest'?'Rest Voucher':'coffee';
+  const item=ItemsLoader.get('consumables',ITEM_KEYS[kind]);
+  if(!item?.id)throw Error(`${name} is missing from the item catalogue.`);
   const current=inventoryManager.getItem(item.id);
-  if(current&&(!current.stackable||current.quantity>=999))throw Error('Your coffee stack is full.');
-  if(!current&&inventoryManager.getCapacity().current>=inventoryManager.getCapacity().max)throw Error('Inventory full. Make room, then collect your coffee.');
+  if(current&&(!current.stackable||current.quantity>=999))throw Error(`Your ${name} stack is full.`);
+  if(!current&&inventoryManager.getCapacity().current>=inventoryManager.getCapacity().max)throw Error(`Inventory full. Make room, then collect your ${name}.`);
  }
  apply(r){
   const grantId=idOf(r),kind=REWARDS[r.index].kind;
@@ -157,8 +159,7 @@ class DailyRewards {
    // Keep the existing receipt IDs to prevent duplicate deliveries.
    MainStoryManager.setSideClue(RECEIPTS,{...before.receipts,[grantId]:{day:r.day,index:r.index}});
    if(kind==='cash')moneyManager.addAgencyBudget(100,{category:'daily_login',description:'HR attendance bonus',metadata:{grantId}});
-   if(kind==='coffee'&&!inventoryManager.addItem({...structuredClone(ItemsLoader.get('consumables','coffee')),quantity:1}))throw Error('Could not add coffee.');
-   if(kind==='rest')gameState.updateState({restVouchers:Number(gameState.restVouchers||0)+1});
+   if(ITEM_KEYS[kind]&&!inventoryManager.addItem({...structuredClone(ItemsLoader.get('consumables',ITEM_KEYS[kind])),quantity:1}))throw Error('Could not add the reward to your inventory.');
    if(kind==='transfer')gameState.updateState({freeTransfers:Number(gameState.freeTransfers||0)+1});
    if(kind==='hint'){
     const h=hintManager.readState();

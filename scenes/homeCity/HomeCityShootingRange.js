@@ -1,26 +1,25 @@
 // =============================================================================
 // HomeCityShootingRange.js - Holloway's Shooting Range on the Old Quarter map.
 //
-// Takes over the old construction-site plot (x33-35, y3-5, door 34,6), exactly
-// as HomeCityConstruction.js prepared it: same footprint, a sceneKey, a palette.
-// The construction module stays imported for its prop arts / quips only.
+// Started on the original construction-site plot (x33-35, y3-5) and moved to
+// Foundry Lane, the third street: west block, below the police station.
 //
 // Imported by HomeCityScene.js; the palette registers as a side effect.
 // NOTE: texts are plain strings (not __dialogueText).
 // =============================================================================
 import { PALETTES } from './HomeCityConfig.js';
-import { SITE_FOOTPRINT } from './HomeCityConstruction.js';
 
 export const SHOOTING_RANGE_ID = 'shooting-range';
+export const SHOOTING_RANGE_FOOTPRINT = { x: 5, y: 21, w: 3, h: 3 };   // Foundry Lane, west block (door 6,24)
 
 export const SHOOTING_RANGE_BUILDING = {
-  id: SHOOTING_RANGE_ID, name: "Holloway's Range", ...SITE_FOOTPRINT,
+  id: SHOOTING_RANGE_ID, name: "Holloway's Range", ...SHOOTING_RANGE_FOOTPRINT,
   color: 0x6f6a4a, message: '', sceneKey: 'ShootingRangeScene'
 };
 
-// the door cell (34,6) and the cell in front of it (34,7) stay free
+// the door cell (6,24) and the cell in front of it (6,25) stay free
 export const SHOOTING_RANGE_PROPS = [
-  { x: 33, y: 6, kind: 'crate' }, { x: 35, y: 6, kind: 'lamp' }, { x: 35, y: 7, kind: 'bin' }
+  { x: 5, y: 24, kind: 'crate' }, { x: 7, y: 24, kind: 'lamp' }, { x: 7, y: 25, kind: 'bin' }
 ];
 
 PALETTES[SHOOTING_RANGE_ID] = {

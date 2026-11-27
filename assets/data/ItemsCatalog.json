@@ -789,6 +789,18 @@
         "relevance": "high",
         "useMessage": "A lockpick needs a lock. Otherwise I'm just threatening the air."
       }
+    },
+        "restVoucher": {
+      "id": "rest_voucher",
+      "name": "Rest Voucher",
+      "icon": "🛏️",
+      "description": "Permission to stop working. Temporarily. Restores full energy, costs no case time.",
+      "type": "item",
+      "stackable": true,
+      "metadata": {
+        "restVoucher": true,
+        "useMessage": "Permission to stop working. Temporarily. I feel suspiciously rested."
+      }
     }
   }
 }

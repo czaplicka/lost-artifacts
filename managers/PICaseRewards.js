@@ -54,7 +54,25 @@ const DEFINITIONS = Object.freeze({
     achievementId: 'pi_short_shorts',
     achievementTitle: __dialogueText("managers/PICaseRewards.js", "t_a4d86efb396273f92b56"),
     achievementDescription:
-      __dialogueText("managers/PICaseRewards.js", "t_91b8d28082cbc5ef43e4")
+      __dialogueText("managers/PICaseRewards.js", "t_91b8d28082cbc5ef43e4"),
+    variants: Object.freeze({
+      spare: Object.freeze({
+        cash: 100,
+        xpReward: 'pi_case_small',
+        xp: 50
+      })
+    })
+  }),
+
+  pi_table_for_three: Object.freeze({
+    title: 'Table for Three',
+    cash: 175,
+    xpReward: 'pi_case_medium',
+    xp: 100,
+    achievementId: 'pi_table_for_too_many',
+    achievementTitle: 'Table for Too Many',
+    achievementDescription:
+      'Document a meeting for three. Admit you brought the ring.'
   })
 });
 
@@ -82,6 +100,33 @@ function questFor(caseId) {
 
 function recordFor(caseId) {
   return questFor(caseId)?.rewardSettlement || {};
+}
+
+// Wariant (np. inne zakończenie) jest zapisywany przy pierwszym rozliczeniu
+// i przy ponowieniu nie może zostać zmieniony.
+function resolveDefinition(caseId, variant) {
+  const base = definitionFor(caseId);
+
+  if (!base) return null;
+
+  const chosen = recordFor(caseId).variant ?? variant ?? null;
+
+  if (chosen === null) {
+    return { definition: base, variant: null };
+  }
+
+  const patch =
+    base.variants &&
+    Object.prototype.hasOwnProperty.call(base.variants, chosen)
+      ? base.variants[chosen]
+      : null;
+
+  if (!patch) return null;
+
+  return {
+    definition: { ...base, ...patch },
+    variant: chosen
+  };
 }
 
 function updateQuest(caseId, patch) {
@@ -256,17 +301,22 @@ export function getPICaseRewardPreview(caseId) {
  * Cele muszą być wcześniej oznaczone jako ukończone.
  * Integrity rozlicza finał przy konkretnej decyzji,
  * przez applyPIIntegrityDecision z PICaseStanding.js.
+ *
+ * variant jest opcjonalny: wybiera alternatywną nagrodę
+ * zdefiniowaną w `variants` danej sprawy.
  */
-export function settlePICaseRewards(caseId) {
-  const definition = definitionFor(caseId);
+export function settlePICaseRewards(caseId, variant = null) {
+  const resolved = resolveDefinition(caseId, variant);
   const quest = questFor(caseId);
 
-  if (!definition || !quest) {
+  if (!resolved || !quest) {
     return {
       ok: false,
       message: __dialogueText("managers/PICaseRewards.js", "t_bd73721aff86b6ef9f45")
     };
   }
+
+  const { definition } = resolved;
 
   if (busy.has(caseId)) {
     return {
@@ -307,6 +357,10 @@ export function settlePICaseRewards(caseId) {
   try {
     updateQuest(caseId, { status: 'settling' });
 
+    if (resolved.variant !== null) {
+      updateRecord(caseId, { variant: resolved.variant });
+    }
+
     settleCash(caseId, definition);
     settleXP(caseId, definition);
 
@@ -343,7 +397,12 @@ export function settlePICaseRewards(caseId) {
       ok: true,
       alreadySettled: false,
 
-      rewards: getPICaseRewardPreview(caseId),
+      rewards: {
+        cash: definition.cash,
+        xp: definition.xp,
+        fame: 10,
+        achievement: definition.achievementTitle
+      },
 
       message:
         `${__dialogueText("managers/PICaseRewards.js", "t_6f0f63bb129c1b150714")}${definition.cash}${__dialogueText("managers/PICaseRewards.js", "t_4ef97769ac591dab769f")}` +

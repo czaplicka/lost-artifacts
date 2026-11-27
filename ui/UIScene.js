@@ -140,6 +140,12 @@ export class UIScene extends BaseScene {
     this._cacheDomElements();
     this._removeDomListeners();
 
+    // The HUD element outlives the scene; show it again only if shutdown hid it.
+    if (this._hiddenByShutdown && this.dom.container) {
+      this.dom.container.style.display = 'block';
+    }
+    this._hiddenByShutdown = false;
+
     this.hudStanding?.destroy();
 
     this.hudStanding = createHudStanding(
@@ -339,6 +345,13 @@ export class UIScene extends BaseScene {
     this.domAbortController = null;
 
     this._htmlPromises.clear();
+    // #hud-container lives in document.body, so a stopped UIScene must hide it
+    // (e.g. HomeCityScene stops UIScene; otherwise the top bar stays on screen).
+    const container = this.dom.container || document.getElementById('hud-container');
+    if (container && container.style.display !== 'none') {
+      container.style.display = 'none';
+      this._hiddenByShutdown = true;
+    }
     this.dom = {};
     this.caseTimerInitialSeconds = null;
   }

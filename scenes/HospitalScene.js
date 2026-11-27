@@ -1,5 +1,6 @@
 import { dialogueText as __dialogueText } from '../dialogues/DialogueText.js';
 import { BaseScene } from './BaseScene.js';
+import { preloadExitButton, addExitImageButton } from '../ui/ExitImageButton.js';
 import { gameState } from '../GameData.js';
 import { getReputation } from '../managers/ReputationManager.js';
 import { HomeTownDialogue } from '../ui/HomeTownDialogue.js';
@@ -22,6 +23,7 @@ export class HospitalScene extends BaseScene {
     this.hiddenHudElement = null; this.previousHudDisplay = ''; this.pendingPlayerLine = null;
   }
   preload() {
+    preloadExitButton(this);
     if (!this.textures.exists(BACKGROUND_KEY)) this.load.image(BACKGROUND_KEY, BACKGROUND_URL);
     preloadMenuActionAudio(this);
   }
@@ -39,10 +41,8 @@ export class HospitalScene extends BaseScene {
       BACKGROUND_URL, '', T('t_e78e6cb773453ed2df43')].join(T('t_01ba4719c80b6fe911b0')),
       { fontFamily: 'SpecialElite, monospace', fontSize: 22, color: '#ffe4c0',
         wordWrap: { width: Math.max(100, this.scale.width - 48) } }).setDepth(20);
-    this.exitButton = this.add.text(18, 16, '< Back to town', { fontFamily: 'SpecialElite, monospace',
-      fontSize: 20, color: '#ffe0a0', backgroundColor: '#24352e', padding: { x: 12, y: 10 } })
-      .setDepth(100).setInteractive({ useHandCursor: true });
-    this.exitButton.on('pointerdown', () => { if (!this.dialogueOpen) void this.leave(); });
+    this.exitButton = addExitImageButton(this, { x: 18, y: 14, width: 150, depth: 100,
+      onClick: () => { if (!this.dialogueOpen) void this.leave(); } });
     this.trackInputEvent(this.scale, 'resize', this.layoutHospital);
     if (this.input.keyboard) this.trackInputEvent(this.input.keyboard, 'keydown-ESC', this.onEscape);
     this.layoutHospital(); if (this.background) this.talk();

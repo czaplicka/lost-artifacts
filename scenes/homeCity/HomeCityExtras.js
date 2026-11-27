@@ -132,7 +132,7 @@ export class HomeCityExtras extends HomeCityAmbient {
     const taxi = this.bakeSprite('taxi_x', 300, 170, 150, 118, ctx => { drawCar(ctx, 'x', 0xe0b020); rect(ctx, -16, -62, 16, 7, 0xfff3c0); for (let i = 0; i < 8; i++) rect(ctx, -40 + i * 7, -26 - i * 3.5 * 0, 4, 3, i % 2 ? 0x1a1a1a : 0xf5f0dc); });
     const van = this.bakeSprite('van_y', 300, 170, 150, 118, ctx => drawCar(ctx, 'y', 0x3a5c8c));
     if (taxi) this.vehicles.push({ id: 'taxi', sp: s.add.image(0, 0, taxi).setOrigin(...this.anchors.get(taxi)).setVisible(false), axis: 'x', lane: 19, pos: -6, min: -6, max: 31, speed: 4.6, wait: 3, honkAt: 0 });
-    if (van) this.vehicles.push({ id: 'van', sp: s.add.image(0, 0, van).setOrigin(...this.anchors.get(van)).setVisible(false), axis: 'y', lane: 9.6, pos: -6, min: -6, max: 27, speed: 4, wait: 11, honkAt: 0 });
+    if (van) this.vehicles.push({ id: 'van', sp: s.add.image(0, 0, van).setOrigin(...this.anchors.get(van)).setVisible(false), axis: 'y', lane: 9.6, pos: -6, min: -6, max: 35, speed: 4, wait: 11, honkAt: 0 });
     // cat on the PI Office parapet ------------------------------------------
     bakeCatShapes(this);
     const pi = s.buildings.find(b => b.id === 'pi-office'), ck = `hc${uid}_cat`, tk = `hc${uid}_cattail`;

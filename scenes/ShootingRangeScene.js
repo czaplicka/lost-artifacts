@@ -15,19 +15,26 @@ import { KEY, W, H, FONT, ROUND, IMAGES, ASSET_DIR, SARGE, rankFor } from './sho
 import { ensureRangeTextures } from './shootingRange/ShootingRangeArt.js';
 import { preloadRangeAudio, playRangeSound } from './shootingRange/ShootingRangeAudio.js';
 import { shootingRangeRound } from './shootingRange/ShootingRangeRound.js';
+import { preloadExitButton, addExitImageButton } from '../ui/ExitImageButton.js';
+import { HomeTownDialogue } from '../ui/HomeTownDialogue.js';
 
 // files that 404'd once are not requested again this session
 const FAILED = new Set();
 const memory = { visits: 0, greet: 0, after: 0 };
-const PANEL = { x: 880, y: 512, w: 980, h: 545 };
-// lobby.webp layout: the counter top's back edge is at y~662, ammo boxes rise to y~600
-const SARGE_SPOT = { x: 690, y: 40, scale: 0.9 };
-const COUNTER_FRONT = [[470, 662, W - 470, H - 662], [820, 598, 300, 64]];
+const DIALOGUE_DEPTH = 30000;
+const SARGE_ID = 'pi_range_holloway';
+// lobby.webp layout: the counter top's back edge is at y~662, ammo boxes rise to
+// y~600, the log book's top edge to y~630. Holloway stands on the right side of
+// the counter; the shared dialogue panel (HomeTownDialogue) runs along the bottom
+// with her lines on the left.
+const SARGE_SPOT = { x: 1520, y: 40, scale: 0.9 };
+const COUNTER_FRONT = [[470, 662, W - 470, H - 662], [820, 598, 300, 64], [1360, 628, 400, 34]];
 
 export class ShootingRangeScene extends BaseScene {
   constructor() { super({ key: KEY }); }
 
   preload() {
+    preloadExitButton(this);
     this.load.on('loaderror', file => { if (String(file?.key || '').startsWith('range_')) FAILED.add(file.key); });
     for (const spec of Object.values(IMAGES)) {
       if (!this.textures.exists(spec.key) && !FAILED.has(spec.key)) this.load.image(spec.key, `${ASSET_DIR}/${spec.key.replace('range_', '')}.webp`);
@@ -48,6 +55,10 @@ export class ShootingRangeScene extends BaseScene {
     this.hudTick = this.time.addEvent({ delay: 500, loop: true, callback: () => this.hideAgencyHud() });
     this.events.once('shutdown', this.disposeRange, this);
     this.events.once('destroy', this.disposeRange, this);
+    // "ESC LEAVE" on the panel leaves the range, like the other hometown locations.
+    this.dialogue = new HomeTownDialogue(this, () => {
+      if (this.mode === 'lobby' && !this.leaving && !this._rangeDisposed) this.leave();
+    });
     memory.visits += 1;
     this.openLobby(memory.visits === 1 ? SARGE.greetFirst : SARGE.greet[memory.greet++ % SARGE.greet.length]);
   }
@@ -88,40 +99,56 @@ export class ShootingRangeScene extends BaseScene {
     this.mode = 'lobby';
     const L = this.lobbyLayer = this.add.container(0, 0).setDepth(10);
     L.add(this.add.image(0, 0, IMAGES.lobby.key).setOrigin(0).setDisplaySize(W, H));
-    // Holloway stands behind the counter: re-draw the counter (and the boxes on it) over her.
+    // Holloway stands behind the counter: re-draw the counter (and what stands on it) over her.
     L.add(this.add.image(SARGE_SPOT.x, SARGE_SPOT.y, IMAGES.sarge.key).setOrigin(0.5, 0).setScale(SARGE_SPOT.scale));
     for (const [x, y, w, h] of COUNTER_FRONT) L.add(this.add.image(0, 0, IMAGES.lobby.key).setOrigin(0).setCrop(x, y, w, h));
-    L.add(this.add.rectangle(SARGE_SPOT.x, 990, 360, 54, 0x1c140e, 0.9).setStrokeStyle(2, 0xd4af37));
-    L.add(this.add.text(SARGE_SPOT.x, 990, SARGE.name, { fontFamily: FONT.body, fontSize: '24px', color: '#f2e6b0' }).setOrigin(0.5));
 
-    const P = PANEL;
-    L.add(this.add.rectangle(P.x, P.y, P.w, P.h, 0x1c140e, 0.93).setOrigin(0).setStrokeStyle(3, 0xd4af37));
-    this.lineText = this.add.text(P.x + 34, P.y + 28, '', { fontFamily: FONT.body, fontSize: '25px', color: '#efe3c0', lineSpacing: 6, wordWrap: { width: P.w - 68 } });
-    L.add(this.lineText);
-
+    // score plaque (top left) and the shared exit plank (top right)
     const s = this.stats();
     const acc = s.shots ? Math.round(s.hits / s.shots * 100) : 0;
-    L.add(this.add.text(P.x + 34, P.y + 222, `BEST ${s.bestScore}   ·   BEST ACCURACY ${s.bestAccuracy}%   ·   ROUNDS ${s.rounds}   ·   LIFETIME ${acc}%`,
-      { fontFamily: FONT.body, fontSize: '19px', color: '#c9b98d' }));
-
-    const buy = `Buy a round  -  $${ROUND.price}   (${ROUND.seconds}s, reloads free)`;
-    this.button(L, P.x + 34, P.y + 268, P.w - 68, 58, buy, () => this.buyRound(), { primary: true });
-    SARGE.topics.forEach((topic, i) => {
-      const col = i % 2, row = Math.floor(i / 2);
-      this.button(L, P.x + 34 + col * ((P.w - 68) / 2 + 6), P.y + 340 + row * 64, (P.w - 68) / 2 - 6, 54, topic.label, () => this.sayLine(topic.text));
-    });
-    this.button(L, P.x + 34, P.y + 478, 240, 54, 'Leave', () => this.leave());
-    this.cashText = this.add.text(P.x + P.w - 34, P.y + 505, '', { fontFamily: FONT.body, fontSize: '22px', color: '#f2e6b0' }).setOrigin(1, 0.5);
-    L.add(this.cashText);
+    this.statsText = this.add.text(24, 20, '', { fontFamily: FONT.body, fontSize: '22px', color: '#f2e6b0',
+      backgroundColor: '#1c140ee6', padding: { x: 16, y: 10 }, lineSpacing: 6 });
+    this.statsLine = `BEST ${s.bestScore}   ·   BEST ACCURACY ${s.bestAccuracy}%   ·   ROUNDS ${s.rounds}   ·   LIFETIME ${acc}%`;
+    L.add(this.statsText);
+    L.add(addExitImageButton(this, {
+      x: W - 24, y: 18, width: 180, originX: 1, depth: 0,
+      onClick: () => { if (!this.leaving) this.leave(); },
+    }));
     this.refreshCash();
-    this.sayLine(line);
+    this.sarge(line);
   }
 
-  clearLobby() { this.lobbyLayer?.destroy(true); this.lobbyLayer = null; this.lineText = null; this.cashText = null; }
+  // Holloway's lines and the counter menu, in the shared hometown dialogue panel.
+  sarge(text, playerLine = '') {
+    if (this.mode !== 'lobby' || !this.dialogue || this.dialogue.destroyed) return;
+    const messages = [];
+    if (playerLine) messages.push({ speaker: 'player', text: playerLine });
+    messages.push({ speaker: 'npc', text });
+    const choices = [
+      { id: 'range_buy', label: `Buy a round - $${ROUND.price} (${ROUND.seconds}s, reloads free)`, attitude: 'neutral',
+        action: () => { playRangeSound(this, 'empty'); this.buyRound(); } },
+      ...SARGE.topics.map((topic, i) => ({ id: `range_topic_${i}`, label: topic.label, attitude: 'neutral',
+        action: () => this.sarge(topic.text, topic.label) })),
+    ];
+    this.dialogue.show({
+      title: SARGE.name, role: "Range master · Holloway's Range", text, messages, choices,
+      npcId: SARGE_ID, showTrust: false, nodeId: 'range_counter',
+    });
+    this.dialogue.root?.setDepth(DIALOGUE_DEPTH);
+    this.dialogue.panel?.blocker?.setDepth(DIALOGUE_DEPTH - 1);
+  }
 
-  sayLine(text) { if (this.lineText?.active) this.lineText.setText(text); }
+  clearLobby() {
+    this.dialogue?.close(false);
+    this.lobbyLayer?.destroy(true); this.lobbyLayer = null; this.statsText = null;
+  }
 
-  refreshCash() { this.cashText?.active && this.cashText.setText(`Cash: $${moneyManager.getBalance(MONEY_SOURCE.CASH)}`); }
+  sayLine(text) { if (this.mode === 'lobby') this.sarge(text); }
+
+  refreshCash() {
+    this.statsText?.active && this.statsText.setText(`${this.statsLine}
+Cash: $${moneyManager.getBalance(MONEY_SOURCE.CASH)}`);
+  }
 
   buyRound() {
     if (this.leaving) return;
@@ -186,10 +213,11 @@ export class ShootingRangeScene extends BaseScene {
     if (this.mode === 'round') {
       if (k === 'r' || k === 'R') this.reload();
       else if (k === 'Escape') this.finishRound();
-    } else if (k === 'Escape') {
-      if (this.mode === 'results') this.openLobby(SARGE.greet[memory.greet++ % SARGE.greet.length]);
-      else this.leave();
-    } else if (k === 'Enter' && this.mode !== 'round') this.buyRound();
+    } else if (this.mode === 'results') {
+      // in the lobby the dialogue panel owns Esc (leave) and the number keys
+      if (k === 'Escape') this.openLobby(SARGE.greet[memory.greet++ % SARGE.greet.length]);
+      else if (k === 'Enter') this.buyRound();
+    }
   }
 
   // --------------------------------------------------------------- widgets --

@@ -11,6 +11,7 @@ const PI_SCENES = new Set([
   'SpyShopScene',
   'TavernScene',
   'PoliceStationScene',
+  'PrecinctOfficeScene',
   'PigeonLoftScene'
 ]);
 

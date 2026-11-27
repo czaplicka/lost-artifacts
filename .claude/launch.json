@@ -1,0 +1,25 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "static",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "C:/Users/monik/AppData/Local/Temp/claude/6cdb03c1e24feafa/a15d085d-07ee-4137-ab3d-bf558ded1c0d/scratchpad/serve.cjs",
+        ".",
+        "8765"
+      ],
+      "port": 8765
+    },
+    {
+      "name": "store-preview",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "C:/Users/monik/AppData/Local/Temp/claude/6cdb03c1e24feafa/efe7a6fe-ed84-4a22-97f3-3885bf1a89ea/scratchpad/serve.cjs",
+        ".",
+        "8766"
+      ],
+      "port": 8766
+    }
+  ]
+}

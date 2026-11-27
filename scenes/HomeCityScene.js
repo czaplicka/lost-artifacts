@@ -12,11 +12,11 @@ import { HospitalScene } from './HospitalScene.js';
 import { BusinessCenterScene } from './BusinessCenterScene.js';
 import { ChurchScene } from './ChurchScene.js';
 import { LombardScene } from './LombardScene.js';
-import { PALETTES } from './homeCity/HomeCityConfig.js';
+import { PALETTES, WORLD_W as GROUND_W, WORLD_H as GROUND_H } from './homeCity/HomeCityConfig.js';
 import { HomeCityRendererCore } from './homeCity/HomeCityRendererCore.js';
 import { LOMBARD_BUILDING, LOMBARD_PROPS } from './homeCity/HomeCityLombard.js';
 import { CHURCH_BUILDING, CHURCH_CLEARED_PROPS, CHURCH_PROPS, CHURCH_PROP_QUIPS, CHURCH_LABEL_LIFT } from './homeCity/HomeCityChurch.js';
-import { CONSTRUCTION_PROP_QUIPS } from './homeCity/HomeCityConstruction.js';
+import { CONSTRUCTION_PROP_QUIPS, CONSTRUCTION_SITE_BUILDING, CONSTRUCTION_SITE_PROPS } from './homeCity/HomeCityConstruction.js';
 import { SHOOTING_RANGE_BUILDING, SHOOTING_RANGE_PROPS } from './homeCity/HomeCityShootingRange.js';
 import { ShootingRangeScene } from './ShootingRangeScene.js';
 
@@ -24,7 +24,10 @@ import { ShootingRangeScene } from './ShootingRangeScene.js';
 const T=id=>__dialogueText('scenes/HomeCityScene.js',id);
 const E=id=>__dialogueText('scenes/HomeCityPostOfficeScene.js',id);
 const KEY='HomeCityScene';
-const COLS=36,ROWS=22,HW=64,HH=32,OX=1600,OY=240,WORLD_WIDTH=4125,WORLD_HEIGHT=2400;
+// ROWS 30: third street (lots y21-23, road y26-27). OX moved right so the new
+// rows (which grow down-left in iso) stay inside the world. WORLD_* must match
+// WORLD_W/WORLD_H in homeCity/HomeCityConfig.js.
+const COLS=36,ROWS=30,HW=64,HH=32,OX=2112,OY=240,WORLD_WIDTH=4637,WORLD_HEIGHT=2656;
 const INSTRUCTION=T('t_8fa98636da35e169410b');
 const ARROWS=new Set(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight']);
 const BUILDINGS=[
@@ -38,10 +41,12 @@ const BUILDINGS=[
 const EXTRA_BUILDINGS=[
   {id:'post-office',name:E('t_bf90c07b7526b278c9c8'),x:16,y:3,w:3,h:3,color:0xa06048,message:'',sceneKey:'PostOfficeScene',SceneClass:PostOfficeScene},
   {id:'hospital',name:E('t_97e9623661f2970acb41'),x:29,y:13,w:4,h:3,color:0xaebdac,message:'',sceneKey:'HospitalScene',SceneClass:HospitalScene},
-  {id:'business-center',name:E('t_a16572219d4cbc8fe62b'),x:29,y:3,w:4,h:3,color:0x8e9b9b,message:'',sceneKey:'BusinessCenterScene',SceneClass:BusinessCenterScene},
+  {id:'business-center',name:E('t_a16572219d4cbc8fe62b'),x:29,y:21,w:4,h:3,color:0x8e9b9b,message:'',sceneKey:'BusinessCenterScene',SceneClass:BusinessCenterScene},
   {...CHURCH_BUILDING,SceneClass:ChurchScene},
   {...LOMBARD_BUILDING,SceneClass:LombardScene},
   {...SHOOTING_RANGE_BUILDING,SceneClass:ShootingRangeScene},
+  // No sceneKey: arriving shows one of the site's quips (visitClosedBuilding).
+  {...CONSTRUCTION_SITE_BUILDING},
 ];
 const PROPS=[
   {x:8,y:6,kind:'lamp'},{x:12,y:7,kind:'lamp'},{x:8,y:17,kind:'lamp'},{x:19,y:12,kind:'lamp'},
@@ -49,7 +54,11 @@ const PROPS=[
   {x:4,y:7,kind:'planter'},{x:15,y:6,kind:'planter'},{x:23,y:8,kind:'bin'},{x:5,y:17,kind:'bench'},{x:19,y:17,kind:'planter'},
   {x:4,y:1,kind:'tree',variant:0},{x:7,y:1,kind:'tree',variant:1},{x:15,y:1,kind:'tree',variant:2},
   {x:24,y:3,kind:'tree',variant:1},{x:24,y:6,kind:'tree',variant:0},{x:13,y:14,kind:'tree',variant:2},
-  {x:24,y:15,kind:'tree',variant:1},{x:14,y:21,kind:'tree',variant:0},{x:22,y:21,kind:'tree',variant:1},
+  {x:24,y:15,kind:'tree',variant:1},{x:14,y:29,kind:'tree',variant:0},{x:22,y:29,kind:'tree',variant:1},
+  {x:5,y:29,kind:'tree',variant:2},{x:30,y:29,kind:'tree',variant:0},{x:19,y:25,kind:'lamp'},
+  // small green at the east end of the north street (where church, business center and range stood)
+  {x:28,y:4,kind:'tree',variant:2},{x:31,y:3,kind:'tree',variant:1},{x:34,y:4,kind:'tree',variant:0},
+  {x:27,y:3,kind:'bush'},{x:33,y:6,kind:'bush'},{x:30,y:6,kind:'bench'},{x:29,y:6,kind:'lamp'},
   {x:7,y:4,kind:'bush'},{x:15,y:3,kind:'bush'},{x:19,y:6,kind:'bush'},{x:4,y:14,kind:'bush'},
   {x:15,y:13,kind:'bush'},{x:4,y:16,kind:'bush'},{x:8,y:12,kind:'hydrant'},{x:0,y:12,kind:'mailbox'},
   {x:17,y:7,kind:'kiosk'},{x:19,y:7,kind:'crate'},{x:15,y:9,kind:'statue'},{x:18,y:9,kind:'signpost'},
@@ -61,7 +70,7 @@ const HOSPITAL_PROPS=[
   {x:34,y:13,kind:'tree',variant:1},{x:27,y:16,kind:'planter'},{x:35,y:16,kind:'planter'},
   {x:29,y:17,kind:'bench'},{x:33,y:17,kind:'bench'},{x:28,y:17,kind:'lamp'},{x:34,y:17,kind:'lamp'},
 ];
-const EXTRA_PROPS=[...HOSPITAL_PROPS,...CHURCH_PROPS,...LOMBARD_PROPS,...SHOOTING_RANGE_PROPS];
+const EXTRA_PROPS=[...HOSPITAL_PROPS,...CHURCH_PROPS,...LOMBARD_PROPS,...SHOOTING_RANGE_PROPS,...CONSTRUCTION_SITE_PROPS];
 const PROP_QUIPS={
   lamp:[T('t_32874e1a6e965eabc9d9'),T('t_79fda5d986c17d5e38d8')],
   bench:[T('t_31115bf96d69447c27b4'),T('t_2b091f903af17d44c46a')],
@@ -173,7 +182,8 @@ export class HomeCityScene extends BaseScene {
     this.position=entry?{...entry.door}:validSaved?{...saved.player}:{...this.buildings[0].door};this.placePlayer();
     const camera=this.cameras.main;
     camera.setBounds(0,0,WORLD_WIDTH,WORLD_HEIGHT);camera.setZoom(1);camera.startFollow(this.player,true,0.12,0.12);
-    if(!entry&&validSaved&&Number.isFinite(saved.camera?.x)&&Number.isFinite(saved.camera?.y))camera.setScroll(saved.camera.x,saved.camera.y);
+    // Camera scroll is in pixels: only reuse it if it was saved with the same map origin.
+    if(!entry&&validSaved&&saved.camera?.ox===OX&&Number.isFinite(saved.camera?.x)&&Number.isFinite(saved.camera?.y))camera.setScroll(saved.camera.x,saved.camera.y);
     else camera.centerOn(this.player.x,this.player.y);
     this.trackInputEvent(this.input,'pointerdown',this.onPointer);
     if(this.input.keyboard){
@@ -260,8 +270,11 @@ export class HomeCityScene extends BaseScene {
       const key=art.bake(`extension_${x}_${y}`,width,height,ctx=>art.paintGround(ctx,x,y,width,height),x,y);
       if(key)this.add.image(x,y,key).setOrigin(0).setDepth(-1000);
     };
-    tile(3300,0,825,1000);tile(3300,1000,825,1000);
-    for(let x=0;x<WORLD_WIDTH;x+=825)tile(x,2000,Math.min(825,WORLD_WIDTH-x),400);
+    // drawGround now covers the whole world (WORLD_W/WORLD_H in HomeCityConfig);
+    // only paint here if those ever fall behind the camera bounds again.
+    const w=GROUND_W,h=GROUND_H;
+    if(w<WORLD_WIDTH)for(let y=0;y<h;y+=1000)tile(w,y,WORLD_WIDTH-w,Math.min(1000,h-y));
+    if(h<WORLD_HEIGHT)for(let x=0;x<WORLD_WIDTH;x+=825)tile(x,h,Math.min(825,WORLD_WIDTH-x),WORLD_HEIGHT-h);
   }
   drawHospitalForecourt(){
     const g=this.add.graphics().setDepth(-800);
@@ -283,7 +296,8 @@ export class HomeCityScene extends BaseScene {
   drawBusinessCenterDetails(){
     const b=this.buildings.find(item=>item.id==='business-center'),art=this.cityArt;
     const ground=this.add.graphics().setDepth(-800);
-    for(let y=6;y<=7;y++)for(let x=29;x<=33;x++){
+    // paved forecourt: the two rows in front of the building, one cell wider on the east
+    for(let y=b.y+b.h;y<=b.y+b.h+1;y++)for(let x=b.x;x<=b.x+b.w;x++){
       const points=this.diamond(x,y);ground.fillStyle((x+y)%2?0xa79d83:0xb3a88e).fillPoints(points,true);
       ground.lineStyle(1,0x756c57,.6).strokePoints(points,true);
     }
@@ -445,9 +459,9 @@ export class HomeCityScene extends BaseScene {
   remember(){
     if(!this.position)return;
     const camera=this.cameras?.main;
-    if(Number.isFinite(camera?.scrollX)&&Number.isFinite(camera?.scrollY))this.lastCameraPosition={x:camera.scrollX,y:camera.scrollY};
+    if(Number.isFinite(camera?.scrollX)&&Number.isFinite(camera?.scrollY))this.lastCameraPosition={x:camera.scrollX,y:camera.scrollY,ox:OX};
     const previousCamera=gameState.homeCity?.version===1?gameState.homeCity.camera:null;
-    const fallbackCamera=Number.isFinite(previousCamera?.x)&&Number.isFinite(previousCamera?.y)?{x:previousCamera.x,y:previousCamera.y}:null;
+    const fallbackCamera=previousCamera?.ox===OX&&Number.isFinite(previousCamera?.x)&&Number.isFinite(previousCamera?.y)?{x:previousCamera.x,y:previousCamera.y,ox:OX}:null;
     const cameraPosition=this.lastCameraPosition??fallbackCamera;
     gameState.homeCity={version:1,player:{...this.position},camera:cameraPosition?{...cameraPosition}:null,lastEntryPoint:this.entryPoint};
     if(gameState.isGameActive)requestAutosave();

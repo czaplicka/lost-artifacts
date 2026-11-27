@@ -3,6 +3,7 @@ import {
 } from '../dialogues/DialogueText.js';
 
 import { BaseScene } from './BaseScene.js';
+import { preloadExitButton, addExitImageButton } from '../ui/ExitImageButton.js';
 import { gameState } from '../GameData.js';
 
 import {
@@ -122,6 +123,7 @@ export class BusinessCenterScene extends BaseScene {
 
   preload() {
     preloadMenuActionAudio(this);
+    preloadExitButton(this);
   }
 
   create() {
@@ -155,27 +157,16 @@ export class BusinessCenterScene extends BaseScene {
       () => this.closePanel(false)
     );
 
-    this.exitButton = this.add.text(
-      18,
-      16,
-      '< Back to town',
-      {
-        fontFamily: 'SpecialElite, monospace',
-        fontSize: 20,
-        color: '#ffe0a0',
-        backgroundColor: '#24352e',
-        padding: { x: 12, y: 10 },
-      }
-    )
-      .setDepth(100)
-      .setInteractive({
-        useHandCursor: true,
-      });
-
-    this.exitButton.on('pointerdown', () => {
-      if (!this.panelOpen) {
-        void this.leave();
-      }
+    this.exitButton = addExitImageButton(this, {
+      x: 18,
+      y: 14,
+      width: 150,
+      depth: 100,
+      onClick: () => {
+        if (!this.panelOpen) {
+          void this.leave();
+        }
+      },
     });
 
     this.status = this.add.text(

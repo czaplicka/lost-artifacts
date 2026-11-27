@@ -17,5 +17,5 @@ export const PI_NPC_HOURS = Object.freeze({
 export const PI_SCENE_LOCATIONS = Object.freeze({
   DetectiveOfficeScene: 'pi-office', PigeonLoftScene: 'your-home',
   SpyShopScene: 'spy-shop', TavernScene: 'tavern',
-  PoliceStationScene: 'police-station', ShootingRangeScene: 'shooting-range'
+  PoliceStationScene: 'police-station', PrecinctOfficeScene: 'police-station', ShootingRangeScene: 'shooting-range'
 });

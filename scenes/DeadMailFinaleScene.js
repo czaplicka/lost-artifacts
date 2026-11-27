@@ -1,5 +1,6 @@
 import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 import { BaseScene } from './BaseScene.js';
+import { addExitImageButton, ensureExitTexture } from '../ui/ExitImageButton.js';
 import { flushAutosave } from '../gameStatePersistence.js';
 import { OPERATION_EVENTS, DISCLOSURES, REPORT_FIELDS, PHONE_MESSAGES } from '../assets/data/deadMailFinaleData.js';
 import { requireCemeteryMapEntry, cemeteryMapParent } from './homeCity/CemeteryMapAccess.js';
@@ -15,7 +16,7 @@ export function openDeadMailFinalePreview(game=window.game,data={}){
 export class DeadMailFinaleScene extends BaseScene{
  constructor(){super({key:KEY});}
  init(data={}){this.entrySource=data.entrySource||null;}
- create(){
+ create(){ensureExitTexture(this).then(loaded=>{if(loaded&&this.sys.isActive()&&this.page)this.render();});
   super.create();this.pausedKeys=[];this.hidden=[];this.page=null;this.feedback='';this.eventView=null;this.disclosureId=null;this.reportIndex=0;this.messageView=null;
   if(this.entrySource!=='cemetery-map'||!cemeteryMapParent(this.game,'finale')||!canStartDeadMailFinale()){this.scene.stop();return;}
   beginDeadMailFinale();this.events.once('shutdown',this.restore,this);
@@ -31,11 +32,12 @@ export class DeadMailFinaleScene extends BaseScene{
  fit(){if(!this.page)return;const z=Math.min(this.scale.width/1280,this.scale.height/800);this.page.setScale(z).setPosition((this.scale.width-1280*z)/2,(this.scale.height-800*z)/2);}
  rect(x,y,w,h,color,alpha=1){const r=this.add.rectangle(x,y,w,h,color,alpha).setOrigin(0);this.page.add(r);return r;}
  text(x,y,value,size=22,color='#e8dbc0',width=1160){const t=this.add.text(x,y,value,{fontFamily:'SpecialElite, monospace',fontSize:`${size}px`,color,wordWrap:{width},lineSpacing:7});this.page.add(t);return t;}
+ exitButton(fn){const b=addExitImageButton(this,{x:1090,y:18,width:150,depth:0,onClick:fn});this.page.add(b);return b;}
  button(x,y,label,fn,width=280,enabled=true){const r=this.rect(x,y,width,48,enabled?0x493b3e:0x25252c).setStrokeStyle(1,0x947956);this.text(x+12,y+12,label,17,enabled?'#f5e1ae':'#827c81',width-24);if(enabled)r.setInteractive({useHandCursor:true}).on('pointerup',fn).on('pointerover',()=>r.setFillStyle(0x625054)).on('pointerout',()=>r.setFillStyle(0x493b3e));return r;}
  go(stage){if(setDeadMailFinaleStage(stage)){this.feedback='';this.render();}}
  say(message){this.feedback=message;this.render();}
  render(){
-  this.page?.destroy(true);this.page=this.add.container(0,0);this.rect(0,0,1280,800,0x151721);const s=getDeadMailFinale();this.text(40,22,__dialogueText("scenes/DeadMailFinaleScene.js", "t_e2f7a080f60577e3c9c2"),26,'#f5b75a');this.text(40,65,__dialogueText("scenes/DeadMailFinaleScene.js", "t_bca664b516b67eae85a9"),17,'#bba4b4');this.button(1040,24,__dialogueText("scenes/DeadMailFinaleScene.js", "t_1a77240cbe32baeb7bd4"),()=>this.scene.stop(),200);
+  this.page?.destroy(true);this.page=this.add.container(0,0);this.rect(0,0,1280,800,0x151721);const s=getDeadMailFinale();this.text(40,22,__dialogueText("scenes/DeadMailFinaleScene.js", "t_e2f7a080f60577e3c9c2"),26,'#f5b75a');this.text(40,65,__dialogueText("scenes/DeadMailFinaleScene.js", "t_bca664b516b67eae85a9"),17,'#bba4b4');this.exitButton(()=>this.scene.stop());
   [['plan',__dialogueText("scenes/DeadMailFinaleScene.js", "t_4ff4528f55eec577cf17"),!s.started],['operation','DELIVERY',s.started],['records','DISCLOSURES',s.eventIndex===OPERATION_EVENTS.length-1],['report',__dialogueText("scenes/DeadMailFinaleScene.js", "t_fcb9436872aeba716773"),s.facts.length===8&&!s.completed]].forEach(([id,label,enabled],i)=>this.button(40+i*300,106,label,()=>this.go(id),280,enabled));
   const views={plan:()=>this.planView(),operation:()=>this.operationView(),records:()=>this.recordsView(),report:()=>this.reportView(),epilogue:()=>this.epilogueView()};(views[s.stage]||views.plan)();if(s.completed&&s.stage!=='epilogue')this.button(45,706,__dialogueText("scenes/DeadMailFinaleScene.js", "t_a7d102fca57529107262"),()=>this.go('epilogue'),320);this.text(40,765,__dialogueText("scenes/DeadMailFinaleScene.js", "t_24835a8917e7a63d2021"),14,'#a497a2');this.fit();
  }

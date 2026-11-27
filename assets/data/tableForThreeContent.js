@@ -2,7 +2,7 @@ export const TABLE_FOR_THREE_CONTENT = Object.freeze({
   caseId:'pi_table_for_three',
   title:'Table for Three',
   status:'development',
-  reward:null,
+  reward:175,
   company:{id:'table_for_three_company',name:null,townId:'home_town'},
   restaurant:{id:'table_for_three_restaurant',name:null,townId:null,table:6},
   pawnshop:{id:'table_for_three_pawnshop',name:null,townId:null,ringPrice:null},

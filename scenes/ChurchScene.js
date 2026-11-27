@@ -8,6 +8,7 @@ import {
 
 import * as Art from './church/ChurchArt.js';
 import { TEXT, PRIEST } from './church/ChurchText.js';
+import { preloadExitButton, addExitImageButton } from '../ui/ExitImageButton.js';
 
 const KEY = 'ChurchScene';
 const W = 1920;
@@ -92,6 +93,7 @@ export class ChurchScene extends BaseScene {
 
   preload() {
     if (super.preload) super.preload();
+    preloadExitButton(this);
 
     for (const name of FILES) {
       if (!this.textures.exists(imageKey(name))) {
@@ -561,6 +563,13 @@ export class ChurchScene extends BaseScene {
       if (this.canAct()) void this.leave();
     });
 
+    // Leaving the church uses the shared exit plank; backText stays for
+    // "BACK TO CHURCH" inside the side rooms.
+    this.exitButton = addExitImageButton(this, {
+      x: 0, y: 12, width: 170, originX: 1, depth: 20000,
+      onClick: () => { if (this.canAct()) void this.leave(); },
+    });
+
     this.panel = this.add.graphics()
       .setDepth(19990);
   }
@@ -612,8 +621,8 @@ export class ChurchScene extends BaseScene {
     for (const t of [
       this.titleText,
       this.hintText,
-      this.backText,
-    ]) {
+      this.room !== 'nave' ? this.backText : null,
+    ].filter(Boolean)) {
       const x = t.x - t.width * t.originX;
       const y = t.y - t.height * t.originY;
 
@@ -639,7 +648,8 @@ export class ChurchScene extends BaseScene {
 
     this.titleText?.setVisible(visible);
     this.hintText?.setVisible(visible);
-    this.backText?.setVisible(visible);
+    this.backText?.setVisible(visible && this.room !== 'nave');
+    this.exitButton?.setVisible(visible && this.room === 'nave');
     this.panel?.setVisible(visible);
 
     this.nav?.setVisible(
@@ -661,6 +671,7 @@ export class ChurchScene extends BaseScene {
       .setScale(s);
 
     this.backText.setX(w - 20);
+    this.exitButton?.setX(w - 20);
 
     this.hintText.setWordWrapWidth(
       Math.max(200, Math.min(620, w - 40))

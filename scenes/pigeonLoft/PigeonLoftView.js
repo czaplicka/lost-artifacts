@@ -2,6 +2,7 @@ import { dialogueText as __dialogueText } from '../../dialogues/DialogueText.js'
 import { W, H, ORDER, LOCAL, P, FONT, BEAM, BEAM_CENTER, WINDOW_FLY, LINES, pick, timeText, goldPlate } from './PigeonLoftData.js';
 import { getPigeonLoft } from '../../managers/PigeonManager.js';
 import { PIGEON_COLLECTIONS } from '../../config/pigeonConfig.js';
+import { addExitImageButton } from '../../ui/ExitImageButton.js';
 
 export const pigeonLoftView = {
   frame() {
@@ -81,7 +82,7 @@ export const pigeonLoftView = {
     this.artFrame = this.frame(); this.art('attic');
     try { this.state = getPigeonLoft(); }
     catch (error) {
-      this.makeButton(this.hud, 24, 20, 'EXIT', () => { void this.exitLoft(); });
+      this.makeExitButton(this.hud, 24, 20);
       this.showToast(error.message, __dialogueText("scenes/PigeonLoftScene.js", "t_ca00fccfb408989eddc4")); return;
     }
     this.buildAtmosphere();
@@ -159,11 +160,18 @@ export const pigeonLoftView = {
     hit.on('pointerdown', () => { if (enabled && !this.leaving && !this.debugMode) callback(); });
     draw(false); c.add([g, t, hit]); c.btnWidth = w; c.btnHeight = h; parent.add(c); return c;
   },
+  makeExitButton(parent, x, y) {
+    const h = 42, w = Math.round(h * 2.5), c = this.add.container(x, y);
+    const button = addExitImageButton(this, { x: 0, y: 0, width: w, depth: 0, onClick: () => {
+      if (!this.leaving && !this.debugMode) void this.exitLoft();
+    } });
+    c.add(button); c.btnWidth = w; c.btnHeight = h; parent.add(c); return c;
+  },
   buildHud() {
     const hud = this.hud, state = this.state;
     let x = 24;
     const place = (c, gap = 14) => { x += c.btnWidth + gap; };
-    place(this.makeButton(hud, x, 20, 'EXIT', () => { void this.exitLoft(); }));
+    place(this.makeExitButton(hud, x, 20));
     const total = PIGEON_COLLECTIONS.reduce((n, set) => n + set.ids.length, 0);
     const found = PIGEON_COLLECTIONS.reduce((n, set) => n + set.ids.filter(id => (state.collection[id] || 0) > 0).length, 0);
     place(this.makeButton(hud, x, 20, `${__dialogueText("scenes/PigeonLoftScene.js", "t_de2d9df75819aa9efa80")}${found}${__dialogueText("scenes/PigeonLoftScene.js", "t_8a5edab282632443219e")}${total}`, () => this.openModal('collection')));

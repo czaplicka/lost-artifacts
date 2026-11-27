@@ -3,7 +3,7 @@ import { dialogueText as __dialogueText } from "../dialogues/DialogueText.js";
 export const SPY_SHOP_CONFIG = {
   // Set this to the actual image path when your background is ready.
   // Example: backgroundUrl: 'assets/local/spyshop.webp',
-backgroundUrl: 'assets/local/spyshop.webp',
+backgroundUrl: 'assets/pi/city/spyshop.webp',
 backgroundKey: 'pi_spy_shop_background',
   title: __dialogueText("config/spyShopConfig.js", "t_bd13b027fbf8aaa338f2"),
   subtitle: __dialogueText("config/spyShopConfig.js", "t_adb199521c4805eb9695"),
@@ -39,6 +39,20 @@ hotspots: [
 ],
 
   itemHotspots: {
+    // Drawn in the background art (top-right shelf of the display case).
+    "videoCamera": {
+      "x": 0.922,
+      "y": 0.372,
+      "w": 0.13,
+      "h": 0.135
+    },
+    // Not in the background art: drawn on the counter (between the shopkeeper's hands) by itemImages.lockpick.
+    "lockpick": {
+      "x": 0.503,
+      "y": 0.748,
+      "w": 0.045,
+      "h": 0.075
+    },
     "camera": {
       "x": 0.79,
       "y": 0.39,
@@ -75,6 +89,13 @@ hotspots: [
       "w": 0.1,
       "h": 0.193
     }
+  },
+
+  // Item art that is not painted into the background. Each entry is drawn at
+  // its itemHotspots rectangle and used for the item preview. When url is
+  // null (no asset yet) the scene generates a pixel-art placeholder texture.
+  itemImages: {
+    lockpick: { key: 'pi_spy_shop_lockpicks', url: 'assets/pi/spy-shop/lockpicks.webp' }
   },
 
   products: [

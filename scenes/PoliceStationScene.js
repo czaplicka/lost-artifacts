@@ -26,6 +26,10 @@ import {
 } from '../managers/AudioManager.js';
 
 import {
+  createDomExitButton,
+} from '../ui/ExitImageButton.js';
+
+import {
   getPoliceWorldReaction,
   markPoliceWorldReaction,
 } from '../ui/WorldPoliceReactionHooks.js';
@@ -538,9 +542,13 @@ export class PoliceStationScene extends BaseScene {
     const controls = document.createElement('div');
     controls.className = 'police-controls';
 
-    this.exitButton = this.makeButton(
-      B('t_c4002f3643a1871c17e6'),
-      () => void this.leave()
+    this.exitButton = createDomExitButton(
+      () => {
+        if (!this.disposed && !this.navigating) {
+          void this.leave();
+        }
+      },
+      { label: B('t_c4002f3643a1871c17e6') }
     );
 
     controls.append(this.exitButton);
@@ -611,6 +619,8 @@ export class PoliceStationScene extends BaseScene {
           void this.leave();
         } else if (cfg.id === 'officer') {
           this.openConversation();
+        } else if (cfg.id === 'staff-door') {
+          void this.openStaffDoor();
         } else {
           this.inspect(cfg.id);
         }
@@ -1310,6 +1320,57 @@ export class PoliceStationScene extends BaseScene {
         this.refreshInteraction();
       }
     }
+  }
+
+  // The detective bureau (Sgt. Quill's line-up cases) opens to detectives the
+  // desk already trusts; until then the door is only something to look at.
+  async openStaffDoor() {
+    if (!hasCompletedPolicePIQuest()) {
+      this.inspect('staff-door');
+      return false;
+    }
+
+    if (
+      this.coldCaseUI ||
+      this.coldCaseLoading ||
+      this.disposed ||
+      this.navigating
+    ) {
+      return false;
+    }
+
+    this.stopStationAudio();
+    this.navigating = true;
+    this.refreshInteraction();
+    this.hoverLabel?.setVisible(false);
+
+    const token = this.runToken;
+    let result = false;
+
+    try {
+      result = await this.goto('PrecinctOfficeScene', {
+        fromScene: KEY,
+        gameState,
+      });
+    } catch (error) {
+      console.error(
+        '[PoliceStationScene] Bureau navigation failed:',
+        error
+      );
+    }
+
+    if (this.disposed || this.runToken !== token) {
+      return result !== false;
+    }
+
+    this.navigating = false;
+    this.refreshInteraction();
+
+    if (this.sys.isActive()) {
+      this.startStationAudio();
+    }
+
+    return result !== false;
   }
 
   async leave() {
